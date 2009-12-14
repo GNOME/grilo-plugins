@@ -6,13 +6,20 @@
 static void 
 search_cb (MediaSource *source,
 	   guint browse_id,
-	   const gchar *media_id,
-	   GHashTable *metadata,
+           Content *media,
 	   guint remaining,
 	   gpointer user_data,
 	   const GError *error)
 {
-  g_print ("  Got video id: %s\n", media_id);
+  const GValue *value = NULL;
+
+  if (media) {
+    value = content_get (media, "id");
+  }
+
+  if (value) {
+    g_print ("  Got video id: %s\n", g_value_get_string (value));
+  }
 }
 
 gint

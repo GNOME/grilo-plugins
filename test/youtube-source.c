@@ -169,11 +169,14 @@ youtube_source_browse (MediaSource *source,
   while (((xml = strstr (xml, "<entry>")) != NULL)) {
     gchar *id, *title, *author, *description, *url;
     youtube_parse_response (&xml, &id, &title, &author, &description, &url);
-    GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
-    g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_URL), url);
-    g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_TITLE), title);
+    Content *content = content_new ();
+    content_set_string (content, "id", id);
+    content_set_string (content, "url", url);
+    content_set_string (content, "title", title);
+    content_set_string (content, "author", author);
+    content_set_string (content, "description", description);
     n++;
-    callback (source, 0, id, table, 25 - n, user_data, NULL);
+    callback (source, 0, content, 25 - n, user_data, NULL);
   }
 
   return 0;
@@ -218,11 +221,14 @@ youtube_source_search (MediaSource *source,
   while (((xml = strstr (xml, "<entry>")) != NULL)) {
     gchar *id, *title, *author, *description, *url;
     youtube_parse_response (&xml, &id, &title, &author, &description, &url);
-    GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
-    g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_URL), url);
-    g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_TITLE), title);
+    Content *content = content_new ();
+    content_set_string (content, "id", id);
+    content_set_string (content, "url", url);
+    content_set_string (content, "title", title);
+    content_set_string (content, "author", author);
+    content_set_string (content, "description", description);
     n++;
-    callback (source, 0, id, table, 10 - n, user_data, NULL);
+    callback (source, 0, content, 10 - n, user_data, NULL);
   }
 
   return 0;

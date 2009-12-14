@@ -7,7 +7,7 @@
 #include "plugin-registry.h"
 
 static void
-print_metadata (gpointer k, gpointer v, gpointer user_data)
+print_hmetadata (gpointer k, gpointer v, gpointer user_data)
 {
   PluginRegistry *registry = plugin_registry_get_instance ();
   const MetadataKey *key = 
@@ -15,21 +15,38 @@ print_metadata (gpointer k, gpointer v, gpointer user_data)
   g_print ("    %s: %s\n", METADATA_KEY_NAME (key), (gchar *) v);
 }
 
+static void
+print_metadata (gchar *key, Content *content)
+{
+  if (strcmp(key, "description")) {
+    const GValue *value = content_get (content, key);
+    if (value && G_VALUE_HOLDS_STRING (value)) {
+      g_print ("\t%s: %s\n", key, g_value_get_string (value));
+    } else if (value && G_VALUE_HOLDS_INT (value)) {
+      g_print ("\t%s: %d\n", key, g_value_get_int (value));
+    }
+  }
+}
+
 static void 
 browse_cb (MediaSource *source,
 	   guint browse_id,
-	   const gchar *media_id,
-	   GHashTable *metadata,
+           Content *media,
 	   guint remaining,
 	   gpointer user_data,
 	   const GError *error)
 {
-  g_print ("  browse/search result callback (%s)\n", media_id);
+  GList *keys;
 
-  if (!metadata)
+  g_print ("  browse/search result callback (%d)\n", browse_id);
+
+  if (!media)
     return;
 
-  g_hash_table_foreach (metadata, print_metadata, NULL);
+  keys = content_get_keys (media);
+  g_list_foreach (keys, (GFunc) print_metadata, media);
+  g_list_free (keys);
+  g_object_unref (media);
 }
 
 static void
@@ -44,7 +61,7 @@ metadata_cb (MetadataSource *source,
   if (!metadata)
     return;
 
-  g_hash_table_foreach (metadata, print_metadata, NULL);
+  g_hash_table_foreach (metadata, print_hmetadata, NULL);
 }
 
 gint

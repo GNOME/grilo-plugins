@@ -58,7 +58,7 @@ fake_media_source_browse (MediaSource *source,
 {
   g_print ("fake_media_source_browse\n");
 
-  callback (source, 0, "media-id", NULL, 0, user_data, NULL);
+  callback (source, 0, NULL, 0, user_data, NULL);
 
   return 0;
 }
@@ -74,7 +74,7 @@ fake_media_source_search (MediaSource *source,
 {
   g_print ("fake_media_source_search\n");
 
-  callback (source, 0, "media-id", NULL, 0, user_data, NULL);
+  callback (source, 0, NULL, 0, user_data, NULL);
 
   return 0;
 }

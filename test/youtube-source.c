@@ -23,7 +23,6 @@
 #include "youtube-source.h"
 #include "../src/plugin-registry.h"
 
-
 #include <glib.h>
 #include <libgnomevfs/gnome-vfs.h>
 #include <gmodule.h>
@@ -97,7 +96,7 @@ youtube_parse_response (gchar **xml,
 			gchar **description,
 			gchar **url)
 {
-    /* ID URL */
+    /* ID */
     *xml = strstr (*xml, "<id>");
     gchar *d_start = *xml + 4;
     gchar *d_end = strstr (d_start, "</id>");
@@ -171,12 +170,9 @@ youtube_source_browse (MediaSource *source,
   while (((xml = strstr (xml, "<entry>")) != NULL)) {
     gchar *id, *title, *author, *description, *url;
     youtube_parse_response (&xml, &id, &title, &author, &description, &url);
-    GHashTable *table = g_hash_table_new (g_str_hash, g_str_equal);
-    g_hash_table_insert (table, "id", id);
-    g_hash_table_insert (table, "url", url);
-    g_hash_table_insert (table, "title", title);
-    g_hash_table_insert (table, "author", author);
-    g_hash_table_insert (table, "description", description);
+    GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
+    g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_URL), url);
+    g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_TITLE), title);
     n++;
     callback (source, 0, id, table, 25 - n, user_data, NULL);
   }
@@ -223,12 +219,9 @@ youtube_source_search (MediaSource *source,
   while (((xml = strstr (xml, "<entry>")) != NULL)) {
     gchar *id, *title, *author, *description, *url;
     youtube_parse_response (&xml, &id, &title, &author, &description, &url);
-    GHashTable *table = g_hash_table_new (g_str_hash, g_str_equal);
-    g_hash_table_insert (table, "id", id);
-    g_hash_table_insert (table, "url", url);
-    g_hash_table_insert (table, "title", title);
-    g_hash_table_insert (table, "author", author);
-    g_hash_table_insert (table, "description", description);
+    GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
+    g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_URL), url);
+    g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_TITLE), title);
     n++;
     callback (source, 0, id, table, 10 - n, user_data, NULL);
   }
@@ -272,15 +265,29 @@ youtube_source_metadata (MetadataSource *source,
   xml = strstr (xml, "<entry>");
   gchar *id, *title, *author, *description, *url;
   youtube_parse_response (&xml, &id, &title, &author, &description, &url);
-  GHashTable *table = g_hash_table_new (g_str_hash, g_str_equal);
-  g_hash_table_insert (table, "id", id);
-  g_hash_table_insert (table, "url", url);
-  g_hash_table_insert (table, "title", title);
-  g_hash_table_insert (table, "author", author);
-  g_hash_table_insert (table, "description", description);
+
+  GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
+  g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_URL), url);
+  g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_TITLE), title);
 
   callback (source, id, table , user_data, NULL);
 }
+
+static KeyID *
+youtube_source_key_depends (MetadataSource *source, KeyID key_id)
+{
+  return NULL;
+}
+
+static const KeyID *
+youtube_source_supported_keys (MetadataSource *source)
+{
+  static const KeyID keys[] = { METADATA_KEY_TITLE, 
+				METADATA_KEY_URL, 0 };
+  return keys;
+}
+
+
 
 static void
 youtube_source_class_init (YoutubeSourceClass * klass)
@@ -290,7 +297,8 @@ youtube_source_class_init (YoutubeSourceClass * klass)
   source_class->browse = youtube_source_browse;
   source_class->search = youtube_source_search;
   metadata_class->metadata = youtube_source_metadata;
-  metadata_class->supported_keys = NULL;
+  metadata_class->supported_keys = youtube_source_supported_keys;
+  metadata_class->key_depends = youtube_source_key_depends;
 }
 
 static void

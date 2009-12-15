@@ -4,12 +4,15 @@
 #include "fake-source.h"
 #include "youtube-source.h"
 #include "fake-metadata-source.h"
+#include "plugin-registry.h"
 
 static void
 print_metadata (gpointer k, gpointer v, gpointer user_data)
 {
-  if (strcmp ((gchar *)k, "description"))
-    g_print ("    %s: %s\n", (gchar *) k, (gchar *) v);
+  PluginRegistry *registry = plugin_registry_get_instance ();
+  const MetadataKey *key = 
+    plugin_registry_lookup_metadata_key (registry, GPOINTER_TO_INT (k));
+  g_print ("    %s: %s\n", METADATA_KEY_NAME (key), (gchar *) v);
 }
 
 static void 

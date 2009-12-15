@@ -18,13 +18,16 @@ print_hmetadata (gpointer k, gpointer v, gpointer user_data)
 static void
 print_metadata (gchar *key, Content *content)
 {
-  if (strcmp(key, "description")) {
-    const GValue *value = content_get (content, key);
-    if (value && G_VALUE_HOLDS_STRING (value)) {
-      g_print ("\t%s: %s\n", key, g_value_get_string (value));
-    } else if (value && G_VALUE_HOLDS_INT (value)) {
-      g_print ("\t%s: %d\n", key, g_value_get_int (value));
-    }
+  /* Do not print "comment" */
+  if (strcmp (key, "comment") == 0) {
+    return;
+  }
+
+  const GValue *value = content_get (CONTENT(content), key);
+  if (value && G_VALUE_HOLDS_STRING (value)) {
+    g_print ("\t%s: %s\n", key, g_value_get_string (value));
+  } else if (value && G_VALUE_HOLDS_INT (value)) {
+    g_print ("\t%s: %d\n", key, g_value_get_int (value));
   }
 }
 

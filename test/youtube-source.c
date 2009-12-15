@@ -22,6 +22,7 @@
 
 #include "youtube-source.h"
 #include "../src/plugin-registry.h"
+#include "../src/content/content-media.h"
 
 #include <glib.h>
 #include <libgnomevfs/gnome-vfs.h>
@@ -169,14 +170,14 @@ youtube_source_browse (MediaSource *source,
   while (((xml = strstr (xml, "<entry>")) != NULL)) {
     gchar *id, *title, *author, *description, *url;
     youtube_parse_response (&xml, &id, &title, &author, &description, &url);
-    Content *content = content_new ();
-    content_set_string (content, "id", id);
-    content_set_string (content, "url", url);
-    content_set_string (content, "title", title);
-    content_set_string (content, "author", author);
-    content_set_string (content, "description", description);
+    ContentMedia *content = content_media_new ();
+    content_media_set_id (content, id);
+    content_media_set_url (content, url);
+    content_media_set_title (content, title);
+    content_media_set_author (content, author);
+    content_media_set_comment (content, description);
     n++;
-    callback (source, 0, content, 25 - n, user_data, NULL);
+    callback (source, 0, CONTENT(content), 25 - n, user_data, NULL);
   }
 
   return 0;
@@ -221,14 +222,14 @@ youtube_source_search (MediaSource *source,
   while (((xml = strstr (xml, "<entry>")) != NULL)) {
     gchar *id, *title, *author, *description, *url;
     youtube_parse_response (&xml, &id, &title, &author, &description, &url);
-    Content *content = content_new ();
-    content_set_string (content, "id", id);
-    content_set_string (content, "url", url);
-    content_set_string (content, "title", title);
-    content_set_string (content, "author", author);
-    content_set_string (content, "description", description);
+    ContentMedia *content = content_media_new ();
+    content_media_set_id (content, id);
+    content_media_set_url (content, url);
+    content_media_set_title (content, title);
+    content_media_set_author (content, author);
+    content_media_set_comment (content, description);
     n++;
-    callback (source, 0, content, 10 - n, user_data, NULL);
+    callback (source, 0, CONTENT(content), 10 - n, user_data, NULL);
   }
 
   return 0;

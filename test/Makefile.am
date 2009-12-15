@@ -32,18 +32,10 @@ testreg_LDADD = -ldl -lpthread @DEPS_LIBS@
 lib_LTLIBRARIES		 = libyoutubesource.la libfakesource.la libfakemetadatasource.la
 
 libyoutubesource_la_CFLAGS	 = $(DEPS_CFLAGS) @VFS_CFLAGS@
-libyoutubesource_la_LIBADD	 = $(DEPS_LIBS) @VFS_LIBS@ 
-libyoutubesource_la_SOURCES      = youtube-source.c youtube-source.h
+libyoutubesource_la_LIBADD	 = $(DEPS_LIBS) @VFS_LIBS@
 
-libfakemetadatasource_la_CFLAGS	 = $(DEPS_CFLAGS)
-libfakemetadatasource_la_LIBADD	 = $(DEPS_LIBS) 
-libfakemetadatasource_la_SOURCES = fake-metadata-source.c fake-metadata-source.h
-
-libfakesource_la_CFLAGS	 = $(DEPS_CFLAGS)
-libfakesource_la_LIBADD	 = $(DEPS_LIBS) 
-libfakesource_la_SOURCES = fake-source.c fake-source.h
-
-
+libyoutubesource_la_SOURCES = \
+	youtube-source.c youtube-source.h
 
 MAINTAINERCLEANFILES = \
 	*.in \

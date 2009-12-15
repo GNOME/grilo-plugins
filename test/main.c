@@ -73,18 +73,12 @@ main (void)
 
   g_print ("testing properties\n");
   
-  g_object_get (source, "plugin-name", &name, NULL);
-  g_print ("Plugin Name: %s\n", name);
   g_object_get (source, "source-name", &name, NULL);
   g_print ("  Source Name: %s\n", name);
 
-  g_object_get (youtube, "plugin-name", &name, NULL);
-  g_print ("Plugin Name: %s\n", name);
   g_object_get (youtube, "source-name", &name, NULL);
   g_print ("  Source Name: %s\n", name);
 
-  g_object_get (metadata_source, "plugin-name", &name, NULL);
-  g_print ("Plugin Name: %s\n", name);
   g_object_get (metadata_source, "source-name", &name, NULL);
   g_print ("  Source Name: %s\n", name);
 

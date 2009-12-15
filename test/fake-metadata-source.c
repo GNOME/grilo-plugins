@@ -54,9 +54,6 @@ FakeMetadataSource *
 fake_metadata_source_new (void)
 {
   return g_object_new (FAKE_METADATA_SOURCE_TYPE,
-		       "plugin-name", "Fake Metadata Source Plugin",
-		       "plugin-id", "fake-metadata-source-plugin-id",
-		       "plugin-desc", "A Fake metadata source plugin",
 		       "source-id", "FakeMetadataSourceId",
 		       "source-name", "Fake Metadata Source",
 		       "source-desc", "A fake metadata source",

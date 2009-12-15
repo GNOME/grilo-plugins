@@ -89,9 +89,6 @@ FakeMediaSource *
 fake_media_source_new (void)
 {
   return g_object_new (FAKE_MEDIA_SOURCE_TYPE,
-		       "plugin-name", "Fake Media Source Plugin",
-		       "plugin-id", "fake-media-source-plugin-id",
-		       "plugin-desc", "A Fake media source plugin",
 		       "source-id", "FakeMediaSourceId",
 		       "source-name", "Fake Media Source",
 		       "source-desc", "A fake media source",

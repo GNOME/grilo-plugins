@@ -25,7 +25,6 @@
 
 #include <glib.h>
 #include <libgnomevfs/gnome-vfs.h>
-#include <gmodule.h>
 #include <string.h>
 
 gboolean youtube_plugin_init (PluginRegistry *registry, const PluginInfo *plugin);
@@ -135,7 +134,7 @@ youtube_parse_response (gchar **xml,
 static guint
 youtube_source_browse (MediaSource *source, 
 		       const gchar *container_id,
-		       const gchar *const *keys,
+		       const KeyID *keys,
 		       guint skip,
 		       guint count,
 		       MediaSourceResultCb callback,
@@ -232,7 +231,7 @@ youtube_source_search (MediaSource *source,
 static void
 youtube_source_metadata (MetadataSource *source,
 			 const gchar *object_id,
-			 const gchar *const *keys,
+			 const KeyID *keys,
 			 MetadataSourceResultCb callback,
 			 gpointer user_data)
 {
@@ -286,8 +285,6 @@ youtube_source_supported_keys (MetadataSource *source)
 				METADATA_KEY_URL, 0 };
   return keys;
 }
-
-
 
 static void
 youtube_source_class_init (YoutubeSourceClass * klass)

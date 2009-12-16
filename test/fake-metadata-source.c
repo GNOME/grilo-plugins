@@ -21,13 +21,36 @@
  */
 
 #include "fake-metadata-source.h"
+#include "../src/plugin-registry.h"
 
 #include <glib.h>
+
+gboolean fake_metadata_plugin_init (PluginRegistry *registry, 
+				    const PluginInfo *plugin);
+
+PLUGIN_REGISTER (fake_metadata_plugin_init, 
+		 NULL, 
+		 "fake-metadata-plugin-id", 
+		 "Fake Metadata Plugin", 
+		 "A plugin for faking metadata", 
+		 "0.0.1",
+		 "Igalia S.L.", 
+		 "LGPL", 
+		 "http://www.igalia.com");
+
+gboolean
+fake_metadata_plugin_init (PluginRegistry *registry, const PluginInfo *plugin)
+{
+  g_print ("fake_metadata_plugin_init\n");
+  FakeMetadataSource *source = fake_metadata_source_new ();
+  plugin_registry_register_source (registry, plugin, MEDIA_PLUGIN (source));
+  return TRUE;
+}
 
 static void
 fake_metadata_source_metadata (MetadataSource *source,
 			    const gchar *object_id,
-			    const gchar *const *keys,
+			    const KeyID *keys,
 			    MetadataSourceResultCb callback,
 			    gpointer user_data)
 {
@@ -36,11 +59,29 @@ fake_metadata_source_metadata (MetadataSource *source,
   callback (source, "metadata-id", NULL, NULL, NULL);
 }
 
+static const KeyID *
+fake_metadata_source_supported_keys (MetadataSource *source)
+{
+  static const KeyID keys[] = { METADATA_KEY_TITLE, 
+				METADATA_KEY_URL, 
+				METADATA_KEY_GENRE,
+				0 };
+  return keys;
+}
+
+static KeyID *
+fake_metadata_source_key_depends (MetadataSource *source, KeyID key_id)
+{
+  return NULL;
+}
+
 static void
 fake_metadata_source_class_init (FakeMetadataSourceClass * klass)
 {
   MetadataSourceClass *metadata_class = METADATA_SOURCE_CLASS (klass);
   metadata_class->metadata = fake_metadata_source_metadata;
+  metadata_class->supported_keys = fake_metadata_source_supported_keys;
+  metadata_class->key_depends = fake_metadata_source_key_depends;;
 }
 
 static void
@@ -59,3 +100,4 @@ fake_metadata_source_new (void)
 		       "source-desc", "A fake metadata source",
 		       NULL);
 }
+

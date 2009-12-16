@@ -51,26 +51,40 @@ gint
 main (void)
 {
   gchar *name;
+  KeyID keys[] = { METADATA_KEY_TITLE, METADATA_KEY_URL, METADATA_KEY_ALBUM,
+		   METADATA_KEY_ARTIST, METADATA_KEY_GENRE, 0};
 
   g_type_init ();
 
   g_print ("start\n");
 
-  MediaSource *source = MEDIA_SOURCE (fake_media_source_new ());
-  MetadataSource *metadata_source = METADATA_SOURCE (fake_metadata_source_new ());
-  MediaSource *youtube = MEDIA_SOURCE (youtube_source_new ());
+  g_print ("loading plugins\n");
+
+  PluginRegistry *registry = plugin_registry_get_instance ();
+  plugin_registry_load_all (registry);
+
+  g_print ("Obtaining sources\n");
+
+  MediaSource *source = 
+    (MediaSource *) plugin_registry_lookup_source (registry, "FakeMediaSourceId");
+  MetadataSource *metadata_source = 
+    (MetadataSource *) plugin_registry_lookup_source (registry, "FakeMetadataSourceId");
+  MediaSource *youtube = 
+    (MediaSource *) plugin_registry_lookup_source (registry, "YoutubeSourceId");
+
+  g_assert (source && metadata_source && youtube);
 
   g_print ("sources created\n");
 
   g_print ("Testing methods\n");
 
-  media_source_browse (source, NULL, NULL, 0, 0, 0, browse_cb, NULL);
-  media_source_search (source, NULL, NULL, 0, 0, 0, browse_cb, NULL);
-  metadata_source_get (METADATA_SOURCE (source), NULL, NULL, metadata_cb, NULL);
+  if (0) media_source_browse (source, NULL, NULL, 0, 0, 0, browse_cb, NULL);
+  if (0) media_source_search (source, NULL, NULL, 0, 0, 0, browse_cb, NULL);
+  if (0) metadata_source_get (METADATA_SOURCE (source), NULL, NULL, metadata_cb, NULL);
 
-  media_source_browse (youtube, NULL, NULL, 0, 0, 0, browse_cb, NULL);
-  media_source_search (youtube, "igalia", NULL, 0, 0, 0, browse_cb, NULL);
-  metadata_source_get (METADATA_SOURCE (youtube), "IQJx4YL3Pl8", NULL, metadata_cb, NULL);
+  media_source_browse (youtube, NULL, keys, 0, 0, METADATA_RESOLUTION_FULL, browse_cb, NULL);
+  if (0) media_source_search (youtube, "igalia", NULL, 0, 0, 0, browse_cb, NULL);
+  if (0) metadata_source_get (METADATA_SOURCE (youtube), "IQJx4YL3Pl8", NULL, metadata_cb, NULL);
 
   metadata_source_get (metadata_source, NULL, NULL, metadata_cb, NULL);
 

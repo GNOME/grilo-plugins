@@ -21,13 +21,36 @@
  */
 
 #include "fake-source.h"
+#include "../src/plugin-registry.h"
 
 #include <glib.h>
+
+gboolean fake_media_plugin_init (PluginRegistry *registry, 
+				 const PluginInfo *plugin);
+
+PLUGIN_REGISTER (fake_media_plugin_init, 
+		 NULL, 
+		 "fake-media-plugin-id", 
+		 "Fake Media Source Plugin", 
+		 "A plugin for faking media", 
+		 "0.0.1",
+		 "Igalia S.L.", 
+		 "LGPL", 
+		 "http://www.igalia.com");
+
+gboolean
+fake_media_plugin_init (PluginRegistry *registry, const PluginInfo *plugin)
+{
+  g_print ("fake_media_plugin_init\n");
+  FakeMediaSource *source = fake_media_source_new ();
+  plugin_registry_register_source (registry, plugin, MEDIA_PLUGIN (source));
+  return TRUE;
+}
 
 static guint
 fake_media_source_browse (MediaSource *source, 
 			  const gchar *container_id,
-			  const gchar *const *keys,
+			  const KeyID *keys,
 			  guint skip,
 			  guint count,
 			  MediaSourceResultCb callback,
@@ -59,7 +82,7 @@ fake_media_source_search (MediaSource *source,
 static void
 fake_media_source_metadata (MetadataSource *source,
 			    const gchar *object_id,
-			    const gchar *const *keys,
+			    const KeyID *keys,
 			    MetadataSourceResultCb callback,
 			    gpointer user_data)
 {
@@ -68,6 +91,25 @@ fake_media_source_metadata (MetadataSource *source,
   callback (source, "media-id", NULL, NULL, NULL);
 }
 
+
+static KeyID *
+fake_media_source_key_depends (MetadataSource *source, KeyID key_id)
+{
+  return NULL;
+}
+
+static const KeyID *
+fake_media_source_supported_keys (MetadataSource *source)
+{
+  static const KeyID keys[] = { METADATA_KEY_TITLE, 
+				METADATA_KEY_URL, 
+				METADATA_KEY_ARTIST,
+				METADATA_KEY_THUMBNAIL,
+				METADATA_KEY_GENRE,
+				METADATA_KEY_ALBUM,
+				0 };
+  return keys;
+}
 static void
 fake_media_source_class_init (FakeMediaSourceClass * klass)
 {
@@ -76,6 +118,8 @@ fake_media_source_class_init (FakeMediaSourceClass * klass)
   source_class->browse = fake_media_source_browse;
   source_class->search = fake_media_source_search;
   metadata_class->metadata = fake_media_source_metadata;
+  metadata_class->supported_keys = fake_media_source_supported_keys;
+  metadata_class->key_depends = fake_media_source_key_depends;
 }
 
 static void

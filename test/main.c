@@ -16,18 +16,18 @@ print_hmetadata (gpointer k, gpointer v, gpointer user_data)
 }
 
 static void
-print_metadata (gchar *key, Content *content)
+print_metadata (Content *content, gint key)
 {
   /* Do not print "comment" */
-  if (strcmp (key, "comment") == 0) {
+  if (key == METADATA_KEY_DESCRIPTION) {
     return;
   }
 
   const GValue *value = content_get (CONTENT(content), key);
   if (value && G_VALUE_HOLDS_STRING (value)) {
-    g_print ("\t%s: %s\n", key, g_value_get_string (value));
+    g_print ("\t%d: %s\n", key, g_value_get_string (value));
   } else if (value && G_VALUE_HOLDS_INT (value)) {
-    g_print ("\t%s: %d\n", key, g_value_get_int (value));
+    g_print ("\t%d: %d\n", key, g_value_get_int (value));
   }
 }
 
@@ -39,16 +39,20 @@ browse_cb (MediaSource *source,
 	   gpointer user_data,
 	   const GError *error)
 {
-  GList *keys;
+  gint *keys;
+  gint size;
+  gint i;
 
   g_print ("  browse/search result callback (%d)\n", browse_id);
 
   if (!media)
     return;
 
-  keys = content_get_keys (media);
-  g_list_foreach (keys, (GFunc) print_metadata, media);
-  g_list_free (keys);
+  keys = content_get_keys (media, &size);
+  for (i = 0; i < size; i++) {
+    print_metadata (media, keys[i]);
+  }
+  g_free (keys);
   g_object_unref (media);
 }
 

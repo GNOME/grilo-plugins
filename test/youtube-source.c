@@ -175,7 +175,7 @@ youtube_source_browse (MediaSource *source,
     content_media_set_url (content, url);
     content_media_set_title (content, title);
     content_media_set_author (content, author);
-    content_media_set_comment (content, description);
+    content_media_set_description(content, description);
     n++;
     callback (source, 0, CONTENT(content), 25 - n, user_data, NULL);
   }
@@ -227,7 +227,7 @@ youtube_source_search (MediaSource *source,
     content_media_set_url (content, url);
     content_media_set_title (content, title);
     content_media_set_author (content, author);
-    content_media_set_comment (content, description);
+    content_media_set_description(content, description);
     n++;
     callback (source, 0, CONTENT(content), 10 - n, user_data, NULL);
   }

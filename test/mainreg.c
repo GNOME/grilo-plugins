@@ -14,7 +14,7 @@ search_cb (MediaSource *source,
   const GValue *value = NULL;
 
   if (media) {
-    value = content_get (media, "id");
+    value = content_get (media, METADATA_KEY_ID);
   }
 
   if (value) {

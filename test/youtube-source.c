@@ -28,11 +28,13 @@
 #include <libgnomevfs/gnome-vfs.h>
 #include <string.h>
 
+#define PLUGIN_ID "youtube-plugin-id"
+
 gboolean youtube_plugin_init (PluginRegistry *registry, const PluginInfo *plugin);
 
 PLUGIN_REGISTER (youtube_plugin_init, 
 		 NULL, 
-		 "youtube-plugin-id", 
+                 PLUGIN_ID,
 		 "Youtube plugin", 
 		 "A plugin for browsing youtube videos", 
 		 "0.0.1",
@@ -171,6 +173,7 @@ youtube_source_browse (MediaSource *source,
     gchar *id, *title, *author, *description, *url;
     youtube_parse_response (&xml, &id, &title, &author, &description, &url);
     ContentMedia *content = content_media_new ();
+    content_media_set_source (content, PLUGIN_ID);
     content_media_set_id (content, id);
     content_media_set_url (content, url);
     content_media_set_title (content, title);
@@ -223,6 +226,7 @@ youtube_source_search (MediaSource *source,
     gchar *id, *title, *author, *description, *url;
     youtube_parse_response (&xml, &id, &title, &author, &description, &url);
     ContentMedia *content = content_media_new ();
+    content_media_set_source (content, PLUGIN_ID);
     content_media_set_id (content, id);
     content_media_set_url (content, url);
     content_media_set_title (content, title);

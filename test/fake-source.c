@@ -104,9 +104,6 @@ fake_media_source_supported_keys (MetadataSource *source)
   static const KeyID keys[] = { METADATA_KEY_TITLE, 
 				METADATA_KEY_URL, 
 				METADATA_KEY_ARTIST,
-				METADATA_KEY_THUMBNAIL,
-				METADATA_KEY_GENRE,
-				METADATA_KEY_ALBUM,
 				0 };
   return keys;
 }

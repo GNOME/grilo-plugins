@@ -64,7 +64,10 @@ fake_metadata_source_supported_keys (MetadataSource *source)
 {
   static const KeyID keys[] = { METADATA_KEY_TITLE, 
 				METADATA_KEY_URL, 
+				METADATA_KEY_ALBUM,
+				METADATA_KEY_ARTIST,
 				METADATA_KEY_GENRE,
+				METADATA_KEY_THUMBNAIL,
 				0 };
   return keys;
 }
@@ -76,12 +79,40 @@ fake_metadata_source_key_depends (MetadataSource *source, KeyID key_id)
 }
 
 static void
+fake_metadata_source_resolve_metadata (MetadataSource *source,
+				       KeyID *keys,
+				       GHashTable *metadata)
+{
+  while (*keys) {
+    switch (*keys) {
+    case METADATA_KEY_ALBUM:
+      g_hash_table_insert (metadata, GINT_TO_POINTER (*keys), "fake-album");
+      break;
+    case METADATA_KEY_ARTIST:
+      g_hash_table_insert (metadata, GINT_TO_POINTER (*keys), "fake-artist");
+      break;
+    case METADATA_KEY_GENRE:
+      g_hash_table_insert (metadata, GINT_TO_POINTER (*keys), "fake-genre");
+      break;
+    case METADATA_KEY_THUMBNAIL:
+      g_hash_table_insert (metadata, GINT_TO_POINTER (*keys), 
+			   "http://fake-thumbnail.com/fake-thumbnail.jpg");
+      break;
+    default:
+      break;
+    }
+    keys++;
+  }
+}
+
+static void
 fake_metadata_source_class_init (FakeMetadataSourceClass * klass)
 {
   MetadataSourceClass *metadata_class = METADATA_SOURCE_CLASS (klass);
   metadata_class->metadata = fake_metadata_source_metadata;
   metadata_class->supported_keys = fake_metadata_source_supported_keys;
-  metadata_class->key_depends = fake_metadata_source_key_depends;;
+  metadata_class->key_depends = fake_metadata_source_key_depends;
+  metadata_class->resolve = fake_metadata_source_resolve_metadata;
 }
 
 static void

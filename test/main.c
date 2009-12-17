@@ -16,7 +16,7 @@ print_hmetadata (gpointer k, gpointer v, gpointer user_data)
 }
 
 static void
-print_metadata (Content *content, gint key)
+print_metadata (Content *content, KeyID key)
 {
   /* Do not print "comment" */
   if (key == METADATA_KEY_DESCRIPTION) {
@@ -39,7 +39,7 @@ browse_cb (MediaSource *source,
 	   gpointer user_data,
 	   const GError *error)
 {
-  gint *keys;
+  KeyID *keys;
   gint size;
   gint i;
 

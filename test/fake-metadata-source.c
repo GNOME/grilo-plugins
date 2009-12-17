@@ -22,6 +22,7 @@
 
 #include "fake-metadata-source.h"
 #include "../src/plugin-registry.h"
+#include "../src/content/content-media.h"
 
 #include <glib.h>
 
@@ -81,22 +82,22 @@ fake_metadata_source_key_depends (MetadataSource *source, KeyID key_id)
 static void
 fake_metadata_source_resolve_metadata (MetadataSource *source,
 				       KeyID *keys,
-				       GHashTable *metadata)
+                                       Content *media)
 {
   while (*keys) {
     switch (*keys) {
     case METADATA_KEY_ALBUM:
-      g_hash_table_insert (metadata, GINT_TO_POINTER (*keys), "fake-album");
+      content_set_string (media, METADATA_KEY_ALBUM, "fake-album");
       break;
     case METADATA_KEY_ARTIST:
-      g_hash_table_insert (metadata, GINT_TO_POINTER (*keys), "fake-artist");
+      content_set_string (media, METADATA_KEY_ARTIST, "fake-artist");
       break;
     case METADATA_KEY_GENRE:
-      g_hash_table_insert (metadata, GINT_TO_POINTER (*keys), "fake-genre");
+      content_set_string (media, METADATA_KEY_GENRE, "fake-genre");
       break;
     case METADATA_KEY_THUMBNAIL:
-      g_hash_table_insert (metadata, GINT_TO_POINTER (*keys), 
-			   "http://fake-thumbnail.com/fake-thumbnail.jpg");
+      content_media_set_thumbnail (CONTENT_MEDIA (media),
+                                   "http://fake-thumbnail.com/fake-thumbnail.jpg");
       break;
     default:
       break;

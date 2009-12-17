@@ -11,8 +11,8 @@ print_hmetadata (gpointer k, gpointer v, gpointer user_data)
 {
   PluginRegistry *registry = plugin_registry_get_instance ();
   const MetadataKey *key = 
-    plugin_registry_lookup_metadata_key (registry, GPOINTER_TO_INT (k));
-  g_print ("    %s: %s\n", METADATA_KEY_NAME (key), (gchar *) v);
+    plugin_registry_lookup_metadata_key (registry, GPOINTER_TO_UINT (k));
+  g_print ("    %s: %s\n", METADATA_KEY_GET_NAME (key), (gchar *) v);
 }
 
 static void
@@ -25,9 +25,9 @@ print_metadata (Content *content, KeyID key)
 
   const GValue *value = content_get (CONTENT(content), key);
   if (value && G_VALUE_HOLDS_STRING (value)) {
-    g_print ("\t%d: %s\n", key, g_value_get_string (value));
+    g_print ("\t%" KEYID_FORMAT ": %s\n", key, g_value_get_string (value));
   } else if (value && G_VALUE_HOLDS_INT (value)) {
-    g_print ("\t%d: %d\n", key, g_value_get_int (value));
+    g_print ("\t%" KEYID_FORMAT ": %d\n", key, g_value_get_int (value));
   }
 }
 

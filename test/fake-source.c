@@ -117,7 +117,9 @@ fake_media_source_supported_keys (MetadataSource *source)
 static void
 fake_media_source_resolve_metadata (MetadataSource *source,
 				    KeyID *keys,
-				    Content *media)
+				    Content *media,
+				    MetadataSourceResolveCb callback,
+				    gpointer user_data)
 {
   while (*keys) {
     switch (*keys) {
@@ -129,6 +131,8 @@ fake_media_source_resolve_metadata (MetadataSource *source,
     }
     keys++;
   }
+
+  callback (source, media, user_data, NULL);
 }
 
 static void

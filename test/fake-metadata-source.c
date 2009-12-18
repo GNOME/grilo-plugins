@@ -69,6 +69,7 @@ fake_metadata_source_supported_keys (MetadataSource *source)
 				METADATA_KEY_ARTIST,
 				METADATA_KEY_GENRE,
 				METADATA_KEY_THUMBNAIL,
+				METADATA_KEY_LYRICS,
 				0 };
   return keys;
 }
@@ -76,7 +77,23 @@ fake_metadata_source_supported_keys (MetadataSource *source)
 static KeyID *
 fake_metadata_source_key_depends (MetadataSource *source, KeyID key_id)
 {
-  return NULL;
+  static KeyID lyrics_deps[] = { METADATA_KEY_SITE, 0};
+  static KeyID deps_title[] = { METADATA_KEY_TITLE, 0};
+
+  switch (key_id) {
+  case METADATA_KEY_ALBUM:
+  case METADATA_KEY_ARTIST:
+  case METADATA_KEY_GENRE:
+    return deps_title;
+  case METADATA_KEY_THUMBNAIL: 
+    /* Depends on artist,album, which in the end depends on title */
+    return deps_title;
+  case METADATA_KEY_LYRICS:
+    /* Example of key that will not be resolved */
+    return lyrics_deps;
+  default:
+    return NULL;
+  }
 }
 
 static void

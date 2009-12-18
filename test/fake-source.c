@@ -95,7 +95,13 @@ fake_media_source_metadata (MetadataSource *source,
 static KeyID *
 fake_media_source_key_depends (MetadataSource *source, KeyID key_id)
 {
-  return NULL;
+  static KeyID artist_deps[] = { METADATA_KEY_TITLE, 0 };
+  switch (key_id) {
+  case METADATA_KEY_ARTIST:
+    return artist_deps;
+  default:
+    return NULL;
+  }
 }
 
 static const KeyID *
@@ -107,6 +113,24 @@ fake_media_source_supported_keys (MetadataSource *source)
 				0 };
   return keys;
 }
+
+static void
+fake_media_source_resolve_metadata (MetadataSource *source,
+				    KeyID *keys,
+				    GHashTable *metadata)
+{
+  while (*keys) {
+    switch (*keys) {
+    case METADATA_KEY_ARTIST:
+      g_hash_table_insert (metadata, GINT_TO_POINTER (*keys), "fake-source-artist");
+      break;
+    default:
+      break;
+    }
+    keys++;
+  }
+}
+
 static void
 fake_media_source_class_init (FakeMediaSourceClass * klass)
 {
@@ -117,6 +141,7 @@ fake_media_source_class_init (FakeMediaSourceClass * klass)
   metadata_class->metadata = fake_media_source_metadata;
   metadata_class->supported_keys = fake_media_source_supported_keys;
   metadata_class->key_depends = fake_media_source_key_depends;
+  metadata_class->resolve = fake_media_source_resolve_metadata;
 }
 
 static void

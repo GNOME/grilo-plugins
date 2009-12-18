@@ -50,7 +50,7 @@ fake_media_plugin_init (PluginRegistry *registry, const PluginInfo *plugin)
 static guint
 fake_media_source_browse (MediaSource *source, 
 			  const gchar *container_id,
-			  const KeyID *keys,
+			  const GList *keys,
 			  guint skip,
 			  guint count,
 			  MediaSourceResultCb callback,
@@ -66,6 +66,7 @@ fake_media_source_browse (MediaSource *source,
 static guint
 fake_media_source_search (MediaSource *source,
 			  const gchar *text,
+			  const GList *keys,
 			  const gchar *filter,
 			  guint skip,
 			  guint count,
@@ -82,7 +83,7 @@ fake_media_source_search (MediaSource *source,
 static void
 fake_media_source_metadata (MetadataSource *source,
 			    const gchar *object_id,
-			    const KeyID *keys,
+			    const GList *keys,
 			    MetadataSourceResultCb callback,
 			    gpointer user_data)
 {
@@ -92,10 +93,14 @@ fake_media_source_metadata (MetadataSource *source,
 }
 
 
-static KeyID *
+static const GList *
 fake_media_source_key_depends (MetadataSource *source, KeyID key_id)
 {
-  static KeyID artist_deps[] = { METADATA_KEY_TITLE, 0 };
+  static GList *artist_deps = NULL;
+  if (!artist_deps) {
+    artist_deps = metadata_key_list_new (METADATA_KEY_TITLE, NULL);
+  }
+
   switch (key_id) {
   case METADATA_KEY_ARTIST:
     return artist_deps;
@@ -104,32 +109,38 @@ fake_media_source_key_depends (MetadataSource *source, KeyID key_id)
   }
 }
 
-static const KeyID *
+static const GList *
 fake_media_source_supported_keys (MetadataSource *source)
 {
-  static const KeyID keys[] = { METADATA_KEY_TITLE, 
-				METADATA_KEY_URL, 
-				METADATA_KEY_ARTIST,
-				0 };
+
+  static GList *keys = NULL;
+  if (!keys) {
+    keys = metadata_key_list_new (METADATA_KEY_TITLE, 
+				  METADATA_KEY_URL, 
+				  METADATA_KEY_ARTIST,
+				  NULL);
+  }
   return keys;
 }
 
 static void
 fake_media_source_resolve_metadata (MetadataSource *source,
-				    KeyID *keys,
+				    const GList *keys,
 				    Content *media,
 				    MetadataSourceResolveCb callback,
 				    gpointer user_data)
 {
-  while (*keys) {
-    switch (*keys) {
+  KeyID key;
+  while (keys) {
+    key = GPOINTER_TO_INT (keys->data);
+    switch (key) {
     case METADATA_KEY_ARTIST:
-      content_set_string (media, *keys, "fake-source-artist");
+      content_set_string (media, key, "fake-source-artist");
       break;
     default:
       break;
     }
-    keys++;
+    keys = g_list_next (keys);
   }
 
   callback (source, media, user_data, NULL);

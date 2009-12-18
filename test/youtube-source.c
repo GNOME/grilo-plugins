@@ -137,7 +137,7 @@ youtube_parse_response (gchar **xml,
 static guint
 youtube_source_browse (MediaSource *source, 
 		       const gchar *container_id,
-		       const KeyID *keys,
+		       const GList *keys,
 		       guint skip,
 		       guint count,
 		       MediaSourceResultCb callback,
@@ -189,6 +189,7 @@ youtube_source_browse (MediaSource *source,
 static guint
 youtube_source_search (MediaSource *source,
 		       const gchar *text,
+		       const GList *keys,
 		       const gchar *filter,
 		       guint skip,
 		       guint count,
@@ -242,7 +243,7 @@ youtube_source_search (MediaSource *source,
 static void
 youtube_source_metadata (MetadataSource *source,
 			 const gchar *object_id,
-			 const KeyID *keys,
+			 const GList *keys,
 			 MetadataSourceResultCb callback,
 			 gpointer user_data)
 {
@@ -283,17 +284,19 @@ youtube_source_metadata (MetadataSource *source,
   callback (source, id, table , user_data, NULL);
 }
 
-static KeyID *
+static const GList *
 youtube_source_key_depends (MetadataSource *source, KeyID key_id)
 {
   return NULL;
 }
 
-static const KeyID *
+static const GList *
 youtube_source_supported_keys (MetadataSource *source)
 {
-  static const KeyID keys[] = { METADATA_KEY_TITLE, 
-				METADATA_KEY_URL, 0 };
+  static GList *keys = NULL;
+  if (!keys) {
+    keys =  metadata_key_list_new (METADATA_KEY_TITLE, METADATA_KEY_URL, NULL);
+  }
   return keys;
 }
 

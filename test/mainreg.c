@@ -54,7 +54,7 @@ main (void)
 
   g_print ("searching igalia on youtube\n");
 
-  if(0) media_source_search (yt, "igalia", NULL, 0, 0, 0, search_cb, NULL);
+  if(0) media_source_search (yt, "igalia", NULL, NULL, 0, 0, 0, search_cb, NULL);
 
   plugin_registry_unload (registry, "youtube-plugin-id");
 

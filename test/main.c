@@ -79,11 +79,18 @@ gint
 main (void)
 {
   gchar *name;
-  KeyID keys[] = { METADATA_KEY_TITLE, METADATA_KEY_URL, METADATA_KEY_ALBUM,
-		   METADATA_KEY_ARTIST, METADATA_KEY_GENRE, 
-		   METADATA_KEY_THUMBNAIL, METADATA_KEY_LYRICS, 0};
+  GList *keys;
 
   g_type_init ();
+
+  keys = metadata_key_list_new (METADATA_KEY_TITLE,
+				METADATA_KEY_URL,
+				METADATA_KEY_ALBUM,
+				METADATA_KEY_ARTIST,
+				METADATA_KEY_GENRE, 
+				METADATA_KEY_THUMBNAIL,
+				METADATA_KEY_LYRICS,
+				NULL);
 
   g_print ("start\n");
 
@@ -108,14 +115,14 @@ main (void)
   g_print ("Testing methods\n");
 
   if (0) media_source_browse (source, NULL, NULL, 0, 0, 0, browse_cb, NULL);
-  if (0) media_source_search (source, NULL, NULL, 0, 0, 0, browse_cb, NULL);
+  if (0) media_source_search (source, NULL, NULL, NULL, 0, 0, 0, browse_cb, NULL);
   if (0) metadata_source_get (METADATA_SOURCE (source), NULL, NULL, metadata_cb, NULL);
 
-  media_source_browse (youtube, NULL, keys, 0, 0, METADATA_RESOLUTION_FULL, browse_cb, NULL);
-  if (0) media_source_search (youtube, "igalia", NULL, 0, 0, 0, browse_cb, NULL);
+  if (1) media_source_browse (youtube, NULL, keys, 0, 0, METADATA_RESOLUTION_FULL, browse_cb, NULL);
+  if (0) media_source_search (youtube, "igalia", NULL, NULL, 0, 0, 0, browse_cb, NULL);
   if (0) metadata_source_get (METADATA_SOURCE (youtube), "IQJx4YL3Pl8", NULL, metadata_cb, NULL);
 
-  metadata_source_get (metadata_source, NULL, NULL, metadata_cb, NULL);
+  if (0) metadata_source_get (metadata_source, NULL, NULL, metadata_cb, NULL);
 
   g_print ("testing properties\n");
   

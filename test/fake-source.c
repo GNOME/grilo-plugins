@@ -117,12 +117,12 @@ fake_media_source_supported_keys (MetadataSource *source)
 static void
 fake_media_source_resolve_metadata (MetadataSource *source,
 				    KeyID *keys,
-				    GHashTable *metadata)
+				    Content *media)
 {
   while (*keys) {
     switch (*keys) {
     case METADATA_KEY_ARTIST:
-      g_hash_table_insert (metadata, GINT_TO_POINTER (*keys), "fake-source-artist");
+      content_set_string (media, *keys, "fake-source-artist");
       break;
     default:
       break;

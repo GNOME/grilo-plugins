@@ -4,46 +4,46 @@
 #include "fake-source.h"
 #include "youtube-source.h"
 #include "fake-metadata-source.h"
-#include "plugin-registry.h"
+#include "ms-plugin-registry.h"
 
 static void
 print_hmetadata (gpointer k, gpointer v, gpointer user_data)
 {
-  PluginRegistry *registry = plugin_registry_get_instance ();
-  const MetadataKey *key = 
-    plugin_registry_lookup_metadata_key (registry, GPOINTER_TO_UINT (k));
-  g_print ("    %s: %s\n", METADATA_KEY_GET_NAME (key), (gchar *) v);
+  MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
+  const MsMetadataKey *key = 
+    ms_plugin_registry_lookup_metadata_key (registry, GPOINTER_TO_UINT (k));
+  g_print ("    %s: %s\n", MS_METADATA_KEY_GET_NAME (key), (gchar *) v);
 }
 
 static void
-print_metadata (Content *content, KeyID key_id)
+print_metadata (MsContent *content, MsKeyID key_id)
 {
   /* Do not print "comment" */
-  if (key_id == METADATA_KEY_DESCRIPTION) {
+  if (key_id == MS_METADATA_KEY_DESCRIPTION) {
     return;
   }
 
-  PluginRegistry *registry = plugin_registry_get_instance ();
-  const MetadataKey *key = 
-    plugin_registry_lookup_metadata_key (registry, GPOINTER_TO_UINT (key_id));
+  MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
+  const MsMetadataKey *key = 
+    ms_plugin_registry_lookup_metadata_key (registry, GPOINTER_TO_UINT (key_id));
 
-  const GValue *value = content_get (CONTENT(content), key_id);
+  const GValue *value = ms_content_get (MS_CONTENT(content), key_id);
   if (value && G_VALUE_HOLDS_STRING (value)) {
-    g_print ("\t%s: %s\n", METADATA_KEY_GET_NAME (key), g_value_get_string (value));
+    g_print ("\t%s: %s\n", MS_METADATA_KEY_GET_NAME (key), g_value_get_string (value));
   } else if (value && G_VALUE_HOLDS_INT (value)) {
-    g_print ("\t%s: %d\n",  METADATA_KEY_GET_NAME (key), g_value_get_int (value));
+    g_print ("\t%s: %d\n",  MS_METADATA_KEY_GET_NAME (key), g_value_get_int (value));
   }
 }
 
 static void 
-browse_cb (MediaSource *source,
+browse_cb (MsMediaSource *source,
 	   guint browse_id,
-           Content *media,
+           MsContent *media,
 	   guint remaining,
 	   gpointer user_data,
 	   const GError *error)
 {
-  KeyID *keys;
+  MsKeyID *keys;
   gint size;
   gint i;
 
@@ -52,7 +52,7 @@ browse_cb (MediaSource *source,
   if (!media)
     return;
 
-  keys = content_get_keys (media, &size);
+  keys = ms_content_get_keys (media, &size);
   for (i = 0; i < size; i++) {
     print_metadata (media, keys[i]);
   }
@@ -61,7 +61,7 @@ browse_cb (MediaSource *source,
 }
 
 static void
-metadata_cb (MetadataSource *source,
+metadata_cb (MsMetadataSource *source,
 	     const gchar *media_id,
 	     GHashTable *metadata,
 	     gpointer user_data,
@@ -83,30 +83,30 @@ main (void)
 
   g_type_init ();
 
-  keys = metadata_key_list_new (METADATA_KEY_TITLE,
-				METADATA_KEY_URL,
-				METADATA_KEY_ALBUM,
-				METADATA_KEY_ARTIST,
-				METADATA_KEY_GENRE, 
-				METADATA_KEY_THUMBNAIL,
-				METADATA_KEY_LYRICS,
-				NULL);
+  keys = ms_metadata_key_list_new (MS_METADATA_KEY_TITLE,
+                                   MS_METADATA_KEY_URL,
+                                   MS_METADATA_KEY_ALBUM,
+                                   MS_METADATA_KEY_ARTIST,
+                                   MS_METADATA_KEY_GENRE,
+                                   MS_METADATA_KEY_THUMBNAIL,
+                                   MS_METADATA_KEY_LYRICS,
+                                   NULL);
 
   g_print ("start\n");
 
   g_print ("loading plugins\n");
 
-  PluginRegistry *registry = plugin_registry_get_instance ();
-  plugin_registry_load_all (registry);
+  MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
+  ms_plugin_registry_load_all (registry);
 
   g_print ("Obtaining sources\n");
 
-  MediaSource *source = 
-    (MediaSource *) plugin_registry_lookup_source (registry, "FakeMediaSourceId");
-  MetadataSource *metadata_source = 
-    (MetadataSource *) plugin_registry_lookup_source (registry, "FakeMetadataSourceId");
-  MediaSource *youtube = 
-    (MediaSource *) plugin_registry_lookup_source (registry, "YoutubeSourceId");
+  MsMediaSource *source = 
+    (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "FakeMediaSourceId");
+  MsMetadataSource *metadata_source = 
+    (MsMetadataSource *) ms_plugin_registry_lookup_source (registry, "FakeMetadataSourceId");
+  MsMediaSource *youtube = 
+    (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "YoutubeSourceId");
 
   g_assert (source && metadata_source && youtube);
 
@@ -114,15 +114,15 @@ main (void)
 
   g_print ("Testing methods\n");
 
-  if (0) media_source_browse (source, NULL, NULL, 0, 0, 0, browse_cb, NULL);
-  if (0) media_source_search (source, NULL, NULL, NULL, 0, 0, 0, browse_cb, NULL);
-  if (0) metadata_source_get (METADATA_SOURCE (source), NULL, NULL, metadata_cb, NULL);
+  if (0) ms_media_source_browse (source, NULL, NULL, 0, 0, 0, browse_cb, NULL);
+  if (0) ms_media_source_search (source, NULL, NULL, NULL, 0, 0, 0, browse_cb, NULL);
+  if (0) ms_metadata_source_get (MS_METADATA_SOURCE (source), NULL, NULL, metadata_cb, NULL);
 
-  if (1) media_source_browse (youtube, NULL, keys, 0, 0, METADATA_RESOLUTION_FULL, browse_cb, NULL);
-  if (0) media_source_search (youtube, "igalia", NULL, NULL, 0, 0, 0, browse_cb, NULL);
-  if (0) metadata_source_get (METADATA_SOURCE (youtube), "IQJx4YL3Pl8", NULL, metadata_cb, NULL);
+  if (1) ms_media_source_browse (youtube, NULL, keys, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
+  if (0) ms_media_source_search (youtube, "igalia", NULL, NULL, 0, 0, 0, browse_cb, NULL);
+  if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "IQJx4YL3Pl8", NULL, metadata_cb, NULL);
 
-  if (0) metadata_source_get (metadata_source, NULL, NULL, metadata_cb, NULL);
+  if (0) ms_metadata_source_get (metadata_source, NULL, NULL, metadata_cb, NULL);
 
   g_print ("testing properties\n");
   

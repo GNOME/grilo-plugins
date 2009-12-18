@@ -21,39 +21,39 @@
  */
 
 #include "fake-source.h"
-#include "../src/plugin-registry.h"
+#include "../src/ms-plugin-registry.h"
 
 #include <glib.h>
 
-gboolean fake_media_plugin_init (PluginRegistry *registry, 
-				 const PluginInfo *plugin);
+gboolean fake_media_plugin_init (MsPluginRegistry *registry, 
+				 const MsPluginInfo *plugin);
 
-PLUGIN_REGISTER (fake_media_plugin_init, 
-		 NULL, 
-		 "fake-media-plugin-id", 
-		 "Fake Media Source Plugin", 
-		 "A plugin for faking media", 
-		 "0.0.1",
-		 "Igalia S.L.", 
-		 "LGPL", 
-		 "http://www.igalia.com");
+MS_PLUGIN_REGISTER (fake_media_plugin_init, 
+                    NULL, 
+                    "fake-media-plugin-id", 
+                    "Fake Media Source Plugin", 
+                    "A plugin for faking media", 
+                    "0.0.1",
+                    "Igalia S.L.", 
+                    "LGPL", 
+                    "http://www.igalia.com");
 
 gboolean
-fake_media_plugin_init (PluginRegistry *registry, const PluginInfo *plugin)
+fake_media_plugin_init (MsPluginRegistry *registry, const MsPluginInfo *plugin)
 {
   g_print ("fake_media_plugin_init\n");
   FakeMediaSource *source = fake_media_source_new ();
-  plugin_registry_register_source (registry, plugin, MEDIA_PLUGIN (source));
+  ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
   return TRUE;
 }
 
 static guint
-fake_media_source_browse (MediaSource *source, 
+fake_media_source_browse (MsMediaSource *source, 
 			  const gchar *container_id,
 			  const GList *keys,
 			  guint skip,
 			  guint count,
-			  MediaSourceResultCb callback,
+			  MsMediaSourceResultCb callback,
 			  gpointer user_data)
 {
   g_print ("fake_media_source_browse\n");
@@ -64,13 +64,13 @@ fake_media_source_browse (MediaSource *source,
 }
 
 static guint
-fake_media_source_search (MediaSource *source,
+fake_media_source_search (MsMediaSource *source,
 			  const gchar *text,
 			  const GList *keys,
 			  const gchar *filter,
 			  guint skip,
 			  guint count,
-			  MediaSourceResultCb callback,
+			  MsMediaSourceResultCb callback,
 			  gpointer user_data)
 {
   g_print ("fake_media_source_search\n");
@@ -81,10 +81,10 @@ fake_media_source_search (MediaSource *source,
 }
 
 static void
-fake_media_source_metadata (MetadataSource *source,
+fake_media_source_metadata (MsMetadataSource *source,
 			    const gchar *object_id,
 			    const GList *keys,
-			    MetadataSourceResultCb callback,
+			    MsMetadataSourceResultCb callback,
 			    gpointer user_data)
 {
   g_print ("fake_media_source_metadata\n");
@@ -94,15 +94,15 @@ fake_media_source_metadata (MetadataSource *source,
 
 
 static const GList *
-fake_media_source_key_depends (MetadataSource *source, KeyID key_id)
+fake_media_source_key_depends (MsMetadataSource *source, MsKeyID key_id)
 {
   static GList *artist_deps = NULL;
   if (!artist_deps) {
-    artist_deps = metadata_key_list_new (METADATA_KEY_TITLE, NULL);
+    artist_deps = ms_metadata_key_list_new (MS_METADATA_KEY_TITLE, NULL);
   }
 
   switch (key_id) {
-  case METADATA_KEY_ARTIST:
+  case MS_METADATA_KEY_ARTIST:
     return artist_deps;
   default:
     return NULL;
@@ -110,32 +110,32 @@ fake_media_source_key_depends (MetadataSource *source, KeyID key_id)
 }
 
 static const GList *
-fake_media_source_supported_keys (MetadataSource *source)
+fake_media_source_supported_keys (MsMetadataSource *source)
 {
 
   static GList *keys = NULL;
   if (!keys) {
-    keys = metadata_key_list_new (METADATA_KEY_TITLE, 
-				  METADATA_KEY_URL, 
-				  METADATA_KEY_ARTIST,
-				  NULL);
+    keys = ms_metadata_key_list_new (MS_METADATA_KEY_TITLE,
+                                     MS_METADATA_KEY_URL,
+                                     MS_METADATA_KEY_ARTIST,
+                                     NULL);
   }
   return keys;
 }
 
 static void
-fake_media_source_resolve_metadata (MetadataSource *source,
+fake_media_source_resolve_metadata (MsMetadataSource *source,
 				    const GList *keys,
-				    Content *media,
-				    MetadataSourceResolveCb callback,
+				    MsContent *media,
+				    MsMetadataSourceResolveCb callback,
 				    gpointer user_data)
 {
-  KeyID key;
+  MsKeyID key;
   while (keys) {
     key = GPOINTER_TO_INT (keys->data);
     switch (key) {
-    case METADATA_KEY_ARTIST:
-      content_set_string (media, key, "fake-source-artist");
+    case MS_METADATA_KEY_ARTIST:
+      ms_content_set_string (media, key, "fake-source-artist");
       break;
     default:
       break;
@@ -149,8 +149,8 @@ fake_media_source_resolve_metadata (MetadataSource *source,
 static void
 fake_media_source_class_init (FakeMediaSourceClass * klass)
 {
-  MediaSourceClass *source_class = MEDIA_SOURCE_CLASS (klass);
-  MetadataSourceClass *metadata_class = METADATA_SOURCE_CLASS (klass);
+  MsMediaSourceClass *source_class = MS_MEDIA_SOURCE_CLASS (klass);
+  MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
   source_class->browse = fake_media_source_browse;
   source_class->search = fake_media_source_search;
   metadata_class->metadata = fake_media_source_metadata;
@@ -164,7 +164,7 @@ fake_media_source_init (FakeMediaSource *source)
 {
 }
 
-G_DEFINE_TYPE (FakeMediaSource, fake_media_source, MEDIA_SOURCE_TYPE);
+G_DEFINE_TYPE (FakeMediaSource, fake_media_source, MS_TYPE_MEDIA_SOURCE);
 
 FakeMediaSource *
 fake_media_source_new (void)

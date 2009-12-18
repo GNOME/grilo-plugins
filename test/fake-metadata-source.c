@@ -21,38 +21,38 @@
  */
 
 #include "fake-metadata-source.h"
-#include "../src/plugin-registry.h"
-#include "../src/content/content-media.h"
+#include "../src/ms-plugin-registry.h"
+#include "../src/content/ms-content-media.h"
 
 #include <glib.h>
 
-gboolean fake_metadata_plugin_init (PluginRegistry *registry, 
-				    const PluginInfo *plugin);
+gboolean fake_metadata_plugin_init (MsPluginRegistry *registry, 
+				    const MsPluginInfo *plugin);
 
-PLUGIN_REGISTER (fake_metadata_plugin_init, 
-		 NULL, 
-		 "fake-metadata-plugin-id", 
-		 "Fake Metadata Plugin", 
-		 "A plugin for faking metadata", 
-		 "0.0.1",
-		 "Igalia S.L.", 
-		 "LGPL", 
-		 "http://www.igalia.com");
+MS_PLUGIN_REGISTER (fake_metadata_plugin_init, 
+                    NULL, 
+                    "fake-metadata-plugin-id", 
+                    "Fake Metadata Plugin", 
+                    "A plugin for faking metadata", 
+                    "0.0.1",
+                    "Igalia S.L.", 
+                    "LGPL", 
+                    "http://www.igalia.com");
 
 gboolean
-fake_metadata_plugin_init (PluginRegistry *registry, const PluginInfo *plugin)
+fake_metadata_plugin_init (MsPluginRegistry *registry, const MsPluginInfo *plugin)
 {
   g_print ("fake_metadata_plugin_init\n");
   FakeMetadataSource *source = fake_metadata_source_new ();
-  plugin_registry_register_source (registry, plugin, MEDIA_PLUGIN (source));
+  ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
   return TRUE;
 }
 
 static void
-fake_metadata_source_metadata (MetadataSource *source,
+fake_metadata_source_metadata (MsMetadataSource *source,
 			    const gchar *object_id,
 			    const GList *keys,
-			    MetadataSourceResultCb callback,
+			    MsMetadataSourceResultCb callback,
 			    gpointer user_data)
 {
   g_print ("fake_metadata_source_metadata\n");
@@ -61,43 +61,43 @@ fake_metadata_source_metadata (MetadataSource *source,
 }
 
 static const GList *
-fake_metadata_source_supported_keys (MetadataSource *source)
+fake_metadata_source_supported_keys (MsMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    keys = metadata_key_list_new (METADATA_KEY_TITLE, 
-				  METADATA_KEY_URL, 
-				  METADATA_KEY_ALBUM,
-				  METADATA_KEY_ARTIST,
-				  METADATA_KEY_GENRE,
-				  METADATA_KEY_THUMBNAIL,
-				  METADATA_KEY_LYRICS,
+    keys = ms_metadata_key_list_new (MS_METADATA_KEY_TITLE, 
+				  MS_METADATA_KEY_URL, 
+				  MS_METADATA_KEY_ALBUM,
+				  MS_METADATA_KEY_ARTIST,
+				  MS_METADATA_KEY_GENRE,
+				  MS_METADATA_KEY_THUMBNAIL,
+				  MS_METADATA_KEY_LYRICS,
 				  NULL);
   }
   return keys;
 }
 
 static const GList *
-fake_metadata_source_key_depends (MetadataSource *source, KeyID key_id)
+fake_metadata_source_key_depends (MsMetadataSource *source, MsKeyID key_id)
 {
   static GList *lyrics_deps = NULL;
   if (!lyrics_deps) {
-    lyrics_deps = metadata_key_list_new (METADATA_KEY_SITE, NULL);
+    lyrics_deps = ms_metadata_key_list_new (MS_METADATA_KEY_SITE, NULL);
   }
   static GList *deps_title = NULL;
   if (!deps_title) {
-    deps_title = metadata_key_list_new (METADATA_KEY_TITLE, NULL);
+    deps_title = ms_metadata_key_list_new (MS_METADATA_KEY_TITLE, NULL);
   }
 
   switch (key_id) {
-  case METADATA_KEY_ALBUM:
-  case METADATA_KEY_ARTIST:
-  case METADATA_KEY_GENRE:
+  case MS_METADATA_KEY_ALBUM:
+  case MS_METADATA_KEY_ARTIST:
+  case MS_METADATA_KEY_GENRE:
     return deps_title;
-  case METADATA_KEY_THUMBNAIL: 
+  case MS_METADATA_KEY_THUMBNAIL: 
     /* Depends on artist,album, which in the end depends on title */
     return deps_title;
-  case METADATA_KEY_LYRICS:
+  case MS_METADATA_KEY_LYRICS:
     /* Example of key that will not be resolved */
     return lyrics_deps;
   default:
@@ -106,27 +106,27 @@ fake_metadata_source_key_depends (MetadataSource *source, KeyID key_id)
 }
 
 static void
-fake_metadata_source_resolve_metadata (MetadataSource *source,
+fake_metadata_source_resolve_metadata (MsMetadataSource *source,
 				       const GList *keys,
-                                       Content *media,
-				       MetadataSourceResolveCb callback,
+                                       MsContent *media,
+				       MsMetadataSourceResolveCb callback,
 				       gpointer user_data)
 {
-  KeyID key;
+  MsKeyID key;
   while (keys) {
     key = GPOINTER_TO_INT (keys->data);
     switch (key) {
-    case METADATA_KEY_ALBUM:
-      content_set_string (media, key, "fake-album");
+    case MS_METADATA_KEY_ALBUM:
+      ms_content_set_string (media, key, "fake-album");
       break;
-    case METADATA_KEY_ARTIST:
-      content_set_string (media, key, "fake-artist");
+    case MS_METADATA_KEY_ARTIST:
+      ms_content_set_string (media, key, "fake-artist");
       break;
-    case METADATA_KEY_GENRE:
-      content_set_string (media, key, "fake-genre");
+    case MS_METADATA_KEY_GENRE:
+      ms_content_set_string (media, key, "fake-genre");
       break;
-    case METADATA_KEY_THUMBNAIL:
-      content_media_set_thumbnail (CONTENT_MEDIA (media),
+    case MS_METADATA_KEY_THUMBNAIL:
+      ms_content_media_set_thumbnail (MS_CONTENT_MEDIA (media),
                                    "http://fake-thumbnail.com/fake-thumbnail.jpg");
       break;
     default:
@@ -141,7 +141,7 @@ fake_metadata_source_resolve_metadata (MetadataSource *source,
 static void
 fake_metadata_source_class_init (FakeMetadataSourceClass * klass)
 {
-  MetadataSourceClass *metadata_class = METADATA_SOURCE_CLASS (klass);
+  MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
   metadata_class->metadata = fake_metadata_source_metadata;
   metadata_class->supported_keys = fake_metadata_source_supported_keys;
   metadata_class->key_depends = fake_metadata_source_key_depends;
@@ -153,7 +153,7 @@ fake_metadata_source_init (FakeMetadataSource *source)
 {
 }
 
-G_DEFINE_TYPE (FakeMetadataSource, fake_metadata_source, METADATA_SOURCE_TYPE);
+G_DEFINE_TYPE (FakeMetadataSource, fake_metadata_source, MS_TYPE_METADATA_SOURCE);
 
 FakeMetadataSource *
 fake_metadata_source_new (void)
@@ -164,4 +164,3 @@ fake_metadata_source_new (void)
 		       "source-desc", "A fake metadata source",
 		       NULL);
 }
-

@@ -21,8 +21,8 @@
  */
 
 #include "youtube-source.h"
-#include "../src/plugin-registry.h"
-#include "../src/content/content-media.h"
+#include "../src/ms-plugin-registry.h"
+#include "../src/content/ms-content-media.h"
 
 #include <glib.h>
 #include <libgnomevfs/gnome-vfs.h>
@@ -30,24 +30,24 @@
 
 #define PLUGIN_ID "youtube-plugin-id"
 
-gboolean youtube_plugin_init (PluginRegistry *registry, const PluginInfo *plugin);
+gboolean youtube_plugin_init (MsPluginRegistry *registry, const MsPluginInfo *plugin);
 
-PLUGIN_REGISTER (youtube_plugin_init, 
-		 NULL, 
-                 PLUGIN_ID,
-		 "Youtube plugin", 
-		 "A plugin for browsing youtube videos", 
-		 "0.0.1",
-		 "Igalia S.L.", 
-		 "LGPL", 
-		 "http://www.igalia.com");
+MS_PLUGIN_REGISTER (youtube_plugin_init, 
+                    NULL, 
+                    PLUGIN_ID,
+                    "Youtube plugin", 
+                    "A plugin for browsing youtube videos", 
+                    "0.0.1",
+                    "Igalia S.L.", 
+                    "LGPL", 
+                    "http://www.igalia.com");
 
 gboolean
-youtube_plugin_init (PluginRegistry *registry, const PluginInfo *plugin)
+youtube_plugin_init (MsPluginRegistry *registry, const MsPluginInfo *plugin)
 {
   g_print ("youtube_plugin_init\n");
   YoutubeSource *source = youtube_source_new ();
-  plugin_registry_register_source (registry, plugin, MEDIA_PLUGIN (source));
+  ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
   return TRUE;
 }
 
@@ -135,12 +135,12 @@ youtube_parse_response (gchar **xml,
 }
 			
 static guint
-youtube_source_browse (MediaSource *source, 
+youtube_source_browse (MsMediaSource *source, 
 		       const gchar *container_id,
 		       const GList *keys,
 		       guint skip,
 		       guint count,
-		       MediaSourceResultCb callback,
+		       MsMediaSourceResultCb callback,
 		       gpointer user_data)
 {
   g_print ("youtube_source_browse\n");
@@ -172,28 +172,28 @@ youtube_source_browse (MediaSource *source,
   while (((xml = strstr (xml, "<entry>")) != NULL)) {
     gchar *id, *title, *author, *description, *url;
     youtube_parse_response (&xml, &id, &title, &author, &description, &url);
-    ContentMedia *content = content_media_new ();
-    content_media_set_source (content, PLUGIN_ID);
-    content_media_set_id (content, id);
-    content_media_set_url (content, url);
-    content_media_set_title (content, title);
-    content_media_set_author (content, author);
-    content_media_set_description(content, description);
+    MsContentMedia *content = ms_content_media_new ();
+    ms_content_media_set_source (content, PLUGIN_ID);
+    ms_content_media_set_id (content, id);
+    ms_content_media_set_url (content, url);
+    ms_content_media_set_title (content, title);
+    ms_content_media_set_author (content, author);
+    ms_content_media_set_description(content, description);
     n++;
-    callback (source, 0, CONTENT(content), 25 - n, user_data, NULL);
+    callback (source, 0, MS_CONTENT(content), 25 - n, user_data, NULL);
   }
 
   return 0;
 }
 
 static guint
-youtube_source_search (MediaSource *source,
+youtube_source_search (MsMediaSource *source,
 		       const gchar *text,
 		       const GList *keys,
 		       const gchar *filter,
 		       guint skip,
 		       guint count,
-		       MediaSourceResultCb callback,
+		       MsMediaSourceResultCb callback,
 		       gpointer user_data)
 {
   g_print ("youtube_source_search\n");
@@ -226,25 +226,25 @@ youtube_source_search (MediaSource *source,
   while (((xml = strstr (xml, "<entry>")) != NULL)) {
     gchar *id, *title, *author, *description, *url;
     youtube_parse_response (&xml, &id, &title, &author, &description, &url);
-    ContentMedia *content = content_media_new ();
-    content_media_set_source (content, PLUGIN_ID);
-    content_media_set_id (content, id);
-    content_media_set_url (content, url);
-    content_media_set_title (content, title);
-    content_media_set_author (content, author);
-    content_media_set_description(content, description);
+    MsContentMedia *content = ms_content_media_new ();
+    ms_content_media_set_source (content, PLUGIN_ID);
+    ms_content_media_set_id (content, id);
+    ms_content_media_set_url (content, url);
+    ms_content_media_set_title (content, title);
+    ms_content_media_set_author (content, author);
+    ms_content_media_set_description(content, description);
     n++;
-    callback (source, 0, CONTENT(content), 10 - n, user_data, NULL);
+    callback (source, 0, MS_CONTENT(content), 10 - n, user_data, NULL);
   }
 
   return 0;
 }
 
 static void
-youtube_source_metadata (MetadataSource *source,
+youtube_source_metadata (MsMetadataSource *source,
 			 const gchar *object_id,
 			 const GList *keys,
-			 MetadataSourceResultCb callback,
+			 MsMetadataSourceResultCb callback,
 			 gpointer user_data)
 {
   g_print ("youtube_source_metadata\n");
@@ -278,24 +278,24 @@ youtube_source_metadata (MetadataSource *source,
   youtube_parse_response (&xml, &id, &title, &author, &description, &url);
 
   GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
-  g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_URL), url);
-  g_hash_table_insert (table, GINT_TO_POINTER (METADATA_KEY_TITLE), title);
+  g_hash_table_insert (table, GINT_TO_POINTER (MS_METADATA_KEY_URL), url);
+  g_hash_table_insert (table, GINT_TO_POINTER (MS_METADATA_KEY_TITLE), title);
 
   callback (source, id, table , user_data, NULL);
 }
 
 static const GList *
-youtube_source_key_depends (MetadataSource *source, KeyID key_id)
+youtube_source_key_depends (MsMetadataSource *source, MsKeyID key_id)
 {
   return NULL;
 }
 
 static const GList *
-youtube_source_supported_keys (MetadataSource *source)
+youtube_source_supported_keys (MsMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    keys =  metadata_key_list_new (METADATA_KEY_TITLE, METADATA_KEY_URL, NULL);
+    keys =  ms_metadata_key_list_new (MS_METADATA_KEY_TITLE, MS_METADATA_KEY_URL, NULL);
   }
   return keys;
 }
@@ -303,8 +303,8 @@ youtube_source_supported_keys (MetadataSource *source)
 static void
 youtube_source_class_init (YoutubeSourceClass * klass)
 {
-  MediaSourceClass *source_class = MEDIA_SOURCE_CLASS (klass);
-  MetadataSourceClass *metadata_class = METADATA_SOURCE_CLASS (klass);
+  MsMediaSourceClass *source_class = MS_MEDIA_SOURCE_CLASS (klass);
+  MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
   source_class->browse = youtube_source_browse;
   source_class->search = youtube_source_search;
   metadata_class->metadata = youtube_source_metadata;
@@ -318,7 +318,7 @@ youtube_source_init (YoutubeSource *source)
   gnome_vfs_init ();
 }
 
-G_DEFINE_TYPE (YoutubeSource, youtube_source, MEDIA_SOURCE_TYPE);
+G_DEFINE_TYPE (YoutubeSource, youtube_source, MS_TYPE_MEDIA_SOURCE);
 
 YoutubeSource *
 youtube_source_new (void)

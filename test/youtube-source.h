@@ -23,7 +23,7 @@
 #ifndef _YOUTUBE_SOURCE_H_
 #define _YOUTUBE_SOURCE_H_
 
-#include "../src/media-source.h"
+#include "../src/ms-media-source.h"
 
 #define YOUTUBE_SOURCE_TYPE   (youtube_source_get_type ())
 #define YOUTUBE_SOURCE(obj)  (G_TYPE_CHECK_INSTANCE_CAST ((obj), YOUTUBE_SOURCE_TYPE, YoutubeSource))
@@ -38,7 +38,7 @@ typedef struct _YoutubeSource YoutubeSource;
 
 struct _YoutubeSource {
 
-  MediaSource parent;
+  MsMediaSource parent;
 
 };
 
@@ -46,7 +46,7 @@ typedef struct _YoutubeSourceClass YoutubeSourceClass;
 
 struct _YoutubeSourceClass {
 
-  MediaSourceClass parent_class;
+  MsMediaSourceClass parent_class;
 
 };
 

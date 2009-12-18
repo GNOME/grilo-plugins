@@ -23,7 +23,7 @@
 #ifndef _FAKE_MEDIA_SOURCE_H_
 #define _FAKE_MEDIA_SOURCE_H_
 
-#include "../src/media-source.h"
+#include "../src/ms-media-source.h"
 
 #define FAKE_MEDIA_SOURCE_TYPE   (fake_media_source_get_type ())
 #define FAKE_MEDIA_SOURCE(obj)  (G_TYPE_CHECK_INSTANCE_CAST ((obj), FAKE_MEDIA_SOURCE_TYPE, Fakemediasource))
@@ -38,7 +38,7 @@ typedef struct _FakeMediaSource FakeMediaSource;
 
 struct _FakeMediaSource {
 
-  MediaSource parent;
+  MsMediaSource parent;
 
 };
 
@@ -46,7 +46,7 @@ typedef struct _FakeMediaSourceClass FakeMediaSourceClass;
 
 struct _FakeMediaSourceClass {
 
-  MediaSourceClass parent_class;
+  MsMediaSourceClass parent_class;
 
 };
 

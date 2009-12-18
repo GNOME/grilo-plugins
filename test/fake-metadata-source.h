@@ -23,7 +23,7 @@
 #ifndef _FAKE_METADATA_SOURCE_H_
 #define _FAKE_METADATA_SOURCE_H_
 
-#include "../src/metadata-source.h"
+#include "../src/ms-metadata-source.h"
 
 #define FAKE_METADATA_SOURCE_TYPE   (fake_metadata_source_get_type ())
 #define FAKE_METADATA_SOURCE(obj)  (G_TYPE_CHECK_INSTANCE_CAST ((obj), FAKE_METADATA_SOURCE_TYPE, Fakemetadatasource))
@@ -38,7 +38,7 @@ typedef struct _FakeMetadataSource FakeMetadataSource;
 
 struct _FakeMetadataSource {
 
-  MetadataSource parent;
+  MsMetadataSource parent;
 
 };
 
@@ -46,7 +46,7 @@ typedef struct _FakeMetadataSourceClass FakeMetadataSourceClass;
 
 struct _FakeMetadataSourceClass {
 
-  MetadataSourceClass parent_class;
+  MsMetadataSourceClass parent_class;
 
 };
 

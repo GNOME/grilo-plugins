@@ -1,12 +1,12 @@
 #include <glib.h>
 #include <string.h>
 
-#include "../src/plugin-registry.h"
+#include "../src/ms-plugin-registry.h"
 
 static void 
-search_cb (MediaSource *source,
+search_cb (MsMediaSource *source,
 	   guint browse_id,
-           Content *media,
+           MsContent *media,
 	   guint remaining,
 	   gpointer user_data,
 	   const GError *error)
@@ -14,7 +14,7 @@ search_cb (MediaSource *source,
   const GValue *value = NULL;
 
   if (media) {
-    value = content_get (media, METADATA_KEY_ID);
+    value = ms_content_get (media, MS_METADATA_KEY_ID);
   }
 
   if (value) {
@@ -31,22 +31,22 @@ main (void)
 
   g_print ("Loading libyoutube.so\n");
 
-  PluginRegistry *registry = plugin_registry_get_instance ();
+  MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
 
-  plugin_registry_load_all (registry);
+  ms_plugin_registry_load_all (registry);
 
   g_print ("Looking up youtube source\n");
 
-  MediaSource *yt = 
-    (MediaSource *) plugin_registry_lookup_source (registry, "YoutubeSourceId");
+  MsMediaSource *yt = 
+    (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "YoutubeSourceId");
 
   if (yt) {
     g_print ("Found! Plugin properties:\n");
-    g_print ("  Plugin ID: %s\n", media_plugin_get_id (MEDIA_PLUGIN (yt)));
-    g_print ("  Plugin Name: %s\n", media_plugin_get_name (MEDIA_PLUGIN (yt)));
-    g_print ("  Plugin Desc: %s\n", media_plugin_get_description (MEDIA_PLUGIN (yt)));
-    g_print ("  Plugin License: %s\n", media_plugin_get_license (MEDIA_PLUGIN (yt)));
-    g_print ("  Plugin Version: %s\n", media_plugin_get_version (MEDIA_PLUGIN (yt)));
+    g_print ("  Plugin ID: %s\n", ms_media_plugin_get_id (MS_MEDIA_PLUGIN (yt)));
+    g_print ("  Plugin Name: %s\n", ms_media_plugin_get_name (MS_MEDIA_PLUGIN (yt)));
+    g_print ("  Plugin Desc: %s\n", ms_media_plugin_get_description (MS_MEDIA_PLUGIN (yt)));
+    g_print ("  Plugin License: %s\n", ms_media_plugin_get_license (MS_MEDIA_PLUGIN (yt)));
+    g_print ("  Plugin Version: %s\n", ms_media_plugin_get_version (MS_MEDIA_PLUGIN (yt)));
    } else {
     g_print ("Not Found\n");
     goto exit;
@@ -54,9 +54,9 @@ main (void)
 
   g_print ("searching igalia on youtube\n");
 
-  if(0) media_source_search (yt, "igalia", NULL, NULL, 0, 0, 0, search_cb, NULL);
+  if(0) ms_media_source_search (yt, "igalia", NULL, NULL, 0, 0, 0, search_cb, NULL);
 
-  plugin_registry_unload (registry, "youtube-plugin-id");
+  ms_plugin_registry_unload (registry, "youtube-plugin-id");
 
  exit:
   g_print ("done\n");

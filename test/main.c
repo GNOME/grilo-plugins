@@ -118,9 +118,9 @@ main (void)
   if (0) ms_media_source_search (source, NULL, NULL, NULL, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
   if (0) ms_metadata_source_get (MS_METADATA_SOURCE (source), NULL, NULL, metadata_cb, NULL);
 
-  if (0) ms_media_source_browse (youtube, NULL, keys, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
+  if (1) ms_media_source_browse (youtube, NULL, keys, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, NULL, keys, 0, 0, 0, browse_cb, NULL);
-  if (1) ms_media_source_search (youtube, "igalia", keys, NULL, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
+  if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
   if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "IQJx4YL3Pl8", NULL, metadata_cb, NULL);
 
   if (0) ms_metadata_source_get (metadata_source, NULL, NULL, metadata_cb, NULL);

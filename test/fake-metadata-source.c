@@ -57,7 +57,7 @@ fake_metadata_source_metadata (MsMetadataSource *source,
 {
   g_print ("fake_metadata_source_metadata\n");
 
-  callback (source, "metadata-id", NULL, NULL, NULL);
+  callback (source, NULL, NULL, NULL);
 }
 
 static const GList *

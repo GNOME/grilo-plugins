@@ -277,11 +277,15 @@ youtube_source_metadata (MsMetadataSource *source,
   gchar *id, *title, *author, *description, *url;
   youtube_parse_response (&xml, &id, &title, &author, &description, &url);
 
-  GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
-  g_hash_table_insert (table, GINT_TO_POINTER (MS_METADATA_KEY_URL), url);
-  g_hash_table_insert (table, GINT_TO_POINTER (MS_METADATA_KEY_TITLE), title);
+  MsContentMedia *content = ms_content_media_new ();
+  ms_content_media_set_source (content, PLUGIN_ID);
+  ms_content_media_set_id (content, id);
+  ms_content_media_set_url (content, url);
+  ms_content_media_set_title (content, title);
+  ms_content_media_set_author (content, author);
+  ms_content_media_set_description(content, description);
 
-  callback (source, id, table , user_data, NULL);
+  callback (source, MS_CONTENT (content) , user_data, NULL);
 }
 
 static const GList *

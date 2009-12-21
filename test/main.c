@@ -7,15 +7,6 @@
 #include "ms-plugin-registry.h"
 
 static void
-print_hmetadata (gpointer k, gpointer v, gpointer user_data)
-{
-  MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
-  const MsMetadataKey *key = 
-    ms_plugin_registry_lookup_metadata_key (registry, GPOINTER_TO_UINT (k));
-  g_print ("    %s: %s\n", MS_METADATA_KEY_GET_NAME (key), (gchar *) v);
-}
-
-static void
 print_metadata (MsContent *content, MsKeyID key_id)
 {
   /* Do not print "comment" */
@@ -62,17 +53,24 @@ browse_cb (MsMediaSource *source,
 
 static void
 metadata_cb (MsMetadataSource *source,
-	     const gchar *media_id,
-	     GHashTable *metadata,
+	     MsContent *media,
 	     gpointer user_data,
 	     const GError *error)
 {
-  g_print ("  metadata result callback (%s)\n", media_id);
+  gint size;
+  gint i;
 
-  if (!metadata)
+  g_print ("  metadata result callback\n");
+
+  if (!media)
     return;
 
-  g_hash_table_foreach (metadata, print_hmetadata, NULL);
+  MsKeyID *keys = ms_content_get_keys (media, &size);
+  for (i = 0; i < size; i++) {
+    print_metadata (media, keys[i]);
+  }
+  g_free (keys);
+  g_object_unref (media);
 }
 
 gint
@@ -116,14 +114,14 @@ main (void)
 
   if (0) ms_media_source_browse (source, NULL, NULL, 0, 0, 0, browse_cb, NULL);
   if (0) ms_media_source_search (source, NULL, NULL, NULL, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
-  if (0) ms_metadata_source_get (MS_METADATA_SOURCE (source), NULL, NULL, metadata_cb, NULL);
+  if (0) ms_metadata_source_get (MS_METADATA_SOURCE (source), NULL, NULL, 0, metadata_cb, NULL);
 
-  if (1) ms_media_source_browse (youtube, NULL, keys, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, NULL, keys, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, NULL, keys, 0, 0, 0, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
-  if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "IQJx4YL3Pl8", NULL, metadata_cb, NULL);
+  if (1) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "IQJx4YL3Pl8", keys, MS_METADATA_RESOLUTION_FULL, metadata_cb, NULL);
 
-  if (0) ms_metadata_source_get (metadata_source, NULL, NULL, metadata_cb, NULL);
+  if (0) ms_metadata_source_get (metadata_source, NULL, NULL, MS_METADATA_RESOLUTION_FULL, metadata_cb, NULL);
 
   g_print ("testing properties\n");
   

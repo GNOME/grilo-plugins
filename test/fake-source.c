@@ -89,7 +89,7 @@ fake_media_source_metadata (MsMetadataSource *source,
 {
   g_print ("fake_media_source_metadata\n");
 
-  callback (source, "media-id", NULL, NULL, NULL);
+  callback (source, NULL, NULL, NULL);
 }
 
 

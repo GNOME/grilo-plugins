@@ -78,6 +78,7 @@ main (void)
 {
   gchar *name;
   GList *keys;
+  guint browse_id = 0;
 
   g_type_init ();
 
@@ -116,12 +117,17 @@ main (void)
   if (0) ms_media_source_search (source, NULL, NULL, NULL, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
   if (0) ms_metadata_source_get (MS_METADATA_SOURCE (source), NULL, NULL, 0, metadata_cb, NULL);
 
-  if (0) ms_media_source_browse (youtube, NULL, keys, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
+  if (1) browse_id = ms_media_source_browse (youtube, NULL, keys, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, NULL, keys, 0, 0, 0, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 0, 0, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
-  if (1) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "IQJx4YL3Pl8", keys, MS_METADATA_RESOLUTION_FULL, metadata_cb, NULL);
+  if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "IQJx4YL3Pl8", keys, MS_METADATA_RESOLUTION_FULL, metadata_cb, NULL);
 
   if (0) ms_metadata_source_get (metadata_source, NULL, NULL, MS_METADATA_RESOLUTION_FULL, metadata_cb, NULL);
+
+
+  if (browse_id) {
+    g_print ("Brows id: %u\n", browse_id);
+  }
 
   g_print ("testing properties\n");
   

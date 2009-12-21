@@ -134,8 +134,9 @@ youtube_parse_response (gchar **xml,
     *url = youtube_get_video_url (*id);
 }
 			
-static guint
+static void
 youtube_source_browse (MsMediaSource *source, 
+		       guint browse_id,
 		       const gchar *container_id,
 		       const GList *keys,
 		       guint skip,
@@ -182,12 +183,11 @@ youtube_source_browse (MsMediaSource *source,
     n++;
     callback (source, 0, MS_CONTENT(content), 25 - n, user_data, NULL);
   }
-
-  return 0;
 }
 
-static guint
+static void
 youtube_source_search (MsMediaSource *source,
+		       guint search_id,
 		       const gchar *text,
 		       const GList *keys,
 		       const gchar *filter,
@@ -236,8 +236,6 @@ youtube_source_search (MsMediaSource *source,
     n++;
     callback (source, 0, MS_CONTENT(content), 10 - n, user_data, NULL);
   }
-
-  return 0;
 }
 
 static void

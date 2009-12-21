@@ -47,8 +47,9 @@ fake_media_plugin_init (MsPluginRegistry *registry, const MsPluginInfo *plugin)
   return TRUE;
 }
 
-static guint
+static void
 fake_media_source_browse (MsMediaSource *source, 
+			  guint browse_id,
 			  const gchar *container_id,
 			  const GList *keys,
 			  guint skip,
@@ -59,12 +60,11 @@ fake_media_source_browse (MsMediaSource *source,
   g_print ("fake_media_source_browse\n");
 
   callback (source, 0, NULL, 0, user_data, NULL);
-
-  return 0;
 }
 
-static guint
+static void
 fake_media_source_search (MsMediaSource *source,
+			  guint browse_id,
 			  const gchar *text,
 			  const GList *keys,
 			  const gchar *filter,
@@ -76,8 +76,6 @@ fake_media_source_search (MsMediaSource *source,
   g_print ("fake_media_source_search\n");
 
   callback (source, 0, NULL, 0, user_data, NULL);
-
-  return 0;
 }
 
 static void

@@ -69,6 +69,8 @@ AM_GLIB_GNU_GETTEXT
 # DEPENDENCIES
 # ----------------------------------------------------------
 
+# Framework
+
 PKG_CHECK_MODULES(DEPS, glib-2.0 \
 			gobject-2.0 \
 			gmodule-2.0)
@@ -77,10 +79,19 @@ PKG_CHECK_MODULES(DEPS, glib-2.0 \
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
-PKG_CHECK_MODULES(VFS, gnome-vfs-2.0)
+# Plugins
 
+PKG_CHECK_MODULES(VFS, gnome-vfs-2.0, HAVE_VFS=yes, HAVE_VFS=no)
 AC_SUBST(VFS_CFLAGS)
 AC_SUBST(VFS_LIBS)
+AC_SUBST(HAVE_VFS)
+AM_CONDITIONAL(HAVE_VFS, test "x$HAVE_VFS" = "xyes")
+
+PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
+AC_SUBST(XML_CFLAGS)
+AC_SUBST(XML_LIBS)
+AC_SUBST(HAVE_XML)
+AM_CONDITIONAL(HAVE_XML, test "x$HAVE_XML" = "xyes")
 
 # ----------------------------------------------------------
 # WORKAROUNDS
@@ -96,7 +107,7 @@ AC_CONFIG_FILES([
   Makefile
   media-store-uninstalled.pc
   src/Makefile
-  src/content/Makefile
+  src/youtube/Makefile
   test/Makefile
 ])
 

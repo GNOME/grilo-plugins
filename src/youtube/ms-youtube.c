@@ -86,29 +86,13 @@ gboolean ms_youtube_plugin_init (MsPluginRegistry *registry,
 static const GList *ms_youtube_source_supported_keys (MsMetadataSource *source);
 
 static void ms_youtube_source_metadata (MsMetadataSource *source,
-					const gchar *object_id,
-					const GList *keys,
-					MsMetadataSourceResultCb callback,
-					gpointer user_data);
+					MsMetadataSourceMetadataSpec *ms);
 
 static void ms_youtube_source_search (MsMediaSource *source,
-				      guint browse_id,
-				      const gchar *text,
-				      const GList *keys,
-				      const gchar *filter,
-				      guint skip,
-				      guint count,
-				      MsMediaSourceResultCb callback,
-				      gpointer user_data);
+				      MsMediaSourceSearchSpec *ss);
 
-static void ms_youtube_source_browse (MsMediaSource *source, 
-				      guint search_id,
-				      const gchar *container_id,
-				      const GList *keys,
-				      guint skip,
-				      guint count,
-				      MsMediaSourceResultCb callback,
-				      gpointer user_data);
+static void ms_youtube_source_browse (MsMediaSource *source,
+				      MsMediaSourceBrowseSpec *bs);
 
 static gchar *read_url (const gchar *url);
 
@@ -517,7 +501,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
 }
 
 static MsContent *
-parse_metadata_entry (MetadataOperationSpec *os,
+parse_metadata_entry (MsMetadataSourceMetadataSpec *os,
 		      xmlDocPtr doc,
 		      xmlNodePtr node,
 		      GError **error)
@@ -568,7 +552,7 @@ parse_metadata_entry (MetadataOperationSpec *os,
 }
 
 static MsContent *
-parse_metadata_feed (MetadataOperationSpec *os,
+parse_metadata_feed (MsMetadataSourceMetadataSpec *os,
 		     const gchar *str,
 		     GError **error)
 {
@@ -634,24 +618,17 @@ ms_youtube_source_supported_keys (MsMetadataSource *source)
 }
 
 static void
-ms_youtube_source_browse (MsMediaSource *source, 
-			  guint browse_id,
-			  const gchar *container_id,
-			  const GList *keys,
-			  guint skip,
-			  guint count,
-			  MsMediaSourceResultCb callback,
-			  gpointer user_data)
+ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
 {
   gchar *xmldata, *url;
-  OperationSpec *os;
   GError *error = NULL;
+  OperationSpec *os;
 
   g_debug ("ms_youtube_source_browse");
 
   /* TODO: create root categories */
 
-  url = g_strdup_printf (YOUTUBE_MOST_VIEWED_URL, skip + 1, count);
+  url = g_strdup_printf (YOUTUBE_MOST_VIEWED_URL, bs->skip + 1, bs->count);
   xmldata = read_url (url);
   g_free (url);
 
@@ -659,20 +636,19 @@ ms_youtube_source_browse (MsMediaSource *source,
     GError *error = g_error_new (MS_ERROR,
 				 MS_ERROR_BROWSE_FAILED,
 				 "Failed to connect to Youtube");
-    callback (source, browse_id, NULL, 0, user_data, error);    
+    bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
     return;
   }
 
-  /* TODO: ref/copy stuff in the base class */
   os = g_new0 (OperationSpec, 1);
-  os->source = g_object_ref (source);
-  os->operation_id = browse_id;
-  os->keys = g_list_copy ((GList *) keys);
-  os->skip = skip;
-  os->count = count;
-  os->callback = callback;
-  os->user_data = user_data;
+  os->source = bs->source;
+  os->operation_id = bs->browse_id;
+  os->keys = bs->keys;
+  os->skip = bs->skip;
+  os->count = bs->count;
+  os->callback = bs->callback;
+  os->user_data = bs->user_data;
 
   parse_feed (os, xmldata, &error);
   g_free (xmldata);
@@ -681,18 +657,12 @@ ms_youtube_source_browse (MsMediaSource *source,
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
   }
+
+  g_free (os);
 }
 
 static void
-ms_youtube_source_search (MsMediaSource *source,
-			  guint search_id,
-			  const gchar *text,
-			  const GList *keys,
-			  const gchar *filter,
-			  guint skip,
-			  guint count,
-			  MsMediaSourceResultCb callback,
-			  gpointer user_data)
+ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
 {
   gchar *xmldata, *url;
   OperationSpec *os;
@@ -700,11 +670,11 @@ ms_youtube_source_search (MsMediaSource *source,
 
   g_debug ("ms_youtube_source_search");
 
-  if (filter) {
+  if (ss->filter) {
     g_warning ("Search filter not supported, ignoring filter argument");
   }
 
-  url = g_strdup_printf (YOUTUBE_SEARCH_URL, text, skip + 1, count);
+  url = g_strdup_printf (YOUTUBE_SEARCH_URL, ss->text, ss->skip + 1, ss->count);
   xmldata = read_url (url);
   g_free (url);
 
@@ -712,19 +682,19 @@ ms_youtube_source_search (MsMediaSource *source,
     GError *error = g_error_new (MS_ERROR,
 				 MS_ERROR_SEARCH_FAILED,
 				 "Failed to connect to Youtube");
-    callback (source, search_id, NULL, 0, user_data, error);    
+    ss->callback (source, ss->search_id, NULL, 0, ss->user_data, error);    
     g_error_free (error);
     return;
   }
 
   os = g_new0 (OperationSpec, 1);
-  os->source = g_object_ref (source);
-  os->operation_id = search_id;
-  os->keys = g_list_copy ((GList *) keys);
-  os->skip = skip;
-  os->count = count;
-  os->callback = callback;
-  os->user_data = user_data;
+  os->source = source;
+  os->operation_id = ss->search_id;
+  os->keys = ss->keys;
+  os->skip = ss->skip;
+  os->count = ss->count;
+  os->callback = ss->callback;
+  os->user_data = ss->user_data;
 
   parse_feed (os, xmldata, &error);
   g_free (xmldata);
@@ -734,24 +704,22 @@ ms_youtube_source_search (MsMediaSource *source,
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
   }
+
+  g_free (os);
 }
 
 static void
 ms_youtube_source_metadata (MsMetadataSource *source,
-			    const gchar *object_id,
-			    const GList *keys,
-			    MsMetadataSourceResultCb callback,
-			    gpointer user_data)
+			    MsMetadataSourceMetadataSpec *ms)
 {
   gchar *xmldata, *url;
-  MetadataOperationSpec *os;
   GError *error = NULL;
   MsContent *media;
 
   g_debug ("ms_youtube_source_metadata");
 
   /* For metadata retrieval we just search by text using the video ID */
-  url = g_strdup_printf (YOUTUBE_SEARCH_URL, object_id, 1, 1);
+  url = g_strdup_printf (YOUTUBE_SEARCH_URL, ms->object_id, 1, 1);
   xmldata = read_url (url);
   g_free (url);
 
@@ -759,24 +727,18 @@ ms_youtube_source_metadata (MsMetadataSource *source,
     GError *error = g_error_new (MS_ERROR,
 				 MS_ERROR_METADATA_FAILED,
 				 "Failed to connect to Youtube");
-    callback (source, NULL, user_data, error);    
+    ms->callback (source, NULL, ms->user_data, error);    
     g_error_free (error);
     return;
   }
 
-  os = g_new0 (MetadataOperationSpec, 1);
-  os->source = g_object_ref (source);
-  os->keys = g_list_copy ((GList *) keys);
-  os->callback = callback;
-  os->user_data = user_data;
-
-  media = parse_metadata_feed (os, xmldata, &error);
+  media = parse_metadata_feed (ms, xmldata, &error);
   g_free (xmldata);
 
   if (error) {
-    os->callback (os->source, NULL, os->user_data, error);
+    ms->callback (ms->source, NULL, ms->user_data, error);
     g_error_free (error);
   } else {
-    os->callback (os->source, media, os->user_data, NULL);
+    ms->callback (ms->source, media, ms->user_data, NULL);
   }
 }

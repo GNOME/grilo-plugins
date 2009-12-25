@@ -47,6 +47,10 @@ browse_cb (MsMediaSource *source,
   }
   g_free (keys);
   g_object_unref (media);
+
+  if (remaining == 0) {
+    g_print ("  Browse operation finished\n");
+  }
 }
 
 static void 
@@ -75,6 +79,8 @@ metadata_cb (MsMetadataSource *source,
   }
   g_free (keys);
   g_object_unref (media);
+
+  g_print ("  Metadata operation finished\n");
 }
 
 gint
@@ -116,8 +122,13 @@ main (void)
   g_print ("testing\n");
 
   if (0) ms_media_source_browse (source, NULL, keys, 92, 1, 0, browse_cb, NULL);
-  if (1) ms_media_source_search (source, "igalia", keys, NULL, 1, 3, 0, browse_cb, NULL);
-  if (0) ms_metadata_source_get (MS_METADATA_SOURCE (source), "okVW_YSHSPU", keys, 0, metadata_cb, NULL);
+  if (0) ms_media_source_search (source, "igalia", keys, NULL, 1, 3, 0, browse_cb, NULL);
+  if (1) ms_metadata_source_get (MS_METADATA_SOURCE (source), "okVW_YSHSPU", keys, 0, metadata_cb, NULL);
+
+  g_print ("Running main loop\n");
+
+  GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+  g_main_loop_run (loop);
 
   g_print ("done\n");
 

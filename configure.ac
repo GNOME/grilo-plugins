@@ -108,6 +108,7 @@ AC_CONFIG_FILES([
   media-store-uninstalled.pc
   src/Makefile
   src/youtube/Makefile
+  src/fake-metadata/Makefile
   test/Makefile
 ])
 

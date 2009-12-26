@@ -105,25 +105,26 @@ main (void)
 
   g_print ("start\n");
 
-  g_print ("loading plugin\n");
+  g_print ("loading plugins\n");
 
   MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
   ms_plugin_registry_load (registry, "../plugins/youtube/.libs/libmsyoutube.so");
+  ms_plugin_registry_load (registry, "../plugins/fake-metadata/.libs/libfakemetadata.so");
 
-  g_print ("Obtaining source\n");
+  g_print ("Obtaining sources\n");
 
-  MsMediaSource *source = 
+  MsMediaSource *youtube = 
     (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-youtube");
 
-  g_assert (source);
+  g_assert (youtube);
 
-  g_print ("  source obtained\n");
+  g_print ("  youtube source obtained\n");
 
   g_print ("testing\n");
 
-  if (0) ms_media_source_browse (source, NULL, keys, 92, 1, 0, browse_cb, NULL);
-  if (0) ms_media_source_search (source, "igalia", keys, NULL, 1, 3, 0, browse_cb, NULL);
-  if (1) ms_metadata_source_get (MS_METADATA_SOURCE (source), "okVW_YSHSPU", keys, 0, metadata_cb, NULL);
+  if (1) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
+  if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 3, 0, browse_cb, NULL);
+  if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "okVW_YSHSPU", keys, 0, metadata_cb, NULL);
 
   g_print ("Running main loop\n");
 

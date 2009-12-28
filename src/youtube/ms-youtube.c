@@ -78,6 +78,14 @@ typedef struct {
   gpointer user_data;
 } MetadataOperationSpec;
 
+typedef struct {
+  OperationSpec *os;
+  xmlNodePtr node;
+  xmlDocPtr doc;
+  guint total_results;
+  guint index;
+} ParseEntriesIdle;
+
 static MsYoutubeSource *ms_youtube_source_new (void);
 
 gboolean ms_youtube_plugin_init (MsPluginRegistry *registry,
@@ -398,10 +406,50 @@ parse_entry (xmlDocPtr doc, xmlNodePtr entry, Entry *data)
   }
 }
 
+static gboolean
+parse_entries_idle (gpointer user_data)
+{
+  ParseEntriesIdle *pei = (ParseEntriesIdle *) user_data;
+  gboolean parse_more = FALSE;
+
+  g_debug ("parse_entries_idle");
+
+  while (pei->node && xmlStrcmp (pei->node->name,
+				 (const xmlChar *) "entry")) {
+    pei->node = pei->node->next;
+  }
+  if (pei->node) {
+    Entry *entry = g_new0 (Entry, 1);
+    parse_entry (pei->doc, pei->node, entry);
+    if (0) print_entry (entry);
+    MsContent *media = build_media_from_entry (entry, pei->os->keys);
+    free_entry (entry);
+    
+    pei->index++;
+    pei->os->callback (pei->os->source,
+		       pei->os->operation_id,
+		       media,
+		       pei->total_results - pei->index,
+		       pei->os->user_data,
+		       NULL);
+    
+    pei->node = pei->node->next;
+    parse_more = TRUE;
+  }
+
+  if (!parse_more) {
+    xmlFreeDoc (pei->doc);
+    g_free (pei->os);
+    g_free (pei);
+  }
+  
+  return parse_more;
+}
+
 static void
 parse_entries (OperationSpec *os, xmlDocPtr doc, xmlNodePtr node)
 {
-  guint index = 0, total_results = 0;
+  guint total_results = 0;
   xmlNs *ns;
 
   /* First checkout search information looking for totalResults */
@@ -432,28 +480,13 @@ parse_entries (OperationSpec *os, xmlDocPtr doc, xmlNodePtr node)
   }
 
   /* Now go for the entries */
-  while (node) {
-    while (node && xmlStrcmp (node->name, (const xmlChar *) "entry")) {
-      node = node->next;
-    }
-    if (node) {
-      Entry *entry = g_new0 (Entry, 1);
-      parse_entry (doc, node, entry);
-      if (0) print_entry (entry);
-      MsContent *media = build_media_from_entry (entry, os->keys);
-      free_entry (entry);
-
-      index++;
-      os->callback (os->source,
-		    os->operation_id,
-		    media,
-		    total_results - index,
-		    os->user_data,
-		    NULL);
-
-      node = node->next;
-    }
-  }
+  ParseEntriesIdle *pei = g_new (ParseEntriesIdle, 1);
+  pei->os = os;
+  pei->node = node;
+  pei->doc = doc;
+  pei->total_results = total_results;
+  pei->index = 0;
+  g_idle_add (parse_entries_idle, pei);
 }
 
 static void
@@ -494,6 +527,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   }
 
   parse_entries (os, doc, node);
+  return;
   
  free_resources:
   xmlFreeDoc (doc);
@@ -656,9 +690,8 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
   if (error) {
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
+    g_free (os);
   }
-
-  g_free (os);
 }
 
 static void
@@ -703,9 +736,8 @@ ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
     error->code = MS_ERROR_SEARCH_FAILED;
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
+    g_free (os);
   }
-
-  g_free (os);
 }
 
 static void

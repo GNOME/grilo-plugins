@@ -33,10 +33,37 @@
 
 #include "ms-youtube.h"
 
-#define YOUTUBE_MOST_VIEWED_URL  "http://gdata.youtube.com/feeds/standardfeeds/most_viewed?start-index=%d&max-results=%d"
-#define YOUTUBE_VIDEO_INFO_URL   "http://www.youtube.com/get_video_info?video_id=%s"
-#define YOUTUBE_VIDEO_URL        "http://www.youtube.com/get_video?video_id=%s&t=%s"
-#define YOUTUBE_SEARCH_URL       "http://gdata.youtube.com/feeds/api/videos?vq=%s&start-index=%d&max-results=%d"
+#define YOUTUBE_VIEWED_ID      "most-viewed"
+#define YOUTUBE_VIEWED_NAME    "Most viewed"
+#define YOUTUBE_VIEWED_URL     "http://gdata.youtube.com/feeds/standardfeeds/most_viewed?start-index=%d&max-results=%d"
+
+#define YOUTUBE_RATED_ID       "most-rated"
+#define YOUTUBE_RATED_NAME     "Most rated"
+#define YOUTUBE_RATED_URL      "http://gdata.youtube.com/feeds/standardfeeds/top_rated?start-index=%d&max-results=%d"
+
+#define YOUTUBE_FAVS_ID         "top-favs"
+#define YOUTUBE_FAVS_NAME       "Top favourites"
+#define YOUTUBE_FAVS_URL        "http://gdata.youtube.com/feeds/standardfeeds/top_favourites?start-index=%d&max-results=%d"
+
+#define YOUTUBE_RECENT_ID      "most-recent"
+#define YOUTUBE_RECENT_NAME    "Most recent"
+#define YOUTUBE_RECENT_URL     "http://gdata.youtube.com/feeds/standardfeeds/most_recent?start-index=%d&max-results=%d"
+
+#define YOUTUBE_DISCUSSED_ID   "most-discussed"
+#define YOUTUBE_DISCUSSED_NAME "Most discussed"
+#define YOUTUBE_DISCUSSED_URL  "http://gdata.youtube.com/feeds/standardfeeds/most_discussed?start-index=%d&max-results=%d"
+
+#define YOUTUBE_FEATURED_ID    "featured"
+#define YOUTUBE_FEATURED_NAME  "Featured"
+#define YOUTUBE_FEATURED_URL   "http://gdata.youtube.com/feeds/standardfeeds/recently_featured?start-index=%d&max-results=%d"
+
+#define YOUTUBE_MOBILE_ID      "mobile"
+#define YOUTUBE_MOBILE_NAME    "Watch on mobile"
+#define YOUTUBE_MOBILE_URL     "http://gdata.youtube.com/feeds/standardfeeds/watch_on_mobile?start-index=%d&max-results=%d"
+
+#define YOUTUBE_VIDEO_INFO_URL "http://www.youtube.com/get_video_info?video_id=%s"
+#define YOUTUBE_VIDEO_URL      "http://www.youtube.com/get_video?video_id=%s&t=%s"
+#define YOUTUBE_SEARCH_URL     "http://gdata.youtube.com/feeds/api/videos?vq=%s&start-index=%d&max-results=%d"
 
 #define PLUGIN_ID   "ms-youtube"
 #define PLUGIN_NAME "Youtube"
@@ -86,6 +113,12 @@ typedef struct {
   guint index;
 } ParseEntriesIdle;
 
+typedef struct {
+  gchar *id;
+  gchar *name;
+  gchar *url;
+} CategoryInfo;
+
 static MsYoutubeSource *ms_youtube_source_new (void);
 
 gboolean ms_youtube_plugin_init (MsPluginRegistry *registry,
@@ -103,6 +136,20 @@ static void ms_youtube_source_browse (MsMediaSource *source,
 				      MsMediaSourceBrowseSpec *bs);
 
 static gchar *read_url (const gchar *url);
+
+/* ==================== Global Data  ================= */
+
+CategoryInfo directory[] = {
+  {YOUTUBE_VIEWED_ID, YOUTUBE_VIEWED_NAME, YOUTUBE_VIEWED_URL},
+  {YOUTUBE_RATED_ID, YOUTUBE_RATED_NAME, YOUTUBE_RATED_URL},
+  {YOUTUBE_FAVS_ID, YOUTUBE_FAVS_NAME, YOUTUBE_FAVS_URL},
+  {YOUTUBE_RECENT_ID, YOUTUBE_RECENT_NAME, YOUTUBE_RECENT_URL},
+  {YOUTUBE_DISCUSSED_ID, YOUTUBE_DISCUSSED_NAME, YOUTUBE_DISCUSSED_URL},
+  {YOUTUBE_FEATURED_ID, YOUTUBE_FEATURED_NAME, YOUTUBE_FEATURED_URL},
+  {YOUTUBE_MOBILE_ID, YOUTUBE_MOBILE_NAME, YOUTUBE_MOBILE_URL},
+  {NULL, NULL, NULL}
+};
+
 
 /* =================== Youtube Plugin  =============== */
 
@@ -632,6 +679,54 @@ parse_metadata_feed (MsMetadataSourceMetadataSpec *os,
   return media;
 }
 
+static void
+produce_root_category (MsMediaSourceBrowseSpec *bs)
+{
+  g_debug ("produce_root_category");
+
+  guint index = 0;
+  GList *categories = NULL, *iter;
+
+  while (directory[index].id) {
+    MsContent *content = ms_content_new (TRUE);
+    ms_content_media_set_id (content, g_strdup (directory[index].id));
+    ms_content_media_set_title (content, g_strdup (directory[index].name));
+    categories = g_list_prepend (categories, content);
+    index++;
+  }
+  categories = g_list_reverse (categories);
+  
+  iter = categories;
+  while (iter) {
+    bs->callback (bs->source,
+		  bs->browse_id,
+		  MS_CONTENT (iter->data),
+		  --index,
+		  bs->user_data,
+		  NULL);
+    iter = g_list_next (iter);
+  }
+
+  g_list_free (categories);
+}
+
+static const gchar *
+get_container_url (const gchar *container_id)
+{
+  g_debug ("get_container_url (%s)", container_id);
+
+  guint index = 0;
+  while (directory[index].id && 
+	 strcmp (container_id, directory[index].id)) {
+    index++;
+  }
+  if (directory[index].id) {
+    return directory[index].url;
+  } else {
+    return NULL;
+  }
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -655,42 +750,46 @@ static void
 ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
 {
   gchar *xmldata, *url;
+  const gchar *_url;
   GError *error = NULL;
   OperationSpec *os;
 
   g_debug ("ms_youtube_source_browse");
 
-  /* TODO: create root categories */
-
-  url = g_strdup_printf (YOUTUBE_MOST_VIEWED_URL, bs->skip + 1, bs->count);
-  xmldata = read_url (url);
-  g_free (url);
-
-  if (!xmldata) {
-    GError *error = g_error_new (MS_ERROR,
-				 MS_ERROR_BROWSE_FAILED,
-				 "Failed to connect to Youtube");
-    bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, error);
-    g_error_free (error);
-    return;
-  }
-
-  os = g_new0 (OperationSpec, 1);
-  os->source = bs->source;
-  os->operation_id = bs->browse_id;
-  os->keys = bs->keys;
-  os->skip = bs->skip;
-  os->count = bs->count;
-  os->callback = bs->callback;
-  os->user_data = bs->user_data;
-
-  parse_feed (os, xmldata, &error);
-  g_free (xmldata);
-
-  if (error) {
-    os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
-    g_error_free (error);
-    g_free (os);
+  if (!bs->container_id) {
+    produce_root_category (bs);
+  } else {
+    _url = get_container_url (bs->container_id);
+    url = g_strdup_printf (_url, bs->skip + 1, bs->count);
+    xmldata = read_url (url);
+    g_free (url);
+    
+    if (!xmldata) {
+      GError *error = g_error_new (MS_ERROR,
+				   MS_ERROR_BROWSE_FAILED,
+				   "Failed to connect to Youtube");
+      bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, error);
+      g_error_free (error);
+      return;
+    }
+    
+    os = g_new0 (OperationSpec, 1);
+    os->source = bs->source;
+    os->operation_id = bs->browse_id;
+    os->keys = bs->keys;
+    os->skip = bs->skip;
+    os->count = bs->count;
+    os->callback = bs->callback;
+    os->user_data = bs->user_data;
+    
+    parse_feed (os, xmldata, &error);
+    g_free (xmldata);
+    
+    if (error) {
+      os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
+      g_error_free (error);
+      g_free (os);
+    }
   }
 }
 

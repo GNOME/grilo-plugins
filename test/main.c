@@ -122,8 +122,9 @@ main (void)
 
   g_print ("testing\n");
 
-  if (1) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
-  if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 3, 0, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_METADATA_RESOLUTION_USE_RELAY, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_METADATA_RESOLUTION_USE_RELAY | MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
+  if (1) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 3, MS_METADATA_RESOLUTION_USE_RELAY, browse_cb, NULL);
   if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "okVW_YSHSPU", keys, 0, metadata_cb, NULL);
 
   g_print ("Running main loop\n");

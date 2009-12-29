@@ -12,13 +12,16 @@ print_metadata (MsContent *content, MsKeyID key_id)
 
   MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
   const MsMetadataKey *key = 
-    ms_plugin_registry_lookup_metadata_key (registry, GPOINTER_TO_UINT (key_id));
+    ms_plugin_registry_lookup_metadata_key (registry,
+					    GPOINTER_TO_UINT (key_id));
 
   const GValue *value = ms_content_get (MS_CONTENT(content), key_id);
   if (value && G_VALUE_HOLDS_STRING (value)) {
-    g_print ("\t%s: %s\n", MS_METADATA_KEY_GET_NAME (key), g_value_get_string (value));
+    g_print ("\t%s: %s\n", MS_METADATA_KEY_GET_NAME (key),
+	     g_value_get_string (value));
   } else if (value && G_VALUE_HOLDS_INT (value)) {
-    g_print ("\t%s: %d\n",  MS_METADATA_KEY_GET_NAME (key), g_value_get_int (value));
+    g_print ("\t%s: %d\n",  MS_METADATA_KEY_GET_NAME (key),
+	     g_value_get_int (value));
   }
 }
 
@@ -41,7 +44,8 @@ browse_cb (MsMediaSource *source,
   if (!media)
     return;
 
-  g_print ("\tContainer: %s\n", ms_content_is_container (media) ? "yes" : "no");
+  g_print ("\tContainer: %s\n",
+	   ms_content_is_container (media) ? "yes" : "no");
 
   keys = ms_content_get_keys (media, &size);
   for (i = 0; i < size; i++) {

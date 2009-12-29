@@ -41,9 +41,9 @@
 #define YOUTUBE_RATED_NAME     "Most rated"
 #define YOUTUBE_RATED_URL      "http://gdata.youtube.com/feeds/standardfeeds/top_rated?start-index=%d&max-results=%d"
 
-#define YOUTUBE_FAVS_ID         "top-favs"
-#define YOUTUBE_FAVS_NAME       "Top favourites"
-#define YOUTUBE_FAVS_URL        "http://gdata.youtube.com/feeds/standardfeeds/top_favourites?start-index=%d&max-results=%d"
+#define YOUTUBE_FAVS_ID        "top-favs"
+#define YOUTUBE_FAVS_NAME      "Top favourites"
+#define YOUTUBE_FAVS_URL       "http://gdata.youtube.com/feeds/standardfeeds/top_favourites?start-index=%d&max-results=%d"
 
 #define YOUTUBE_RECENT_ID      "most-recent"
 #define YOUTUBE_RECENT_NAME    "Most recent"

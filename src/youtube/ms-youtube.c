@@ -688,7 +688,7 @@ produce_root_category (MsMediaSourceBrowseSpec *bs)
   GList *categories = NULL, *iter;
 
   while (directory[index].id) {
-    MsContent *content = ms_content_new (TRUE);
+    MsContentMedia *content = ms_content_media_container_new ();
     ms_content_media_set_id (content, g_strdup (directory[index].id));
     ms_content_media_set_title (content, g_strdup (directory[index].name));
     categories = g_list_prepend (categories, content);

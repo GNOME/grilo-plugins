@@ -41,7 +41,7 @@ browse_cb (MsMediaSource *source,
   if (!media)
     return;
 
-  g_print ("\tContainer: %d\n", ms_content_is_container (media));
+  g_print ("\tContainer: %s\n", ms_content_is_container (media) ? "yes" : "no");
 
   keys = ms_content_get_keys (media, &size);
   for (i = 0; i < size; i++) {
@@ -94,7 +94,7 @@ main (void)
 
   keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
 				   MS_METADATA_KEY_TITLE,
-                                   MS_METADATA_KEY_URL,
+				   MS_METADATA_KEY_URL,
                                    MS_METADATA_KEY_ALBUM,
                                    MS_METADATA_KEY_ARTIST,
                                    MS_METADATA_KEY_GENRE,
@@ -124,10 +124,10 @@ main (void)
 
   g_print ("testing\n");
 
-  if (0) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_METADATA_RESOLUTION_USE_RELAY, browse_cb, NULL);
-  if (0) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_METADATA_RESOLUTION_USE_RELAY | MS_METADATA_RESOLUTION_FULL, browse_cb, NULL);
-  if (1) ms_media_source_browse (youtube, NULL, keys, 0, 5, 0, browse_cb, NULL);
-  if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 3, MS_METADATA_RESOLUTION_USE_RELAY, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, "most-viewed", keys, 0, 5, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, "most-viewed", keys, 0, 5, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
+  if (1) ms_media_source_browse (youtube, "most-viewed", keys, 0, 5, 0, browse_cb, NULL);
+  if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 3, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 10, 0, browse_cb, NULL);
   if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "okVW_YSHSPU", keys, 0, metadata_cb, NULL);
 

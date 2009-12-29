@@ -41,6 +41,10 @@ browse_cb (MsMediaSource *source,
   g_print ("  browse result (%d - %d|%d)\n",
 	   browse_id, index++, remaining);
 
+  if (error) {
+    g_error ("Got error from browse: %s", error->message);
+  }
+
   if (!media)
     return;
 
@@ -130,7 +134,7 @@ main (void)
 
   if (0) ms_media_source_browse (youtube, "most-viewed", keys, 0, 5, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, "most-viewed", keys, 0, 5, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
-  if (1) ms_media_source_browse (youtube, "most-viewed", keys, 0, 5, 0, browse_cb, NULL);
+  if (1) ms_media_source_browse (youtube, "categories/Sports", keys, 0, 5, 0, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 3, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 10, 0, browse_cb, NULL);
   if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "okVW_YSHSPU", keys, 0, metadata_cb, NULL);

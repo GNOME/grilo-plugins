@@ -33,37 +33,52 @@
 
 #include "ms-youtube.h"
 
-#define YOUTUBE_VIEWED_ID      "most-viewed"
-#define YOUTUBE_VIEWED_NAME    "Most viewed"
-#define YOUTUBE_VIEWED_URL     "http://gdata.youtube.com/feeds/standardfeeds/most_viewed?start-index=%d&max-results=%d"
+/* ----- Root categories ---- */ 
 
-#define YOUTUBE_RATED_ID       "most-rated"
-#define YOUTUBE_RATED_NAME     "Most rated"
-#define YOUTUBE_RATED_URL      "http://gdata.youtube.com/feeds/standardfeeds/top_rated?start-index=%d&max-results=%d"
+#define YOUTUBE_FEEDS_ID        "standard-feeds"
+#define YOUTUBE_FEEDS_NAME      "Standard feeds"
+#define YOUTUBE_FEEDS_URL       NULL
 
-#define YOUTUBE_FAVS_ID        "top-favs"
-#define YOUTUBE_FAVS_NAME      "Top favourites"
-#define YOUTUBE_FAVS_URL       "http://gdata.youtube.com/feeds/standardfeeds/top_favourites?start-index=%d&max-results=%d"
+#define YOUTUBE_CATEGORIES_ID   "categories"
+#define YOUTUBE_CATEGORIES_NAME "Categories"
+#define YOUTUBE_CATEGORIES_URL  "http://gdata.youtube.com/schemas/2007/categories.cat"
 
-#define YOUTUBE_RECENT_ID      "most-recent"
-#define YOUTUBE_RECENT_NAME    "Most recent"
-#define YOUTUBE_RECENT_URL     "http://gdata.youtube.com/feeds/standardfeeds/most_recent?start-index=%d&max-results=%d"
+/* ----- Feeds categories ---- */ 
 
-#define YOUTUBE_DISCUSSED_ID   "most-discussed"
-#define YOUTUBE_DISCUSSED_NAME "Most discussed"
-#define YOUTUBE_DISCUSSED_URL  "http://gdata.youtube.com/feeds/standardfeeds/most_discussed?start-index=%d&max-results=%d"
+#define YOUTUBE_VIEWED_ID       (YOUTUBE_FEEDS_ID "/most-viewed")
+#define YOUTUBE_VIEWED_NAME     "Most viewed"
+#define YOUTUBE_VIEWED_URL      "http://gdata.youtube.com/feeds/standardfeeds/most_viewed?start-index=%d&max-results=%d"
 
-#define YOUTUBE_FEATURED_ID    "featured"
-#define YOUTUBE_FEATURED_NAME  "Featured"
-#define YOUTUBE_FEATURED_URL   "http://gdata.youtube.com/feeds/standardfeeds/recently_featured?start-index=%d&max-results=%d"
+#define YOUTUBE_RATED_ID        (YOUTUBE_FEEDS_ID "/most-rated")
+#define YOUTUBE_RATED_NAME      "Most rated"
+#define YOUTUBE_RATED_URL       "http://gdata.youtube.com/feeds/standardfeeds/top_rated?start-index=%d&max-results=%d"
 
-#define YOUTUBE_MOBILE_ID      "mobile"
-#define YOUTUBE_MOBILE_NAME    "Watch on mobile"
-#define YOUTUBE_MOBILE_URL     "http://gdata.youtube.com/feeds/standardfeeds/watch_on_mobile?start-index=%d&max-results=%d"
+#define YOUTUBE_FAVS_ID         (YOUTUBE_FEEDS_ID "/top-favs")
+#define YOUTUBE_FAVS_NAME       "Top favourites"
+#define YOUTUBE_FAVS_URL        "http://gdata.youtube.com/feeds/standardfeeds/top_favourites?start-index=%d&max-results=%d"
 
-#define YOUTUBE_VIDEO_INFO_URL "http://www.youtube.com/get_video_info?video_id=%s"
-#define YOUTUBE_VIDEO_URL      "http://www.youtube.com/get_video?video_id=%s&t=%s"
-#define YOUTUBE_SEARCH_URL     "http://gdata.youtube.com/feeds/api/videos?vq=%s&start-index=%d&max-results=%d"
+#define YOUTUBE_RECENT_ID       (YOUTUBE_FEEDS_ID "/most-recent")
+#define YOUTUBE_RECENT_NAME     "Most recent"
+#define YOUTUBE_RECENT_URL      "http://gdata.youtube.com/feeds/standardfeeds/most_recent?start-index=%d&max-results=%d"
+
+#define YOUTUBE_DISCUSSED_ID    (YOUTUBE_FEEDS_ID "/most-discussed")
+#define YOUTUBE_DISCUSSED_NAME  "Most discussed"
+#define YOUTUBE_DISCUSSED_URL   "http://gdata.youtube.com/feeds/standardfeeds/most_discussed?start-index=%d&max-results=%d"
+
+#define YOUTUBE_FEATURED_ID     (YOUTUBE_FEEDS_ID "/featured")
+#define YOUTUBE_FEATURED_NAME   "Featured"
+#define YOUTUBE_FEATURED_URL    "http://gdata.youtube.com/feeds/standardfeeds/recently_featured?start-index=%d&max-results=%d"
+
+#define YOUTUBE_MOBILE_ID       (YOUTUBE_FEEDS_ID "/mobile")
+#define YOUTUBE_MOBILE_NAME     "Watch on mobile"
+#define YOUTUBE_MOBILE_URL      "http://gdata.youtube.com/feeds/standardfeeds/watch_on_mobile?start-index=%d&max-results=%d"
+
+/* ----- Other Youtube URLs ---- */ 
+
+#define YOUTUBE_VIDEO_INFO_URL  "http://www.youtube.com/get_video_info?video_id=%s"
+#define YOUTUBE_VIDEO_URL       "http://www.youtube.com/get_video?video_id=%s&t=%s"
+#define YOUTUBE_SEARCH_URL      "http://gdata.youtube.com/feeds/api/videos?vq=%s&start-index=%d&max-results=%d"
+#define YOUTUBE_CATEGORY_URL    "http://gdata.youtube.com/feeds/api/videos/-/%s?&start-index=%s&max-results=%s"
 
 #define PLUGIN_ID   "ms-youtube"
 #define PLUGIN_NAME "Youtube"
@@ -137,9 +152,17 @@ static void ms_youtube_source_browse (MsMediaSource *source,
 
 static gchar *read_url (const gchar *url);
 
+static void build_categories_directory (void);
+
 /* ==================== Global Data  ================= */
 
-CategoryInfo directory[] = {
+CategoryInfo root_directory[] = {
+  {YOUTUBE_FEEDS_ID, YOUTUBE_FEEDS_NAME, YOUTUBE_FEEDS_URL},
+  {YOUTUBE_CATEGORIES_ID, YOUTUBE_CATEGORIES_NAME, YOUTUBE_CATEGORIES_URL},
+  {NULL, NULL, NULL}
+};
+
+CategoryInfo feeds_directory[] = {
   {YOUTUBE_VIEWED_ID, YOUTUBE_VIEWED_NAME, YOUTUBE_VIEWED_URL},
   {YOUTUBE_RATED_ID, YOUTUBE_RATED_NAME, YOUTUBE_RATED_URL},
   {YOUTUBE_FAVS_ID, YOUTUBE_FAVS_NAME, YOUTUBE_FAVS_URL},
@@ -150,6 +173,7 @@ CategoryInfo directory[] = {
   {NULL, NULL, NULL}
 };
 
+CategoryInfo *categories_directory = NULL;
 
 /* =================== Youtube Plugin  =============== */
 
@@ -157,6 +181,7 @@ gboolean
 ms_youtube_plugin_init (MsPluginRegistry *registry, const MsPluginInfo *plugin)
 {
   g_debug ("youtube_plugin_init\n");
+
   MsYoutubeSource *source = ms_youtube_source_new ();
   ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
   return TRUE;
@@ -203,6 +228,9 @@ ms_youtube_source_class_init (MsYoutubeSourceClass * klass)
 static void
 ms_youtube_source_init (MsYoutubeSource *source)
 {
+  if (!categories_directory) {
+    build_categories_directory ();
+  }
 }
 
 G_DEFINE_TYPE (MsYoutubeSource, ms_youtube_source, MS_TYPE_MEDIA_SOURCE);
@@ -680,9 +708,94 @@ parse_metadata_feed (MsMetadataSourceMetadataSpec *os,
 }
 
 static void
-produce_root_category (MsMediaSourceBrowseSpec *bs)
+parse_categories (xmlDocPtr doc, xmlNodePtr node)
 {
-  g_debug ("produce_root_category");
+  g_debug ("parse_categories");
+
+  guint total = 0;
+  GList *all = NULL, *iter;
+  CategoryInfo *cat_info;
+  gchar *id;
+
+  while (node) {
+    cat_info = g_new (CategoryInfo, 1);
+    id = (gchar *) xmlGetProp (node, (xmlChar *) "term");
+    cat_info->id = g_strconcat (YOUTUBE_CATEGORIES_ID, "/", id, NULL);
+    cat_info->name = (gchar *) xmlGetProp (node, (xmlChar *) "label");
+    cat_info->url = g_strdup_printf (YOUTUBE_CATEGORY_URL,
+				     id, "%d", "%d");
+    all = g_list_prepend (all, cat_info);
+    g_free (id);
+    node = node->next;
+    total++;
+    g_debug ("  Found category: '%s'", cat_info->name);
+  }
+  
+  if (all) {
+    categories_directory = g_new0 (CategoryInfo, total + 1);
+    iter = all;
+    do {
+      cat_info = (CategoryInfo *) iter->data;
+      categories_directory[total - 1].id = cat_info->id ;
+      categories_directory[total - 1].name = cat_info->name;
+      categories_directory[total - 1].url = cat_info->url;
+      total--;
+      g_free (cat_info);
+      iter = g_list_next (iter);
+    } while (iter);
+    g_list_free (all);
+  }
+}
+
+static void
+build_categories_directory (void)
+{
+  gchar *xmldata;
+  xmlDocPtr doc;
+  xmlNodePtr node;
+
+  xmldata = read_url (YOUTUBE_CATEGORIES_URL);
+  if (!xmldata) {
+    g_warning ("Failed to build category directory (1)");
+    return;
+  };
+  
+  doc = xmlRecoverDoc ((xmlChar *) xmldata);
+  if (!doc) {
+    g_warning ("Failed to build category directory (2)");
+    goto free_resources;
+  }
+
+  node = xmlDocGetRootElement (doc);
+  if (!node) {
+    g_warning ("Failed to build category directory (3)");
+    goto free_resources;
+  }
+
+  if (xmlStrcmp (node->name, (const xmlChar *) "categories")) {
+    g_warning ("Failed to build category directory (4)");
+    goto free_resources;
+  }
+
+  node = node->xmlChildrenNode;
+  if (!node) {
+    g_warning ("Failed to build category directory (5)");
+    goto free_resources;
+  }
+
+  parse_categories (doc, node);
+  
+ free_resources:
+  xmlFreeDoc (doc);
+  return;
+}
+
+static void
+produce_from_directory (CategoryInfo *directory, MsMediaSourceBrowseSpec *bs)
+{
+  g_debug ("produce_from_directory");
+
+  /* TODO: use skip and count */
 
   guint index = 0;
   GList *categories = NULL, *iter;
@@ -710,13 +823,37 @@ produce_root_category (MsMediaSourceBrowseSpec *bs)
   g_list_free (categories);
 }
 
+static gboolean
+container_is_category (const gchar *container_id)
+{
+  return g_str_has_prefix (container_id, YOUTUBE_CATEGORIES_ID "/");
+}
+
+static gboolean
+container_is_feed (const gchar *container_id)
+{
+  return g_str_has_prefix (container_id, YOUTUBE_FEEDS_ID "/");
+}
+
 static const gchar *
 get_container_url (const gchar *container_id)
 {
   g_debug ("get_container_url (%s)", container_id);
 
-  guint index = 0;
-  while (directory[index].id && 
+  guint index;
+  CategoryInfo *directory;
+
+  if (container_is_category (container_id)) {
+    directory = categories_directory;
+  } else if (container_is_feed (container_id)) {
+    directory = feeds_directory;
+  } else {
+    g_warning ("Cannot get URL for container id '%s'", container_id);
+    return NULL;
+  }
+
+  index = 0;
+  while (directory[index].id &&
 	 strcmp (container_id, directory[index].id)) {
     index++;
   }
@@ -754,12 +891,26 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
   GError *error = NULL;
   OperationSpec *os;
 
-  g_debug ("ms_youtube_source_browse");
+  g_debug ("ms_youtube_source_browse (%s)", bs->container_id);
 
   if (!bs->container_id) {
-    produce_root_category (bs);
+    produce_from_directory (root_directory, bs);
+  } else if (!strcmp (bs->container_id, YOUTUBE_FEEDS_ID)) {
+    produce_from_directory (feeds_directory, bs);
+  } else if (!strcmp (bs->container_id, YOUTUBE_CATEGORIES_ID)) {
+    produce_from_directory (categories_directory, bs);
   } else {
     _url = get_container_url (bs->container_id);
+    if (!_url) {
+      GError *error = g_error_new (MS_ERROR,
+				   MS_ERROR_BROWSE_FAILED,
+				   "Invalid container-id: '%s'",
+				   bs->container_id);
+      bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, error);
+      g_error_free (error);
+      return;
+    }
+
     url = g_strdup_printf (_url, bs->skip + 1, bs->count);
     xmldata = read_url (url);
     g_free (url);

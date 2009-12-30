@@ -4,6 +4,28 @@
 #include <media-store.h>
 
 static void
+print_supported_ops (MsMetadataSource *source)
+{
+  g_print ("  Operations available in '%s'\n",
+	   ms_metadata_source_get_name (source));
+
+  MsSupportedOps caps = ms_metadata_source_supported_operations (source);
+
+  if (caps & MS_OP_METADATA) {
+    g_print ("    + Metadata\n");
+  }
+  if (caps & MS_OP_RESOLVE) {
+    g_print ("    + Resolution\n");
+  }
+  if (caps & MS_OP_BROWSE) {
+    g_print ("    + Browse\n");
+  }
+  if (caps & MS_OP_SEARCH) {
+    g_print ("    + Search\n");
+  }
+}
+
+static void
 print_metadata (MsContent *content, MsKeyID key_id)
 {
   if (key_id == MS_METADATA_KEY_DESCRIPTION) {
@@ -126,15 +148,21 @@ main (void)
   MsMediaSource *youtube = 
     (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-youtube");
 
+  MsMetadataSource *fake = 
+    (MsMetadataSource *) ms_plugin_registry_lookup_source (registry, "ms-fake-metadata");
+
   g_assert (youtube);
 
-  g_print ("  youtube source obtained\n");
+  g_print ("Supported operations\n");
+
+  print_supported_ops (MS_METADATA_SOURCE (youtube));
+  print_supported_ops (fake);
 
   g_print ("testing\n");
 
   if (0) ms_media_source_browse (youtube, "most-viewed", keys, 0, 5, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, "most-viewed", keys, 0, 5, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
-  if (1) ms_media_source_browse (youtube, "categories/Sports", keys, 0, 5, 0, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, "categories/Sports", keys, 0, 5, 0, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 3, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 10, 0, browse_cb, NULL);
   if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "okVW_YSHSPU", keys, 0, metadata_cb, NULL);

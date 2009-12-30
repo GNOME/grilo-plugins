@@ -160,9 +160,9 @@ main (void)
 
   g_print ("testing\n");
 
-  if (0) ms_media_source_browse (youtube, "feeds/most-viewed", keys, 0, 5, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
-  if (0) ms_media_source_browse (youtube, "feeds/most-viewed", keys, 0, 5, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
-  if (1) ms_media_source_browse (youtube, "categories/Sports", keys, 0, 5, 0, browse_cb, NULL);
+  if (1) ms_media_source_browse (youtube, NULL, keys, 0, 1, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, "standard-feeds/most-viewed", keys, 0, 5, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, "categories", keys, 28, 10, 0, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 3, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 10, 0, browse_cb, NULL);
   if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "okVW_YSHSPU", keys, 0, metadata_cb, NULL);

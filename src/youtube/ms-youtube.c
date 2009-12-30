@@ -493,6 +493,7 @@ parse_entries_idle (gpointer user_data)
 				 (const xmlChar *) "entry")) {
     pei->node = pei->node->next;
   }
+
   if (pei->node) {
     Entry *entry = g_new0 (Entry, 1);
     parse_entry (pei->doc, pei->node, entry);
@@ -508,8 +509,8 @@ parse_entries_idle (gpointer user_data)
 		       pei->os->user_data,
 		       NULL);
     
-    pei->node = pei->node->next;
     parse_more = TRUE;
+    pei->node = pei->node->next;
   }
 
   if (!parse_more) {
@@ -716,6 +717,7 @@ parse_categories (xmlDocPtr doc, xmlNodePtr node)
   GList *all = NULL, *iter;
   CategoryInfo *cat_info;
   gchar *id;
+  guint index = 0;
 
   while (node) {
     cat_info = g_new (CategoryInfo, 1);
@@ -728,7 +730,7 @@ parse_categories (xmlDocPtr doc, xmlNodePtr node)
     g_free (id);
     node = node->next;
     total++;
-    g_debug ("  Found category: '%s'", cat_info->name);
+    g_debug ("  Found category: '%d - %s'", index++, cat_info->name);
   }
   
   if (all) {
@@ -795,10 +797,9 @@ produce_from_directory (CategoryInfo *directory, MsMediaSourceBrowseSpec *bs)
 {
   g_debug ("produce_from_directory");
 
-  /* TODO: use skip and count */
-
   guint index = 0;
   GList *categories = NULL, *iter;
+  guint skip;
 
   while (directory[index].id) {
     MsContentMedia *content = ms_content_media_container_new ();
@@ -808,15 +809,25 @@ produce_from_directory (CategoryInfo *directory, MsMediaSourceBrowseSpec *bs)
     index++;
   }
   categories = g_list_reverse (categories);
-  
+
+  skip = bs->skip;
+
   iter = categories;
-  while (iter) {
+  while (iter && skip) {
+    skip--;
+    index--;
+    iter = g_list_next (iter);
+  }
+
+  index = MIN (index, bs->count);
+
+  while (iter && index) {
     bs->callback (bs->source,
 		  bs->browse_id,
 		  MS_CONTENT (iter->data),
 		  --index,
 		  bs->user_data,
-		  NULL);
+		  NULL);    
     iter = g_list_next (iter);
   }
 

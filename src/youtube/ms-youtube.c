@@ -523,53 +523,12 @@ parse_entries_idle (gpointer user_data)
 }
 
 static void
-parse_entries (OperationSpec *os, xmlDocPtr doc, xmlNodePtr node)
-{
-  guint total_results = 0;
-  xmlNs *ns;
-
-  /* First checkout search information looking for totalResults */
-  while (node && !total_results) {
-    if (!xmlStrcmp (node->name, (const xmlChar *) "entry")) {
-      break;
-    } else {
-      ns = node->ns;
-      if (ns && !xmlStrcmp (ns->prefix, (xmlChar *) "openSearch")) {
-	if (!xmlStrcmp (node->name, (const xmlChar *) "totalResults")) {
-	  gchar *total_results_str = 
-	    (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-	  total_results = atoi (total_results_str);
-	  g_free (total_results_str);
-	}
-      }
-    }
-    node = node->next;
-  }
-
-  /* Compute # of items to send */
-  if (total_results >= os->skip + os->count) {
-    total_results = os->count;
-  } else if (total_results > os->skip) {
-    total_results -= os->skip;
-  } else {
-    total_results = 0;
-  }
-
-  /* Now go for the entries */
-  ParseEntriesIdle *pei = g_new (ParseEntriesIdle, 1);
-  pei->os = os;
-  pei->node = node;
-  pei->doc = doc;
-  pei->total_results = total_results;
-  pei->index = 0;
-  g_idle_add (parse_entries_idle, pei);
-}
-
-static void
 parse_feed (OperationSpec *os, const gchar *str, GError **error)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
+  guint total_results = 0;
+  xmlNs *ns;
   
   doc = xmlRecoverDoc ((xmlChar *) str);
   if (!doc) {
@@ -602,7 +561,43 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
     goto free_resources;
   }
 
-  parse_entries (os, doc, node);
+  /* checkout search information looking for totalResults */
+  while (node && !total_results) {
+    if (!xmlStrcmp (node->name, (const xmlChar *) "entry")) {
+      break;
+    } else {
+      ns = node->ns;
+      if (ns && !xmlStrcmp (ns->prefix, (xmlChar *) "openSearch")) {
+	if (!xmlStrcmp (node->name, (const xmlChar *) "totalResults")) {
+	  gchar *total_results_str = 
+	    (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+	  total_results = atoi (total_results_str);
+	  g_free (total_results_str);
+	}
+      }
+    }
+    node = node->next;
+  }
+
+  /* Compute # of items to send */
+  if (total_results >= os->skip + os->count) {
+    total_results = os->count;
+  } else if (total_results > os->skip) {
+    total_results -= os->skip;
+  } else {
+    /* No results to send */
+    os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+    goto free_resources;
+  }
+
+  /* Now go for the entries */
+  ParseEntriesIdle *pei = g_new (ParseEntriesIdle, 1);
+  pei->os = os;
+  pei->node = node;
+  pei->doc = doc;
+  pei->total_results = total_results;
+  pei->index = 0;
+  g_idle_add (parse_entries_idle, pei);
   return;
   
  free_resources:
@@ -821,14 +816,24 @@ produce_from_directory (CategoryInfo *directory, MsMediaSourceBrowseSpec *bs)
 
   index = MIN (index, bs->count);
 
-  while (iter && index) {
-    bs->callback (bs->source,
-		  bs->browse_id,
-		  MS_CONTENT (iter->data),
-		  --index,
-		  bs->user_data,
-		  NULL);    
-    iter = g_list_next (iter);
+  if (iter && index) {
+    do {
+      bs->callback (bs->source,
+		    bs->browse_id,
+		    MS_CONTENT (iter->data),
+		    --index,
+		    bs->user_data,
+		    NULL);    
+      iter = g_list_next (iter);
+    } while (iter && index);
+  } else {
+    /* No results to send */
+      bs->callback (bs->source,
+		    bs->browse_id,
+		    NULL,
+		    0,
+		    bs->user_data,
+		    NULL);        
   }
 
   g_list_free (categories);

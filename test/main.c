@@ -67,8 +67,10 @@ browse_cb (MsMediaSource *source,
     g_error ("Got error from browse: %s", error->message);
   }
 
-  if (!media)
+  if (!media && remaining == 0) {
+    g_print ("  No results\n");
     return;
+  }
 
   g_print ("\tContainer: %s\n",
 	   ms_content_is_container (media) ? "yes" : "no");
@@ -124,7 +126,6 @@ main (void)
 
   keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
 				   MS_METADATA_KEY_TITLE,
-				   MS_METADATA_KEY_URL,
                                    MS_METADATA_KEY_ALBUM,
                                    MS_METADATA_KEY_ARTIST,
                                    MS_METADATA_KEY_GENRE,
@@ -160,8 +161,8 @@ main (void)
 
   g_print ("testing\n");
 
-  if (1) ms_media_source_browse (youtube, NULL, keys, 0, 1, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
-  if (0) ms_media_source_browse (youtube, "standard-feeds/most-viewed", keys, 0, 5, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, NULL, keys, 0, 1, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
+  if (1) ms_media_source_browse (youtube, "standard-feeds/most-viewed", keys, 100, 5, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, "categories", keys, 28, 10, 0, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 3, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 10, 0, browse_cb, NULL);

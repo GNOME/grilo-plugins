@@ -127,6 +127,8 @@ main (void)
 
   g_type_init ();
 
+  ms_log_init ("*:warning,test-main:*,ms-youtube:*");
+
   keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
 				   MS_METADATA_KEY_TITLE,
                                    MS_METADATA_KEY_ALBUM,

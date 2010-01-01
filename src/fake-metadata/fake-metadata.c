@@ -67,7 +67,7 @@ gboolean
 fake_metadata_source_plugin_init (MsPluginRegistry *registry,
 				  const MsPluginInfo *plugin)
 {
-  g_debug ("fake_metadata_source_plugin_init\n");
+  g_debug ("fake_metadata_source_plugin_init");
   FakeMetadataSource *source = fake_metadata_source_new ();
   ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
   return TRUE;

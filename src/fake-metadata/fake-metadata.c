@@ -28,6 +28,9 @@
 
 #include "fake-metadata.h"
 
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN "fake-metadata"
+
 #define PLUGIN_ID   "ms-fake-metadata"
 #define PLUGIN_NAME "Fake Metadata Provider"
 #define PLUGIN_DESC "A plugin for faking metadata resolution"

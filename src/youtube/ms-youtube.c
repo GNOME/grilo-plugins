@@ -33,6 +33,11 @@
 
 #include "ms-youtube.h"
 
+/* --------- Logging  -------- */ 
+
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN "ms-youtube"
+
 /* ----- Root categories ---- */ 
 
 #define YOUTUBE_FEEDS_ID        "standard-feeds"

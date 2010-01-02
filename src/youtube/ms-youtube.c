@@ -925,6 +925,7 @@ ms_youtube_source_supported_keys (MsMetadataSource *source)
 				     MS_METADATA_KEY_DURATION,
 				     MS_METADATA_KEY_DATE,
 				     MS_METADATA_KEY_THUMBNAIL,
+				     MS_METADATA_KEY_CHILDCOUNT,
 				     NULL);
   }
   return keys;

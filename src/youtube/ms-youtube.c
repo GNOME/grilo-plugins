@@ -59,8 +59,8 @@
 #define YOUTUBE_RATED_URL       "http://gdata.youtube.com/feeds/standardfeeds/top_rated?start-index=%d&max-results=%d"
 
 #define YOUTUBE_FAVS_ID         (YOUTUBE_FEEDS_ID "/top-favs")
-#define YOUTUBE_FAVS_NAME       "Top favourites"
-#define YOUTUBE_FAVS_URL        "http://gdata.youtube.com/feeds/standardfeeds/top_favourites?start-index=%d&max-results=%d"
+#define YOUTUBE_FAVS_NAME       "Top favorites"
+#define YOUTUBE_FAVS_URL        "http://gdata.youtube.com/feeds/standardfeeds/top_favorites?start-index=%d&max-results=%d"
 
 #define YOUTUBE_RECENT_ID       (YOUTUBE_FEEDS_ID "/most-recent")
 #define YOUTUBE_RECENT_NAME     "Most recent"
@@ -84,6 +84,13 @@
 #define YOUTUBE_VIDEO_URL       "http://www.youtube.com/get_video?video_id=%s&t=%s"
 #define YOUTUBE_SEARCH_URL      "http://gdata.youtube.com/feeds/api/videos?vq=%s&start-index=%d&max-results=%d"
 #define YOUTUBE_CATEGORY_URL    "http://gdata.youtube.com/feeds/api/videos/-/%s?&start-index=%s&max-results=%s"
+
+/* --- Youtube parsing hints ---- */
+
+#define YOUTUBE_TOTAL_RESULTS_START "<openSearch:totalResults>"
+#define YOUTUBE_TOTAL_RESULTS_END   "</openSearch:totalResults>"
+
+/* --- Plugin information --- */
 
 #define PLUGIN_ID   "ms-youtube"
 #define PLUGIN_NAME "Youtube"
@@ -161,13 +168,15 @@ static void build_categories_directory (void);
 
 /* ==================== Global Data  ================= */
 
-CategoryInfo root_directory[] = {
+guint root_dir_size = 2;
+CategoryInfo root_dir[] = {
   {YOUTUBE_FEEDS_ID, YOUTUBE_FEEDS_NAME, YOUTUBE_FEEDS_URL},
   {YOUTUBE_CATEGORIES_ID, YOUTUBE_CATEGORIES_NAME, YOUTUBE_CATEGORIES_URL},
   {NULL, NULL, NULL}
 };
 
-CategoryInfo feeds_directory[] = {
+guint feeds_dir_size = 7;
+CategoryInfo feeds_dir[] = {
   {YOUTUBE_VIEWED_ID, YOUTUBE_VIEWED_NAME, YOUTUBE_VIEWED_URL},
   {YOUTUBE_RATED_ID, YOUTUBE_RATED_NAME, YOUTUBE_RATED_URL},
   {YOUTUBE_FAVS_ID, YOUTUBE_FAVS_NAME, YOUTUBE_FAVS_URL},
@@ -178,7 +187,8 @@ CategoryInfo feeds_directory[] = {
   {NULL, NULL, NULL}
 };
 
-CategoryInfo *categories_directory = NULL;
+guint categories_dir_size = 0;
+CategoryInfo *categories_dir = NULL;
 
 /* =================== Youtube Plugin  =============== */
 
@@ -233,7 +243,7 @@ ms_youtube_source_class_init (MsYoutubeSourceClass * klass)
 static void
 ms_youtube_source_init (MsYoutubeSource *source)
 {
-  if (!categories_directory) {
+  if (!categories_dir) {
     build_categories_directory ();
   }
 }
@@ -315,7 +325,7 @@ read_url (const gchar *url)
   g_debug ("Opening '%s'", url);
   r = gnome_vfs_open (&fh, url, GNOME_VFS_OPEN_READ);
   if (r != GNOME_VFS_OK) {
-    g_warning ("Failed to open '%s'", url);
+    g_warning ("Failed to open '%s' - %d", url, r);
     return NULL;
   }
 
@@ -734,13 +744,14 @@ parse_categories (xmlDocPtr doc, xmlNodePtr node)
   }
   
   if (all) {
-    categories_directory = g_new0 (CategoryInfo, total + 1);
+    categories_dir_size = total;
+    categories_dir = g_new0 (CategoryInfo, total + 1);
     iter = all;
     do {
       cat_info = (CategoryInfo *) iter->data;
-      categories_directory[total - 1].id = cat_info->id ;
-      categories_directory[total - 1].name = cat_info->name;
-      categories_directory[total - 1].url = cat_info->url;
+      categories_dir[total - 1].id = cat_info->id ;
+      categories_dir[total - 1].name = cat_info->name;
+      categories_dir[total - 1].url = cat_info->url;
       total--;
       g_free (cat_info);
       iter = g_list_next (iter);
@@ -792,58 +803,6 @@ build_categories_directory (void)
   return;
 }
 
-static void
-produce_from_directory (CategoryInfo *directory, MsMediaSourceBrowseSpec *bs)
-{
-  g_debug ("produce_from_directory");
-
-  guint index = 0;
-  GList *categories = NULL, *iter;
-  guint skip;
-
-  while (directory[index].id) {
-    MsContentMedia *content = ms_content_media_container_new ();
-    ms_content_media_set_id (content, g_strdup (directory[index].id));
-    ms_content_media_set_title (content, g_strdup (directory[index].name));
-    categories = g_list_prepend (categories, content);
-    index++;
-  }
-  categories = g_list_reverse (categories);
-
-  skip = bs->skip;
-
-  iter = categories;
-  while (iter && skip) {
-    skip--;
-    index--;
-    iter = g_list_next (iter);
-  }
-
-  index = MIN (index, bs->count);
-
-  if (iter && index) {
-    do {
-      bs->callback (bs->source,
-		    bs->browse_id,
-		    MS_CONTENT (iter->data),
-		    --index,
-		    bs->user_data,
-		    NULL);    
-      iter = g_list_next (iter);
-    } while (iter && index);
-  } else {
-    /* No results to send */
-      bs->callback (bs->source,
-		    bs->browse_id,
-		    NULL,
-		    0,
-		    bs->user_data,
-		    NULL);        
-  }
-
-  g_list_free (categories);
-}
-
 static gboolean
 container_is_category (const gchar *container_id)
 {
@@ -865,9 +824,9 @@ get_container_url (const gchar *container_id)
   CategoryInfo *directory;
 
   if (container_is_category (container_id)) {
-    directory = categories_directory;
+    directory = categories_dir;
   } else if (container_is_feed (container_id)) {
-    directory = feeds_directory;
+    directory = feeds_dir;
   } else {
     g_warning ("Cannot get URL for container id '%s'", container_id);
     return NULL;
@@ -882,6 +841,73 @@ get_container_url (const gchar *container_id)
     return directory[index].url;
   } else {
     return NULL;
+  }
+}
+
+static void
+set_category_childcount (MsContent *content, CategoryInfo *dir, guint index)
+{
+  gint childcount;
+
+  if (dir == NULL) {
+    /* Special case: we want childcount of root category */
+    childcount = root_dir_size;
+  } else if (!strcmp (dir[index].id, YOUTUBE_FEEDS_ID)) {
+    childcount = feeds_dir_size;
+  } else if (!strcmp (dir[index].id, YOUTUBE_CATEGORIES_ID)) {
+    childcount = categories_dir_size;
+  } else {
+    const gchar *_url = get_container_url (dir[index].id);
+    gchar *url = g_strdup_printf (_url, 1, 0);
+    gchar  *xmldata = read_url (url);
+    g_free (url);    
+    if (!xmldata) {
+      g_warning ("Failed to connect to Youtube to get category childcount");
+      return;
+    }
+    gchar *start = strstr (xmldata, YOUTUBE_TOTAL_RESULTS_START) +
+      strlen (YOUTUBE_TOTAL_RESULTS_START);
+    gchar *end = strstr (start, YOUTUBE_TOTAL_RESULTS_END);
+    gchar *childcount_str = g_strndup (start, end - start);
+    childcount = strtol (childcount_str, (char **) NULL, 10);
+  }
+
+  ms_content_set_int (content, MS_METADATA_KEY_CHILDCOUNT, childcount);
+}
+
+static void
+produce_from_directory (CategoryInfo *dir,
+			guint dir_size,
+			MsMediaSourceBrowseSpec *bs)
+{
+  g_debug ("produce_from_directory");
+
+  guint index, remaining;
+
+  if (bs->skip >= dir_size) {
+    /* No results */
+    bs->callback (bs->source,
+		  bs->browse_id,
+		  NULL,
+		  0,
+		  bs->user_data,
+		  NULL);        
+  } else {
+    index = bs->skip;
+    remaining = MIN (dir_size - bs->skip, bs->count);
+    do {
+      MsContentMedia *content = ms_content_media_container_new ();
+      ms_content_media_set_id (content, dir[index].id);
+      ms_content_media_set_title (content, dir[index].name);
+      set_category_childcount (MS_CONTENT (content), dir, index);
+      bs->callback (bs->source,
+		    bs->browse_id,
+		    MS_CONTENT (content),
+		    --remaining,
+		    bs->user_data,
+		    NULL);    
+      index++;
+    } while (remaining > 0);
   }
 }
 
@@ -915,11 +941,11 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
   g_debug ("ms_youtube_source_browse (%s)", bs->container_id);
 
   if (!bs->container_id) {
-    produce_from_directory (root_directory, bs);
+    produce_from_directory (root_dir, root_dir_size, bs);
   } else if (!strcmp (bs->container_id, YOUTUBE_FEEDS_ID)) {
-    produce_from_directory (feeds_directory, bs);
+    produce_from_directory (feeds_dir, feeds_dir_size, bs);
   } else if (!strcmp (bs->container_id, YOUTUBE_CATEGORIES_ID)) {
-    produce_from_directory (categories_directory, bs);
+    produce_from_directory (categories_dir, categories_dir_size, bs);
   } else {
     _url = get_container_url (bs->container_id);
     if (!_url) {
@@ -1020,6 +1046,8 @@ ms_youtube_source_metadata (MsMetadataSource *source,
   MsContent *media;
 
   g_debug ("ms_youtube_source_metadata");
+
+  /* TODO: support categories as well */
 
   /* For metadata retrieval we just search by text using the video ID */
   url = g_strdup_printf (YOUTUBE_SEARCH_URL, ms->object_id, 1, 1);

@@ -40,6 +40,8 @@
 
 /* ----- Root categories ---- */ 
 
+#define YOUTUBE_ROOT_NAME       "Youtube"
+
 #define YOUTUBE_FEEDS_ID        "standard-feeds"
 #define YOUTUBE_FEEDS_NAME      "Standard feeds"
 #define YOUTUBE_FEEDS_URL       NULL
@@ -145,6 +147,15 @@ typedef struct {
   gchar *name;
   gchar *url;
 } CategoryInfo;
+
+typedef enum {
+  YOUTUBE_MEDIA_TYPE_ROOT,
+  YOUTUBE_MEDIA_TYPE_FEEDS,
+  YOUTUBE_MEDIA_TYPE_CATEGORIES,
+  YOUTUBE_MEDIA_TYPE_FEED,
+  YOUTUBE_MEDIA_TYPE_CATEGORY,
+  YOUTUBE_MEDIA_TYPE_VIDEO,
+} YoutubeMediaType;
 
 static MsYoutubeSource *ms_youtube_source_new (void);
 
@@ -804,13 +815,13 @@ build_categories_directory (void)
 }
 
 static gboolean
-container_is_category (const gchar *container_id)
+is_category_container (const gchar *container_id)
 {
   return g_str_has_prefix (container_id, YOUTUBE_CATEGORIES_ID "/");
 }
 
 static gboolean
-container_is_feed (const gchar *container_id)
+is_feeds_container (const gchar *container_id)
 {
   return g_str_has_prefix (container_id, YOUTUBE_FEEDS_ID "/");
 }
@@ -823,9 +834,9 @@ get_container_url (const gchar *container_id)
   guint index;
   CategoryInfo *directory;
 
-  if (container_is_category (container_id)) {
+  if (is_category_container (container_id)) {
     directory = categories_dir;
-  } else if (container_is_feed (container_id)) {
+  } else if (is_feeds_container (container_id)) {
     directory = feeds_dir;
   } else {
     g_warning ("Cannot get URL for container id '%s'", container_id);
@@ -875,6 +886,40 @@ set_category_childcount (MsContent *content, CategoryInfo *dir, guint index)
   ms_content_set_int (content, MS_METADATA_KEY_CHILDCOUNT, childcount);
 }
 
+static MsContent *
+produce_container_from_directory (CategoryInfo *dir, guint index)
+{
+  MsContentMedia *content;
+
+  content = ms_content_media_container_new ();
+  if (!dir) {
+    ms_content_media_set_id (content, NULL);
+    ms_content_media_set_title (content, YOUTUBE_ROOT_NAME);
+  } else {
+    ms_content_media_set_id (content, dir[index].id);
+    ms_content_media_set_title (content, dir[index].name);
+  }
+  set_category_childcount (MS_CONTENT (content), dir, index);
+
+  return MS_CONTENT (content);
+}
+
+static MsContent *
+produce_container_from_directory_by_id (CategoryInfo *dir, const gchar *id)
+{
+  MsContent *content;
+  guint index = 0;
+
+  while (dir[index].id && strcmp (dir[index].id, id)) index++;
+  if (dir[index].id) {
+    content = produce_container_from_directory (dir, index);
+  } else {
+    content = NULL;
+  }
+
+  return content;
+}
+
 static void
 produce_from_directory (CategoryInfo *dir,
 			guint dir_size,
@@ -896,18 +941,33 @@ produce_from_directory (CategoryInfo *dir,
     index = bs->skip;
     remaining = MIN (dir_size - bs->skip, bs->count);
     do {
-      MsContentMedia *content = ms_content_media_container_new ();
-      ms_content_media_set_id (content, dir[index].id);
-      ms_content_media_set_title (content, dir[index].name);
-      set_category_childcount (MS_CONTENT (content), dir, index);
+      MsContent *content = produce_container_from_directory (dir, index);
       bs->callback (bs->source,
 		    bs->browse_id,
-		    MS_CONTENT (content),
+		    content,
 		    --remaining,
 		    bs->user_data,
 		    NULL);    
       index++;
     } while (remaining > 0);
+  }
+}
+
+static YoutubeMediaType
+classify_media_id (const gchar *media_id)
+{
+  if (!media_id) {
+    return YOUTUBE_MEDIA_TYPE_ROOT;
+  } else if (!strcmp (media_id, YOUTUBE_FEEDS_ID)) {
+    return YOUTUBE_MEDIA_TYPE_FEEDS;
+  } else if (!strcmp (media_id, YOUTUBE_CATEGORIES_ID)) {
+    return YOUTUBE_MEDIA_TYPE_CATEGORIES;
+  } else if (is_category_container (media_id)) {
+    return YOUTUBE_MEDIA_TYPE_CATEGORY;
+  } else if (is_feeds_container (media_id)) {
+    return YOUTUBE_MEDIA_TYPE_FEED;
+  } else {
+    return YOUTUBE_MEDIA_TYPE_VIDEO;
   }
 }
 
@@ -1045,27 +1105,51 @@ ms_youtube_source_metadata (MsMetadataSource *source,
   gchar *xmldata, *url;
   GError *error = NULL;
   MsContent *media;
+  YoutubeMediaType media_type;
 
   g_debug ("ms_youtube_source_metadata");
 
-  /* TODO: support categories as well */
+  media_type = classify_media_id (ms->object_id);
 
-  /* For metadata retrieval we just search by text using the video ID */
-  url = g_strdup_printf (YOUTUBE_SEARCH_URL, ms->object_id, 1, 1);
-  xmldata = read_url (url);
-  g_free (url);
-
-  if (!xmldata) {
-    GError *error = g_error_new (MS_ERROR,
-				 MS_ERROR_METADATA_FAILED,
-				 "Failed to connect to Youtube");
-    ms->callback (source, NULL, ms->user_data, error);    
-    g_error_free (error);
-    return;
+  switch (media_type) {
+  case YOUTUBE_MEDIA_TYPE_ROOT:
+    media = produce_container_from_directory (NULL, 0);
+    break;
+  case YOUTUBE_MEDIA_TYPE_FEEDS:
+    media = produce_container_from_directory (root_dir, 0);
+    break;
+  case YOUTUBE_MEDIA_TYPE_CATEGORIES:
+    media = produce_container_from_directory (root_dir, 1);
+    break;
+  case YOUTUBE_MEDIA_TYPE_FEED:
+    media = produce_container_from_directory_by_id (feeds_dir, ms->object_id);
+    break;
+  case YOUTUBE_MEDIA_TYPE_CATEGORY:
+    media =
+      produce_container_from_directory_by_id (categories_dir, ms->object_id);
+    break;
+  case YOUTUBE_MEDIA_TYPE_VIDEO:
+  default:
+    {
+      /* For metadata retrieval we just search by text using the video ID */
+      url = g_strdup_printf (YOUTUBE_SEARCH_URL, ms->object_id, 1, 1);
+      xmldata = read_url (url);
+      g_free (url);
+      
+      if (!xmldata) {
+	GError *error = g_error_new (MS_ERROR,
+				     MS_ERROR_METADATA_FAILED,
+				     "Failed to connect to Youtube");
+	ms->callback (source, NULL, ms->user_data, error);    
+	g_error_free (error);
+	return;
+      }
+      
+      media = parse_metadata_feed (ms, xmldata, &error);
+      g_free (xmldata);   
+    }
+    break;
   }
-
-  media = parse_metadata_feed (ms, xmldata, &error);
-  g_free (xmldata);
 
   if (error) {
     ms->callback (ms->source, NULL, ms->user_data, error);

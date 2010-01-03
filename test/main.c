@@ -131,6 +131,7 @@ main (void)
 
   keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
 				   MS_METADATA_KEY_TITLE,
+				   MS_METADATA_KEY_URL,
                                    MS_METADATA_KEY_ALBUM,
                                    MS_METADATA_KEY_ARTIST,
                                    MS_METADATA_KEY_GENRE,

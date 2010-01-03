@@ -164,6 +164,8 @@ gboolean ms_youtube_plugin_init (MsPluginRegistry *registry,
 
 static const GList *ms_youtube_source_supported_keys (MsMetadataSource *source);
 
+static const GList *ms_youtube_source_slow_keys (MsMetadataSource *source);
+
 static void ms_youtube_source_metadata (MsMetadataSource *source,
 					MsMetadataSourceMetadataSpec *ms);
 
@@ -245,6 +247,7 @@ ms_youtube_source_class_init (MsYoutubeSourceClass * klass)
   source_class->search = ms_youtube_source_search;
   metadata_class->metadata = ms_youtube_source_metadata;
   metadata_class->supported_keys = ms_youtube_source_supported_keys;
+  metadata_class->slow_keys = ms_youtube_source_slow_keys;
 
   if (!gnome_vfs_init ()) {
     g_error ("Failed to initialize Gnome VFS");
@@ -989,6 +992,18 @@ ms_youtube_source_supported_keys (MsMetadataSource *source)
 				     NULL);
   }
   return keys;
+}
+
+static const GList *
+ms_youtube_source_slow_keys (MsMetadataSource *source)
+{
+  static GList *keys = NULL;
+  if (!keys) {
+    keys = ms_metadata_key_list_new (MS_METADATA_KEY_URL,
+				     MS_METADATA_KEY_CHILDCOUNT,
+				     NULL);
+  }
+  return keys;  
 }
 
 static void

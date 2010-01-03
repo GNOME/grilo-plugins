@@ -890,7 +890,9 @@ set_category_childcount (MsContent *content, CategoryInfo *dir, guint index)
 }
 
 static MsContent *
-produce_container_from_directory (CategoryInfo *dir, guint index)
+produce_container_from_directory (CategoryInfo *dir,
+				  guint index,
+				  gboolean set_childcount)
 {
   MsContentMedia *content;
 
@@ -902,20 +904,24 @@ produce_container_from_directory (CategoryInfo *dir, guint index)
     ms_content_media_set_id (content, dir[index].id);
     ms_content_media_set_title (content, dir[index].name);
   }
-  set_category_childcount (MS_CONTENT (content), dir, index);
+  if (set_childcount) {
+    set_category_childcount (MS_CONTENT (content), dir, index);
+  }
 
   return MS_CONTENT (content);
 }
 
 static MsContent *
-produce_container_from_directory_by_id (CategoryInfo *dir, const gchar *id)
+produce_container_from_directory_by_id (CategoryInfo *dir,
+					const gchar *id,
+					gboolean set_childcount)
 {
   MsContent *content;
   guint index = 0;
 
   while (dir[index].id && strcmp (dir[index].id, id)) index++;
   if (dir[index].id) {
-    content = produce_container_from_directory (dir, index);
+    content = produce_container_from_directory (dir, index, set_childcount);
   } else {
     content = NULL;
   }
@@ -931,6 +937,7 @@ produce_from_directory (CategoryInfo *dir,
   g_debug ("produce_from_directory");
 
   guint index, remaining;
+  gboolean set_childcount;
 
   if (bs->skip >= dir_size) {
     /* No results */
@@ -941,10 +948,14 @@ produce_from_directory (CategoryInfo *dir,
 		  bs->user_data,
 		  NULL);        
   } else {
+    set_childcount =
+      (g_list_find (bs->keys,
+		    GUINT_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
     index = bs->skip;
     remaining = MIN (dir_size - bs->skip, bs->count);
     do {
-      MsContent *content = produce_container_from_directory (dir, index);
+      MsContent *content =
+	produce_container_from_directory (dir, index, set_childcount);
       bs->callback (bs->source,
 		    bs->browse_id,
 		    content,
@@ -1121,27 +1132,35 @@ ms_youtube_source_metadata (MsMetadataSource *source,
   GError *error = NULL;
   MsContent *media;
   YoutubeMediaType media_type;
+  gboolean set_childcount;
 
   g_debug ("ms_youtube_source_metadata");
 
   media_type = classify_media_id (ms->object_id);
 
+  set_childcount =
+    (g_list_find (ms->keys,
+		  GUINT_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
+
   switch (media_type) {
   case YOUTUBE_MEDIA_TYPE_ROOT:
-    media = produce_container_from_directory (NULL, 0);
+    media = produce_container_from_directory (NULL, 0, set_childcount);
     break;
   case YOUTUBE_MEDIA_TYPE_FEEDS:
-    media = produce_container_from_directory (root_dir, 0);
+    media = produce_container_from_directory (root_dir, 0, set_childcount);
     break;
   case YOUTUBE_MEDIA_TYPE_CATEGORIES:
-    media = produce_container_from_directory (root_dir, 1);
+    media = produce_container_from_directory (root_dir, 1, set_childcount);
     break;
   case YOUTUBE_MEDIA_TYPE_FEED:
-    media = produce_container_from_directory_by_id (feeds_dir, ms->object_id);
+    media = produce_container_from_directory_by_id (feeds_dir,
+						    ms->object_id,
+						    set_childcount);
     break;
   case YOUTUBE_MEDIA_TYPE_CATEGORY:
-    media =
-      produce_container_from_directory_by_id (categories_dir, ms->object_id);
+    media = produce_container_from_directory_by_id (categories_dir,
+						    ms->object_id,
+						    set_childcount);
     break;
   case YOUTUBE_MEDIA_TYPE_VIDEO:
   default:

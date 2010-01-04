@@ -170,12 +170,12 @@ main (void)
 
   if (0) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, "standard-feeds", keys, 0, 10, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL | MS_RESOLVE_FAST_ONLY , browse_cb, NULL);
-  if (0) ms_media_source_browse (youtube, "categories/Sports", keys,  2, 3, 0, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, "categories/Sports", keys,  2, 3, MS_RESOLVE_FULL, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 3, MS_RESOLVE_IDLE_RELAY, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 10, MS_RESOLVE_FULL | MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), NULL, keys, 0, metadata_cb, NULL);
-  if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "okVW_YSHSPU", keys, 0, metadata_cb, NULL);
-  if (1) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "categories", keys, 0, metadata_cb, NULL);
+  if (0) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "okVW_YSHSPU", keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY | MS_RESOLVE_FULL, metadata_cb, NULL);
+  if (1) ms_metadata_source_get (MS_METADATA_SOURCE (youtube), "categories", keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY | MS_RESOLVE_FULL, metadata_cb, NULL);
 
   g_debug ("Running main loop");
 

@@ -929,44 +929,6 @@ produce_container_from_directory_by_id (CategoryInfo *dir,
   return content;
 }
 
-static void
-produce_from_directory (CategoryInfo *dir,
-			guint dir_size,
-			MsMediaSourceBrowseSpec *bs)
-{
-  g_debug ("produce_from_directory");
-
-  guint index, remaining;
-  gboolean set_childcount;
-
-  if (bs->skip >= dir_size) {
-    /* No results */
-    bs->callback (bs->source,
-		  bs->browse_id,
-		  NULL,
-		  0,
-		  bs->user_data,
-		  NULL);        
-  } else {
-    set_childcount =
-      (g_list_find (bs->keys,
-		    GUINT_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
-    index = bs->skip;
-    remaining = MIN (dir_size - bs->skip, bs->count);
-    do {
-      MsContent *content =
-	produce_container_from_directory (dir, index, set_childcount);
-      bs->callback (bs->source,
-		    bs->browse_id,
-		    content,
-		    --remaining,
-		    bs->user_data,
-		    NULL);    
-      index++;
-    } while (remaining > 0);
-  }
-}
-
 static YoutubeMediaType
 classify_media_id (const gchar *media_id)
 {
@@ -982,6 +944,54 @@ classify_media_id (const gchar *media_id)
     return YOUTUBE_MEDIA_TYPE_FEED;
   } else {
     return YOUTUBE_MEDIA_TYPE_VIDEO;
+  }
+}
+
+static void
+produce_from_directory (CategoryInfo *dir,
+			guint dir_size,
+			MsMediaSourceBrowseSpec *bs)
+{
+  g_debug ("produce_from_directory");
+
+  guint index, remaining;
+  gboolean set_childcount;
+  YoutubeMediaType media_type;
+
+  if (bs->skip >= dir_size) {
+    /* No results */
+    bs->callback (bs->source,
+		  bs->browse_id,
+		  NULL,
+		  0,
+		  bs->user_data,
+		  NULL);        
+  } else {
+    /* Do not compute childcount when it is expensive and user requested
+       MS_RESOLVE_FAST_ONLY */
+    media_type = classify_media_id (bs->container_id);
+    if ((bs->flags & MS_RESOLVE_FAST_ONLY) && 
+	(media_type == YOUTUBE_MEDIA_TYPE_CATEGORIES ||
+	 media_type == YOUTUBE_MEDIA_TYPE_FEEDS)) {
+      set_childcount = FALSE;
+    } else {
+      set_childcount =
+	(g_list_find (bs->keys,
+		      GUINT_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
+    }
+    index = bs->skip;
+    remaining = MIN (dir_size - bs->skip, bs->count);
+    do {
+      MsContent *content =
+	produce_container_from_directory (dir, index, set_childcount);
+      bs->callback (bs->source,
+		    bs->browse_id,
+		    content,
+		    --remaining,
+		    bs->user_data,
+		    NULL);    
+      index++;
+    } while (remaining > 0);
   }
 }
 
@@ -1010,8 +1020,10 @@ ms_youtube_source_slow_keys (MsMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
+    /* childcount may or may not be slow depending on the category, 
+       so we handle it as a non-slow key and then we decide if we
+       resolve or not depending on the category and the flags set */
     keys = ms_metadata_key_list_new (MS_METADATA_KEY_URL,
-				     MS_METADATA_KEY_CHILDCOUNT,
 				     NULL);
   }
   return keys;  
@@ -1138,9 +1150,17 @@ ms_youtube_source_metadata (MsMetadataSource *source,
 
   media_type = classify_media_id (ms->object_id);
 
-  set_childcount =
-    (g_list_find (ms->keys,
-		  GUINT_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
+  /* Do not compute childcount for expensive categories
+     if user requested that */
+  if ((ms->flags & MS_RESOLVE_FAST_ONLY) && 
+      (media_type == YOUTUBE_MEDIA_TYPE_CATEGORIES ||
+       media_type == YOUTUBE_MEDIA_TYPE_FEEDS)) {
+    set_childcount = FALSE;
+  } else {
+    set_childcount =
+      (g_list_find (ms->keys,
+		    GUINT_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
+  }
 
   switch (media_type) {
   case YOUTUBE_MEDIA_TYPE_ROOT:

@@ -1002,7 +1002,8 @@ ms_youtube_source_supported_keys (MsMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    keys = ms_metadata_key_list_new (MS_METADATA_KEY_TITLE, 
+    keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
+				     MS_METADATA_KEY_TITLE, 
 				     MS_METADATA_KEY_URL,
 				     MS_METADATA_KEY_AUTHOR,
 				     MS_METADATA_KEY_DESCRIPTION,

@@ -130,7 +130,7 @@ typedef struct {
 typedef struct {
   MsMetadataSource *source;
   const GList *keys;
-  MsMetadataSourceResultCb callback;
+  MsMediaSourceMetadataCb callback;
   gpointer user_data;
 } MetadataOperationSpec;
 
@@ -166,8 +166,8 @@ static const GList *ms_youtube_source_supported_keys (MsMetadataSource *source);
 
 static const GList *ms_youtube_source_slow_keys (MsMetadataSource *source);
 
-static void ms_youtube_source_metadata (MsMetadataSource *source,
-					MsMetadataSourceMetadataSpec *ms);
+static void ms_youtube_source_metadata (MsMediaSource *source,
+					MsMediaSourceMetadataSpec *ms);
 
 static void ms_youtube_source_search (MsMediaSource *source,
 				      MsMediaSourceSearchSpec *ss);
@@ -245,7 +245,7 @@ ms_youtube_source_class_init (MsYoutubeSourceClass * klass)
   MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
   source_class->browse = ms_youtube_source_browse;
   source_class->search = ms_youtube_source_search;
-  metadata_class->metadata = ms_youtube_source_metadata;
+  source_class->metadata = ms_youtube_source_metadata;
   metadata_class->supported_keys = ms_youtube_source_supported_keys;
   metadata_class->slow_keys = ms_youtube_source_slow_keys;
 
@@ -635,7 +635,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
 }
 
 static MsContent *
-parse_metadata_entry (MsMetadataSourceMetadataSpec *os,
+parse_metadata_entry (MsMediaSourceMetadataSpec *os,
 		      xmlDocPtr doc,
 		      xmlNodePtr node,
 		      GError **error)
@@ -686,7 +686,7 @@ parse_metadata_entry (MsMetadataSourceMetadataSpec *os,
 }
 
 static MsContent *
-parse_metadata_feed (MsMetadataSourceMetadataSpec *os,
+parse_metadata_feed (MsMediaSourceMetadataSpec *os,
 		     const gchar *str,
 		     GError **error)
 {
@@ -1137,8 +1137,8 @@ ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
 }
 
 static void
-ms_youtube_source_metadata (MsMetadataSource *source,
-			    MsMetadataSourceMetadataSpec *ms)
+ms_youtube_source_metadata (MsMediaSource *source,
+			    MsMediaSourceMetadataSpec *ms)
 {
   gchar *xmldata, *url;
   GError *error = NULL;

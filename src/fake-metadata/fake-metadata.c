@@ -46,9 +46,6 @@
 
 static FakeMetadataSource *fake_metadata_source_new (void);
 
-static void fake_metadata_source_metadata (MsMetadataSource *source,
-					   MsMetadataSourceMetadataSpec *ms);
-
 static void fake_metadata_source_resolve (MsMetadataSource *source,
 					  MsMetadataSourceResolveSpec *rs);
 
@@ -102,7 +99,6 @@ fake_metadata_source_class_init (FakeMetadataSourceClass * klass)
   MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
   metadata_class->supported_keys = fake_metadata_source_supported_keys;
   metadata_class->key_depends = fake_metadata_source_key_depends;
-  metadata_class->metadata = fake_metadata_source_metadata;
   metadata_class->resolve = fake_metadata_source_resolve;
 }
 
@@ -197,27 +193,6 @@ fake_metadata_source_key_depends (MsMetadataSource *source, MsKeyID key_id)
   }
 
   return  NULL;
-}
-
-static void
-fake_metadata_source_metadata (MsMetadataSource *source,
-			       MsMetadataSourceMetadataSpec *ms)
-{
-  g_debug ("fake_metadata_source_metadata");
-
-  GList *iter;
-  MsContentMedia *media;
-
-  media = ms_content_media_new ();
-
-  iter = ms->keys;
-  while (iter) {
-    MsKeyID key_id = GPOINTER_TO_INT (iter->data);
-    fill_metadata (media, key_id);
-    iter = g_list_next (iter);
-  }
-
-  ms->callback (source, MS_CONTENT (media), ms->user_data, NULL);
 }
 
 static void

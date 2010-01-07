@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-SUBDIRS = fake-metadata
+SUBDIRS = fake-metadata filesystem
 
 if HAVE_VFS
 if HAVE_XML
@@ -13,7 +13,7 @@ SUBDIRS += youtube
 endif
 endif
 
-DIST_SUBDIRS = youtube fake-metadata
+DIST_SUBDIRS = youtube fake-metadata filesystem
 
 MAINTAINERCLEANFILES = \
         *.in \

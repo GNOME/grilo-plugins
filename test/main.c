@@ -110,6 +110,9 @@ metadata_cb (MsMediaSource *source,
   g_debug ("    Got metadata for object '%s'",
 	   ms_content_media_get_id (MS_CONTENT_MEDIA (media)));
 
+  g_debug ("\tContainer: %s",
+	   ms_content_is_container (media) ? "yes" : "no");
+
   keys = ms_content_get_keys (media, &size);
   for (i = 0; i < size; i++) {
     print_metadata (media, keys[i]);
@@ -127,7 +130,7 @@ main (void)
 
   g_type_init ();
 
-  ms_log_init ("*:warning,test-main:*,ms-youtube:*");
+  ms_log_init ("*:warning,test-main:*,ms-youtube:*,ms-filesystem:*");
 
   keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
 				   MS_METADATA_KEY_TITLE,
@@ -141,6 +144,7 @@ main (void)
                                    MS_METADATA_KEY_LYRICS,
 				   MS_METADATA_KEY_DURATION,
 				   MS_METADATA_KEY_CHILDCOUNT,
+				   MS_METADATA_KEY_MIME,
                                    NULL);
 
   g_debug ("start");
@@ -149,6 +153,7 @@ main (void)
 
   MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
   ms_plugin_registry_load (registry, "../plugins/youtube/.libs/libmsyoutube.so");
+  ms_plugin_registry_load (registry, "../plugins/filesystem/.libs/libmsfilesystem.so");
   ms_plugin_registry_load (registry, "../plugins/fake-metadata/.libs/libfakemetadata.so");
 
   g_debug ("Obtaining sources");
@@ -156,27 +161,33 @@ main (void)
   MsMediaSource *youtube = 
     (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-youtube");
 
+  MsMediaSource *fs = 
+    (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-filesystem");
+
   MsMetadataSource *fake = 
     (MsMetadataSource *) ms_plugin_registry_lookup_source (registry, "ms-fake-metadata");
 
-  g_assert (youtube);
+  g_assert (youtube && fs && fake);
 
   g_debug ("Supported operations");
 
   print_supported_ops (MS_METADATA_SOURCE (youtube));
+  print_supported_ops (MS_METADATA_SOURCE (fs));
   print_supported_ops (fake);
 
   g_debug ("testing");
 
   if (0) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, "standard-feeds", keys, 0, 10, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL | MS_RESOLVE_FAST_ONLY , browse_cb, NULL);
-  if (1) ms_media_source_browse (youtube, "categories/Sports", keys,  0, 4, MS_RESOLVE_FULL, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, "categories/Sports", keys,  0, 4, MS_RESOLVE_FULL, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 3, MS_RESOLVE_FULL, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 10, MS_RESOLVE_FULL | MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (youtube, "okVW_YSHSPU", keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY | MS_RESOLVE_FULL, metadata_cb, NULL);
   if (0) ms_media_source_metadata (youtube, "categories", keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY , metadata_cb, NULL);
   if (0) ms_media_source_metadata (youtube, "categories", keys, 0, metadata_cb, NULL);
+  if (1) ms_media_source_browse (fs, "/home", keys, 0, 100, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
+  if (0) ms_media_source_metadata (fs, "/home", keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, metadata_cb, NULL);
 
   g_debug ("Running main loop");
 

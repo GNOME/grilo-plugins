@@ -93,6 +93,12 @@ AC_SUBST(XML_LIBS)
 AC_SUBST(HAVE_XML)
 AM_CONDITIONAL(HAVE_XML, test "x$HAVE_XML" = "xyes")
 
+PKG_CHECK_MODULES(GIO, gio-2.0, HAVE_GIO=yes, HAVE_GIO=no)
+AC_SUBST(GIO_CFLAGS)
+AC_SUBST(GIO_LIBS)
+AC_SUBST(HAVE_GIO)
+AM_CONDITIONAL(HAVE_GIO, test "x$HAVE_GIO" = "xyes")
+
 # ----------------------------------------------------------
 # WORKAROUNDS
 # ----------------------------------------------------------
@@ -109,6 +115,7 @@ AC_CONFIG_FILES([
   src/Makefile
   src/youtube/Makefile
   src/fake-metadata/Makefile
+  src/filesystem/Makefile
   test/Makefile
 ])
 

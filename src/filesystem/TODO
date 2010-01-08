@@ -1,0 +1,1 @@
+- Do not return files that are not media (e.g. text files, documents, etc).

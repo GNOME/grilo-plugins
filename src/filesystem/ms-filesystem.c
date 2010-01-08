@@ -40,6 +40,10 @@
 
 #define FILE_ATTRIBUTES "standard::*"
 
+/* ---- Emission chunks ----- */
+
+#define BROWSE_IDLE_CHUNK_SIZE 5
+
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "ms-filesystem"
@@ -53,6 +57,16 @@
 #define AUTHOR      "Igalia S.L."
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
+
+/* --- Data types --- */
+
+typedef struct {
+  MsMediaSourceBrowseSpec *spec;
+  GList *entries;
+  GList *current;
+  const gchar *path;
+  guint remaining;
+}  BrowseIdleData;
 
 static MsFilesystemSource *ms_filesystem_source_new (void);
 
@@ -215,14 +229,61 @@ create_content (const gchar *path)
   return MS_CONTENT (media);
 }
 
+static gboolean
+browse_emit_idle (gpointer user_data)
+{
+  BrowseIdleData *idle_data;
+  guint count;
+  const gchar *entry;
+
+  g_debug ("browse_emit_idle");
+
+  idle_data = (BrowseIdleData *) user_data;
+
+  count = 0;
+  do {    
+    gchar *entry_path;
+    MsContent *content;
+    
+    entry = (const gchar *) idle_data->current->data;
+    if (strcmp (idle_data->path, G_DIR_SEPARATOR_S)) {
+      entry_path = g_strconcat (idle_data->path, G_DIR_SEPARATOR_S,
+				entry, NULL);
+    } else {
+      entry_path = g_strconcat (idle_data->path, entry, NULL);
+    }
+    content = create_content (entry_path); 
+    g_free (entry_path);
+    g_free (idle_data->current->data);
+   
+    idle_data->spec->callback (idle_data->spec->source,
+			       idle_data->spec->browse_id,
+			       content,
+			       idle_data->remaining--,
+			       idle_data->spec->user_data,
+			       NULL);        
+    
+    idle_data->current = g_list_next (idle_data->current);
+    count++;
+  } while (count < BROWSE_IDLE_CHUNK_SIZE && idle_data->current);
+
+  if (!idle_data->current) {
+    g_list_free (idle_data->entries);
+    g_free (idle_data);
+    return FALSE;
+  } else {
+    return TRUE;
+  }
+}
+
 static void
 produce_from_path (MsMediaSourceBrowseSpec *bs, const gchar *path)
 {
   GDir *dir;
   GError *error = NULL;
   const gchar *entry;
-  guint skip, count, remaining;
-  GList *entries = NULL, *iter;
+  guint skip, count;
+  GList *entries = NULL;
 
   /* Open directory */
   g_debug ("Opening directory '%s'", path);
@@ -242,38 +303,21 @@ produce_from_path (MsMediaSourceBrowseSpec *bs, const gchar *path)
       continue;
     }
     if (count > 0) {
-      entries = g_list_prepend (entries, (gchar *) entry);
+      entries = g_list_prepend (entries, g_strdup (entry));
       count--;
     }
   }
 
   /* Emit results */
   if (entries) {
-    iter = entries;
-    remaining = bs->count - count - 1;
-    do {
-      gchar *entry_path;
-      MsContent *content;
-
-      entry = (const gchar *) iter->data;
-      if (strcmp (path, G_DIR_SEPARATOR_S)) {
-	entry_path = g_strconcat (path, G_DIR_SEPARATOR_S, entry, NULL);
-      } else {
-	entry_path = g_strconcat (path, entry, NULL);
-      }
-      content = create_content (entry_path);
-
-      bs->callback (bs->source,
-		    bs->browse_id,
-		    content,
-		    remaining--,
-		    bs->user_data,
-		    NULL);        
-
-      iter = g_list_next (iter);
-      g_free (entry_path);
-    } while (iter);
-    g_list_free (entries);
+    /* Use the idle loop to avoid blocking for too long */
+    BrowseIdleData *idle_data = g_new (BrowseIdleData, 1);
+    idle_data->spec = bs;
+    idle_data->remaining = bs->count - count - 1;
+    idle_data->path = path;
+    idle_data->entries = entries;
+    idle_data->current = entries;
+    g_idle_add (browse_emit_idle, idle_data);
   } else {
     /* No results */
     bs->callback (bs->source,

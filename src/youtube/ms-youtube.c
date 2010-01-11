@@ -361,44 +361,42 @@ read_url (const gchar *url)
 static MsContent *
 build_media_from_entry (const Entry *entry, const GList *keys)
 {
-  MsContentMedia *media;
+  MsContentVideo *media;
   gchar *url;
   GList *iter;
 
-  media = ms_content_media_new (); 
+  media = ms_content_video_new ();
 
   iter = (GList *) keys;
   while (iter) {
     MsKeyID key_id = GPOINTER_TO_UINT (iter->data);
     switch (key_id) {
     case MS_METADATA_KEY_ID:
-      ms_content_media_set_id (media, entry->id);
+      ms_content_media_set_id (MS_CONTENT_MEDIA (media), entry->id);
       break;
     case MS_METADATA_KEY_TITLE:
-      ms_content_media_set_title (media, entry->title);
+      ms_content_media_set_title (MS_CONTENT_MEDIA (media), entry->title);
       break;
     case MS_METADATA_KEY_AUTHOR:
-      ms_content_media_set_author (media, entry->author);
+      ms_content_media_set_author (MS_CONTENT_MEDIA (media), entry->author);
       break;
     case MS_METADATA_KEY_DESCRIPTION:
-      ms_content_media_set_description (media, entry->description);
+      ms_content_media_set_description (MS_CONTENT_MEDIA (media), entry->description);
       break;
     case MS_METADATA_KEY_THUMBNAIL:
-      ms_content_media_set_thumbnail (media, entry->thumbnail);
+      ms_content_media_set_thumbnail (MS_CONTENT_MEDIA (media), entry->thumbnail);
       break;
     case MS_METADATA_KEY_DATE:
-      ms_content_set_string (MS_CONTENT (media), 
-			     MS_METADATA_KEY_DATE, entry->published);
+      ms_content_media_set_date (MS_CONTENT_MEDIA (media), entry->published);
       break;
     case MS_METADATA_KEY_DURATION:
-      ms_content_set_string (MS_CONTENT (media), 
-			     MS_METADATA_KEY_DURATION, entry->duration);
+      ms_content_media_set_duration (MS_CONTENT_MEDIA (media), atoi (entry->duration));
       break;
     case MS_METADATA_KEY_URL:
       if (!entry->restricted) {
 	url = get_video_url (entry->id);
 	if (url) {
-	  ms_content_media_set_url (media, url);
+	  ms_content_media_set_url (MS_CONTENT_MEDIA (media), url);
 	}
 	g_free (url);
       }
@@ -894,15 +892,15 @@ produce_container_from_directory (CategoryInfo *dir,
 				  guint index,
 				  gboolean set_childcount)
 {
-  MsContentMedia *content;
+  MsContentBox *content;
 
-  content = MS_CONTENT_MEDIA(ms_content_box_new ());
+  content = ms_content_box_new ();
   if (!dir) {
-    ms_content_media_set_id (content, NULL);
-    ms_content_media_set_title (content, YOUTUBE_ROOT_NAME);
+    ms_content_media_set_id (MS_CONTENT_MEDIA (content), NULL);
+    ms_content_media_set_title (MS_CONTENT_MEDIA (content), YOUTUBE_ROOT_NAME);
   } else {
-    ms_content_media_set_id (content, dir[index].id);
-    ms_content_media_set_title (content, dir[index].name);
+    ms_content_media_set_id (MS_CONTENT_MEDIA (content), dir[index].id);
+    ms_content_media_set_title (MS_CONTENT_MEDIA (content), dir[index].name);
   }
   if (set_childcount) {
     set_category_childcount (MS_CONTENT (content), dir, index);

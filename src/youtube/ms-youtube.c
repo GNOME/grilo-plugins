@@ -358,10 +358,10 @@ read_url (const gchar *url)
   return g_string_free (data, FALSE);
 }
 
-static MsContent *
+static MsContentMedia *
 build_media_from_entry (const Entry *entry, const GList *keys)
 {
-  MsContentVideo *media;
+  MsContentMedia *media;
   gchar *url;
   GList *iter;
 
@@ -372,31 +372,31 @@ build_media_from_entry (const Entry *entry, const GList *keys)
     MsKeyID key_id = GPOINTER_TO_UINT (iter->data);
     switch (key_id) {
     case MS_METADATA_KEY_ID:
-      ms_content_media_set_id (MS_CONTENT_MEDIA (media), entry->id);
+      ms_content_media_set_id (media, entry->id);
       break;
     case MS_METADATA_KEY_TITLE:
-      ms_content_media_set_title (MS_CONTENT_MEDIA (media), entry->title);
+      ms_content_media_set_title (media, entry->title);
       break;
     case MS_METADATA_KEY_AUTHOR:
-      ms_content_media_set_author (MS_CONTENT_MEDIA (media), entry->author);
+      ms_content_media_set_author (media, entry->author);
       break;
     case MS_METADATA_KEY_DESCRIPTION:
-      ms_content_media_set_description (MS_CONTENT_MEDIA (media), entry->description);
+      ms_content_media_set_description (media, entry->description);
       break;
     case MS_METADATA_KEY_THUMBNAIL:
-      ms_content_media_set_thumbnail (MS_CONTENT_MEDIA (media), entry->thumbnail);
+      ms_content_media_set_thumbnail (media, entry->thumbnail);
       break;
     case MS_METADATA_KEY_DATE:
-      ms_content_media_set_date (MS_CONTENT_MEDIA (media), entry->published);
+      ms_content_media_set_date (media, entry->published);
       break;
     case MS_METADATA_KEY_DURATION:
-      ms_content_media_set_duration (MS_CONTENT_MEDIA (media), atoi (entry->duration));
+      ms_content_media_set_duration (media, atoi (entry->duration));
       break;
     case MS_METADATA_KEY_URL:
       if (!entry->restricted) {
 	url = get_video_url (entry->id);
 	if (url) {
-	  ms_content_media_set_url (MS_CONTENT_MEDIA (media), url);
+	  ms_content_media_set_url (media, url);
 	}
 	g_free (url);
       }
@@ -407,7 +407,7 @@ build_media_from_entry (const Entry *entry, const GList *keys)
     iter = g_list_next (iter);
   }
 
-  return MS_CONTENT (media);
+  return media;
 }
 
 static gchar *
@@ -525,7 +525,7 @@ parse_entries_idle (gpointer user_data)
     Entry *entry = g_new0 (Entry, 1);
     parse_entry (pei->doc, pei->node, entry);
     if (0) print_entry (entry);
-    MsContent *media = build_media_from_entry (entry, pei->os->keys);
+    MsContentMedia *media = build_media_from_entry (entry, pei->os->keys);
     free_entry (entry);
     
     pei->index++;
@@ -632,7 +632,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   return;
 }
 
-static MsContent *
+static MsContentMedia *
 parse_metadata_entry (MsMediaSourceMetadataSpec *os,
 		      xmlDocPtr doc,
 		      xmlNodePtr node,
@@ -640,7 +640,7 @@ parse_metadata_entry (MsMediaSourceMetadataSpec *os,
 {
   xmlNs *ns;
   guint total_results = 0;
-  MsContent *media = NULL;
+  MsContentMedia *media = NULL;
 
   /* First checkout search information looking for totalResults */
   while (node && !total_results) {
@@ -683,14 +683,14 @@ parse_metadata_entry (MsMediaSourceMetadataSpec *os,
   return media;
 }
 
-static MsContent *
+static MsContentMedia *
 parse_metadata_feed (MsMediaSourceMetadataSpec *os,
 		     const gchar *str,
 		     GError **error)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
-  MsContent *media = NULL;
+  MsContentMedia *media = NULL;
   
   doc = xmlRecoverDoc ((xmlChar *) str);
   if (!doc) {
@@ -724,7 +724,7 @@ parse_metadata_feed (MsMediaSourceMetadataSpec *os,
   }
 
   media = parse_metadata_entry (os, doc, node, error);
-  
+
  free_resources:
   xmlFreeDoc (doc);
   return media;
@@ -857,7 +857,7 @@ get_container_url (const gchar *container_id)
 }
 
 static void
-set_category_childcount (MsContent *content, CategoryInfo *dir, guint index)
+set_category_childcount (MsContentBox *content, CategoryInfo *dir, guint index)
 {
   gint childcount;
 
@@ -884,37 +884,37 @@ set_category_childcount (MsContent *content, CategoryInfo *dir, guint index)
     childcount = strtol (childcount_str, (char **) NULL, 10);
   }
 
-  ms_content_set_int (content, MS_METADATA_KEY_CHILDCOUNT, childcount);
+  ms_content_box_set_childcount (content, childcount);
 }
 
-static MsContent *
+static MsContentMedia *
 produce_container_from_directory (CategoryInfo *dir,
 				  guint index,
 				  gboolean set_childcount)
 {
-  MsContentBox *content;
+  MsContentMedia *content;
 
   content = ms_content_box_new ();
   if (!dir) {
-    ms_content_media_set_id (MS_CONTENT_MEDIA (content), NULL);
-    ms_content_media_set_title (MS_CONTENT_MEDIA (content), YOUTUBE_ROOT_NAME);
+    ms_content_media_set_id (content, NULL);
+    ms_content_media_set_title (content, YOUTUBE_ROOT_NAME);
   } else {
-    ms_content_media_set_id (MS_CONTENT_MEDIA (content), dir[index].id);
-    ms_content_media_set_title (MS_CONTENT_MEDIA (content), dir[index].name);
+    ms_content_media_set_id (content, dir[index].id);
+    ms_content_media_set_title (content, dir[index].name);
   }
   if (set_childcount) {
-    set_category_childcount (MS_CONTENT (content), dir, index);
+    set_category_childcount (MS_CONTENT_BOX (content), dir, index);
   }
 
-  return MS_CONTENT (content);
+  return content;
 }
 
-static MsContent *
+static MsContentMedia *
 produce_container_from_directory_by_id (CategoryInfo *dir,
 					const gchar *id,
 					gboolean set_childcount)
 {
-  MsContent *content;
+  MsContentMedia *content;
   guint index = 0;
 
   while (dir[index].id && strcmp (dir[index].id, id)) index++;
@@ -980,7 +980,7 @@ produce_from_directory (CategoryInfo *dir,
     index = bs->skip;
     remaining = MIN (dir_size - bs->skip, bs->count);
     do {
-      MsContent *content =
+      MsContentMedia *content =
 	produce_container_from_directory (dir, index, set_childcount);
       bs->callback (bs->source,
 		    bs->browse_id,
@@ -1141,7 +1141,7 @@ ms_youtube_source_metadata (MsMediaSource *source,
 {
   gchar *xmldata, *url;
   GError *error = NULL;
-  MsContent *media;
+  MsContentMedia *media;
   YoutubeMediaType media_type;
   gboolean set_childcount;
 

@@ -160,7 +160,7 @@ set_container_childcount (const gchar *path, MsContentMedia *media)
   ms_content_set_int (MS_CONTENT (media), MS_METADATA_KEY_CHILDCOUNT, count);
 }
 
-static MsContent *
+static MsContentMedia *
 create_content (const gchar *path)
 {
   MsContentMedia *media;
@@ -226,7 +226,7 @@ create_content (const gchar *path)
 
   g_object_unref (file);
   
-  return MS_CONTENT (media);
+  return media;
 }
 
 static gboolean
@@ -243,7 +243,7 @@ browse_emit_idle (gpointer user_data)
   count = 0;
   do {    
     gchar *entry_path;
-    MsContent *content;
+    MsContentMedia *content;
     
     entry = (const gchar *) idle_data->current->data;
     if (strcmp (idle_data->path, G_DIR_SEPARATOR_S)) {
@@ -365,7 +365,7 @@ static void
 ms_filesystem_source_metadata (MsMediaSource *source,
 			       MsMediaSourceMetadataSpec *ms)
 {
-  MsContent *content;
+  MsContentMedia *content;
   gchar *path;
 
   g_debug ("ms_filesystem_source_metadata");

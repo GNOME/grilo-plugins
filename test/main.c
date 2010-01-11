@@ -53,7 +53,7 @@ print_metadata (MsContent *content, MsKeyID key_id)
 static void 
 browse_cb (MsMediaSource *source,
 	   guint browse_id,
-           MsContent *media,
+           MsContentMedia *media,
 	   guint remaining,
 	   gpointer user_data,
 	   const GError *error)
@@ -78,9 +78,9 @@ browse_cb (MsMediaSource *source,
   g_debug ("\tContainer: %s",
 	   IS_MS_CONTENT_BOX(media) ? "yes" : "no");
 
-  keys = ms_content_get_keys (media, &size);
+  keys = ms_content_get_keys (MS_CONTENT (media), &size);
   for (i = 0; i < size; i++) {
-    print_metadata (media, keys[i]);
+    print_metadata (MS_CONTENT (media), keys[i]);
   }
   g_free (keys);
   g_object_unref (media);
@@ -92,7 +92,7 @@ browse_cb (MsMediaSource *source,
 
 static void 
 metadata_cb (MsMediaSource *source,
-	     MsContent *media,
+	     MsContentMedia *media,
 	     gpointer user_data,
 	     const GError *error)
 {
@@ -113,9 +113,9 @@ metadata_cb (MsMediaSource *source,
   g_debug ("\tContainer: %s",
 	   IS_MS_CONTENT_BOX(media) ? "yes" : "no");
 
-  keys = ms_content_get_keys (media, &size);
+  keys = ms_content_get_keys (MS_CONTENT (media), &size);
   for (i = 0; i < size; i++) {
-    print_metadata (media, keys[i]);
+    print_metadata (MS_CONTENT (media), keys[i]);
   }
   g_free (keys);
   g_object_unref (media);

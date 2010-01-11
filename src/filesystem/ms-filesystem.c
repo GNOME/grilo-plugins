@@ -187,7 +187,7 @@ create_content (const gchar *path)
     g_error_free (error);
   } else {
     if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-      media = ms_content_media_container_new ();
+      media = MS_CONTENT_MEDIA(ms_content_box_new ());
     } else {
       media = ms_content_media_new ();
     }
@@ -220,7 +220,7 @@ create_content (const gchar *path)
   g_free (str);
 
   /* Childcount */
-  if (ms_content_is_container (MS_CONTENT (media))) {
+  if (IS_MS_CONTENT_BOX(media)) {
     set_container_childcount (path, media);
   }
 

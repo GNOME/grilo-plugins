@@ -896,7 +896,7 @@ produce_container_from_directory (CategoryInfo *dir,
 {
   MsContentMedia *content;
 
-  content = ms_content_media_container_new ();
+  content = MS_CONTENT_MEDIA(ms_content_box_new ());
   if (!dir) {
     ms_content_media_set_id (content, NULL);
     ms_content_media_set_title (content, YOUTUBE_ROOT_NAME);

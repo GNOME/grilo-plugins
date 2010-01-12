@@ -139,7 +139,7 @@ main (void)
 
   g_type_init ();
 
-  ms_log_init ("*:warning,test-main:*,ms-youtube:*,ms-filesystem:*");
+  ms_log_init ("*:warning,test-main:*,ms-youtube:*,ms-filesystem:*,ms-jamendo:*");
 
   keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
 				   MS_METADATA_KEY_TITLE,
@@ -163,6 +163,7 @@ main (void)
   MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
   ms_plugin_registry_load (registry, "../plugins/youtube/.libs/libmsyoutube.so");
   ms_plugin_registry_load (registry, "../plugins/filesystem/.libs/libmsfilesystem.so");
+  ms_plugin_registry_load (registry, "../plugins/jamendo/.libs/libmsjamendo.so");
   ms_plugin_registry_load (registry, "../plugins/fake-metadata/.libs/libfakemetadata.so");
 
   g_debug ("Obtaining sources");
@@ -173,19 +174,24 @@ main (void)
   MsMediaSource *fs = 
     (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-filesystem");
 
+  MsMediaSource *jamendo =
+    (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-jamendo");
+
   MsMetadataSource *fake = 
     (MsMetadataSource *) ms_plugin_registry_lookup_source (registry, "ms-fake-metadata");
 
-  g_assert (youtube && fs && fake);
+  g_assert (youtube && fs && jamendo && fake);
 
   g_debug ("Supported operations");
 
   print_supported_ops (MS_METADATA_SOURCE (youtube));
   print_supported_ops (MS_METADATA_SOURCE (fs));
+  print_supported_ops (MS_METADATA_SOURCE (jamendo));
   print_supported_ops (fake);
 
   g_debug ("testing");
 
+  if (0) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, media_from_id ("standard-feeds/most-viewed"), keys, 0, 10, MS_RESOLVE_FAST_ONLY , browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 173, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
@@ -196,7 +202,8 @@ main (void)
   if (0) ms_media_source_metadata (youtube, NULL, keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY , metadata_cb, NULL);
   if (0) ms_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_browse (fs, media_from_id ("/home"), keys, 0, 100, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
-  if (1) ms_media_source_metadata (fs, media_from_id ("/home"), keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, metadata_cb, NULL);
+  if (0) ms_media_source_metadata (fs, media_from_id ("/home"), keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, metadata_cb, NULL);
+  if (1) ms_media_source_browse (jamendo, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
 
   g_debug ("Running main loop");
 

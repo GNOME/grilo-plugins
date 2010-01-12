@@ -116,6 +116,7 @@ AC_CONFIG_FILES([
   src/youtube/Makefile
   src/fake-metadata/Makefile
   src/filesystem/Makefile
+  src/jamendo/Makefile
   test/Makefile
 ])
 

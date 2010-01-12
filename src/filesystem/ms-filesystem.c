@@ -292,6 +292,7 @@ produce_from_path (MsMediaSourceBrowseSpec *bs, const gchar *path)
     g_warning ("Failed to open directory '%s': %s", path, error->message);
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
+    return;
   }
 
   /* Get entries to emit */

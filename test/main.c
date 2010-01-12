@@ -207,6 +207,7 @@ main (void)
   if (0) ms_media_source_browse (jamendo, media_from_id("1"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (1) ms_media_source_browse (jamendo, media_from_id("1/13"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, media_from_id("2"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (1) ms_media_source_browse (jamendo, media_from_id("2/28"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
 
   g_debug ("Running main loop");
 

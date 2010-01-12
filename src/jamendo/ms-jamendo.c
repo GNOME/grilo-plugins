@@ -50,13 +50,23 @@
 
 /* ---- Jamendo Web API  ---- */
 
-#define JAMENDO_ENTRYPOINT  "http://api.jamendo.com/get2"
-#define JAMENDO_FORMAT      "xml"
+#define JAMENDO_BASE_ENTRY "http://api.jamendo.com/get2"
+#define JAMENDO_FORMAT     "xml"
+#define JAMENDO_RANGE      "n=%d&pn=%d" 
 
-#define JAMENDO_GET_ARTISTS JAMENDO_ENTRYPOINT "/%s/" JAMENDO_ARTIST "/" JAMENDO_FORMAT "/?n=%d&pn=%d"
-#define JAMENDO_GET_ALBUMS  JAMENDO_ENTRYPOINT "/%s/" JAMENDO_ALBUM  "/" JAMENDO_FORMAT "/?n=%d&pn=%d"
+#define JAMENDO_ARTIST_ENTRY JAMENDO_BASE_ENTRY "/%s/" JAMENDO_ARTIST "/" JAMENDO_FORMAT
+#define JAMENDO_ALBUM_ENTRY  JAMENDO_BASE_ENTRY "/%s/" JAMENDO_ALBUM  "/" JAMENDO_FORMAT
+#define JAMENDO_TRACK_ENTRY  JAMENDO_BASE_ENTRY "/%s/" JAMENDO_TRACK  "/" JAMENDO_FORMAT
 
-#define JAMENDO_GET_ALBUMS_FROM_ARTIST JAMENDO_GET_ALBUMS "&artist_id=%s"
+#define JAMENDO_GET_ARTISTS JAMENDO_ARTIST_ENTRY "/?" JAMENDO_RANGE
+#define JAMENDO_GET_ALBUMS  JAMENDO_ALBUM_ENTRY  "/?" JAMENDO_RANGE
+
+#define JAMENDO_GET_ALBUMS_FROM_ARTIST JAMENDO_ALBUM_ENTRY "/"          \
+  JAMENDO_ALBUM "_" JAMENDO_ARTIST "/?" JAMENDO_RANGE "&artist_id=%s"
+
+#define JAMENDO_GET_TRACKS_FROM_ALBUM JAMENDO_TRACK_ENTRY "/"          \
+  JAMENDO_TRACK "_" JAMENDO_ALBUM "+" JAMENDO_ALBUM "_" JAMENDO_ARTIST \
+  "/?" JAMENDO_RANGE "&album_id=%s"
 
 /* --- Plugin information --- */
 
@@ -90,6 +100,10 @@ typedef struct {
   gchar *album_url;
   gchar *album_duration;
   gchar *album_image;
+  gchar *track_name;
+  gchar *track_url;
+  gchar *track_stream;
+  gchar *track_duration;
 } Entry;
 
 typedef struct {
@@ -202,7 +216,12 @@ print_entry (Entry *entry)
   g_print ("    Album Name: %s\n", entry->album_name);
   g_print ("   Album Genre: %s\n", entry->album_genre);
   g_print ("     Album URL: %s\n", entry->album_url);
+  g_print ("Album Duration: %s\n", entry->album_duration);
   g_print ("   Album Image: %s\n", entry->album_image);
+  g_print ("    Track Name: %s\n", entry->track_name);
+  g_print ("     Track URL: %s\n", entry->track_url);
+  g_print ("  Track Stream: %s\n", entry->track_stream);
+  g_print ("Track Duration: %s\n", entry->track_duration);
 }
 
 static void
@@ -218,6 +237,10 @@ free_entry (Entry *entry)
   g_free (entry->album_url);
   g_free (entry->album_duration);
   g_free (entry->album_image);
+  g_free (entry->track_name);
+  g_free (entry->track_url);
+  g_free (entry->track_stream);
+  g_free (entry->track_duration);
   g_free (entry);
 }
 
@@ -276,15 +299,9 @@ build_media_from_entry (const Entry *entry, const GList *keys)
   while (iter) {
     MsKeyID key_id = GPOINTER_TO_UINT (iter->data);
 
+    /* Common fields */
     if (key_id == MS_METADATA_KEY_ID && id) {
       ms_content_media_set_id (media, id);
-
-    } else if (key_id == MS_METADATA_KEY_TITLE) {
-      if (entry->category == JAMENDO_ARTIST_CAT && entry->artist_name) {
-        ms_content_media_set_title (media, entry->artist_name);
-      } else if (entry->category == JAMENDO_ALBUM_CAT && entry->album_name) {
-        ms_content_media_set_title (media, entry->album_name);
-      }
 
     } else if (key_id == MS_METADATA_KEY_ARTIST && entry->artist_name) {
       ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_ARTIST, entry->artist_name);
@@ -292,27 +309,58 @@ build_media_from_entry (const Entry *entry, const GList *keys)
     } else if (key_id == MS_METADATA_KEY_ALBUM && entry->album_name) {
       ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_ALBUM, entry->album_name);
 
-    } else if (key_id == MS_METADATA_KEY_GENRE) {
-      if (entry->category == JAMENDO_ARTIST_CAT && entry->artist_genre) {
+      /* Fields for artist */
+    } else if (entry->category == JAMENDO_ARTIST_CAT) {
+      if (key_id == MS_METADATA_KEY_TITLE && entry->artist_name) {
+        ms_content_media_set_title (media, entry->artist_name);
+
+      } else if (key_id == MS_METADATA_KEY_GENRE && entry->artist_genre) {
         ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_GENRE, entry->artist_genre);
-      } else if (entry->category == JAMENDO_ALBUM_CAT && entry->album_genre) {
-        ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_GENRE, entry->album_genre);
-      }
 
-    } else if (key_id == MS_METADATA_KEY_URL) {
-      if (entry->category == JAMENDO_ARTIST_CAT && entry->artist_url) {
-        ms_content_media_set_url (media, entry->artist_url);
-      } else if (entry->category == JAMENDO_ALBUM_CAT && entry->album_url) {
-        ms_content_media_set_url (media, entry->album_url);
-      }
+      } else if (key_id == MS_METADATA_KEY_SITE && entry->artist_url) {
+        ms_content_media_set_site (media, entry->artist_url);
 
-    } else if (key_id == MS_METADATA_KEY_THUMBNAIL) {
-      if (entry->category == JAMENDO_ARTIST_CAT && entry->artist_image) {
+      } else if (key_id == MS_METADATA_KEY_THUMBNAIL && entry->artist_image) {
         ms_content_media_set_thumbnail (media, entry->artist_image);
-      } else if (entry->category == JAMENDO_ALBUM_CAT && entry->album_image) {
-        ms_content_media_set_thumbnail (media, entry->album_image);
       }
 
+      /* Fields for album */
+    } else if (entry->category == JAMENDO_ALBUM_CAT) {
+      if (key_id == MS_METADATA_KEY_TITLE && entry->album_name) {
+        ms_content_media_set_title (media, entry->album_name);
+
+      } else if (key_id == MS_METADATA_KEY_GENRE && entry->album_genre) {
+        ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_GENRE, entry->album_genre);
+
+      } else if (key_id == MS_METADATA_KEY_SITE && entry->album_url) {
+        ms_content_media_set_site (media, entry->album_url);
+
+      } else if (key_id == MS_METADATA_KEY_THUMBNAIL && entry->album_image) {
+        ms_content_media_set_thumbnail (media, entry->album_image);
+      } else if (key_id == MS_METADATA_KEY_DURATION && entry->album_duration) {
+        ms_content_media_set_duration (media, atoi (entry->album_duration));
+      }
+
+      /* Fields for track */
+    } else if (entry->category == JAMENDO_TRACK_CAT) {
+      if (key_id == MS_METADATA_KEY_TITLE && entry->track_name) {
+        ms_content_media_set_title (media, entry->track_name);
+
+      } else if (key_id == MS_METADATA_KEY_GENRE && entry->album_genre) {
+        ms_content_audio_set_genre (MS_CONTENT_AUDIO (media), entry->album_genre);
+
+      } else if (key_id == MS_METADATA_KEY_SITE && entry->track_url) {
+        ms_content_media_set_site (media, entry->track_url);
+
+      } else if (key_id == MS_METADATA_KEY_THUMBNAIL && entry->album_image) {
+        ms_content_media_set_thumbnail (media, entry->album_image);
+
+      } else if (key_id == MS_METADATA_KEY_URL && entry->track_stream) {
+        ms_content_media_set_url (media, entry->track_stream);
+
+      } else if (key_id == MS_METADATA_KEY_DURATION && entry->track_duration) {
+        ms_content_media_set_duration (media, atoi (entry->track_duration));
+      }
     }
     iter = g_list_next (iter);
   }
@@ -381,6 +429,22 @@ xml_parse_entry (xmlDocPtr doc, xmlNodePtr entry, Entry *data)
 
     } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_image")) {
       data->album_image =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_name")) {
+      data->track_name =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_url")) {
+      data->track_url =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_stream")) {
+      data->track_stream =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_duration")) {
+      data->track_duration =
         (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
     }
 
@@ -500,11 +564,19 @@ marshall_keys (JamendoCategory category, GList *keys)
   gchar *jamendo_keys = NULL;
   gchar *keys_for_artist = "artist_name+artist_genre+artist_image+artist_url";
   gchar *keys_for_album  = "album_name+album_genre+album_image+album_url+album_duration";
+  gchar *keys_for_track  = "track_name+track_stream+track_url+track_duration";
 
   if (category == JAMENDO_ARTIST_CAT) {
     jamendo_keys = g_strconcat ("id+", keys_for_artist, NULL);
   } else if (category == JAMENDO_ALBUM_CAT) {
-    jamendo_keys = g_strconcat ("id+", keys_for_artist, "+", keys_for_album, NULL);
+    jamendo_keys = g_strconcat ("id+", keys_for_artist,
+                                "+", keys_for_album,
+                                NULL);
+  } else if (category == JAMENDO_TRACK_CAT) {
+    jamendo_keys = g_strconcat ("id+", keys_for_artist,
+                                "+", keys_for_album,
+                                "+", keys_for_track,
+                                NULL);
   }
 
   return jamendo_keys;
@@ -530,6 +602,7 @@ ms_jamendo_source_supported_keys (MsMetadataSource *source)
                                      MS_METADATA_KEY_URL,
                                      MS_METADATA_KEY_DURATION,
                                      MS_METADATA_KEY_THUMBNAIL,
+                                     MS_METADATA_KEY_SITE,
                                      NULL);
   }
   return keys;
@@ -588,7 +661,17 @@ ms_jamendo_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
       }
     } else if (category == JAMENDO_ALBUM_CAT) {
       /* Browsing through albums */
-      url = g_strdup_printf (JAMENDO_GET_ALBUMS, jamendo_keys, bs->count, bs->skip + 1);
+      if (container_split[1]) {
+        /* Requesting information from a specific album */
+        url =
+          g_strdup_printf (JAMENDO_GET_TRACKS_FROM_ALBUM,
+                           jamendo_keys,
+                           bs->count,
+                           bs->skip + 1,
+                           container_split[1]);
+      } else {
+        url = g_strdup_printf (JAMENDO_GET_ALBUMS, jamendo_keys, bs->count, bs->skip + 1);
+      }
     } else if (category == JAMENDO_TRACK_CAT) {
       error = g_error_new (MS_ERROR,
                            MS_ERROR_BROWSE_FAILED,

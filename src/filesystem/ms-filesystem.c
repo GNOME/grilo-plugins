@@ -160,11 +160,32 @@ set_container_childcount (const gchar *path, MsContentMedia *media)
   ms_content_set_int (MS_CONTENT (media), MS_METADATA_KEY_CHILDCOUNT, count);
 }
 
+static gboolean
+mime_is_media (const gchar *mime)
+{
+  if (!mime)
+    return FALSE;
+  if (!strcmp (mime, "inode/directory"))
+    return TRUE;
+  if (strstr (mime, "audio"))
+    return TRUE;
+  if (strstr (mime, "video"))
+    return TRUE;
+  return FALSE;
+}
+
+static gboolean
+mime_is_video (const gchar *mime)
+{
+  return strstr (mime, "video") != NULL;
+}
+
 static MsContentMedia *
 create_content (const gchar *path)
 {
   MsContentMedia *media;
   gchar *str;
+  const gchar *mime;
   GError *error = NULL;
 
   GFile *file = g_file_new_for_path (path);
@@ -186,10 +207,14 @@ create_content (const gchar *path)
     ms_content_media_set_title (media, str);
     g_error_free (error);
   } else {
+    mime = g_file_info_get_content_type (info);
+
     if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
       media = MS_CONTENT_MEDIA(ms_content_box_new ());
+    } else if (mime_is_video (mime)) {
+      media = ms_content_video_new ();
     } else {
-      media = ms_content_media_new ();
+      media = ms_content_audio_new ();
     }
 
     /* Title */
@@ -197,8 +222,7 @@ create_content (const gchar *path)
     ms_content_media_set_title (media, str);
 
     /* Mime */
-    str = (gchar *) g_file_info_get_content_type (info);
-    ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_MIME, str);
+    ms_content_media_set_mime (MS_CONTENT (media), mime);
 
     /* Date */
     GTimeVal time;
@@ -266,20 +290,6 @@ browse_emit_idle (gpointer user_data)
   } else {
     return TRUE;
   }
-}
-
-static gboolean
-mime_is_media (const gchar *mime)
-{
-  if (!mime)
-    return FALSE;
-  if (!strcmp (mime, "inode/directory"))
-    return TRUE;
-  if (strstr (mime, "audio"))
-    return TRUE;
-  if (strstr (mime, "video"))
-    return TRUE;
-  return FALSE;
 }
 
 static gboolean

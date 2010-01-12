@@ -213,16 +213,15 @@ create_content (const gchar *path)
       media = MS_CONTENT_MEDIA(ms_content_box_new ());
     } else if (mime_is_video (mime)) {
       media = ms_content_video_new ();
+      ms_content_media_set_mime (MS_CONTENT (media), mime);
     } else {
       media = ms_content_audio_new ();
+      ms_content_media_set_mime (MS_CONTENT (media), mime);
     }
 
     /* Title */
     str = (gchar *) g_file_info_get_display_name (info);
     ms_content_media_set_title (media, str);
-
-    /* Mime */
-    ms_content_media_set_mime (MS_CONTENT (media), mime);
 
     /* Date */
     GTimeVal time;

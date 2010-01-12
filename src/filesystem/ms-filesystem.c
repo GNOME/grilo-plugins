@@ -442,11 +442,13 @@ ms_filesystem_source_metadata (MsMediaSource *source,
 			       MsMediaSourceMetadataSpec *ms)
 {
   MsContentMedia *content;
-  gchar *path;
+  const gchar *path;
+  const gchar *id;
 
   g_debug ("ms_filesystem_source_metadata");
 
-  path = ms->object_id ? ms->object_id : G_DIR_SEPARATOR_S;
+  id = ms->media ? ms_content_media_get_id (ms->media) : NULL;
+  path = id ? id : G_DIR_SEPARATOR_S;
 
   if (g_file_test (path, G_FILE_TEST_EXISTS)) {
     content = create_content (path);

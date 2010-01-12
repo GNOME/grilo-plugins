@@ -1144,10 +1144,12 @@ ms_youtube_source_metadata (MsMediaSource *source,
   MsContentMedia *media;
   YoutubeMediaType media_type;
   gboolean set_childcount;
+  const gchar *id;
 
   g_debug ("ms_youtube_source_metadata");
 
-  media_type = classify_media_id (ms->object_id);
+  id = ms->media ? ms_content_media_get_id (ms->media) : NULL;
+  media_type = classify_media_id (id);
 
   /* Do not compute childcount for expensive categories
      if user requested that */
@@ -1173,19 +1175,19 @@ ms_youtube_source_metadata (MsMediaSource *source,
     break;
   case YOUTUBE_MEDIA_TYPE_FEED:
     media = produce_container_from_directory_by_id (feeds_dir,
-						    ms->object_id,
+						    id,
 						    set_childcount);
     break;
   case YOUTUBE_MEDIA_TYPE_CATEGORY:
     media = produce_container_from_directory_by_id (categories_dir,
-						    ms->object_id,
+						    id,
 						    set_childcount);
     break;
   case YOUTUBE_MEDIA_TYPE_VIDEO:
   default:
     {
       /* For metadata retrieval we just search by text using the video ID */
-      url = g_strdup_printf (YOUTUBE_SEARCH_URL, ms->object_id, 1, 1);
+      url = g_strdup_printf (YOUTUBE_SEARCH_URL, id, 1, 1);
       xmldata = read_url (url);
       g_free (url);
       

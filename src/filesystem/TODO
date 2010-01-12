@@ -1,1 +1,2 @@
-- Do not return files that are not media (e.g. text files, documents, etc).
+- childcount for categories does not filter media-only files
+  - maybe this is acceptable (since this way it has a performance benefot)

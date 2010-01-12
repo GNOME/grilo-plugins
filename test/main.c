@@ -205,6 +205,7 @@ main (void)
   if (0) ms_media_source_metadata (fs, media_from_id ("/home"), keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, metadata_cb, NULL);
   if (0) ms_media_source_browse (jamendo, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (1) ms_media_source_browse (jamendo, media_from_id("artist/"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) ms_media_source_browse (jamendo, media_from_id("album/"), keys, 0, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
 
   g_debug ("Running main loop");
 

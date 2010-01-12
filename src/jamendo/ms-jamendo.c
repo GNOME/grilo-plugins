@@ -54,6 +54,7 @@
 #define JAMENDO_FORMAT      "xml"
 
 #define JAMENDO_GET_ARTISTS JAMENDO_ENTRYPOINT "/%s/" JAMENDO_ARTIST "/" JAMENDO_FORMAT "/?n=%d&pn=%d"
+#define JAMENDO_GET_ALBUMS  JAMENDO_ENTRYPOINT "/%s/" JAMENDO_ALBUM  "/" JAMENDO_FORMAT "/?n=%d&pn=%d"
 
 #define YOUTUBE_ROOT_NAME       "Youtube"
 
@@ -124,10 +125,15 @@
 typedef struct {
   gchar *type;
   gchar *id;
-  gchar *title;
-  gchar *artist;
-  gchar *album;
-  gchar *genre;
+  gchar *artist_name;
+  gchar *artist_genre;
+  gchar *artist_url;
+  gchar *artist_image;
+  gchar *album_name;
+  gchar *album_genre;
+  gchar *album_url;
+  gchar *album_duration;
+  gchar *album_image;
 } Entry;
 
 typedef struct {
@@ -287,20 +293,29 @@ print_entry (Entry *entry)
 {
   g_print ("Entry Information:\n");
   g_print ("            ID: %s\n", entry->id);
-  g_print ("         Title: %s\n", entry->title);
-  g_print ("        Artist: %s\n", entry->artist);
-  g_print ("         Album: %s\n", entry->album);
-  g_print ("         Genre: %s\n", entry->genre);
+  g_print ("   Artist Name: %s\n", entry->artist_name);
+  g_print ("  Artist Genre: %s\n", entry->artist_genre);
+  g_print ("    Artist URL: %s\n", entry->artist_url);
+  g_print ("  Artist Image: %s\n", entry->artist_image);
+  g_print ("    Album Name: %s\n", entry->album_name);
+  g_print ("   Album Genre: %s\n", entry->album_genre);
+  g_print ("     Album URL: %s\n", entry->album_url);
+  g_print ("   Album Image: %s\n", entry->album_image);
 }
 
 static void
 free_entry (Entry *entry)
 {
   g_free (entry->id);
-  g_free (entry->title);
-  g_free (entry->artist);
-  g_free (entry->album);
-  g_free (entry->genre);
+  g_free (entry->artist_name);
+  g_free (entry->artist_genre);
+  g_free (entry->artist_url);
+  g_free (entry->artist_image);
+  g_free (entry->album_name);
+  g_free (entry->album_genre);
+  g_free (entry->album_url);
+  g_free (entry->album_duration);
+  g_free (entry->album_image);
   g_free (entry);
 }
 
@@ -394,18 +409,47 @@ build_media_from_entry (const Entry *entry, const GList *keys)
     case MS_METADATA_KEY_ID:
       ms_content_media_set_id (media, id);
       break;
+
     case MS_METADATA_KEY_TITLE:
-      ms_content_media_set_title (media, entry->title);
+      if (strcmp (entry->type, JAMENDO_ARTIST) == 0) {
+        ms_content_media_set_title (media, entry->artist_name);
+      } else if (strcmp (entry->type, JAMENDO_ALBUM) == 0) {
+        ms_content_media_set_title (media, entry->album_name);
+      }
       break;
+
     case MS_METADATA_KEY_ARTIST:
-      ms_content_audio_set_artist (MS_CONTENT_AUDIO (media), entry->artist);
+      ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_ARTIST, entry->artist_name);
       break;
+
     case MS_METADATA_KEY_ALBUM:
-      ms_content_audio_set_album (MS_CONTENT_AUDIO (media), entry->album);
+      ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_ALBUM, entry->album_name);
       break;
+
     case MS_METADATA_KEY_GENRE:
-      ms_content_audio_set_genre (MS_CONTENT_AUDIO (media), entry->genre);
+      if (strcmp (entry->type, JAMENDO_ARTIST) == 0) {
+        ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_GENRE, entry->artist_genre);
+      } else if (strcmp (entry->type, JAMENDO_ALBUM) == 0) {
+        ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_GENRE, entry->album_genre);
+      }
       break;
+
+    case MS_METADATA_KEY_URL:
+      if (strcmp (entry->type, JAMENDO_ARTIST) == 0) {
+        ms_content_media_set_url (media, entry->artist_url);
+      } else if (strcmp (entry->type, JAMENDO_ALBUM) == 0) {
+        ms_content_media_set_url (media, entry->album_url);
+      }
+      break;
+
+    case MS_METADATA_KEY_THUMBNAIL:
+      if (strcmp (entry->type, JAMENDO_ARTIST) == 0) {
+        ms_content_media_set_thumbnail (media, entry->artist_image);
+      } else if (strcmp (entry->type, JAMENDO_ALBUM) == 0) {
+        ms_content_media_set_thumbnail (media, entry->album_image);
+      }
+      break;
+
     default:
       break;
     }
@@ -506,28 +550,54 @@ parse_entry (xmlDocPtr doc, xmlNodePtr entry, Entry *data)
 
   while (node) {
     ns = node->ns;
+
     if (!xmlStrcmp (node->name, (const xmlChar *) "id")) {
       data->id =
         (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
     } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_name")) {
-      data->artist =
+      data->artist_name =
 	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_album")) {
-      data->album =
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_name")) {
+      data->album_name =
 	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_genre")) {
-      data->genre =
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_genre") &&
+               (strcmp (data->type, JAMENDO_ARTIST) == 0)) {
+      data->artist_genre =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_url") &&
+               (strcmp (data->type, JAMENDO_ARTIST) == 0)) {
+      data->artist_url =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_image") &&
+               (strcmp (data->type, JAMENDO_ARTIST) == 0)) {
+      data->artist_image =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_genre") &&
+               (strcmp (data->type, JAMENDO_ALBUM) == 0)) {
+      data->album_genre =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_url") &&
+               (strcmp (data->type, JAMENDO_ALBUM) == 0)) {
+      data->album_url =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_duration")) {
+      data->album_duration =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_image")) {
+      data->album_image =
         (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
     }
 
     node = node->next;
-  }
-
-  /* Set title */
-  if (strcmp (data->type, JAMENDO_ARTIST) == 0) {
-    data->title = g_strdup (data->artist);
-  } else {
-    data->title = g_strdup (data->album);
   }
 }
 
@@ -762,7 +832,7 @@ send_toplevel_categories (OperationSpec *os)
   /* Send 'artists' root category */
   entry = g_new0 (Entry, 1);
   entry->type = JAMENDO_ARTIST;
-  entry->title = g_strdup (JAMENDO_ARTIST "s");
+  entry->artist_name = g_strdup (JAMENDO_ARTIST "s");
   media = build_media_from_entry (entry, os->keys);
   free_entry (entry);
   os->callback (os->source, os->operation_id, media, 1, os->user_data, NULL);
@@ -770,7 +840,7 @@ send_toplevel_categories (OperationSpec *os)
   /* Send 'albums' root category */
   entry = g_new0 (Entry, 1);
   entry->type = JAMENDO_ALBUM;
-  entry->title = g_strdup (JAMENDO_ALBUM "s");
+  entry->album_name = g_strdup (JAMENDO_ALBUM "s");
   media = build_media_from_entry (entry, os->keys);
   free_entry (entry);
   os->callback (os->source, os->operation_id, media, 1, os->user_data, NULL);
@@ -999,6 +1069,21 @@ produce_from_directory (CategoryInfo *dir,
 }
 #endif
 
+static gchar *
+convert_keys (const gchar *type, GList *keys)
+{
+  gchar *jamendo_keys = NULL;
+  gchar *keys_for_artist = "artist_name+artist_genre+artist_image+artist_url";
+  gchar *keys_for_album  = "album_name+album_genre+album_image+album_url+album_duration";
+
+  if (strcmp (type, JAMENDO_ARTIST) == 0) {
+    jamendo_keys = g_strconcat ("id+", keys_for_artist, NULL);
+  } else if (strcmp (type, JAMENDO_ALBUM) == 0) {
+    jamendo_keys = g_strconcat ("id+", keys_for_artist, "+", keys_for_album, NULL);
+  }
+
+  return jamendo_keys;
+}
 /* ================== API Implementation ================ */
 
 static MsSupportedOps
@@ -1017,16 +1102,10 @@ ms_jamendo_source_supported_keys (MsMetadataSource *source)
                                      MS_METADATA_KEY_ARTIST,
                                      MS_METADATA_KEY_ALBUM,
                                      MS_METADATA_KEY_GENRE,
+                                     MS_METADATA_KEY_URL,
+                                     MS_METADATA_KEY_DURATION,
+                                     MS_METADATA_KEY_THUMBNAIL,
                                      NULL);
-
-				     /* MS_METADATA_KEY_URL, */
-				     /* MS_METADATA_KEY_AUTHOR, */
-				     /* MS_METADATA_KEY_DESCRIPTION, */
-				     /* MS_METADATA_KEY_DURATION, */
-				     /* MS_METADATA_KEY_DATE, */
-				     /* MS_METADATA_KEY_THUMBNAIL, */
-				     /* MS_METADATA_KEY_CHILDCOUNT, */
-				     /* NULL); */
   }
   return keys;
 }
@@ -1048,7 +1127,7 @@ ms_jamendo_source_slow_keys (MsMetadataSource *source)
 static void
 ms_jamendo_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
 {
-  gchar *xmldata, *url;
+  gchar *xmldata, *url, *jamendo_keys;
   GError *error = NULL;
   OperationSpec *os;
   gchar **container_split = NULL;
@@ -1079,12 +1158,14 @@ ms_jamendo_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
                          "Invalid container-id: '%s'",
                          bs->container_id);
   } else {
+    jamendo_keys = convert_keys (container_split[0], bs->keys);
+
     if (strcmp (container_split[0], JAMENDO_ARTIST) == 0) {
-      /* We're managing artists */
-      url = g_strdup_printf (JAMENDO_GET_ARTISTS, "id+artist_name", bs->count, bs->skip + 1);
+      /* Browsing through artists */
+      url = g_strdup_printf (JAMENDO_GET_ARTISTS, jamendo_keys, bs->count, bs->skip + 1);
     } else if (strcmp (container_split[0], JAMENDO_ALBUM) == 0) {
-      /* We're managing albums */
-      url = g_strdup ("");
+      /* Browsing through albums */
+      url = g_strdup_printf (JAMENDO_GET_ALBUMS, jamendo_keys, bs->count, bs->skip + 1);
     } else if (strcmp (container_split[0], JAMENDO_TRACK) == 0) {
       /* We're managing tracks */
       g_strdup ("");
@@ -1094,6 +1175,7 @@ ms_jamendo_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
                            "Invalid container-id: '%s'",
                            bs->container_id);
     }
+    g_free (jamendo_keys);
   }
 
   if (error) {

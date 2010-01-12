@@ -157,7 +157,7 @@ set_container_childcount (const gchar *path, MsContentMedia *media)
   while (g_dir_read_name (dir) != NULL)
     count++;
 
-  ms_content_set_int (MS_CONTENT (media), MS_METADATA_KEY_CHILDCOUNT, count);
+  ms_content_box_set_childcount (MS_CONTENT_BOX (media), count);
 }
 
 static gboolean
@@ -229,7 +229,7 @@ create_content (const gchar *path)
     gchar *time_str;
     g_file_info_get_modification_time (info, &time);
     time_str = g_time_val_to_iso8601 (&time);
-    ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_DATE, time_str);
+    ms_content_media_set_date (MS_CONTENT (media), time_str);
     g_free (time_str);
 
     g_object_unref (info);

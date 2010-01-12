@@ -234,7 +234,6 @@ browse_emit_idle (gpointer user_data)
 {
   BrowseIdleData *idle_data;
   guint count;
-  const gchar *entry;
 
   g_debug ("browse_emit_idle");
 
@@ -245,15 +244,8 @@ browse_emit_idle (gpointer user_data)
     gchar *entry_path;
     MsContentMedia *content;
     
-    entry = (const gchar *) idle_data->current->data;
-    if (strcmp (idle_data->path, G_DIR_SEPARATOR_S)) {
-      entry_path = g_strconcat (idle_data->path, G_DIR_SEPARATOR_S,
-				entry, NULL);
-    } else {
-      entry_path = g_strconcat (idle_data->path, entry, NULL);
-    }
+    entry_path = (gchar *) idle_data->current->data;
     content = create_content (entry_path); 
-    g_free (entry_path);
     g_free (idle_data->current->data);
    
     idle_data->spec->callback (idle_data->spec->source,
@@ -276,6 +268,54 @@ browse_emit_idle (gpointer user_data)
   }
 }
 
+static gboolean
+mime_is_media (const gchar *mime)
+{
+  if (!mime)
+    return FALSE;
+  if (!strcmp (mime, "inode/directory"))
+    return TRUE;
+  if (strstr (mime, "audio"))
+    return TRUE;
+  if (strstr (mime, "video"))
+    return TRUE;
+  return FALSE;
+}
+
+static gboolean
+file_is_valid_content (const gchar *path)
+{
+  const gchar *mime;
+  GError *error = NULL;
+  gboolean is_media;
+  GFile *file;
+  GFileInfo *info; 
+
+  file = g_file_new_for_path (path);
+  info = g_file_query_info (file,
+			    FILE_ATTRIBUTES,
+			    0,
+			    NULL,
+			    &error);
+  if (error) {
+    g_warning ("Failed to get attributes for file '%s': %s",
+	       path, error->message);
+    g_error_free (error);
+    g_object_unref (file);
+    return FALSE;
+  } else {
+    if (g_file_info_get_is_hidden (info)) {
+      is_media = FALSE;
+    } else {
+      mime = g_file_info_get_content_type (info);
+      is_media = mime_is_media (mime);
+    }
+    g_object_unref (info);
+    g_object_unref (file);
+    return is_media;
+  }
+}
+
 static void
 produce_from_path (MsMediaSourceBrowseSpec *bs, const gchar *path)
 {
@@ -284,6 +324,7 @@ produce_from_path (MsMediaSourceBrowseSpec *bs, const gchar *path)
   const gchar *entry;
   guint skip, count;
   GList *entries = NULL;
+  GList *iter;
 
   /* Open directory */
   g_debug ("Opening directory '%s'", path);
@@ -295,17 +336,42 @@ produce_from_path (MsMediaSourceBrowseSpec *bs, const gchar *path)
     return;
   }
 
-  /* Get entries to emit */
+  /* Filter out media and directories */
+  while ((entry = g_dir_read_name (dir)) != NULL) {
+    gchar *file;
+    if (strcmp (path, G_DIR_SEPARATOR_S)) {
+      file = g_strconcat (path, G_DIR_SEPARATOR_S, entry, NULL);
+    } else {
+      file = g_strconcat (path, entry, NULL);
+    }
+    if (file_is_valid_content (file)) {
+      entries = g_list_prepend (entries, file);
+    }
+  }
+
+  /* Apply skip and count */
   skip = bs->skip;
   count = bs->count;
-  while (count && (entry = g_dir_read_name (dir)) != NULL) {
+  iter = entries;
+  while (iter) {
+    gboolean remove;
+    GList *tmp;
     if (skip > 0)  {
       skip--;
-      continue;
-    }
-    if (count > 0) {
-      entries = g_list_prepend (entries, g_strdup (entry));
+      remove = TRUE;
+    } else if (count > 0) {
       count--;
+      remove = FALSE;
+    } else {
+      remove = TRUE;
+    }
+    if (remove) {
+      tmp = iter;
+      iter = g_list_next (iter);
+      g_free (tmp->data);
+      entries = g_list_delete_link (entries, tmp);
+    } else {
+      iter = g_list_next (iter);
     }
   }
 

@@ -1,0 +1,2 @@
+- Some browse operations fail if the "count" parameter is too big.
+  - The plugin should split the query in smaller chunks

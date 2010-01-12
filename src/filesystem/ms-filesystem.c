@@ -230,10 +230,9 @@ create_content (const gchar *path)
 	media = ms_content_video_new ();
       } else if (mime_is_audio (mime)) {
 	media = ms_content_audio_new ();
-      }/*  else if (mime_is_image ()) { */
-/* 	media = ms_content_image_new (); */
-/*       } */
-      else {
+      } else if (mime_is_image (mime)) {
+	media = ms_content_image_new ();
+      } else {
 	media = ms_content_media_new ();
       }
       ms_content_media_set_mime (MS_CONTENT (media), mime);

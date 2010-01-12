@@ -161,23 +161,37 @@ set_container_childcount (const gchar *path, MsContentMedia *media)
 }
 
 static gboolean
+mime_is_video (const gchar *mime)
+{
+  return strstr (mime, "video") != NULL;
+}
+
+static gboolean
+mime_is_audio (const gchar *mime)
+{
+  return strstr (mime, "audio") != NULL;
+}
+
+static gboolean
+mime_is_image (const gchar *mime)
+{
+  return strstr (mime, "image") != NULL;
+}
+
+static gboolean
 mime_is_media (const gchar *mime)
 {
   if (!mime)
     return FALSE;
   if (!strcmp (mime, "inode/directory"))
     return TRUE;
-  if (strstr (mime, "audio"))
+  if (mime_is_audio (mime))
     return TRUE;
-  if (strstr (mime, "video"))
+  if (mime_is_video (mime))
+    return TRUE;
+  if (mime_is_image (mime))
     return TRUE;
   return FALSE;
-}
-
-static gboolean
-mime_is_video (const gchar *mime)
-{
-  return strstr (mime, "video") != NULL;
 }
 
 static MsContentMedia *
@@ -210,12 +224,18 @@ create_content (const gchar *path)
     mime = g_file_info_get_content_type (info);
 
     if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-      media = MS_CONTENT_MEDIA(ms_content_box_new ());
-    } else if (mime_is_video (mime)) {
-      media = ms_content_video_new ();
-      ms_content_media_set_mime (MS_CONTENT (media), mime);
+      media = MS_CONTENT_MEDIA (ms_content_box_new ());
     } else {
-      media = ms_content_audio_new ();
+      if (mime_is_video (mime)) {
+	media = ms_content_video_new ();
+      } else if (mime_is_audio (mime)) {
+	media = ms_content_audio_new ();
+      }/*  else if (mime_is_image ()) { */
+/* 	media = ms_content_image_new (); */
+/*       } */
+      else {
+	media = ms_content_media_new ();
+      }
       ms_content_media_set_mime (MS_CONTENT (media), mime);
     }
 

@@ -496,6 +496,7 @@ xml_parse_result (OperationSpec *os, const gchar *str, GError **error)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
+  gint child_nodes;
 
   doc = xmlRecoverDoc ((xmlChar *) str);
   if (!doc) {
@@ -520,6 +521,7 @@ xml_parse_result (OperationSpec *os, const gchar *str, GError **error)
     goto free_resources;
   }
 
+  child_nodes = xmlChildElementCount (node);
   node = node->xmlChildrenNode;
 
   /* Now go for the entries */
@@ -527,7 +529,7 @@ xml_parse_result (OperationSpec *os, const gchar *str, GError **error)
   xpei->os = os;
   xpei->node = node;
   xpei->doc = doc;
-  xpei->total_results = 0;
+  xpei->total_results = child_nodes;
   xpei->index = 0;
   g_idle_add (xml_parse_entries_idle, xpei);
 

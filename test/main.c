@@ -50,6 +50,15 @@ print_metadata (MsContent *content, MsKeyID key_id)
   }
 }
 
+static MsContentMedia *
+media_from_id (const gchar *id)
+{
+  MsContentMedia *media;
+  media = ms_content_media_new ();
+  ms_content_media_set_id (media, id);
+  return media;
+}
+
 static void 
 browse_cb (MsMediaSource *source,
 	   guint browse_id,
@@ -178,16 +187,16 @@ main (void)
   g_debug ("testing");
 
   if (0) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (1) ms_media_source_browse (youtube, "standard-feeds/most-viewed", keys, 200, 10, MS_RESOLVE_FAST_ONLY , browse_cb, NULL);
-  if (0) ms_media_source_browse (youtube, "categories/Sports", keys,  0, 173, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, media_from_id ("standard-feeds/most-viewed"), keys, 0, 10, MS_RESOLVE_FAST_ONLY , browse_cb, NULL);
+  if (0) ms_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 173, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 6, 10, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, NULL, 1, 10, MS_RESOLVE_FULL | MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (youtube, NULL, keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY | MS_RESOLVE_FULL, metadata_cb, NULL);
   if (0) ms_media_source_metadata (youtube, NULL, keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY , metadata_cb, NULL);
   if (0) ms_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
-  if (0) ms_media_source_browse (fs, "/home", keys, 0, 100, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
-  if (0) ms_media_source_metadata (fs, NULL, keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, metadata_cb, NULL);
+  if (0) ms_media_source_browse (fs, media_from_id ("/home"), keys, 0, 100, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
+  if (1) ms_media_source_metadata (fs, media_from_id ("/home"), keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, metadata_cb, NULL);
 
   g_debug ("Running main loop");
 

@@ -448,10 +448,12 @@ static void
 ms_filesystem_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
 {
   const gchar *path;
+  const gchar *id;
 
-  g_debug ("ms_filesystem_source_browse (%s)", bs->container_id);
+  g_debug ("ms_filesystem_source_browse");
 
-  path = bs->container_id ? bs->container_id : G_DIR_SEPARATOR_S;
+  id = ms_content_media_get_id (bs->container);
+  path = id ? id : G_DIR_SEPARATOR_S;
   produce_from_path (bs, path);
 }
 

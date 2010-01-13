@@ -1014,7 +1014,7 @@ produce_from_directory (CategoryInfo *dir,
   } else {
     /* Do not compute childcount when it is expensive and user requested
        MS_RESOLVE_FAST_ONLY */
-    media_type = classify_media_id (bs->container_id);
+    media_type = classify_media_id (ms_content_media_get_id (bs->container));
     if ((bs->flags & MS_RESOLVE_FAST_ONLY) && 
 	(media_type == YOUTUBE_MEDIA_TYPE_CATEGORIES ||
 	 media_type == YOUTUBE_MEDIA_TYPE_FEEDS)) {
@@ -1139,14 +1139,17 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
 {
   OperationSpec *os;
   GError *error = NULL;
+  const gchar *container_id;
 
-  g_debug ("ms_youtube_source_browse (%s)", bs->container_id);
+  g_debug ("ms_youtube_source_browse");
 
-  if (!bs->container_id) {
+  container_id = ms_content_media_get_id (bs->container);
+
+  if (!container_id) {
     produce_from_directory (root_dir, root_dir_size, bs);
-  } else if (!strcmp (bs->container_id, YOUTUBE_FEEDS_ID)) {
+  } else if (!strcmp (container_id, YOUTUBE_FEEDS_ID)) {
     produce_from_directory (feeds_dir, feeds_dir_size, bs);
-  } else if (!strcmp (bs->container_id, YOUTUBE_CATEGORIES_ID)) {
+  } else if (!strcmp (container_id, YOUTUBE_CATEGORIES_ID)) {
     produce_from_directory (categories_dir, categories_dir_size, bs);
   } else {
     os = g_new0 (OperationSpec, 1);
@@ -1158,7 +1161,7 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
     os->callback = bs->callback;
     os->user_data = bs->user_data;
 
-    produce_videos_from_container (bs->container_id, os, &error);
+    produce_videos_from_container (container_id, os, &error);
     if (error) {
       os->callback (os->source, os->operation_id, NULL,
 		    0, os->user_data, error);

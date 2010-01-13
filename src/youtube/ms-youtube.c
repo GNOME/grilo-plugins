@@ -84,13 +84,17 @@
 
 #define YOUTUBE_VIDEO_INFO_URL  "http://www.youtube.com/get_video_info?video_id=%s"
 #define YOUTUBE_VIDEO_URL       "http://www.youtube.com/get_video?video_id=%s&t=%s"
-#define YOUTUBE_SEARCH_URL      "http://gdata.youtube.com/feeds/api/videos?vq=%s&start-index=%d&max-results=%d"
+#define YOUTUBE_SEARCH_URL      "http://gdata.youtube.com/feeds/api/videos?vq=%s&start-index=%s&max-results=%s"
 #define YOUTUBE_CATEGORY_URL    "http://gdata.youtube.com/feeds/api/videos/-/%s?&start-index=%s&max-results=%s"
 
 /* --- Youtube parsing hints ---- */
 
 #define YOUTUBE_TOTAL_RESULTS_START "<openSearch:totalResults>"
 #define YOUTUBE_TOTAL_RESULTS_END   "</openSearch:totalResults>"
+
+/* --- Other --- */
+
+#define YOUTUBE_MAX_CHUNK   50
 
 /* --- Plugin information --- */
 
@@ -123,6 +127,8 @@ typedef struct {
   const GList *keys;
   guint skip;
   guint count;
+  gboolean chained_chunk;
+  gchar *query_url;
   MsMediaSourceResultCb callback;
   gpointer user_data;
 } OperationSpec;
@@ -138,8 +144,7 @@ typedef struct {
   OperationSpec *os;
   xmlNodePtr node;
   xmlDocPtr doc;
-  guint total_results;
-  guint index;
+  guint count;
 } ParseEntriesIdle;
 
 typedef struct {
@@ -178,6 +183,8 @@ static void ms_youtube_source_browse (MsMediaSource *source,
 static gchar *read_url (const gchar *url);
 
 static void build_categories_directory (void);
+
+static void produce_next_video_chunk (OperationSpec *os, GError **error);
 
 /* ==================== Global Data  ================= */
 
@@ -513,6 +520,7 @@ parse_entries_idle (gpointer user_data)
 {
   ParseEntriesIdle *pei = (ParseEntriesIdle *) user_data;
   gboolean parse_more = FALSE;
+  GError *error = NULL;
 
   g_debug ("parse_entries_idle");
 
@@ -528,11 +536,13 @@ parse_entries_idle (gpointer user_data)
     MsContentMedia *media = build_media_from_entry (entry, pei->os->keys);
     free_entry (entry);
     
-    pei->index++;
+    pei->os->skip++;
+    pei->os->count--;
+    pei->count++;
     pei->os->callback (pei->os->source,
 		       pei->os->operation_id,
 		       media,
-		       pei->total_results - pei->index,
+		       pei->os->count,
 		       pei->os->user_data,
 		       NULL);
     
@@ -542,8 +552,41 @@ parse_entries_idle (gpointer user_data)
 
   if (!parse_more) {
     xmlFreeDoc (pei->doc);
-    g_free (pei->os);
-    g_free (pei);
+    /* Dit we split the query in chunks? if so, query next chunk now */
+    if (pei->count == 0) {
+      /* This can only happen in youtube's totalResults is wrong
+	 (actually greater than it should be). If that's the case
+	 there are not more results and we must finish the operation now */
+      g_warning ("Wrong totalResults from Youtube " \
+		 "using NULL media to finish operation");
+      pei->os->callback (pei->os->source, 
+			 pei->os->operation_id,
+			 NULL,
+			 0,
+			 pei->os->user_data,
+			 NULL);
+      
+    } else  {
+      if (pei->os->count > 0) {
+	/* We can go for the next chunk */
+	produce_next_video_chunk (pei->os, &error);
+	if (error) {
+	  pei->os->callback (pei->os->source, 
+			     pei->os->operation_id,
+			     NULL,
+			     0,
+			     pei->os->user_data,
+			     error);
+	  g_error_free (error);
+	  g_free (pei->os->query_url);
+	  g_free (pei->os);
+	}
+      } else { 
+	g_free (pei->os->query_url);
+	g_free (pei->os);
+      }
+      g_free (pei);
+    }
   }
   
   return parse_more;
@@ -554,7 +597,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
-  guint total_results = 0;
+  guint total_results;
   xmlNs *ns;
   
   doc = xmlRecoverDoc ((xmlChar *) str);
@@ -588,42 +631,50 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
     goto free_resources;
   }
 
-  /* checkout search information looking for totalResults */
-  while (node && !total_results) {
-    if (!xmlStrcmp (node->name, (const xmlChar *) "entry")) {
-      break;
-    } else {
-      ns = node->ns;
-      if (ns && !xmlStrcmp (ns->prefix, (xmlChar *) "openSearch")) {
-	if (!xmlStrcmp (node->name, (const xmlChar *) "totalResults")) {
-	  gchar *total_results_str = 
-	    (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-	  total_results = atoi (total_results_str);
-	  g_free (total_results_str);
+  /* Compute # of items to send only when we execute the
+     first chunk of the query (os->chained_chunk == FALSE) */
+  if (!os->chained_chunk) {
+    os->chained_chunk = TRUE;
+    total_results = 0;
+    while (node && !total_results) {
+      if (!xmlStrcmp (node->name, (const xmlChar *) "entry")) {
+	break;
+      } else {
+	ns = node->ns;
+	if (ns && !xmlStrcmp (ns->prefix, (xmlChar *) "openSearch")) {
+	  if (!xmlStrcmp (node->name, (const xmlChar *) "totalResults")) {
+	    gchar *total_results_str = 
+	      (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+	    total_results = atoi (total_results_str);
+	    g_free (total_results_str);
+	  }
 	}
       }
+      node = node->next;
     }
-    node = node->next;
-  }
 
-  /* Compute # of items to send */
-  if (total_results >= os->skip + os->count) {
-    total_results = os->count;
-  } else if (total_results > os->skip) {
-    total_results -= os->skip;
-  } else {
-    /* No results to send */
-    os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
-    goto free_resources;
+    g_print ("************** %d ***************\n", total_results);
+
+    if (total_results >= os->skip + os->count) {
+      /* Ok, we can send all the elements requested, no problem */
+    } else if (total_results > os->skip) {
+      /* We cannot send all, there aren't so many: adjust os->count 
+	 so it represents the total available */
+      os->count = total_results - os->skip;
+    } else {
+      /* No results to send */
+      os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+      goto free_resources;
+    }
+
+    g_print ("************** %d ***************\n", os->count);
   }
 
   /* Now go for the entries */
-  ParseEntriesIdle *pei = g_new (ParseEntriesIdle, 1);
+  ParseEntriesIdle *pei = g_new0 (ParseEntriesIdle, 1);
   pei->os = os;
   pei->node = node;
   pei->doc = doc;
-  pei->total_results = total_results;
-  pei->index = 0;
   g_idle_add (parse_entries_idle, pei);
   return;
   
@@ -993,6 +1044,65 @@ produce_from_directory (CategoryInfo *dir,
   }
 }
 
+static void
+produce_next_video_chunk (OperationSpec *os, GError **error)
+{
+  gchar *url;
+  gchar *xmldata;
+
+  if (os->count > YOUTUBE_MAX_CHUNK) {
+    url = g_strdup_printf (os->query_url, os->skip + 1, YOUTUBE_MAX_CHUNK);
+  } else {
+    url = g_strdup_printf (os->query_url, os->skip + 1, os->count);
+  }
+
+  xmldata = read_url (url);
+  g_free (url);
+  
+  if (!xmldata) {
+    *error = g_error_new (MS_ERROR,
+			  MS_ERROR_BROWSE_FAILED,
+			  "Failed to connect to Youtube");
+    return;
+  }
+  
+  parse_feed (os, xmldata, error);
+  g_free (xmldata);  
+}
+
+static void
+produce_videos_from_container (const gchar *container_id,
+			       OperationSpec *os,
+			       GError **error)
+{
+  const gchar *_url;
+
+  _url = get_container_url (container_id);
+  if (!_url) {
+    *error = g_error_new (MS_ERROR,
+			  MS_ERROR_BROWSE_FAILED,
+			  "Invalid container-id: '%s'",
+			  container_id);
+    return;
+  }
+
+  os->query_url = g_strdup (_url);
+
+  produce_next_video_chunk (os, error);
+}
+
+static void
+produce_videos_from_search (const gchar *text,
+			    const gchar *filter,
+			    OperationSpec *os,
+			    GError **error)
+{
+  gchar *url;
+  url = g_strdup_printf (YOUTUBE_SEARCH_URL, text, "%d", "%d");
+  os->query_url = url;
+  produce_next_video_chunk (os, error);
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -1031,10 +1141,8 @@ ms_youtube_source_slow_keys (MsMetadataSource *source)
 static void
 ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
 {
-  gchar *xmldata, *url;
-  const gchar *_url;
-  GError *error = NULL;
   OperationSpec *os;
+  GError *error = NULL;
 
   g_debug ("ms_youtube_source_browse (%s)", bs->container_id);
 
@@ -1045,30 +1153,6 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
   } else if (!strcmp (bs->container_id, YOUTUBE_CATEGORIES_ID)) {
     produce_from_directory (categories_dir, categories_dir_size, bs);
   } else {
-    _url = get_container_url (bs->container_id);
-    if (!_url) {
-      GError *error = g_error_new (MS_ERROR,
-				   MS_ERROR_BROWSE_FAILED,
-				   "Invalid container-id: '%s'",
-				   bs->container_id);
-      bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, error);
-      g_error_free (error);
-      return;
-    }
-
-    url = g_strdup_printf (_url, bs->skip + 1, bs->count);
-    xmldata = read_url (url);
-    g_free (url);
-    
-    if (!xmldata) {
-      GError *error = g_error_new (MS_ERROR,
-				   MS_ERROR_BROWSE_FAILED,
-				   "Failed to connect to Youtube");
-      bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, error);
-      g_error_free (error);
-      return;
-    }
-    
     os = g_new0 (OperationSpec, 1);
     os->source = bs->source;
     os->operation_id = bs->browse_id;
@@ -1077,13 +1161,13 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
     os->count = bs->count;
     os->callback = bs->callback;
     os->user_data = bs->user_data;
-    
-    parse_feed (os, xmldata, &error);
-    g_free (xmldata);
-    
+
+    produce_videos_from_container (bs->container_id, os, &error);
     if (error) {
-      os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
+      os->callback (os->source, os->operation_id, NULL,
+		    0, os->user_data, error);
       g_error_free (error);
+      g_free (os->query_url);
       g_free (os);
     }
   }
@@ -1092,7 +1176,6 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
 static void
 ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
 {
-  gchar *xmldata, *url;
   OperationSpec *os;
   GError *error = NULL;
 
@@ -1100,19 +1183,6 @@ ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
 
   if (ss->filter) {
     g_warning ("Search filter not supported, ignoring filter argument");
-  }
-
-  url = g_strdup_printf (YOUTUBE_SEARCH_URL, ss->text, ss->skip + 1, ss->count);
-  xmldata = read_url (url);
-  g_free (url);
-
-  if (!xmldata) {
-    GError *error = g_error_new (MS_ERROR,
-				 MS_ERROR_SEARCH_FAILED,
-				 "Failed to connect to Youtube");
-    ss->callback (source, ss->search_id, NULL, 0, ss->user_data, error);    
-    g_error_free (error);
-    return;
   }
 
   os = g_new0 (OperationSpec, 1);
@@ -1124,13 +1194,13 @@ ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
   os->callback = ss->callback;
   os->user_data = ss->user_data;
 
-  parse_feed (os, xmldata, &error);
-  g_free (xmldata);
+  produce_videos_from_search (ss->text, ss->filter, os, &error);
 
   if (error) {
     error->code = MS_ERROR_SEARCH_FAILED;
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
+    g_free (os->query_url);
     g_free (os);
   }
 }
@@ -1187,7 +1257,7 @@ ms_youtube_source_metadata (MsMediaSource *source,
   default:
     {
       /* For metadata retrieval we just search by text using the video ID */
-      url = g_strdup_printf (YOUTUBE_SEARCH_URL, id, 1, 1);
+      url = g_strdup_printf (YOUTUBE_SEARCH_URL, id, "1", "1");
       xmldata = read_url (url);
       g_free (url);
       

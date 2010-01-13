@@ -653,8 +653,6 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
       node = node->next;
     }
 
-    g_print ("************** %d ***************\n", total_results);
-
     if (total_results >= os->skip + os->count) {
       /* Ok, we can send all the elements requested, no problem */
     } else if (total_results > os->skip) {
@@ -666,8 +664,6 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
       os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
       goto free_resources;
     }
-
-    g_print ("************** %d ***************\n", os->count);
   }
 
   /* Now go for the entries */

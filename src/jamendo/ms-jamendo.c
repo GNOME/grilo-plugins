@@ -274,10 +274,9 @@ read_url (const gchar *url)
 }
 
 static MsContentMedia *
-build_media_from_entry (const Entry *entry, const GList *keys)
+build_media_from_entry (const Entry *entry)
 {
   MsContentMedia *media;
-  GList *iter;
   gchar *id;
 
   if (entry->id) {
@@ -292,77 +291,84 @@ build_media_from_entry (const Entry *entry, const GList *keys)
     media = ms_content_box_new ();
   }
 
-  iter = (GList *) keys;
-  while (iter) {
-    MsKeyID key_id = GPOINTER_TO_UINT (iter->data);
+  /* Common fields */
+  ms_content_media_set_id (media, id);
+  g_free (id);
 
-    /* Common fields */
-    if (key_id == MS_METADATA_KEY_ID && id) {
-      ms_content_media_set_id (media, id);
-
-    } else if (key_id == MS_METADATA_KEY_ARTIST && entry->artist_name) {
-      ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_ARTIST, entry->artist_name);
-
-    } else if (key_id == MS_METADATA_KEY_ALBUM && entry->album_name) {
-      ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_ALBUM, entry->album_name);
-
-      /* Fields for artist */
-    } else if (entry->category == JAMENDO_ARTIST_CAT) {
-      if (key_id == MS_METADATA_KEY_TITLE && entry->artist_name) {
-        ms_content_media_set_title (media, entry->artist_name);
-
-      } else if (key_id == MS_METADATA_KEY_GENRE && entry->artist_genre) {
-        ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_GENRE, entry->artist_genre);
-
-      } else if (key_id == MS_METADATA_KEY_SITE && entry->artist_url) {
-        ms_content_media_set_site (media, entry->artist_url);
-
-      } else if (key_id == MS_METADATA_KEY_THUMBNAIL && entry->artist_image) {
-        ms_content_media_set_thumbnail (media, entry->artist_image);
-      }
-
-      /* Fields for album */
-    } else if (entry->category == JAMENDO_ALBUM_CAT) {
-      if (key_id == MS_METADATA_KEY_TITLE && entry->album_name) {
-        ms_content_media_set_title (media, entry->album_name);
-
-      } else if (key_id == MS_METADATA_KEY_GENRE && entry->album_genre) {
-        ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_GENRE, entry->album_genre);
-
-      } else if (key_id == MS_METADATA_KEY_SITE && entry->album_url) {
-        ms_content_media_set_site (media, entry->album_url);
-
-      } else if (key_id == MS_METADATA_KEY_THUMBNAIL && entry->album_image) {
-        ms_content_media_set_thumbnail (media, entry->album_image);
-      } else if (key_id == MS_METADATA_KEY_DURATION && entry->album_duration) {
-        ms_content_media_set_duration (media, atoi (entry->album_duration));
-      }
-
-      /* Fields for track */
-    } else if (entry->category == JAMENDO_TRACK_CAT) {
-      if (key_id == MS_METADATA_KEY_TITLE && entry->track_name) {
-        ms_content_media_set_title (media, entry->track_name);
-
-      } else if (key_id == MS_METADATA_KEY_GENRE && entry->album_genre) {
-        ms_content_audio_set_genre (MS_CONTENT_AUDIO (media), entry->album_genre);
-
-      } else if (key_id == MS_METADATA_KEY_SITE && entry->track_url) {
-        ms_content_media_set_site (media, entry->track_url);
-
-      } else if (key_id == MS_METADATA_KEY_THUMBNAIL && entry->album_image) {
-        ms_content_media_set_thumbnail (media, entry->album_image);
-
-      } else if (key_id == MS_METADATA_KEY_URL && entry->track_stream) {
-        ms_content_media_set_url (media, entry->track_stream);
-
-      } else if (key_id == MS_METADATA_KEY_DURATION && entry->track_duration) {
-        ms_content_media_set_duration (media, atoi (entry->track_duration));
-      }
-    }
-    iter = g_list_next (iter);
+  if (entry->artist_name) {
+    ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_ARTIST, entry->artist_name);
   }
 
-  g_free (id);
+  if (entry->album_name) {
+    ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_ALBUM, entry->album_name);
+  }
+
+  /* Fields for artist */
+  if (entry->category == JAMENDO_ARTIST_CAT) {
+    if (entry->artist_name) {
+      ms_content_media_set_title (media, entry->artist_name);
+    }
+
+    if (entry->artist_genre) {
+      ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_GENRE, entry->artist_genre);
+    }
+
+    if (entry->artist_url) {
+      ms_content_media_set_site (media, entry->artist_url);
+    }
+
+    if (entry->artist_image) {
+      ms_content_media_set_thumbnail (media, entry->artist_image);
+    }
+
+    /* Fields for album */
+  } else if (entry->category == JAMENDO_ALBUM_CAT) {
+    if (entry->album_name) {
+      ms_content_media_set_title (media, entry->album_name);
+    }
+
+    if (entry->album_genre) {
+      ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_GENRE, entry->album_genre);
+    }
+
+    if (entry->album_url) {
+      ms_content_media_set_site (media, entry->album_url);
+    }
+
+    if (entry->album_image) {
+      ms_content_media_set_thumbnail (media, entry->album_image);
+    }
+
+    if (entry->album_duration) {
+      ms_content_media_set_duration (media, atoi (entry->album_duration));
+    }
+
+    /* Fields for track */
+  } else if (entry->category == JAMENDO_TRACK_CAT) {
+    if (entry->track_name) {
+      ms_content_media_set_title (media, entry->track_name);
+    }
+
+    if (entry->album_genre) {
+      ms_content_audio_set_genre (MS_CONTENT_AUDIO (media), entry->album_genre);
+    }
+
+    if (entry->track_url) {
+      ms_content_media_set_site (media, entry->track_url);
+    }
+
+    if (entry->album_image) {
+      ms_content_media_set_thumbnail (media, entry->album_image);
+    }
+
+    if (entry->track_stream) {
+      ms_content_media_set_url (media, entry->track_stream);
+    }
+
+    if (entry->track_duration) {
+      ms_content_media_set_duration (media, atoi (entry->track_duration));
+    }
+  }
 
   return media;
 }
@@ -461,7 +467,7 @@ xml_parse_entries_idle (gpointer user_data)
     Entry *entry = g_new0 (Entry, 1);
     xml_parse_entry (xpei->doc, xpei->node, entry);
     if (0) print_entry (entry);
-    MsContentMedia *media = build_media_from_entry (entry, xpei->os->keys);
+    MsContentMedia *media = build_media_from_entry (entry);
     free_entry (entry);
 
     xpei->index++;
@@ -542,7 +548,7 @@ send_toplevel_categories (OperationSpec *os)
   entry = g_new0 (Entry, 1);
   entry->category = JAMENDO_ARTIST_CAT;
   entry->artist_name = g_strdup (JAMENDO_ARTIST "s");
-  media = build_media_from_entry (entry, os->keys);
+  media = build_media_from_entry (entry);
   free_entry (entry);
   os->callback (os->source, os->operation_id, media, 1, os->user_data, NULL);
 
@@ -550,13 +556,13 @@ send_toplevel_categories (OperationSpec *os)
   entry = g_new0 (Entry, 1);
   entry->category = JAMENDO_ALBUM_CAT;
   entry->album_name = g_strdup (JAMENDO_ALBUM "s");
-  media = build_media_from_entry (entry, os->keys);
+  media = build_media_from_entry (entry);
   free_entry (entry);
   os->callback (os->source, os->operation_id, media, 1, os->user_data, NULL);
 }
 
 static gchar *
-marshall_keys (JamendoCategory category, GList *keys)
+get_jamendo_keys (JamendoCategory category)
 {
   gchar *jamendo_keys = NULL;
   gchar *keys_for_artist = "artist_name+artist_genre+artist_image+artist_url";
@@ -635,11 +641,11 @@ ms_jamendo_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
                          bs->container_id);
   } else {
     category = atoi (container_split[0]);
-    jamendo_keys = marshall_keys (category, bs->keys);
 
     if (category == JAMENDO_ARTIST_CAT) {
       /* Browsing through artists */
       if (container_split[1]) {
+        jamendo_keys = get_jamendo_keys (JAMENDO_ALBUM_CAT);
         /* Requesting information from a specific artist */
         url =
           g_strdup_printf (JAMENDO_GET_ALBUMS_FROM_ARTIST,
@@ -648,12 +654,16 @@ ms_jamendo_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
                            bs->skip + 1,
                            container_split[1]);
       } else {
+        jamendo_keys = get_jamendo_keys (JAMENDO_ARTIST_CAT);
         url = g_strdup_printf (JAMENDO_GET_ARTISTS, jamendo_keys, bs->count, bs->skip + 1);
       }
+      g_free (jamendo_keys);
+
     } else if (category == JAMENDO_ALBUM_CAT) {
       /* Browsing through albums */
       if (container_split[1]) {
         /* Requesting information from a specific album */
+        jamendo_keys = get_jamendo_keys (JAMENDO_TRACK_CAT);
         url =
           g_strdup_printf (JAMENDO_GET_TRACKS_FROM_ALBUM,
                            jamendo_keys,
@@ -661,8 +671,11 @@ ms_jamendo_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
                            bs->skip + 1,
                            container_split[1]);
       } else {
+        jamendo_keys = get_jamendo_keys (JAMENDO_ALBUM_CAT);
         url = g_strdup_printf (JAMENDO_GET_ALBUMS, jamendo_keys, bs->count, bs->skip + 1);
       }
+      g_free (jamendo_keys);
+
     } else if (category == JAMENDO_TRACK_CAT) {
       error = g_error_new (MS_ERROR,
                            MS_ERROR_BROWSE_FAILED,
@@ -674,7 +687,6 @@ ms_jamendo_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
                            "Invalid container-id: '%s'",
                            bs->container_id);
     }
-    g_free (jamendo_keys);
   }
 
   if (error) {

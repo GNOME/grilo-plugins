@@ -1217,7 +1217,7 @@ ms_youtube_source_metadata (MsMediaSource *source,
 
   g_debug ("ms_youtube_source_metadata");
 
-  id = ms->media ? ms_content_media_get_id (ms->media) : NULL;
+  id = ms_content_media_get_id (ms->media);
   media_type = classify_media_id (id);
 
   /* Do not compute childcount for expensive categories

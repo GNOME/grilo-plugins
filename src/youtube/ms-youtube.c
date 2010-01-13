@@ -376,7 +376,7 @@ build_media_from_entry (const Entry *entry, const GList *keys)
 
   iter = (GList *) keys;
   while (iter) {
-    MsKeyID key_id = GPOINTER_TO_UINT (iter->data);
+    MsKeyID key_id = POINTER_TO_MSKEYID (iter->data);
     switch (key_id) {
     case MS_METADATA_KEY_ID:
       ms_content_media_set_id (media, entry->id);
@@ -1022,7 +1022,7 @@ produce_from_directory (CategoryInfo *dir,
     } else {
       set_childcount =
 	(g_list_find (bs->keys,
-		      GUINT_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
+		      MSKEYID_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
     }
     index = bs->skip;
     remaining = MIN (dir_size - bs->skip, bs->count);
@@ -1229,7 +1229,7 @@ ms_youtube_source_metadata (MsMediaSource *source,
   } else {
     set_childcount =
       (g_list_find (ms->keys,
-		    GUINT_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
+		    MSKEYID_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
   }
 
   switch (media_type) {

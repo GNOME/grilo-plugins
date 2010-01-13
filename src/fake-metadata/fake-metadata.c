@@ -205,7 +205,7 @@ fake_metadata_source_resolve (MsMetadataSource *source,
 
   iter = rs->keys;
   while (iter) {
-    MsKeyID key_id = GPOINTER_TO_INT (iter->data);
+    MsKeyID key_id = POINTER_TO_MSKEYID (iter->data);
     fill_metadata (MS_CONTENT_MEDIA (rs->media), key_id);
     iter = g_list_next (iter);
   }

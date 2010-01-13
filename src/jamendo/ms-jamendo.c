@@ -63,16 +63,22 @@
 #define JAMENDO_GET_ALBUMS  JAMENDO_ALBUM_ENTRY  "/?" JAMENDO_RANGE
 #define JAMENDO_GET_TRACKS  JAMENDO_TRACK_ENTRY  "/?" JAMENDO_RANGE
 
-#define JAMENDO_GET_ARTIST JAMENDO_ARTIST_ENTRY "/?id=%s"
-#define JAMENDO_GET_ALBUM  JAMENDO_ALBUM_ENTRY  "/?id=%s"
-#define JAMENDO_GET_TRACK  JAMENDO_TRACK_ENTRY  "/?id=%s"
-
 #define JAMENDO_GET_ALBUMS_FROM_ARTIST JAMENDO_ALBUM_ENTRY "/"          \
   JAMENDO_ALBUM "_" JAMENDO_ARTIST "/?" JAMENDO_RANGE "&artist_id=%s"
 
 #define JAMENDO_GET_TRACKS_FROM_ALBUM JAMENDO_TRACK_ENTRY "/"          \
   JAMENDO_TRACK "_" JAMENDO_ALBUM "+" JAMENDO_ALBUM "_" JAMENDO_ARTIST \
   "/?" JAMENDO_RANGE "&album_id=%s"
+
+#define JAMENDO_GET_ARTIST JAMENDO_ARTIST_ENTRY "/?id=%s"
+
+#define JAMENDO_GET_ALBUM  JAMENDO_ALBUM_ENTRY  "/"     \
+  JAMENDO_ALBUM "_" JAMENDO_ARTIST "/?id=%s"
+
+#define JAMENDO_GET_TRACK  JAMENDO_TRACK_ENTRY  "/"                  \
+  JAMENDO_TRACK "_" JAMENDO_ALBUM "+"                                \
+  JAMENDO_ALBUM "_" JAMENDO_ARTIST                                   \
+  "/?id=%s"
 
 /* --- Plugin information --- */
 
@@ -408,7 +414,7 @@ build_media_from_albums (void)
 
   entry = g_new0 (Entry, 1);
   entry->category = JAMENDO_ALBUM_CAT;
-  entry->artist_name = g_strdup (JAMENDO_ALBUM "s");
+  entry->album_name = g_strdup (JAMENDO_ALBUM "s");
   media = build_media_from_entry (entry);
   free_entry (entry);
 
@@ -653,7 +659,7 @@ ms_jamendo_source_metadata (MsMediaSource *source,
     /* Get info from root */
     media = build_media_from_root ();
   } else {
-    id = ms_content_media_get_id (media);
+    id = ms_content_media_get_id (ms->media);
     id_split = g_strsplit (id, JAMENDO_ID_SEP, 0);
 
     if (g_strv_length (id_split) == 0) {
@@ -764,10 +770,10 @@ ms_jamendo_source_metadata (MsMediaSource *source,
     g_strfreev (id_split);
   }
 
-  if (xpe->doc) {
+  if (xpe) {
     xmlFreeDoc (xpe->doc);
+    g_free (xpe);
   }
-  g_free (xpe);
   g_free (xmldata);
 
   ms->callback (ms->source, NULL, ms->user_data, error);

@@ -29,23 +29,24 @@ print_supported_ops (MsMetadataSource *source)
 }
 
 static void
-print_metadata (MsContent *content, MsKeyID key_id)
+print_metadata (gpointer key, MsContent *content)
 {
+  MsKeyID key_id = POINTER_TO_MSKEYID(key);
+
   if (key_id == MS_METADATA_KEY_DESCRIPTION) {
     return;
   }
 
   MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
-  const MsMetadataKey *key = 
-    ms_plugin_registry_lookup_metadata_key (registry,
-					    GPOINTER_TO_UINT (key_id));
+  const MsMetadataKey *mkey =
+    ms_plugin_registry_lookup_metadata_key (registry, key_id);
 
-  const GValue *value = ms_content_get (MS_CONTENT(content), key_id);
+  const GValue *value = ms_content_get (content, key_id);
   if (value && G_VALUE_HOLDS_STRING (value)) {
-    g_debug ("\t%s: %s", MS_METADATA_KEY_GET_NAME (key),
+    g_debug ("\t%s: %s", MS_METADATA_KEY_GET_NAME (mkey),
 	     g_value_get_string (value));
   } else if (value && G_VALUE_HOLDS_INT (value)) {
-    g_debug ("\t%s: %d",  MS_METADATA_KEY_GET_NAME (key),
+    g_debug ("\t%s: %d",  MS_METADATA_KEY_GET_NAME (mkey),
 	     g_value_get_int (value));
   }
 }
@@ -59,7 +60,7 @@ media_from_id (const gchar *id)
   return media;
 }
 
-static void 
+static void
 browse_cb (MsMediaSource *source,
 	   guint browse_id,
            MsContentMedia *media,
@@ -67,9 +68,7 @@ browse_cb (MsMediaSource *source,
 	   gpointer user_data,
 	   const GError *error)
 {
-  MsKeyID *keys;
-  gint size;
-  gint i;
+  GList *keys;
   static guint index = 0;
 
   g_debug ("  browse result (%d - %d|%d)",
@@ -87,11 +86,9 @@ browse_cb (MsMediaSource *source,
   g_debug ("\tContainer: %s",
 	   IS_MS_CONTENT_BOX(media) ? "yes" : "no");
 
-  keys = ms_content_get_keys (MS_CONTENT (media), &size);
-  for (i = 0; i < size; i++) {
-    print_metadata (MS_CONTENT (media), keys[i]);
-  }
-  g_free (keys);
+  keys = ms_content_get_keys (MS_CONTENT (media));
+  g_list_foreach (keys, (GFunc) print_metadata, MS_CONTENT (media));
+  g_list_free (keys);
   g_object_unref (media);
 
   if (remaining == 0) {
@@ -99,15 +96,13 @@ browse_cb (MsMediaSource *source,
   }
 }
 
-static void 
+static void
 metadata_cb (MsMediaSource *source,
 	     MsContentMedia *media,
 	     gpointer user_data,
 	     const GError *error)
 {
-  MsKeyID *keys;
-  gint size;
-  gint i;
+  GList *keys;
 
   g_debug ("  metadata_cb");
 
@@ -115,18 +110,16 @@ metadata_cb (MsMediaSource *source,
     g_debug ("Error: %s", error->message);
     return;
   }
-  
+
   g_debug ("    Got metadata for object '%s'",
 	   ms_content_media_get_id (MS_CONTENT_MEDIA (media)));
 
   g_debug ("\tContainer: %s",
 	   IS_MS_CONTENT_BOX(media) ? "yes" : "no");
 
-  keys = ms_content_get_keys (MS_CONTENT (media), &size);
-  for (i = 0; i < size; i++) {
-    print_metadata (MS_CONTENT (media), keys[i]);
-  }
-  g_free (keys);
+  keys = ms_content_get_keys (MS_CONTENT (media));
+  g_list_foreach (keys, (GFunc) print_metadata, MS_CONTENT (media));
+  g_list_free (keys);
   g_object_unref (media);
 
   g_debug ("  Metadata operation finished");

@@ -649,7 +649,7 @@ ms_jamendo_source_metadata (MsMediaSource *source,
   g_debug ("ms_jamendo_source_metadata");
 
   if (!ms->media ||
-      ms_content_key_is_known (MS_CONTENT (ms->media), MS_METADATA_KEY_ID)) {
+      !ms_content_key_is_known (MS_CONTENT (ms->media), MS_METADATA_KEY_ID)) {
     /* Get info from root */
     media = build_media_from_root ();
   } else {
@@ -783,22 +783,25 @@ ms_jamendo_source_browse (MsMediaSource *source,
   gchar **container_split = NULL;
   JamendoCategory category;
   XmlParseEntries *xpe = NULL;
+  const gchar *container_id;
 
-  g_debug ("ms_jamendo_source_browse (%s)", bs->container_id);
+  g_debug ("ms_jamendo_source_browse");
 
-  if (!bs->container_id) {
+  container_id = ms_content_media_get_id (bs->container);
+
+  if (!container_id) {
     /* Root category: return top-level predefined categories */
     send_toplevel_categories (bs);
     return;
   }
 
-  container_split = g_strsplit (bs->container_id, JAMENDO_ID_SEP, 0);
+  container_split = g_strsplit (container_id, JAMENDO_ID_SEP, 0);
 
   if (g_strv_length (container_split) == 0) {
     error = g_error_new (MS_ERROR,
                          MS_ERROR_BROWSE_FAILED,
                          "Invalid container-id: '%s'",
-                         bs->container_id);
+                         container_id);
   } else {
     category = atoi (container_split[0]);
 
@@ -840,12 +843,12 @@ ms_jamendo_source_browse (MsMediaSource *source,
       error = g_error_new (MS_ERROR,
                            MS_ERROR_BROWSE_FAILED,
                            "Cannot browse through a track: '%s'",
-                           bs->container_id);
+                           container_id);
     } else {
       error = g_error_new (MS_ERROR,
                            MS_ERROR_BROWSE_FAILED,
                            "Invalid container-id: '%s'",
-                           bs->container_id);
+                           container_id);
     }
   }
 

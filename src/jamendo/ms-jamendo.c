@@ -129,8 +129,6 @@ static MsJamendoSource *ms_jamendo_source_new (void);
 gboolean ms_jamendo_plugin_init (MsPluginRegistry *registry,
 				 const MsPluginInfo *plugin);
 
-static MsSupportedOps ms_jamendo_source_supported_operations (MsMetadataSource *source);
-
 static const GList *ms_jamendo_source_supported_keys (MsMetadataSource *source);
 
 static void ms_jamendo_source_browse (MsMediaSource *source,
@@ -187,7 +185,6 @@ ms_jamendo_source_class_init (MsJamendoSourceClass * klass)
   MsMediaSourceClass *source_class = MS_MEDIA_SOURCE_CLASS (klass);
   MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
   source_class->browse = ms_jamendo_source_browse;
-  metadata_class->supported_operations = ms_jamendo_source_supported_operations;
   metadata_class->supported_keys = ms_jamendo_source_supported_keys;
 
   if (!gnome_vfs_init ()) {
@@ -582,12 +579,6 @@ marshall_keys (JamendoCategory category, GList *keys)
   return jamendo_keys;
 }
 /* ================== API Implementation ================ */
-
-static MsSupportedOps
-ms_jamendo_source_supported_operations (MsMetadataSource *source)
-{
-  return MS_OP_BROWSE;
-}
 
 static const GList *
 ms_jamendo_source_supported_keys (MsMetadataSource *source)

@@ -207,6 +207,7 @@ G_DEFINE_TYPE (MsJamendoSource, ms_jamendo_source, MS_TYPE_MEDIA_SOURCE);
 
 /* ======================= Utilities ==================== */
 
+#if 0
 static void
 print_entry (Entry *entry)
 {
@@ -226,6 +227,7 @@ print_entry (Entry *entry)
   g_print ("  Track Stream: %s\n", entry->track_stream);
   g_print ("Track Duration: %s\n", entry->track_duration);
 }
+#endif
 
 static void
 free_entry (Entry *entry)
@@ -279,22 +281,15 @@ read_url (const gchar *url)
   return g_string_free (data, FALSE);
 }
 
-static MsContentMedia *
-build_media_from_entry (const Entry *entry)
+static void
+update_media_from_entry (MsContentMedia *media, const Entry *entry)
 {
-  MsContentMedia *media;
   gchar *id;
 
   if (entry->id) {
     id = g_strdup_printf ("%d/%s", entry->category, entry->id);
   } else {
     id = g_strdup_printf ("%d", entry->category);
-  }
-
-  if (entry->category == JAMENDO_TRACK_CAT) {
-    media = ms_content_audio_new ();
-  } else {
-    media = ms_content_box_new ();
   }
 
   /* Common fields */
@@ -375,50 +370,38 @@ build_media_from_entry (const Entry *entry)
       ms_content_media_set_duration (media, atoi (entry->track_duration));
     }
   }
-
-  return media;
 }
 
 
-static MsContentMedia *
-build_media_from_root (void)
+static void
+update_media_from_root (MsContentMedia *media)
 {
-  MsContentMedia *media = ms_content_box_new ();
-
   ms_content_media_set_title (media, JAMENDO_ROOT_NAME);
   ms_content_box_set_childcount (MS_CONTENT_BOX (media), 2);
-
-  return media;
 }
 
-static MsContentMedia *
-build_media_from_artists (void)
+static void
+update_media_from_artists (MsContentMedia *media)
 {
   Entry *entry;
-  MsContentMedia *media;
 
   entry = g_new0 (Entry, 1);
   entry->category = JAMENDO_ARTIST_CAT;
   entry->artist_name = g_strdup (JAMENDO_ARTIST "s");
-  media = build_media_from_entry (entry);
+  update_media_from_entry (media, entry);
   free_entry (entry);
-
-  return media;
 }
 
-static MsContentMedia *
-build_media_from_albums (void)
+static void
+update_media_from_albums (MsContentMedia *media)
 {
   Entry *entry;
-  MsContentMedia *media;
 
   entry = g_new0 (Entry, 1);
   entry->category = JAMENDO_ALBUM_CAT;
   entry->album_name = g_strdup (JAMENDO_ALBUM "s");
-  media = build_media_from_entry (entry);
+  update_media_from_entry (media, entry);
   free_entry (entry);
-
-  return media;
 }
 
 static Entry *
@@ -529,13 +512,20 @@ xml_parse_entries_idle (gpointer user_data)
 {
   XmlParseEntries *xpe = (XmlParseEntries *) user_data;
   gboolean parse_more = FALSE;
+  MsContentMedia *media;
+  Entry *entry;
 
   g_debug ("xml_parse_entries_idle");
 
   if (xpe->node) {
-    Entry *entry = xml_parse_entry (xpe->doc, xpe->node);
-    if (0) print_entry (entry);
-    MsContentMedia *media = build_media_from_entry (entry);
+    entry = xml_parse_entry (xpe->doc, xpe->node);
+    if (entry->category == JAMENDO_TRACK_CAT) {
+      media = ms_content_audio_new ();
+    } else {
+      media = ms_content_box_new ();
+    }
+
+    update_media_from_entry (media, entry);
     free_entry (entry);
 
     xpe->index++;
@@ -607,8 +597,15 @@ xml_parse_result (const gchar *str, GError **error)
 static void
 send_toplevel_categories (MsMediaSourceBrowseSpec *bs)
 {
-  bs->callback (bs->source, bs->browse_id, build_media_from_artists (), 1, bs->user_data, NULL);
-  bs->callback (bs->source, bs->browse_id, build_media_from_albums (), 0, bs->user_data, NULL);
+  MsContentMedia *media;
+
+  media = ms_content_box_new ();
+  update_media_from_artists (media);
+  bs->callback (bs->source, bs->browse_id, media, 1, bs->user_data, NULL);
+
+  media = ms_content_box_new ();
+  update_media_from_albums (media);
+  bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
 }
 
 static gchar *
@@ -675,7 +672,10 @@ ms_jamendo_source_metadata (MsMediaSource *source,
   if (!ms->media ||
       !ms_content_key_is_known (MS_CONTENT (ms->media), MS_METADATA_KEY_ID)) {
     /* Get info from root */
-    media = build_media_from_root ();
+    if (!ms->media) {
+      ms->media = ms_content_box_new ();
+    }
+    update_media_from_root (ms->media);
   } else {
     id = ms_content_media_get_id (ms->media);
     id_split = g_strsplit (id, JAMENDO_ID_SEP, 0);
@@ -701,7 +701,7 @@ ms_jamendo_source_metadata (MsMediaSource *source,
         g_free (jamendo_keys);
       } else {
         /* Requesting information from artist category */
-        media = build_media_from_artists ();
+        update_media_from_artists (ms->media);
       }
     } else if (category == JAMENDO_ALBUM_CAT) {
       if (id_split[1]) {
@@ -714,7 +714,7 @@ ms_jamendo_source_metadata (MsMediaSource *source,
         g_free (jamendo_keys);
       } else {
         /* Requesting information from album category */
-        media = build_media_from_albums ();
+        update_media_from_albums (ms->media);
       }
     } else if (category == JAMENDO_TRACK_CAT) {
       if (id_split[1]) {
@@ -766,7 +766,7 @@ ms_jamendo_source_metadata (MsMediaSource *source,
       entry = xml_parse_entry (xpe->doc, xpe->node);
       xmlFreeDoc (xpe->doc);
       g_free (xpe);
-      media = build_media_from_entry (entry);
+      update_media_from_entry (ms->media, entry);
       free_entry (entry);
     } else {
       error = g_error_new (MS_ERROR,
@@ -778,7 +778,7 @@ ms_jamendo_source_metadata (MsMediaSource *source,
   }
 
   if (media) {
-    ms->callback (ms->source, media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
   }
 
   return;

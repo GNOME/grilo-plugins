@@ -192,7 +192,7 @@ main (void)
   if (0) ms_media_source_browse (youtube, media_from_id ("standard-feeds/most-viewed"), keys, 0, 10, MS_RESOLVE_FAST_ONLY , browse_cb, NULL);
   if (0) ms_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 173, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_search (youtube, "igalia", keys, 6, 10, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (1) ms_media_source_search (youtube, "igalia", keys, 1, 10, MS_RESOLVE_FULL | MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) ms_media_source_search (youtube, "igalia", keys, 1, 10, MS_RESOLVE_FULL | MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (youtube, NULL, keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY | MS_RESOLVE_FULL, metadata_cb, NULL);
   if (0) ms_media_source_metadata (youtube, NULL, keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY , metadata_cb, NULL);
@@ -203,7 +203,7 @@ main (void)
   if (0) ms_media_source_browse (jamendo, media_from_id("1"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, media_from_id("1/9"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, media_from_id("2"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) ms_media_source_browse (jamendo, media_from_id("2/25"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (1) ms_media_source_browse (jamendo, media_from_id("2/25"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, media_from_id("3/174"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, NULL, keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, media_from_id("1"), keys, 0, metadata_cb, NULL);

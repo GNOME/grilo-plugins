@@ -1222,7 +1222,6 @@ produce_videos_from_container (const gchar *container_id,
 
 static void
 produce_videos_from_search (const gchar *text,
-			    const gchar *filter,
 			    OperationSpec *os,
 			    GError **error)
 {
@@ -1337,10 +1336,6 @@ ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
 
   g_debug ("ms_youtube_source_search");
 
-  if (ss->filter) {
-    g_warning ("Search filter not supported, ignoring filter argument");
-  }
-
   os = g_new0 (OperationSpec, 1);
   os->source = source;
   os->operation_id = ss->search_id;
@@ -1350,7 +1345,7 @@ ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
   os->callback = ss->callback;
   os->user_data = ss->user_data;
 
-  produce_videos_from_search (ss->text, ss->filter, os, &error);
+  produce_videos_from_search (ss->text, os, &error);
 
   if (error) {
     error->code = MS_ERROR_SEARCH_FAILED;

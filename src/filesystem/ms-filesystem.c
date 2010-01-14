@@ -262,7 +262,7 @@ create_content (const gchar *path)
   g_free (str);
 
   /* Childcount */
-  if (IS_MS_CONTENT_BOX(media)) {
+  if (MS_IS_CONTENT_BOX(media)) {
     set_container_childcount (path, media);
   }
 

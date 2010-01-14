@@ -87,7 +87,7 @@ browse_cb (MsMediaSource *source,
   }
 
   g_debug ("\tContainer: %s",
-	   IS_MS_CONTENT_BOX(media) ? "yes" : "no");
+	   MS_IS_CONTENT_BOX(media) ? "yes" : "no");
 
   keys = ms_content_get_keys (MS_CONTENT (media));
   g_list_foreach (keys, (GFunc) print_metadata, MS_CONTENT (media));
@@ -118,7 +118,7 @@ metadata_cb (MsMediaSource *source,
 	   ms_content_media_get_id (MS_CONTENT_MEDIA (media)));
 
   g_debug ("\tContainer: %s",
-	   IS_MS_CONTENT_BOX(media) ? "yes" : "no");
+	   MS_IS_CONTENT_BOX(media) ? "yes" : "no");
 
   keys = ms_content_get_keys (MS_CONTENT (media));
   g_list_foreach (keys, (GFunc) print_metadata, MS_CONTENT (media));

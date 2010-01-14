@@ -506,6 +506,24 @@ xml_parse_entry (xmlDocPtr doc, xmlNodePtr entry)
   return data;
 }
 
+static gint
+xml_count_children (xmlNodePtr node)
+{
+#if (LIBXML2_VERSION >= 20700)
+  return xmlChildElementCount (node);
+#else
+  gint nchildren = 0;
+  xmlNodePtr i = node->xmlChildrenNode;
+
+  while (i) {
+    nchildren++;
+    i = i->next;
+  }
+
+  return nchildren;
+#endif
+}
+
 static gboolean
 xml_parse_entries_idle (gpointer user_data)
 {
@@ -545,7 +563,7 @@ xml_parse_result (const gchar *str, GError **error)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
-  gint child_nodes;
+  gint child_nodes = 0;
 
   doc = xmlRecoverDoc ((xmlChar *) str);
   if (!doc) {
@@ -570,7 +588,7 @@ xml_parse_result (const gchar *str, GError **error)
     goto free_resources;
   }
 
-  child_nodes = xmlChildElementCount (node);
+  child_nodes = xml_count_children (node);
   node = node->xmlChildrenNode;
 
   XmlParseEntries *xpe = g_new (XmlParseEntries, 1);

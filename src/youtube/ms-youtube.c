@@ -110,6 +110,8 @@
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
 
+typedef void (*AsyncReadCbFunc) (gchar *data, gpointer user_data);
+
 typedef struct {
   gchar *id;
   gchar *title;
@@ -153,6 +155,13 @@ typedef struct {
   gchar *url;
 } CategoryInfo;
 
+typedef struct {
+  AsyncReadCbFunc callback;
+  gpointer user_data;
+  gchar *url;
+  GString *data;
+} AsyncReadCb;
+
 typedef enum {
   YOUTUBE_MEDIA_TYPE_ROOT,
   YOUTUBE_MEDIA_TYPE_FEEDS,
@@ -184,7 +193,7 @@ static gchar *read_url (const gchar *url);
 
 static void build_categories_directory (void);
 
-static void produce_next_video_chunk (OperationSpec *os, GError **error);
+static void produce_next_video_chunk (OperationSpec *os);
 
 /* ==================== Global Data  ================= */
 
@@ -299,6 +308,13 @@ free_entry (Entry *entry)
   g_free (entry);
 }
 
+static void
+free_operation_spec (OperationSpec *os)
+{
+  g_free (os->query_url);
+  g_free (os);
+}
+
 static gchar *
 get_video_url (const gchar *id)
 {
@@ -331,6 +347,104 @@ get_video_url (const gchar *id)
   g_free (token);
   
   return url;
+}
+
+static void
+read_url_async_close_cb (GnomeVFSAsyncHandle *handle,
+			 GnomeVFSResult result,
+			 gpointer callback_data)
+{
+  g_debug ("  Done reading data from url async");
+}
+
+static void
+read_url_async_read_cb (GnomeVFSAsyncHandle *handle,
+			GnomeVFSResult result,
+			gpointer buffer,
+			GnomeVFSFileSize bytes_requested,
+			GnomeVFSFileSize bytes_read,
+			gpointer user_data)
+{
+  AsyncReadCb *arc = (AsyncReadCb *) user_data;
+  gchar *data;
+
+  /* On error, provide an empty result */
+  if (result != GNOME_VFS_OK && result != GNOME_VFS_ERROR_EOF) {
+    g_warning ("Error while reading async url '%s' - %d", arc->url, result);
+    gnome_vfs_async_close (handle, read_url_async_close_cb, NULL);
+    g_free (buffer);
+    g_string_free (arc->data, TRUE);
+    g_free (arc->url);
+    arc->callback (NULL, arc->user_data);
+    g_free (arc);
+    return;
+  } 
+
+  /* If we got data, accumulate it */
+  if (bytes_read > 0) {
+    data = (gchar *) buffer;
+    data[bytes_read] = '\0';
+    g_string_append (arc->data, data);
+  }
+
+  g_free (buffer);
+
+  if (bytes_read == 0) {
+    /* We are done reading, call the user callback with the data */
+    data = g_string_free (arc->data, FALSE);
+    gnome_vfs_async_close (handle, read_url_async_close_cb, NULL);
+    arc->callback (data, arc->user_data);
+    g_free (arc->url);
+    g_free (arc);
+  } else {
+    /* Otherwise, read another chunk */
+    buffer = g_new (gchar, 1025);
+    gnome_vfs_async_read (handle, buffer, 1024,
+			  read_url_async_read_cb, arc);
+  }
+}
+
+static void
+read_url_async_open_cb (GnomeVFSAsyncHandle *handle,
+			GnomeVFSResult result,
+			gpointer user_data)
+{
+  gchar *buffer;
+  AsyncReadCb *arc = (AsyncReadCb *) user_data;
+
+  if (result != GNOME_VFS_OK) {
+    g_warning ("Failed to open async '%s' - %d", arc->url, result);
+    arc->callback (NULL, arc->user_data);
+    g_free (arc->url);
+    g_free (arc);
+    return;
+  }
+
+  arc->data = g_string_new ("");
+  buffer = g_new (gchar, 1025);
+  gnome_vfs_async_read (handle, buffer, 1024, read_url_async_read_cb, arc);
+}
+
+
+static void
+read_url_async (const gchar *url,
+		AsyncReadCbFunc callback, 
+		gpointer user_data)
+{
+  GnomeVFSAsyncHandle *fh;
+  AsyncReadCb *arc;
+  
+  g_debug ("Async Opening '%s'", url);
+  arc = g_new0 (AsyncReadCb, 1);
+  arc->callback = callback;
+  arc->user_data = user_data;
+  arc->url = g_strdup (url);
+  gnome_vfs_async_open (&fh,
+			url,
+			GNOME_VFS_OPEN_READ,
+			GNOME_VFS_PRIORITY_DEFAULT,
+			read_url_async_open_cb,
+			arc);
 }
 
 static gchar *
@@ -520,7 +634,6 @@ parse_entries_idle (gpointer user_data)
 {
   ParseEntriesIdle *pei = (ParseEntriesIdle *) user_data;
   gboolean parse_more = FALSE;
-  GError *error = NULL;
 
   g_debug ("parse_entries_idle");
 
@@ -569,21 +682,10 @@ parse_entries_idle (gpointer user_data)
     } else  {
       if (pei->os->count > 0) {
 	/* We can go for the next chunk */
-	produce_next_video_chunk (pei->os, &error);
-	if (error) {
-	  pei->os->callback (pei->os->source, 
-			     pei->os->operation_id,
-			     NULL,
-			     0,
-			     pei->os->user_data,
-			     error);
-	  g_error_free (error);
-	  g_free (pei->os->query_url);
-	  g_free (pei->os);
-	}
+	produce_next_video_chunk (pei->os);
       } else { 
-	g_free (pei->os->query_url);
-	g_free (pei->os);
+	/* No more chunks to produce */
+	free_operation_spec (pei->os);
       }
       g_free (pei);
     }
@@ -820,38 +922,36 @@ parse_categories (xmlDocPtr doc, xmlNodePtr node)
 }
 
 static void
-build_categories_directory (void)
+build_categories_directory_read_cb (gchar *xmldata, gpointer user_data)
 {
-  gchar *xmldata;
   xmlDocPtr doc;
   xmlNodePtr node;
 
-  xmldata = read_url (YOUTUBE_CATEGORIES_URL);
   if (!xmldata) {
-    g_warning ("Failed to build category directory (1)");
+    g_critical ("Failed to build category directory (1)");
     return;
-  };
-  
+  }
+
   doc = xmlRecoverDoc ((xmlChar *) xmldata);
   if (!doc) {
-    g_warning ("Failed to build category directory (2)");
+    g_critical ("Failed to build category directory (2)");
     goto free_resources;
   }
 
   node = xmlDocGetRootElement (doc);
   if (!node) {
-    g_warning ("Failed to build category directory (3)");
+    g_critical ("Failed to build category directory (3)");
     goto free_resources;
   }
 
   if (xmlStrcmp (node->name, (const xmlChar *) "categories")) {
-    g_warning ("Failed to build category directory (4)");
+    g_critical ("Failed to build category directory (4)");
     goto free_resources;
   }
 
   node = node->xmlChildrenNode;
   if (!node) {
-    g_warning ("Failed to build category directory (5)");
+    g_critical ("Failed to build category directory (5)");
     goto free_resources;
   }
 
@@ -860,6 +960,14 @@ build_categories_directory (void)
  free_resources:
   xmlFreeDoc (doc);
   return;
+}
+
+static void
+build_categories_directory (void)
+{
+  read_url_async (YOUTUBE_CATEGORIES_URL,
+		  build_categories_directory_read_cb,
+		  NULL);
 }
 
 static gboolean
@@ -891,6 +999,11 @@ get_container_url (const gchar *container_id)
     return NULL;
   }
 
+  if (directory == NULL) {
+    g_critical ("Required directory is not initialized");
+    return NULL;
+  }
+
   index = 0;
   while (directory[index].id &&
 	 strcmp (container_id, directory[index].id)) {
@@ -907,6 +1020,7 @@ static void
 set_category_childcount (MsContentBox *content, CategoryInfo *dir, guint index)
 {
   gint childcount;
+  gboolean set_childcount = TRUE;
 
   if (dir == NULL) {
     /* Special case: we want childcount of root category */
@@ -917,21 +1031,27 @@ set_category_childcount (MsContentBox *content, CategoryInfo *dir, guint index)
     childcount = categories_dir_size;
   } else {
     const gchar *_url = get_container_url (dir[index].id);
-    gchar *url = g_strdup_printf (_url, 1, 0);
-    gchar  *xmldata = read_url (url);
-    g_free (url);    
-    if (!xmldata) {
-      g_warning ("Failed to connect to Youtube to get category childcount");
-      return;
+    if (_url) {
+      gchar *url = g_strdup_printf (_url, 1, 0);
+      gchar  *xmldata = read_url (url);
+      g_free (url);    
+      if (!xmldata) {
+	g_warning ("Failed to connect to Youtube to get category childcount");
+	return;
+      }
+      gchar *start = strstr (xmldata, YOUTUBE_TOTAL_RESULTS_START) +
+	strlen (YOUTUBE_TOTAL_RESULTS_START);
+      gchar *end = strstr (start, YOUTUBE_TOTAL_RESULTS_END);
+      gchar *childcount_str = g_strndup (start, end - start);
+      childcount = strtol (childcount_str, (char **) NULL, 10);
+    } else {
+      set_childcount = FALSE;
     }
-    gchar *start = strstr (xmldata, YOUTUBE_TOTAL_RESULTS_START) +
-      strlen (YOUTUBE_TOTAL_RESULTS_START);
-    gchar *end = strstr (start, YOUTUBE_TOTAL_RESULTS_END);
-    gchar *childcount_str = g_strndup (start, end - start);
-    childcount = strtol (childcount_str, (char **) NULL, 10);
   }
 
-  ms_content_box_set_childcount (content, childcount);
+  if (set_childcount) {
+    ms_content_box_set_childcount (content, childcount);
+  }
 }
 
 static MsContentMedia *
@@ -1041,29 +1161,44 @@ produce_from_directory (CategoryInfo *dir,
 }
 
 static void
-produce_next_video_chunk (OperationSpec *os, GError **error)
+produce_next_video_chunk_read_cb (gchar *xmldata, gpointer user_data)
+{
+  GError *error = NULL;
+  OperationSpec *os = (OperationSpec *) user_data;
+
+  if (!xmldata) {
+    error = g_error_new (MS_ERROR,
+			 MS_ERROR_BROWSE_FAILED,
+			 "Failed to read from Youtube");
+  } else {
+    parse_feed (os, xmldata, &error);
+    g_free (xmldata);  
+  }
+
+  if (error) {
+    os->callback (os->source, 
+		  os->operation_id,
+		  NULL,
+		  0,
+		  os->user_data,
+		  error);
+    g_error_free (error);
+    free_operation_spec (os);
+  }
+}
+
+static void
+produce_next_video_chunk (OperationSpec *os)
 {
   gchar *url;
-  gchar *xmldata;
 
   if (os->count > YOUTUBE_MAX_CHUNK) {
     url = g_strdup_printf (os->query_url, os->skip + 1, YOUTUBE_MAX_CHUNK);
   } else {
     url = g_strdup_printf (os->query_url, os->skip + 1, os->count);
   }
-
-  xmldata = read_url (url);
+  read_url_async (url, produce_next_video_chunk_read_cb, os);
   g_free (url);
-  
-  if (!xmldata) {
-    *error = g_error_new (MS_ERROR,
-			  MS_ERROR_BROWSE_FAILED,
-			  "Failed to connect to Youtube");
-    return;
-  }
-  
-  parse_feed (os, xmldata, error);
-  g_free (xmldata);  
 }
 
 static void
@@ -1079,12 +1214,10 @@ produce_videos_from_container (const gchar *container_id,
 			  MS_ERROR_BROWSE_FAILED,
 			  "Invalid container-id: '%s'",
 			  container_id);
-    return;
+  } else {
+    os->query_url = g_strdup (_url);
+    produce_next_video_chunk (os);
   }
-
-  os->query_url = g_strdup (_url);
-
-  produce_next_video_chunk (os, error);
 }
 
 static void
@@ -1096,7 +1229,31 @@ produce_videos_from_search (const gchar *text,
   gchar *url;
   url = g_strdup_printf (YOUTUBE_SEARCH_URL, text, "%d", "%d");
   os->query_url = url;
-  produce_next_video_chunk (os, error);
+  produce_next_video_chunk (os);
+}
+
+static void
+metadata_read_cb (gchar *xmldata, gpointer user_data)
+{
+  GError *error = NULL;
+  MsContentMedia *media;
+  MsMediaSourceMetadataSpec *ms = (MsMediaSourceMetadataSpec *) user_data;
+
+  if (!xmldata) {
+    error = g_error_new (MS_ERROR,
+			 MS_ERROR_METADATA_FAILED,
+			 "Failed to read from Youtube");
+  } else {
+    media = parse_metadata_feed (ms, xmldata, &error);
+    g_free (xmldata);   
+  }
+
+  if (error) {
+    ms->callback (ms->source, NULL, ms->user_data, error);
+    g_error_free (error);
+  } else {
+    ms->callback (ms->source, media, ms->user_data, NULL);
+  }
 }
 
 /* ================== API Implementation ================ */
@@ -1208,9 +1365,9 @@ static void
 ms_youtube_source_metadata (MsMediaSource *source,
 			    MsMediaSourceMetadataSpec *ms)
 {
-  gchar *xmldata, *url;
+  gchar *url;
   GError *error = NULL;
-  MsContentMedia *media;
+  MsContentMedia *media = NULL;
   YoutubeMediaType media_type;
   gboolean set_childcount;
   const gchar *id;
@@ -1256,21 +1413,10 @@ ms_youtube_source_metadata (MsMediaSource *source,
   default:
     {
       /* For metadata retrieval we just search by text using the video ID */
+      /* This case is async, we will emit results in the read callback */
       url = g_strdup_printf (YOUTUBE_SEARCH_URL, id, "1", "1");
-      xmldata = read_url (url);
-      g_free (url);
-      
-      if (!xmldata) {
-	GError *error = g_error_new (MS_ERROR,
-				     MS_ERROR_METADATA_FAILED,
-				     "Failed to connect to Youtube");
-	ms->callback (source, NULL, ms->user_data, error);    
-	g_error_free (error);
-	return;
-      }
-      
-      media = parse_metadata_feed (ms, xmldata, &error);
-      g_free (xmldata);   
+      read_url_async (url, metadata_read_cb, ms);
+      g_free (url); 
     }
     break;
   }
@@ -1278,7 +1424,7 @@ ms_youtube_source_metadata (MsMediaSource *source,
   if (error) {
     ms->callback (ms->source, NULL, ms->user_data, error);
     g_error_free (error);
-  } else {
+  } else if (media) {
     ms->callback (ms->source, media, ms->user_data, NULL);
   }
 }

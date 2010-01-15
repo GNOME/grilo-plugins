@@ -203,14 +203,17 @@ main (void)
   if (0) ms_media_source_browse (jamendo, media_from_id("1"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, media_from_id("1/9"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, media_from_id("2"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (1) ms_media_source_browse (jamendo, media_from_id("2/25"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) ms_media_source_browse (jamendo, media_from_id("2/25"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, media_from_id("3/174"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, NULL, keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, media_from_id("1"), keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, media_from_id("1/9"), keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, media_from_id("2/25"), keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, media_from_id("3/174"), keys, 0, metadata_cb, NULL);
-
+  if (0) ms_media_source_query (jamendo, "artist=shake da", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) ms_media_source_query (jamendo, "album=Nick", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (1) ms_media_source_query (jamendo, "track=asylum mind", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  
   g_debug ("Running main loop");
 
   GMainLoop *loop = g_main_loop_new (NULL, FALSE);

@@ -56,29 +56,27 @@
 #define JAMENDO_RANGE      "n=%d&pn=%d"
 
 #define JAMENDO_ARTIST_ENTRY JAMENDO_BASE_ENTRY "/%s/" JAMENDO_ARTIST "/" JAMENDO_FORMAT
-#define JAMENDO_ALBUM_ENTRY  JAMENDO_BASE_ENTRY "/%s/" JAMENDO_ALBUM  "/" JAMENDO_FORMAT
-#define JAMENDO_TRACK_ENTRY  JAMENDO_BASE_ENTRY "/%s/" JAMENDO_TRACK  "/" JAMENDO_FORMAT
+
+#define JAMENDO_ALBUM_ENTRY  JAMENDO_BASE_ENTRY "/%s/" JAMENDO_ALBUM  "/" JAMENDO_FORMAT \
+  "/" JAMENDO_ALBUM "_" JAMENDO_ARTIST
+
+#define JAMENDO_TRACK_ENTRY  JAMENDO_BASE_ENTRY "/%s/" JAMENDO_TRACK  "/" JAMENDO_FORMAT \
+  "/" JAMENDO_ALBUM "_" JAMENDO_ARTIST "+" JAMENDO_TRACK "_" JAMENDO_ALBUM
 
 #define JAMENDO_GET_ARTISTS JAMENDO_ARTIST_ENTRY "/?" JAMENDO_RANGE
 #define JAMENDO_GET_ALBUMS  JAMENDO_ALBUM_ENTRY  "/?" JAMENDO_RANGE
 #define JAMENDO_GET_TRACKS  JAMENDO_TRACK_ENTRY  "/?" JAMENDO_RANGE
 
-#define JAMENDO_GET_ALBUMS_FROM_ARTIST JAMENDO_ALBUM_ENTRY "/"          \
-  JAMENDO_ALBUM "_" JAMENDO_ARTIST "/?" JAMENDO_RANGE "&artist_id=%s"
-
-#define JAMENDO_GET_TRACKS_FROM_ALBUM JAMENDO_TRACK_ENTRY "/"          \
-  JAMENDO_TRACK "_" JAMENDO_ALBUM "+" JAMENDO_ALBUM "_" JAMENDO_ARTIST \
-  "/?" JAMENDO_RANGE "&album_id=%s"
-
+#define JAMENDO_GET_ALBUMS_FROM_ARTIST JAMENDO_ALBUM_ENTRY "/?" JAMENDO_RANGE "&artist_id=%s"
+#define JAMENDO_GET_TRACKS_FROM_ALBUM JAMENDO_TRACK_ENTRY  "/?" JAMENDO_RANGE "&album_id=%s"
 #define JAMENDO_GET_ARTIST JAMENDO_ARTIST_ENTRY "/?id=%s"
 
-#define JAMENDO_GET_ALBUM  JAMENDO_ALBUM_ENTRY  "/"     \
-  JAMENDO_ALBUM "_" JAMENDO_ARTIST "/?id=%s"
+#define JAMENDO_GET_ALBUM  JAMENDO_ALBUM_ENTRY  "/?id=%s"
+#define JAMENDO_GET_TRACK  JAMENDO_TRACK_ENTRY  "/?id=%s"
 
-#define JAMENDO_GET_TRACK  JAMENDO_TRACK_ENTRY  "/"                  \
-  JAMENDO_TRACK "_" JAMENDO_ALBUM "+"                                \
-  JAMENDO_ALBUM "_" JAMENDO_ARTIST                                   \
-  "/?id=%s"
+#define JAMENDO_SEARCH_ARTIST JAMENDO_ARTIST_ENTRY "/?" JAMENDO_RANGE "&searchquery=%s"
+#define JAMENDO_SEARCH_ALBUM  JAMENDO_ALBUM_ENTRY  "/?" JAMENDO_RANGE "&searchquery=%s"
+#define JAMENDO_SEARCH_TRACK  JAMENDO_TRACK_ENTRY  "/?" JAMENDO_RANGE "&searchquery=%s"
 
 /* --- Plugin information --- */
 
@@ -93,6 +91,11 @@
 #define AUTHOR      "Igalia S.L."
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
+
+enum {
+  BROWSE,
+  QUERY
+};
 
 typedef enum {
   JAMENDO_ARTIST_CAT = 1,
@@ -119,7 +122,11 @@ typedef struct {
 } Entry;
 
 typedef struct {
-  MsMediaSourceBrowseSpec *bs;
+  gint type;
+  union {
+    MsMediaSourceBrowseSpec *bs;
+    MsMediaSourceQuerySpec *qs;
+  };
   xmlNodePtr node;
   xmlDocPtr doc;
   guint total_results;
@@ -138,6 +145,9 @@ static void ms_jamendo_source_metadata (MsMediaSource *source,
 
 static void ms_jamendo_source_browse (MsMediaSource *source,
 				      MsMediaSourceBrowseSpec *bs);
+
+static void ms_jamendo_source_query (MsMediaSource *source,
+                                     MsMediaSourceQuerySpec *qs);
 
 static gchar *read_url (const gchar *url);
 
@@ -191,6 +201,7 @@ ms_jamendo_source_class_init (MsJamendoSourceClass * klass)
   MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
   source_class->metadata = ms_jamendo_source_metadata;
   source_class->browse = ms_jamendo_source_browse;
+  source_class->query = ms_jamendo_source_query;
   metadata_class->supported_keys = ms_jamendo_source_supported_keys;
 
   if (!gnome_vfs_init ()) {
@@ -529,12 +540,24 @@ xml_parse_entries_idle (gpointer user_data)
     free_entry (entry);
 
     xpe->index++;
-    xpe->bs->callback (xpe->bs->source,
-                       xpe->bs->browse_id,
-                       media,
-                       xpe->total_results - xpe->index,
-                       xpe->bs->user_data,
-		       NULL);
+    switch (xpe->type) {
+    case BROWSE:
+      xpe->bs->callback (xpe->bs->source,
+                         xpe->bs->browse_id,
+                         media,
+                         xpe->total_results - xpe->index,
+                         xpe->bs->user_data,
+                         NULL);
+      break;
+    case QUERY:
+      xpe->qs->callback (xpe->qs->source,
+                         xpe->qs->query_id,
+                         media,
+                         xpe->total_results - xpe->index,
+                         xpe->qs->user_data,
+                         NULL);
+      break;
+    }
 
     parse_more = TRUE;
     xpe->node = xpe->node->next;
@@ -631,6 +654,31 @@ get_jamendo_keys (JamendoCategory category)
 
   return jamendo_keys;
 }
+
+static gboolean
+parse_query (const gchar *query, JamendoCategory *category, gchar **term)
+{
+  if (!query) {
+    return FALSE;
+  }
+
+  if (g_str_has_prefix (query, JAMENDO_ARTIST "=")) {
+    *category = JAMENDO_ARTIST_CAT;
+    query += 7;
+  } else if (g_str_has_prefix (query, JAMENDO_ALBUM "=")) {
+    *category = JAMENDO_ALBUM_CAT;
+    query += 6;
+  } else if (g_str_has_prefix (query, JAMENDO_TRACK "=")) {
+    *category = JAMENDO_TRACK_CAT;
+    query += 6;
+  } else {
+    return FALSE;
+  }
+
+  *term = g_uri_escape_string (query, NULL, TRUE);
+  return TRUE;
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -656,7 +704,6 @@ static void
 ms_jamendo_source_metadata (MsMediaSource *source,
                             MsMediaSourceMetadataSpec *ms)
 {
-  MsContentMedia *media = NULL;
   Entry *entry = NULL;
   gchar *url = NULL;
   gchar *jamendo_keys = NULL;
@@ -777,7 +824,7 @@ ms_jamendo_source_metadata (MsMediaSource *source,
     }
   }
 
-  if (media) {
+  if (ms->media) {
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
   }
 
@@ -902,8 +949,91 @@ ms_jamendo_source_browse (MsMediaSource *source,
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
   } else {
+    xpe->type = BROWSE;
     xpe->bs = bs;
     g_idle_add (xml_parse_entries_idle, xpe);
     g_free (xmldata);
   }
 }
+
+/*
+ * Query format is "<type>=<text>", where <type> can be either 'artist', 'album'
+ * or 'track' and 'text' is the term to search.
+ *
+ * The result will be also a <type>.
+ *
+ * Example: search for artists that have the "Shake" in their name or description:
+ * "artist=Shake"
+ *
+ */
+static void
+ms_jamendo_source_query (MsMediaSource *source,
+                         MsMediaSourceQuerySpec *qs)
+{
+  GError *error = NULL;
+  JamendoCategory category;
+  gchar *term = NULL;
+  gchar *url;
+  gchar *jamendo_keys = NULL;
+  gchar *query = NULL;
+  XmlParseEntries *xpe = NULL;
+  gchar *xmldata;
+
+  g_debug ("ms_jamendo_source_query");
+
+  if (!parse_query (qs->query, &category, &term)) {
+    error = g_error_new (MS_ERROR,
+                         MS_ERROR_QUERY_FAILED,
+                         "Query malformed: '%s'",
+                         qs->query);
+    goto send_error;
+  }
+
+  jamendo_keys = get_jamendo_keys (category);
+  switch (category) {
+  case JAMENDO_ARTIST_CAT:
+    query = JAMENDO_SEARCH_ARTIST;
+    break;
+  case JAMENDO_ALBUM_CAT:
+    query = JAMENDO_SEARCH_ALBUM;
+    break;
+  case JAMENDO_TRACK_CAT:
+    query = JAMENDO_SEARCH_TRACK;
+    break;
+  }
+
+  url = g_strdup_printf (query,
+                         jamendo_keys,
+                         qs->count,
+                         qs->skip + 1,
+                         term);
+  g_free (term);
+
+  xmldata = read_url (url);
+  g_free (url);
+
+  if (!xmldata) {
+    error = g_error_new (MS_ERROR,
+                         MS_ERROR_QUERY_FAILED,
+                         "Failed to connect to Jamendo");
+    goto send_error;
+  }
+
+  xpe = xml_parse_result (xmldata, &error);
+  g_free (xmldata);
+  if (error) {
+    goto send_error;
+  }
+
+  xpe->type = QUERY;
+  xpe->qs = qs;
+  g_idle_add (xml_parse_entries_idle, xpe);
+
+  return;
+
+ send_error:
+  qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
+  g_error_free (error);
+}
+
+

@@ -781,6 +781,7 @@ ms_jamendo_source_metadata (MsMediaSource *source,
                              MS_ERROR_METADATA_FAILED,
                              "Invalid id: '%s'",
                              id);
+        g_strfreev (id_split);
         goto send_error;
       }
     } else {
@@ -788,6 +789,7 @@ ms_jamendo_source_metadata (MsMediaSource *source,
                            MS_ERROR_METADATA_FAILED,
                            "Invalid id: '%s'",
                            id);
+      g_strfreev (id_split);
       goto send_error;
     }
   }
@@ -799,6 +801,7 @@ ms_jamendo_source_metadata (MsMediaSource *source,
   if (url) {
     xmldata = read_url (url);
     g_free (url);
+
     if (!xmldata) {
       error = g_error_new (MS_ERROR,
                            MS_ERROR_METADATA_FAILED,
@@ -810,6 +813,7 @@ ms_jamendo_source_metadata (MsMediaSource *source,
     g_free (xmldata);
 
     if (error) {
+      g_free (xpe);
       goto send_error;
     }
 
@@ -824,6 +828,8 @@ ms_jamendo_source_metadata (MsMediaSource *source,
                            MS_ERROR_METADATA_FAILED,
                            "Unable to get information: '%s'",
                            id);
+      xmlFreeDoc (xpe->doc);
+      g_free (xpe);
       goto send_error;
     }
   }
@@ -835,16 +841,6 @@ ms_jamendo_source_metadata (MsMediaSource *source,
   return;
 
  send_error:
-  if (id_split) {
-    g_strfreev (id_split);
-  }
-
-  if (xpe) {
-    xmlFreeDoc (xpe->doc);
-    g_free (xpe);
-  }
-  g_free (xmldata);
-
   ms->callback (ms->source, NULL, ms->user_data, error);
   g_error_free (error);
 }
@@ -953,9 +949,15 @@ ms_jamendo_source_browse (MsMediaSource *source,
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
   } else {
-    xpe->type = BROWSE;
-    xpe->bs = bs;
-    g_idle_add (xml_parse_entries_idle, xpe);
+    /* Check if there are results */
+    if (xpe->node) {
+      xpe->type = BROWSE;
+      xpe->bs = bs;
+      g_idle_add (xml_parse_entries_idle, xpe);
+    } else {
+      bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, NULL);
+      g_free (xpe);
+    }
     g_free (xmldata);
   }
 }
@@ -1029,9 +1031,15 @@ ms_jamendo_source_query (MsMediaSource *source,
     goto send_error;
   }
 
-  xpe->type = QUERY;
-  xpe->qs = qs;
-  g_idle_add (xml_parse_entries_idle, xpe);
+  /* Check if there are results */
+  if (xpe->node) {
+    xpe->type = QUERY;
+    xpe->qs = qs;
+    g_idle_add (xml_parse_entries_idle, xpe);
+  } else {
+    qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, NULL);
+    g_free (xpe);
+  }
 
   return;
 

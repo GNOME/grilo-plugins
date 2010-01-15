@@ -149,6 +149,9 @@ static void ms_jamendo_source_browse (MsMediaSource *source,
 static void ms_jamendo_source_query (MsMediaSource *source,
                                      MsMediaSourceQuerySpec *qs);
 
+static void ms_jamendo_source_search (MsMediaSource *source,
+				      MsMediaSourceSearchSpec *ss);
+
 static gchar *read_url (const gchar *url);
 
 /* ==================== Global Data  ================= */
@@ -202,6 +205,7 @@ ms_jamendo_source_class_init (MsJamendoSourceClass * klass)
   source_class->metadata = ms_jamendo_source_metadata;
   source_class->browse = ms_jamendo_source_browse;
   source_class->query = ms_jamendo_source_query;
+  source_class->search = ms_jamendo_source_search;
   metadata_class->supported_keys = ms_jamendo_source_supported_keys;
 
   if (!gnome_vfs_init ()) {
@@ -1037,3 +1041,23 @@ ms_jamendo_source_query (MsMediaSource *source,
 }
 
 
+static void
+ms_jamendo_source_search (MsMediaSource *source,
+                          MsMediaSourceSearchSpec *ss)
+{
+  gchar *query;
+
+  g_debug ("ms_jamendo_source_search");
+
+  query = g_strconcat (JAMENDO_TRACK "=", ss->text, NULL);
+
+  ms_media_source_query (source,
+                         query,
+                         ss->keys,
+                         ss->skip,
+                         ss->count,
+                         ss->flags,
+                         ss->callback,
+                         ss->user_data);
+  g_free (query);
+}

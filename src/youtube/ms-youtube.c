@@ -110,6 +110,8 @@
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
 
+/* --- Data types --- */
+
 typedef void (*AsyncReadCbFunc) (gchar *data, gpointer user_data);
 
 typedef struct {
@@ -131,6 +133,7 @@ typedef struct {
   guint count;
   gboolean chained_chunk;
   gchar *query_url;
+  gboolean cancelled;
   MsMediaSourceResultCb callback;
   gpointer user_data;
 } OperationSpec;
@@ -188,6 +191,8 @@ static void ms_youtube_source_search (MsMediaSource *source,
 
 static void ms_youtube_source_browse (MsMediaSource *source,
 				      MsMediaSourceBrowseSpec *bs);
+
+static void ms_youtube_source_cancel (MsMediaSource *source, guint operation_id);
 
 static gchar *read_url (const gchar *url);
 
@@ -261,6 +266,7 @@ ms_youtube_source_class_init (MsYoutubeSourceClass * klass)
   MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
   source_class->browse = ms_youtube_source_browse;
   source_class->search = ms_youtube_source_search;
+  source_class->cancel = ms_youtube_source_cancel;
   source_class->metadata = ms_youtube_source_metadata;
   metadata_class->supported_keys = ms_youtube_source_supported_keys;
   metadata_class->slow_keys = ms_youtube_source_slow_keys;
@@ -665,30 +671,40 @@ parse_entries_idle (gpointer user_data)
 
   if (!parse_more) {
     xmlFreeDoc (pei->doc);
-    /* Dit we split the query in chunks? if so, query next chunk now */
-    if (pei->count == 0) {
-      /* This can only happen in youtube's totalResults is wrong
-	 (actually greater than it should be). If that's the case
-	 there are not more results and we must finish the operation now */
-      g_warning ("Wrong totalResults from Youtube " \
-		 "using NULL media to finish operation");
-      pei->os->callback (pei->os->source, 
-			 pei->os->operation_id,
-			 NULL,
-			 0,
-			 pei->os->user_data,
-			 NULL);
-      
-    } else  {
-      if (pei->os->count > 0) {
-	/* We can go for the next chunk */
-	produce_next_video_chunk (pei->os);
-      } else { 
-	/* No more chunks to produce */
-	free_operation_spec (pei->os);
+    /* Did we split the query in chunks? if so, query next chunk now */
+    if (!pei->os->cancelled && pei->os->count > 0 && pei->count > 0) {
+      /* We can go for the next chunk: operation not cancelled,
+	 still more results were requested and last chunk returned
+	 valid results */
+      produce_next_video_chunk (pei->os);
+    } else {
+      /* The operation is finished */
+      if (pei->os->cancelled && pei->os->count > 0) {
+	/* Operation cancelled before finalization. We stop the
+	   operation now */
+	g_debug ("Operation was cancelled, stopping next chunk");
+	pei->os->callback (pei->os->source, 
+			   pei->os->operation_id,
+			   NULL,
+			   0,
+			   pei->os->user_data,
+			   NULL);
+      } else if (pei->count == 0) {
+	/* This can only happen in youtube's totalResults is wrong
+	   (actually greater than it should be). If that's the case
+	   there are not more results and we must finish the operation now */
+	g_warning ("Wrong totalResults from Youtube "		\
+		   "using NULL media to finish operation");
+	pei->os->callback (pei->os->source, 
+			   pei->os->operation_id,
+			   NULL,
+			   0,
+			   pei->os->user_data,
+			   NULL); 
       }
-      g_free (pei);
+      free_operation_spec (pei->os);
     }
+    g_free (pei);
   }
   
   return parse_more;
@@ -1192,6 +1208,8 @@ produce_next_video_chunk (OperationSpec *os)
 {
   gchar *url;
 
+  g_debug ("produce_next_video_chunk");
+
   if (os->count > YOUTUBE_MAX_CHUNK) {
     url = g_strdup_printf (os->query_url, os->skip + 1, YOUTUBE_MAX_CHUNK);
   } else {
@@ -1317,6 +1335,7 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
     os->callback = bs->callback;
     os->user_data = bs->user_data;
 
+    ms_media_source_set_operation_data (source, os->operation_id, os);
     produce_videos_from_container (container_id, os, &error);
     if (error) {
       os->callback (os->source, os->operation_id, NULL,
@@ -1345,6 +1364,7 @@ ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
   os->callback = ss->callback;
   os->user_data = ss->user_data;
 
+  ms_media_source_set_operation_data (source, os->operation_id, os);
   produce_videos_from_search (ss->text, os, &error);
 
   if (error) {
@@ -1421,5 +1441,17 @@ ms_youtube_source_metadata (MsMediaSource *source,
     g_error_free (error);
   } else if (media) {
     ms->callback (ms->source, media, ms->user_data, NULL);
+  }
+}
+
+static void
+ms_youtube_source_cancel (MsMediaSource *source, guint operation_id)
+{
+  OperationSpec *spec;
+  g_debug ("ms_youtube_source_cancel");
+  spec = (OperationSpec *) ms_media_source_get_operation_data (source,
+							       operation_id);
+  if (spec) {
+    spec->cancelled = TRUE;
   }
 }

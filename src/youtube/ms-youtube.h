@@ -43,7 +43,6 @@ typedef struct _MsYoutubeSource MsYoutubeSource;
 struct _MsYoutubeSource {
 
   MsMediaSource parent;
-
 };
 
 typedef struct _MsYoutubeSourceClass MsYoutubeSourceClass;

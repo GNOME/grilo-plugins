@@ -126,7 +126,7 @@ typedef struct {
   union {
     MsMediaSourceBrowseSpec *bs;
     MsMediaSourceQuerySpec *qs;
-  };
+  } spec;
   xmlNodePtr node;
   xmlDocPtr doc;
   guint total_results;
@@ -546,20 +546,20 @@ xml_parse_entries_idle (gpointer user_data)
     xpe->index++;
     switch (xpe->type) {
     case BROWSE:
-      xpe->bs->callback (xpe->bs->source,
-                         xpe->bs->browse_id,
-                         media,
-                         xpe->total_results - xpe->index,
-                         xpe->bs->user_data,
-                         NULL);
+      xpe->spec.bs->callback (xpe->spec.bs->source,
+                              xpe->spec.bs->browse_id,
+                              media,
+                              xpe->total_results - xpe->index,
+                              xpe->spec.bs->user_data,
+                              NULL);
       break;
     case QUERY:
-      xpe->qs->callback (xpe->qs->source,
-                         xpe->qs->query_id,
-                         media,
-                         xpe->total_results - xpe->index,
-                         xpe->qs->user_data,
-                         NULL);
+      xpe->spec.qs->callback (xpe->spec.qs->source,
+                              xpe->spec.qs->query_id,
+                              media,
+                              xpe->total_results - xpe->index,
+                              xpe->spec.qs->user_data,
+                              NULL);
       break;
     }
 
@@ -952,7 +952,7 @@ ms_jamendo_source_browse (MsMediaSource *source,
     /* Check if there are results */
     if (xpe->node) {
       xpe->type = BROWSE;
-      xpe->bs = bs;
+      xpe->spec.bs = bs;
       g_idle_add (xml_parse_entries_idle, xpe);
     } else {
       bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, NULL);
@@ -1034,7 +1034,7 @@ ms_jamendo_source_query (MsMediaSource *source,
   /* Check if there are results */
   if (xpe->node) {
     xpe->type = QUERY;
-    xpe->qs = qs;
+    xpe->spec.qs = qs;
     g_idle_add (xml_parse_entries_idle, xpe);
   } else {
     qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, NULL);

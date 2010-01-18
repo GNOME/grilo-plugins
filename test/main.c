@@ -150,6 +150,15 @@ metadata_cb (MsMediaSource *source,
   g_debug ("  Metadata operation finished");
 }
 
+static void
+resolve_cb (MsMetadataSource *source,
+            MsContentMedia *media,
+            gpointer user_data,
+            const GError *error)
+{
+  metadata_cb (NULL, media, user_data, error);
+}
+
 gint
 main (void)
 {
@@ -183,6 +192,7 @@ main (void)
   ms_plugin_registry_load (registry, "../plugins/filesystem/.libs/libmsfilesystem.so");
   ms_plugin_registry_load (registry, "../plugins/jamendo/.libs/libmsjamendo.so");
   ms_plugin_registry_load (registry, "../plugins/fake-metadata/.libs/libfakemetadata.so");
+  ms_plugin_registry_load (registry, "../plugins/lastfm-albumart/.libs/liblastfm-albumart.so");
 
   g_debug ("Obtaining sources");
 
@@ -198,7 +208,10 @@ main (void)
   MsMetadataSource *fake = 
     (MsMetadataSource *) ms_plugin_registry_lookup_source (registry, "ms-fake-metadata");
 
-  g_assert (youtube && fs && jamendo && fake);
+  MsMetadataSource *lastfm =
+    (MsMetadataSource *) ms_plugin_registry_lookup_source (registry, "ms-lastfm-albumart");
+
+  g_assert (youtube && fs && jamendo && fake && lastfm);
 
   g_debug ("Supported operations");
 
@@ -206,6 +219,7 @@ main (void)
   print_supported_ops (MS_METADATA_SOURCE (fs));
   print_supported_ops (MS_METADATA_SOURCE (jamendo));
   print_supported_ops (fake);
+  print_supported_ops (lastfm);
 
   g_debug ("testing");
 
@@ -232,12 +246,22 @@ main (void)
   if (0) ms_media_source_metadata (jamendo, media_from_id("1"), keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, media_from_id("1/9"), keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, media_from_id("2/1225"), keys, 0, metadata_cb, NULL);
-  if (1) ms_media_source_metadata (jamendo, media_from_id("3/174"), keys, 0, metadata_cb, NULL);
+  if (0) ms_media_source_metadata (jamendo, media_from_id("3/174"), keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_query (jamendo, "artist=shake da", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_query (jamendo, "album=Nick", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_query (jamendo, "track=asylum mind", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_search (jamendo, "next", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  
+  if (1) {
+    MsContentMedia *media = media_from_id ("test");
+    ms_content_set_string (MS_CONTENT (media),
+                           MS_METADATA_KEY_ARTIST,
+                           "roxette");
+    ms_content_set_string (MS_CONTENT (media),
+                           MS_METADATA_KEY_ALBUM,
+                           "pop hits");
+    ms_metadata_source_resolve (lastfm, keys, media, MS_RESOLVE_IDLE_RELAY, resolve_cb, NULL);
+  }
+
   g_debug ("Running main loop");
 
   GMainLoop *loop = g_main_loop_new (NULL, FALSE);

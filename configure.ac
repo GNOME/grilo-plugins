@@ -117,6 +117,7 @@ AC_CONFIG_FILES([
   src/fake-metadata/Makefile
   src/filesystem/Makefile
   src/jamendo/Makefile
+  src/lastfm-albumart/Makefile
   test/Makefile
 ])
 

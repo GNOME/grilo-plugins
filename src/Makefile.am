@@ -9,11 +9,11 @@ SUBDIRS = fake-metadata filesystem
 
 if HAVE_VFS
 if HAVE_XML
-SUBDIRS += youtube jamendo
+SUBDIRS += youtube jamendo lastfm-albumart
 endif
 endif
 
-DIST_SUBDIRS = youtube fake-metadata filesystem jamendo
+DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart
 
 MAINTAINERCLEANFILES = \
         *.in \

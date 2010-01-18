@@ -58,7 +58,7 @@ gboolean fake_metadata_source_plugin_init (MsPluginRegistry *registry,
 					   const MsPluginInfo *plugin);
 
 
-/* =================== Youtube Plugin  =============== */
+/* =================== Fake Metadata Plugin  =============== */
 
 gboolean
 fake_metadata_source_plugin_init (MsPluginRegistry *registry,
@@ -80,7 +80,7 @@ MS_PLUGIN_REGISTER (fake_metadata_source_plugin_init,
                     LICENSE, 
                     SITE);
 
-/* ================== Youtube GObject ================ */
+/* ================== Fake Metadata GObject ================ */
 
 static FakeMetadataSource *
 fake_metadata_source_new (void)

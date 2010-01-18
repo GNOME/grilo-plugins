@@ -95,6 +95,7 @@
 /* --- Other --- */
 
 #define YOUTUBE_MAX_CHUNK   50
+#define YOUTUBE_VIDEO_MIME  "application/x-shockwave-flash"
 
 /* --- Plugin information --- */
 
@@ -518,6 +519,9 @@ build_media_from_entry (const Entry *entry, const GList *keys)
       break;
     case MS_METADATA_KEY_DURATION:
       ms_content_media_set_duration (media, atoi (entry->duration));
+      break;
+    case MS_METADATA_KEY_MIME:
+      ms_content_media_set_mime (media, YOUTUBE_VIDEO_MIME);
       break;
     case MS_METADATA_KEY_URL:
       if (!entry->restricted) {
@@ -1288,6 +1292,7 @@ ms_youtube_source_supported_keys (MsMetadataSource *source)
 				     MS_METADATA_KEY_DURATION,
 				     MS_METADATA_KEY_DATE,
 				     MS_METADATA_KEY_THUMBNAIL,
+				     MS_METADATA_KEY_MIME,
 				     MS_METADATA_KEY_CHILDCOUNT,
 				     NULL);
   }

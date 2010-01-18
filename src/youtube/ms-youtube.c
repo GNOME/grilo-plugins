@@ -647,30 +647,33 @@ parse_entries_idle (gpointer user_data)
 
   g_debug ("parse_entries_idle");
 
-  while (pei->node && xmlStrcmp (pei->node->name,
-				 (const xmlChar *) "entry")) {
-    pei->node = pei->node->next;
-  }
-
-  if (pei->node) {
-    Entry *entry = g_new0 (Entry, 1);
-    parse_entry (pei->doc, pei->node, entry);
-    if (0) print_entry (entry);
-    MsContentMedia *media = build_media_from_entry (entry, pei->os->keys);
-    free_entry (entry);
+  /* Do not bother if operation was cancelled */
+  if (!pei->os->cancelled) {
+    while (pei->node && xmlStrcmp (pei->node->name,
+				   (const xmlChar *) "entry")) {
+      pei->node = pei->node->next;
+    }
     
-    pei->os->skip++;
-    pei->os->count--;
-    pei->count++;
-    pei->os->callback (pei->os->source,
-		       pei->os->operation_id,
-		       media,
-		       pei->os->count,
-		       pei->os->user_data,
-		       NULL);
-    
-    parse_more = TRUE;
-    pei->node = pei->node->next;
+    if (pei->node) {
+      Entry *entry = g_new0 (Entry, 1);
+      parse_entry (pei->doc, pei->node, entry);
+      if (0) print_entry (entry);
+      MsContentMedia *media = build_media_from_entry (entry, pei->os->keys);
+      free_entry (entry);
+      
+      pei->os->skip++;
+      pei->os->count--;
+      pei->count++;
+      pei->os->callback (pei->os->source,
+			 pei->os->operation_id,
+			 media,
+			 pei->os->count,
+			 pei->os->user_data,
+			 NULL);
+      
+      parse_more = TRUE;
+      pei->node = pei->node->next;
+    }
   }
 
   if (!parse_more) {

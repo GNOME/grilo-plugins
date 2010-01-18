@@ -124,6 +124,7 @@ typedef struct {
   gchar *thumbnail;
   gchar *description;
   gchar *duration;
+  gchar *rating;
   gboolean restricted;
 } Entry; 
 
@@ -300,6 +301,7 @@ print_entry (Entry *entry)
   g_print ("        Author: %s\n", entry->author);
   g_print ("      Duration: %s\n", entry->duration);
   g_print ("     Thumbnail: %s\n", entry->thumbnail);
+  g_print ("        Rating: %s\n", entry->rating);
   g_print ("   Description: %s\n", entry->description);
 }
 
@@ -313,6 +315,7 @@ free_entry (Entry *entry)
   g_free (entry->duration);
   g_free (entry->thumbnail);
   g_free (entry->description);
+  g_free (entry->rating);
   g_free (entry);
 }
 
@@ -527,6 +530,9 @@ build_media_from_entry (const Entry *entry, const GList *keys)
     case MS_METADATA_KEY_SITE:
       ms_content_media_set_site (media, YOUTUBE_SITE_URL);
       break;
+    case MS_METADATA_KEY_RATING:
+      ms_content_media_set_rating (media, entry->rating, "5.00");
+      break;
     case MS_METADATA_KEY_URL:
       if (!entry->restricted) {
 	url = get_video_url (entry->id);
@@ -637,6 +643,9 @@ parse_entry (xmlDocPtr doc, xmlNodePtr entry, Entry *data)
     } else if (ns && !xmlStrcmp (ns->prefix, (const xmlChar *) "app") && 
 	       !xmlStrcmp (node->name, (const xmlChar *) "control")) {
       parse_app_control (doc, node, data);
+    } else if (ns && !xmlStrcmp (ns->prefix, (const xmlChar *) "gd") &&
+	       !xmlStrcmp (node->name, (const xmlChar *) "rating")) {
+      data->rating = (gchar *) xmlGetProp (node, (xmlChar *) "average");
     }
 
     node = node->next;
@@ -1303,6 +1312,7 @@ ms_youtube_source_supported_keys (MsMetadataSource *source)
 				     MS_METADATA_KEY_MIME,
 				     MS_METADATA_KEY_CHILDCOUNT,
 				     MS_METADATA_KEY_SITE,
+				     MS_METADATA_KEY_RATING,
 				     NULL);
   }
   return keys;

@@ -96,6 +96,7 @@
 
 #define YOUTUBE_MAX_CHUNK   50
 #define YOUTUBE_VIDEO_MIME  "application/x-shockwave-flash"
+#define YOUTUBE_SITE_URL    "www.youtube.com"
 
 /* --- Plugin information --- */
 
@@ -522,6 +523,9 @@ build_media_from_entry (const Entry *entry, const GList *keys)
       break;
     case MS_METADATA_KEY_MIME:
       ms_content_media_set_mime (media, YOUTUBE_VIDEO_MIME);
+      break;
+    case MS_METADATA_KEY_SITE:
+      ms_content_media_set_site (media, YOUTUBE_SITE_URL);
       break;
     case MS_METADATA_KEY_URL:
       if (!entry->restricted) {
@@ -1092,6 +1096,7 @@ produce_container_from_directory (CategoryInfo *dir,
     ms_content_media_set_id (content, dir[index].id);
     ms_content_media_set_title (content, dir[index].name);
   }
+  ms_content_media_set_site (content, YOUTUBE_SITE_URL);
   if (set_childcount) {
     set_category_childcount (MS_CONTENT_BOX (content), dir, index);
   }
@@ -1297,6 +1302,7 @@ ms_youtube_source_supported_keys (MsMetadataSource *source)
 				     MS_METADATA_KEY_THUMBNAIL,
 				     MS_METADATA_KEY_MIME,
 				     MS_METADATA_KEY_CHILDCOUNT,
+				     MS_METADATA_KEY_SITE,
 				     NULL);
   }
   return keys;

@@ -27,6 +27,7 @@
 #endif
 
 #include <media-store.h>
+#include <gio/gio.h>
 #include <libgnomevfs/gnome-vfs.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
@@ -93,6 +94,7 @@
 #define SITE        "http://www.igalia.com"
 
 enum {
+  METADATA,
   BROWSE,
   QUERY
 };
@@ -259,36 +261,150 @@ free_entry (Entry *entry)
   g_free (entry);
 }
 
-static gchar *
-read_url (const gchar *url)
+static gint
+xml_count_children (xmlNodePtr node)
 {
-  gchar buffer[1025];
-  GnomeVFSFileSize bytes_read;
-  GnomeVFSResult r;
-  GString *data;
-  GnomeVFSHandle *fh;
+#if (LIBXML2_VERSION >= 20700)
+  return xmlChildElementCount (node);
+#else
+  gint nchildren = 0;
+  xmlNodePtr i = node->xmlChildrenNode;
 
-  /* Open URL */
-  g_debug ("Opening '%s'", url);
-  r = gnome_vfs_open (&fh, url, GNOME_VFS_OPEN_READ);
-  if (r != GNOME_VFS_OK) {
-    g_warning ("Failed to open '%s' - %d", url, r);
-    return NULL;
+  while (i) {
+    nchildren++;
+    i = i->next;
   }
 
-  /* Read URL contents */
-  g_debug ("Reading data from '%s'", url);
-  data = g_string_new ("");
-  do {
-    gnome_vfs_read (fh, buffer, 1024, &bytes_read);
-    buffer[bytes_read] = '\0';
-    g_string_append (data, buffer);
-  } while (bytes_read > 0);
-  g_debug ("  Done reading data from url");
+  return nchildren;
+#endif
+}
 
-  gnome_vfs_close (fh);
+static void
+xml_parse_result2 (const gchar *str, GError **error, XmlParseEntries *xpe)
+{
+  xmlDocPtr doc;
+  xmlNodePtr node;
+  gint child_nodes = 0;
 
-  return g_string_free (data, FALSE);
+  doc = xmlRecoverDoc ((xmlChar *) str);
+  if (!doc) {
+    *error = g_error_new (MS_ERROR,
+			  MS_ERROR_BROWSE_FAILED,
+			  "Failed to parse Jamendo's response");
+    goto free_resources;
+  }
+
+  node = xmlDocGetRootElement (doc);
+  if (!node) {
+    *error = g_error_new (MS_ERROR,
+			  MS_ERROR_BROWSE_FAILED,
+			  "Empty response from Jamendo");
+    goto free_resources;
+  }
+
+  if (xmlStrcmp (node->name, (const xmlChar *) "data")) {
+    *error = g_error_new (MS_ERROR,
+			  MS_ERROR_BROWSE_FAILED,
+			  "Unexpected response from Jamendo: no data");
+    goto free_resources;
+  }
+
+  child_nodes = xml_count_children (node);
+  node = node->xmlChildrenNode;
+
+  xpe->node = node;
+  xpe->doc = doc;
+  xpe->total_results = child_nodes;
+
+  return;
+
+ free_resources:
+  xmlFreeDoc (doc);
+}
+
+static Entry *
+xml_parse_entry (xmlDocPtr doc, xmlNodePtr entry)
+{
+  xmlNodePtr node;
+  xmlNs *ns;
+  Entry *data = g_new0 (Entry, 1);
+
+  if (strcmp ((gchar *) entry->name, JAMENDO_ARTIST) == 0) {
+    data->category = JAMENDO_ARTIST_CAT;
+  } else if (strcmp ((gchar *) entry->name, JAMENDO_ALBUM) == 0) {
+    data->category = JAMENDO_ALBUM_CAT;
+  } else if (strcmp ((gchar *) entry->name, JAMENDO_TRACK) == 0) {
+    data->category = JAMENDO_TRACK_CAT;
+  } else {
+    g_return_val_if_reached (NULL);
+  }
+
+  node = entry->xmlChildrenNode;
+
+  while (node) {
+    ns = node->ns;
+
+    if (!xmlStrcmp (node->name, (const xmlChar *) "id")) {
+      data->id =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_name")) {
+      data->artist_name =
+	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_name")) {
+      data->album_name =
+	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_genre")) {
+      data->artist_genre =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_url")) {
+      data->artist_url =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_image")) {
+      data->artist_image =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_genre")) {
+      data->album_genre =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_url")) {
+      data->album_url =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_duration")) {
+      data->album_duration =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_image")) {
+      data->album_image =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_name")) {
+      data->track_name =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_url")) {
+      data->track_url =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_stream")) {
+      data->track_stream =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_duration")) {
+      data->track_duration =
+        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+    }
+
+    node = node->next;
+  }
+
+  return data;
 }
 
 static void
@@ -382,141 +498,6 @@ update_media_from_entry (MsContentMedia *media, const Entry *entry)
   }
 }
 
-
-static void
-update_media_from_root (MsContentMedia *media)
-{
-  ms_content_media_set_title (media, JAMENDO_ROOT_NAME);
-  ms_content_box_set_childcount (MS_CONTENT_BOX (media), 2);
-}
-
-static void
-update_media_from_artists (MsContentMedia *media)
-{
-  Entry *entry;
-
-  entry = g_new0 (Entry, 1);
-  entry->category = JAMENDO_ARTIST_CAT;
-  entry->artist_name = g_strdup (JAMENDO_ARTIST "s");
-  update_media_from_entry (media, entry);
-  free_entry (entry);
-}
-
-static void
-update_media_from_albums (MsContentMedia *media)
-{
-  Entry *entry;
-
-  entry = g_new0 (Entry, 1);
-  entry->category = JAMENDO_ALBUM_CAT;
-  entry->album_name = g_strdup (JAMENDO_ALBUM "s");
-  update_media_from_entry (media, entry);
-  free_entry (entry);
-}
-
-static Entry *
-xml_parse_entry (xmlDocPtr doc, xmlNodePtr entry)
-{
-  xmlNodePtr node;
-  xmlNs *ns;
-  Entry *data = g_new0 (Entry, 1);
-
-  if (strcmp ((gchar *) entry->name, JAMENDO_ARTIST) == 0) {
-    data->category = JAMENDO_ARTIST_CAT;
-  } else if (strcmp ((gchar *) entry->name, JAMENDO_ALBUM) == 0) {
-    data->category = JAMENDO_ALBUM_CAT;
-  } else if (strcmp ((gchar *) entry->name, JAMENDO_TRACK) == 0) {
-    data->category = JAMENDO_TRACK_CAT;
-  } else {
-    g_return_val_if_reached (NULL);
-  }
-
-  node = entry->xmlChildrenNode;
-
-  while (node) {
-    ns = node->ns;
-
-    if (!xmlStrcmp (node->name, (const xmlChar *) "id")) {
-      data->id =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_name")) {
-      data->artist_name =
-	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_name")) {
-      data->album_name =
-	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_genre")) {
-      data->artist_genre =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_url")) {
-      data->artist_url =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "artist_image")) {
-      data->artist_image =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_genre")) {
-      data->album_genre =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_url")) {
-      data->album_url =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_duration")) {
-      data->album_duration =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "album_image")) {
-      data->album_image =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_name")) {
-      data->track_name =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_url")) {
-      data->track_url =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_stream")) {
-      data->track_stream =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-
-    } else if (!xmlStrcmp (node->name, (const xmlChar *) "track_duration")) {
-      data->track_duration =
-        (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
-    }
-
-    node = node->next;
-  }
-
-  return data;
-}
-
-static gint
-xml_count_children (xmlNodePtr node)
-{
-#if (LIBXML2_VERSION >= 20700)
-  return xmlChildElementCount (node);
-#else
-  gint nchildren = 0;
-  xmlNodePtr i = node->xmlChildrenNode;
-
-  while (i) {
-    nchildren++;
-    i = i->next;
-  }
-
-  return nchildren;
-#endif
-}
-
 static gboolean
 xml_parse_entries_idle (gpointer user_data)
 {
@@ -569,6 +550,166 @@ xml_parse_entries_idle (gpointer user_data)
   }
 
   return parse_more;
+}
+
+static void
+read_done_cb (GObject *source_object,
+              GAsyncResult *res,
+              gpointer user_data)
+{
+  XmlParseEntries *xpe = (XmlParseEntries *) user_data;
+  gint error_code;
+  GError *vfs_error = NULL;
+  GError *error = NULL;
+  gchar *content = NULL;
+
+  /* Check if operation was cancelled */
+  if (xpe->cancelled) {
+    g_object_unref (source_object);
+    g_free (xpe);
+    return;
+  }
+
+  if (!g_file_load_contents_finish (G_FILE (source_object), res, &content, NULL, NULL, &vfs_error)) {
+    switch (xpe->type) {
+    case METADATA:
+      error_code = MS_ERROR_METADATA_FAILED;
+      break;
+    case BROWSE:
+      error_code = MS_ERROR_BROWSE_FAILED;
+      break;
+    case QUERY:
+      error_code = MS_ERROR_QUERY_FAILED;
+      break;
+    }
+
+    error = g_error_new (MS_ERROR,
+                         error_code,
+                         "Failed to connect Jamendo: '%s'",
+                         vfs_error->message);
+    g_object_unref (source_object);
+    goto invoke_cb;
+  }
+
+  g_object_unref (source_object);
+
+  xml_parse_result2 (content, &error, xpe);
+  g_free (content);
+
+  if (error) {
+    goto invoke_cb;
+  }
+
+  if (xpe->node) {
+    g_idle_add (xml_parse_entries_idle, xpe);
+  } else {
+    goto invoke_cb;
+  }
+
+  return;
+
+ invoke_cb:
+  switch (xpe->type) {
+  case METADATA:
+    break;
+  case BROWSE:
+    xpe->spec.bs->callback (xpe->spec.bs->source,
+                            xpe->spec.bs->browse_id,
+                            NULL,
+                            0,
+                            xpe->spec.bs->user_data,
+                            error);
+    break;
+  case QUERY:
+    xpe->spec.qs->callback (xpe->spec.qs->source,
+                            xpe->spec.qs->query_id,
+                            NULL,
+                            0,
+                            xpe->spec.qs->user_data,
+                            error);
+    break;
+  }
+
+  g_free (xpe);
+  if (error) {
+    g_error_free (error);
+  }
+}
+
+static void
+read_url_async (const gchar *url, gpointer user_data)
+{
+  GVfs *vfs;
+  GFile *uri;
+
+  vfs = g_vfs_get_default ();
+
+  g_debug ("Opening '%s'", url);
+  uri = g_vfs_get_file_for_uri (vfs, url);
+  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
+}
+
+static gchar *
+read_url (const gchar *url)
+{
+  gchar buffer[1025];
+  GnomeVFSFileSize bytes_read;
+  GnomeVFSResult r;
+  GString *data;
+  GnomeVFSHandle *fh;
+
+  /* Open URL */
+  g_debug ("Opening '%s'", url);
+  r = gnome_vfs_open (&fh, url, GNOME_VFS_OPEN_READ);
+  if (r != GNOME_VFS_OK) {
+    g_warning ("Failed to open '%s' - %d", url, r);
+    return NULL;
+  }
+
+  /* Read URL contents */
+  g_debug ("Reading data from '%s'", url);
+  data = g_string_new ("");
+  do {
+    gnome_vfs_read (fh, buffer, 1024, &bytes_read);
+    buffer[bytes_read] = '\0';
+    g_string_append (data, buffer);
+  } while (bytes_read > 0);
+  g_debug ("  Done reading data from url");
+
+  gnome_vfs_close (fh);
+
+  return g_string_free (data, FALSE);
+}
+
+static void
+update_media_from_root (MsContentMedia *media)
+{
+  ms_content_media_set_title (media, JAMENDO_ROOT_NAME);
+  ms_content_box_set_childcount (MS_CONTENT_BOX (media), 2);
+}
+
+static void
+update_media_from_artists (MsContentMedia *media)
+{
+  Entry *entry;
+
+  entry = g_new0 (Entry, 1);
+  entry->category = JAMENDO_ARTIST_CAT;
+  entry->artist_name = g_strdup (JAMENDO_ARTIST "s");
+  update_media_from_entry (media, entry);
+  free_entry (entry);
+}
+
+static void
+update_media_from_albums (MsContentMedia *media)
+{
+  Entry *entry;
+
+  entry = g_new0 (Entry, 1);
+  entry->category = JAMENDO_ALBUM_CAT;
+  entry->album_name = g_strdup (JAMENDO_ALBUM "s");
+  update_media_from_entry (media, entry);
+  free_entry (entry);
 }
 
 static XmlParseEntries *
@@ -844,12 +985,12 @@ static void
 ms_jamendo_source_browse (MsMediaSource *source,
                           MsMediaSourceBrowseSpec *bs)
 {
-  gchar *xmldata, *url, *jamendo_keys;
-  GError *error = NULL;
+  gchar *url, *jamendo_keys;
   gchar **container_split = NULL;
   JamendoCategory category;
   XmlParseEntries *xpe = NULL;
   const gchar *container_id;
+  GError *error = NULL;
 
   g_debug ("ms_jamendo_source_browse");
 
@@ -924,37 +1065,14 @@ ms_jamendo_source_browse (MsMediaSource *source,
     return;
   }
 
-  xmldata = read_url (url);
+  xpe = g_new0 (XmlParseEntries, 1);
+  xpe->type = BROWSE;
+  xpe->spec.bs = bs;
+
+  read_url_async (url, xpe);
   g_free (url);
   if (container_split) {
     g_strfreev (container_split);
-  }
-
-  if (!xmldata) {
-    error = g_error_new (MS_ERROR,
-                         MS_ERROR_BROWSE_FAILED,
-                         "Failed to connect to Jamendo");
-    bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, error);
-    g_error_free (error);
-    return;
-  }
-
-  xpe = xml_parse_result (xmldata, &error);
-  if (error) {
-    bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
-    g_error_free (error);
-  } else {
-    /* Check if there are results */
-    if (xpe->node) {
-      xpe->type = BROWSE;
-      xpe->spec.bs = bs;
-      ms_media_source_set_operation_data (source, bs->browse_id, xpe);
-      g_idle_add (xml_parse_entries_idle, xpe);
-    } else {
-      bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, NULL);
-      g_free (xpe);
-    }
-    g_free (xmldata);
   }
 }
 

@@ -1097,7 +1097,6 @@ ms_jamendo_source_query (MsMediaSource *source,
   gchar *jamendo_keys = NULL;
   gchar *query = NULL;
   XmlParseEntries *xpe = NULL;
-  gchar *xmldata;
 
   g_debug ("ms_jamendo_source_query");
 
@@ -1129,32 +1128,12 @@ ms_jamendo_source_query (MsMediaSource *source,
                          term);
   g_free (term);
 
-  xmldata = read_url (url);
+  xpe = g_new0 (XmlParseEntries, 1);
+  xpe->type = QUERY;
+  xpe->spec.qs = qs;
+
+  read_url_async (url, xpe);
   g_free (url);
-
-  if (!xmldata) {
-    error = g_error_new (MS_ERROR,
-                         MS_ERROR_QUERY_FAILED,
-                         "Failed to connect to Jamendo");
-    goto send_error;
-  }
-
-  xpe = xml_parse_result (xmldata, &error);
-  g_free (xmldata);
-  if (error) {
-    goto send_error;
-  }
-
-  /* Check if there are results */
-  if (xpe->node) {
-    xpe->type = QUERY;
-    xpe->spec.qs = qs;
-    ms_media_source_set_operation_data (source, qs->query_id, xpe);
-    g_idle_add (xml_parse_entries_idle, xpe);
-  } else {
-    qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, NULL);
-    g_free (xpe);
-  }
 
   return;
 

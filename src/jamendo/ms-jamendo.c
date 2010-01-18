@@ -131,6 +131,7 @@ typedef struct {
   xmlDocPtr doc;
   guint total_results;
   guint index;
+  gboolean cancelled;
 } XmlParseEntries;
 
 static MsJamendoSource *ms_jamendo_source_new (void);
@@ -152,15 +153,8 @@ static void ms_jamendo_source_query (MsMediaSource *source,
 static void ms_jamendo_source_search (MsMediaSource *source,
 				      MsMediaSourceSearchSpec *ss);
 
-static gchar *read_url (const gchar *url);
-
-/* ==================== Global Data  ================= */
-
-guint root_dir_size = 2;
-
-guint feeds_dir_size = 7;
-
-guint categories_dir_size = 0;
+static void ms_jamendo_source_cancel (MsMediaSource *source,
+                                      guint operation_id);
 
 /* =================== Jamendo Plugin  =============== */
 
@@ -206,6 +200,7 @@ ms_jamendo_source_class_init (MsJamendoSourceClass * klass)
   source_class->browse = ms_jamendo_source_browse;
   source_class->query = ms_jamendo_source_query;
   source_class->search = ms_jamendo_source_search;
+  source_class->cancel = ms_jamendo_source_cancel;
   metadata_class->supported_keys = ms_jamendo_source_supported_keys;
 
   if (!gnome_vfs_init ()) {
@@ -526,13 +521,15 @@ static gboolean
 xml_parse_entries_idle (gpointer user_data)
 {
   XmlParseEntries *xpe = (XmlParseEntries *) user_data;
-  gboolean parse_more = FALSE;
+  gboolean parse_more;
   MsContentMedia *media;
   Entry *entry;
 
   g_debug ("xml_parse_entries_idle");
 
-  if (xpe->node) {
+  parse_more = (xpe->cancelled == FALSE && xpe->node);
+
+  if (parse_more) {
     entry = xml_parse_entry (xpe->doc, xpe->node);
     if (entry->category == JAMENDO_TRACK_CAT) {
       media = ms_content_audio_new ();
@@ -563,7 +560,6 @@ xml_parse_entries_idle (gpointer user_data)
       break;
     }
 
-    parse_more = TRUE;
     xpe->node = xpe->node->next;
   }
 
@@ -608,11 +604,10 @@ xml_parse_result (const gchar *str, GError **error)
   child_nodes = xml_count_children (node);
   node = node->xmlChildrenNode;
 
-  XmlParseEntries *xpe = g_new (XmlParseEntries, 1);
+  XmlParseEntries *xpe = g_new0 (XmlParseEntries, 1);
   xpe->node = node;
   xpe->doc = doc;
   xpe->total_results = child_nodes;
-  xpe->index = 0;
 
   return xpe;
 
@@ -953,6 +948,7 @@ ms_jamendo_source_browse (MsMediaSource *source,
     if (xpe->node) {
       xpe->type = BROWSE;
       xpe->spec.bs = bs;
+      ms_media_source_set_operation_data (source, bs->browse_id, xpe);
       g_idle_add (xml_parse_entries_idle, xpe);
     } else {
       bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, NULL);
@@ -1035,6 +1031,7 @@ ms_jamendo_source_query (MsMediaSource *source,
   if (xpe->node) {
     xpe->type = QUERY;
     xpe->spec.qs = qs;
+    ms_media_source_set_operation_data (source, qs->query_id, xpe);
     g_idle_add (xml_parse_entries_idle, xpe);
   } else {
     qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, NULL);
@@ -1068,4 +1065,18 @@ ms_jamendo_source_search (MsMediaSource *source,
                          ss->callback,
                          ss->user_data);
   g_free (query);
+}
+
+static void
+ms_jamendo_source_cancel (MsMediaSource *source, guint operation_id)
+{
+  XmlParseEntries *xpe;
+
+  g_debug ("ms_jamendo_source_cancel");
+
+  xpe = (XmlParseEntries *) ms_media_source_get_operation_data (source, operation_id);
+
+  if (xpe) {
+    xpe->cancelled = TRUE;
+  }
 }

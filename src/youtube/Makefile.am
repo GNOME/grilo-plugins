@@ -24,3 +24,5 @@ libmsyoutube_la_SOURCES = ms-youtube.c ms-youtube.h
 MAINTAINERCLEANFILES	 = \
 	*.in \
 	*~
+
+DISTCLEANFILES = $(MAINTAINERCLEANFILES)

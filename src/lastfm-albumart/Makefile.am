@@ -24,3 +24,5 @@ liblastfm_albumart_la_SOURCES = ms-lastfm-albumart.c ms-lastfm-albumart.h
 MAINTAINERCLEANFILES =	\
 	*.in	\
 	*~
+
+DISTCLEANFILES = $(MAINTAINERCLEANFILES)

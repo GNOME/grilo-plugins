@@ -24,3 +24,5 @@ libmsjamendo_la_SOURCES	 = ms-jamendo.c ms-jamendo.h
 MAINTAINERCLEANFILES	 = \
 	*.in \
 	*~
+
+DISTCLEANFILES = $(MAINTAINERCLEANFILES)

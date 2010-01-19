@@ -20,3 +20,5 @@ libfakemetadata_la_SOURCES = fake-metadata.c fake-metadata.h
 MAINTAINERCLEANFILES	 = \
 	*.in \
 	*~
+
+DISTCLEANFILES = $(MAINTAINERCLEANFILES)

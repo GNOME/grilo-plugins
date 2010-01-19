@@ -22,3 +22,5 @@ libmsfilesystem_la_SOURCES = ms-filesystem.c ms-filesystem.h
 MAINTAINERCLEANFILES	 = \
 	*.in \
 	*~
+
+DISTCLEANFILES = $(MAINTAINERCLEANFILES)

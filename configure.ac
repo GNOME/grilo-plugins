@@ -73,13 +73,17 @@ AM_CONDITIONAL([DEBUG], [test "x$enable_debug" = "xyes"])
 
 PKG_CHECK_MODULES(DEPS, glib-2.0 \
 			gobject-2.0 \
-			gmodule-2.0)
+			gmodule-2.0 \
+			grilo-0.1)
 
 
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
-# Plugins
+PLUGINS_DIR=`pkg-config --variable=plugindir grilo-0.1`
+AC_SUBST(PLUGINS_DIR)
+
+# Plugins requirements
 
 PKG_CHECK_MODULES(VFS, gnome-vfs-2.0, HAVE_VFS=yes, HAVE_VFS=no)
 AC_SUBST(VFS_CFLAGS)

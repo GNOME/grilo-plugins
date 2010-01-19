@@ -10,16 +10,16 @@ lib_LTLIBRARIES = liblastfm-albumart.la
 liblastfm_albumart_la_CFLAGS = 	\
 	$(DEPS_CFLAGS) 	\
 	$(VFS_CFLAGS) 	\
-	$(XML_CFLAGS) 	\
-	../../src
+	$(XML_CFLAGS) 
 
 liblastfm_albumart_la_LIBADD =	\
 	$(DEPS_LIBS)	\
 	$(VFS_LIBS)	\
-	$(XML_LIBS)	\
-	../../src/libmediastore.la
+	$(XML_LIBS)
 
 liblastfm_albumart_la_SOURCES = ms-lastfm-albumart.c ms-lastfm-albumart.h
+
+libdir=$(PLUGINS_DIR)
 
 MAINTAINERCLEANFILES =	\
 	*.in	\

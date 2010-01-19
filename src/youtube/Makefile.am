@@ -10,16 +10,16 @@ lib_LTLIBRARIES		 = libmsyoutube.la
 libmsyoutube_la_CFLAGS	 = \
 	$(DEPS_CFLAGS) \
 	$(VFS_CFLAGS) \
-	$(XML_CFLAGS) \
-	../../src
+	$(XML_CFLAGS) 
 
 libmsyoutube_la_LIBADD	 = \
 	$(DEPS_LIBS) \
 	$(VFS_LIBS) \
-	$(XML_LIBS) \
-	../../src/libmediastore.la
+	$(XML_LIBS)
 
 libmsyoutube_la_SOURCES = ms-youtube.c ms-youtube.h
+
+libdir=$(PLUGINS_DIR)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

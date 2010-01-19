@@ -8,14 +8,14 @@
 lib_LTLIBRARIES		 = libfakemetadata.la
 
 libfakemetadata_la_CFLAGS = \
-	$(DEPS_CFLAGS) \
-	../../src
+	$(DEPS_CFLAGS) 
 
 libfakemetadata_la_LIBADD = \
-	$(DEPS_LIBS) \
-	../../src/libmediastore.la
+	$(DEPS_LIBS) 
 
 libfakemetadata_la_SOURCES = fake-metadata.c fake-metadata.h
+
+libdir=$(PLUGINS_DIR)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

@@ -9,15 +9,15 @@ lib_LTLIBRARIES		 = libmsfilesystem.la
 
 libmsfilesystem_la_CFLAGS	 = \
 	$(DEPS_CFLAGS) \
-	$(GIO_CFLAGS) \
-	../../src
+	$(GIO_CFLAGS) 
 
 libmsfilesystem_la_LIBADD	 = \
 	$(DEPS_LIBS) \
-	$(GIO_LIBS) \
-	../../src/libmediastore.la
+	$(GIO_LIBS) 
 
 libmsfilesystem_la_SOURCES = ms-filesystem.c ms-filesystem.h
+
+libdir=$(PLUGINS_DIR)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

@@ -10,16 +10,16 @@ lib_LTLIBRARIES		 = libmsjamendo.la
 libmsjamendo_la_CFLAGS	 = \
 	$(DEPS_CFLAGS) \
 	$(VFS_CFLAGS) \
-	$(XML_CFLAGS) \
-	../../src
+	$(XML_CFLAGS) 
 
 libmsjamendo_la_LIBADD	 = \
 	$(DEPS_LIBS) \
 	$(VFS_LIBS) \
-	$(XML_LIBS) \
-	../../src/libmediastore.la
+	$(XML_LIBS) 
 
 libmsjamendo_la_SOURCES	 = ms-jamendo.c ms-jamendo.h
+
+libdir=$(PLUGINS_DIR)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

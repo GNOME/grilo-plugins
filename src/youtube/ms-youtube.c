@@ -131,7 +131,9 @@ typedef struct {
 typedef struct {
   MsMediaSource *source;
   guint operation_id;
-  const GList *keys;
+  const gchar *container_id;
+  GList *keys;
+  MsMetadataResolutionFlags flags;
   guint skip;
   guint count;
   gboolean chained_chunk;
@@ -167,6 +169,14 @@ typedef struct {
   gchar *url;
   GString *data;
 } AsyncReadCb;
+
+typedef struct {
+  OperationSpec *os;
+  CategoryInfo *directory;
+  guint index;
+  guint remaining;
+  gboolean set_childcount;
+} ProduceFromDirectoryIdle;
 
 typedef enum {
   YOUTUBE_MEDIA_TYPE_ROOT,
@@ -1149,10 +1159,41 @@ classify_media_id (const gchar *media_id)
   }
 }
 
+static gboolean
+produce_from_directory_idle (gpointer user_data)
+{
+  MsContentMedia *content;
+  ProduceFromDirectoryIdle *pfdi = (ProduceFromDirectoryIdle *) user_data;
+
+  if (!pfdi->os->cancelled) {
+    content = produce_container_from_directory (pfdi->directory, 
+						pfdi->index,
+						pfdi->set_childcount);    
+    pfdi->remaining--;
+    pfdi->index++;
+  } else {
+    content = NULL;
+    pfdi->remaining = 0;
+  }
+
+  pfdi->os->callback (pfdi->os->source,
+		      pfdi->os->operation_id,
+		      content,
+		      pfdi->remaining,
+		      pfdi->os->user_data,
+		      NULL);
+
+  if (pfdi->remaining == 0) {
+    free_operation_spec (pfdi->os);
+    g_free (pfdi);
+    return FALSE;
+  }
+  
+  return TRUE;
+}
+
 static void
-produce_from_directory (CategoryInfo *dir,
-			guint dir_size,
-			MsMediaSourceBrowseSpec *bs)
+produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os)
 {
   g_debug ("produce_from_directory");
 
@@ -1160,40 +1201,40 @@ produce_from_directory (CategoryInfo *dir,
   gboolean set_childcount;
   YoutubeMediaType media_type;
 
-  if (bs->skip >= dir_size) {
+  if (os->skip >= dir_size) {
     /* No results */
-    bs->callback (bs->source,
-		  bs->browse_id,
+    os->callback (os->source,
+		  os->operation_id,
 		  NULL,
 		  0,
-		  bs->user_data,
+		  os->user_data,
 		  NULL);        
+    free_operation_spec (os);
   } else {
     /* Do not compute childcount when it is expensive and user requested
        MS_RESOLVE_FAST_ONLY */
-    media_type = classify_media_id (ms_content_media_get_id (bs->container));
-    if ((bs->flags & MS_RESOLVE_FAST_ONLY) && 
+    media_type = classify_media_id (os->container_id);
+    if ((os->flags & MS_RESOLVE_FAST_ONLY) && 
 	(media_type == YOUTUBE_MEDIA_TYPE_CATEGORIES ||
 	 media_type == YOUTUBE_MEDIA_TYPE_FEEDS)) {
       set_childcount = FALSE;
     } else {
       set_childcount =
-	(g_list_find (bs->keys,
+	(g_list_find (os->keys,
 		      MSKEYID_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
     }
-    index = bs->skip;
-    remaining = MIN (dir_size - bs->skip, bs->count);
-    do {
-      MsContentMedia *content =
-	produce_container_from_directory (dir, index, set_childcount);
-      bs->callback (bs->source,
-		    bs->browse_id,
-		    content,
-		    --remaining,
-		    bs->user_data,
-		    NULL);    
-      index++;
-    } while (remaining > 0);
+    index = os->skip;
+    remaining = MIN (dir_size - os->skip, os->count);
+
+    /* We use the idle loop because computing the childcount is blocking
+       and it may be called for every entry in the directory */
+    ProduceFromDirectoryIdle *pfdi = g_new0 (ProduceFromDirectoryIdle, 1);
+    pfdi->os = os;
+    pfdi->directory = dir;
+    pfdi->index = index;
+    pfdi->remaining = remaining;
+    pfdi->set_childcount = set_childcount;
+    g_idle_add (produce_from_directory_idle, pfdi);
   }
 }
 
@@ -1241,18 +1282,16 @@ produce_next_video_chunk (OperationSpec *os)
 }
 
 static void
-produce_videos_from_container (const gchar *container_id,
-			       OperationSpec *os,
-			       GError **error)
+produce_videos_from_container (OperationSpec *os, GError **error)
 {
   const gchar *_url;
 
-  _url = get_container_url (container_id);
+  _url = get_container_url (os->container_id);
   if (!_url) {
     *error = g_error_new (MS_ERROR,
 			  MS_ERROR_BROWSE_FAILED,
 			  "Invalid container-id: '%s'",
-			  container_id);
+			  os->container_id);
   } else {
     os->query_url = g_strdup (_url);
     produce_next_video_chunk (os);
@@ -1343,30 +1382,32 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
 
   container_id = ms_content_media_get_id (bs->container);
 
-  if (!container_id) {
-    produce_from_directory (root_dir, root_dir_size, bs);
-  } else if (!strcmp (container_id, YOUTUBE_FEEDS_ID)) {
-    produce_from_directory (feeds_dir, feeds_dir_size, bs);
-  } else if (!strcmp (container_id, YOUTUBE_CATEGORIES_ID)) {
-    produce_from_directory (categories_dir, categories_dir_size, bs);
-  } else {
-    os = g_new0 (OperationSpec, 1);
-    os->source = bs->source;
-    os->operation_id = bs->browse_id;
-    os->keys = bs->keys;
-    os->skip = bs->skip;
-    os->count = bs->count;
-    os->callback = bs->callback;
-    os->user_data = bs->user_data;
+  os = g_new0 (OperationSpec, 1);
+  os->source = bs->source;
+  os->operation_id = bs->browse_id;
+  os->container_id = container_id;
+  os->keys = bs->keys;
+  os->flags = bs->flags;
+  os->skip = bs->skip;
+  os->count = bs->count;
+  os->callback = bs->callback;
+  os->user_data = bs->user_data;
 
-    ms_media_source_set_operation_data (source, os->operation_id, os);
-    produce_videos_from_container (container_id, os, &error);
+  ms_media_source_set_operation_data (source, os->operation_id, os);
+
+  if (!container_id) {
+    produce_from_directory (root_dir, root_dir_size, os);
+  } else if (!strcmp (container_id, YOUTUBE_FEEDS_ID)) {
+    produce_from_directory (feeds_dir, feeds_dir_size, os);
+  } else if (!strcmp (container_id, YOUTUBE_CATEGORIES_ID)) {
+    produce_from_directory (categories_dir, categories_dir_size, os);
+  } else {
+    produce_videos_from_container (os, &error);
     if (error) {
       os->callback (os->source, os->operation_id, NULL,
 		    0, os->user_data, error);
       g_error_free (error);
-      g_free (os->query_url);
-      g_free (os);
+      free_operation_spec (os);
     }
   }
 }

@@ -26,7 +26,7 @@
 #include "config.h"
 #endif
 
-#include <libgnomevfs/gnome-vfs.h>
+#include <gio/gio.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/xpath.h>
@@ -126,38 +126,6 @@ G_DEFINE_TYPE (MsLastfmAlbumartSource, ms_lastfm_albumart_source, MS_TYPE_METADA
 /* ======================= Utilities ==================== */
 
 static gchar *
-read_url (const gchar *url)
-{
-  gchar buffer[1025];
-  GnomeVFSFileSize bytes_read;
-  GnomeVFSResult r;
-  GString *data;
-  GnomeVFSHandle *fh;
-
-  /* Open URL */
-  g_debug ("Opening '%s'", url);
-  r = gnome_vfs_open (&fh, url, GNOME_VFS_OPEN_READ);
-  if (r != GNOME_VFS_OK) {
-    g_warning ("Failed to open '%s' - %d", url, r);
-    return NULL;
-  }
-
-  /* Read URL contents */
-  g_debug ("Reading data from '%s'", url);
-  data = g_string_new ("");
-  do {
-    gnome_vfs_read (fh, buffer, 1024, &bytes_read);
-    buffer[bytes_read] = '\0';
-    g_string_append (data, buffer);
-  } while (bytes_read > 0);
-  g_debug ("  Done reading data from url");
-
-  gnome_vfs_close (fh);
-
-  return g_string_free (data, FALSE);
-}
-
-static gchar *
 xml_get_image (const gchar *xmldata)
 {
   xmlDocPtr doc;
@@ -192,6 +160,54 @@ xml_get_image (const gchar *xmldata)
   xmlFreeDoc (doc);
 
   return image;
+}
+
+static void
+read_done_cb (GObject *source_object,
+              GAsyncResult *res,
+              gpointer user_data)
+{
+  MsMetadataSourceResolveSpec *rs = (MsMetadataSourceResolveSpec *) user_data;
+  GError *error = NULL;
+  GError *vfs_error = NULL;
+  gchar *content = NULL;
+  gchar *image = NULL;
+
+  if (!g_file_load_contents_finish (G_FILE (source_object), res, &content, NULL, NULL, &vfs_error)) {
+    error = g_error_new (MS_ERROR,
+                         MS_ERROR_RESOLVE_FAILED,
+                         "Failed to connect to Last.FM: '%s'",
+                         vfs_error->message);
+    rs->callback (rs->source, rs->media, rs->user_data, error);
+    g_error_free (error);
+    g_object_unref (source_object);
+    return;
+  }
+
+  g_object_unref (source_object);
+  image = xml_get_image (content);
+  g_free (content);
+  if (image) {
+    ms_content_set_string (MS_CONTENT (rs->media),
+                           MS_METADATA_KEY_THUMBNAIL,
+                           image);
+    g_free (image);
+  }
+
+  rs->callback (rs->source, rs->media, rs->user_data, NULL);
+}
+
+static void
+read_url_async (const gchar *url, gpointer user_data)
+{
+  GVfs *vfs;
+  GFile *uri;
+
+  vfs = g_vfs_get_default ();
+
+  g_debug ("Opening '%s'", url);
+  uri = g_vfs_get_file_for_uri (vfs, url);
+  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
 }
 
 /* ================== API Implementation ================ */
@@ -237,9 +253,6 @@ ms_lastfm_albumart_source_resolve (MsMetadataSource *source,
   gchar *esc_artist = NULL;
   gchar *esc_album = NULL;
   gchar *url = NULL;
-  gchar *xmldata = NULL;
-  GError *error = NULL;
-  gchar *image;
 
   g_debug ("ms_lastfm_albumart_source_resolve");
 
@@ -257,6 +270,7 @@ ms_lastfm_albumart_source_resolve (MsMetadataSource *source,
 
   if (iter == NULL) {
     g_debug ("No supported key was requested");
+    rs->callback (source, rs->media, rs->user_data, NULL);
   } else {
     artist = ms_content_get_string (MS_CONTENT (rs->media),
                                     MS_METADATA_KEY_ARTIST);
@@ -271,31 +285,10 @@ ms_lastfm_albumart_source_resolve (MsMetadataSource *source,
       esc_artist = g_uri_escape_string (artist, NULL, TRUE);
       esc_album = g_uri_escape_string (album, NULL, TRUE);
       url = g_strdup_printf (LASTFM_GET_ALBUM, esc_artist, esc_album);
-      xmldata = read_url (url);
+      read_url_async (url, rs);
       g_free (esc_artist);
       g_free (esc_album);
       g_free (url);
-
-      if (!xmldata) {
-        error = g_error_new (MS_ERROR,
-                             MS_ERROR_RESOLVE_FAILED,
-                             "Failed to connect to Last.FM");
-        rs->callback (source, rs->media, rs->user_data, error);
-        g_error_free (error);
-        return;
-      }
-
-      image = xml_get_image (xmldata);
-      g_free (xmldata);
-
-      if (image) {
-        ms_content_set_string (MS_CONTENT (rs->media),
-                               MS_METADATA_KEY_THUMBNAIL,
-                               image);
-        g_free (image);
-      }
     }
   }
-
-  rs->callback (source, rs->media, rs->user_data, NULL);
 }

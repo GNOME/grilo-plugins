@@ -244,14 +244,14 @@ main (void)
   if (0) ms_media_source_browse (jamendo, media_from_id("3/174"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, NULL, keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, media_from_id("1"), keys, 0, metadata_cb, NULL);
-  if (1) ms_media_source_metadata (jamendo, media_from_id("1/9"), keys, 0, metadata_cb, NULL);
+  if (0) ms_media_source_metadata (jamendo, media_from_id("1/9"), keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, media_from_id("2/1225"), keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_metadata (jamendo, media_from_id("3/174"), keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_query (jamendo, "artist=shake da", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_query (jamendo, "album=Nick", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_query (jamendo, "track=asylum mind", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_search (jamendo, "next", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) {
+  if (1) {
     MsContentMedia *media = media_from_id ("test");
     ms_content_set_string (MS_CONTENT (media),
                            MS_METADATA_KEY_ARTIST,

@@ -80,8 +80,17 @@ PKG_CHECK_MODULES(DEPS, glib-2.0 \
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
+if test $prefix = "NONE" ; then
+	prefix="/usr/local"
+fi
+
+if test $libdir = "\${exec_prefix}/lib" ; then
+	libdir="$prefix/lib"
+fi
+
 PLUGINS_DIR=`pkg-config --variable=plugindir grilo-0.1`
 AC_SUBST(PLUGINS_DIR)
+AC_DEFINE_UNQUOTED(PLUGINS_DIR, "$PLUGINS_DIR", [Plugins directory])
 
 # Plugins requirements
 

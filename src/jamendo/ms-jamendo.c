@@ -28,7 +28,6 @@
 
 #include <media-store.h>
 #include <gio/gio.h>
-#include <libgnomevfs/gnome-vfs.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <string.h>
@@ -205,10 +204,6 @@ ms_jamendo_source_class_init (MsJamendoSourceClass * klass)
   source_class->search = ms_jamendo_source_search;
   source_class->cancel = ms_jamendo_source_cancel;
   metadata_class->supported_keys = ms_jamendo_source_supported_keys;
-
-  if (!gnome_vfs_init ()) {
-    g_error ("Failed to initialize Gnome VFS");
-  }
 }
 
 static void

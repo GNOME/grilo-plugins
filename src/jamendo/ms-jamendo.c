@@ -128,6 +128,7 @@ typedef struct {
   union {
     MsMediaSourceBrowseSpec *bs;
     MsMediaSourceQuerySpec *qs;
+    MsMediaSourceMetadataSpec *ms;
   } spec;
   xmlNodePtr node;
   xmlDocPtr doc;
@@ -280,7 +281,7 @@ xml_count_children (xmlNodePtr node)
 }
 
 static void
-xml_parse_result2 (const gchar *str, GError **error, XmlParseEntries *xpe)
+xml_parse_result (const gchar *str, GError **error, XmlParseEntries *xpe)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
@@ -562,6 +563,7 @@ read_done_cb (GObject *source_object,
   GError *vfs_error = NULL;
   GError *error = NULL;
   gchar *content = NULL;
+  Entry *entry = NULL;
 
   /* Check if operation was cancelled */
   if (xpe->cancelled) {
@@ -593,7 +595,7 @@ read_done_cb (GObject *source_object,
 
   g_object_unref (source_object);
 
-  xml_parse_result2 (content, &error, xpe);
+  xml_parse_result (content, &error, xpe);
   g_free (content);
 
   if (error) {
@@ -601,8 +603,22 @@ read_done_cb (GObject *source_object,
   }
 
   if (xpe->node) {
-    g_idle_add (xml_parse_entries_idle, xpe);
+    if (xpe->type == METADATA) {
+      entry = xml_parse_entry (xpe->doc, xpe->node);
+      xmlFreeDoc (xpe->doc);
+      update_media_from_entry (xpe->spec.ms->media, entry);
+      free_entry (entry);
+      goto invoke_cb;
+    } else {
+      g_idle_add (xml_parse_entries_idle, xpe);
+    }
   } else {
+    if (xpe->type == METADATA) {
+      error = g_error_new (MS_ERROR,
+                           MS_ERROR_METADATA_FAILED,
+                           "Unable to get information: '%s'",
+                           ms_content_media_get_id (xpe->spec.ms->media));
+    }
     goto invoke_cb;
   }
 
@@ -611,6 +627,10 @@ read_done_cb (GObject *source_object,
  invoke_cb:
   switch (xpe->type) {
   case METADATA:
+    xpe->spec.ms->callback (xpe->spec.ms->source,
+                            xpe->spec.ms->media,
+                            xpe->spec.ms->user_data,
+                            error);
     break;
   case BROWSE:
     xpe->spec.bs->callback (xpe->spec.bs->source,
@@ -649,38 +669,6 @@ read_url_async (const gchar *url, gpointer user_data)
   g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
 }
 
-static gchar *
-read_url (const gchar *url)
-{
-  gchar buffer[1025];
-  GnomeVFSFileSize bytes_read;
-  GnomeVFSResult r;
-  GString *data;
-  GnomeVFSHandle *fh;
-
-  /* Open URL */
-  g_debug ("Opening '%s'", url);
-  r = gnome_vfs_open (&fh, url, GNOME_VFS_OPEN_READ);
-  if (r != GNOME_VFS_OK) {
-    g_warning ("Failed to open '%s' - %d", url, r);
-    return NULL;
-  }
-
-  /* Read URL contents */
-  g_debug ("Reading data from '%s'", url);
-  data = g_string_new ("");
-  do {
-    gnome_vfs_read (fh, buffer, 1024, &bytes_read);
-    buffer[bytes_read] = '\0';
-    g_string_append (data, buffer);
-  } while (bytes_read > 0);
-  g_debug ("  Done reading data from url");
-
-  gnome_vfs_close (fh);
-
-  return g_string_free (data, FALSE);
-}
-
 static void
 update_media_from_root (MsContentMedia *media)
 {
@@ -710,51 +698,6 @@ update_media_from_albums (MsContentMedia *media)
   entry->album_name = g_strdup (JAMENDO_ALBUM "s");
   update_media_from_entry (media, entry);
   free_entry (entry);
-}
-
-static XmlParseEntries *
-xml_parse_result (const gchar *str, GError **error)
-{
-  xmlDocPtr doc;
-  xmlNodePtr node;
-  gint child_nodes = 0;
-
-  doc = xmlRecoverDoc ((xmlChar *) str);
-  if (!doc) {
-    *error = g_error_new (MS_ERROR,
-			  MS_ERROR_BROWSE_FAILED,
-			  "Failed to parse Jamendo's response");
-    goto free_resources;
-  }
-
-  node = xmlDocGetRootElement (doc);
-  if (!node) {
-    *error = g_error_new (MS_ERROR,
-			  MS_ERROR_BROWSE_FAILED,
-			  "Empty response from Jamendo");
-    goto free_resources;
-  }
-
-  if (xmlStrcmp (node->name, (const xmlChar *) "data")) {
-    *error = g_error_new (MS_ERROR,
-			  MS_ERROR_BROWSE_FAILED,
-			  "Unexpected response from Jamendo: no data");
-    goto free_resources;
-  }
-
-  child_nodes = xml_count_children (node);
-  node = node->xmlChildrenNode;
-
-  XmlParseEntries *xpe = g_new0 (XmlParseEntries, 1);
-  xpe->node = node;
-  xpe->doc = doc;
-  xpe->total_results = child_nodes;
-
-  return xpe;
-
- free_resources:
-  xmlFreeDoc (doc);
-  return NULL;
 }
 
 static void
@@ -844,10 +787,8 @@ static void
 ms_jamendo_source_metadata (MsMediaSource *source,
                             MsMediaSourceMetadataSpec *ms)
 {
-  Entry *entry = NULL;
   gchar *url = NULL;
   gchar *jamendo_keys = NULL;
-  gchar *xmldata = NULL;
   const gchar *id;
   gchar **id_split = NULL;
   XmlParseEntries *xpe = NULL;
@@ -935,43 +876,15 @@ ms_jamendo_source_metadata (MsMediaSource *source,
   }
 
   if (url) {
-    xmldata = read_url (url);
+    xpe = g_new0 (XmlParseEntries, 1);
+    xpe->type = METADATA;
+    xpe->spec.ms = ms;
+    read_url_async (url, xpe);
     g_free (url);
-
-    if (!xmldata) {
-      error = g_error_new (MS_ERROR,
-                           MS_ERROR_METADATA_FAILED,
-                           "Failed to connect to Jamendo");
-      goto send_error;
+  } else {
+    if (ms->media) {
+      ms->callback (ms->source, ms->media, ms->user_data, NULL);
     }
-
-    xpe = xml_parse_result (xmldata, &error);
-    g_free (xmldata);
-
-    if (error) {
-      g_free (xpe);
-      goto send_error;
-    }
-
-    if (xpe->node) {
-      entry = xml_parse_entry (xpe->doc, xpe->node);
-      xmlFreeDoc (xpe->doc);
-      g_free (xpe);
-      update_media_from_entry (ms->media, entry);
-      free_entry (entry);
-    } else {
-      error = g_error_new (MS_ERROR,
-                           MS_ERROR_METADATA_FAILED,
-                           "Unable to get information: '%s'",
-                           id);
-      xmlFreeDoc (xpe->doc);
-      g_free (xpe);
-      goto send_error;
-    }
-  }
-
-  if (ms->media) {
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
   }
 
   return;

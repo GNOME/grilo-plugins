@@ -38,8 +38,16 @@
 
 /* -------- File info ------- */
 
-#define FILE_ATTRIBUTES "standard::*"
+#define FILE_ATTRIBUTES \
+  G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","	  \
+  G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE "," \
+  G_FILE_ATTRIBUTE_STANDARD_TYPE "," \
+  G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN "," \
+  G_FILE_ATTRIBUTE_TIME_MODIFIED
 
+#define FILE_ATTRIBUTES_FAST \
+  G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN
+  
 /* ---- Emission chunks ----- */
 
 #define BROWSE_IDLE_CHUNK_SIZE 5
@@ -136,30 +144,6 @@ G_DEFINE_TYPE (MsFilesystemSource, ms_filesystem_source, MS_TYPE_MEDIA_SOURCE);
 
 /* ======================= Utilities ==================== */
 
-static void
-set_container_childcount (const gchar *path, MsContentMedia *media)
-{
-  GDir *dir;
-  GError *error = NULL;
-  gint count;
-
-  /* Open directory */
-  g_debug ("Opening directory '%s' for childcount", path);
-  dir = g_dir_open (path, 0, &error);
-  if (error) {
-    g_warning ("Failed to open directory '%s': %s", path, error->message);
-    g_error_free (error);
-    return;
-  }
-
-  /* Count entries */
-  count = 0;
-  while (g_dir_read_name (dir) != NULL)
-    count++;
-
-  ms_content_box_set_childcount (MS_CONTENT_BOX (media), count);
-}
-
 static gboolean
 mime_is_video (const gchar *mime)
 {
@@ -194,8 +178,104 @@ mime_is_media (const gchar *mime)
   return FALSE;
 }
 
+static gboolean
+file_is_valid_content (const gchar *path, gboolean fast)
+{
+  const gchar *mime;
+  GError *error = NULL;
+  gboolean is_media;
+  GFile *file;
+  GFileInfo *info; 
+  GFileType type;
+  const gchar *spec;
+
+  if (fast) {
+    spec = FILE_ATTRIBUTES_FAST;
+  } else {
+    spec = FILE_ATTRIBUTES;
+  }
+
+  file = g_file_new_for_path (path);
+  info = g_file_query_info (file, spec, 0, NULL, &error);
+  if (error) {
+    g_warning ("Failed to get attributes for file '%s': %s",
+	       path, error->message);
+    g_error_free (error);
+    g_object_unref (file);
+    return FALSE;
+  } else {
+    if (g_file_info_get_is_hidden (info)) {
+      is_media = FALSE;
+    } else { 
+      if (fast) {
+	/* In fast mode we do not check mime-types,
+	   any non-hidden file is accepted */
+	is_media = TRUE;
+      } else {
+	type = g_file_info_get_file_type (info);
+	mime = g_file_info_get_content_type (info);
+	if (type == G_FILE_TYPE_DIRECTORY || mime_is_media (mime)) {
+	  is_media = TRUE;
+	} else {
+	  is_media = FALSE;
+	}
+      }
+    }
+    g_object_unref (info);
+    g_object_unref (file);
+    return is_media;
+  }
+}
+
+static void
+set_container_childcount (const gchar *path,
+			  MsContentMedia *media,
+			  gboolean fast)
+{
+  GDir *dir;
+  GError *error = NULL;
+  gint count;
+  const gchar *entry_name;
+
+  /* Open directory */
+  g_debug ("Opening directory '%s' for childcount", path);
+  dir = g_dir_open (path, 0, &error);
+  if (error) {
+    g_warning ("Failed to open directory '%s': %s", path, error->message);
+    g_error_free (error);
+    return;
+  }
+
+  /* Count valid entries */
+  count = 0;
+  while ((entry_name = g_dir_read_name (dir)) != NULL) {
+      gchar *entry_path;
+      if (strcmp (path, G_DIR_SEPARATOR_S)) {
+	entry_path = g_strconcat (path, G_DIR_SEPARATOR_S, entry_name, NULL);
+      } else {
+	entry_path = g_strconcat (path, entry_name, NULL);
+      }
+      if (file_is_valid_content (entry_path, fast)) {
+	if (fast) {
+	  /* in fast mode we don't compute  mime-types because it is slow,
+	     so we can only check if the directory is totally empty (no subdirs,
+	     and no files), otherwise we just say we do not know the actual
+	     childcount */
+	  count = MS_METADATA_KEY_CHILDCOUNT_UNKNOWN;
+	  break;
+	}
+	count++;
+      }
+      g_free (entry_path);
+  }
+
+  g_dir_close (dir);
+
+  ms_content_box_set_childcount (MS_CONTENT_BOX (media), count);
+}
+
 static MsContentMedia *
-create_content (const gchar *path)
+create_content (const gchar *path, gboolean only_fast)
 {
   MsContentMedia *media;
   gchar *str;
@@ -262,8 +342,8 @@ create_content (const gchar *path)
   g_free (str);
 
   /* Childcount */
-  if (MS_IS_CONTENT_BOX(media)) {
-    set_container_childcount (path, media);
+  if (MS_IS_CONTENT_BOX (media)) {
+    set_container_childcount (path, media, only_fast);
   }
 
   g_object_unref (file);
@@ -287,7 +367,8 @@ browse_emit_idle (gpointer user_data)
     MsContentMedia *content;
     
     entry_path = (gchar *) idle_data->current->data;
-    content = create_content (entry_path); 
+    content = create_content (entry_path,
+			      idle_data->spec->flags & MS_RESOLVE_FAST_ONLY); 
     g_free (idle_data->current->data);
    
     idle_data->spec->callback (idle_data->spec->source,
@@ -307,40 +388,6 @@ browse_emit_idle (gpointer user_data)
     return FALSE;
   } else {
     return TRUE;
-  }
-}
-
-static gboolean
-file_is_valid_content (const gchar *path)
-{
-  const gchar *mime;
-  GError *error = NULL;
-  gboolean is_media;
-  GFile *file;
-  GFileInfo *info; 
-
-  file = g_file_new_for_path (path);
-  info = g_file_query_info (file,
-			    FILE_ATTRIBUTES,
-			    0,
-			    NULL,
-			    &error);
-  if (error) {
-    g_warning ("Failed to get attributes for file '%s': %s",
-	       path, error->message);
-    g_error_free (error);
-    g_object_unref (file);
-    return FALSE;
-  } else {
-    if (g_file_info_get_is_hidden (info)) {
-      is_media = FALSE;
-    } else {
-      mime = g_file_info_get_content_type (info);
-      is_media = mime_is_media (mime);
-    }
-    g_object_unref (info);
-    g_object_unref (file);
-    return is_media;
   }
 }
 
@@ -372,7 +419,7 @@ produce_from_path (MsMediaSourceBrowseSpec *bs, const gchar *path)
     } else {
       file = g_strconcat (path, entry, NULL);
     }
-    if (file_is_valid_content (file)) {
+    if (file_is_valid_content (file, FALSE)) {
       entries = g_list_prepend (entries, file);
     }
   }
@@ -471,7 +518,7 @@ ms_filesystem_source_metadata (MsMediaSource *source,
   path = id ? id : G_DIR_SEPARATOR_S;
 
   if (g_file_test (path, G_FILE_TEST_EXISTS)) {
-    content = create_content (path);
+    content = create_content (path, ms->flags & MS_RESOLVE_FAST_ONLY);
     ms->callback (ms->source, content, ms->user_data, NULL);
   } else {
     GError *error = g_error_new (MS_ERROR,

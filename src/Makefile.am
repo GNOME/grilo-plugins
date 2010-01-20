@@ -7,9 +7,12 @@
 
 SUBDIRS = fake-metadata filesystem
 
-if HAVE_VFS
 if HAVE_XML
-SUBDIRS += youtube jamendo lastfm-albumart
+if HAVE_VFS
+SUBDIRS += youtube
+endif
+if HAVE_GIO
+SUBDIRS += jamendo lastfm-albumart
 endif
 endif
 

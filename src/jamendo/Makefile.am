@@ -14,7 +14,7 @@ libmsjamendo_la_CFLAGS	 = \
 
 libmsjamendo_la_LIBADD	 = \
 	$(DEPS_LIBS) \
-	$(VFS_LIBS) \
+	$(GIO_LIBS) \
 	$(XML_LIBS) 
 
 libmsjamendo_la_SOURCES	 = ms-jamendo.c ms-jamendo.h

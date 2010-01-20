@@ -9,12 +9,12 @@ lib_LTLIBRARIES = liblastfm-albumart.la
 
 liblastfm_albumart_la_CFLAGS = 	\
 	$(DEPS_CFLAGS) 	\
-	$(VFS_CFLAGS) 	\
-	$(XML_CFLAGS) 
+	$(GIO_CFLAGS) 	\
+	$(XML_CFLAGS)
 
 liblastfm_albumart_la_LIBADD =	\
 	$(DEPS_LIBS)	\
-	$(VFS_LIBS)	\
+	$(GIO_LIBS)	\
 	$(XML_LIBS)
 
 liblastfm_albumart_la_SOURCES = ms-lastfm-albumart.c ms-lastfm-albumart.h

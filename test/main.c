@@ -211,7 +211,11 @@ main (void)
   MsMetadataSource *lastfm =
     (MsMetadataSource *) ms_plugin_registry_lookup_source (registry, "ms-lastfm-albumart");
 
-  g_assert (youtube && fs && jamendo && fake && lastfm);
+  g_assert (youtube);
+  g_assert (fs);
+  g_assert (jamendo);
+  g_assert (fake);
+  g_assert (lastfm);
 
   g_debug ("Supported operations");
 

@@ -11,9 +11,10 @@ if HAVE_XML
 if HAVE_VFS
 SUBDIRS += youtube
 endif
+endif
+
 if HAVE_GIO
 SUBDIRS += jamendo lastfm-albumart
-endif
 endif
 
 if HAVE_GUPNP

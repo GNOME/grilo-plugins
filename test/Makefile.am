@@ -15,10 +15,12 @@ test_SOURCES =	\
 test_CFLAGS =	\
 	-DPREFIX=$(prefix)
 
-test_LDADD = -ldl -lpthread @DEPS_LIBS@
+test_LDADD =		\
+	-ldl -lpthread	\
+	@DEPS_LIBS@
 
 MAINTAINERCLEANFILES =	\
-	*.in	\
+	*.in		\
 	*~
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)

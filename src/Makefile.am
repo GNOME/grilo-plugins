@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-SUBDIRS = fake-metadata filesystem
+SUBDIRS = fake-metadata filesystem upnp
 
 if HAVE_XML
 if HAVE_VFS
@@ -16,7 +16,13 @@ SUBDIRS += jamendo lastfm-albumart
 endif
 endif
 
-DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart
+if HAVE_GUPNP
+if HAVE_GUPNPAV
+SUBDIRS += upnp
+endif
+endif
+
+DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp
 
 MAINTAINERCLEANFILES = \
         *.in \

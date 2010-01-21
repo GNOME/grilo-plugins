@@ -11,7 +11,7 @@ libfakemetadata_la_CFLAGS = \
 	$(DEPS_CFLAGS) 
 
 libfakemetadata_la_LIBADD = \
-	$(DEPS_LIBS) 
+	$(DEPS_LIBS)
 
 libfakemetadata_la_SOURCES = fake-metadata.c fake-metadata.h
 

@@ -38,6 +38,12 @@ MS_MAJORMINOR=0.1
 AC_SUBST(MS_MAJORMINOR)
 AC_DEFINE_UNQUOTED(MS_MAJORMINOR, "$MS_MAJORMINOR", [library major.minor version])
 
+# Framework name (contains ABI version)
+
+MS_NAME="${PACKAGE_NAME}-${MS_MAJORMINOR}"
+AC_SUBST(MS_NAME)
+AC_DEFINE_UNQUOTED(MS_NAME, "$MS_NAME", [framework name])
+
 # Give parameters a default value
 
 if test $prefix = "NONE" ; then

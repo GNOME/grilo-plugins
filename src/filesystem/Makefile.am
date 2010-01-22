@@ -19,8 +19,8 @@ libmsfilesystem_la_SOURCES = ms-filesystem.c ms-filesystem.h
 
 libdir=$(PLUGINS_DIR)
 
-MAINTAINERCLEANFILES	 = \
-	*.in \
+MAINTAINERCLEANFILES =	\
+	*.in		\
 	*~
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)

@@ -21,8 +21,8 @@ libmsjamendo_la_SOURCES	 = ms-jamendo.c ms-jamendo.h
 
 libdir=$(PLUGINS_DIR)
 
-MAINTAINERCLEANFILES	 = \
-	*.in \
+MAINTAINERCLEANFILES =	\
+	*.in		\
 	*~
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)

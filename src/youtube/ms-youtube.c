@@ -26,6 +26,7 @@
 
 #include <media-store.h>
 #include <libgnomevfs/gnome-vfs.h>
+#include <gio/gio.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <string.h>
@@ -166,8 +167,6 @@ typedef struct {
 typedef struct {
   AsyncReadCbFunc callback;
   gpointer user_data;
-  gchar *url;
-  GString *data;
 } AsyncReadCb;
 
 typedef struct {
@@ -283,10 +282,6 @@ ms_youtube_source_class_init (MsYoutubeSourceClass * klass)
   source_class->metadata = ms_youtube_source_metadata;
   metadata_class->supported_keys = ms_youtube_source_supported_keys;
   metadata_class->slow_keys = ms_youtube_source_slow_keys;
-
-  if (!gnome_vfs_init ()) {
-    g_error ("Failed to initialize Gnome VFS");
-  }
 }
 
 static void
@@ -371,101 +366,47 @@ get_video_url (const gchar *id)
 }
 
 static void
-read_url_async_close_cb (GnomeVFSAsyncHandle *handle,
-			 GnomeVFSResult result,
-			 gpointer callback_data)
-{
-  g_debug ("  Done reading data from url async");
-}
-
-static void
-read_url_async_read_cb (GnomeVFSAsyncHandle *handle,
-			GnomeVFSResult result,
-			gpointer buffer,
-			GnomeVFSFileSize bytes_requested,
-			GnomeVFSFileSize bytes_read,
-			gpointer user_data)
+read_done_cb (GObject *source_object,
+              GAsyncResult *res,
+              gpointer user_data)
 {
   AsyncReadCb *arc = (AsyncReadCb *) user_data;
-  gchar *data;
+  GError *vfs_error = NULL;
+  gchar *content = NULL;
 
-  /* On error, provide an empty result */
-  if (result != GNOME_VFS_OK && result != GNOME_VFS_ERROR_EOF) {
-    g_warning ("Error while reading async url '%s' - %d", arc->url, result);
-    gnome_vfs_async_close (handle, read_url_async_close_cb, NULL);
-    g_free (buffer);
-    g_string_free (arc->data, TRUE);
-    g_free (arc->url);
-    arc->callback (NULL, arc->user_data);
-    g_free (arc);
-    return;
-  } 
-
-  /* If we got data, accumulate it */
-  if (bytes_read > 0) {
-    data = (gchar *) buffer;
-    data[bytes_read] = '\0';
-    g_string_append (arc->data, data);
-  }
-
-  g_free (buffer);
-
-  if (bytes_read == 0) {
-    /* We are done reading, call the user callback with the data */
-    data = g_string_free (arc->data, FALSE);
-    gnome_vfs_async_close (handle, read_url_async_close_cb, NULL);
-    arc->callback (data, arc->user_data);
-    g_free (arc->url);
-    g_free (arc);
+  g_file_load_contents_finish (G_FILE (source_object),
+                               res,
+                               &content,
+                               NULL,
+                               NULL,
+                               &vfs_error);
+  g_object_unref (source_object);
+  if (vfs_error) {
+    g_warning ("Failed to open: '%s'", vfs_error->message);
   } else {
-    /* Otherwise, read another chunk */
-    buffer = g_new (gchar, 1025);
-    gnome_vfs_async_read (handle, buffer, 1024,
-			  read_url_async_read_cb, arc);
+    arc->callback (content, arc->user_data);
   }
+  g_free (arc);
 }
-
-static void
-read_url_async_open_cb (GnomeVFSAsyncHandle *handle,
-			GnomeVFSResult result,
-			gpointer user_data)
-{
-  gchar *buffer;
-  AsyncReadCb *arc = (AsyncReadCb *) user_data;
-
-  if (result != GNOME_VFS_OK) {
-    g_warning ("Failed to open async '%s' - %d", arc->url, result);
-    arc->callback (NULL, arc->user_data);
-    g_free (arc->url);
-    g_free (arc);
-    return;
-  }
-
-  arc->data = g_string_new ("");
-  buffer = g_new (gchar, 1025);
-  gnome_vfs_async_read (handle, buffer, 1024, read_url_async_read_cb, arc);
-}
-
 
 static void
 read_url_async (const gchar *url,
-		AsyncReadCbFunc callback, 
-		gpointer user_data)
+                AsyncReadCbFunc callback,
+                gpointer user_data)
 {
-  GnomeVFSAsyncHandle *fh;
+  GVfs *vfs;
+  GFile *uri;
   AsyncReadCb *arc;
-  
-  g_debug ("Async Opening '%s'", url);
+
+  vfs = g_vfs_get_default ();
+
+  g_debug ("Opening '%s'", url);
+
   arc = g_new0 (AsyncReadCb, 1);
   arc->callback = callback;
   arc->user_data = user_data;
-  arc->url = g_strdup (url);
-  gnome_vfs_async_open (&fh,
-			url,
-			GNOME_VFS_OPEN_READ,
-			GNOME_VFS_PRIORITY_DEFAULT,
-			read_url_async_open_cb,
-			arc);
+  uri = g_vfs_get_file_for_uri (vfs, url);
+  g_file_load_contents_async (uri, NULL, read_done_cb, arc);
 }
 
 static gchar *
@@ -1012,8 +953,8 @@ static void
 build_categories_directory (void)
 {
   read_url_async (YOUTUBE_CATEGORIES_URL,
-		  build_categories_directory_read_cb,
-		  NULL);
+                  build_categories_directory_read_cb,
+                  NULL);
 }
 
 static gboolean
@@ -1496,7 +1437,7 @@ ms_youtube_source_metadata (MsMediaSource *source,
       /* This case is async, we will emit results in the read callback */
       url = g_strdup_printf (YOUTUBE_SEARCH_URL, id, "1", "1");
       read_url_async (url, metadata_read_cb, ms);
-      g_free (url); 
+      g_free (url);
     }
     break;
   }

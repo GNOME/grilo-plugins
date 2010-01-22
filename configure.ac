@@ -55,15 +55,54 @@ AC_SUBST(PLUGINS_DIR)
 AC_DEFINE_UNQUOTED(PLUGINS_DIR, "$PLUGINS_DIR", [Plugins directory])
 
 # ----------------------------------------------------------
+# DEPENDENCIES
+# ----------------------------------------------------------
+
+PKG_CHECK_MODULES(DEPS, glib-2.0 \
+			gobject-2.0 \
+			gmodule-2.0 \
+			grilo-0.1)
+AC_SUBST(DEPS_CFLAGS)
+AC_SUBST(DEPS_LIBS)
+
+PKG_CHECK_MODULES(VFS, gnome-vfs-2.0, HAVE_VFS=yes, HAVE_VFS=no)
+AC_SUBST(VFS_CFLAGS)
+AC_SUBST(VFS_LIBS)
+AC_SUBST(HAVE_VFS)
+AM_CONDITIONAL(HAVE_VFS, test "x$HAVE_VFS" = "xyes")
+
+PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
+AC_SUBST(XML_CFLAGS)
+AC_SUBST(XML_LIBS)
+AC_SUBST(HAVE_XML)
+AM_CONDITIONAL(HAVE_XML, test "x$HAVE_XML" = "xyes")
+
+PKG_CHECK_MODULES(GIO, gio-2.0, HAVE_GIO=yes, HAVE_GIO=no)
+AC_SUBST(GIO_CFLAGS)
+AC_SUBST(GIO_LIBS)
+AC_SUBST(HAVE_GIO)
+AM_CONDITIONAL(HAVE_GIO, test "x$HAVE_GIO" = "xyes")
+
+PKG_CHECK_MODULES(GUPNP, gupnp-1.0, HAVE_GUPNP=yes, HAVE_GUPNP=no)
+AC_SUBST(GUPNP_CFLAGS)
+AC_SUBST(GUPNP_LIBS)
+AC_SUBST(HAVE_GUPNP)
+AM_CONDITIONAL(HAVE_GUPNP, test "x$HAVE_GUPNP" = "xyes")
+
+PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=no)
+AC_SUBST(GUPNPAV_CFLAGS)
+AC_SUBST(GUPNPAV_LIBS)
+AC_SUBST(HAVE_GUPNPAV)
+AM_CONDITIONAL(HAVE_GUPNPAV, test "x$HAVE_GUPNPAV" = "xyes")
+
+# ----------------------------------------------------------
 # UNINSTALLED SUPPORT
 # ----------------------------------------------------------
 
 AC_ARG_ENABLE(uninstalled,
-        [  --enable-uninstalled run uninstalled],,
-        enable_uninstalled=no)
-if test "x$enable_uninstalled" = "xyes"; then
-        AC_MSG_WARN("Configuring for running uninstalled!")
-fi
+        AC_HELP_STRING([--enable-uninstalled],
+                [run uninstalled (default: no)]),,
+        [enable_uninstalled=no])
 
 AM_CONDITIONAL([UNINSTALLED], [test "x$enable_uninstalled" = "xyes"])
 
@@ -72,10 +111,11 @@ AM_CONDITIONAL([UNINSTALLED], [test "x$enable_uninstalled" = "xyes"])
 # ----------------------------------------------------------
 
 AC_ARG_ENABLE(debug,
-        [  --enable-debug include debug symbols],,
-        enable_debug=yes)
+        AC_HELP_STRING([--enable-debug],
+                [include debug symbols (default: no)]),,
+        [enable_debug=no])
+
 if test "x$enable_debug" = "xyes"; then
-        AC_MSG_WARN("Configuring with debugging options enabled!")
 	CFLAGS="$CFLAGS -g3 -O0"
 fi
 
@@ -85,79 +125,139 @@ AM_CONDITIONAL([DEBUG], [test "x$enable_debug" = "xyes"])
 # BUILD FAKE METADATA PLUGIN
 # ----------------------------------------------------------
 
-AC_ARG_ENABLE(fake_metadata,
-        [  --disable-fake-metadata disable Fake Metadata plugin])
+AC_ARG_ENABLE(fakemetadata,
+        AC_HELP_STRING([--enable-fakemetadata],
+                [enable Fake Metadata plugin (default: yes)]),,
+        [enable_fakemetadata=yes])
 
-if test "x$enable_fake_metadata" = "xno"; then
-        AC_MSG_WARN("Fake Metadata plugin disabled!")
-fi
-
-AM_CONDITIONAL([FAKE_METADATA], [test "x$enable_fake_metadata" = "xyes"])
+AM_CONDITIONAL([FAKEMETADATA_PLUGIN], [test "x$enable_fakemetadata" = "xyes"])
 
 # ----------------------------------------------------------
 # BUILD FILE SYSTEM PLUGIN
 # ----------------------------------------------------------
 
 AC_ARG_ENABLE(filesystem,
-        [  --disable-filesystem disable File System plugin])
+        AC_HELP_STRING([--enable-filesystem],
+                [enable File System plugin (default: yes)]),,
+        [enable_filesystem=yes])
 
-if test "x$enable_filesystem" = "xno"; then
-        AC_MSG_WARN("File System plugin disabled!")
-fi
-
-AM_CONDITIONAL([FILESYSTEM], [test "x$enable_filesystem" = "xyes"])
+AM_CONDITIONAL([FILESYSTEM_PLUGIN], [test "x$enable_filesystem" = "xyes"])
 
 # ----------------------------------------------------------
 # BUILD JAMENDO PLUGIN
 # ----------------------------------------------------------
 
 AC_ARG_ENABLE(jamendo,
-        [  --disable-jamendo build Jamendo plugin])
+        AC_HELP_STRING([--enable-jamendo],
+                [enable Jamendo plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO not found, install it or use --disable-jamendo])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-jamendo])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                   enable_jamendo=yes
+                else
+                   enable_jamendo=no
+                fi
+        ])
 
-if test "x$enable_jamendo" = "xno"; then
-        AC_MSG_WARN("Jamendo plugin disabled!")
-fi
-
-AM_CONDITIONAL([JAMENDO], [test "x$enable_jamendo" = "xyes"])
+AM_CONDITIONAL([JAMENDO_PLUGIN], [test "x$enable_jamendo" = "xyes"])
 
 # ----------------------------------------------------------
 # BUILD LASTFM ALBUM ART PLUGIN
 # ----------------------------------------------------------
 
 AC_ARG_ENABLE(lastfm_albumart,
-        [  --disable-lastfm-albumart disable Last.FM Album Art plugin])
+        AC_HELP_STRING([--enable-lastfm-albumart],
+                [enable Last.FM Album Art plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO not found, install it or use --disable-lastfm-albumart])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-lastfm-albumart])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                   enable_lastfm_albumart=yes
+                else
+                   enable_lastfm_albumart=no
+                fi
+        ])
 
-if test "x$enable_lastfm_albumart" = "xno"; then
-        AC_MSG_WARN("Last.FM Album Art plugin disabled!")
-fi
-
-AM_CONDITIONAL([LASTFM_ALBUMART], [test "x$enable_lastfm_albumart" = "xyes"])
+AM_CONDITIONAL([LASTFM_ALBUMART_PLUGIN], [test "x$enable_lastfm_albumart" = "xyes"])
 
 # ----------------------------------------------------------
 # BUILD UPNP PLUGIN
 # ----------------------------------------------------------
 
 AC_ARG_ENABLE(upnp,
-        [  --disable-upnp disable uPnP plugin])
+        AC_HELP_STRING([--enable-upnp (default: auto)],
+                [enable uPnP plugin]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GUPNP" = "xno"; then
+                           AC_MSG_ERROR([gupnp not found, install it or use --disable-upnp])
+                        fi
+                        if test "x$HAVE_GUPNPAV" = "xno"; then
+                           AC_MSG_ERROR([gupnp-av not found, install it or use --disable-upnp])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GUPNP" = "xyes" -a "x$HAVE_GUPNPAV" = "xyes"; then
+                   enable_upnp=yes
+                else
+                   enable_upnp=no
+                fi
+        ])
 
-if test "x$enable_upnp" = "xno"; then
-        AC_MSG_WARN("uPnP plugin disabled!")
-fi
-
-AM_CONDITIONAL([UPNP], [test "x$enable_upnp" = "xyes"])
+AM_CONDITIONAL([UPNP_PLUGIN], [test "x$enable_upnp" = "xyes"])
 
 # ----------------------------------------------------------
 # BUILD YOUTUBE PLUGIN
 # ----------------------------------------------------------
 
 AC_ARG_ENABLE(youtube,
-        [  --disable-youtube disable Youtube plugin])
+        AC_HELP_STRING([--enable-youtube],
+                [enable Youtube plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_VFS" = "xno"; then
+                           AC_MSG_ERROR([gnome-vfs not found, install it or use --disable-youtube])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-youtube])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_VFS" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                   enable_youtube=yes
+                else
+                   enable_youtube=no
+                fi
+        ])
 
-if test "x$enable_youtube" = "xno"; then
-        AC_MSG_WARN("Youtube plugin disabled!")
-fi
-
-AM_CONDITIONAL([YOUTUBE], [test "x$enable_youtube" = "xyes"])
+AM_CONDITIONAL([YOUTUBE_PLUGIN], [test "x$enable_youtube" = "xyes"])
 
 # ----------------------------------------------------------
 # GETTEXT

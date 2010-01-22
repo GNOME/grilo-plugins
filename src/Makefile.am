@@ -5,21 +5,30 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-SUBDIRS = fake-metadata filesystem
+SUBDIRS =
 
-if HAVE_XML
-if HAVE_VFS
-SUBDIRS += youtube
-endif
-if HAVE_GIO
-SUBDIRS += jamendo lastfm-albumart
-endif
+if FAKEMETADATA_PLUGIN
+SUBDIRS += fake-metadata
 endif
 
-if HAVE_GUPNP
-if HAVE_GUPNPAV
+if FILESYSTEM_PLUGIN
+SUBDIRS += filesystem
+endif
+
+if JAMENDO_PLUGIN
+SUBDIRS += jamendo
+endif
+
+if LASTFM_ALBUMART_PLUGIN
+SUBDIRS += lastfm-albumart
+endif
+
+if UPNP_PLUGIN
 SUBDIRS += upnp
 endif
+
+if YOUTUBE_PLUGIN
+SUBDIRS += youtube
 endif
 
 DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp

@@ -106,6 +106,8 @@ static void ms_upnp_source_search (MsMediaSource *source,
 static void ms_upnp_source_metadata (MsMediaSource *source,
 				     MsMediaSourceMetadataSpec *ms);
 
+static MsSupportedOps ms_upnp_source_supported_operations (MsMetadataSource *source);
+
 static void device_available_cb (GUPnPControlPoint *cp,
 				 GUPnPDeviceProxy *device,
 				 gpointer user_data);
@@ -203,6 +205,7 @@ ms_upnp_source_class_init (MsUpnpSourceClass * klass)
   source_class->search = ms_upnp_source_search;
   source_class->metadata = ms_upnp_source_metadata;
   metadata_class->supported_keys = ms_upnp_source_supported_keys;
+  metadata_class->supported_operations = ms_upnp_source_supported_operations;
 
   g_type_class_add_private (klass, sizeof (MsUpnpPrivate));
 
@@ -966,13 +969,6 @@ ms_upnp_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
 
   g_debug ("ms_upnp_source_search");
 	
-  if (!MS_UPNP_SOURCE (ss->source)->priv->search_enabled) {
-    g_debug ("UPnP Source '%s' does not support search", 
-	     ms_metadata_source_get_id (MS_METADATA_SOURCE (ss->source)));
-    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
-    return;
-  }
-
   upnp_filter = get_upnp_filter (ss->keys);
   g_debug ("filter: '%s'", upnp_filter);
 
@@ -1044,4 +1040,21 @@ ms_upnp_source_metadata (MsMediaSource *source,
     ms->callback (ms->source, NULL, ms->user_data, error);
     g_error_free (error);
   }
+}
+
+static MsSupportedOps
+ms_upnp_source_supported_operations (MsMetadataSource *metadata_source)
+{
+  MsSupportedOps caps;
+  MsUpnpSource *source;
+
+  /* Some sources may support search() while other not, so we rewrite 
+     supported_operations() to take that into account */
+
+  source = MS_UPNP_SOURCE (metadata_source);
+  caps = MS_OP_BROWSE | MS_OP_METADATA;
+  if (source->priv->search_enabled)
+    caps |= MS_OP_SEARCH;
+
+  return caps;
 }

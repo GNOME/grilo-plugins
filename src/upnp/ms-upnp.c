@@ -68,6 +68,7 @@
 struct _MsUpnpPrivate {
   GUPnPDeviceProxy* device;
   GUPnPServiceProxy* service;
+  gboolean search_enabled;
 };
 
 struct OperationSpec {
@@ -78,6 +79,11 @@ struct OperationSpec {
   guint count;
   MsMediaSourceResultCb callback;
   gpointer user_data;
+};
+
+struct SourceInfo {
+  MsUpnpSource *source;
+  MsPluginInfo *plugin;
 };
 
 static void setup_key_mappings (void);
@@ -221,6 +227,56 @@ build_source_id (const gchar *udn)
 }
 
 static void
+gupnp_search_caps_cb (GUPnPServiceProxy *service,
+		      GUPnPServiceProxyAction *action,
+		      gpointer user_data)
+{
+  GError *error = NULL;
+  gchar *caps = NULL;
+  gchar *name;
+  MsUpnpSource *source;
+  MsPluginInfo *plugin;
+  MsPluginRegistry *registry;
+  struct SourceInfo *source_info;
+  gboolean result;
+
+  result =
+    gupnp_service_proxy_end_action (service, action, &error,
+				    "SearchCaps", G_TYPE_STRING, &caps,
+				    NULL);
+  if (!result) {
+    g_warning ("Failed to execute GetSeachCaps operation");
+    if (error) {
+      g_warning ("Reason: %s", error->message);
+      g_error_free (error);
+    }
+  }
+
+  source_info = (struct SourceInfo *) user_data;
+  source = source_info->source;
+  plugin = source_info->plugin;
+
+  name = ms_metadata_source_get_name (MS_METADATA_SOURCE (source));
+  
+  g_debug ("Search caps for source '%s': '%s'", name, caps);
+
+  if (caps && caps[0] != '\0') {
+    g_debug ("Setting search enabled for source '%s'", name );
+    source->priv->search_enabled = TRUE;
+  } else {
+    g_debug ("Setting search disabled for source '%s'", name );
+  }
+
+  registry = ms_plugin_registry_get_instance ();
+  ms_plugin_registry_register_source (registry,
+				      plugin,
+				      MS_MEDIA_PLUGIN (source));
+
+  g_free (name);
+  g_free (source_info);
+}
+
+static void
 device_available_cb (GUPnPControlPoint *cp,
 		     GUPnPDeviceProxy *device,
 		     gpointer user_data)
@@ -263,13 +319,30 @@ device_available_cb (GUPnPControlPoint *cp,
     goto free_resources;
   }
 
+  /* We got a valid UPnP source */
   source = ms_upnp_source_new (source_id, name);
   source->priv->device = g_object_ref (device);
   source->priv->service = g_object_ref (service);  
-  ms_plugin_registry_register_source (registry,
-				      (MsPluginInfo *) user_data,
-				      MS_MEDIA_PLUGIN (source));
   
+  /* Now let's check if it supports search operations before registering */
+  struct SourceInfo *source_info = g_new0 (struct SourceInfo, 1);
+  source_info->source = source;
+  source_info->plugin = (MsPluginInfo *) user_data;
+
+  if (!gupnp_service_proxy_begin_action (GUPNP_SERVICE_PROXY (service),
+					 "GetSearchCapabilities",
+					 gupnp_search_caps_cb,
+					 source_info,
+					 NULL)) {
+    g_warning ("Failed to start GetCapabilitiesSearch action");
+    g_debug ("Setting search disabled for source '%s'", name );
+    registry = ms_plugin_registry_get_instance ();
+    ms_plugin_registry_register_source (registry,
+					source_info->plugin,
+					MS_MEDIA_PLUGIN (source_info->source));
+    g_free (source_info);
+  }
+
  free_resources:
   g_object_unref (service);
   g_free (source_id);
@@ -893,6 +966,13 @@ ms_upnp_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
 
   g_debug ("ms_upnp_source_search");
 	
+  if (!MS_UPNP_SOURCE (ss->source)->priv->search_enabled) {
+    g_debug ("UPnP Source '%s' does not support search", 
+	     ms_metadata_source_get_id (MS_METADATA_SOURCE (ss->source)));
+    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
+    return;
+  }
+
   upnp_filter = get_upnp_filter (ss->keys);
   g_debug ("filter: '%s'", upnp_filter);
 

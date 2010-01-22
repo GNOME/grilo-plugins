@@ -1313,7 +1313,7 @@ static void
 metadata_read_cb (gchar *xmldata, gpointer user_data)
 {
   GError *error = NULL;
-  MsContentMedia *media;
+  MsContentMedia *media = NULL;
   MsMediaSourceMetadataSpec *ms = (MsMediaSourceMetadataSpec *) user_data;
 
   if (!xmldata) {

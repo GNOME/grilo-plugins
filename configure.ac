@@ -143,6 +143,7 @@ AM_CONDITIONAL(HAVE_GUPNPAV, test "x$HAVE_GUPNPAV" = "xyes")
 # ----------------------------------------------------------
 
 AC_SUBST([abs_top_builddir])
+AC_SUBST([builddir])
 
 # ----------------------------------------------------------
 # OUTPUT

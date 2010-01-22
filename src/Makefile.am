@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-SUBDIRS = fake-metadata filesystem upnp
+SUBDIRS = fake-metadata filesystem
 
 if HAVE_XML
 if HAVE_VFS

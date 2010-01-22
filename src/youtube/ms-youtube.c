@@ -25,7 +25,6 @@
 #endif
 
 #include <media-store.h>
-#include <libgnomevfs/gnome-vfs.h>
 #include <gio/gio.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
@@ -412,33 +411,23 @@ read_url_async (const gchar *url,
 static gchar *
 read_url (const gchar *url)
 {
-  gchar buffer[1025];
-  GnomeVFSFileSize bytes_read;
-  GnomeVFSResult r;
-  GString *data;
-  GnomeVFSHandle *fh;
+  GVfs *vfs;
+  GFile *uri;
+  GError *vfs_error = NULL;
+  gchar *content = NULL;
 
-  /* Open URL */
+  vfs = g_vfs_get_default ();
+
   g_debug ("Opening '%s'", url);
-  r = gnome_vfs_open (&fh, url, GNOME_VFS_OPEN_READ);
-  if (r != GNOME_VFS_OK) {
-    g_warning ("Failed to open '%s' - %d", url, r);
+  uri = g_vfs_get_file_for_uri (vfs, url);
+  g_file_load_contents (uri, NULL, &content, NULL, NULL, &vfs_error);
+  g_object_unref (uri);
+  if (vfs_error) {
+    g_warning ("Failed reading %s: %s", url, vfs_error->message);
     return NULL;
+  } else {
+    return content;
   }
-
-  /* Read URL contents */
-  g_debug ("Reading data from '%s'", url);
-  data = g_string_new ("");
-  do {
-    gnome_vfs_read (fh, buffer, 1024, &bytes_read);
-    buffer[bytes_read] = '\0';
-    g_string_append (data, buffer);
-  } while (bytes_read > 0);
-  g_debug ("  Done reading data from url");
-
-  gnome_vfs_close (fh);
-
-  return g_string_free (data, FALSE);
 }
 
 static MsContentMedia *
@@ -1021,7 +1010,7 @@ set_category_childcount (MsContentBox *content, CategoryInfo *dir, guint index)
     if (_url) {
       gchar *url = g_strdup_printf (_url, 1, 0);
       gchar  *xmldata = read_url (url);
-      g_free (url);    
+      g_free (url);
       if (!xmldata) {
 	g_warning ("Failed to connect to Youtube to get category childcount");
 	return;

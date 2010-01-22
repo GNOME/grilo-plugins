@@ -554,7 +554,7 @@ read_done_cb (GObject *source_object,
               gpointer user_data)
 {
   XmlParseEntries *xpe = (XmlParseEntries *) user_data;
-  gint error_code;
+  gint error_code = -1;
   GError *vfs_error = NULL;
   GError *error = NULL;
   gchar *content = NULL;
@@ -893,7 +893,8 @@ static void
 ms_jamendo_source_browse (MsMediaSource *source,
                           MsMediaSourceBrowseSpec *bs)
 {
-  gchar *url, *jamendo_keys;
+  gchar *url = NULL;
+  gchar *jamendo_keys;
   gchar **container_split = NULL;
   JamendoCategory category;
   XmlParseEntries *xpe = NULL;

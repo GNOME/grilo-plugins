@@ -71,12 +71,6 @@ PKG_CHECK_MODULES(DEPS, glib-2.0 \
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
-PKG_CHECK_MODULES(VFS, gnome-vfs-2.0, HAVE_VFS=yes, HAVE_VFS=no)
-AC_SUBST(VFS_CFLAGS)
-AC_SUBST(VFS_LIBS)
-AC_SUBST(HAVE_VFS)
-AM_CONDITIONAL(HAVE_VFS, test "x$HAVE_VFS" = "xyes")
-
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 AC_SUBST(XML_CFLAGS)
 AC_SUBST(XML_LIBS)
@@ -246,8 +240,8 @@ AC_ARG_ENABLE(youtube,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_VFS" = "xno"; then
-                           AC_MSG_ERROR([gnome-vfs not found, install it or use --disable-youtube])
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO not found, install it or use --disable-youtube])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-youtube])
@@ -256,7 +250,7 @@ AC_ARG_ENABLE(youtube,
                 esac
         ],
         [
-                if test "x$HAVE_VFS" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_youtube=yes
                 else
                    enable_youtube=no

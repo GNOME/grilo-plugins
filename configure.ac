@@ -82,6 +82,84 @@ fi
 AM_CONDITIONAL([DEBUG], [test "x$enable_debug" = "xyes"])
 
 # ----------------------------------------------------------
+# BUILD FAKE METADATA PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(fake_metadata,
+        [  --disable-fake-metadata disable Fake Metadata plugin])
+
+if test "x$enable_fake_metadata" = "xno"; then
+        AC_MSG_WARN("Fake Metadata plugin disabled!")
+fi
+
+AM_CONDITIONAL([FAKE_METADATA], [test "x$enable_fake_metadata" = "xyes"])
+
+# ----------------------------------------------------------
+# BUILD FILE SYSTEM PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(filesystem,
+        [  --disable-filesystem disable File System plugin])
+
+if test "x$enable_filesystem" = "xno"; then
+        AC_MSG_WARN("File System plugin disabled!")
+fi
+
+AM_CONDITIONAL([FILESYSTEM], [test "x$enable_filesystem" = "xyes"])
+
+# ----------------------------------------------------------
+# BUILD JAMENDO PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(jamendo,
+        [  --disable-jamendo build Jamendo plugin])
+
+if test "x$enable_jamendo" = "xno"; then
+        AC_MSG_WARN("Jamendo plugin disabled!")
+fi
+
+AM_CONDITIONAL([JAMENDO], [test "x$enable_jamendo" = "xyes"])
+
+# ----------------------------------------------------------
+# BUILD LASTFM ALBUM ART PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(lastfm_albumart,
+        [  --disable-lastfm-albumart disable Last.FM Album Art plugin])
+
+if test "x$enable_lastfm_albumart" = "xno"; then
+        AC_MSG_WARN("Last.FM Album Art plugin disabled!")
+fi
+
+AM_CONDITIONAL([LASTFM_ALBUMART], [test "x$enable_lastfm_albumart" = "xyes"])
+
+# ----------------------------------------------------------
+# BUILD UPNP PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(upnp,
+        [  --disable-upnp disable uPnP plugin])
+
+if test "x$enable_upnp" = "xno"; then
+        AC_MSG_WARN("uPnP plugin disabled!")
+fi
+
+AM_CONDITIONAL([UPNP], [test "x$enable_upnp" = "xyes"])
+
+# ----------------------------------------------------------
+# BUILD YOUTUBE PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(youtube,
+        [  --disable-youtube disable Youtube plugin])
+
+if test "x$enable_youtube" = "xno"; then
+        AC_MSG_WARN("Youtube plugin disabled!")
+fi
+
+AM_CONDITIONAL([YOUTUBE], [test "x$enable_youtube" = "xyes"])
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -137,6 +215,42 @@ AC_SUBST(GUPNPAV_CFLAGS)
 AC_SUBST(GUPNPAV_LIBS)
 AC_SUBST(HAVE_GUPNPAV)
 AM_CONDITIONAL(HAVE_GUPNPAV, test "x$HAVE_GUPNPAV" = "xyes")
+
+if test "x$enable_jamendo" = "xyes"; then
+   if test "x$HAVE_GIO" = "xno"; then
+      AC_MSG_ERROR([GIO not found, install it or use --disable-jamendo])
+   fi
+   if test "x$HAVE_XML" = "xno"; then
+      AC_MSG_ERROR([xml2 not found, install it or use --disable-jamendo])
+   fi
+fi
+
+if test "x$enable_lastfm_albumart" = "xyes"; then
+   if test "x$HAVE_GIO" = "xno"; then
+      AC_MSG_ERROR([GIO not found, install it or use --disable-lastfm-albumart])
+   fi
+   if test "x$HAVE_XML" = "xno"; then
+      AC_MSG_ERROR([xml2 not found, install it or use --disable-lastfm-albumart])
+   fi
+fi
+
+if test "x$enable_upnp" = "xyes"; then
+   if test "x$HAVE_GUPNP" = "xno"; then
+      AC_MSG_ERROR([gupnp not found, install it or use --disable-upnp])
+   fi
+   if test "x$HAVE_GUPNPAV" = "xno"; then
+      AC_MSG_ERROR([gupnp-av not found, install it or use --disable-upnp])
+   fi
+fi
+
+if test "x$enable_youtube" = "xyes"; then
+   if test "x$HAVE_VFS" = "xno"; then
+      AC_MSG_ERROR([gnome-vfs not found, install it or use --disable-youtube])
+   fi
+   if test "x$HAVE_XML" = "xno"; then
+      AC_MSG_ERROR([xml2 not found, install it or use --disable-youtube])
+   fi
+fi
 
 # ----------------------------------------------------------
 # WORKAROUNDS

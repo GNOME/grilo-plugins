@@ -82,7 +82,10 @@ struct OperationSpec {
 };
 
 struct SourceInfo {
-  MsUpnpSource *source;
+  gchar *source_id;
+  gchar *source_name;
+  GUPnPDeviceProxy* device;
+  GUPnPServiceProxy* service;
   MsPluginInfo *plugin;
 };
 
@@ -94,6 +97,8 @@ static MsUpnpSource *ms_upnp_source_new (const gchar *id, const gchar *name);
 
 gboolean ms_upnp_plugin_init (MsPluginRegistry *registry,
 			      const MsPluginInfo *plugin);
+
+static void ms_upnp_source_finalize (GObject *plugin);
 
 static const GList *ms_upnp_source_supported_keys (MsMetadataSource *source);
 
@@ -174,6 +179,8 @@ MS_PLUGIN_REGISTER (ms_upnp_plugin_init,
 
 /* ================== UPnP GObject ================ */
 
+G_DEFINE_TYPE (MsUpnpSource, ms_upnp_source, MS_TYPE_MEDIA_SOURCE);
+
 static MsUpnpSource *
 ms_upnp_source_new (const gchar *source_id, const gchar *name)
 {
@@ -199,13 +206,18 @@ ms_upnp_source_new (const gchar *source_id, const gchar *name)
 static void
 ms_upnp_source_class_init (MsUpnpSourceClass * klass)
 {
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   MsMediaSourceClass *source_class = MS_MEDIA_SOURCE_CLASS (klass);
   MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
+
+  gobject_class->finalize = ms_upnp_source_finalize;
+
+  metadata_class->supported_keys = ms_upnp_source_supported_keys;
+  metadata_class->supported_operations = ms_upnp_source_supported_operations;
+
   source_class->browse = ms_upnp_source_browse;
   source_class->search = ms_upnp_source_search;
   source_class->metadata = ms_upnp_source_metadata;
-  metadata_class->supported_keys = ms_upnp_source_supported_keys;
-  metadata_class->supported_operations = ms_upnp_source_supported_operations;
 
   g_type_class_add_private (klass, sizeof (MsUpnpPrivate));
 
@@ -219,7 +231,20 @@ ms_upnp_source_init (MsUpnpSource *source)
   memset (source->priv, 0, sizeof (MsUpnpPrivate));
 }
 
-G_DEFINE_TYPE (MsUpnpSource, ms_upnp_source, MS_TYPE_MEDIA_SOURCE);
+static void
+ms_upnp_source_finalize (GObject *object)
+{
+  MsUpnpSource *source;
+  
+  g_debug ("ms_upnp_source_finalize");
+
+  source = MS_UPNP_SOURCE (object);
+
+  g_object_unref (source->priv->device);
+  g_object_unref (source->priv->service);
+  
+  G_OBJECT_CLASS (ms_upnp_source_parent_class)->finalize (object);
+}
 
 /* ======================= Utilities ==================== */
 
@@ -227,6 +252,16 @@ static gchar *
 build_source_id (const gchar *udn)
 {
   return g_strdup_printf (SOURCE_ID_TEMPLATE, udn);
+}
+
+static void
+free_source_info (struct SourceInfo *info)
+{
+  g_free (info->source_id);
+  g_free (info->source_name);
+  g_object_unref (info->device);
+  g_object_unref (info->service);
+  g_free (info);
 }
 
 static void
@@ -238,7 +273,7 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
   gchar *caps = NULL;
   gchar *name;
   MsUpnpSource *source;
-  MsPluginInfo *plugin;
+  gchar *source_id;
   MsPluginRegistry *registry;
   struct SourceInfo *source_info;
   gboolean result;
@@ -256,10 +291,19 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
   }
 
   source_info = (struct SourceInfo *) user_data;
-  source = source_info->source;
-  plugin = source_info->plugin;
+  name = source_info->source_name;
+  source_id = source_info->source_id;
 
-  name = ms_metadata_source_get_name (MS_METADATA_SOURCE (source));
+  registry = ms_plugin_registry_get_instance ();
+  if (ms_plugin_registry_lookup_source (registry, source_id)) {
+    g_debug ("A source with id '%s' is already registered. Skipping...",
+	     source_id);
+    goto free_resources;
+  }
+
+  source = ms_upnp_source_new (source_id, name);
+  source->priv->device = g_object_ref (source_info->device);
+  source->priv->service = g_object_ref (source_info->service);
   
   g_debug ("Search caps for source '%s': '%s'", name, caps);
 
@@ -270,13 +314,12 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
     g_debug ("Setting search disabled for source '%s'", name );
   }
 
-  registry = ms_plugin_registry_get_instance ();
   ms_plugin_registry_register_source (registry,
-				      plugin,
+				      source_info->plugin,
 				      MS_MEDIA_PLUGIN (source));
 
-  g_free (name);
-  g_free (source_info);
+ free_resources:
+  free_source_info (source_info);
 }
 
 static void
@@ -288,7 +331,6 @@ device_available_cb (GUPnPControlPoint *cp,
   const gchar* udn;
   const char *type;
   GUPnPServiceInfo *service;
-  MsUpnpSource *source;
   MsPluginRegistry *registry;
   gchar *source_id;
 
@@ -323,13 +365,12 @@ device_available_cb (GUPnPControlPoint *cp,
   }
 
   /* We got a valid UPnP source */
-  source = ms_upnp_source_new (source_id, name);
-  source->priv->device = g_object_ref (device);
-  source->priv->service = g_object_ref (service);  
-  
   /* Now let's check if it supports search operations before registering */
   struct SourceInfo *source_info = g_new0 (struct SourceInfo, 1);
-  source_info->source = source;
+  source_info->source_id = g_strdup (source_id);
+  source_info->source_name = g_strdup (name);
+  source_info->device = g_object_ref (device);
+  source_info->service = g_object_ref (service);
   source_info->plugin = (MsPluginInfo *) user_data;
 
   if (!gupnp_service_proxy_begin_action (GUPNP_SERVICE_PROXY (service),
@@ -337,13 +378,14 @@ device_available_cb (GUPnPControlPoint *cp,
 					 gupnp_search_caps_cb,
 					 source_info,
 					 NULL)) {
+    MsUpnpSource *source = ms_upnp_source_new (source_id, name);
     g_warning ("Failed to start GetCapabilitiesSearch action");
     g_debug ("Setting search disabled for source '%s'", name );
     registry = ms_plugin_registry_get_instance ();
     ms_plugin_registry_register_source (registry,
 					source_info->plugin,
-					MS_MEDIA_PLUGIN (source_info->source));
-    g_free (source_info);
+					MS_MEDIA_PLUGIN (source));
+    free_source_info (source_info);
   }
 
  free_resources:
@@ -370,7 +412,7 @@ device_unavailable_cb (GUPnPControlPoint *cp,
   source_id = build_source_id (udn);
   source = ms_plugin_registry_lookup_source (registry, source_id);
   if (!source) {
-    g_debug ("No source registered with this id '%s', ignoring", source_id);
+    g_debug ("No source registered with id '%s', ignoring", source_id);
   } else {
     ms_plugin_registry_unregister_source (registry, source);
   }

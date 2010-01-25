@@ -373,6 +373,7 @@ AC_CONFIG_FILES([
   src/jamendo/Makefile
   src/lastfm-albumart/Makefile
   src/upnp/Makefile
+  src/flickr/Makefile
   test/Makefile
 ])
 

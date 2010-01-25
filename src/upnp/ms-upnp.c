@@ -572,10 +572,10 @@ didl_get_supported_resources (xmlNode *didl_node)
 static gint
 didl_h_mm_ss_to_int (const gchar *time)
 {
-  int len = 0;
-  int i = 0;
-  int head = 0;
-  int tail = 0;
+  guint len = 0;
+  guint i = 0;
+  guint head = 0;
+  guint tail = 0;
   int result = 0;
   gchar* tmp = NULL;
   gboolean has_hours = FALSE;

@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010 Igalia S.L.
 
-INCLUDES = @DEPS_CFLAGS@ @VFS_CFLAGS@
+INCLUDES = @DEPS_CFLAGS@
 
 bin_PROGRAMS = test
 

@@ -165,6 +165,7 @@ typedef struct {
 
 typedef struct {
   AsyncReadCbFunc callback;
+  gchar *url;
   gpointer user_data;
 } AsyncReadCb;
 
@@ -381,10 +382,11 @@ read_done_cb (GObject *source_object,
                                &vfs_error);
   g_object_unref (source_object);
   if (vfs_error) {
-    g_warning ("Failed to open: '%s'", vfs_error->message);
+    g_warning ("Failed to open '%s': %s", arc->url, vfs_error->message);
   } else {
     arc->callback (content, arc->user_data);
   }
+  g_free (arc->url);
   g_free (arc);
 }
 
@@ -399,9 +401,10 @@ read_url_async (const gchar *url,
 
   vfs = g_vfs_get_default ();
 
-  g_debug ("Opening '%s'", url);
+  g_debug ("Opening async '%s'", url);
 
   arc = g_new0 (AsyncReadCb, 1);
+  arc->url = g_strdup (url);
   arc->callback = callback;
   arc->user_data = user_data;
   uri = g_vfs_get_file_for_uri (vfs, url);
@@ -423,7 +426,7 @@ read_url (const gchar *url)
   g_file_load_contents (uri, NULL, &content, NULL, NULL, &vfs_error);
   g_object_unref (uri);
   if (vfs_error) {
-    g_warning ("Failed reading %s: %s", url, vfs_error->message);
+    g_warning ("Failed reading '%s': %s", url, vfs_error->message);
     return NULL;
   } else {
     return content;

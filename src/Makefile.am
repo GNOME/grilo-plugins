@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-SUBDIRS = flickr
+SUBDIRS =
 
 if FAKEMETADATA_PLUGIN
 SUBDIRS += fake-metadata
@@ -29,6 +29,10 @@ endif
 
 if YOUTUBE_PLUGIN
 SUBDIRS += youtube
+endif
+
+if FLICKR_PLUGIN
+SUBDIRS += flickr
 endif
 
 DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr

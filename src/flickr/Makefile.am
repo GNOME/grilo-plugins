@@ -8,10 +8,14 @@
 lib_LTLIBRARIES		 = libmsflickr.la
 
 libmsflickr_la_CFLAGS =		\
-	$(DEPS_CFLAGS)
+	$(DEPS_CFLAGS)		\
+	$(FLICKCURL_CFLAGS)	\
+	$(XML_CFLAGS)
 
-libmsflickr_la_LIBADD =	\
-	$(DEPS_LIBS)
+libmsflickr_la_LIBADD =		\
+	$(DEPS_LIBS)		\
+	$(FLICKCURL_LIBS)	\
+	$(XML_LIBS)
 
 libmsflickr_la_SOURCES = ms-flickr.c ms-flickr.h
 

@@ -95,6 +95,12 @@ AC_SUBST(GUPNPAV_LIBS)
 AC_SUBST(HAVE_GUPNPAV)
 AM_CONDITIONAL(HAVE_GUPNPAV, test "x$HAVE_GUPNPAV" = "xyes")
 
+PKG_CHECK_MODULES(FLICKCURL, flickcurl, HAVE_FLICKCURL=yes, HAVE_FLICKCURL=no)
+AC_SUBST(FLICKCURL_CFLAGS)
+AC_SUBST(FLICKCURL_LIBS)
+AC_SUBST(HAVE_FLICKCURL)
+AM_CONDITIONAL(HAVE_FLICKCURL, test "x$HAVE_FLICKCURL" = "xyes")
+
 # ----------------------------------------------------------
 # UNINSTALLED SUPPORT
 # ----------------------------------------------------------
@@ -258,6 +264,35 @@ AC_ARG_ENABLE(youtube,
         ])
 
 AM_CONDITIONAL([YOUTUBE_PLUGIN], [test "x$enable_youtube" = "xyes"])
+
+# ----------------------------------------------------------
+# BUILD FLICKR PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(flickr,
+        AC_HELP_STRING([--flickr],
+                [enable Flickr plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_FLICKCURL" = "xno"; then
+                           AC_MSG_ERROR([flickcurl not found, install it or use --disable-flickr])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-flickr])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_FLICKCURL" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                   enable_flickr=yes
+                else
+                   enable_flickr=no
+                fi
+        ])
+
+AM_CONDITIONAL([FLICKR_PLUGIN], [test "x$enable_flickr" = "xyes"])
 
 # ----------------------------------------------------------
 # GETTEXT

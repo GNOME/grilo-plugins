@@ -34,7 +34,7 @@
 #define MS_UPNP_SOURCE_CLASS(klass)					\
   (G_TYPE_CHECK_CLASS_CAST((klass), MS_UPNP_SOURCE_TYPE,  MsUpnpSourceClass))
 #define MS_IS_UPNP_SOURCE_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE((klass), UPNP_SOURCE_TYPE))
+  (G_TYPE_CHECK_CLASS_TYPE((klass), MS_UPNP_SOURCE_TYPE))
 #define MS_UPNP_SOURCE_GET_CLASS(obj)					\
   (G_TYPE_INSTANCE_GET_CLASS ((obj), MS_UPNP_SOURCE_TYPE, MsUpnpSourceClass))
 

@@ -27,13 +27,24 @@
 #endif
 
 #include <media-store.h>
+#include <flickcurl.h>
 
 #include "ms-flickr.h"
+
+#define MS_FLICKR_SOURCE_GET_PRIVATE(object)    \
+  (G_TYPE_INSTANCE_GET_PRIVATE((object), MS_TYPE_MEDIA_SOURCE, MsFlickrSourcePrivate))
 
 /* --------- Logging  -------- */
 
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "ms-flickr"
+
+/* ----- Security tokens ---- */
+
+#define FLICKR_KEY    "fa037bee8120a921b34f8209d715a2fa"
+#define FLICKR_SECRET "9f6523b9c52e3317"
+#define FLICKR_FROB   "416-357-743"
+#define FLICKR_TOKEN  "72157623286932154-c90318d470e96a29"
 
 /* --- Plugin information --- */
 
@@ -48,6 +59,10 @@
 #define AUTHOR      "Igalia S.L."
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
+
+struct _MsFlickrSourcePrivate {
+  flickcurl *fc;
+};
 
 static MsFlickrSource *ms_flickr_source_new (void);
 
@@ -64,8 +79,12 @@ ms_flickr_plugin_init (MsPluginRegistry *registry, const MsPluginInfo *plugin)
   g_debug ("flickr_plugin_init\n");
 
   MsFlickrSource *source = ms_flickr_source_new ();
-  ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
-  return TRUE;
+  if (source) {
+    ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
+    return TRUE;
+  } else {
+    return FALSE;
+  }
 }
 
 MS_PLUGIN_REGISTER (ms_flickr_plugin_init,
@@ -74,7 +93,7 @@ MS_PLUGIN_REGISTER (ms_flickr_plugin_init,
                     PLUGIN_NAME,
                     PLUGIN_DESC,
                     PACKAGE_VERSION,
-                    AUTHOR, 
+                    AUTHOR,
                     LICENSE,
                     SITE);
 
@@ -83,12 +102,36 @@ MS_PLUGIN_REGISTER (ms_flickr_plugin_init,
 static MsFlickrSource *
 ms_flickr_source_new (void)
 {
+  MsFlickrSource *fs;
+  static flickcurl *fc = NULL;
+
   g_debug ("ms_flickr_source_new");
-  return g_object_new (MS_FLICKR_SOURCE_TYPE,
-		       "source-id", SOURCE_ID,
-		       "source-name", SOURCE_NAME,
-		       "source-desc", SOURCE_DESC,
-		       NULL);
+
+  if (!fc) {
+    if (flickcurl_init ()) {
+      g_warning ("Unable to initialize Flickcurl");
+      return NULL;
+    }
+
+    fc = flickcurl_new ();
+    if (!fc) {
+      g_warning ("Unable to get a Flickcurl session");
+      return NULL;
+    }
+
+    flickcurl_set_api_key (fc, FLICKR_KEY);
+    flickcurl_set_auth_token (fc, FLICKR_TOKEN);
+    flickcurl_set_shared_secret (fc, FLICKR_SECRET);
+  }
+
+  fs = g_object_new (MS_FLICKR_SOURCE_TYPE,
+                     "source-id", SOURCE_ID,
+                     "source-name", SOURCE_NAME,
+                     "source-desc", SOURCE_DESC,
+                     NULL);
+  fs->priv->fc = fc;
+
+  return fs;
 }
 
 static void
@@ -96,11 +139,14 @@ ms_flickr_source_class_init (MsFlickrSourceClass * klass)
 {
   MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
   metadata_class->supported_keys = ms_flickr_source_supported_keys;
+
+  g_type_class_add_private (metadata_class, sizeof (MsFlickrSourcePrivate));
 }
 
 static void
 ms_flickr_source_init (MsFlickrSource *source)
 {
+  source->priv = MS_FLICKR_SOURCE_GET_PRIVATE (source);
 }
 
 G_DEFINE_TYPE (MsFlickrSource, ms_flickr_source, MS_TYPE_MEDIA_SOURCE);

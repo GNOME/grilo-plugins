@@ -41,11 +41,14 @@
   (G_TYPE_INSTANCE_GET_CLASS ((obj), MS_FLICKR_SOURCE_TYPE, MsFlickrSourceClass))
 
 typedef struct _MsFlickrSource MsFlickrSource;
+typedef struct _MsFlickrSourcePrivate MsFlickrSourcePrivate;
 
 struct _MsFlickrSource {
 
   MsMediaSource parent;
 
+  /*< private >*/
+  MsFlickrSourcePrivate *priv;
 };
 
 typedef struct _MsFlickrSourceClass MsFlickrSourceClass;

@@ -193,19 +193,23 @@ main (void)
   ms_plugin_registry_load (registry, "../plugins/jamendo/.libs/libmsjamendo.so");
   ms_plugin_registry_load (registry, "../plugins/fake-metadata/.libs/libfakemetadata.so");
   ms_plugin_registry_load (registry, "../plugins/lastfm-albumart/.libs/liblastfm-albumart.so");
+  ms_plugin_registry_load (registry, "../plugins/flickr/.libs/libmsflickr.so");
 
   g_debug ("Obtaining sources");
 
-  MsMediaSource *youtube = 
+  MsMediaSource *youtube =
     (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-youtube");
 
-  MsMediaSource *fs = 
+  MsMediaSource *fs =
     (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-filesystem");
+
+  MsMediaSource *flickr =
+    (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-flickr");
 
   MsMediaSource *jamendo =
     (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-jamendo");
 
-  MsMetadataSource *fake = 
+  MsMetadataSource *fake =
     (MsMetadataSource *) ms_plugin_registry_lookup_source (registry, "ms-fake-metadata");
 
   MsMetadataSource *lastfm =
@@ -213,6 +217,7 @@ main (void)
 
   g_assert (youtube);
   g_assert (fs);
+  g_assert (flickr);
   g_assert (jamendo);
   g_assert (fake);
   g_assert (lastfm);
@@ -221,6 +226,7 @@ main (void)
 
   print_supported_ops (MS_METADATA_SOURCE (youtube));
   print_supported_ops (MS_METADATA_SOURCE (fs));
+  print_supported_ops (MS_METADATA_SOURCE (flickr));
   print_supported_ops (MS_METADATA_SOURCE (jamendo));
   print_supported_ops (fake);
   print_supported_ops (lastfm);
@@ -239,6 +245,7 @@ main (void)
   if (0) ms_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_browse (fs, media_from_id ("/home"), keys, 0, 100, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
   if (0) ms_media_source_metadata (fs, media_from_id ("/home"), keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, metadata_cb, NULL);
+  if (1) ms_media_source_search (flickr, "igalia", keys, 1, 10, MS_RESOLVE_NORMAL, browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, media_from_id("1"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, media_from_id("1/9"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
@@ -255,7 +262,7 @@ main (void)
   if (0) ms_media_source_query (jamendo, "album=Nick", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_query (jamendo, "track=asylum mind", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) ms_media_source_search (jamendo, "next", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (1) {
+  if (0) {
     MsContentMedia *media = media_from_id ("test");
     ms_content_set_string (MS_CONTENT (media),
                            MS_METADATA_KEY_ARTIST,

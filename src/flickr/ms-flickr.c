@@ -32,7 +32,7 @@
 #include "ms-flickr.h"
 
 #define MS_FLICKR_SOURCE_GET_PRIVATE(object)    \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object), MS_TYPE_MEDIA_SOURCE, MsFlickrSourcePrivate))
+  (G_TYPE_INSTANCE_GET_PRIVATE((object), MS_FLICKR_SOURCE_TYPE, MsFlickrSourcePrivate))
 
 /* --------- Logging  -------- */
 
@@ -140,7 +140,7 @@ ms_flickr_source_class_init (MsFlickrSourceClass * klass)
   MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
   metadata_class->supported_keys = ms_flickr_source_supported_keys;
 
-  g_type_class_add_private (metadata_class, sizeof (MsFlickrSourcePrivate));
+  g_type_class_add_private (klass, sizeof (MsFlickrSourcePrivate));
 }
 
 static void

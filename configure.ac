@@ -206,8 +206,8 @@ AM_CONDITIONAL([LASTFM_ALBUMART_PLUGIN], [test "x$enable_lastfm_albumart" = "xye
 # ----------------------------------------------------------
 
 AC_ARG_ENABLE(upnp,
-        AC_HELP_STRING([--enable-upnp (default: auto)],
-                [enable uPnP plugin]),
+        AC_HELP_STRING([--enable-upnp],
+                [enable uPnP plugin (default: auto)]),
         [
                 case "$enableval" in
                      yes)

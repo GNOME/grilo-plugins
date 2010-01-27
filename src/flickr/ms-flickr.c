@@ -71,6 +71,9 @@ gboolean ms_flickr_plugin_init (MsPluginRegistry *registry,
 
 static const GList *ms_flickr_source_supported_keys (MsMetadataSource *source);
 
+static void ms_flickr_source_search (MsMediaSource *source,
+                                     MsMediaSourceSearchSpec *ss);
+
 /* =================== Flickr Plugin  =============== */
 
 gboolean
@@ -137,7 +140,10 @@ ms_flickr_source_new (void)
 static void
 ms_flickr_source_class_init (MsFlickrSourceClass * klass)
 {
+  MsMediaSourceClass *source_class = MS_MEDIA_SOURCE_CLASS (klass);
   MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
+
+  source_class->search = ms_flickr_source_search;
   metadata_class->supported_keys = ms_flickr_source_supported_keys;
 
   g_type_class_add_private (klass, sizeof (MsFlickrSourcePrivate));
@@ -167,3 +173,27 @@ ms_flickr_source_supported_keys (MsMetadataSource *source)
   return keys;
 }
 
+static void
+ms_flickr_source_search (MsMediaSource *source,
+                         MsMediaSourceSearchSpec *ss)
+{
+  flickcurl_search_params sparams;
+  flickcurl_photos_list_params lparams;
+  flickcurl_photos_list *result;
+  int i;
+
+  flickcurl_search_params_init (&sparams);
+  flickcurl_photos_list_params_init (&lparams);
+  sparams.text = ss->text;
+  result = flickcurl_photos_search_params (MS_FLICKR_SOURCE (source)->priv->fc,
+                                           &sparams,
+                                           &lparams);
+  if (!result) {
+    g_debug ("No result");
+  } else {
+    for (i = 0; i < result->photos_count; i++) {
+      g_debug ("Photo %d: %s\n", i, result->photos[i]->fields[PHOTO_FIELD_title].string);
+    }
+    flickcurl_free_photos_list (result);
+  }
+}

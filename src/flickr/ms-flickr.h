@@ -36,7 +36,7 @@
 #define MS_FLICKR_SOURCE_CLASS(klass)					\
   (G_TYPE_CHECK_CLASS_CAST((klass), MS_FLICKR_SOURCE_TYPE,  MsFlickrSourceClass))
 #define MS_IS_FLICKR_SOURCE_CLASS(klass)                        \
-  (G_TYPE_CHECK_CLASS_TYPE((klass), FLICKR_SOURCE_TYPE))
+  (G_TYPE_CHECK_CLASS_TYPE((klass), MS_FLICKR_SOURCE_TYPE))
 #define MS_FLICKR_SOURCE_GET_CLASS(obj)					\
   (G_TYPE_INSTANCE_GET_CLASS ((obj), MS_FLICKR_SOURCE_TYPE, MsFlickrSourceClass))
 

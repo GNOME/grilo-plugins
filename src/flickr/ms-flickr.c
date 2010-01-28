@@ -28,6 +28,7 @@
 
 #include <media-store.h>
 #include <flickcurl.h>
+#include <string.h>
 
 #include "ms-flickr.h"
 
@@ -157,6 +158,39 @@ ms_flickr_source_init (MsFlickrSource *source)
 
 G_DEFINE_TYPE (MsFlickrSource, ms_flickr_source, MS_TYPE_MEDIA_SOURCE);
 
+/* ======================= Utilities ==================== */
+
+static MsContentMedia *
+get_content_image (flickcurl_photo *fc_photo)
+{
+  MsContentMedia *media;
+
+  if (strcmp (fc_photo->media_type, "photo") == 0) {
+    media = ms_content_image_new ();
+  } else {
+    media = ms_content_video_new ();
+  }
+
+  ms_content_media_set_id (media, fc_photo->id);
+  if (fc_photo->uri) {
+    ms_content_media_set_url (media, fc_photo->uri);
+  }
+  if (fc_photo->fields[PHOTO_FIELD_owner_realname].string) {
+    ms_content_media_set_author (media, fc_photo->fields[PHOTO_FIELD_owner_realname].string);
+  }
+  if (fc_photo->fields[PHOTO_FIELD_title].string) {
+    ms_content_media_set_title (media, fc_photo->fields[PHOTO_FIELD_title].string);
+  }
+  if (fc_photo->fields[PHOTO_FIELD_description].string) {
+    ms_content_media_set_description (media, fc_photo->fields[PHOTO_FIELD_description].string);
+  }
+  if (fc_photo->fields[PHOTO_FIELD_dates_taken].string) {
+    ms_content_media_set_date (media, fc_photo->fields[PHOTO_FIELD_dates_taken].string);
+  }
+
+  return media;
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -165,9 +199,11 @@ ms_flickr_source_supported_keys (MsMetadataSource *source)
   static GList *keys = NULL;
   if (!keys) {
     keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
-				     MS_METADATA_KEY_TITLE,
                                      MS_METADATA_KEY_URL,
                                      MS_METADATA_KEY_AUTHOR,
+				     MS_METADATA_KEY_TITLE,
+                                     MS_METADATA_KEY_DESCRIPTION,
+                                     MS_METADATA_KEY_DATE,
                                      NULL);
   }
   return keys;
@@ -204,7 +240,15 @@ ms_flickr_source_search (MsMediaSource *source,
       break;
     }
     for (i = offset_in_page; i < result->photos_count && ss->count > 0; i++) {
-      g_debug ("Photo %d: %s\n", i, result->photos[i]->fields[PHOTO_FIELD_title].string);
+      /* As we are not computing whether there are enough photos to satisfy user
+         requirement, use -1 in remaining elements (i.e., "unknown"), and use 0
+         no more elements are/can be sent */
+      ss->callback (ss->source,
+                    ss->search_id,
+                    get_content_image (result->photos[i]),
+                    ss->count == 1? 0: -1,
+                    ss->user_data,
+                    NULL);
       ss->count--;
     }
     /* Sent all requested photos */

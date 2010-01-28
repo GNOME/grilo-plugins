@@ -95,7 +95,13 @@ AC_SUBST(GUPNPAV_LIBS)
 AC_SUBST(HAVE_GUPNPAV)
 AM_CONDITIONAL(HAVE_GUPNPAV, test "x$HAVE_GUPNPAV" = "xyes")
 
-PKG_CHECK_MODULES(FLICKCURL, flickcurl, HAVE_FLICKCURL=yes, HAVE_FLICKCURL=no)
+PKG_CHECK_MODULES(LIBCURL, libcurl, HAVE_LIBCURL=yes, HAVE_LIBCURL=no)
+AC_SUBST(LIBCURL_CFLAGS)
+AC_SUBST(LIBCURL_LIBS)
+AC_SUBST(HAVE_LIBCURL)
+AM_CONDITIONAL(HAVE_LIBCURL, test "x$HAVE_LIBCURL" = "xyes")
+
+PKG_CHECK_MODULES(FLICKCURL, flickcurl >= 1.10, HAVE_FLICKCURL=yes, HAVE_FLICKCURL=no)
 AC_SUBST(FLICKCURL_CFLAGS)
 AC_SUBST(FLICKCURL_LIBS)
 AC_SUBST(HAVE_FLICKCURL)
@@ -276,16 +282,19 @@ AC_ARG_ENABLE(flickr,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_FLICKCURL" = "xno"; then
-                           AC_MSG_ERROR([flickcurl not found, install it or use --disable-flickr])
+                           AC_MSG_ERROR([flickcurl >= 1.10  not found, install it or use --disable-flickr])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-flickr])
+                        fi
+                        if test "x$HAVE_LIBCURL" = "xno"; then
+                           AC_MSG_ERROR([libcurl not found, install it or use --disable-flickr])
                         fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_FLICKCURL" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_FLICKCURL" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_LIBCURL" = "xyes"; then
                    enable_flickr=yes
                 else
                    enable_flickr=no

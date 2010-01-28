@@ -739,32 +739,38 @@ set_metadata_value (MsContentMedia *media, MsKeyID key_id, const gchar *value)
 }
 
 static MsContentMedia *
-build_media_from_didl (xmlNode *didl_node, GList *keys)
+build_media_from_didl (MsContentMedia *content, xmlNode *didl_node, GList *keys)
 {
   gchar *id;
-  MsContentMedia *media;
+  MsContentMedia *media = NULL;
   GList *didl_props;
   gchar *class;
   GList *iter;
 
   g_debug ("build_media_from_didl");
 
+  if (content) {
+    media = content;
+  }
+
   if (gupnp_didl_lite_object_is_container (didl_node)) {
     media = MS_CONTENT_MEDIA (ms_content_box_new ());
   } else {
-    class = gupnp_didl_lite_object_get_upnp_class (didl_node);
-    if (class) {
-      if (g_str_has_prefix (class, "object.item.audioItem")) {
-	media = ms_content_audio_new ();
-      } else if (g_str_has_prefix (class, "object.item.videoItem")) {
-	media = ms_content_video_new ();
-      } else if (g_str_has_prefix (class, "object.item.imageItem")) {
-	media = ms_content_image_new ();
+    if (!media) {
+      class = gupnp_didl_lite_object_get_upnp_class (didl_node);
+      if (class) {
+	if (g_str_has_prefix (class, "object.item.audioItem")) {
+	  media = ms_content_audio_new ();
+	} else if (g_str_has_prefix (class, "object.item.videoItem")) {
+	  media = ms_content_video_new ();
+	} else if (g_str_has_prefix (class, "object.item.imageItem")) {
+	  media = ms_content_image_new ();
+	} else {
+	  media = ms_content_media_new ();
+	}
       } else {
 	media = ms_content_media_new ();
       }
-    } else {
-      media = ms_content_media_new ();
     }
   }
 
@@ -796,7 +802,7 @@ gupnp_browse_result_cb (GUPnPDIDLLiteParser *parser,
 {
   MsContentMedia *media;
   struct OperationSpec *os = (struct OperationSpec *) user_data;
-  media = build_media_from_didl (didl_node, os->keys);
+  media = build_media_from_didl (NULL, didl_node, os->keys);
   os->callback (os->source,
 		os->operation_id,
 		media,
@@ -872,10 +878,9 @@ gupnp_metadata_result_cb (GUPnPDIDLLiteParser *parser,
 			  xmlNode *didl_node,
 			  gpointer user_data)
 {
-  MsContentMedia *media;
   MsMediaSourceMetadataSpec *ms = (MsMediaSourceMetadataSpec *) user_data;
-  media = build_media_from_didl (didl_node, ms->keys);
-  ms->callback (ms->source, media, ms->user_data, NULL);
+  build_media_from_didl (ms->media, didl_node, ms->keys);
+  ms->callback (ms->source, ms->media, ms->user_data, NULL);
 }
 
 static void
@@ -900,7 +905,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
 
   if (!result) {
     g_warning ("Metadata operation failed");
-    ms->callback (ms->source, NULL, ms->user_data, error);
+    ms->callback (ms->source, ms->media, ms->user_data, error);
     if (error) {
       g_warning ("  Reason: %s", error->message);
       g_error_free (error);
@@ -922,7 +927,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
 				     &error);
   if (error) {
     g_warning ("Failed to parse DIDL result: %s", error->message);
-    ms->callback (ms->source, NULL, ms->user_data, error);
+    ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
     return;
   }
@@ -1079,7 +1084,7 @@ ms_upnp_source_metadata (MsMediaSource *source,
     error = g_error_new (MS_ERROR,
 			 MS_ERROR_METADATA_FAILED,
 			 "Failed to start metadata action");
-    ms->callback (ms->source, NULL, ms->user_data, error);
+    ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   }
 }

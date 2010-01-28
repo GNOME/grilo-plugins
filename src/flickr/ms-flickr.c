@@ -181,19 +181,41 @@ ms_flickr_source_search (MsMediaSource *source,
   flickcurl_photos_list_params lparams;
   flickcurl_photos_list *result;
   int i;
+  int offset_in_page;
+  int per_page;
 
   flickcurl_search_params_init (&sparams);
   flickcurl_photos_list_params_init (&lparams);
   sparams.text = ss->text;
-  result = flickcurl_photos_search_params (MS_FLICKR_SOURCE (source)->priv->fc,
-                                           &sparams,
-                                           &lparams);
-  if (!result) {
-    g_debug ("No result");
-  } else {
-    for (i = 0; i < result->photos_count; i++) {
+
+  /* Compute page offset */
+  per_page = 1 + ss->skip + ss->count;
+  lparams.per_page = per_page > 100? 100: per_page;
+  lparams.page = 1 + (ss->skip/lparams.per_page);
+  offset_in_page = 1 + (ss->skip%lparams.per_page);
+
+  for (;;) {
+    result = flickcurl_photos_search_params (MS_FLICKR_SOURCE (source)->priv->fc,
+                                             &sparams,
+                                             &lparams);
+    /* No (more) results */
+    if (!result || result->photos_count == 0) {
+      g_debug ("No (more) results");
+      break;
+    }
+    for (i = offset_in_page; i < result->photos_count && ss->count > 0; i++) {
       g_debug ("Photo %d: %s\n", i, result->photos[i]->fields[PHOTO_FIELD_title].string);
+      ss->count--;
+    }
+    /* Sent all requested photos */
+    if (ss->count == 0) {
+      g_debug ("All results sent");
+      break;
     }
     flickcurl_free_photos_list (result);
+    offset_in_page = 0;
+    lparams.page++;
   }
+  /* Free last results */
+ flickcurl_free_photos_list (result);
 }

@@ -1034,13 +1034,21 @@ set_category_childcount (MsContentBox *content, CategoryInfo *dir, guint index)
 }
 
 static MsContentMedia *
-produce_container_from_directory (CategoryInfo *dir,
+produce_container_from_directory (MsContentMedia *media,
+				  CategoryInfo *dir,
 				  guint index,
 				  gboolean set_childcount)
 {
   MsContentMedia *content;
 
-  content = ms_content_box_new ();
+  if (!media) {
+    /* Create mode */
+    content = ms_content_box_new ();
+  } else {
+    /* Update mode */
+    content = media;
+  }
+
   if (!dir) {
     ms_content_media_set_id (content, NULL);
     ms_content_media_set_title (content, YOUTUBE_ROOT_NAME);
@@ -1057,7 +1065,8 @@ produce_container_from_directory (CategoryInfo *dir,
 }
 
 static MsContentMedia *
-produce_container_from_directory_by_id (CategoryInfo *dir,
+produce_container_from_directory_by_id (MsContentMedia *media,
+					CategoryInfo *dir,
 					const gchar *id,
 					gboolean set_childcount)
 {
@@ -1066,9 +1075,12 @@ produce_container_from_directory_by_id (CategoryInfo *dir,
 
   while (dir[index].id && strcmp (dir[index].id, id)) index++;
   if (dir[index].id) {
-    content = produce_container_from_directory (dir, index, set_childcount);
+    content = produce_container_from_directory (media, dir,
+						index, set_childcount);
   } else {
-    content = NULL;
+    /* If don't have that entry, return the media as it was
+       provided (if media was NULL, we return NULL) */
+    content = media;
   }
 
   return content;
@@ -1099,7 +1111,8 @@ produce_from_directory_idle (gpointer user_data)
   ProduceFromDirectoryIdle *pfdi = (ProduceFromDirectoryIdle *) user_data;
 
   if (!pfdi->os->cancelled) {
-    content = produce_container_from_directory (pfdi->directory, 
+    content = produce_container_from_directory (NULL,
+						pfdi->directory, 
 						pfdi->index,
 						pfdi->set_childcount);    
     pfdi->remaining--;
@@ -1404,21 +1417,26 @@ ms_youtube_source_metadata (MsMediaSource *source,
 
   switch (media_type) {
   case YOUTUBE_MEDIA_TYPE_ROOT:
-    media = produce_container_from_directory (NULL, 0, set_childcount);
+    media = produce_container_from_directory (ms->media, NULL,
+					      0, set_childcount);
     break;
   case YOUTUBE_MEDIA_TYPE_FEEDS:
-    media = produce_container_from_directory (root_dir, 0, set_childcount);
+    media = produce_container_from_directory (ms->media, root_dir,
+					      0, set_childcount);
     break;
   case YOUTUBE_MEDIA_TYPE_CATEGORIES:
-    media = produce_container_from_directory (root_dir, 1, set_childcount);
+    media = produce_container_from_directory (ms->media, root_dir,
+					      1, set_childcount);
     break;
   case YOUTUBE_MEDIA_TYPE_FEED:
-    media = produce_container_from_directory_by_id (feeds_dir,
+    media = produce_container_from_directory_by_id (ms->media,
+						    feeds_dir,
 						    id,
 						    set_childcount);
     break;
   case YOUTUBE_MEDIA_TYPE_CATEGORY:
-    media = produce_container_from_directory_by_id (categories_dir,
+    media = produce_container_from_directory_by_id (ms->media,
+						    categories_dir,
 						    id,
 						    set_childcount);
     break;
@@ -1435,10 +1453,10 @@ ms_youtube_source_metadata (MsMediaSource *source,
   }
 
   if (error) {
-    ms->callback (ms->source, NULL, ms->user_data, error);
+    ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   } else if (media) {
-    ms->callback (ms->source, media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
   }
 }
 

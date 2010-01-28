@@ -275,9 +275,9 @@ set_container_childcount (const gchar *path,
 }
 
 static MsContentMedia *
-create_content (const gchar *path, gboolean only_fast)
+create_content (MsContentMedia *content, const gchar *path, gboolean only_fast)
 {
-  MsContentMedia *media;
+  MsContentMedia *media = NULL;
   gchar *str;
   const gchar *mime;
   GError *error = NULL;
@@ -289,10 +289,17 @@ create_content (const gchar *path, gboolean only_fast)
 				       NULL,
 				       &error);
 
+  /* Update mode */
+  if (content) {
+    media = content;
+  }
+
   if (error) {
     g_warning ("Failed to get info for file '%s': %s", path, error->message);
-    media = ms_content_media_new ();
-
+    if (!media) {
+      media = ms_content_media_new ();
+    }
+ 
     /* Title */
     str = g_strrstr (path, G_DIR_SEPARATOR_S);
     if (!str) {
@@ -303,18 +310,23 @@ create_content (const gchar *path, gboolean only_fast)
   } else {
     mime = g_file_info_get_content_type (info);
 
-    if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-      media = MS_CONTENT_MEDIA (ms_content_box_new ());
-    } else {
-      if (mime_is_video (mime)) {
-	media = ms_content_video_new ();
-      } else if (mime_is_audio (mime)) {
-	media = ms_content_audio_new ();
-      } else if (mime_is_image (mime)) {
-	media = ms_content_image_new ();
+    if (!media) {
+      if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
+	media = MS_CONTENT_MEDIA (ms_content_box_new ());
       } else {
-	media = ms_content_media_new ();
+	if (mime_is_video (mime)) {
+	  media = ms_content_video_new ();
+	} else if (mime_is_audio (mime)) {
+	  media = ms_content_audio_new ();
+	} else if (mime_is_image (mime)) {
+	  media = ms_content_image_new ();
+	} else {
+	  media = ms_content_media_new ();
+	}
       }
+    }
+    
+    if (!MS_IS_CONTENT_BOX (media)) {
       ms_content_media_set_mime (MS_CONTENT (media), mime);
     }
 
@@ -367,7 +379,8 @@ browse_emit_idle (gpointer user_data)
     MsContentMedia *content;
     
     entry_path = (gchar *) idle_data->current->data;
-    content = create_content (entry_path,
+    content = create_content (NULL,
+			      entry_path,
 			      idle_data->spec->flags & MS_RESOLVE_FAST_ONLY); 
     g_free (idle_data->current->data);
    
@@ -508,7 +521,6 @@ static void
 ms_filesystem_source_metadata (MsMediaSource *source,
 			       MsMediaSourceMetadataSpec *ms)
 {
-  MsContentMedia *content;
   const gchar *path;
   const gchar *id;
 
@@ -518,14 +530,15 @@ ms_filesystem_source_metadata (MsMediaSource *source,
   path = id ? id : G_DIR_SEPARATOR_S;
 
   if (g_file_test (path, G_FILE_TEST_EXISTS)) {
-    content = create_content (path, ms->flags & MS_RESOLVE_FAST_ONLY);
-    ms->callback (ms->source, content, ms->user_data, NULL);
+    create_content (ms->media, path,
+		    ms->flags & MS_RESOLVE_FAST_ONLY);
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
   } else {
     GError *error = g_error_new (MS_ERROR,
 				 MS_ERROR_METADATA_FAILED,
 				 "File '%s' does not exist",
 				 path);
-    ms->callback (ms->source, NULL, ms->user_data, error);
+    ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   }
 }

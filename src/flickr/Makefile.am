@@ -17,7 +17,11 @@ libmsflickr_la_LIBADD =		\
 	$(FLICKCURL_LIBS)	\
 	$(XML_LIBS)
 
-libmsflickr_la_SOURCES = ms-flickr.c ms-flickr.h
+libmsflickr_la_SOURCES =	\
+	flickcurl_async.c	\
+	flickcurl_async.h	\
+	ms-flickr.c		\
+	ms-flickr.h
 
 libdir=$(PLUGINS_DIR)
 

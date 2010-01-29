@@ -154,6 +154,10 @@ static void
 ms_flickr_source_init (MsFlickrSource *source)
 {
   source->priv = MS_FLICKR_SOURCE_GET_PRIVATE (source);
+
+  if (!g_thread_supported ()) {
+    g_thread_init (NULL);
+  }
 }
 
 G_DEFINE_TYPE (MsFlickrSource, ms_flickr_source, MS_TYPE_MEDIA_SOURCE);

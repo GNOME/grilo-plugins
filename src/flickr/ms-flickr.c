@@ -160,18 +160,9 @@ G_DEFINE_TYPE (MsFlickrSource, ms_flickr_source, MS_TYPE_MEDIA_SOURCE);
 
 /* ======================= Utilities ==================== */
 
-static MsContentMedia *
-get_content_image (flickcurl_photo *fc_photo)
+static void
+update_media (MsContentMedia *media, flickcurl_photo *fc_photo)
 {
-  MsContentMedia *media;
-
-  if (strcmp (fc_photo->media_type, "photo") == 0) {
-    media = ms_content_image_new ();
-  } else {
-    media = ms_content_video_new ();
-  }
-
-  ms_content_media_set_id (media, fc_photo->id);
   if (fc_photo->uri) {
     ms_content_media_set_url (media, fc_photo->uri);
   }
@@ -187,6 +178,21 @@ get_content_image (flickcurl_photo *fc_photo)
   if (fc_photo->fields[PHOTO_FIELD_dates_taken].string) {
     ms_content_media_set_date (media, fc_photo->fields[PHOTO_FIELD_dates_taken].string);
   }
+}
+
+static MsContentMedia *
+get_content_image (flickcurl_photo *fc_photo)
+{
+  MsContentMedia *media;
+
+  if (strcmp (fc_photo->media_type, "photo") == 0) {
+    media = ms_content_image_new ();
+  } else {
+    media = ms_content_video_new ();
+  }
+
+  ms_content_media_set_id (media, fc_photo->id);
+  update_media (media, fc_photo);
 
   return media;
 }
@@ -219,6 +225,10 @@ ms_flickr_source_search (MsMediaSource *source,
   int i;
   int offset_in_page;
   int per_page;
+  gboolean detailed = FALSE;
+  GList *iter;
+  MsContentMedia *media;
+  flickcurl_photo *photo;
 
   flickcurl_search_params_init (&sparams);
   flickcurl_photos_list_params_init (&lparams);
@@ -229,6 +239,23 @@ ms_flickr_source_search (MsMediaSource *source,
   lparams.per_page = per_page > 100? 100: per_page;
   lparams.page = 1 + (ss->skip/lparams.per_page);
   offset_in_page = 1 + (ss->skip%lparams.per_page);
+
+  /* Check if we need need to ask for complete information for each photo */
+  if (!(ss->flags & MS_RESOLVE_FAST_ONLY)) {
+    /* Check if some "slow" key is requested */
+    iter = ss->keys;
+    while (iter) {
+      MsKeyID key_id = POINTER_TO_MSKEYID (iter->data);
+      if (key_id == MS_METADATA_KEY_URL ||
+          key_id == MS_METADATA_KEY_AUTHOR ||
+          key_id == MS_METADATA_KEY_DESCRIPTION ||
+          key_id == MS_METADATA_KEY_DATE) {
+        detailed = TRUE;
+        break;
+      }
+      iter = g_list_next (iter);
+    }
+  }
 
   for (;;) {
     result = flickcurl_photos_search_params (MS_FLICKR_SOURCE (source)->priv->fc,
@@ -249,9 +276,20 @@ ms_flickr_source_search (MsMediaSource *source,
       /* As we are not computing whether there are enough photos to satisfy user
          requirement, use -1 in remaining elements (i.e., "unknown"), and use 0
          no more elements are/can be sent */
+      media = get_content_image (result->photos[i]);
+      if (detailed) {
+        photo = flickcurl_photos_getInfo (MS_FLICKR_SOURCE (source)->priv->fc,
+                                          result->photos[i]->id);
+        if (photo) {
+          update_media (media, photo);
+        }
+
+        flickcurl_free_photo (photo);
+      }
+
       ss->callback (ss->source,
                     ss->search_id,
-                    get_content_image (result->photos[i]),
+                    media,
                     ss->count == 1? 0: -1,
                     ss->user_data,
                     NULL);

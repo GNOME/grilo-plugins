@@ -75,6 +75,12 @@ PKG_CHECK_MODULES(DEPS, glib-2.0 \
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
+PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
+AC_SUBST(GTHREAD_CFLAGS)
+AC_SUBST(GTHREAD_LIBS)
+AC_SUBST(HAVE_GTHREAD)
+AM_CONDITIONAL(HAVE_GTHREAD, test "x$HAVE_GTHREAD" = "xyes")
+
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 AC_SUBST(XML_CFLAGS)
 AC_SUBST(XML_LIBS)
@@ -324,11 +330,15 @@ AC_ARG_ENABLE(flickr,
                         if test "x$HAVE_LIBCURL" = "xno"; then
                            AC_MSG_ERROR([libcurl not found, install it or use --disable-flickr])
                         fi
+                        if test "x$HAVE_GTHREAD" = "xno"; then
+                           AC_MSG_ERROR([gthread-2.0 not found, install it or use --disable-flickr])
+                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_FLICKCURL" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_LIBCURL" = "xyes"; then
+                if test "x$HAVE_FLICKCURL" = "xyes" -a "x$HAVE_XML" = "xyes" -a \
+                        "x$HAVE_LIBCURL" = "xyes" -a "x$HAVE_GTHREAD" = "xyes"; then
                    enable_flickr=yes
                 else
                    enable_flickr=no

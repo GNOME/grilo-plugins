@@ -219,16 +219,21 @@ static void
 ms_flickr_source_search (MsMediaSource *source,
                          MsMediaSourceSearchSpec *ss)
 {
-  flickcurl_search_params sparams;
-  flickcurl_photos_list_params lparams;
-  flickcurl_photos_list *result;
-  int i;
-  int offset_in_page;
-  int per_page;
-  gboolean detailed = FALSE;
   GList *iter;
   MsContentMedia *media;
+  char *url;
   flickcurl_photo *photo;
+  flickcurl_photos_list *result;
+  flickcurl_photos_list_params lparams;
+  flickcurl_search_params sparams;
+  flickcurl_size **photo_sizes;
+  gboolean get_slow_keys = FALSE;
+  gboolean get_slow_url = FALSE;
+  int height;
+  int i, s;
+  int offset_in_page;
+  int per_page;
+  int width;
 
   flickcurl_search_params_init (&sparams);
   flickcurl_photos_list_params_init (&lparams);
@@ -246,11 +251,14 @@ ms_flickr_source_search (MsMediaSource *source,
     iter = ss->keys;
     while (iter) {
       MsKeyID key_id = POINTER_TO_MSKEYID (iter->data);
-      if (key_id == MS_METADATA_KEY_URL ||
-          key_id == MS_METADATA_KEY_AUTHOR ||
+      if (key_id == MS_METADATA_KEY_AUTHOR ||
           key_id == MS_METADATA_KEY_DESCRIPTION ||
           key_id == MS_METADATA_KEY_DATE) {
-        detailed = TRUE;
+        get_slow_keys = TRUE;
+      } else if (key_id == MS_METADATA_KEY_URL) {
+        get_slow_url = TRUE;
+      }
+      if (get_slow_keys && get_slow_url) {
         break;
       }
       iter = g_list_next (iter);
@@ -277,7 +285,38 @@ ms_flickr_source_search (MsMediaSource *source,
          requirement, use -1 in remaining elements (i.e., "unknown"), and use 0
          no more elements are/can be sent */
       media = get_content_image (result->photos[i]);
-      if (detailed) {
+      if (get_slow_url) {
+        photo_sizes = flickcurl_photos_getSizes (MS_FLICKR_SOURCE (source)->priv->fc,
+                                                 result->photos[i]->id);
+        if (photo_sizes) {
+          url = photo_sizes[0]->source;
+          width = photo_sizes[0]->width;
+          height = photo_sizes[0]->height;
+
+        /* Look for "Original" size */
+          s = 0;
+          while (photo_sizes[s]) {
+            if (strcmp (photo_sizes[s]->label, "Original") == 0) {
+              url = photo_sizes[s]->source;
+              width = photo_sizes[s]->width;
+              height = photo_sizes[s]->height;
+              break;
+            }
+            s++;
+          }
+
+          /* Update media */
+          ms_content_media_set_url (media, url);
+          if (MS_IS_CONTENT_IMAGE (media)) {
+            ms_content_image_set_size (MS_CONTENT_IMAGE (media), width, height);
+          } else if (MS_IS_CONTENT_VIDEO (media)) {
+            ms_content_video_set_size (MS_CONTENT_VIDEO (media), width, height);
+          }
+          flickcurl_free_sizes (photo_sizes);
+        }
+      }
+
+      if (get_slow_keys) {
         photo = flickcurl_photos_getInfo (MS_FLICKR_SOURCE (source)->priv->fc,
                                           result->photos[i]->id);
         if (photo) {

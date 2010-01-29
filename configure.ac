@@ -26,6 +26,10 @@ AC_HEADER_STDC
 
 AM_MAINTAINER_MODE
 
+# ----------------------------------------------------------
+# ENVIRONMENT CONFIGURATION
+# ----------------------------------------------------------
+
 CFLAGS="$CFLAGS -Wall -Werror -Wmissing-prototypes -Wmissing-declarations -std=c99"
 
 # ----------------------------------------------------------
@@ -143,6 +147,11 @@ AC_ARG_ENABLE(fakemetadata,
         [enable_fakemetadata=yes])
 
 AM_CONDITIONAL([FAKEMETADATA_PLUGIN], [test "x$enable_fakemetadata" = "xyes"])
+MS_PLUGINS_ALL="$MS_PLUGINS_ALL fakemetadata"
+if test "x$enable_fakemetadata" = "xyes"
+then
+	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED fakemetadata"
+fi
 
 # ----------------------------------------------------------
 # BUILD FILE SYSTEM PLUGIN
@@ -154,6 +163,11 @@ AC_ARG_ENABLE(filesystem,
         [enable_filesystem=yes])
 
 AM_CONDITIONAL([FILESYSTEM_PLUGIN], [test "x$enable_filesystem" = "xyes"])
+MS_PLUGINS_ALL="$MS_PLUGINS_ALL filesystem"
+if test "x$enable_filesystem" = "xyes"
+then
+	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED filesystem"
+fi
 
 # ----------------------------------------------------------
 # BUILD JAMENDO PLUGIN
@@ -183,6 +197,11 @@ AC_ARG_ENABLE(jamendo,
         ])
 
 AM_CONDITIONAL([JAMENDO_PLUGIN], [test "x$enable_jamendo" = "xyes"])
+MS_PLUGINS_ALL="$MS_PLUGINS_ALL jamendo"
+if test "x$enable_jamendo" = "xyes"
+then
+	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED jamendo"
+fi
 
 # ----------------------------------------------------------
 # BUILD LASTFM ALBUM ART PLUGIN
@@ -212,6 +231,11 @@ AC_ARG_ENABLE(lastfm_albumart,
         ])
 
 AM_CONDITIONAL([LASTFM_ALBUMART_PLUGIN], [test "x$enable_lastfm_albumart" = "xyes"])
+MS_PLUGINS_ALL="$MS_PLUGINS_ALL lastfm-albumart"
+if test "x$enable_lastfm_albumart" = "xyes"
+then
+	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED lastfm-albumart"
+fi
 
 # ----------------------------------------------------------
 # BUILD UPNP PLUGIN
@@ -241,6 +265,11 @@ AC_ARG_ENABLE(upnp,
         ])
 
 AM_CONDITIONAL([UPNP_PLUGIN], [test "x$enable_upnp" = "xyes"])
+MS_PLUGINS_ALL="$MS_PLUGINS_ALL upnp"
+if test "x$enable_upnp" = "xyes"
+then
+	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED upnp"
+fi
 
 # ----------------------------------------------------------
 # BUILD YOUTUBE PLUGIN
@@ -270,6 +299,11 @@ AC_ARG_ENABLE(youtube,
         ])
 
 AM_CONDITIONAL([YOUTUBE_PLUGIN], [test "x$enable_youtube" = "xyes"])
+MS_PLUGINS_ALL="$MS_PLUGINS_ALL youtube"
+if test "x$enable_youtube" = "xyes"
+then
+	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED youtube"
+fi
 
 # ----------------------------------------------------------
 # BUILD FLICKR PLUGIN
@@ -302,6 +336,11 @@ AC_ARG_ENABLE(flickr,
         ])
 
 AM_CONDITIONAL([FLICKR_PLUGIN], [test "x$enable_flickr" = "xyes"])
+MS_PLUGINS_ALL="$MS_PLUGINS_ALL flickr"
+if test "x$enable_flickr" = "xyes"
+then
+	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED flickr"
+fi
 
 # ----------------------------------------------------------
 # GETTEXT
@@ -422,3 +461,5 @@ AC_CONFIG_FILES([
 ])
 
 AC_OUTPUT
+
+AG_MS_OUTPUT_PLUGINS

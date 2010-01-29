@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2010 Igalia S.L.
  *
+ * This component is based on Maemo's mafw-upnp-source source code.
+ *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
  * This library is free software; you can redistribute it and/or
@@ -503,9 +505,6 @@ setup_key_mappings (void)
   g_hash_table_insert (filter_key_mapping,
 		       MSKEYID_TO_POINTER (MS_METADATA_KEY_GENRE),
 		       "upnp:genre");
-/*   g_hash_table_insert (filter_key_mapping, */
-/* 		       MSKEYID_TO_POINTER (MS_METADATA_KEY_URL), */
-/* 		       "res"); */
   g_hash_table_insert (filter_key_mapping,
 		       MSKEYID_TO_POINTER (MS_METADATA_KEY_DURATION),
 		       "res@duration");

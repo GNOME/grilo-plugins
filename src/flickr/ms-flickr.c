@@ -237,6 +237,12 @@ ms_flickr_source_search (MsMediaSource *source,
     /* No (more) results */
     if (!result || result->photos_count == 0) {
       g_debug ("No (more) results");
+      ss->callback (ss->source,
+                    ss->search_id,
+                    NULL,
+                    0,
+                    ss->user_data,
+                    NULL);
       break;
     }
     for (i = offset_in_page; i < result->photos_count && ss->count > 0; i++) {

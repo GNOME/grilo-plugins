@@ -134,7 +134,7 @@ fill_metadata (MsContentMedia *media, MsKeyID key_id)
     ms_content_media_set_description (media, "fake description");
     break;
   case MS_METADATA_KEY_DURATION:
-    ms_content_media_set_description (media, "99");
+    ms_content_media_set_duration (media, 99);
     break;
   case MS_METADATA_KEY_DATE:
     ms_content_set_string (MS_CONTENT (media),

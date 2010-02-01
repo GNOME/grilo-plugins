@@ -117,6 +117,12 @@ AC_SUBST(FLICKCURL_LIBS)
 AC_SUBST(HAVE_FLICKCURL)
 AM_CONDITIONAL(HAVE_FLICKCURL, test "x$HAVE_FLICKCURL" = "xyes")
 
+PKG_CHECK_MODULES(SQLITE, sqlite3 >= 3.6.10, HAVE_SQLITE=yes, HAVE_SQLITE=no)
+AC_SUBST(SQLITE_CFLAGS)
+AC_SUBST(SQLITE_LIBS)
+AC_SUBST(HAVE_SQLITE)
+AM_CONDITIONAL(HAVE_SQLITE, test "x$HAVE_SQLITE" = "xyes")
+
 # ----------------------------------------------------------
 # UNINSTALLED SUPPORT
 # ----------------------------------------------------------
@@ -353,6 +359,47 @@ then
 fi
 
 # ----------------------------------------------------------
+# BUILD PODCASTS PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(podcasts,
+        AC_HELP_STRING([--enable-podcasts],
+                [enable Podcasts plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO not found, install it or use --disable-podcasts])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-podcasts])
+                        fi
+                        if test "x$HAVE_SQLITE" = "xno"; then
+                           AC_MSG_ERROR([sqlite3 not found, install it or use --disable-podcasts])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                   if test "x$HAVE_SQLITE" = "xyes"; then
+                     enable_podcasts=yes
+                   else
+                     enable_podcasts=no
+                   fi
+                else
+                   enable_podcasts=no
+                fi
+        ])
+
+AM_CONDITIONAL([PODCASTS_PLUGIN], [test "x$enable_podcasts" = "xyes"])
+MS_PLUGINS_ALL="$MS_PLUGINS_ALL podcasts"
+if test "x$enable_podcasts" = "xyes"
+then
+	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED podcasts"
+fi
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -467,6 +514,7 @@ AC_CONFIG_FILES([
   src/lastfm-albumart/Makefile
   src/upnp/Makefile
   src/flickr/Makefile
+  src/podcasts/Makefile
   test/Makefile
 ])
 

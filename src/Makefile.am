@@ -35,7 +35,11 @@ if FLICKR_PLUGIN
 SUBDIRS += flickr
 endif
 
-DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr
+if PODCASTS_PLUGIN
+SUBDIRS += podcasts
+endif
+
+DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr podcasts
 
 MAINTAINERCLEANFILES = \
         *.in \

@@ -66,6 +66,11 @@
   "WHERE %s "						\
   "LIMIT %u OFFSET %u"
 
+#define MS_SQL_GET_PODCAST_BY_ID			\
+  "SELECT * FROM podcasts "				\
+  "WHERE id='%s' "						\
+  "LIMIT 1"
+
 enum {
   ID = 0,
   TITLE,
@@ -116,6 +121,8 @@ static void ms_podcasts_source_search (MsMediaSource *source,
 				       MsMediaSourceSearchSpec *ss);
 static void ms_podcasts_source_query (MsMediaSource *source,
 				      MsMediaSourceQuerySpec *qs);
+static void ms_podcasts_source_metadata (MsMediaSource *source,
+					 MsMediaSourceMetadataSpec *ms);
 
 /* =================== Podcasts Plugin  =============== */
 
@@ -164,6 +171,7 @@ ms_podcasts_source_class_init (MsPodcastsSourceClass * klass)
   source_class->browse = ms_podcasts_source_browse;
   source_class->search = ms_podcasts_source_search;
   source_class->query = ms_podcasts_source_query;
+  source_class->metadata = ms_podcasts_source_metadata;
 
   metadata_class->supported_keys = ms_podcasts_source_supported_keys;
 
@@ -236,16 +244,23 @@ ms_podcasts_source_finalize (GObject *object)
 /* ======================= Utilities ==================== */
 
 static MsContentMedia *
-build_media_from_stmt (sqlite3_stmt *sql_stmt)
+build_media_from_stmt (MsContentMedia *content, sqlite3_stmt *sql_stmt)
 {
-  MsContentMedia * media;
-  media = ms_content_audio_new ();
+  MsContentMedia *media;
+
+  if (!content) {
+    media = ms_content_audio_new ();
+  } else {
+    media = content;
+  }
+  
   ms_content_media_set_id (media, 
 			   (gchar *) sqlite3_column_text (sql_stmt, ID));
   ms_content_media_set_title (media,
 			      (gchar *) sqlite3_column_text (sql_stmt, TITLE));
   ms_content_media_set_url (media,
 			    (gchar *) sqlite3_column_text (sql_stmt, URL));
+
   return media;
 }
 
@@ -293,7 +308,7 @@ produce_podcasts (struct OperationSpec *os)
   while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
 
   while (r == SQLITE_ROW) {
-    media = build_media_from_stmt (sql_stmt);
+    media = build_media_from_stmt (NULL, sql_stmt);
     medias = g_list_prepend (medias, media);
     count++;
     r = sqlite3_step (sql_stmt);
@@ -318,6 +333,58 @@ produce_podcasts (struct OperationSpec *os)
   } else {
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
   }
+}
+
+static void
+podcast_metadata (MsMediaSourceMetadataSpec *ms)
+{
+  gint r;
+  sqlite3_stmt *sql_stmt = NULL;
+  sqlite3 *db;
+  GError *error = NULL;
+  gchar *sql;
+  const gchar *id;
+
+  db = MS_PODCASTS_SOURCE (ms->source)->priv->db;
+
+  id = ms_content_media_get_id (ms->media);
+  if (!id) {
+    /* Root category: special case */
+    ms_content_media_set_title (ms->media, "");
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    return;
+  }
+
+  sql = g_strdup_printf (MS_SQL_GET_PODCAST_BY_ID, id);
+  g_debug ("%s", sql);
+  r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL); 
+  g_free (sql);
+
+  if (r != SQLITE_OK) {
+    g_warning ("Failed to get podcast: %s", sqlite3_errmsg (db));
+    error = g_error_new (MS_ERROR,
+			 MS_ERROR_METADATA_FAILED,
+			 "Failed to get podcast metadata");
+    ms->callback (ms->source, ms->media, ms->user_data, error);
+    g_error_free (error);
+    return;
+  }
+  
+  while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
+
+  if (r == SQLITE_ROW) {
+    build_media_from_stmt (ms->media, sql_stmt);
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+  } else {
+    g_warning ("Failed to get podcast: %s", sqlite3_errmsg (db));
+    error = g_error_new (MS_ERROR,
+			 MS_ERROR_METADATA_FAILED,
+			 "Failed to get podcast metadata");
+    ms->callback (ms->source, ms->media, ms->user_data, error);
+    g_error_free (error);
+  }
+
+  sqlite3_finalize (sql_stmt);
 }
 
 /* ================== API Implementation ================ */
@@ -352,6 +419,7 @@ ms_podcasts_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
 			 MS_ERROR_BROWSE_FAILED,
 			 "No database connection");
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
+    g_error_free (error);
   }
 
   os = g_new0 (struct OperationSpec, 1);
@@ -382,6 +450,7 @@ ms_podcasts_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
 			 MS_ERROR_QUERY_FAILED,
 			 "No database connection");
     ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
+    g_error_free (error);
   }
 
   os = g_new0 (struct OperationSpec, 1);
@@ -413,6 +482,7 @@ ms_podcasts_source_query (MsMediaSource *source, MsMediaSourceQuerySpec *qs)
 			 MS_ERROR_QUERY_FAILED,
 			 "No database connection");
     qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
+    g_error_free (error);
   }
 
   os = g_new0 (struct OperationSpec, 1);
@@ -427,4 +497,25 @@ ms_podcasts_source_query (MsMediaSource *source, MsMediaSourceQuerySpec *qs)
   os->error_code = MS_ERROR_SEARCH_FAILED;
   produce_podcasts (os);
   g_free (os);
+}
+
+static void
+ms_podcasts_source_metadata (MsMediaSource *source, MsMediaSourceMetadataSpec *ms)
+{
+  g_debug ("ms_podcasts_source_metadata");
+
+  MsPodcastsSource *podcasts_source;
+  GError *error = NULL;
+
+  podcasts_source = MS_PODCASTS_SOURCE (source);
+  if (!podcasts_source->priv->db) {
+    g_warning ("Can't execute operation: no database connection.");
+    error = g_error_new (MS_ERROR,
+			 MS_ERROR_METADATA_FAILED,
+			 "No database connection");
+    ms->callback (ms->source, ms->media, ms->user_data, error);
+    g_error_free (error);
+  }
+
+  podcast_metadata (ms);
 }

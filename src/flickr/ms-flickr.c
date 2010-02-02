@@ -281,6 +281,7 @@ ms_flickr_source_metadata_main (gpointer data)
   const gchar *id;
   flickcurl_photo *photo;
   flickcurl_size **photo_sizes;
+  gboolean get_other_keys;
   gboolean get_slow_url;
   gchar *url;
   gint s;
@@ -291,9 +292,10 @@ ms_flickr_source_metadata_main (gpointer data)
     return NULL;
   }
 
-  /* Check if we need need to ask for complete information for each photo */
-  if (!(ms->flags & MS_RESOLVE_FAST_ONLY)) {
-    check_keys (ms->keys, &get_slow_url, NULL);
+  check_keys (ms->keys, &get_slow_url, &get_other_keys);
+
+  if (ms->flags & MS_RESOLVE_FAST_ONLY && get_other_keys) {
+      get_slow_url = FALSE;
   }
 
   if (get_slow_url) {

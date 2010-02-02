@@ -241,10 +241,42 @@ search_cb (gpointer data)
   return FALSE;
 }
 
+/* Make get_url TRUE if url has been requested.
+ * Make get_others TRUE if other (supported) keys has been requested
+ */
+static void
+check_keys (GList *keys, gboolean *get_url, gboolean *get_others)
+{
+  GList *iter;
+  MsKeyID key_id;
+  gboolean others = get_others? FALSE: TRUE;
+  gboolean url = get_url? FALSE: TRUE;
+
+  iter = keys;
+  while (iter && (!url || !others)) {
+    key_id = POINTER_TO_MSKEYID (iter->data);
+    if (key_id == MS_METADATA_KEY_AUTHOR ||
+        key_id == MS_METADATA_KEY_DESCRIPTION ||
+        key_id == MS_METADATA_KEY_DATE) {
+      others = TRUE;
+    } else if (key_id == MS_METADATA_KEY_URL) {
+      url = TRUE;
+    }
+    iter = g_list_next (iter);
+  }
+
+  if (get_url) {
+    *get_url = url;
+  }
+
+  if (get_others) {
+    *get_others = others;
+  }
+}
+
 static gpointer
 ms_flickr_source_metadata_main (gpointer data)
 {
-  GList *iter;
   MsMediaSourceMetadataSpec *ms = (MsMediaSourceMetadataSpec *) data;
   const gchar *id;
   flickcurl_photo *photo;
@@ -261,16 +293,7 @@ ms_flickr_source_metadata_main (gpointer data)
 
   /* Check if we need need to ask for complete information for each photo */
   if (!(ms->flags & MS_RESOLVE_FAST_ONLY)) {
-    /* Check if some "slow" key is requested */
-    iter = ms->keys;
-    while (iter) {
-      MsKeyID key_id = POINTER_TO_MSKEYID (iter->data);
-      if (key_id == MS_METADATA_KEY_URL) {
-        get_slow_url = TRUE;
-        break;
-      }
-      iter = g_list_next (iter);
-    }
+    check_keys (ms->keys, &get_slow_url, NULL);
   }
 
   if (get_slow_url) {
@@ -320,7 +343,6 @@ ms_flickr_source_metadata_main (gpointer data)
 static gpointer
 ms_flickr_source_search_main (gpointer data)
 {
-  GList *iter;
   MsContentMedia *media;
   MsMediaSourceSearchSpec *ss = (MsMediaSourceSearchSpec *) data;
   SearchData *search_data;
@@ -351,21 +373,7 @@ ms_flickr_source_search_main (gpointer data)
   /* Check if we need need to ask for complete information for each photo */
   if (!(ss->flags & MS_RESOLVE_FAST_ONLY)) {
     /* Check if some "slow" key is requested */
-    iter = ss->keys;
-    while (iter) {
-      MsKeyID key_id = POINTER_TO_MSKEYID (iter->data);
-      if (key_id == MS_METADATA_KEY_AUTHOR ||
-          key_id == MS_METADATA_KEY_DESCRIPTION ||
-          key_id == MS_METADATA_KEY_DATE) {
-        get_slow_keys = TRUE;
-      } else if (key_id == MS_METADATA_KEY_URL) {
-        get_slow_url = TRUE;
-      }
-      if (get_slow_keys && get_slow_url) {
-        break;
-      }
-      iter = g_list_next (iter);
-    }
+    check_keys (ss->keys, &get_slow_url, &get_slow_keys);
   }
 
   for (;;) {

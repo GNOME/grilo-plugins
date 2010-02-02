@@ -245,7 +245,8 @@ main (void)
   if (0) ms_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
   if (0) ms_media_source_browse (fs, media_from_id ("/home"), keys, 0, 100, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
   if (0) ms_media_source_metadata (fs, media_from_id ("/home"), keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, metadata_cb, NULL);
-  if (1) ms_media_source_search (flickr, "igalia", keys, 1, 10, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) ms_media_source_search (flickr, "igalia", keys, 1, 10, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (1) ms_media_source_metadata (flickr, media_from_id ("4201406347"), keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, metadata_cb, NULL);
   if (0) ms_media_source_browse (jamendo, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, media_from_id("1"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) ms_media_source_browse (jamendo, media_from_id("1/9"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);

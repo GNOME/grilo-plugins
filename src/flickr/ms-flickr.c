@@ -78,6 +78,9 @@ gboolean ms_flickr_plugin_init (MsPluginRegistry *registry,
 
 static const GList *ms_flickr_source_supported_keys (MsMetadataSource *source);
 
+static void ms_flickr_source_metadata (MsMediaSource *source,
+                                       MsMediaSourceMetadataSpec *ss);
+
 static void ms_flickr_source_search (MsMediaSource *source,
                                      MsMediaSourceSearchSpec *ss);
 
@@ -150,6 +153,7 @@ ms_flickr_source_class_init (MsFlickrSourceClass * klass)
   MsMediaSourceClass *source_class = MS_MEDIA_SOURCE_CLASS (klass);
   MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
 
+  source_class->metadata = ms_flickr_source_metadata;
   source_class->search = ms_flickr_source_search;
   metadata_class->supported_keys = ms_flickr_source_supported_keys;
 
@@ -208,6 +212,19 @@ get_content_image (flickcurl_photo *fc_photo)
 }
 
 static gboolean
+metadata_cb (gpointer data)
+{
+  MsMediaSourceMetadataSpec *ms = (MsMediaSourceMetadataSpec *) data;
+
+  ms->callback(ms->source,
+               ms->media,
+               ms->user_data,
+               NULL);
+
+  return FALSE;
+}
+
+static gboolean
 search_cb (gpointer data)
 {
   SearchData *search_data = (SearchData *) data;
@@ -222,6 +239,82 @@ search_cb (gpointer data)
   g_free (data);
 
   return FALSE;
+}
+
+static gpointer
+ms_flickr_source_metadata_main (gpointer data)
+{
+  GList *iter;
+  MsMediaSourceMetadataSpec *ms = (MsMediaSourceMetadataSpec *) data;
+  const gchar *id;
+  flickcurl_photo *photo;
+  flickcurl_size **photo_sizes;
+  gboolean get_slow_url;
+  gchar *url;
+  gint s;
+  gint width, height;
+
+  if (!ms->media || (id = ms_content_media_get_id (ms->media)) == NULL) {
+    g_idle_add (metadata_cb, ms);
+    return NULL;
+  }
+
+  /* Check if we need need to ask for complete information for each photo */
+  if (!(ms->flags & MS_RESOLVE_FAST_ONLY)) {
+    /* Check if some "slow" key is requested */
+    iter = ms->keys;
+    while (iter) {
+      MsKeyID key_id = POINTER_TO_MSKEYID (iter->data);
+      if (key_id == MS_METADATA_KEY_URL) {
+        get_slow_url = TRUE;
+        break;
+      }
+      iter = g_list_next (iter);
+    }
+  }
+
+  if (get_slow_url) {
+    photo_sizes = flickcurl_photos_getSizes (MS_FLICKR_SOURCE (ms->source)->priv->fc,
+                                             id);
+    if (photo_sizes) {
+      url = photo_sizes[0]->source;
+      width = photo_sizes[0]->width;
+      height = photo_sizes[0]->height;
+
+      /* Look for "Original" size */
+      s = 0;
+      while (photo_sizes[s]) {
+            if (strcmp (photo_sizes[s]->label, "Original") == 0) {
+              url = photo_sizes[s]->source;
+              width = photo_sizes[s]->width;
+              height = photo_sizes[s]->height;
+              break;
+            }
+            s++;
+          }
+
+      /* Update media */
+      ms_content_media_set_url (ms->media, url);
+      if (MS_IS_CONTENT_IMAGE (ms->media)) {
+        ms_content_image_set_size (MS_CONTENT_IMAGE (ms->media), width, height);
+      } else if (MS_IS_CONTENT_VIDEO (ms->media)) {
+        ms_content_video_set_size (MS_CONTENT_VIDEO (ms->media), width, height);
+      }
+      flickcurl_free_sizes (photo_sizes);
+    }
+  }
+
+  photo = flickcurl_photos_getInfo (MS_FLICKR_SOURCE (ms->source)->priv->fc,
+                                    id);
+  if (photo) {
+    update_media (ms->media, photo);
+  }
+
+  flickcurl_free_photo (photo);
+
+  g_idle_add (metadata_cb, ms);
+
+  return NULL;
 }
 
 static gpointer
@@ -374,6 +467,18 @@ ms_flickr_source_supported_keys (MsMetadataSource *source)
                                      NULL);
   }
   return keys;
+}
+
+static void
+ms_flickr_source_metadata (MsMediaSource *source,
+                           MsMediaSourceMetadataSpec *ms)
+{
+  if (!g_thread_create (ms_flickr_source_metadata_main,
+                        ms,
+                        FALSE,
+                        NULL)) {
+    g_critical ("Unable to create thread");
+  }
 }
 
 static void

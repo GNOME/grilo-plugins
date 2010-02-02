@@ -22,8 +22,6 @@ libmsflickr_la_LIBADD =		\
 	$(GTHREAD_LIBS)
 
 libmsflickr_la_SOURCES =	\
-	flickcurl_async.c	\
-	flickcurl_async.h	\
 	ms-flickr.c		\
 	ms-flickr.h
 

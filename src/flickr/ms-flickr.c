@@ -31,18 +31,14 @@
 #include <string.h>
 
 #include "ms-flickr.h"
-#include "flickcurl_async.h"
 
 #define MS_FLICKR_SOURCE_GET_PRIVATE(object)    \
   (G_TYPE_INSTANCE_GET_PRIVATE((object), MS_FLICKR_SOURCE_TYPE, MsFlickrSourcePrivate))
 
 typedef struct {
   MsMediaSourceSearchSpec *ss;
-  flickcurl_photos_list_params *lparams;
-  flickcurl_search_params *sparams;
-  gboolean get_slow_keys;
-  gboolean get_slow_url;
-  gint start_offset;
+  MsContentMedia *media;
+  gint remaining;
 } SearchData;
 
 /* --------- Logging  -------- */
@@ -211,108 +207,155 @@ get_content_image (flickcurl_photo *fc_photo)
   return media;
 }
 
-static void
-free_search_data (SearchData *search_data)
+static gboolean
+search_cb (gpointer data)
 {
-  g_free (search_data->sparams);
-  g_free (search_data->lparams);
-  g_free (search_data);
+  SearchData *search_data = (SearchData *) data;
+
+  search_data->ss->callback(search_data->ss->source,
+                            search_data->ss->search_id,
+                            search_data->media,
+                            search_data->remaining,
+                            search_data->ss->user_data,
+                            NULL);
+
+  g_free (data);
+
+  return FALSE;
 }
 
-static void
-search_cb (flickcurl_photos_list *result, gpointer user_data)
+static gpointer
+ms_flickr_source_search_main (gpointer data)
 {
+  GList *iter;
   MsContentMedia *media;
-  SearchData *sd = (SearchData *) user_data;
+  MsMediaSourceSearchSpec *ss = (MsMediaSourceSearchSpec *) data;
+  SearchData *search_data;
+  char *url;
   flickcurl_photo *photo;
+  flickcurl_photos_list *result;
+  flickcurl_photos_list_params lparams;
+  flickcurl_search_params sparams;
   flickcurl_size **photo_sizes;
-  gchar *url;
+  gboolean get_slow_keys = FALSE;
+  gboolean get_slow_url = FALSE;
+  int height;
   int i, s;
-  int width, height;
+  int offset_in_page;
+  int per_page;
+  int width;
 
-  /* No (more) results */
-  if (!result || result->photos_count == 0) {
-    g_debug ("No (more) results");
-    sd->ss->callback (sd->ss->source,
-                      sd->ss->search_id,
-                      NULL,
-                      0,
-                      sd->ss->user_data,
-                      NULL);
-    flickcurl_free_photos_list (result);
-    free_search_data (sd);
-    return;
+  flickcurl_search_params_init (&sparams);
+  flickcurl_photos_list_params_init (&lparams);
+  sparams.text = ss->text;
+
+  /* Compute page offset */
+  per_page = 1 + ss->skip + ss->count;
+  lparams.per_page = per_page > 100? 100: per_page;
+  lparams.page = 1 + (ss->skip/lparams.per_page);
+  offset_in_page = 1 + (ss->skip%lparams.per_page);
+
+  /* Check if we need need to ask for complete information for each photo */
+  if (!(ss->flags & MS_RESOLVE_FAST_ONLY)) {
+    /* Check if some "slow" key is requested */
+    iter = ss->keys;
+    while (iter) {
+      MsKeyID key_id = POINTER_TO_MSKEYID (iter->data);
+      if (key_id == MS_METADATA_KEY_AUTHOR ||
+          key_id == MS_METADATA_KEY_DESCRIPTION ||
+          key_id == MS_METADATA_KEY_DATE) {
+        get_slow_keys = TRUE;
+      } else if (key_id == MS_METADATA_KEY_URL) {
+        get_slow_url = TRUE;
+      }
+      if (get_slow_keys && get_slow_url) {
+        break;
+      }
+      iter = g_list_next (iter);
+    }
   }
 
-  for (i = sd->start_offset; i < result->photos_count && sd->ss->count > 0; i++) {
-    media = get_content_image (result->photos[i]);
-    /* Slow url key need to be resolved */
-    if (sd->get_slow_url) {
-      photo_sizes = flickcurl_photos_getSizes (MS_FLICKR_SOURCE (sd->ss->source)->priv->fc,
-                                               result->photos[i]->id);
-      if (photo_sizes) {
-        url = photo_sizes[0]->source;
-        width = photo_sizes[0]->width;
-        height = photo_sizes[0]->height;
+  for (;;) {
+    result = flickcurl_photos_search_params (MS_FLICKR_SOURCE (ss->source)->priv->fc,
+                                             &sparams,
+                                             &lparams);
+    /* No (more) results */
+    if (!result || result->photos_count == 0) {
+      g_debug ("No (more) results");
+      search_data = g_new (SearchData, 1);
+      search_data->ss = ss;
+      search_data->media = NULL;
+      search_data->remaining = 0;
+      g_idle_add (search_cb, search_data);
+      break;
+    }
+    for (i = offset_in_page; i < result->photos_count && ss->count > 0; i++) {
+      /* As we are not computing whether there are enough photos to satisfy user
+         requirement, use -1 in remaining elements (i.e., "unknown"), and use 0
+         no more elements are/can be sent */
+      media = get_content_image (result->photos[i]);
+      if (get_slow_url) {
+        photo_sizes = flickcurl_photos_getSizes (MS_FLICKR_SOURCE (ss->source)->priv->fc,
+                                                 result->photos[i]->id);
+        if (photo_sizes) {
+          url = photo_sizes[0]->source;
+          width = photo_sizes[0]->width;
+          height = photo_sizes[0]->height;
 
         /* Look for "Original" size */
-        s = 0;
-        while (photo_sizes[s]) {
-          if (strcmp (photo_sizes[s]->label, "Original") == 0) {
-            url = photo_sizes[s]->source;
-            width = photo_sizes[s]->width;
-            height = photo_sizes[s]->height;
-            break;
+          s = 0;
+          while (photo_sizes[s]) {
+            if (strcmp (photo_sizes[s]->label, "Original") == 0) {
+              url = photo_sizes[s]->source;
+              width = photo_sizes[s]->width;
+              height = photo_sizes[s]->height;
+              break;
+            }
+            s++;
           }
-          s++;
-        }
 
-        /* Update media */
-        ms_content_media_set_url (media, url);
-        if (MS_IS_CONTENT_IMAGE (media)) {
-          ms_content_image_set_size (MS_CONTENT_IMAGE (media), width, height);
-        } else if (MS_IS_CONTENT_VIDEO (media)) {
-          ms_content_video_set_size (MS_CONTENT_VIDEO (media), width, height);
+          /* Update media */
+          ms_content_media_set_url (media, url);
+          if (MS_IS_CONTENT_IMAGE (media)) {
+            ms_content_image_set_size (MS_CONTENT_IMAGE (media), width, height);
+          } else if (MS_IS_CONTENT_VIDEO (media)) {
+            ms_content_video_set_size (MS_CONTENT_VIDEO (media), width, height);
+          }
+          flickcurl_free_sizes (photo_sizes);
         }
-        flickcurl_free_sizes (photo_sizes);
-      }
-    }
-
-    /* Slow keys need to be resolved */
-    if (sd->get_slow_keys) {
-      photo = flickcurl_photos_getInfo (MS_FLICKR_SOURCE (sd->ss->source)->priv->fc,
-                                        result->photos[i]->id);
-      if (photo) {
-        update_media (media, photo);
       }
 
-      flickcurl_free_photo (photo);
+      if (get_slow_keys) {
+        photo = flickcurl_photos_getInfo (MS_FLICKR_SOURCE (ss->source)->priv->fc,
+                                          result->photos[i]->id);
+        if (photo) {
+          update_media (media, photo);
+        }
+
+        flickcurl_free_photo (photo);
+      }
+
+      search_data = g_new (SearchData, 1);
+      search_data->ss = ss;
+      search_data->media = media;
+      search_data->remaining = ss->count == 1? 0: -1;
+      g_idle_add (search_cb, search_data);
+
+      ss->count--;
     }
-
-      sd->ss->callback (sd->ss->source,
-                        sd->ss->search_id,
-                        media,
-                        sd->ss->count == 1? 0: -1,
-                        sd->ss->user_data,
-                        NULL);
-      sd->ss->count--;
+    /* Sent all requested photos */
+    if (ss->count == 0) {
+      g_debug ("All results sent");
+      break;
+    }
+    flickcurl_free_photos_list (result);
+    offset_in_page = 0;
+    lparams.page++;
   }
+  /* Free last results */
+ flickcurl_free_photos_list (result);
 
-  flickcurl_free_photos_list (result);
-
-  /* Check if more results are needed */
-  if (sd->ss->count > 0) {
-    sd->start_offset = 0;
-    sd->lparams->page++;
-    photos_search_params_async (MS_FLICKR_SOURCE (sd->ss->source)->priv->fc,
-                                sd->sparams,
-                                sd->lparams,
-                                search_cb,
-                                sd);
-  } else {
-    g_debug ("All results sent");
-    free_search_data (sd);
-  }
+ return NULL;
 }
 
 /* ================== API Implementation ================ */
@@ -337,48 +380,10 @@ static void
 ms_flickr_source_search (MsMediaSource *source,
                          MsMediaSourceSearchSpec *ss)
 {
-  GList *iter;
-  SearchData *sd;
-  int per_page;
-
-  sd = g_new0 (SearchData, 1);
-  sd->ss = ss;
-  sd->sparams = g_new0 (flickcurl_search_params, 1);
-  flickcurl_search_params_init (sd->sparams);
-  sd->sparams->text = ss->text;
-
-  sd->lparams = g_new0 (flickcurl_photos_list_params, 1);
-  flickcurl_photos_list_params_init (sd->lparams);
-
-  /* Compute page offset */
-  per_page = 1 + ss->skip + ss->count;
-  sd->lparams->per_page = per_page > 100? 100: per_page;
-  sd->lparams->page = 1 + (ss->skip/sd->lparams->per_page);
-  sd->start_offset = 1 + (ss->skip%sd->lparams->per_page);
-
-  /* Check if we need need to ask for complete information for each photo */
-  if (!(ss->flags & MS_RESOLVE_FAST_ONLY)) {
-    /* Check if some "slow" key is requested */
-    iter = ss->keys;
-    while (iter) {
-      MsKeyID key_id = POINTER_TO_MSKEYID (iter->data);
-      if (key_id == MS_METADATA_KEY_AUTHOR ||
-          key_id == MS_METADATA_KEY_DESCRIPTION ||
-          key_id == MS_METADATA_KEY_DATE) {
-        sd->get_slow_keys = TRUE;
-      } else if (key_id == MS_METADATA_KEY_URL) {
-        sd->get_slow_url = TRUE;
-      }
-      if (sd->get_slow_keys && sd->get_slow_url) {
-        break;
-      }
-      iter = g_list_next (iter);
-    }
+  if (!g_thread_create (ms_flickr_source_search_main,
+                        ss,
+                        FALSE,
+                        NULL)) {
+    g_critical ("Unable to create thread");
   }
-
-  photos_search_params_async (MS_FLICKR_SOURCE (source)->priv->fc,
-                              sd->sparams,
-                              sd->lparams,
-                              search_cb,
-                              sd);
 }

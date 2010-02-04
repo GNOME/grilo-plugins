@@ -514,6 +514,8 @@ produce_podcast_contents_from_db (OperationSpec *os)
   gint r;
   GError *error = NULL;
 
+  g_debug ("produce_podcast_contents_from_db");
+
   db = MS_PODCASTS_SOURCE (os->source)->priv->db;
   sql = g_strdup_printf (MS_SQL_GET_PODCAST_STREAMS,
 			 os->media_id, os->count, os->skip);
@@ -643,6 +645,8 @@ touch_podcast (sqlite3 *db, const gchar *podcast_id)
   gchar *sql, *sql_error;
   GTimeVal now;
   gchar *now_str;
+
+  g_debug ("touch_podcast");
 
   g_get_current_time (&now);
   now_str = g_time_val_to_iso8601 (&now);
@@ -797,6 +801,8 @@ produce_podcast_contents (OperationSpec *os)
   gchar *sql;
   gchar *url;
 
+  g_debug ("produce_podcast_contents");
+
   /* First we get some information about the podcast */
   db = MS_PODCASTS_SOURCE (os->source)->priv->db;
   sql = g_strdup_printf (MS_SQL_GET_PODCAST_BY_ID, os->media_id);
@@ -866,6 +872,8 @@ produce_podcasts (OperationSpec *os)
   guint count = 0;
   GList *iter;
   gchar *sql;
+
+  g_debug ("produce_podcasts");
 
   db = MS_PODCASTS_SOURCE (os->source)->priv->db;
 
@@ -947,6 +955,8 @@ stream_metadata (MsMediaSourceMetadataSpec *ms)
   gchar *sql;
   const gchar *id;
 
+  g_debug ("stream_metadata");
+
   db = MS_PODCASTS_SOURCE (ms->source)->priv->db;
 
   id = ms_content_media_get_id (ms->media);
@@ -991,6 +1001,8 @@ podcast_metadata (MsMediaSourceMetadataSpec *ms)
   GError *error = NULL;
   gchar *sql;
   const gchar *id;
+
+  g_debug ("podcast_metadata");
 
   db = MS_PODCASTS_SOURCE (ms->source)->priv->db;
 

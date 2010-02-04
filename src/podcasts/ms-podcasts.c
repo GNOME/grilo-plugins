@@ -82,6 +82,11 @@
   "WHERE id='%s' "					\
   "LIMIT 1"
 
+#define MS_SQL_STORE_PODCAST			     \
+  "INSERT INTO podcasts "			     \
+  "(url, title, desc) "				     \
+  "VALUES (?, ?, ?)"
+
 #define MS_SQL_STORE_STREAM			     \
   "INSERT INTO streams "			     \
   "(podcast, url, title, length, mime, date, desc) " \
@@ -190,7 +195,8 @@ static void ms_podcasts_source_query (MsMediaSource *source,
 				      MsMediaSourceQuerySpec *qs);
 static void ms_podcasts_source_metadata (MsMediaSource *source,
 					 MsMediaSourceMetadataSpec *ms);
-
+static void ms_podcasts_source_store (MsMediaSource *source,
+				      MsMediaSourceStoreSpec *ss);
 
 /* =================== Podcasts Plugin  =============== */
 
@@ -240,6 +246,7 @@ ms_podcasts_source_class_init (MsPodcastsSourceClass * klass)
   source_class->search = ms_podcasts_source_search;
   source_class->query = ms_podcasts_source_query;
   source_class->metadata = ms_podcasts_source_metadata;
+  source_class->store = ms_podcasts_source_store;
 
   metadata_class->supported_keys = ms_podcasts_source_supported_keys;
 
@@ -572,6 +579,56 @@ produce_podcast_contents_from_db (OperationSpec *os)
   } else {
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
   }
+}
+
+static void
+store_podcast (sqlite3 *db, MsContentMedia *podcast, GError **error)
+{
+  gint r;
+  sqlite3_stmt *sql_stmt = NULL;
+  const gchar *title;
+  const gchar *url;
+  const gchar *desc;
+
+  g_debug ("store_podcast");
+
+  title = ms_content_media_get_title (podcast);
+  url = ms_content_media_get_url (podcast);
+  desc = ms_content_media_get_description (podcast);
+
+  g_debug ("%s", MS_SQL_STORE_PODCAST);  
+  r = sqlite3_prepare_v2 (db,
+			  MS_SQL_STORE_PODCAST,
+			  strlen (MS_SQL_STORE_PODCAST),
+			  &sql_stmt, NULL); 
+  if (r != SQLITE_OK) {
+    g_warning ("Failed to store podcast '%s': %s", title, sqlite3_errmsg (db));
+    *error = g_error_new (MS_ERROR,
+			  MS_ERROR_STORE_FAILED,
+			  "Failed to store podcast '%s'", title);
+    return;
+  }
+
+  sqlite3_bind_text (sql_stmt, 1, url, -1, SQLITE_STATIC);
+  sqlite3_bind_text (sql_stmt, 2, title, -1, SQLITE_STATIC);
+  if (desc) {
+    sqlite3_bind_text (sql_stmt, 3, desc, -1, SQLITE_STATIC);
+  } else {
+    sqlite3_bind_text (sql_stmt, 3, "", -1, SQLITE_STATIC);
+  }
+
+  while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
+
+  if (r != SQLITE_DONE) {
+    g_warning ("Failed to store podcast '%s': %s", title, sqlite3_errmsg (db));
+    *error = g_error_new (MS_ERROR,
+			  MS_ERROR_STORE_FAILED,
+			  "Failed to store podcast '%s'", title);
+    sqlite3_finalize (sql_stmt);
+    return;
+  }
+
+  sqlite3_finalize (sql_stmt);
 }
 
 static void
@@ -1194,5 +1251,17 @@ ms_podcasts_source_metadata (MsMediaSource *source, MsMediaSourceMetadataSpec *m
     podcast_metadata (ms);
   } else {
     stream_metadata (ms);
+  }
+}
+
+static void
+ms_podcasts_source_store (MsMediaSource *source, MsMediaSourceStoreSpec *ss)
+{
+  g_debug ("ms_podcasts_source_store");
+  GError *error = NULL;
+  store_podcast (MS_PODCASTS_SOURCE (ss->source)->priv->db, ss->media, &error);
+  ss->callback (ss->source, ss->parent, ss->media, ss->user_data, error);
+  if (error) {
+    g_error_free (error);
   }
 }

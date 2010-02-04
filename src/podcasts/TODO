@@ -1,0 +1,5 @@
+- IGN podcasts contains items with no enclosure. These should be skipped.
+- Support more tags (like author, site, etc)
+- Parsing and inserting in the DB seems to block long enough, split the parsing to handle only
+  one element in each go.
+- Implement support for remove() -- Needs support in core first

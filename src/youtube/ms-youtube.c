@@ -434,13 +434,19 @@ read_url (const gchar *url)
 }
 
 static MsContentMedia *
-build_media_from_entry (const Entry *entry, const GList *keys)
+build_media_from_entry (MsContentMedia *content,
+			const Entry *entry,
+			const GList *keys)
 {
   MsContentMedia *media;
   gchar *url;
   GList *iter;
 
-  media = ms_content_video_new ();
+  if (!content) {
+    media = ms_content_video_new ();
+  } else {
+    media = content;
+  }
 
   iter = (GList *) keys;
   while (iter) {
@@ -614,7 +620,8 @@ parse_entries_idle (gpointer user_data)
       Entry *entry = g_new0 (Entry, 1);
       parse_entry (pei->doc, pei->node, entry);
       if (0) print_entry (entry);
-      MsContentMedia *media = build_media_from_entry (entry, pei->os->keys);
+      MsContentMedia *media =
+	build_media_from_entry (NULL, entry, pei->os->keys);
       free_entry (entry);
       
       pei->os->skip++;
@@ -804,21 +811,20 @@ parse_metadata_entry (MsMediaSourceMetadataSpec *os,
     Entry *entry = g_new0 (Entry, 1);
     parse_entry (doc, node, entry);    
     if (0) print_entry (entry);
-    media = build_media_from_entry (entry, os->keys);    
+    build_media_from_entry (os->media, entry, os->keys);    
     free_entry (entry);
   } 
 
   return media;
 }
 
-static MsContentMedia *
+static void
 parse_metadata_feed (MsMediaSourceMetadataSpec *os,
 		     const gchar *str,
 		     GError **error)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
-  MsContentMedia *media = NULL;
   
   doc = xmlRecoverDoc ((xmlChar *) str);
   if (!doc) {
@@ -851,11 +857,10 @@ parse_metadata_feed (MsMediaSourceMetadataSpec *os,
     goto free_resources;
   }
 
-  media = parse_metadata_entry (os, doc, node, error);
+  parse_metadata_entry (os, doc, node, error);
 
  free_resources:
   xmlFreeDoc (doc);
-  return media;
 }
 
 static void
@@ -1259,7 +1264,6 @@ static void
 metadata_read_cb (gchar *xmldata, gpointer user_data)
 {
   GError *error = NULL;
-  MsContentMedia *media = NULL;
   MsMediaSourceMetadataSpec *ms = (MsMediaSourceMetadataSpec *) user_data;
 
   if (!xmldata) {
@@ -1267,15 +1271,15 @@ metadata_read_cb (gchar *xmldata, gpointer user_data)
 			 MS_ERROR_METADATA_FAILED,
 			 "Failed to read from Youtube");
   } else {
-    media = parse_metadata_feed (ms, xmldata, &error);
+    parse_metadata_feed (ms, xmldata, &error);
     g_free (xmldata);   
   }
 
   if (error) {
-    ms->callback (ms->source, NULL, ms->user_data, error);
+    ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   } else {
-    ms->callback (ms->source, media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
   }
 }
 

@@ -95,7 +95,8 @@
 enum {
   METADATA,
   BROWSE,
-  QUERY
+  QUERY,
+  SEARCH
 };
 
 typedef enum {
@@ -128,6 +129,7 @@ typedef struct {
     MsMediaSourceBrowseSpec *bs;
     MsMediaSourceQuerySpec *qs;
     MsMediaSourceMetadataSpec *ms;
+    MsMediaSourceSearchSpec *ss;
   } spec;
   xmlNodePtr node;
   xmlDocPtr doc;
@@ -535,6 +537,14 @@ xml_parse_entries_idle (gpointer user_data)
                               xpe->spec.qs->user_data,
                               NULL);
       break;
+    case SEARCH:
+      xpe->spec.ss->callback (xpe->spec.ss->source,
+                              xpe->spec.ss->search_id,
+                              media,
+                              xpe->total_results - xpe->index,
+                              xpe->spec.ss->user_data,
+                              NULL);
+      break;
     }
 
     xpe->node = xpe->node->next;
@@ -577,6 +587,9 @@ read_done_cb (GObject *source_object,
       break;
     case QUERY:
       error_code = MS_ERROR_QUERY_FAILED;
+      break;
+    case SEARCH:
+      error_code = MS_ERROR_SEARCH_FAILED;
       break;
     }
 
@@ -641,6 +654,14 @@ read_done_cb (GObject *source_object,
                             NULL,
                             0,
                             xpe->spec.qs->user_data,
+                            error);
+    break;
+  case SEARCH:
+    xpe->spec.ss->callback (xpe->spec.ss->source,
+                            xpe->spec.ss->search_id,
+                            NULL,
+                            0,
+                            xpe->spec.ss->user_data,
                             error);
     break;
   }
@@ -1056,21 +1077,26 @@ static void
 ms_jamendo_source_search (MsMediaSource *source,
                           MsMediaSourceSearchSpec *ss)
 {
-  gchar *query;
+  XmlParseEntries *xpe;
+  gchar *jamendo_keys;
+  gchar *url;
 
   g_debug ("ms_jamendo_source_search");
 
-  query = g_strconcat (JAMENDO_TRACK "=", ss->text, NULL);
+  jamendo_keys = get_jamendo_keys (JAMENDO_TRACK_CAT);
 
-  ms_media_source_query (source,
-                         query,
-                         ss->keys,
-                         ss->skip,
+  url = g_strdup_printf (JAMENDO_SEARCH_TRACK,
+                         jamendo_keys,
                          ss->count,
-                         ss->flags,
-                         ss->callback,
-                         ss->user_data);
-  g_free (query);
+                         ss->skip + 1,
+                         ss->text);
+
+  xpe = g_new0 (XmlParseEntries, 1);
+  xpe->type = SEARCH;
+  xpe->spec.ss = ss;
+
+  read_url_async (url, xpe);
+  g_free (url);
 }
 
 static void

@@ -67,10 +67,6 @@ typedef struct {
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
 
-struct _MsFlickrSourcePrivate {
-  flickcurl *fc;
-};
-
 static MsFlickrSource *ms_flickr_source_new (void);
 
 gboolean ms_flickr_plugin_init (MsPluginRegistry *registry,
@@ -115,36 +111,18 @@ MS_PLUGIN_REGISTER (ms_flickr_plugin_init,
 static MsFlickrSource *
 ms_flickr_source_new (void)
 {
-  MsFlickrSource *fs;
-  static flickcurl *fc = NULL;
-
   g_debug ("ms_flickr_source_new");
 
-  if (!fc) {
-    if (flickcurl_init ()) {
-      g_warning ("Unable to initialize Flickcurl");
-      return NULL;
-    }
-
-    fc = flickcurl_new ();
-    if (!fc) {
-      g_warning ("Unable to get a Flickcurl session");
-      return NULL;
-    }
-
-    flickcurl_set_api_key (fc, FLICKR_KEY);
-    flickcurl_set_auth_token (fc, FLICKR_TOKEN);
-    flickcurl_set_shared_secret (fc, FLICKR_SECRET);
+  if (flickcurl_init ()) {
+    g_warning ("Unable to initialize Flickcurl");
+    return NULL;
   }
 
-  fs = g_object_new (MS_FLICKR_SOURCE_TYPE,
-                     "source-id", SOURCE_ID,
-                     "source-name", SOURCE_NAME,
-                     "source-desc", SOURCE_DESC,
-                     NULL);
-  fs->priv->fc = fc;
-
-  return fs;
+  return g_object_new (MS_FLICKR_SOURCE_TYPE,
+                       "source-id", SOURCE_ID,
+                       "source-name", SOURCE_NAME,
+                       "source-desc", SOURCE_DESC,
+                       NULL);
 }
 
 static void
@@ -156,8 +134,6 @@ ms_flickr_source_class_init (MsFlickrSourceClass * klass)
   source_class->metadata = ms_flickr_source_metadata;
   source_class->search = ms_flickr_source_search;
   metadata_class->supported_keys = ms_flickr_source_supported_keys;
-
-  g_type_class_add_private (klass, sizeof (MsFlickrSourcePrivate));
 }
 
 static void
@@ -279,6 +255,7 @@ ms_flickr_source_metadata_main (gpointer data)
 {
   MsMediaSourceMetadataSpec *ms = (MsMediaSourceMetadataSpec *) data;
   const gchar *id;
+  flickcurl *fc = NULL;
   flickcurl_photo *photo;
   flickcurl_size **photo_sizes;
   gboolean get_other_keys;
@@ -298,9 +275,13 @@ ms_flickr_source_metadata_main (gpointer data)
       get_slow_url = FALSE;
   }
 
+  fc = flickcurl_new ();
+  flickcurl_set_api_key (fc, FLICKR_KEY);
+  flickcurl_set_auth_token (fc, FLICKR_TOKEN);
+  flickcurl_set_shared_secret (fc, FLICKR_SECRET);
+
   if (get_slow_url) {
-    photo_sizes = flickcurl_photos_getSizes (MS_FLICKR_SOURCE (ms->source)->priv->fc,
-                                             id);
+    photo_sizes = flickcurl_photos_getSizes (fc, id);
     if (photo_sizes) {
       url = photo_sizes[0]->source;
       width = photo_sizes[0]->width;
@@ -329,13 +310,14 @@ ms_flickr_source_metadata_main (gpointer data)
     }
   }
 
-  photo = flickcurl_photos_getInfo (MS_FLICKR_SOURCE (ms->source)->priv->fc,
-                                    id);
+  photo = flickcurl_photos_getInfo (fc, id);
   if (photo) {
     update_media (ms->media, photo);
   }
 
   flickcurl_free_photo (photo);
+
+  flickcurl_free (fc);
 
   g_idle_add (metadata_cb, ms);
 
@@ -349,6 +331,7 @@ ms_flickr_source_search_main (gpointer data)
   MsMediaSourceSearchSpec *ss = (MsMediaSourceSearchSpec *) data;
   SearchData *search_data;
   char *url;
+  flickcurl *fc = NULL;
   flickcurl_photo *photo;
   flickcurl_photos_list *result;
   flickcurl_photos_list_params lparams;
@@ -361,6 +344,11 @@ ms_flickr_source_search_main (gpointer data)
   int offset_in_page;
   int per_page;
   int width;
+
+  fc = flickcurl_new ();
+  flickcurl_set_api_key (fc, FLICKR_KEY);
+  flickcurl_set_auth_token (fc, FLICKR_TOKEN);
+  flickcurl_set_shared_secret (fc, FLICKR_SECRET);
 
   flickcurl_search_params_init (&sparams);
   flickcurl_photos_list_params_init (&lparams);
@@ -379,9 +367,7 @@ ms_flickr_source_search_main (gpointer data)
   }
 
   for (;;) {
-    result = flickcurl_photos_search_params (MS_FLICKR_SOURCE (ss->source)->priv->fc,
-                                             &sparams,
-                                             &lparams);
+    result = flickcurl_photos_search_params (fc, &sparams, &lparams);
     /* No (more) results */
     if (!result || result->photos_count == 0) {
       g_debug ("No (more) results");
@@ -398,8 +384,7 @@ ms_flickr_source_search_main (gpointer data)
          no more elements are/can be sent */
       media = get_content_image (result->photos[i]);
       if (get_slow_url) {
-        photo_sizes = flickcurl_photos_getSizes (MS_FLICKR_SOURCE (ss->source)->priv->fc,
-                                                 result->photos[i]->id);
+        photo_sizes = flickcurl_photos_getSizes (fc, result->photos[i]->id);
         if (photo_sizes) {
           url = photo_sizes[0]->source;
           width = photo_sizes[0]->width;
@@ -429,8 +414,7 @@ ms_flickr_source_search_main (gpointer data)
       }
 
       if (get_slow_keys) {
-        photo = flickcurl_photos_getInfo (MS_FLICKR_SOURCE (ss->source)->priv->fc,
-                                          result->photos[i]->id);
+        photo = flickcurl_photos_getInfo (fc, result->photos[i]->id);
         if (photo) {
           update_media (media, photo);
         }
@@ -456,9 +440,11 @@ ms_flickr_source_search_main (gpointer data)
     lparams.page++;
   }
   /* Free last results */
- flickcurl_free_photos_list (result);
+  flickcurl_free_photos_list (result);
 
- return NULL;
+  flickcurl_free (fc);
+
+  return NULL;
 }
 
 /* ================== API Implementation ================ */

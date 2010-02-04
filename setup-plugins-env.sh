@@ -5,7 +5,7 @@ unset MS_PLUGIN_PATH
 plugin_dir=src
 
 echo "Scanning directory '$plugin_dir' for plugins...."
-PLUGINS=`find $plugin_dir -type d | grep .libs`
+PLUGINS=`find $plugin_dir -type d | grep .libs | sort -r`
 for p in $PLUGINS; do
   pname=`expr $p : '.*/\(.*\)/.*'`
   echo "  Found plugin:" $pname

@@ -5,21 +5,21 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES	= libmsupnp.la
+lib_LTLIBRARIES	= libgrlupnp.la
 
-libmsupnp_la_CFLAGS =		\
+libgrlupnp_la_CFLAGS =		\
 	$(DEPS_CFLAGS)		\
 	$(GUPNP_CFLAGS)		\
 	$(GUPNPAV_CFLAGS)
 
-libmsupnp_la_LIBADD =	\
+libgrlupnp_la_LIBADD =	\
 	$(DEPS_LIBS)	\
 	$(GUPNP_LIBS)	\
 	$(GUPNPAV_LIBS)
 
-libmsupnp_la_SOURCES = ms-upnp.c ms-upnp.h
+libgrlupnp_la_SOURCES = grl-upnp.c grl-upnp.h
 
-libdir = $(PLUGINS_DIR)
+libdir = $(GRL_PLUGINS_DIR)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

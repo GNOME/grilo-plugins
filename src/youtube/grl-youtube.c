@@ -24,21 +24,21 @@
 #include "config.h"
 #endif
 
-#include <media-store.h>
+#include <grilo.h>
 #include <gio/gio.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <string.h>
 #include <stdlib.h>
 
-#include "ms-youtube.h"
+#include "grl-youtube.h"
 
-/* --------- Logging  -------- */ 
+/* --------- Logging  -------- */
 
 #undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "ms-youtube"
+#define G_LOG_DOMAIN "grl-youtube"
 
-/* ----- Root categories ---- */ 
+/* ----- Root categories ---- */
 
 #define YOUTUBE_ROOT_NAME       "Youtube"
 
@@ -50,7 +50,7 @@
 #define YOUTUBE_CATEGORIES_NAME "Categories"
 #define YOUTUBE_CATEGORIES_URL  "http://gdata.youtube.com/schemas/2007/categories.cat"
 
-/* ----- Feeds categories ---- */ 
+/* ----- Feeds categories ---- */
 
 #define YOUTUBE_VIEWED_ID       (YOUTUBE_FEEDS_ID "/most-viewed")
 #define YOUTUBE_VIEWED_NAME     "Most viewed"
@@ -80,7 +80,7 @@
 #define YOUTUBE_MOBILE_NAME     "Watch on mobile"
 #define YOUTUBE_MOBILE_URL      "http://gdata.youtube.com/feeds/standardfeeds/watch_on_mobile?start-index=%d&max-results=%d"
 
-/* ----- Other Youtube URLs ---- */ 
+/* ----- Other Youtube URLs ---- */
 
 #define YOUTUBE_VIDEO_INFO_URL  "http://www.youtube.com/get_video_info?video_id=%s"
 #define YOUTUBE_VIDEO_URL       "http://www.youtube.com/get_video?video_id=%s&t=%s"
@@ -100,11 +100,11 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "ms-youtube"
+#define PLUGIN_ID   "grl-youtube"
 #define PLUGIN_NAME "Youtube"
 #define PLUGIN_DESC "A plugin for browsing and searching Youtube videos"
 
-#define SOURCE_ID   "ms-youtube"
+#define SOURCE_ID   "grl-youtube"
 #define SOURCE_NAME "Youtube"
 #define SOURCE_DESC "A source for browsing and searching Youtube videos"
 
@@ -126,27 +126,27 @@ typedef struct {
   gchar *duration;
   gchar *rating;
   gboolean restricted;
-} Entry; 
+} Entry;
 
 typedef struct {
-  MsMediaSource *source;
+  GrlMediaSource *source;
   guint operation_id;
   const gchar *container_id;
   GList *keys;
-  MsMetadataResolutionFlags flags;
+  GrlMetadataResolutionFlags flags;
   guint skip;
   guint count;
   gboolean chained_chunk;
   gchar *query_url;
   gboolean cancelled;
-  MsMediaSourceResultCb callback;
+  GrlMediaSourceResultCb callback;
   gpointer user_data;
 } OperationSpec;
 
 typedef struct {
-  MsMetadataSource *source;
+  GrlMetadataSource *source;
   const GList *keys;
-  MsMediaSourceMetadataCb callback;
+  GrlMediaSourceMetadataCb callback;
   gpointer user_data;
 } MetadataOperationSpec;
 
@@ -186,25 +186,26 @@ typedef enum {
   YOUTUBE_MEDIA_TYPE_VIDEO,
 } YoutubeMediaType;
 
-static MsYoutubeSource *ms_youtube_source_new (void);
+static GrlYoutubeSource *grl_youtube_source_new (void);
 
-gboolean ms_youtube_plugin_init (MsPluginRegistry *registry,
-				 const MsPluginInfo *plugin);
+gboolean grl_youtube_plugin_init (GrlPluginRegistry *registry,
+                                  const GrlPluginInfo *plugin);
 
-static const GList *ms_youtube_source_supported_keys (MsMetadataSource *source);
+static const GList *grl_youtube_source_supported_keys (GrlMetadataSource *source);
 
-static const GList *ms_youtube_source_slow_keys (MsMetadataSource *source);
+static const GList *grl_youtube_source_slow_keys (GrlMetadataSource *source);
 
-static void ms_youtube_source_metadata (MsMediaSource *source,
-					MsMediaSourceMetadataSpec *ms);
+static void grl_youtube_source_metadata (GrlMediaSource *source,
+                                         GrlMediaSourceMetadataSpec *ms);
 
-static void ms_youtube_source_search (MsMediaSource *source,
-				      MsMediaSourceSearchSpec *ss);
+static void grl_youtube_source_search (GrlMediaSource *source,
+                                       GrlMediaSourceSearchSpec *ss);
 
-static void ms_youtube_source_browse (MsMediaSource *source,
-				      MsMediaSourceBrowseSpec *bs);
+static void grl_youtube_source_browse (GrlMediaSource *source,
+                                       GrlMediaSourceBrowseSpec *bs);
 
-static void ms_youtube_source_cancel (MsMediaSource *source, guint operation_id);
+static void grl_youtube_source_cancel (GrlMediaSource *source,
+                                       guint operation_id);
 
 static gchar *read_url (const gchar *url);
 
@@ -239,32 +240,35 @@ CategoryInfo *categories_dir = NULL;
 /* =================== Youtube Plugin  =============== */
 
 gboolean
-ms_youtube_plugin_init (MsPluginRegistry *registry, const MsPluginInfo *plugin)
+grl_youtube_plugin_init (GrlPluginRegistry *registry,
+                         const GrlPluginInfo *plugin)
 {
   g_debug ("youtube_plugin_init\n");
 
-  MsYoutubeSource *source = ms_youtube_source_new ();
-  ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
+  GrlYoutubeSource *source = grl_youtube_source_new ();
+  grl_plugin_registry_register_source (registry,
+                                       plugin,
+                                       GRL_MEDIA_PLUGIN (source));
   return TRUE;
 }
 
-MS_PLUGIN_REGISTER (ms_youtube_plugin_init, 
-                    NULL, 
-                    PLUGIN_ID,
-                    PLUGIN_NAME, 
-                    PLUGIN_DESC, 
-                    PACKAGE_VERSION,
-                    AUTHOR, 
-                    LICENSE, 
-                    SITE);
+GRL_PLUGIN_REGISTER (grl_youtube_plugin_init,
+                     NULL,
+                     PLUGIN_ID,
+                     PLUGIN_NAME,
+                     PLUGIN_DESC,
+                     PACKAGE_VERSION,
+                     AUTHOR,
+                     LICENSE,
+                     SITE);
 
 /* ================== Youtube GObject ================ */
 
-static MsYoutubeSource *
-ms_youtube_source_new (void)
+static GrlYoutubeSource *
+grl_youtube_source_new (void)
 {
-  g_debug ("ms_youtube_source_new");
-  return g_object_new (MS_YOUTUBE_SOURCE_TYPE,
+  g_debug ("grl_youtube_source_new");
+  return g_object_new (GRL_YOUTUBE_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
 		       "source-desc", SOURCE_DESC,
@@ -272,27 +276,27 @@ ms_youtube_source_new (void)
 }
 
 static void
-ms_youtube_source_class_init (MsYoutubeSourceClass * klass)
+grl_youtube_source_class_init (GrlYoutubeSourceClass * klass)
 {
-  MsMediaSourceClass *source_class = MS_MEDIA_SOURCE_CLASS (klass);
-  MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
-  source_class->browse = ms_youtube_source_browse;
-  source_class->search = ms_youtube_source_search;
-  source_class->cancel = ms_youtube_source_cancel;
-  source_class->metadata = ms_youtube_source_metadata;
-  metadata_class->supported_keys = ms_youtube_source_supported_keys;
-  metadata_class->slow_keys = ms_youtube_source_slow_keys;
+  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
+  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  source_class->browse = grl_youtube_source_browse;
+  source_class->search = grl_youtube_source_search;
+  source_class->cancel = grl_youtube_source_cancel;
+  source_class->metadata = grl_youtube_source_metadata;
+  metadata_class->supported_keys = grl_youtube_source_supported_keys;
+  metadata_class->slow_keys = grl_youtube_source_slow_keys;
 }
 
 static void
-ms_youtube_source_init (MsYoutubeSource *source)
+grl_youtube_source_init (GrlYoutubeSource *source)
 {
   if (!categories_dir) {
     build_categories_directory ();
   }
 }
 
-G_DEFINE_TYPE (MsYoutubeSource, ms_youtube_source, MS_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_MEDIA_SOURCE);
 
 /* ======================= Utilities ==================== */
 
@@ -361,7 +365,7 @@ get_video_url (const gchar *id)
 
   g_free (video_info_url);
   g_free (token);
-  
+
   return url;
 }
 
@@ -433,60 +437,60 @@ read_url (const gchar *url)
   }
 }
 
-static MsContentMedia *
-build_media_from_entry (MsContentMedia *content,
+static GrlContentMedia *
+build_media_from_entry (GrlContentMedia *content,
 			const Entry *entry,
 			const GList *keys)
 {
-  MsContentMedia *media;
+  GrlContentMedia *media;
   gchar *url;
   GList *iter;
 
   if (!content) {
-    media = ms_content_video_new ();
+    media = grl_content_video_new ();
   } else {
     media = content;
   }
 
   iter = (GList *) keys;
   while (iter) {
-    MsKeyID key_id = POINTER_TO_MSKEYID (iter->data);
+    GrlKeyID key_id = POINTER_TO_GRLKEYID (iter->data);
     switch (key_id) {
-    case MS_METADATA_KEY_ID:
-      ms_content_media_set_id (media, entry->id);
+    case GRL_METADATA_KEY_ID:
+      grl_content_media_set_id (media, entry->id);
       break;
-    case MS_METADATA_KEY_TITLE:
-      ms_content_media_set_title (media, entry->title);
+    case GRL_METADATA_KEY_TITLE:
+      grl_content_media_set_title (media, entry->title);
       break;
-    case MS_METADATA_KEY_AUTHOR:
-      ms_content_media_set_author (media, entry->author);
+    case GRL_METADATA_KEY_AUTHOR:
+      grl_content_media_set_author (media, entry->author);
       break;
-    case MS_METADATA_KEY_DESCRIPTION:
-      ms_content_media_set_description (media, entry->description);
+    case GRL_METADATA_KEY_DESCRIPTION:
+      grl_content_media_set_description (media, entry->description);
       break;
-    case MS_METADATA_KEY_THUMBNAIL:
-      ms_content_media_set_thumbnail (media, entry->thumbnail);
+    case GRL_METADATA_KEY_THUMBNAIL:
+      grl_content_media_set_thumbnail (media, entry->thumbnail);
       break;
-    case MS_METADATA_KEY_DATE:
-      ms_content_media_set_date (media, entry->published);
+    case GRL_METADATA_KEY_DATE:
+      grl_content_media_set_date (media, entry->published);
       break;
-    case MS_METADATA_KEY_DURATION:
-      ms_content_media_set_duration (media, atoi (entry->duration));
+    case GRL_METADATA_KEY_DURATION:
+      grl_content_media_set_duration (media, atoi (entry->duration));
       break;
-    case MS_METADATA_KEY_MIME:
-      ms_content_media_set_mime (media, YOUTUBE_VIDEO_MIME);
+    case GRL_METADATA_KEY_MIME:
+      grl_content_media_set_mime (media, YOUTUBE_VIDEO_MIME);
       break;
-    case MS_METADATA_KEY_SITE:
-      ms_content_media_set_site (media, YOUTUBE_SITE_URL);
+    case GRL_METADATA_KEY_SITE:
+      grl_content_media_set_site (media, YOUTUBE_SITE_URL);
       break;
-    case MS_METADATA_KEY_RATING:
-      ms_content_media_set_rating (media, entry->rating, "5.00");
+    case GRL_METADATA_KEY_RATING:
+      grl_content_media_set_rating (media, entry->rating, "5.00");
       break;
-    case MS_METADATA_KEY_URL:
+    case GRL_METADATA_KEY_URL:
       if (!entry->restricted) {
 	url = get_video_url (entry->id);
 	if (url) {
-	  ms_content_media_set_url (media, url);
+	  grl_content_media_set_url (media, url);
 	}
 	g_free (url);
       }
@@ -538,14 +542,14 @@ parse_media_group (xmlDocPtr doc, xmlNodePtr media, Entry *entry)
 	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
     } else if (!xmlStrcmp (node->name, (const xmlChar *) "thumbnail") &&
 	       !entry->thumbnail) {
-      entry->thumbnail = 
+      entry->thumbnail =
 	(gchar *) xmlGetProp (node, (xmlChar *) "url");
     } else if (!xmlStrcmp (node->name, (const xmlChar *) "duration")) {
       entry->duration =
 	(gchar *) xmlGetProp (node, (xmlChar *) "seconds");
     }
     node = node->next;
-  }    
+  }
 }
 
 static void
@@ -564,7 +568,7 @@ parse_app_control (xmlDocPtr doc, xmlNodePtr media, Entry *entry)
       g_free ((gchar *) value);
     }
     node = node->next;
-  }    
+  }
 }
 
 static void
@@ -579,17 +583,17 @@ parse_entry (xmlDocPtr doc, xmlNodePtr entry, Entry *data)
     if (!xmlStrcmp (node->name, (const xmlChar *) "id")) {
       data->id = parse_id (doc, node);
     } else if (!xmlStrcmp (node->name, (const xmlChar *) "published")) {
-      data->published = 
+      data->published =
 	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
     } else if (!xmlStrcmp (node->name, (const xmlChar *) "title")) {
-      data->title = 
+      data->title =
 	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
     } else if (!xmlStrcmp (node->name, (const xmlChar *) "author")) {
       data->author = parse_author (doc, node);
-    } else if (ns && !xmlStrcmp (ns->prefix, (const xmlChar *) "media") && 
+    } else if (ns && !xmlStrcmp (ns->prefix, (const xmlChar *) "media") &&
 	       !xmlStrcmp (node->name, (const xmlChar *) "group")) {
       parse_media_group (doc, node, data);
-    } else if (ns && !xmlStrcmp (ns->prefix, (const xmlChar *) "app") && 
+    } else if (ns && !xmlStrcmp (ns->prefix, (const xmlChar *) "app") &&
 	       !xmlStrcmp (node->name, (const xmlChar *) "control")) {
       parse_app_control (doc, node, data);
     } else if (ns && !xmlStrcmp (ns->prefix, (const xmlChar *) "gd") &&
@@ -615,15 +619,15 @@ parse_entries_idle (gpointer user_data)
 				   (const xmlChar *) "entry")) {
       pei->node = pei->node->next;
     }
-    
+
     if (pei->node) {
       Entry *entry = g_new0 (Entry, 1);
       parse_entry (pei->doc, pei->node, entry);
       if (0) print_entry (entry);
-      MsContentMedia *media =
+      GrlContentMedia *media =
 	build_media_from_entry (NULL, entry, pei->os->keys);
       free_entry (entry);
-      
+
       pei->os->skip++;
       pei->os->count--;
       pei->count++;
@@ -633,7 +637,7 @@ parse_entries_idle (gpointer user_data)
 			 pei->os->count,
 			 pei->os->user_data,
 			 NULL);
-      
+
       parse_more = TRUE;
       pei->node = pei->node->next;
     }
@@ -653,7 +657,7 @@ parse_entries_idle (gpointer user_data)
 	/* Operation cancelled before finalization. We stop the
 	   operation now */
 	g_debug ("Operation was cancelled, stopping next chunk");
-	pei->os->callback (pei->os->source, 
+	pei->os->callback (pei->os->source,
 			   pei->os->operation_id,
 			   NULL,
 			   0,
@@ -665,18 +669,18 @@ parse_entries_idle (gpointer user_data)
 	   there are not more results and we must finish the operation now */
 	g_warning ("Wrong totalResults from Youtube "		\
 		   "using NULL media to finish operation");
-	pei->os->callback (pei->os->source, 
+	pei->os->callback (pei->os->source,
 			   pei->os->operation_id,
 			   NULL,
 			   0,
 			   pei->os->user_data,
-			   NULL); 
+			   NULL);
       }
       free_operation_spec (pei->os);
     }
     g_free (pei);
   }
-  
+
   return parse_more;
 }
 
@@ -687,34 +691,34 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   xmlNodePtr node;
   guint total_results;
   xmlNs *ns;
-  
+
   doc = xmlRecoverDoc ((xmlChar *) str);
   if (!doc) {
-    *error = g_error_new (MS_ERROR, 
-			  MS_ERROR_BROWSE_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_BROWSE_FAILED,
 			  "Failed to parse Youtube's response");
     goto free_resources;
   }
 
   node = xmlDocGetRootElement (doc);
   if (!node) {
-    *error = g_error_new (MS_ERROR, 
-			  MS_ERROR_BROWSE_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_BROWSE_FAILED,
 			  "Empty response from Youtube");
     goto free_resources;
   }
 
   if (xmlStrcmp (node->name, (const xmlChar *) "feed")) {
-    *error = g_error_new (MS_ERROR, 
-			  MS_ERROR_BROWSE_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_BROWSE_FAILED,
 			  "Unexpected response from Youtube: no feed");
     goto free_resources;
   }
 
   node = node->xmlChildrenNode;
   if (!node) {
-    *error = g_error_new (MS_ERROR, 
-			  MS_ERROR_BROWSE_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_BROWSE_FAILED,
 			  "Unexpected response from Youtube: empty feed");
     goto free_resources;
   }
@@ -731,7 +735,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
 	ns = node->ns;
 	if (ns && !xmlStrcmp (ns->prefix, (xmlChar *) "openSearch")) {
 	  if (!xmlStrcmp (node->name, (const xmlChar *) "totalResults")) {
-	    gchar *total_results_str = 
+	    gchar *total_results_str =
 	      (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
 	    total_results = atoi (total_results_str);
 	    g_free (total_results_str);
@@ -744,12 +748,17 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
     if (total_results >= os->skip + os->count) {
       /* Ok, we can send all the elements requested, no problem */
     } else if (total_results > os->skip) {
-      /* We cannot send all, there aren't so many: adjust os->count 
+      /* We cannot send all, there aren't so many: adjust os->count
 	 so it represents the total available */
       os->count = total_results - os->skip;
     } else {
       /* No results to send */
-      os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+      os->callback (os->source,
+                    os->operation_id,
+                    NULL,
+                    0,
+                    os->user_data,
+                    NULL);
       goto free_resources;
     }
   }
@@ -761,21 +770,21 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   pei->doc = doc;
   g_idle_add (parse_entries_idle, pei);
   return;
-  
+
  free_resources:
   xmlFreeDoc (doc);
   return;
 }
 
-static MsContentMedia *
-parse_metadata_entry (MsMediaSourceMetadataSpec *os,
+static GrlContentMedia *
+parse_metadata_entry (GrlMediaSourceMetadataSpec *os,
 		      xmlDocPtr doc,
 		      xmlNodePtr node,
 		      GError **error)
 {
   xmlNs *ns;
   guint total_results = 0;
-  MsContentMedia *media = NULL;
+  GrlContentMedia *media = NULL;
 
   /* First checkout search information looking for totalResults */
   while (node && !total_results) {
@@ -785,7 +794,7 @@ parse_metadata_entry (MsMediaSourceMetadataSpec *os,
       ns = node->ns;
       if (ns && !xmlStrcmp (ns->prefix, (xmlChar *) "openSearch")) {
 	if (!xmlStrcmp (node->name, (const xmlChar *) "totalResults")) {
-	  gchar *total_results_str = 
+	  gchar *total_results_str =
 	    (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
 	  total_results = atoi (total_results_str);
 	  g_free (total_results_str);
@@ -797,8 +806,8 @@ parse_metadata_entry (MsMediaSourceMetadataSpec *os,
 
   /* Should have exactly 1 result */
   if (total_results != 1) {
-    *error = g_error_new (MS_ERROR, 
-			  MS_ERROR_MEDIA_NOT_FOUND,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_MEDIA_NOT_FOUND,
 			  "Could not find requested media");
     return NULL;
   }
@@ -809,50 +818,50 @@ parse_metadata_entry (MsMediaSourceMetadataSpec *os,
   }
   if (node) {
     Entry *entry = g_new0 (Entry, 1);
-    parse_entry (doc, node, entry);    
+    parse_entry (doc, node, entry);
     if (0) print_entry (entry);
-    build_media_from_entry (os->media, entry, os->keys);    
+    build_media_from_entry (os->media, entry, os->keys);
     free_entry (entry);
-  } 
+  }
 
   return media;
 }
 
 static void
-parse_metadata_feed (MsMediaSourceMetadataSpec *os,
+parse_metadata_feed (GrlMediaSourceMetadataSpec *os,
 		     const gchar *str,
 		     GError **error)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
-  
+
   doc = xmlRecoverDoc ((xmlChar *) str);
   if (!doc) {
-    *error = g_error_new (MS_ERROR, 
-			  MS_ERROR_METADATA_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_METADATA_FAILED,
 			  "Failed to parse Youtube's response");
     goto free_resources;
   }
 
   node = xmlDocGetRootElement (doc);
   if (!node) {
-    *error = g_error_new (MS_ERROR, 
-			  MS_ERROR_METADATA_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_METADATA_FAILED,
 			  "Empty response from Youtube");
     goto free_resources;
   }
 
   if (xmlStrcmp (node->name, (const xmlChar *) "feed")) {
-    *error = g_error_new (MS_ERROR, 
-			  MS_ERROR_METADATA_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_METADATA_FAILED,
 			  "Unexpected response from Youtube: no feed");
     goto free_resources;
   }
 
   node = node->xmlChildrenNode;
   if (!node) {
-    *error = g_error_new (MS_ERROR, 
-			  MS_ERROR_METADATA_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_METADATA_FAILED,
 			  "Unexpected response from Youtube: empty feed");
     goto free_resources;
   }
@@ -887,7 +896,7 @@ parse_categories (xmlDocPtr doc, xmlNodePtr node)
     total++;
     g_debug ("  Found category: '%d - %s'", index++, cat_info->name);
   }
-  
+
   if (all) {
     categories_dir_size = total;
     categories_dir = g_new0 (CategoryInfo, total + 1);
@@ -940,7 +949,7 @@ build_categories_directory_read_cb (gchar *xmldata, gpointer user_data)
   }
 
   parse_categories (doc, node);
-  
+
  free_resources:
   xmlFreeDoc (doc);
   return;
@@ -1001,7 +1010,9 @@ get_container_url (const gchar *container_id)
 }
 
 static void
-set_category_childcount (MsContentBox *content, CategoryInfo *dir, guint index)
+set_category_childcount (GrlContentBox *content,
+                         CategoryInfo *dir,
+                         guint index)
 {
   gint childcount;
   gboolean set_childcount = TRUE;
@@ -1034,48 +1045,48 @@ set_category_childcount (MsContentBox *content, CategoryInfo *dir, guint index)
   }
 
   if (set_childcount) {
-    ms_content_box_set_childcount (content, childcount);
+    grl_content_box_set_childcount (content, childcount);
   }
 }
 
-static MsContentMedia *
-produce_container_from_directory (MsContentMedia *media,
+static GrlContentMedia *
+produce_container_from_directory (GrlContentMedia *media,
 				  CategoryInfo *dir,
 				  guint index,
 				  gboolean set_childcount)
 {
-  MsContentMedia *content;
+  GrlContentMedia *content;
 
   if (!media) {
     /* Create mode */
-    content = ms_content_box_new ();
+    content = grl_content_box_new ();
   } else {
     /* Update mode */
     content = media;
   }
 
   if (!dir) {
-    ms_content_media_set_id (content, NULL);
-    ms_content_media_set_title (content, YOUTUBE_ROOT_NAME);
+    grl_content_media_set_id (content, NULL);
+    grl_content_media_set_title (content, YOUTUBE_ROOT_NAME);
   } else {
-    ms_content_media_set_id (content, dir[index].id);
-    ms_content_media_set_title (content, dir[index].name);
+    grl_content_media_set_id (content, dir[index].id);
+    grl_content_media_set_title (content, dir[index].name);
   }
-  ms_content_media_set_site (content, YOUTUBE_SITE_URL);
+  grl_content_media_set_site (content, YOUTUBE_SITE_URL);
   if (set_childcount) {
-    set_category_childcount (MS_CONTENT_BOX (content), dir, index);
+    set_category_childcount (GRL_CONTENT_BOX (content), dir, index);
   }
 
   return content;
 }
 
-static MsContentMedia *
-produce_container_from_directory_by_id (MsContentMedia *media,
+static GrlContentMedia *
+produce_container_from_directory_by_id (GrlContentMedia *media,
 					CategoryInfo *dir,
 					const gchar *id,
 					gboolean set_childcount)
 {
-  MsContentMedia *content;
+  GrlContentMedia *content;
   guint index = 0;
 
   while (dir[index].id && strcmp (dir[index].id, id)) index++;
@@ -1112,14 +1123,14 @@ classify_media_id (const gchar *media_id)
 static gboolean
 produce_from_directory_idle (gpointer user_data)
 {
-  MsContentMedia *content;
+  GrlContentMedia *content;
   ProduceFromDirectoryIdle *pfdi = (ProduceFromDirectoryIdle *) user_data;
 
   if (!pfdi->os->cancelled) {
     content = produce_container_from_directory (NULL,
-						pfdi->directory, 
+						pfdi->directory,
 						pfdi->index,
-						pfdi->set_childcount);    
+						pfdi->set_childcount);
     pfdi->remaining--;
     pfdi->index++;
   } else {
@@ -1139,7 +1150,7 @@ produce_from_directory_idle (gpointer user_data)
     g_free (pfdi);
     return FALSE;
   }
-  
+
   return TRUE;
 }
 
@@ -1159,20 +1170,20 @@ produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os)
 		  NULL,
 		  0,
 		  os->user_data,
-		  NULL);        
+		  NULL);
     free_operation_spec (os);
   } else {
     /* Do not compute childcount when it is expensive and user requested
-       MS_RESOLVE_FAST_ONLY */
+       GRL_RESOLVE_FAST_ONLY */
     media_type = classify_media_id (os->container_id);
-    if ((os->flags & MS_RESOLVE_FAST_ONLY) && 
+    if ((os->flags & GRL_RESOLVE_FAST_ONLY) &&
 	(media_type == YOUTUBE_MEDIA_TYPE_CATEGORIES ||
 	 media_type == YOUTUBE_MEDIA_TYPE_FEEDS)) {
       set_childcount = FALSE;
     } else {
       set_childcount =
 	(g_list_find (os->keys,
-		      MSKEYID_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
+		      GRLKEYID_TO_POINTER (GRL_METADATA_KEY_CHILDCOUNT)) != NULL);
     }
     index = os->skip;
     remaining = MIN (dir_size - os->skip, os->count);
@@ -1196,16 +1207,16 @@ produce_next_video_chunk_read_cb (gchar *xmldata, gpointer user_data)
   OperationSpec *os = (OperationSpec *) user_data;
 
   if (!xmldata) {
-    error = g_error_new (MS_ERROR,
-			 MS_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_ERROR,
+			 GRL_ERROR_BROWSE_FAILED,
 			 "Failed to read from Youtube");
   } else {
     parse_feed (os, xmldata, &error);
-    g_free (xmldata);  
+    g_free (xmldata);
   }
 
   if (error) {
-    os->callback (os->source, 
+    os->callback (os->source,
 		  os->operation_id,
 		  NULL,
 		  0,
@@ -1239,8 +1250,8 @@ produce_videos_from_container (OperationSpec *os, GError **error)
 
   _url = get_container_url (os->container_id);
   if (!_url) {
-    *error = g_error_new (MS_ERROR,
-			  MS_ERROR_BROWSE_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_BROWSE_FAILED,
 			  "Invalid container-id: '%s'",
 			  os->container_id);
   } else {
@@ -1264,15 +1275,15 @@ static void
 metadata_read_cb (gchar *xmldata, gpointer user_data)
 {
   GError *error = NULL;
-  MsMediaSourceMetadataSpec *ms = (MsMediaSourceMetadataSpec *) user_data;
+  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
 
   if (!xmldata) {
-    error = g_error_new (MS_ERROR,
-			 MS_ERROR_METADATA_FAILED,
+    error = g_error_new (GRL_ERROR,
+			 GRL_ERROR_METADATA_FAILED,
 			 "Failed to read from Youtube");
   } else {
     parse_metadata_feed (ms, xmldata, &error);
-    g_free (xmldata);   
+    g_free (xmldata);
   }
 
   if (error) {
@@ -1286,51 +1297,52 @@ metadata_read_cb (gchar *xmldata, gpointer user_data)
 /* ================== API Implementation ================ */
 
 static const GList *
-ms_youtube_source_supported_keys (MsMetadataSource *source)
+grl_youtube_source_supported_keys (GrlMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
-				     MS_METADATA_KEY_TITLE, 
-				     MS_METADATA_KEY_URL,
-				     MS_METADATA_KEY_AUTHOR,
-				     MS_METADATA_KEY_DESCRIPTION,
-				     MS_METADATA_KEY_DURATION,
-				     MS_METADATA_KEY_DATE,
-				     MS_METADATA_KEY_THUMBNAIL,
-				     MS_METADATA_KEY_MIME,
-				     MS_METADATA_KEY_CHILDCOUNT,
-				     MS_METADATA_KEY_SITE,
-				     MS_METADATA_KEY_RATING,
-				     NULL);
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
+                                      GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_URL,
+                                      GRL_METADATA_KEY_AUTHOR,
+                                      GRL_METADATA_KEY_DESCRIPTION,
+                                      GRL_METADATA_KEY_DURATION,
+                                      GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_THUMBNAIL,
+                                      GRL_METADATA_KEY_MIME,
+                                      GRL_METADATA_KEY_CHILDCOUNT,
+                                      GRL_METADATA_KEY_SITE,
+                                      GRL_METADATA_KEY_RATING,
+                                      NULL);
   }
   return keys;
 }
 
 static const GList *
-ms_youtube_source_slow_keys (MsMetadataSource *source)
+grl_youtube_source_slow_keys (GrlMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    /* childcount may or may not be slow depending on the category, 
+    /* childcount may or may not be slow depending on the category,
        so we handle it as a non-slow key and then we decide if we
        resolve or not depending on the category and the flags set */
-    keys = ms_metadata_key_list_new (MS_METADATA_KEY_URL,
-				     NULL);
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_URL,
+                                      NULL);
   }
-  return keys;  
+  return keys;
 }
 
 static void
-ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
+grl_youtube_source_browse (GrlMediaSource *source,
+                           GrlMediaSourceBrowseSpec *bs)
 {
   OperationSpec *os;
   GError *error = NULL;
   const gchar *container_id;
 
-  g_debug ("ms_youtube_source_browse");
+  g_debug ("grl_youtube_source_browse");
 
-  container_id = ms_content_media_get_id (bs->container);
+  container_id = grl_content_media_get_id (bs->container);
 
   os = g_new0 (OperationSpec, 1);
   os->source = bs->source;
@@ -1343,7 +1355,7 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
   os->callback = bs->callback;
   os->user_data = bs->user_data;
 
-  ms_media_source_set_operation_data (source, os->operation_id, os);
+  grl_media_source_set_operation_data (source, os->operation_id, os);
 
   if (!container_id) {
     produce_from_directory (root_dir, root_dir_size, os);
@@ -1363,12 +1375,13 @@ ms_youtube_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
 }
 
 static void
-ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
+grl_youtube_source_search (GrlMediaSource *source,
+                           GrlMediaSourceSearchSpec *ss)
 {
   OperationSpec *os;
   GError *error = NULL;
 
-  g_debug ("ms_youtube_source_search");
+  g_debug ("grl_youtube_source_search");
 
   os = g_new0 (OperationSpec, 1);
   os->source = source;
@@ -1379,11 +1392,11 @@ ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
   os->callback = ss->callback;
   os->user_data = ss->user_data;
 
-  ms_media_source_set_operation_data (source, os->operation_id, os);
+  grl_media_source_set_operation_data (source, os->operation_id, os);
   produce_videos_from_search (ss->text, os, &error);
 
   if (error) {
-    error->code = MS_ERROR_SEARCH_FAILED;
+    error->code = GRL_ERROR_SEARCH_FAILED;
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
     g_free (os->query_url);
@@ -1392,31 +1405,31 @@ ms_youtube_source_search (MsMediaSource *source, MsMediaSourceSearchSpec *ss)
 }
 
 static void
-ms_youtube_source_metadata (MsMediaSource *source,
-			    MsMediaSourceMetadataSpec *ms)
+grl_youtube_source_metadata (GrlMediaSource *source,
+                             GrlMediaSourceMetadataSpec *ms)
 {
   gchar *url;
   GError *error = NULL;
-  MsContentMedia *media = NULL;
+  GrlContentMedia *media = NULL;
   YoutubeMediaType media_type;
   gboolean set_childcount;
   const gchar *id;
 
-  g_debug ("ms_youtube_source_metadata");
+  g_debug ("grl_youtube_source_metadata");
 
-  id = ms_content_media_get_id (ms->media);
+  id = grl_content_media_get_id (ms->media);
   media_type = classify_media_id (id);
 
   /* Do not compute childcount for expensive categories
      if user requested that */
-  if ((ms->flags & MS_RESOLVE_FAST_ONLY) && 
+  if ((ms->flags & GRL_RESOLVE_FAST_ONLY) &&
       (media_type == YOUTUBE_MEDIA_TYPE_CATEGORIES ||
        media_type == YOUTUBE_MEDIA_TYPE_FEEDS)) {
     set_childcount = FALSE;
   } else {
     set_childcount =
       (g_list_find (ms->keys,
-		    MSKEYID_TO_POINTER (MS_METADATA_KEY_CHILDCOUNT)) != NULL);
+		    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_CHILDCOUNT)) != NULL);
   }
 
   switch (media_type) {
@@ -1465,12 +1478,12 @@ ms_youtube_source_metadata (MsMediaSource *source,
 }
 
 static void
-ms_youtube_source_cancel (MsMediaSource *source, guint operation_id)
+grl_youtube_source_cancel (GrlMediaSource *source, guint operation_id)
 {
   OperationSpec *spec;
-  g_debug ("ms_youtube_source_cancel");
-  spec = (OperationSpec *) ms_media_source_get_operation_data (source,
-							       operation_id);
+  g_debug ("grl_youtube_source_cancel");
+  spec = (OperationSpec *) grl_media_source_get_operation_data (source,
+                                                                operation_id);
   if (spec) {
     spec->cancelled = TRUE;
   }

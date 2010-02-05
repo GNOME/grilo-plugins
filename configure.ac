@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010 Igalia S.L.. All rights reserved.
 
-m4_define([prj_name],    [media-store])
+m4_define([prj_name],    [grilo-plugins])
 m4_define([prj_version], [0.1.1-0])
 
 AC_INIT([prj_name], [prj_version])
@@ -38,15 +38,15 @@ CFLAGS="$CFLAGS -Wall -Werror -Wmissing-prototypes -Wmissing-declarations -std=c
 
 # ABI version
 
-MS_MAJORMINOR=0.1
-AC_SUBST(MS_MAJORMINOR)
-AC_DEFINE_UNQUOTED(MS_MAJORMINOR, "$MS_MAJORMINOR", [library major.minor version])
+GRL_MAJORMINOR=0.1
+AC_SUBST(GRL_MAJORMINOR)
+AC_DEFINE_UNQUOTED(GRL_MAJORMINOR, "$GRL_MAJORMINOR", [library major.minor version])
 
 # Framework name (contains ABI version)
 
-MS_NAME="${PACKAGE_NAME}-${MS_MAJORMINOR}"
-AC_SUBST(MS_NAME)
-AC_DEFINE_UNQUOTED(MS_NAME, "$MS_NAME", [framework name])
+GRL_NAME="${PACKAGE_NAME}-${GRL_MAJORMINOR}"
+AC_SUBST(GRL_NAME)
+AC_DEFINE_UNQUOTED(GRL_NAME, "$GRL_NAME", [framework name])
 
 # Give parameters a default value
 
@@ -60,9 +60,9 @@ fi
 
 # Plugins directory
 
-PLUGINS_DIR=`pkg-config --variable=plugindir grilo-0.1`
-AC_SUBST(PLUGINS_DIR)
-AC_DEFINE_UNQUOTED(PLUGINS_DIR, "$PLUGINS_DIR", [Plugins directory])
+GRL_PLUGINS_DIR=`pkg-config --variable=plugindir grilo-0.1`
+AC_SUBST(GRL_PLUGINS_DIR)
+AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 
 # ----------------------------------------------------------
 # DEPENDENCIES
@@ -159,10 +159,10 @@ AC_ARG_ENABLE(fakemetadata,
         [enable_fakemetadata=yes])
 
 AM_CONDITIONAL([FAKEMETADATA_PLUGIN], [test "x$enable_fakemetadata" = "xyes"])
-MS_PLUGINS_ALL="$MS_PLUGINS_ALL fakemetadata"
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL fakemetadata"
 if test "x$enable_fakemetadata" = "xyes"
 then
-	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED fakemetadata"
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED fakemetadata"
 fi
 
 # ----------------------------------------------------------
@@ -175,10 +175,10 @@ AC_ARG_ENABLE(filesystem,
         [enable_filesystem=yes])
 
 AM_CONDITIONAL([FILESYSTEM_PLUGIN], [test "x$enable_filesystem" = "xyes"])
-MS_PLUGINS_ALL="$MS_PLUGINS_ALL filesystem"
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL filesystem"
 if test "x$enable_filesystem" = "xyes"
 then
-	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED filesystem"
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED filesystem"
 fi
 
 # ----------------------------------------------------------
@@ -209,10 +209,10 @@ AC_ARG_ENABLE(jamendo,
         ])
 
 AM_CONDITIONAL([JAMENDO_PLUGIN], [test "x$enable_jamendo" = "xyes"])
-MS_PLUGINS_ALL="$MS_PLUGINS_ALL jamendo"
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL jamendo"
 if test "x$enable_jamendo" = "xyes"
 then
-	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED jamendo"
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED jamendo"
 fi
 
 # ----------------------------------------------------------
@@ -243,10 +243,10 @@ AC_ARG_ENABLE(lastfm_albumart,
         ])
 
 AM_CONDITIONAL([LASTFM_ALBUMART_PLUGIN], [test "x$enable_lastfm_albumart" = "xyes"])
-MS_PLUGINS_ALL="$MS_PLUGINS_ALL lastfm-albumart"
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL lastfm-albumart"
 if test "x$enable_lastfm_albumart" = "xyes"
 then
-	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED lastfm-albumart"
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED lastfm-albumart"
 fi
 
 # ----------------------------------------------------------
@@ -277,10 +277,10 @@ AC_ARG_ENABLE(upnp,
         ])
 
 AM_CONDITIONAL([UPNP_PLUGIN], [test "x$enable_upnp" = "xyes"])
-MS_PLUGINS_ALL="$MS_PLUGINS_ALL upnp"
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL upnp"
 if test "x$enable_upnp" = "xyes"
 then
-	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED upnp"
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED upnp"
 fi
 
 # ----------------------------------------------------------
@@ -311,10 +311,10 @@ AC_ARG_ENABLE(youtube,
         ])
 
 AM_CONDITIONAL([YOUTUBE_PLUGIN], [test "x$enable_youtube" = "xyes"])
-MS_PLUGINS_ALL="$MS_PLUGINS_ALL youtube"
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL youtube"
 if test "x$enable_youtube" = "xyes"
 then
-	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED youtube"
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED youtube"
 fi
 
 # ----------------------------------------------------------
@@ -352,10 +352,10 @@ AC_ARG_ENABLE(flickr,
         ])
 
 AM_CONDITIONAL([FLICKR_PLUGIN], [test "x$enable_flickr" = "xyes"])
-MS_PLUGINS_ALL="$MS_PLUGINS_ALL flickr"
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL flickr"
 if test "x$enable_flickr" = "xyes"
 then
-	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED flickr"
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED flickr"
 fi
 
 # ----------------------------------------------------------
@@ -393,17 +393,17 @@ AC_ARG_ENABLE(podcasts,
         ])
 
 AM_CONDITIONAL([PODCASTS_PLUGIN], [test "x$enable_podcasts" = "xyes"])
-MS_PLUGINS_ALL="$MS_PLUGINS_ALL podcasts"
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL podcasts"
 if test "x$enable_podcasts" = "xyes"
 then
-	MS_PLUGINS_ENABLED="$MS_PLUGINS_ENABLED podcasts"
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED podcasts"
 fi
 
 # ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
-#GETTEXT_PACKAGE=media-store
+#GETTEXT_PACKAGE=grilo
 #AC_SUBST(GETTEXT_PACKAGE)
 #AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
 
@@ -505,7 +505,6 @@ AC_SUBST([builddir])
 
 AC_CONFIG_FILES([
   Makefile
-  media-store-0.1-uninstalled.pc
   src/Makefile
   src/youtube/Makefile
   src/fake-metadata/Makefile
@@ -520,4 +519,4 @@ AC_CONFIG_FILES([
 
 AC_OUTPUT
 
-AG_MS_OUTPUT_PLUGINS
+AG_GRL_OUTPUT_PLUGINS

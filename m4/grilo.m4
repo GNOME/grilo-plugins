@@ -1,10 +1,10 @@
 dnl Outputs configuration summary
-AC_DEFUN([AG_MS_OUTPUT_PLUGINS], [
+AC_DEFUN([AG_GRL_OUTPUT_PLUGINS], [
 
 printf "\n"
 printf -- "----------------- Configuration summary -----------------\n\n"
-( for i in $MS_PLUGINS_ALL; do
-    case " $MS_PLUGINS_ENABLED " in
+( for i in $GRL_PLUGINS_ALL; do
+    case " $GRL_PLUGINS_ENABLED " in
       *\ $i\ *)
         printf '\t'$i': yes\n'
         ;;

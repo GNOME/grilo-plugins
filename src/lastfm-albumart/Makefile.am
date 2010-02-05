@@ -5,21 +5,21 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES = liblastfm-albumart.la
+lib_LTLIBRARIES = libgrllastfm-albumart.la
 
-liblastfm_albumart_la_CFLAGS = 	\
-	$(DEPS_CFLAGS) 	\
-	$(GIO_CFLAGS) 	\
+libgrllastfm_albumart_la_CFLAGS =	\
+	$(DEPS_CFLAGS) 			\
+	$(GIO_CFLAGS) 			\
 	$(XML_CFLAGS)
 
-liblastfm_albumart_la_LIBADD =	\
-	$(DEPS_LIBS)	\
-	$(GIO_LIBS)	\
+libgrllastfm_albumart_la_LIBADD =	\
+	$(DEPS_LIBS)			\
+	$(GIO_LIBS)			\
 	$(XML_LIBS)
 
-liblastfm_albumart_la_SOURCES = ms-lastfm-albumart.c ms-lastfm-albumart.h
+libgrllastfm_albumart_la_SOURCES = grl-lastfm-albumart.c grl-lastfm-albumart.h
 
-libdir=$(PLUGINS_DIR)
+libdir=$(GRL_PLUGINS_DIR)
 
 MAINTAINERCLEANFILES =	\
 	*.in	\

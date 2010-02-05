@@ -24,41 +24,41 @@
 #include "config.h"
 #endif
 
-#include <media-store.h>
+#include <grilo.h>
 #include <gio/gio.h>
 #include <string.h>
 #include <stdlib.h>
 
-#include "ms-filesystem.h"
+#include "grl-filesystem.h"
 
-/* --------- Logging  -------- */ 
+/* --------- Logging  -------- */
 
 #undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "ms-filesystem"
+#define G_LOG_DOMAIN "grl-filesystem"
 
 /* -------- File info ------- */
 
-#define FILE_ATTRIBUTES \
-  G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","	  \
-  G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE "," \
-  G_FILE_ATTRIBUTE_STANDARD_TYPE "," \
-  G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN "," \
+#define FILE_ATTRIBUTES                         \
+  G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","    \
+  G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","    \
+  G_FILE_ATTRIBUTE_STANDARD_TYPE ","            \
+  G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN ","       \
   G_FILE_ATTRIBUTE_TIME_MODIFIED
 
-#define FILE_ATTRIBUTES_FAST \
+#define FILE_ATTRIBUTES_FAST                    \
   G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN
-  
+
 /* ---- Emission chunks ----- */
 
 #define BROWSE_IDLE_CHUNK_SIZE 5
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "ms-filesystem"
+#define PLUGIN_ID   "grl-filesystem"
 #define PLUGIN_NAME "Filesystem"
 #define PLUGIN_DESC "A plugin for browsing the filesystem"
 
-#define SOURCE_ID   "ms-filesystem"
+#define SOURCE_ID   "grl-filesystem"
 #define SOURCE_NAME "Filesystem"
 #define SOURCE_DESC "A source for browsing the filesystem"
 
@@ -69,56 +69,59 @@
 /* --- Data types --- */
 
 typedef struct {
-  MsMediaSourceBrowseSpec *spec;
+  GrlMediaSourceBrowseSpec *spec;
   GList *entries;
   GList *current;
   const gchar *path;
   guint remaining;
 }  BrowseIdleData;
 
-static MsFilesystemSource *ms_filesystem_source_new (void);
+static GrlFilesystemSource *grl_filesystem_source_new (void);
 
-gboolean ms_filesystem_plugin_init (MsPluginRegistry *registry,
-				    const MsPluginInfo *plugin);
+gboolean grl_filesystem_plugin_init (GrlPluginRegistry *registry,
+                                     const GrlPluginInfo *plugin);
 
-static const GList *ms_filesystem_source_supported_keys (MsMetadataSource *source);
+static const GList *grl_filesystem_source_supported_keys (GrlMetadataSource *source);
 
-static void ms_filesystem_source_metadata (MsMediaSource *source,
-					   MsMediaSourceMetadataSpec *ms);
+static void grl_filesystem_source_metadata (GrlMediaSource *source,
+                                            GrlMediaSourceMetadataSpec *ms);
 
-static void ms_filesystem_source_browse (MsMediaSource *source,
-					 MsMediaSourceBrowseSpec *bs);
+static void grl_filesystem_source_browse (GrlMediaSource *source,
+                                          GrlMediaSourceBrowseSpec *bs);
 
 
 /* =================== Filesystem Plugin  =============== */
 
 gboolean
-ms_filesystem_plugin_init (MsPluginRegistry *registry, const MsPluginInfo *plugin)
+grl_filesystem_plugin_init (GrlPluginRegistry *registry,
+                            const GrlPluginInfo *plugin)
 {
   g_debug ("filesystem_plugin_init\n");
 
-  MsFilesystemSource *source = ms_filesystem_source_new ();
-  ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
+  GrlFilesystemSource *source = grl_filesystem_source_new ();
+  grl_plugin_registry_register_source (registry,
+                                       plugin,
+                                       GRL_MEDIA_PLUGIN (source));
   return TRUE;
 }
 
-MS_PLUGIN_REGISTER (ms_filesystem_plugin_init, 
-                    NULL, 
-                    PLUGIN_ID,
-                    PLUGIN_NAME, 
-                    PLUGIN_DESC, 
-                    PACKAGE_VERSION,
-                    AUTHOR, 
-                    LICENSE, 
-                    SITE);
+GRL_PLUGIN_REGISTER (grl_filesystem_plugin_init,
+                     NULL,
+                     PLUGIN_ID,
+                     PLUGIN_NAME,
+                     PLUGIN_DESC,
+                     PACKAGE_VERSION,
+                     AUTHOR,
+                     LICENSE,
+                     SITE);
 
 /* ================== Filesystem GObject ================ */
 
-static MsFilesystemSource *
-ms_filesystem_source_new (void)
+static GrlFilesystemSource *
+grl_filesystem_source_new (void)
 {
-  g_debug ("ms_filesystem_source_new");
-  return g_object_new (MS_FILESYSTEM_SOURCE_TYPE,
+  g_debug ("grl_filesystem_source_new");
+  return g_object_new (GRL_FILESYSTEM_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
 		       "source-desc", SOURCE_DESC,
@@ -126,21 +129,23 @@ ms_filesystem_source_new (void)
 }
 
 static void
-ms_filesystem_source_class_init (MsFilesystemSourceClass * klass)
+grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
 {
-  MsMediaSourceClass *source_class = MS_MEDIA_SOURCE_CLASS (klass);
-  MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
-  source_class->browse = ms_filesystem_source_browse;
-  source_class->metadata = ms_filesystem_source_metadata;
-  metadata_class->supported_keys = ms_filesystem_source_supported_keys;
+  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
+  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  source_class->browse = grl_filesystem_source_browse;
+  source_class->metadata = grl_filesystem_source_metadata;
+  metadata_class->supported_keys = grl_filesystem_source_supported_keys;
 }
 
 static void
-ms_filesystem_source_init (MsFilesystemSource *source)
+grl_filesystem_source_init (GrlFilesystemSource *source)
 {
 }
 
-G_DEFINE_TYPE (MsFilesystemSource, ms_filesystem_source, MS_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlFilesystemSource,
+               grl_filesystem_source,
+               GRL_TYPE_MEDIA_SOURCE);
 
 /* ======================= Utilities ==================== */
 
@@ -185,7 +190,7 @@ file_is_valid_content (const gchar *path, gboolean fast)
   GError *error = NULL;
   gboolean is_media;
   GFile *file;
-  GFileInfo *info; 
+  GFileInfo *info;
   GFileType type;
   const gchar *spec;
 
@@ -206,7 +211,7 @@ file_is_valid_content (const gchar *path, gboolean fast)
   } else {
     if (g_file_info_get_is_hidden (info)) {
       is_media = FALSE;
-    } else { 
+    } else {
       if (fast) {
 	/* In fast mode we do not check mime-types,
 	   any non-hidden file is accepted */
@@ -229,7 +234,7 @@ file_is_valid_content (const gchar *path, gboolean fast)
 
 static void
 set_container_childcount (const gchar *path,
-			  MsContentMedia *media,
+			  GrlContentMedia *media,
 			  gboolean fast)
 {
   GDir *dir;
@@ -249,35 +254,37 @@ set_container_childcount (const gchar *path,
   /* Count valid entries */
   count = 0;
   while ((entry_name = g_dir_read_name (dir)) != NULL) {
-      gchar *entry_path;
-      if (strcmp (path, G_DIR_SEPARATOR_S)) {
-	entry_path = g_strconcat (path, G_DIR_SEPARATOR_S, entry_name, NULL);
-      } else {
-	entry_path = g_strconcat (path, entry_name, NULL);
+    gchar *entry_path;
+    if (strcmp (path, G_DIR_SEPARATOR_S)) {
+      entry_path = g_strconcat (path, G_DIR_SEPARATOR_S, entry_name, NULL);
+    } else {
+      entry_path = g_strconcat (path, entry_name, NULL);
+    }
+    if (file_is_valid_content (entry_path, fast)) {
+      if (fast) {
+        /* in fast mode we don't compute  mime-types because it is slow,
+           so we can only check if the directory is totally empty (no subdirs,
+           and no files), otherwise we just say we do not know the actual
+           childcount */
+        count = GRL_METADATA_KEY_CHILDCOUNT_UNKNOWN;
+        break;
       }
-      if (file_is_valid_content (entry_path, fast)) {
-	if (fast) {
-	  /* in fast mode we don't compute  mime-types because it is slow,
-	     so we can only check if the directory is totally empty (no subdirs,
-	     and no files), otherwise we just say we do not know the actual
-	     childcount */
-	  count = MS_METADATA_KEY_CHILDCOUNT_UNKNOWN;
-	  break;
-	}
-	count++;
-      }
-      g_free (entry_path);
+      count++;
+    }
+    g_free (entry_path);
   }
 
   g_dir_close (dir);
 
-  ms_content_box_set_childcount (MS_CONTENT_BOX (media), count);
+  grl_content_box_set_childcount (GRL_CONTENT_BOX (media), count);
 }
 
-static MsContentMedia *
-create_content (MsContentMedia *content, const gchar *path, gboolean only_fast)
+static GrlContentMedia *
+create_content (GrlContentMedia *content,
+                const gchar *path,
+                gboolean only_fast)
 {
-  MsContentMedia *media = NULL;
+  GrlContentMedia *media = NULL;
   gchar *str;
   const gchar *mime;
   GError *error = NULL;
@@ -297,69 +304,69 @@ create_content (MsContentMedia *content, const gchar *path, gboolean only_fast)
   if (error) {
     g_warning ("Failed to get info for file '%s': %s", path, error->message);
     if (!media) {
-      media = ms_content_media_new ();
+      media = grl_content_media_new ();
     }
- 
+
     /* Title */
     str = g_strrstr (path, G_DIR_SEPARATOR_S);
     if (!str) {
       str = (gchar *) path;
     }
-    ms_content_media_set_title (media, str);
+    grl_content_media_set_title (media, str);
     g_error_free (error);
   } else {
     mime = g_file_info_get_content_type (info);
 
     if (!media) {
       if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-	media = MS_CONTENT_MEDIA (ms_content_box_new ());
+	media = GRL_CONTENT_MEDIA (grl_content_box_new ());
       } else {
 	if (mime_is_video (mime)) {
-	  media = ms_content_video_new ();
+	  media = grl_content_video_new ();
 	} else if (mime_is_audio (mime)) {
-	  media = ms_content_audio_new ();
+	  media = grl_content_audio_new ();
 	} else if (mime_is_image (mime)) {
-	  media = ms_content_image_new ();
+	  media = grl_content_image_new ();
 	} else {
-	  media = ms_content_media_new ();
+	  media = grl_content_media_new ();
 	}
       }
     }
-    
-    if (!MS_IS_CONTENT_BOX (media)) {
-      ms_content_media_set_mime (MS_CONTENT (media), mime);
+
+    if (!GRL_IS_CONTENT_BOX (media)) {
+      grl_content_media_set_mime (GRL_CONTENT (media), mime);
     }
 
     /* Title */
     str = (gchar *) g_file_info_get_display_name (info);
-    ms_content_media_set_title (media, str);
+    grl_content_media_set_title (media, str);
 
     /* Date */
     GTimeVal time;
     gchar *time_str;
     g_file_info_get_modification_time (info, &time);
     time_str = g_time_val_to_iso8601 (&time);
-    ms_content_media_set_date (MS_CONTENT (media), time_str);
+    grl_content_media_set_date (GRL_CONTENT (media), time_str);
     g_free (time_str);
 
     g_object_unref (info);
   }
 
   /* ID */
-  ms_content_media_set_id (media, path);
+  grl_content_media_set_id (media, path);
 
   /* URL */
   str = g_strconcat ("file://", path, NULL);
-  ms_content_media_set_url (media, str);
+  grl_content_media_set_url (media, str);
   g_free (str);
 
   /* Childcount */
-  if (MS_IS_CONTENT_BOX (media)) {
+  if (GRL_IS_CONTENT_BOX (media)) {
     set_container_childcount (path, media, only_fast);
   }
 
   g_object_unref (file);
-  
+
   return media;
 }
 
@@ -374,23 +381,23 @@ browse_emit_idle (gpointer user_data)
   idle_data = (BrowseIdleData *) user_data;
 
   count = 0;
-  do {    
+  do {
     gchar *entry_path;
-    MsContentMedia *content;
-    
+    GrlContentMedia *content;
+
     entry_path = (gchar *) idle_data->current->data;
     content = create_content (NULL,
 			      entry_path,
-			      idle_data->spec->flags & MS_RESOLVE_FAST_ONLY); 
+			      idle_data->spec->flags & GRL_RESOLVE_FAST_ONLY);
     g_free (idle_data->current->data);
-   
+
     idle_data->spec->callback (idle_data->spec->source,
 			       idle_data->spec->browse_id,
 			       content,
 			       idle_data->remaining--,
 			       idle_data->spec->user_data,
-			       NULL);        
-    
+			       NULL);
+
     idle_data->current = g_list_next (idle_data->current);
     count++;
   } while (count < BROWSE_IDLE_CHUNK_SIZE && idle_data->current);
@@ -405,7 +412,7 @@ browse_emit_idle (gpointer user_data)
 }
 
 static void
-produce_from_path (MsMediaSourceBrowseSpec *bs, const gchar *path)
+produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
 {
   GDir *dir;
   GError *error = NULL;
@@ -480,7 +487,7 @@ produce_from_path (MsMediaSourceBrowseSpec *bs, const gchar *path)
 		  NULL,
 		  0,
 		  bs->user_data,
-		  NULL);        
+		  NULL);
   }
 
   g_dir_close (dir);
@@ -489,53 +496,54 @@ produce_from_path (MsMediaSourceBrowseSpec *bs, const gchar *path)
 /* ================== API Implementation ================ */
 
 static const GList *
-ms_filesystem_source_supported_keys (MsMetadataSource *source)
+grl_filesystem_source_supported_keys (GrlMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
-				     MS_METADATA_KEY_TITLE, 
-				     MS_METADATA_KEY_URL,
-				     MS_METADATA_KEY_MIME,
-				     MS_METADATA_KEY_DATE,
-				     MS_METADATA_KEY_CHILDCOUNT,
-				     NULL);
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
+                                      GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_URL,
+                                      GRL_METADATA_KEY_MIME,
+                                      GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_CHILDCOUNT,
+                                      NULL);
   }
   return keys;
 }
 
 static void
-ms_filesystem_source_browse (MsMediaSource *source, MsMediaSourceBrowseSpec *bs)
+grl_filesystem_source_browse (GrlMediaSource *source,
+                              GrlMediaSourceBrowseSpec *bs)
 {
   const gchar *path;
   const gchar *id;
 
-  g_debug ("ms_filesystem_source_browse");
+  g_debug ("grl_filesystem_source_browse");
 
-  id = ms_content_media_get_id (bs->container);
+  id = grl_content_media_get_id (bs->container);
   path = id ? id : G_DIR_SEPARATOR_S;
   produce_from_path (bs, path);
 }
 
 static void
-ms_filesystem_source_metadata (MsMediaSource *source,
-			       MsMediaSourceMetadataSpec *ms)
+grl_filesystem_source_metadata (GrlMediaSource *source,
+                                GrlMediaSourceMetadataSpec *ms)
 {
   const gchar *path;
   const gchar *id;
 
-  g_debug ("ms_filesystem_source_metadata");
+  g_debug ("grl_filesystem_source_metadata");
 
-  id = ms_content_media_get_id (ms->media);
+  id = grl_content_media_get_id (ms->media);
   path = id ? id : G_DIR_SEPARATOR_S;
 
   if (g_file_test (path, G_FILE_TEST_EXISTS)) {
     create_content (ms->media, path,
-		    ms->flags & MS_RESOLVE_FAST_ONLY);
+		    ms->flags & GRL_RESOLVE_FAST_ONLY);
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
   } else {
-    GError *error = g_error_new (MS_ERROR,
-				 MS_ERROR_METADATA_FAILED,
+    GError *error = g_error_new (GRL_ERROR,
+				 GRL_ERROR_METADATA_FAILED,
 				 "File '%s' does not exist",
 				 path);
     ms->callback (ms->source, ms->media, ms->user_data, error);

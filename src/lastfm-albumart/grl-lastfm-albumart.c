@@ -31,12 +31,12 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/xpath.h>
 
-#include "ms-lastfm-albumart.h"
+#include "grl-lastfm-albumart.h"
 
 /* ---------- Logging ---------- */
 
 #undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "ms-lastfm-albumart"
+#define G_LOG_DOMAIN "grl-lastfm-albumart"
 
 /* -------- Last.FM API -------- */
 
@@ -45,11 +45,11 @@
 
 /* ------- Pluging Info -------- */
 
-#define PLUGIN_ID   "ms-lastfm-albumart"
+#define PLUGIN_ID   "grl-lastfm-albumart"
 #define PLUGIN_NAME "Album art Provider from Last.FM"
 #define PLUGIN_DESC "A plugin for getting album arts using Last.FM as backend"
 
-#define SOURCE_ID   "ms-lastfm-albumart"
+#define SOURCE_ID   "grl-lastfm-albumart"
 #define SOURCE_NAME "Album art Provider from Last.FM"
 #define SOURCE_DESC "A plugin for getting album arts using Last.FM as backend"
 
@@ -58,49 +58,51 @@
 #define SITE        "http://www.igalia.com"
 
 
-static MsLastfmAlbumartSource *ms_lastfm_albumart_source_new (void);
+static GrlLastfmAlbumartSource *grl_lastfm_albumart_source_new (void);
 
-static void ms_lastfm_albumart_source_resolve (MsMetadataSource *source,
-                                               MsMetadataSourceResolveSpec *rs);
+static void grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
+                                                GrlMetadataSourceResolveSpec *rs);
 
-static const GList *ms_lastfm_albumart_source_supported_keys (MsMetadataSource *source);
+static const GList *grl_lastfm_albumart_source_supported_keys (GrlMetadataSource *source);
 
-static const GList *ms_lastfm_albumart_source_key_depends (MsMetadataSource *source,
-                                                           MsKeyID key_id);
+static const GList *grl_lastfm_albumart_source_key_depends (GrlMetadataSource *source,
+                                                            GrlKeyID key_id);
 
-gboolean ms_lastfm_albumart_source_plugin_init (MsPluginRegistry *registry,
-                                                const MsPluginInfo *plugin);
+gboolean grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
+                                                 const GrlPluginInfo *plugin);
 
 
 /* =================== Last.FM-AlbumArt Plugin  =============== */
 
 gboolean
-ms_lastfm_albumart_source_plugin_init (MsPluginRegistry *registry,
-                                       const MsPluginInfo *plugin)
+grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
+                                        const GrlPluginInfo *plugin)
 {
-  g_debug ("ms_lastfm_albumart_source_plugin_init");
-  MsLastfmAlbumartSource *source = ms_lastfm_albumart_source_new ();
-  ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
+  g_debug ("grl_lastfm_albumart_source_plugin_init");
+  GrlLastfmAlbumartSource *source = grl_lastfm_albumart_source_new ();
+  grl_plugin_registry_register_source (registry,
+                                       plugin,
+                                       GRL_MEDIA_PLUGIN (source));
   return TRUE;
 }
 
-MS_PLUGIN_REGISTER (ms_lastfm_albumart_source_plugin_init,
-                    NULL,
-                    PLUGIN_ID,
-                    PLUGIN_NAME,
-                    PLUGIN_DESC,
-                    PACKAGE_VERSION,
-                    AUTHOR,
-                    LICENSE,
-                    SITE);
+GRL_PLUGIN_REGISTER (grl_lastfm_albumart_source_plugin_init,
+                     NULL,
+                     PLUGIN_ID,
+                     PLUGIN_NAME,
+                     PLUGIN_DESC,
+                     PACKAGE_VERSION,
+                     AUTHOR,
+                     LICENSE,
+                     SITE);
 
 /* ================== Last.FM-AlbumArt GObject ================ */
 
-static MsLastfmAlbumartSource *
-ms_lastfm_albumart_source_new (void)
+static GrlLastfmAlbumartSource *
+grl_lastfm_albumart_source_new (void)
 {
-  g_debug ("ms_lastfm_albumart_source_new");
-  return g_object_new (MS_LASTFM_ALBUMART_SOURCE_TYPE,
+  g_debug ("grl_lastfm_albumart_source_new");
+  return g_object_new (GRL_LASTFM_ALBUMART_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
 		       "source-desc", SOURCE_DESC,
@@ -108,20 +110,22 @@ ms_lastfm_albumart_source_new (void)
 }
 
 static void
-ms_lastfm_albumart_source_class_init (MsLastfmAlbumartSourceClass * klass)
+grl_lastfm_albumart_source_class_init (GrlLastfmAlbumartSourceClass * klass)
 {
-  MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
-  metadata_class->supported_keys = ms_lastfm_albumart_source_supported_keys;
-  metadata_class->key_depends = ms_lastfm_albumart_source_key_depends;
-  metadata_class->resolve = ms_lastfm_albumart_source_resolve;
+  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  metadata_class->supported_keys = grl_lastfm_albumart_source_supported_keys;
+  metadata_class->key_depends = grl_lastfm_albumart_source_key_depends;
+  metadata_class->resolve = grl_lastfm_albumart_source_resolve;
 }
 
 static void
-ms_lastfm_albumart_source_init (MsLastfmAlbumartSource *source)
+grl_lastfm_albumart_source_init (GrlLastfmAlbumartSource *source)
 {
 }
 
-G_DEFINE_TYPE (MsLastfmAlbumartSource, ms_lastfm_albumart_source, MS_TYPE_METADATA_SOURCE);
+G_DEFINE_TYPE (GrlLastfmAlbumartSource,
+               grl_lastfm_albumart_source,
+               GRL_TYPE_METADATA_SOURCE);
 
 /* ======================= Utilities ==================== */
 
@@ -152,9 +156,10 @@ xml_get_image (const gchar *xmldata)
     return NULL;
   }
 
-  image = (gchar *) xmlNodeListGetString (doc,
-                                          xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
-                                          1);
+  image =
+    (gchar *) xmlNodeListGetString (doc,
+                                    xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
+                                    1);
   xmlXPathFreeObject (xpath_res);
   xmlXPathFreeContext (xpath_ctx);
   xmlFreeDoc (doc);
@@ -167,15 +172,21 @@ read_done_cb (GObject *source_object,
               GAsyncResult *res,
               gpointer user_data)
 {
-  MsMetadataSourceResolveSpec *rs = (MsMetadataSourceResolveSpec *) user_data;
+  GrlMetadataSourceResolveSpec *rs =
+    (GrlMetadataSourceResolveSpec *) user_data;
   GError *error = NULL;
   GError *vfs_error = NULL;
   gchar *content = NULL;
   gchar *image = NULL;
 
-  if (!g_file_load_contents_finish (G_FILE (source_object), res, &content, NULL, NULL, &vfs_error)) {
-    error = g_error_new (MS_ERROR,
-                         MS_ERROR_RESOLVE_FAILED,
+  if (!g_file_load_contents_finish (G_FILE (source_object),
+                                    res,
+                                    &content,
+                                    NULL,
+                                    NULL,
+                                    &vfs_error)) {
+    error = g_error_new (GRL_ERROR,
+                         GRL_ERROR_RESOLVE_FAILED,
                          "Failed to connect to Last.FM: '%s'",
                          vfs_error->message);
     rs->callback (rs->source, rs->media, rs->user_data, error);
@@ -188,9 +199,9 @@ read_done_cb (GObject *source_object,
   image = xml_get_image (content);
   g_free (content);
   if (image) {
-    ms_content_set_string (MS_CONTENT (rs->media),
-                           MS_METADATA_KEY_THUMBNAIL,
-                           image);
+    grl_content_set_string (GRL_CONTENT (rs->media),
+                            GRL_METADATA_KEY_THUMBNAIL,
+                            image);
     g_free (image);
   }
 
@@ -213,29 +224,32 @@ read_url_async (const gchar *url, gpointer user_data)
 /* ================== API Implementation ================ */
 
 static const GList *
-ms_lastfm_albumart_source_supported_keys (MsMetadataSource *source)
+grl_lastfm_albumart_source_supported_keys (GrlMetadataSource *source)
 {
   static GList *keys = NULL;
 
   if (!keys) {
-    keys = ms_metadata_key_list_new (MS_METADATA_KEY_THUMBNAIL,
-				     NULL);
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL,
+                                      NULL);
   }
 
   return keys;
 }
 
 static const GList *
-ms_lastfm_albumart_source_key_depends (MsMetadataSource *source, MsKeyID key_id)
+grl_lastfm_albumart_source_key_depends (GrlMetadataSource *source,
+                                        GrlKeyID key_id)
 {
   static GList *deps = NULL;
 
   if (!deps) {
-    deps = ms_metadata_key_list_new (MS_METADATA_KEY_ARTIST, MS_METADATA_KEY_ALBUM, NULL);
+    deps = grl_metadata_key_list_new (GRL_METADATA_KEY_ARTIST,
+                                      GRL_METADATA_KEY_ALBUM,
+                                      NULL);
   }
 
   switch (key_id) {
-  case MS_METADATA_KEY_THUMBNAIL:
+  case GRL_METADATA_KEY_THUMBNAIL:
     return deps;
   default:
     break;
@@ -245,8 +259,8 @@ ms_lastfm_albumart_source_key_depends (MsMetadataSource *source, MsKeyID key_id)
 }
 
 static void
-ms_lastfm_albumart_source_resolve (MsMetadataSource *source,
-                                   MsMetadataSourceResolveSpec *rs)
+grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
+                                    GrlMetadataSourceResolveSpec *rs)
 {
   const gchar *artist = NULL;
   const gchar *album = NULL;
@@ -254,14 +268,14 @@ ms_lastfm_albumart_source_resolve (MsMetadataSource *source,
   gchar *esc_album = NULL;
   gchar *url = NULL;
 
-  g_debug ("ms_lastfm_albumart_source_resolve");
+  g_debug ("grl_lastfm_albumart_source_resolve");
 
   GList *iter;
 
   /* Check that albumart is requested */
   iter = rs->keys;
   while (iter) {
-    if (POINTER_TO_MSKEYID (iter->data) == MS_METADATA_KEY_THUMBNAIL) {
+    if (POINTER_TO_GRLKEYID (iter->data) == GRL_METADATA_KEY_THUMBNAIL) {
       break;
     } else {
       iter = g_list_next (iter);
@@ -272,11 +286,11 @@ ms_lastfm_albumart_source_resolve (MsMetadataSource *source,
     g_debug ("No supported key was requested");
     rs->callback (source, rs->media, rs->user_data, NULL);
   } else {
-    artist = ms_content_get_string (MS_CONTENT (rs->media),
-                                    MS_METADATA_KEY_ARTIST);
+    artist = grl_content_get_string (GRL_CONTENT (rs->media),
+                                     GRL_METADATA_KEY_ARTIST);
 
-    album = ms_content_get_string (MS_CONTENT (rs->media),
-                                   MS_METADATA_KEY_ALBUM);
+    album = grl_content_get_string (GRL_CONTENT (rs->media),
+                                    GRL_METADATA_KEY_ALBUM);
 
     if (!artist || !album) {
       g_debug ("Missing dependencies");

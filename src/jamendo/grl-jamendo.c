@@ -26,19 +26,19 @@
 #include "config.h"
 #endif
 
-#include <media-store.h>
+#include <grilo.h>
 #include <gio/gio.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <string.h>
 #include <stdlib.h>
 
-#include "ms-jamendo.h"
+#include "grl-jamendo.h"
 
 /* --------- Logging  -------- */
 
 #undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "ms-jamendo"
+#define G_LOG_DOMAIN "grl-jamendo"
 
 #define JAMENDO_ID_SEP    "/"
 #define JAMENDO_ROOT_NAME "Jamendo"
@@ -80,11 +80,11 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "ms-jamendo"
+#define PLUGIN_ID   "grl-jamendo"
 #define PLUGIN_NAME "Jamendo"
 #define PLUGIN_DESC "A plugin for browsing and searching Jamendo videos"
 
-#define SOURCE_ID   "ms-jamendo"
+#define SOURCE_ID   "grl-jamendo"
 #define SOURCE_NAME "Jamendo"
 #define SOURCE_DESC "A source for browsing and searching Jamendo videos"
 
@@ -126,10 +126,10 @@ typedef struct {
 typedef struct {
   gint type;
   union {
-    MsMediaSourceBrowseSpec *bs;
-    MsMediaSourceQuerySpec *qs;
-    MsMediaSourceMetadataSpec *ms;
-    MsMediaSourceSearchSpec *ss;
+    GrlMediaSourceBrowseSpec *bs;
+    GrlMediaSourceQuerySpec *qs;
+    GrlMediaSourceMetadataSpec *ms;
+    GrlMediaSourceSearchSpec *ss;
   } spec;
   xmlNodePtr node;
   xmlDocPtr doc;
@@ -138,57 +138,60 @@ typedef struct {
   gboolean cancelled;
 } XmlParseEntries;
 
-static MsJamendoSource *ms_jamendo_source_new (void);
+static GrlJamendoSource *grl_jamendo_source_new (void);
 
-gboolean ms_jamendo_plugin_init (MsPluginRegistry *registry,
-				 const MsPluginInfo *plugin);
+gboolean grl_jamendo_plugin_init (GrlPluginRegistry *registry,
+                                  const GrlPluginInfo *plugin);
 
-static const GList *ms_jamendo_source_supported_keys (MsMetadataSource *source);
+static const GList *grl_jamendo_source_supported_keys (GrlMetadataSource *source);
 
-static void ms_jamendo_source_metadata (MsMediaSource *source,
-                                        MsMediaSourceMetadataSpec *ms);
+static void grl_jamendo_source_metadata (GrlMediaSource *source,
+                                         GrlMediaSourceMetadataSpec *ms);
 
-static void ms_jamendo_source_browse (MsMediaSource *source,
-				      MsMediaSourceBrowseSpec *bs);
+static void grl_jamendo_source_browse (GrlMediaSource *source,
+                                       GrlMediaSourceBrowseSpec *bs);
 
-static void ms_jamendo_source_query (MsMediaSource *source,
-                                     MsMediaSourceQuerySpec *qs);
+static void grl_jamendo_source_query (GrlMediaSource *source,
+                                      GrlMediaSourceQuerySpec *qs);
 
-static void ms_jamendo_source_search (MsMediaSource *source,
-				      MsMediaSourceSearchSpec *ss);
+static void grl_jamendo_source_search (GrlMediaSource *source,
+                                       GrlMediaSourceSearchSpec *ss);
 
-static void ms_jamendo_source_cancel (MsMediaSource *source,
-                                      guint operation_id);
+static void grl_jamendo_source_cancel (GrlMediaSource *source,
+                                       guint operation_id);
 
 /* =================== Jamendo Plugin  =============== */
 
 gboolean
-ms_jamendo_plugin_init (MsPluginRegistry *registry, const MsPluginInfo *plugin)
+grl_jamendo_plugin_init (GrlPluginRegistry *registry,
+                         const GrlPluginInfo *plugin)
 {
   g_debug ("jamendo_plugin_init\n");
 
-  MsJamendoSource *source = ms_jamendo_source_new ();
-  ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
+  GrlJamendoSource *source = grl_jamendo_source_new ();
+  grl_plugin_registry_register_source (registry,
+                                       plugin,
+                                       GRL_MEDIA_PLUGIN (source));
   return TRUE;
 }
 
-MS_PLUGIN_REGISTER (ms_jamendo_plugin_init, 
-                    NULL, 
-                    PLUGIN_ID,
-                    PLUGIN_NAME, 
-                    PLUGIN_DESC, 
-                    PACKAGE_VERSION,
-                    AUTHOR, 
-                    LICENSE, 
-                    SITE);
+GRL_PLUGIN_REGISTER (grl_jamendo_plugin_init,
+                     NULL,
+                     PLUGIN_ID,
+                     PLUGIN_NAME,
+                     PLUGIN_DESC,
+                     PACKAGE_VERSION,
+                     AUTHOR,
+                     LICENSE,
+                     SITE);
 
 /* ================== Jamendo GObject ================ */
 
-static MsJamendoSource *
-ms_jamendo_source_new (void)
+static GrlJamendoSource *
+grl_jamendo_source_new (void)
 {
-  g_debug ("ms_jamendo_source_new");
-  return g_object_new (MS_JAMENDO_SOURCE_TYPE,
+  g_debug ("grl_jamendo_source_new");
+  return g_object_new (GRL_JAMENDO_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
 		       "source-desc", SOURCE_DESC,
@@ -196,24 +199,24 @@ ms_jamendo_source_new (void)
 }
 
 static void
-ms_jamendo_source_class_init (MsJamendoSourceClass * klass)
+grl_jamendo_source_class_init (GrlJamendoSourceClass * klass)
 {
-  MsMediaSourceClass *source_class = MS_MEDIA_SOURCE_CLASS (klass);
-  MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
-  source_class->metadata = ms_jamendo_source_metadata;
-  source_class->browse = ms_jamendo_source_browse;
-  source_class->query = ms_jamendo_source_query;
-  source_class->search = ms_jamendo_source_search;
-  source_class->cancel = ms_jamendo_source_cancel;
-  metadata_class->supported_keys = ms_jamendo_source_supported_keys;
+  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
+  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  source_class->metadata = grl_jamendo_source_metadata;
+  source_class->browse = grl_jamendo_source_browse;
+  source_class->query = grl_jamendo_source_query;
+  source_class->search = grl_jamendo_source_search;
+  source_class->cancel = grl_jamendo_source_cancel;
+  metadata_class->supported_keys = grl_jamendo_source_supported_keys;
 }
 
 static void
-ms_jamendo_source_init (MsJamendoSource *source)
+grl_jamendo_source_init (GrlJamendoSource *source)
 {
 }
 
-G_DEFINE_TYPE (MsJamendoSource, ms_jamendo_source, MS_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlJamendoSource, grl_jamendo_source, GRL_TYPE_MEDIA_SOURCE);
 
 /* ======================= Utilities ==================== */
 
@@ -286,23 +289,23 @@ xml_parse_result (const gchar *str, GError **error, XmlParseEntries *xpe)
 
   doc = xmlRecoverDoc ((xmlChar *) str);
   if (!doc) {
-    *error = g_error_new (MS_ERROR,
-			  MS_ERROR_BROWSE_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_BROWSE_FAILED,
 			  "Failed to parse Jamendo's response");
     goto free_resources;
   }
 
   node = xmlDocGetRootElement (doc);
   if (!node) {
-    *error = g_error_new (MS_ERROR,
-			  MS_ERROR_BROWSE_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_BROWSE_FAILED,
 			  "Empty response from Jamendo");
     goto free_resources;
   }
 
   if (xmlStrcmp (node->name, (const xmlChar *) "data")) {
-    *error = g_error_new (MS_ERROR,
-			  MS_ERROR_BROWSE_FAILED,
+    *error = g_error_new (GRL_ERROR,
+			  GRL_ERROR_BROWSE_FAILED,
 			  "Unexpected response from Jamendo: no data");
     goto free_resources;
   }
@@ -406,7 +409,7 @@ xml_parse_entry (xmlDocPtr doc, xmlNodePtr entry)
 }
 
 static void
-update_media_from_entry (MsContentMedia *media, const Entry *entry)
+update_media_from_entry (GrlContentMedia *media, const Entry *entry)
 {
   gchar *id;
 
@@ -417,81 +420,90 @@ update_media_from_entry (MsContentMedia *media, const Entry *entry)
   }
 
   /* Common fields */
-  ms_content_media_set_id (media, id);
+  grl_content_media_set_id (media, id);
   g_free (id);
 
   if (entry->artist_name) {
-    ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_ARTIST, entry->artist_name);
+    grl_content_set_string (GRL_CONTENT (media),
+                            GRL_METADATA_KEY_ARTIST,
+                            entry->artist_name);
   }
 
   if (entry->album_name) {
-    ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_ALBUM, entry->album_name);
+    grl_content_set_string (GRL_CONTENT (media),
+                            GRL_METADATA_KEY_ALBUM,
+                            entry->album_name);
   }
 
   /* Fields for artist */
   if (entry->category == JAMENDO_ARTIST_CAT) {
     if (entry->artist_name) {
-      ms_content_media_set_title (media, entry->artist_name);
+      grl_content_media_set_title (media, entry->artist_name);
     }
 
     if (entry->artist_genre) {
-      ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_GENRE, entry->artist_genre);
+      grl_content_set_string (GRL_CONTENT (media),
+                              GRL_METADATA_KEY_GENRE,
+                              entry->artist_genre);
     }
 
     if (entry->artist_url) {
-      ms_content_media_set_site (media, entry->artist_url);
+      grl_content_media_set_site (media, entry->artist_url);
     }
 
     if (entry->artist_image) {
-      ms_content_media_set_thumbnail (media, entry->artist_image);
+      grl_content_media_set_thumbnail (media, entry->artist_image);
     }
 
     /* Fields for album */
   } else if (entry->category == JAMENDO_ALBUM_CAT) {
     if (entry->album_name) {
-      ms_content_media_set_title (media, entry->album_name);
+      grl_content_media_set_title (media, entry->album_name);
     }
 
     if (entry->album_genre) {
-      ms_content_set_string (MS_CONTENT (media), MS_METADATA_KEY_GENRE, entry->album_genre);
+      grl_content_set_string (GRL_CONTENT (media),
+                              GRL_METADATA_KEY_GENRE,
+                              entry->album_genre);
     }
 
     if (entry->album_url) {
-      ms_content_media_set_site (media, entry->album_url);
+      grl_content_media_set_site (media, entry->album_url);
     }
 
     if (entry->album_image) {
-      ms_content_media_set_thumbnail (media, entry->album_image);
+      grl_content_media_set_thumbnail (media, entry->album_image);
     }
 
     if (entry->album_duration) {
-      ms_content_media_set_duration (media, atoi (entry->album_duration));
+      grl_content_media_set_duration (media, atoi (entry->album_duration));
     }
 
     /* Fields for track */
   } else if (entry->category == JAMENDO_TRACK_CAT) {
     if (entry->track_name) {
-      ms_content_media_set_title (media, entry->track_name);
+      grl_content_media_set_title (media, entry->track_name);
     }
 
     if (entry->album_genre) {
-      ms_content_audio_set_genre (MS_CONTENT_AUDIO (media), entry->album_genre);
+      grl_content_audio_set_genre (GRL_CONTENT_AUDIO (media),
+                                   entry->album_genre);
     }
 
     if (entry->track_url) {
-      ms_content_media_set_site (media, entry->track_url);
+      grl_content_media_set_site (media, entry->track_url);
     }
 
     if (entry->album_image) {
-      ms_content_media_set_thumbnail (media, entry->album_image);
+      grl_content_media_set_thumbnail (media, entry->album_image);
     }
 
     if (entry->track_stream) {
-      ms_content_media_set_url (media, entry->track_stream);
+      grl_content_media_set_url (media, entry->track_stream);
     }
 
     if (entry->track_duration) {
-      ms_content_media_set_duration (media, atoi (entry->track_duration));
+      grl_content_media_set_duration (media, atoi (entry->track_duration));
     }
   }
 }
@@ -501,7 +513,7 @@ xml_parse_entries_idle (gpointer user_data)
 {
   XmlParseEntries *xpe = (XmlParseEntries *) user_data;
   gboolean parse_more;
-  MsContentMedia *media;
+  GrlContentMedia *media;
   Entry *entry;
 
   g_debug ("xml_parse_entries_idle");
@@ -511,9 +523,9 @@ xml_parse_entries_idle (gpointer user_data)
   if (parse_more) {
     entry = xml_parse_entry (xpe->doc, xpe->node);
     if (entry->category == JAMENDO_TRACK_CAT) {
-      media = ms_content_audio_new ();
+      media = grl_content_audio_new ();
     } else {
-      media = ms_content_box_new ();
+      media = grl_content_box_new ();
     }
 
     update_media_from_entry (media, entry);
@@ -577,23 +589,28 @@ read_done_cb (GObject *source_object,
     return;
   }
 
-  if (!g_file_load_contents_finish (G_FILE (source_object), res, &content, NULL, NULL, &vfs_error)) {
+  if (!g_file_load_contents_finish (G_FILE (source_object),
+                                    res,
+                                    &content,
+                                    NULL,
+                                    NULL,
+                                    &vfs_error)) {
     switch (xpe->type) {
     case METADATA:
-      error_code = MS_ERROR_METADATA_FAILED;
+      error_code = GRL_ERROR_METADATA_FAILED;
       break;
     case BROWSE:
-      error_code = MS_ERROR_BROWSE_FAILED;
+      error_code = GRL_ERROR_BROWSE_FAILED;
       break;
     case QUERY:
-      error_code = MS_ERROR_QUERY_FAILED;
+      error_code = GRL_ERROR_QUERY_FAILED;
       break;
     case SEARCH:
-      error_code = MS_ERROR_SEARCH_FAILED;
+      error_code = GRL_ERROR_SEARCH_FAILED;
       break;
     }
 
-    error = g_error_new (MS_ERROR,
+    error = g_error_new (GRL_ERROR,
                          error_code,
                          "Failed to connect Jamendo: '%s'",
                          vfs_error->message);
@@ -622,10 +639,10 @@ read_done_cb (GObject *source_object,
     }
   } else {
     if (xpe->type == METADATA) {
-      error = g_error_new (MS_ERROR,
-                           MS_ERROR_METADATA_FAILED,
+      error = g_error_new (GRL_ERROR,
+                           GRL_ERROR_METADATA_FAILED,
                            "Unable to get information: '%s'",
-                           ms_content_media_get_id (xpe->spec.ms->media));
+                           grl_content_media_get_id (xpe->spec.ms->media));
     }
     goto invoke_cb;
   }
@@ -686,14 +703,14 @@ read_url_async (const gchar *url, gpointer user_data)
 }
 
 static void
-update_media_from_root (MsContentMedia *media)
+update_media_from_root (GrlContentMedia *media)
 {
-  ms_content_media_set_title (media, JAMENDO_ROOT_NAME);
-  ms_content_box_set_childcount (MS_CONTENT_BOX (media), 2);
+  grl_content_media_set_title (media, JAMENDO_ROOT_NAME);
+  grl_content_box_set_childcount (GRL_CONTENT_BOX (media), 2);
 }
 
 static void
-update_media_from_artists (MsContentMedia *media)
+update_media_from_artists (GrlContentMedia *media)
 {
   Entry *entry;
 
@@ -705,7 +722,7 @@ update_media_from_artists (MsContentMedia *media)
 }
 
 static void
-update_media_from_albums (MsContentMedia *media)
+update_media_from_albums (GrlContentMedia *media)
 {
   Entry *entry;
 
@@ -717,15 +734,15 @@ update_media_from_albums (MsContentMedia *media)
 }
 
 static void
-send_toplevel_categories (MsMediaSourceBrowseSpec *bs)
+send_toplevel_categories (GrlMediaSourceBrowseSpec *bs)
 {
-  MsContentMedia *media;
+  GrlContentMedia *media;
 
-  media = ms_content_box_new ();
+  media = grl_content_box_new ();
   update_media_from_artists (media);
   bs->callback (bs->source, bs->browse_id, media, 1, bs->user_data, NULL);
 
-  media = ms_content_box_new ();
+  media = grl_content_box_new ();
   update_media_from_albums (media);
   bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
 }
@@ -781,27 +798,27 @@ parse_query (const gchar *query, JamendoCategory *category, gchar **term)
 /* ================== API Implementation ================ */
 
 static const GList *
-ms_jamendo_source_supported_keys (MsMetadataSource *source)
+grl_jamendo_source_supported_keys (GrlMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
-				     MS_METADATA_KEY_TITLE,
-                                     MS_METADATA_KEY_ARTIST,
-                                     MS_METADATA_KEY_ALBUM,
-                                     MS_METADATA_KEY_GENRE,
-                                     MS_METADATA_KEY_URL,
-                                     MS_METADATA_KEY_DURATION,
-                                     MS_METADATA_KEY_THUMBNAIL,
-                                     MS_METADATA_KEY_SITE,
-                                     NULL);
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
+                                      GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_ARTIST,
+                                      GRL_METADATA_KEY_ALBUM,
+                                      GRL_METADATA_KEY_GENRE,
+                                      GRL_METADATA_KEY_URL,
+                                      GRL_METADATA_KEY_DURATION,
+                                      GRL_METADATA_KEY_THUMBNAIL,
+                                      GRL_METADATA_KEY_SITE,
+                                      NULL);
   }
   return keys;
 }
 
 static void
-ms_jamendo_source_metadata (MsMediaSource *source,
-                            MsMediaSourceMetadataSpec *ms)
+grl_jamendo_source_metadata (GrlMediaSource *source,
+                             GrlMediaSourceMetadataSpec *ms)
 {
   gchar *url = NULL;
   gchar *jamendo_keys = NULL;
@@ -811,22 +828,23 @@ ms_jamendo_source_metadata (MsMediaSource *source,
   GError *error = NULL;
   JamendoCategory category;
 
-  g_debug ("ms_jamendo_source_metadata");
+  g_debug ("grl_jamendo_source_metadata");
 
   if (!ms->media ||
-      !ms_content_key_is_known (MS_CONTENT (ms->media), MS_METADATA_KEY_ID)) {
+      !grl_content_key_is_known (GRL_CONTENT (ms->media),
+                                 GRL_METADATA_KEY_ID)) {
     /* Get info from root */
     if (!ms->media) {
-      ms->media = ms_content_box_new ();
+      ms->media = grl_content_box_new ();
     }
     update_media_from_root (ms->media);
   } else {
-    id = ms_content_media_get_id (ms->media);
+    id = grl_content_media_get_id (ms->media);
     id_split = g_strsplit (id, JAMENDO_ID_SEP, 0);
 
     if (g_strv_length (id_split) == 0) {
-      error = g_error_new (MS_ERROR,
-                           MS_ERROR_METADATA_FAILED,
+      error = g_error_new (GRL_ERROR,
+                           GRL_ERROR_METADATA_FAILED,
                            "Invalid id: '%s'",
                            id);
       goto send_error;
@@ -870,16 +888,16 @@ ms_jamendo_source_metadata (MsMediaSource *source,
                            id_split[1]);
         g_free (jamendo_keys);
       } else {
-        error = g_error_new (MS_ERROR,
-                             MS_ERROR_METADATA_FAILED,
+        error = g_error_new (GRL_ERROR,
+                             GRL_ERROR_METADATA_FAILED,
                              "Invalid id: '%s'",
                              id);
         g_strfreev (id_split);
         goto send_error;
       }
     } else {
-      error = g_error_new (MS_ERROR,
-                           MS_ERROR_METADATA_FAILED,
+      error = g_error_new (GRL_ERROR,
+                           GRL_ERROR_METADATA_FAILED,
                            "Invalid id: '%s'",
                            id);
       g_strfreev (id_split);
@@ -911,8 +929,8 @@ ms_jamendo_source_metadata (MsMediaSource *source,
 }
 
 static void
-ms_jamendo_source_browse (MsMediaSource *source,
-                          MsMediaSourceBrowseSpec *bs)
+grl_jamendo_source_browse (GrlMediaSource *source,
+                           GrlMediaSourceBrowseSpec *bs)
 {
   gchar *url = NULL;
   gchar *jamendo_keys;
@@ -922,9 +940,9 @@ ms_jamendo_source_browse (MsMediaSource *source,
   const gchar *container_id;
   GError *error = NULL;
 
-  g_debug ("ms_jamendo_source_browse");
+  g_debug ("grl_jamendo_source_browse");
 
-  container_id = ms_content_media_get_id (bs->container);
+  container_id = grl_content_media_get_id (bs->container);
 
   if (!container_id) {
     /* Root category: return top-level predefined categories */
@@ -935,8 +953,8 @@ ms_jamendo_source_browse (MsMediaSource *source,
   container_split = g_strsplit (container_id, JAMENDO_ID_SEP, 0);
 
   if (g_strv_length (container_split) == 0) {
-    error = g_error_new (MS_ERROR,
-                         MS_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_ERROR,
+                         GRL_ERROR_BROWSE_FAILED,
                          "Invalid container-id: '%s'",
                          container_id);
   } else {
@@ -953,9 +971,12 @@ ms_jamendo_source_browse (MsMediaSource *source,
                            bs->skip + 1,
                            container_split[1]);
       } else {
-      /* Browsing through artists */
+        /* Browsing through artists */
         jamendo_keys = get_jamendo_keys (JAMENDO_ARTIST_CAT);
-        url = g_strdup_printf (JAMENDO_GET_ARTISTS, jamendo_keys, bs->count, bs->skip + 1);
+        url = g_strdup_printf (JAMENDO_GET_ARTISTS,
+                               jamendo_keys,
+                               bs->count,
+                               bs->skip + 1);
       }
       g_free (jamendo_keys);
 
@@ -970,20 +991,23 @@ ms_jamendo_source_browse (MsMediaSource *source,
                            bs->skip + 1,
                            container_split[1]);
       } else {
-      /* Browsing through albums */
+        /* Browsing through albums */
         jamendo_keys = get_jamendo_keys (JAMENDO_ALBUM_CAT);
-        url = g_strdup_printf (JAMENDO_GET_ALBUMS, jamendo_keys, bs->count, bs->skip + 1);
+        url = g_strdup_printf (JAMENDO_GET_ALBUMS,
+                               jamendo_keys,
+                               bs->count,
+                               bs->skip + 1);
       }
       g_free (jamendo_keys);
 
     } else if (category == JAMENDO_TRACK_CAT) {
-      error = g_error_new (MS_ERROR,
-                           MS_ERROR_BROWSE_FAILED,
+      error = g_error_new (GRL_ERROR,
+                           GRL_ERROR_BROWSE_FAILED,
                            "Cannot browse through a track: '%s'",
                            container_id);
     } else {
-      error = g_error_new (MS_ERROR,
-                           MS_ERROR_BROWSE_FAILED,
+      error = g_error_new (GRL_ERROR,
+                           GRL_ERROR_BROWSE_FAILED,
                            "Invalid container-id: '%s'",
                            container_id);
     }
@@ -1012,13 +1036,13 @@ ms_jamendo_source_browse (MsMediaSource *source,
  *
  * The result will be also a <type>.
  *
- * Example: search for artists that have the "Shake" in their name or description:
- * "artist=Shake"
+ * Example: search for artists that have the "Shake" in their name or
+ * description: "artist=Shake"
  *
  */
 static void
-ms_jamendo_source_query (MsMediaSource *source,
-                         MsMediaSourceQuerySpec *qs)
+grl_jamendo_source_query (GrlMediaSource *source,
+                          GrlMediaSourceQuerySpec *qs)
 {
   GError *error = NULL;
   JamendoCategory category;
@@ -1028,11 +1052,11 @@ ms_jamendo_source_query (MsMediaSource *source,
   gchar *query = NULL;
   XmlParseEntries *xpe = NULL;
 
-  g_debug ("ms_jamendo_source_query");
+  g_debug ("grl_jamendo_source_query");
 
   if (!parse_query (qs->query, &category, &term)) {
-    error = g_error_new (MS_ERROR,
-                         MS_ERROR_QUERY_FAILED,
+    error = g_error_new (GRL_ERROR,
+                         GRL_ERROR_QUERY_FAILED,
                          "Query malformed: '%s'",
                          qs->query);
     goto send_error;
@@ -1074,14 +1098,14 @@ ms_jamendo_source_query (MsMediaSource *source,
 
 
 static void
-ms_jamendo_source_search (MsMediaSource *source,
-                          MsMediaSourceSearchSpec *ss)
+grl_jamendo_source_search (GrlMediaSource *source,
+                           GrlMediaSourceSearchSpec *ss)
 {
   XmlParseEntries *xpe;
   gchar *jamendo_keys;
   gchar *url;
 
-  g_debug ("ms_jamendo_source_search");
+  g_debug ("grl_jamendo_source_search");
 
   jamendo_keys = get_jamendo_keys (JAMENDO_TRACK_CAT);
 
@@ -1100,13 +1124,14 @@ ms_jamendo_source_search (MsMediaSource *source,
 }
 
 static void
-ms_jamendo_source_cancel (MsMediaSource *source, guint operation_id)
+grl_jamendo_source_cancel (GrlMediaSource *source, guint operation_id)
 {
   XmlParseEntries *xpe;
 
-  g_debug ("ms_jamendo_source_cancel");
+  g_debug ("grl_jamendo_source_cancel");
 
-  xpe = (XmlParseEntries *) ms_media_source_get_operation_data (source, operation_id);
+  xpe = (XmlParseEntries *) grl_media_source_get_operation_data (source,
+                                                                 operation_id);
 
   if (xpe) {
     xpe->cancelled = TRUE;

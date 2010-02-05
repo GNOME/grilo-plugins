@@ -5,21 +5,21 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libmsyoutube.la
+lib_LTLIBRARIES = libgrlyoutube.la
 
-libmsyoutube_la_CFLAGS =	\
+libgrlyoutube_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
 	$(GIO_CFLAGS)		\
 	$(XML_CFLAGS)
 
-libmsyoutube_la_LIBADD =	\
+libgrlyoutube_la_LIBADD =	\
 	$(DEPS_LIBS)		\
 	$(GIO_LIBS)		\
 	$(XML_LIBS)
 
-libmsyoutube_la_SOURCES = ms-youtube.c ms-youtube.h
+libgrlyoutube_la_SOURCES = grl-youtube.c grl-youtube.h
 
-libdir=$(PLUGINS_DIR)
+libdir=$(GRL_PLUGINS_DIR)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

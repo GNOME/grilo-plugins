@@ -5,17 +5,17 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libfakemetadata.la
+lib_LTLIBRARIES		 = libgrlfakemetadata.la
 
-libfakemetadata_la_CFLAGS = \
-	$(DEPS_CFLAGS) 
+libgrlfakemetadata_la_CFLAGS =	\
+	$(DEPS_CFLAGS)
 
-libfakemetadata_la_LIBADD = \
+libgrlfakemetadata_la_LIBADD =	\
 	$(DEPS_LIBS)
 
-libfakemetadata_la_SOURCES = fake-metadata.c fake-metadata.h
+libgrlfakemetadata_la_SOURCES = grl-fake-metadata.c grl-fake-metadata.h
 
-libdir=$(PLUGINS_DIR)
+libdir=$(GRL_PLUGINS_DIR)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

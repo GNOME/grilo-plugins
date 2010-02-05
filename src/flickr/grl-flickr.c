@@ -26,25 +26,27 @@
 #include "config.h"
 #endif
 
-#include <media-store.h>
+#include <grilo.h>
 #include <flickcurl.h>
 #include <string.h>
 
-#include "ms-flickr.h"
+#include "grl-flickr.h"
 
-#define MS_FLICKR_SOURCE_GET_PRIVATE(object)    \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object), MS_FLICKR_SOURCE_TYPE, MsFlickrSourcePrivate))
+#define GRL_FLICKR_SOURCE_GET_PRIVATE(object)                           \
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),                                \
+                               GRL_FLICKR_SOURCE_TYPE,                  \
+                               GrlFlickrSourcePrivate))
 
 typedef struct {
-  MsMediaSourceSearchSpec *ss;
-  MsContentMedia *media;
+  GrlMediaSourceSearchSpec *ss;
+  GrlContentMedia *media;
   gint remaining;
 } SearchData;
 
 /* --------- Logging  -------- */
 
 #undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "ms-flickr"
+#define G_LOG_DOMAIN "grl-flickr"
 
 /* ----- Security tokens ---- */
 
@@ -55,11 +57,11 @@ typedef struct {
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "ms-flickr"
+#define PLUGIN_ID   "grl-flickr"
 #define PLUGIN_NAME "Flickr"
 #define PLUGIN_DESC "A plugin for browsing and searching Flickr photos"
 
-#define SOURCE_ID   "ms-flickr"
+#define SOURCE_ID   "grl-flickr"
 #define SOURCE_NAME "Flickr"
 #define SOURCE_DESC "A source for browsing and searching Flickr photos"
 
@@ -67,58 +69,61 @@ typedef struct {
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
 
-static MsFlickrSource *ms_flickr_source_new (void);
+static GrlFlickrSource *grl_flickr_source_new (void);
 
-gboolean ms_flickr_plugin_init (MsPluginRegistry *registry,
-				 const MsPluginInfo *plugin);
+gboolean grl_flickr_plugin_init (GrlPluginRegistry *registry,
+				 const GrlPluginInfo *plugin);
 
-static const GList *ms_flickr_source_supported_keys (MsMetadataSource *source);
+static const GList *grl_flickr_source_supported_keys (GrlMetadataSource *source);
 
-static void ms_flickr_source_metadata (MsMediaSource *source,
-                                       MsMediaSourceMetadataSpec *ss);
+static void grl_flickr_source_metadata (GrlMediaSource *source,
+                                        GrlMediaSourceMetadataSpec *ss);
 
-static void ms_flickr_source_search (MsMediaSource *source,
-                                     MsMediaSourceSearchSpec *ss);
+static void grl_flickr_source_search (GrlMediaSource *source,
+                                      GrlMediaSourceSearchSpec *ss);
 
 /* =================== Flickr Plugin  =============== */
 
 gboolean
-ms_flickr_plugin_init (MsPluginRegistry *registry, const MsPluginInfo *plugin)
+grl_flickr_plugin_init (GrlPluginRegistry *registry,
+                        const GrlPluginInfo *plugin)
 {
   g_debug ("flickr_plugin_init\n");
 
-  MsFlickrSource *source = ms_flickr_source_new ();
+  GrlFlickrSource *source = grl_flickr_source_new ();
   if (source) {
-    ms_plugin_registry_register_source (registry, plugin, MS_MEDIA_PLUGIN (source));
+    grl_plugin_registry_register_source (registry,
+                                         plugin,
+                                         GRL_MEDIA_PLUGIN (source));
     return TRUE;
   } else {
     return FALSE;
   }
 }
 
-MS_PLUGIN_REGISTER (ms_flickr_plugin_init,
-                    NULL,
-                    PLUGIN_ID,
-                    PLUGIN_NAME,
-                    PLUGIN_DESC,
-                    PACKAGE_VERSION,
-                    AUTHOR,
-                    LICENSE,
-                    SITE);
+GRL_PLUGIN_REGISTER (grl_flickr_plugin_init,
+                     NULL,
+                     PLUGIN_ID,
+                     PLUGIN_NAME,
+                     PLUGIN_DESC,
+                     PACKAGE_VERSION,
+                     AUTHOR,
+                     LICENSE,
+                     SITE);
 
 /* ================== Flickr GObject ================ */
 
-static MsFlickrSource *
-ms_flickr_source_new (void)
+static GrlFlickrSource *
+grl_flickr_source_new (void)
 {
-  g_debug ("ms_flickr_source_new");
+  g_debug ("grl_flickr_source_new");
 
   if (flickcurl_init ()) {
     g_warning ("Unable to initialize Flickcurl");
     return NULL;
   }
 
-  return g_object_new (MS_FLICKR_SOURCE_TYPE,
+  return g_object_new (GRL_FLICKR_SOURCE_TYPE,
                        "source-id", SOURCE_ID,
                        "source-name", SOURCE_NAME,
                        "source-desc", SOURCE_DESC,
@@ -126,62 +131,66 @@ ms_flickr_source_new (void)
 }
 
 static void
-ms_flickr_source_class_init (MsFlickrSourceClass * klass)
+grl_flickr_source_class_init (GrlFlickrSourceClass * klass)
 {
-  MsMediaSourceClass *source_class = MS_MEDIA_SOURCE_CLASS (klass);
-  MsMetadataSourceClass *metadata_class = MS_METADATA_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
+  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
 
-  source_class->metadata = ms_flickr_source_metadata;
-  source_class->search = ms_flickr_source_search;
-  metadata_class->supported_keys = ms_flickr_source_supported_keys;
+  source_class->metadata = grl_flickr_source_metadata;
+  source_class->search = grl_flickr_source_search;
+  metadata_class->supported_keys = grl_flickr_source_supported_keys;
 }
 
 static void
-ms_flickr_source_init (MsFlickrSource *source)
+grl_flickr_source_init (GrlFlickrSource *source)
 {
-  source->priv = MS_FLICKR_SOURCE_GET_PRIVATE (source);
+  source->priv = GRL_FLICKR_SOURCE_GET_PRIVATE (source);
 
   if (!g_thread_supported ()) {
     g_thread_init (NULL);
   }
 }
 
-G_DEFINE_TYPE (MsFlickrSource, ms_flickr_source, MS_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_MEDIA_SOURCE);
 
 /* ======================= Utilities ==================== */
 
 static void
-update_media (MsContentMedia *media, flickcurl_photo *fc_photo)
+update_media (GrlContentMedia *media, flickcurl_photo *fc_photo)
 {
   if (fc_photo->uri) {
-    ms_content_media_set_url (media, fc_photo->uri);
+    grl_content_media_set_url (media, fc_photo->uri);
   }
   if (fc_photo->fields[PHOTO_FIELD_owner_realname].string) {
-    ms_content_media_set_author (media, fc_photo->fields[PHOTO_FIELD_owner_realname].string);
+    grl_content_media_set_author (media,
+                                  fc_photo->fields[PHOTO_FIELD_owner_realname].string);
   }
   if (fc_photo->fields[PHOTO_FIELD_title].string) {
-    ms_content_media_set_title (media, fc_photo->fields[PHOTO_FIELD_title].string);
+    grl_content_media_set_title (media,
+                                 fc_photo->fields[PHOTO_FIELD_title].string);
   }
   if (fc_photo->fields[PHOTO_FIELD_description].string) {
-    ms_content_media_set_description (media, fc_photo->fields[PHOTO_FIELD_description].string);
+    grl_content_media_set_description (media,
+                                       fc_photo->fields[PHOTO_FIELD_description].string);
   }
   if (fc_photo->fields[PHOTO_FIELD_dates_taken].string) {
-    ms_content_media_set_date (media, fc_photo->fields[PHOTO_FIELD_dates_taken].string);
+    grl_content_media_set_date (media,
+                                fc_photo->fields[PHOTO_FIELD_dates_taken].string);
   }
 }
 
-static MsContentMedia *
+static GrlContentMedia *
 get_content_image (flickcurl_photo *fc_photo)
 {
-  MsContentMedia *media;
+  GrlContentMedia *media;
 
   if (strcmp (fc_photo->media_type, "photo") == 0) {
-    media = ms_content_image_new ();
+    media = grl_content_image_new ();
   } else {
-    media = ms_content_video_new ();
+    media = grl_content_video_new ();
   }
 
-  ms_content_media_set_id (media, fc_photo->id);
+  grl_content_media_set_id (media, fc_photo->id);
   update_media (media, fc_photo);
 
   return media;
@@ -190,7 +199,7 @@ get_content_image (flickcurl_photo *fc_photo)
 static gboolean
 metadata_cb (gpointer data)
 {
-  MsMediaSourceMetadataSpec *ms = (MsMediaSourceMetadataSpec *) data;
+  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) data;
 
   ms->callback(ms->source,
                ms->media,
@@ -224,18 +233,18 @@ static void
 check_keys (GList *keys, gboolean *get_url, gboolean *get_others)
 {
   GList *iter;
-  MsKeyID key_id;
+  GrlKeyID key_id;
   gboolean others = get_others? FALSE: TRUE;
   gboolean url = get_url? FALSE: TRUE;
 
   iter = keys;
   while (iter && (!url || !others)) {
-    key_id = POINTER_TO_MSKEYID (iter->data);
-    if (key_id == MS_METADATA_KEY_AUTHOR ||
-        key_id == MS_METADATA_KEY_DESCRIPTION ||
-        key_id == MS_METADATA_KEY_DATE) {
+    key_id = POINTER_TO_GRLKEYID (iter->data);
+    if (key_id == GRL_METADATA_KEY_AUTHOR ||
+        key_id == GRL_METADATA_KEY_DESCRIPTION ||
+        key_id == GRL_METADATA_KEY_DATE) {
       others = TRUE;
-    } else if (key_id == MS_METADATA_KEY_URL) {
+    } else if (key_id == GRL_METADATA_KEY_URL) {
       url = TRUE;
     }
     iter = g_list_next (iter);
@@ -251,9 +260,9 @@ check_keys (GList *keys, gboolean *get_url, gboolean *get_others)
 }
 
 static gpointer
-ms_flickr_source_metadata_main (gpointer data)
+grl_flickr_source_metadata_main (gpointer data)
 {
-  MsMediaSourceMetadataSpec *ms = (MsMediaSourceMetadataSpec *) data;
+  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) data;
   const gchar *id;
   flickcurl *fc = NULL;
   flickcurl_photo *photo;
@@ -264,15 +273,15 @@ ms_flickr_source_metadata_main (gpointer data)
   gint s;
   gint width, height;
 
-  if (!ms->media || (id = ms_content_media_get_id (ms->media)) == NULL) {
+  if (!ms->media || (id = grl_content_media_get_id (ms->media)) == NULL) {
     g_idle_add (metadata_cb, ms);
     return NULL;
   }
 
   check_keys (ms->keys, &get_slow_url, &get_other_keys);
 
-  if (ms->flags & MS_RESOLVE_FAST_ONLY && get_other_keys) {
-      get_slow_url = FALSE;
+  if (ms->flags & GRL_RESOLVE_FAST_ONLY && get_other_keys) {
+    get_slow_url = FALSE;
   }
 
   fc = flickcurl_new ();
@@ -290,21 +299,25 @@ ms_flickr_source_metadata_main (gpointer data)
       /* Look for "Original" size */
       s = 0;
       while (photo_sizes[s]) {
-            if (strcmp (photo_sizes[s]->label, "Original") == 0) {
-              url = photo_sizes[s]->source;
-              width = photo_sizes[s]->width;
-              height = photo_sizes[s]->height;
-              break;
-            }
-            s++;
-          }
+        if (strcmp (photo_sizes[s]->label, "Original") == 0) {
+          url = photo_sizes[s]->source;
+          width = photo_sizes[s]->width;
+          height = photo_sizes[s]->height;
+          break;
+        }
+        s++;
+      }
 
       /* Update media */
-      ms_content_media_set_url (ms->media, url);
-      if (MS_IS_CONTENT_IMAGE (ms->media)) {
-        ms_content_image_set_size (MS_CONTENT_IMAGE (ms->media), width, height);
-      } else if (MS_IS_CONTENT_VIDEO (ms->media)) {
-        ms_content_video_set_size (MS_CONTENT_VIDEO (ms->media), width, height);
+      grl_content_media_set_url (ms->media, url);
+      if (GRL_IS_CONTENT_IMAGE (ms->media)) {
+        grl_content_image_set_size (GRL_CONTENT_IMAGE (ms->media),
+                                    width,
+                                    height);
+      } else if (GRL_IS_CONTENT_VIDEO (ms->media)) {
+        grl_content_video_set_size (GRL_CONTENT_VIDEO (ms->media),
+                                    width,
+                                    height);
       }
       flickcurl_free_sizes (photo_sizes);
     }
@@ -325,10 +338,10 @@ ms_flickr_source_metadata_main (gpointer data)
 }
 
 static gpointer
-ms_flickr_source_search_main (gpointer data)
+grl_flickr_source_search_main (gpointer data)
 {
-  MsContentMedia *media;
-  MsMediaSourceSearchSpec *ss = (MsMediaSourceSearchSpec *) data;
+  GrlContentMedia *media;
+  GrlMediaSourceSearchSpec *ss = (GrlMediaSourceSearchSpec *) data;
   SearchData *search_data;
   char *url;
   flickcurl *fc = NULL;
@@ -361,7 +374,7 @@ ms_flickr_source_search_main (gpointer data)
   offset_in_page = 1 + (ss->skip%lparams.per_page);
 
   /* Check if we need need to ask for complete information for each photo */
-  if (!(ss->flags & MS_RESOLVE_FAST_ONLY)) {
+  if (!(ss->flags & GRL_RESOLVE_FAST_ONLY)) {
     /* Check if some "slow" key is requested */
     check_keys (ss->keys, &get_slow_url, &get_slow_keys);
   }
@@ -390,7 +403,7 @@ ms_flickr_source_search_main (gpointer data)
           width = photo_sizes[0]->width;
           height = photo_sizes[0]->height;
 
-        /* Look for "Original" size */
+          /* Look for "Original" size */
           s = 0;
           while (photo_sizes[s]) {
             if (strcmp (photo_sizes[s]->label, "Original") == 0) {
@@ -403,11 +416,15 @@ ms_flickr_source_search_main (gpointer data)
           }
 
           /* Update media */
-          ms_content_media_set_url (media, url);
-          if (MS_IS_CONTENT_IMAGE (media)) {
-            ms_content_image_set_size (MS_CONTENT_IMAGE (media), width, height);
-          } else if (MS_IS_CONTENT_VIDEO (media)) {
-            ms_content_video_set_size (MS_CONTENT_VIDEO (media), width, height);
+          grl_content_media_set_url (media, url);
+          if (GRL_IS_CONTENT_IMAGE (media)) {
+            grl_content_image_set_size (GRL_CONTENT_IMAGE (media),
+                                        width,
+                                        height);
+          } else if (GRL_IS_CONTENT_VIDEO (media)) {
+            grl_content_video_set_size (GRL_CONTENT_VIDEO (media),
+                                        width,
+                                        height);
           }
           flickcurl_free_sizes (photo_sizes);
         }
@@ -450,26 +467,26 @@ ms_flickr_source_search_main (gpointer data)
 /* ================== API Implementation ================ */
 
 static const GList *
-ms_flickr_source_supported_keys (MsMetadataSource *source)
+grl_flickr_source_supported_keys (GrlMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
-                                     MS_METADATA_KEY_URL,
-                                     MS_METADATA_KEY_AUTHOR,
-				     MS_METADATA_KEY_TITLE,
-                                     MS_METADATA_KEY_DESCRIPTION,
-                                     MS_METADATA_KEY_DATE,
-                                     NULL);
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
+                                      GRL_METADATA_KEY_URL,
+                                      GRL_METADATA_KEY_AUTHOR,
+                                      GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_DESCRIPTION,
+                                      GRL_METADATA_KEY_DATE,
+                                      NULL);
   }
   return keys;
 }
 
 static void
-ms_flickr_source_metadata (MsMediaSource *source,
-                           MsMediaSourceMetadataSpec *ms)
+grl_flickr_source_metadata (GrlMediaSource *source,
+                            GrlMediaSourceMetadataSpec *ms)
 {
-  if (!g_thread_create (ms_flickr_source_metadata_main,
+  if (!g_thread_create (grl_flickr_source_metadata_main,
                         ms,
                         FALSE,
                         NULL)) {
@@ -478,10 +495,10 @@ ms_flickr_source_metadata (MsMediaSource *source,
 }
 
 static void
-ms_flickr_source_search (MsMediaSource *source,
-                         MsMediaSourceSearchSpec *ss)
+grl_flickr_source_search (GrlMediaSource *source,
+                          GrlMediaSourceSearchSpec *ss)
 {
-  if (!g_thread_create (ms_flickr_source_search_main,
+  if (!g_thread_create (grl_flickr_source_search_main,
                         ss,
                         FALSE,
                         NULL)) {

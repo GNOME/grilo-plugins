@@ -23,72 +23,72 @@
 #include <glib.h>
 #include <string.h>
 
-#include <media-store.h>
+#include <grilo.h>
 
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "test-main"
 
 static void
-print_supported_ops (MsMetadataSource *source)
+print_supported_ops (GrlMetadataSource *source)
 {
   g_debug ("  Operations available in '%s'",
-	   ms_metadata_source_get_name (source));
+	   grl_metadata_source_get_name (source));
 
-  MsSupportedOps caps = ms_metadata_source_supported_operations (source);
+  GrlSupportedOps caps = grl_metadata_source_supported_operations (source);
 
-  if (caps & MS_OP_METADATA) {
+  if (caps & GRL_OP_METADATA) {
     g_debug ("    + Metadata");
   }
-  if (caps & MS_OP_RESOLVE) {
+  if (caps & GRL_OP_RESOLVE) {
     g_debug ("    + Resolution");
   }
-  if (caps & MS_OP_BROWSE) {
+  if (caps & GRL_OP_BROWSE) {
     g_debug ("    + Browse");
   }
-  if (caps & MS_OP_SEARCH) {
+  if (caps & GRL_OP_SEARCH) {
     g_debug ("    + Search");
   }
-  if (caps & MS_OP_QUERY) {
+  if (caps & GRL_OP_QUERY) {
     g_debug ("    + Query");
   }
 }
 
 static void
-print_metadata (gpointer key, MsContent *content)
+print_metadata (gpointer key, GrlContent *content)
 {
-  MsKeyID key_id = POINTER_TO_MSKEYID(key);
+  GrlKeyID key_id = POINTER_TO_GRLKEYID(key);
 
-  if (key_id == MS_METADATA_KEY_DESCRIPTION) {
+  if (key_id == GRL_METADATA_KEY_DESCRIPTION) {
     return;
   }
 
-  MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
-  const MsMetadataKey *mkey =
-    ms_plugin_registry_lookup_metadata_key (registry, key_id);
+  GrlPluginRegistry *registry = grl_plugin_registry_get_instance ();
+  const GrlMetadataKey *mkey =
+    grl_plugin_registry_lookup_metadata_key (registry, key_id);
 
-  const GValue *value = ms_content_get (content, key_id);
+  const GValue *value = grl_content_get (content, key_id);
   if (value && G_VALUE_HOLDS_STRING (value)) {
-    g_debug ("\t%s: %s", MS_METADATA_KEY_GET_NAME (mkey),
+    g_debug ("\t%s: %s", GRL_METADATA_KEY_GET_NAME (mkey),
 	     g_value_get_string (value));
   } else if (value && G_VALUE_HOLDS_INT (value)) {
-    g_debug ("\t%s: %d",  MS_METADATA_KEY_GET_NAME (mkey),
+    g_debug ("\t%s: %d",  GRL_METADATA_KEY_GET_NAME (mkey),
 	     g_value_get_int (value));
   }
 }
 
-static MsContentMedia *
+static GrlContentMedia *
 media_from_id (const gchar *id)
 {
-  MsContentMedia *media;
-  media = ms_content_media_new ();
-  ms_content_media_set_id (media, id);
+  GrlContentMedia *media;
+  media = grl_content_media_new ();
+  grl_content_media_set_id (media, id);
   return media;
 }
 
 static void
-browse_cb (MsMediaSource *source,
+browse_cb (GrlMediaSource *source,
 	   guint browse_id,
-           MsContentMedia *media,
+           GrlContentMedia *media,
 	   guint remaining,
 	   gpointer user_data,
 	   const GError *error)
@@ -109,10 +109,10 @@ browse_cb (MsMediaSource *source,
   }
 
   g_debug ("\tContainer: %s",
-	   MS_IS_CONTENT_BOX(media) ? "yes" : "no");
+	   GRL_IS_CONTENT_BOX(media) ? "yes" : "no");
 
-  keys = ms_content_get_keys (MS_CONTENT (media));
-  g_list_foreach (keys, (GFunc) print_metadata, MS_CONTENT (media));
+  keys = grl_content_get_keys (GRL_CONTENT (media));
+  g_list_foreach (keys, (GFunc) print_metadata, GRL_CONTENT (media));
   g_list_free (keys);
   g_object_unref (media);
 
@@ -122,8 +122,8 @@ browse_cb (MsMediaSource *source,
 }
 
 static void
-metadata_cb (MsMediaSource *source,
-	     MsContentMedia *media,
+metadata_cb (GrlMediaSource *source,
+	     GrlContentMedia *media,
 	     gpointer user_data,
 	     const GError *error)
 {
@@ -137,13 +137,13 @@ metadata_cb (MsMediaSource *source,
   }
 
   g_debug ("    Got metadata for object '%s'",
-	   ms_content_media_get_id (MS_CONTENT_MEDIA (media)));
+	   grl_content_media_get_id (GRL_CONTENT_MEDIA (media)));
 
   g_debug ("\tContainer: %s",
-	   MS_IS_CONTENT_BOX(media) ? "yes" : "no");
+	   GRL_IS_CONTENT_BOX(media) ? "yes" : "no");
 
-  keys = ms_content_get_keys (MS_CONTENT (media));
-  g_list_foreach (keys, (GFunc) print_metadata, MS_CONTENT (media));
+  keys = grl_content_get_keys (GRL_CONTENT (media));
+  g_list_foreach (keys, (GFunc) print_metadata, GRL_CONTENT (media));
   g_list_free (keys);
   g_object_unref (media);
 
@@ -151,8 +151,8 @@ metadata_cb (MsMediaSource *source,
 }
 
 static void
-resolve_cb (MsMetadataSource *source,
-            MsContentMedia *media,
+resolve_cb (GrlMetadataSource *source,
+            GrlContentMedia *media,
             gpointer user_data,
             const GError *error)
 {
@@ -166,54 +166,71 @@ main (void)
 
   g_type_init ();
 
-  ms_log_init ("*:warning,test-main:*,ms-youtube:*,ms-filesystem:*,ms-jamendo:*,ms-lastfm-albumart:*,ms-flickr:*");
+  grl_log_init ("*:warning,test-main:*,"
+                "grl-youtube:*,"
+                "grl-filesystem:*,"
+                "grl-jamendo:*,"
+                "grl-lastfm-albumart:*,"
+                "grl-flickr:*");
 
-  keys = ms_metadata_key_list_new (MS_METADATA_KEY_ID,
-				   MS_METADATA_KEY_TITLE,
-				   MS_METADATA_KEY_URL,
-                                   MS_METADATA_KEY_ALBUM,
-                                   MS_METADATA_KEY_ARTIST,
-                                   MS_METADATA_KEY_GENRE,
-                                   MS_METADATA_KEY_THUMBNAIL,
-				   MS_METADATA_KEY_DESCRIPTION,
-				   MS_METADATA_KEY_AUTHOR,
-                                   MS_METADATA_KEY_LYRICS,
-				   MS_METADATA_KEY_DURATION,
-				   MS_METADATA_KEY_CHILDCOUNT,
-				   MS_METADATA_KEY_MIME,
-                                   NULL);
+  keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
+                                    GRL_METADATA_KEY_TITLE,
+                                    GRL_METADATA_KEY_URL,
+                                    GRL_METADATA_KEY_ALBUM,
+                                    GRL_METADATA_KEY_ARTIST,
+                                    GRL_METADATA_KEY_GENRE,
+                                    GRL_METADATA_KEY_THUMBNAIL,
+                                    GRL_METADATA_KEY_DESCRIPTION,
+                                    GRL_METADATA_KEY_AUTHOR,
+                                    GRL_METADATA_KEY_LYRICS,
+                                    GRL_METADATA_KEY_DURATION,
+                                    GRL_METADATA_KEY_CHILDCOUNT,
+                                    GRL_METADATA_KEY_MIME,
+                                    NULL);
 
   g_debug ("start");
 
   g_debug ("loading plugins");
 
-  MsPluginRegistry *registry = ms_plugin_registry_get_instance ();
-  ms_plugin_registry_load (registry, "../plugins/youtube/.libs/libmsyoutube.so");
-  ms_plugin_registry_load (registry, "../plugins/filesystem/.libs/libmsfilesystem.so");
-  ms_plugin_registry_load (registry, "../plugins/jamendo/.libs/libmsjamendo.so");
-  ms_plugin_registry_load (registry, "../plugins/fake-metadata/.libs/libfakemetadata.so");
-  ms_plugin_registry_load (registry, "../plugins/lastfm-albumart/.libs/liblastfm-albumart.so");
-  ms_plugin_registry_load (registry, "../plugins/flickr/.libs/libmsflickr.so");
+  GrlPluginRegistry *registry = grl_plugin_registry_get_instance ();
+  grl_plugin_registry_load (registry,
+                            "../src/youtube/.libs/libgrlyoutube.so");
+  grl_plugin_registry_load (registry,
+                            "../src/filesystem/.libs/libgrlfilesystem.so");
+  grl_plugin_registry_load (registry,
+                            "../src/jamendo/.libs/libgrljamendo.so");
+  grl_plugin_registry_load (registry,
+                            "../src/fake-metadata/.libs/libgrlfakemetadata.so");
+  grl_plugin_registry_load (registry,
+                            "../src/lastfm-albumart/.libs/libgrllastfm-albumart.so");
+  grl_plugin_registry_load (registry,
+                            "../src/flickr/.libs/libgrlflickr.so");
 
   g_debug ("Obtaining sources");
 
-  MsMediaSource *youtube =
-    (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-youtube");
+  GrlMediaSource *youtube =
+    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
+                                                          "grl-youtube");
 
-  MsMediaSource *fs =
-    (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-filesystem");
+  GrlMediaSource *fs =
+    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
+                                                          "grl-filesystem");
 
-  MsMediaSource *flickr =
-    (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-flickr");
+  GrlMediaSource *flickr =
+    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
+                                                          "grl-flickr");
 
-  MsMediaSource *jamendo =
-    (MsMediaSource *) ms_plugin_registry_lookup_source (registry, "ms-jamendo");
+  GrlMediaSource *jamendo =
+    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
+                                                          "grl-jamendo");
 
-  MsMetadataSource *fake =
-    (MsMetadataSource *) ms_plugin_registry_lookup_source (registry, "ms-fake-metadata");
+  GrlMetadataSource *fake =
+    (GrlMetadataSource *) grl_plugin_registry_lookup_source (registry,
+                                                             "grl-fake-metadata");
 
-  MsMetadataSource *lastfm =
-    (MsMetadataSource *) ms_plugin_registry_lookup_source (registry, "ms-lastfm-albumart");
+  GrlMetadataSource *lastfm =
+    (GrlMetadataSource *) grl_plugin_registry_lookup_source (registry,
+                                                             "grl-lastfm-albumart");
 
   g_assert (youtube);
   g_assert (fs);
@@ -224,54 +241,54 @@ main (void)
 
   g_debug ("Supported operations");
 
-  print_supported_ops (MS_METADATA_SOURCE (youtube));
-  print_supported_ops (MS_METADATA_SOURCE (fs));
-  print_supported_ops (MS_METADATA_SOURCE (flickr));
-  print_supported_ops (MS_METADATA_SOURCE (jamendo));
+  print_supported_ops (GRL_METADATA_SOURCE (youtube));
+  print_supported_ops (GRL_METADATA_SOURCE (fs));
+  print_supported_ops (GRL_METADATA_SOURCE (flickr));
+  print_supported_ops (GRL_METADATA_SOURCE (jamendo));
   print_supported_ops (fake);
   print_supported_ops (lastfm);
 
   g_debug ("testing");
 
-  if (0) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) ms_media_source_browse (youtube, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) ms_media_source_browse (youtube, media_from_id ("standard-feeds/most-viewed"), keys, 0, 10, MS_RESOLVE_FAST_ONLY , browse_cb, NULL);
-  if (0) ms_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 173, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) ms_media_source_search (youtube, "igalia", keys, 6, 10, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) ms_media_source_search (youtube, "igalia", keys, 1, 10, MS_RESOLVE_FULL | MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) ms_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
-  if (0) ms_media_source_metadata (youtube, NULL, keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY | MS_RESOLVE_FULL, metadata_cb, NULL);
-  if (0) ms_media_source_metadata (youtube, NULL, keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FAST_ONLY , metadata_cb, NULL);
-  if (0) ms_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
-  if (0) ms_media_source_browse (fs, media_from_id ("/home"), keys, 0, 100, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, browse_cb, NULL);
-  if (0) ms_media_source_metadata (fs, media_from_id ("/home"), keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, metadata_cb, NULL);
-  if (0) ms_media_source_search (flickr, "igalia", keys, 1, 10, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (1) ms_media_source_metadata (flickr, media_from_id ("4201406347"), keys, MS_RESOLVE_IDLE_RELAY | MS_RESOLVE_FULL, metadata_cb, NULL);
-  if (0) ms_media_source_browse (jamendo, NULL, keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) ms_media_source_browse (jamendo, media_from_id("1"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) ms_media_source_browse (jamendo, media_from_id("1/9"), keys, 0, 5, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) ms_media_source_browse (jamendo, media_from_id("2"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) ms_media_source_browse (jamendo, media_from_id("2/25"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) ms_media_source_browse (jamendo, media_from_id("2/1225"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) ms_media_source_browse (jamendo, media_from_id("3/174"), keys, -1, 2, MS_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) ms_media_source_metadata (jamendo, NULL, keys, 0, metadata_cb, NULL);
-  if (0) ms_media_source_metadata (jamendo, media_from_id("1"), keys, 0, metadata_cb, NULL);
-  if (0) ms_media_source_metadata (jamendo, media_from_id("1/9"), keys, 0, metadata_cb, NULL);
-  if (0) ms_media_source_metadata (jamendo, media_from_id("2/1225"), keys, 0, metadata_cb, NULL);
-  if (0) ms_media_source_metadata (jamendo, media_from_id("3/174"), keys, 0, metadata_cb, NULL);
-  if (0) ms_media_source_query (jamendo, "artist=shake da", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) ms_media_source_query (jamendo, "album=Nick", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) ms_media_source_query (jamendo, "track=asylum mind", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) ms_media_source_search (jamendo, "next", keys, 0, 5, MS_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_browse (youtube, media_from_id ("standard-feeds/most-viewed"), keys, 0, 10, GRL_RESOLVE_FAST_ONLY , browse_cb, NULL);
+  if (0) grl_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 173, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_search (youtube, "igalia", keys, 6, 10, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_search (youtube, "igalia", keys, 1, 10, GRL_RESOLVE_FULL | GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
+  if (0) grl_media_source_metadata (youtube, NULL, keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY | GRL_RESOLVE_FULL, metadata_cb, NULL);
+  if (0) grl_media_source_metadata (youtube, NULL, keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY , metadata_cb, NULL);
+  if (0) grl_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
+  if (0) grl_media_source_browse (fs, media_from_id ("/home"), keys, 0, 100, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FULL, browse_cb, NULL);
+  if (0) grl_media_source_metadata (fs, media_from_id ("/home"), keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FULL, metadata_cb, NULL);
+  if (0) grl_media_source_search (flickr, "igalia", keys, 1, 10, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (1) grl_media_source_metadata (flickr, media_from_id ("4201406347"), keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FULL, metadata_cb, NULL);
+  if (0) grl_media_source_browse (jamendo, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_browse (jamendo, media_from_id("1"), keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_browse (jamendo, media_from_id("1/9"), keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_browse (jamendo, media_from_id("2"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_browse (jamendo, media_from_id("2/25"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_browse (jamendo, media_from_id("2/1225"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_browse (jamendo, media_from_id("3/174"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_metadata (jamendo, NULL, keys, 0, metadata_cb, NULL);
+  if (0) grl_media_source_metadata (jamendo, media_from_id("1"), keys, 0, metadata_cb, NULL);
+  if (0) grl_media_source_metadata (jamendo, media_from_id("1/9"), keys, 0, metadata_cb, NULL);
+  if (0) grl_media_source_metadata (jamendo, media_from_id("2/1225"), keys, 0, metadata_cb, NULL);
+  if (0) grl_media_source_metadata (jamendo, media_from_id("3/174"), keys, 0, metadata_cb, NULL);
+  if (0) grl_media_source_query (jamendo, "artist=shake da", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_query (jamendo, "album=Nick", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_query (jamendo, "track=asylum mind", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_search (jamendo, "next", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) {
-    MsContentMedia *media = media_from_id ("test");
-    ms_content_set_string (MS_CONTENT (media),
-                           MS_METADATA_KEY_ARTIST,
-                           "roxette");
-    ms_content_set_string (MS_CONTENT (media),
-                           MS_METADATA_KEY_ALBUM,
-                           "pop hits");
-    ms_metadata_source_resolve (lastfm, keys, media, MS_RESOLVE_IDLE_RELAY, resolve_cb, NULL);
+    GrlContentMedia *media = media_from_id ("test");
+    grl_content_set_string (GRL_CONTENT (media),
+                            GRL_METADATA_KEY_ARTIST,
+                            "roxette");
+    grl_content_set_string (GRL_CONTENT (media),
+                            GRL_METADATA_KEY_ALBUM,
+                            "pop hits");
+    grl_metadata_source_resolve (lastfm, keys, media, GRL_RESOLVE_IDLE_RELAY, resolve_cb, NULL);
   }
 
   g_debug ("Running main loop");

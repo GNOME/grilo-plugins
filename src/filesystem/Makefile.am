@@ -5,19 +5,19 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libmsfilesystem.la
+lib_LTLIBRARIES		 = libgrlfilesystem.la
 
-libmsfilesystem_la_CFLAGS	 = \
-	$(DEPS_CFLAGS) \
-	$(GIO_CFLAGS) 
+libgrlfilesystem_la_CFLAGS =	\
+	$(DEPS_CFLAGS)		\
+	$(GIO_CFLAGS)
 
-libmsfilesystem_la_LIBADD	 = \
-	$(DEPS_LIBS) \
-	$(GIO_LIBS) 
+libgrlfilesystem_la_LIBADD =	\
+	$(DEPS_LIBS)		\
+	$(GIO_LIBS)
 
-libmsfilesystem_la_SOURCES = ms-filesystem.c ms-filesystem.h
+libgrlfilesystem_la_SOURCES = grl-filesystem.c grl-filesystem.h
 
-libdir=$(PLUGINS_DIR)
+libdir=$(GRL_PLUGINS_DIR)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

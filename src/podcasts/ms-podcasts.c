@@ -87,6 +87,14 @@
   "(url, title, desc) "				     \
   "VALUES (?, ?, ?)"
 
+#define MS_SQL_REMOVE_PODCAST			     \
+  "DELETE FROM podcasts "			     \
+  "WHERE id='%s'"
+
+#define MS_SQL_REMOVE_STREAM			     \
+  "DELETE FROM streams "			     \
+  "WHERE url='%s'"
+
 #define MS_SQL_STORE_STREAM			     \
   "INSERT INTO streams "			     \
   "(podcast, url, title, length, mime, date, desc) " \
@@ -197,6 +205,8 @@ static void ms_podcasts_source_metadata (MsMediaSource *source,
 					 MsMediaSourceMetadataSpec *ms);
 static void ms_podcasts_source_store (MsMediaSource *source,
 				      MsMediaSourceStoreSpec *ss);
+static void ms_podcasts_source_remove (MsMediaSource *source,
+				       MsMediaSourceRemoveSpec *rs);
 
 /* =================== Podcasts Plugin  =============== */
 
@@ -247,6 +257,7 @@ ms_podcasts_source_class_init (MsPodcastsSourceClass * klass)
   source_class->query = ms_podcasts_source_query;
   source_class->metadata = ms_podcasts_source_metadata;
   source_class->store = ms_podcasts_source_store;
+  source_class->remove = ms_podcasts_source_remove;
 
   metadata_class->supported_keys = ms_podcasts_source_supported_keys;
 
@@ -405,7 +416,7 @@ duration_to_seconds (const gchar *str)
   guint multiplier = 1;
 
   if (!str || str[0] == '\0') {
-    return -1;
+    return 0;
   }
 
   parts = g_strsplit (str, ":", 3);
@@ -415,7 +426,7 @@ duration_to_seconds (const gchar *str)
   while (parts[i]) i++;
   if (i == 0) {
     g_strfreev (parts);
-    return -1;
+    return 0;
   } else {
     i--;
   }
@@ -582,6 +593,77 @@ produce_podcast_contents_from_db (OperationSpec *os)
 }
 
 static void
+remove_podcast_streams (sqlite3 *db, const gchar *podcast_id, GError **error)
+{
+  gchar *sql;
+  gchar *sql_error;
+  gint r;
+
+  sql = g_strdup_printf (MS_SQL_DELETE_PODCAST_STREAMS, podcast_id);
+  g_debug ("%s", sql);
+  r = sqlite3_exec (db, sql, NULL, NULL, &sql_error);
+  g_free (sql);
+  if (r) {
+    g_warning ("Failed to remove podcast streams cache: %s", sql_error);
+    *error = g_error_new (MS_ERROR,
+			  MS_ERROR_REMOVE_FAILED,
+			  "Failed to remove podcast streams");
+    sqlite3_free (error);
+  }
+}
+
+static void
+remove_podcast (sqlite3 *db, const gchar *podcast_id, GError **error)
+{
+  gint r;
+  gchar *sql_error;
+  gchar *sql;
+
+  g_debug ("remove_podcast");
+
+  remove_podcast_streams (db, podcast_id, error);
+  if (*error) {
+    return;
+  }
+
+  sql = g_strdup_printf (MS_SQL_REMOVE_PODCAST, podcast_id);
+  g_debug ("%s", sql);
+  r = sqlite3_exec (db, sql, NULL, NULL, &sql_error);
+  g_free (sql);
+
+  if (r != SQLITE_OK) {
+    g_warning ("Failed to remove podcast '%s': %s", podcast_id, sql_error);
+    *error = g_error_new (MS_ERROR,
+			  MS_ERROR_REMOVE_FAILED,
+			  "Failed to remove podcast");
+    sqlite3_free (sql_error);
+  }
+}
+
+static void
+remove_stream (sqlite3 *db, const gchar *url, GError **error)
+{
+  gint r;
+  gchar *sql_error;
+  gchar *sql;
+
+  g_debug ("remove_stream");
+
+  sql = g_strdup_printf (MS_SQL_REMOVE_STREAM, url);
+  g_debug ("%s", sql);
+  r = sqlite3_exec (db, sql, NULL, NULL, &sql_error);
+  g_free (sql);
+
+  if (r != SQLITE_OK) {
+    g_warning ("Failed to remove podcast stream '%s': %s", url, sql_error);
+    *error = g_error_new (MS_ERROR,
+			  MS_ERROR_REMOVE_FAILED,
+			  "Failed to remove podcast stream");
+    sqlite3_free (sql_error);
+  }
+}
+
+static void
 store_podcast (sqlite3 *db, MsContentMedia *podcast, GError **error)
 {
   gint r;
@@ -637,6 +719,11 @@ store_stream (sqlite3 *db, const gchar *podcast_id, Entry *entry)
   gint r;
   guint seconds;
   sqlite3_stmt *sql_stmt = NULL;
+
+  if (!entry->url || entry->url[0] == '\0') {
+    g_debug ("Podcast stream has no URL, skipping");
+    return;
+  }
 
   seconds = duration_to_seconds (entry->duration);
   g_debug ("%s", MS_SQL_STORE_STREAM);  
@@ -725,9 +812,6 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
-  gint r;
-  gchar *sql;
-  gchar *sql_error;
 
   g_debug ("parse_feed");
 
@@ -783,14 +867,11 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   /* The feed is ok, let's parse it and store the streams in the database */
 
   /* First we remove old entries */
-  sql = g_strdup_printf (MS_SQL_DELETE_PODCAST_STREAMS, os->media_id);
-  g_debug ("%s", sql);
-  r = sqlite3_exec (MS_PODCASTS_SOURCE (os->source)->priv->db, sql,
-		    NULL, NULL, &sql_error);
-  g_free (sql);
-  if (r) {
-    g_warning ("Failed to remove podcast streams cache: %s", sql_error);
-    sqlite3_free (error);
+  remove_podcast_streams (MS_PODCASTS_SOURCE (os->source)->priv->db,
+			  os->media_id, error);
+  if (*error) {
+    (*error)->code = os->error_code;
+    goto free_resources;
   }
 
   /* Then we parse the feed and store the streams */
@@ -1103,6 +1184,12 @@ podcast_metadata (MsMediaSourceMetadataSpec *ms)
   sqlite3_finalize (sql_stmt);
 }
 
+static gboolean
+media_id_is_podcast (const gchar *id)
+{
+  return g_ascii_strtoll (id, NULL, 10) != 0;
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -1247,7 +1334,7 @@ ms_podcasts_source_metadata (MsMediaSource *source, MsMediaSourceMetadataSpec *m
   }
 
   media_id = ms_content_media_get_id (ms->media);
-  if (!media_id || g_ascii_strtoll (media_id, NULL, 10) != 0) {
+  if (!media_id || media_id_is_podcast (media_id)) {
     podcast_metadata (ms);
   } else {
     stream_metadata (ms);
@@ -1261,6 +1348,24 @@ ms_podcasts_source_store (MsMediaSource *source, MsMediaSourceStoreSpec *ss)
   GError *error = NULL;
   store_podcast (MS_PODCASTS_SOURCE (ss->source)->priv->db, ss->media, &error);
   ss->callback (ss->source, ss->parent, ss->media, ss->user_data, error);
+  if (error) {
+    g_error_free (error);
+  }
+}
+
+static void
+ms_podcasts_source_remove (MsMediaSource *source, MsMediaSourceRemoveSpec *rs)
+{
+  g_debug ("ms_podcasts_source_remove");
+  GError *error = NULL;
+  if (media_id_is_podcast (rs->media_id)) {
+    remove_podcast (MS_PODCASTS_SOURCE (rs->source)->priv->db,
+		    rs->media_id, &error);
+  } else {
+    remove_stream (MS_PODCASTS_SOURCE (rs->source)->priv->db,
+		   rs->media_id, &error);
+  }
+  rs->callback (rs->source, rs->media, rs->user_data, error);
   if (error) {
     g_error_free (error);
   }

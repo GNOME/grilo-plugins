@@ -42,12 +42,6 @@ GRL_MAJORMINOR=0.1
 AC_SUBST(GRL_MAJORMINOR)
 AC_DEFINE_UNQUOTED(GRL_MAJORMINOR, "$GRL_MAJORMINOR", [library major.minor version])
 
-# Framework name (contains ABI version)
-
-GRL_NAME="${PACKAGE_NAME}-${GRL_MAJORMINOR}"
-AC_SUBST(GRL_NAME)
-AC_DEFINE_UNQUOTED(GRL_NAME, "$GRL_NAME", [framework name])
-
 # Give parameters a default value
 
 if test $prefix = "NONE" ; then

@@ -9,16 +9,16 @@ INCLUDES = @DEPS_CFLAGS@ @VFS_CFLAGS@
 
 bin_PROGRAMS = test
 
-test_SOURCES = \
+test_SOURCES =	\
 	main.c
 
-test_CFLAGS =  \
+test_CFLAGS =	\
 	-DPREFIX=$(prefix)
 
 test_LDADD = -ldl -lpthread @DEPS_LIBS@
 
-MAINTAINERCLEANFILES = \
-	*.in \
+MAINTAINERCLEANFILES =	\
+	*.in	\
 	*~
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)

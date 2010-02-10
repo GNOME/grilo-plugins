@@ -450,42 +450,6 @@ AC_SUBST(GUPNPAV_LIBS)
 AC_SUBST(HAVE_GUPNPAV)
 AM_CONDITIONAL(HAVE_GUPNPAV, test "x$HAVE_GUPNPAV" = "xyes")
 
-if test "x$enable_jamendo" = "xyes"; then
-   if test "x$HAVE_GIO" = "xno"; then
-      AC_MSG_ERROR([GIO not found, install it or use --disable-jamendo])
-   fi
-   if test "x$HAVE_XML" = "xno"; then
-      AC_MSG_ERROR([xml2 not found, install it or use --disable-jamendo])
-   fi
-fi
-
-if test "x$enable_lastfm_albumart" = "xyes"; then
-   if test "x$HAVE_GIO" = "xno"; then
-      AC_MSG_ERROR([GIO not found, install it or use --disable-lastfm-albumart])
-   fi
-   if test "x$HAVE_XML" = "xno"; then
-      AC_MSG_ERROR([xml2 not found, install it or use --disable-lastfm-albumart])
-   fi
-fi
-
-if test "x$enable_upnp" = "xyes"; then
-   if test "x$HAVE_GUPNP" = "xno"; then
-      AC_MSG_ERROR([gupnp not found, install it or use --disable-upnp])
-   fi
-   if test "x$HAVE_GUPNPAV" = "xno"; then
-      AC_MSG_ERROR([gupnp-av not found, install it or use --disable-upnp])
-   fi
-fi
-
-if test "x$enable_youtube" = "xyes"; then
-   if test "x$HAVE_VFS" = "xno"; then
-      AC_MSG_ERROR([gnome-vfs not found, install it or use --disable-youtube])
-   fi
-   if test "x$HAVE_XML" = "xno"; then
-      AC_MSG_ERROR([xml2 not found, install it or use --disable-youtube])
-   fi
-fi
-
 # ----------------------------------------------------------
 # WORKAROUNDS
 # ----------------------------------------------------------

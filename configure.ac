@@ -467,6 +467,7 @@ AC_CONFIG_FILES([
   src/flickr/Makefile
   src/podcasts/Makefile
   test/Makefile
+  debian/grilo-0.1-plugins.install
 ])
 
 AC_OUTPUT

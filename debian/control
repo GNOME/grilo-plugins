@@ -1,0 +1,36 @@
+Source: grilo-0.1-plugins
+Section: libs
+Priority: extra
+Maintainer: Juan A. Suarez Romero <jasuarez@igalia.com>
+Build-Depends: cdbs, debhelper (>= 5), libgrilo-0.1-dev, gnome-common,
+ libglib2.0-dev, libxml2-dev, libgupnp-1.0-dev, libgupnp-av-1.0-dev,
+ libflickcurl-dev (>= 1.10), libcurl-dev, libsqlite3-dev
+Standards-Version: 3.7.2
+Homepage: http://gitorious.org/grilo
+
+Package: grilo-0.1-plugins
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgrilo-0.1
+Description: Grilo framework plugins
+ Grilo is a framework that provides access to different sources of
+ multimedia content, using a pluggable system.
+ .
+ This package contains plugins to get information from theses sources:
+ .
+  - Filesystem
+  - Flickr
+  - Jamendo
+  - Last.fm (for album arts)
+  - Podcasts
+  - uPnP
+  - Youtube
+
+Package: grilo-0.1-plugins-dbg
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, grilo-0.1-plugins
+Description: Grilo framework plugins debugging symbols
+ Grilo is a framework that provides access to different sources of
+ multimedia content, using a pluggable system.
+ .
+ This package contains unstripped plugins, useful to debug.
+

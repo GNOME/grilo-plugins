@@ -1,0 +1,34 @@
+Source: @GRL_NAME@
+Section: libs
+Priority: extra
+Maintainer: Juan A. Suarez Romero <jasuarez@igalia.com>
+Build-Depends: cdbs, debhelper (>= 5)
+Standards-Version: 3.7.2
+Homepage: http://gitorious.org/grilo
+
+Package: @GRL_NAME@-plugins
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, @GRL_NAME@
+Description: Grilo framework plugins
+ Grilo is a framework that provides access to different sources of
+ multimedia content, using a pluggable system.
+ .
+ This package contains plugins to get information from theses sources:
+ .
+  - Filesystem
+  - Flickr
+  - Jamendo
+  - Last.fm (for album arts)
+  - Podcasts
+  - uPnP
+  - Youtube
+
+Package: @GRL_NAME@-plugins-dbg
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, @GRL_NAME@-plugins
+Description: Grilo framework plugins debugging symbols
+ Grilo is a framework that provides access to different sources of
+ multimedia content, using a pluggable system.
+ .
+ This package contains unstripped plugins, useful to debug.
+

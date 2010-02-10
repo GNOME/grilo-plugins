@@ -3,8 +3,8 @@ Section: libs
 Priority: extra
 Maintainer: Juan A. Suarez Romero <jasuarez@igalia.com>
 Build-Depends: cdbs, debhelper (>= 5), libgrilo-0.1-dev, gnome-common,
- libglib2.0-dev, libxml2-dev, libgupnp-1.0-dev, libgupnp-av-1.0-dev,
- libflickcurl-dev (>= 1.10), libcurl-dev, libsqlite3-dev
+ libglib2.0-dev, libxml2-dev, libflickcurl-dev (>= 1.10), libcurl-dev,
+ libraptor1-dev, libsqlite3-dev
 Standards-Version: 3.7.2
 Homepage: http://gitorious.org/grilo
 
@@ -22,7 +22,6 @@ Description: Grilo framework plugins
   - Jamendo
   - Last.fm (for album arts)
   - Podcasts
-  - uPnP
   - Youtube
 
 Package: grilo-0.1-plugins-dbg

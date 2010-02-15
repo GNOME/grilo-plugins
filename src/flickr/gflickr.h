@@ -38,4 +38,7 @@ g_flickr_photos_getInfo (gpointer f,
 gchar *
 g_flickr_photo_url_original (gpointer f, GHashTable *photo);
 
+gchar *
+g_flickr_photo_url_thumbnail (gpointer f, GHashTable *photo);
+
 #endif /* _G_FLICKR_H_ */

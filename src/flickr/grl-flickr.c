@@ -461,6 +461,7 @@ getInfo_cb (gpointer f, GHashTable *photo, gpointer user_data)
   gchar *author;
   gchar *date;
   gchar *description;
+  gchar *thumbnail;
   gchar *title;
   gchar *url;
 
@@ -470,6 +471,7 @@ getInfo_cb (gpointer f, GHashTable *photo, gpointer user_data)
     description = g_hash_table_lookup (photo, "description");
     date = g_hash_table_lookup (photo, "dates_taken");
     url = g_flickr_photo_url_original (f, photo);
+    thumbnail = g_flickr_photo_url_thumbnail (f, photo);
 
     if (author) {
       grl_content_media_set_author (ms->media, author);
@@ -490,6 +492,10 @@ getInfo_cb (gpointer f, GHashTable *photo, gpointer user_data)
     if (url) {
       grl_content_media_set_url (ms->media, url);
     }
+
+    if (thumbnail) {
+      grl_content_media_set_thumbnail (ms->media, thumbnail);
+    }
   }
 
   ms->callback (ms->source, ms->media, ms->user_data, NULL);
@@ -502,12 +508,13 @@ grl_flickr_source_supported_keys (GrlMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
-                                      GRL_METADATA_KEY_URL,
-                                      GRL_METADATA_KEY_AUTHOR,
-                                      GRL_METADATA_KEY_TITLE,
-                                      GRL_METADATA_KEY_DESCRIPTION,
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_AUTHOR,
                                       GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_DESCRIPTION,
+                                      GRL_METADATA_KEY_ID,
+                                      GRL_METADATA_KEY_THUMBNAIL,
+                                      GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_URL,
                                       NULL);
   }
   return keys;

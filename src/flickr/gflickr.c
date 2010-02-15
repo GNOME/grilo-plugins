@@ -184,14 +184,17 @@ add_node (xmlNodePtr node, GHashTable *photo)
                                       "_",
                                       (const gchar *) attr->name,
                                       NULL),
-                         g_strdup ((gchar *) xmlGetProp (node, attr->name)));
+                         (gchar *) xmlGetProp (node, attr->name));
   }
 }
 
 static GHashTable *
 get_photo (xmlNodePtr node)
 {
-  GHashTable *photo = g_hash_table_new (g_str_hash, g_str_equal);
+  GHashTable *photo = g_hash_table_new_full (g_str_hash,
+                                             g_str_equal,
+                                             g_free,
+                                             g_free);
 
   /* Add photo node */
   add_node (node, photo);
@@ -209,7 +212,7 @@ get_photo (xmlNodePtr node)
                xmlStrcmp (node->name, (const xmlChar *) "description") == 0) {
       g_hash_table_insert (photo,
                            g_strdup ((const gchar *) node->name),
-                           g_strdup ((const gchar *) xmlNodeGetContent (node)));
+                           (gchar *) xmlNodeGetContent (node));
     }
 
     node = node->next;
@@ -241,6 +244,7 @@ process_photo_result (const gchar *xml_result, gpointer user_data)
     data->get_info_cb (NULL, photo, data->user_data);
     g_hash_table_unref (photo);
   }
+  g_free (data);
   xmlFreeDoc (doc);
 }
 
@@ -275,6 +279,7 @@ process_photolist_result (const gchar *xml_result, gpointer user_data)
     g_list_foreach (photolist, (GFunc) g_hash_table_unref, NULL);
     g_list_free (photolist);
   }
+  g_free (data);
   xmlFreeDoc (doc);
 }
 

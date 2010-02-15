@@ -175,7 +175,7 @@ update_media (GrlContentMedia *media, GHashTable *photo)
   }
   description = g_hash_table_lookup (photo, "description");
   id = g_hash_table_lookup (photo, "photo_id");
-  thumbnail = g_hash_table_lookup (photo, "photo_url_t");
+  thumbnail = g_strdup (g_hash_table_lookup (photo, "photo_url_t"));
   if (!thumbnail) {
     thumbnail = g_flickr_photo_url_thumbnail (NULL, photo);
   }
@@ -183,7 +183,7 @@ update_media (GrlContentMedia *media, GHashTable *photo)
   if (!title) {
     title = g_hash_table_lookup (photo, "photo_title");
   }
-  url = g_hash_table_lookup (photo, "photo_url_o");
+  url = g_strdup (g_hash_table_lookup (photo, "photo_url_o"));
   if (!url) {
     url = g_flickr_photo_url_original (NULL, photo);
   }
@@ -206,6 +206,7 @@ update_media (GrlContentMedia *media, GHashTable *photo)
 
   if (thumbnail) {
     grl_content_media_set_thumbnail (media, thumbnail);
+    g_free (thumbnail);
   }
 
   if (title) {
@@ -214,6 +215,7 @@ update_media (GrlContentMedia *media, GHashTable *photo)
 
   if (url) {
     grl_content_media_set_url (media, url);
+    g_free (url);
   }
 }
 

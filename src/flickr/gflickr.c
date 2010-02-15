@@ -43,6 +43,26 @@ typedef struct {
   gpointer user_data;
 } GFlickrData;
 
+/* -------------------- GOBJECT -------------------- */
+
+G_DEFINE_TYPE (GFlickr, g_flickr, G_TYPE_OBJECT);
+
+static void
+g_flickr_class_init (GFlickrClass *klass)
+{
+}
+
+static void
+g_flickr_init (GFlickr *f)
+{
+}
+
+GFlickr *
+g_flickr_new (void)
+{
+  return g_object_new (G_FLICKR_TYPE, NULL);
+}
+
 /* -------------------- PRIVATE API -------------------- */
 
 static gchar *
@@ -255,12 +275,12 @@ read_url_async (const gchar *url, gpointer data)
 /* -------------------- PUBLIC API -------------------- */
 
 void
-g_flickr_photos_getInfo (gpointer f,
+g_flickr_photos_getInfo (GFlickr *f,
                          glong photo_id,
                          GFlickrPhotoCb callback,
                          gpointer user_data)
 {
-  //g_return_if_fail (G_IS_FLICKR (f));
+  g_return_if_fail (G_IS_FLICKR (f));
 
   gchar *api_sig = get_api_sig_photos_getInfo (photo_id);
 
@@ -280,12 +300,12 @@ g_flickr_photos_getInfo (gpointer f,
 }
 
 void
-g_flickr_photos_search (gpointer f,
+g_flickr_photos_search (GFlickr *f,
                         const gchar *text,
                         GFlickrPhotoListCb callback,
                         gpointer user_data)
 {
-  //g_return_if_fail (G_IS_FLICKR (f));
+  g_return_if_fail (G_IS_FLICKR (f));
 
   gchar *api_sig = get_api_sig_photos_search (text);
 
@@ -305,7 +325,7 @@ g_flickr_photos_search (gpointer f,
 }
 
 gchar *
-g_flickr_photo_url_original (gpointer f, GHashTable *photo)
+g_flickr_photo_url_original (GFlickr *f, GHashTable *photo)
 {
   gchar *extension;
   gchar *farm_id;
@@ -336,7 +356,7 @@ g_flickr_photo_url_original (gpointer f, GHashTable *photo)
 }
 
 gchar *
-g_flickr_photo_url_thumbnail (gpointer f, GHashTable *photo)
+g_flickr_photo_url_thumbnail (GFlickr *f, GHashTable *photo)
 {
   gchar *farm_id;
   gchar *secret;

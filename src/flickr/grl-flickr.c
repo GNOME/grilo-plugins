@@ -38,12 +38,6 @@
                                GRL_FLICKR_SOURCE_TYPE,                  \
                                GrlFlickrSourcePrivate))
 
-typedef struct {
-  GrlMediaSourceSearchSpec *ss;
-  GrlContentMedia *media;
-  gint remaining;
-} SearchData;
-
 /* --------- Logging  -------- */
 
 #undef G_LOG_DOMAIN
@@ -69,6 +63,10 @@ typedef struct {
 #define AUTHOR      "Igalia S.L."
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
+
+struct _GrlFlickrSourcePrivate {
+  GFlickr *flickr;
+};
 
 static GrlFlickrSource *grl_flickr_source_new (void);
 
@@ -140,16 +138,15 @@ grl_flickr_source_class_init (GrlFlickrSourceClass * klass)
   source_class->metadata = grl_flickr_source_metadata;
   source_class->search = grl_flickr_source_search;
   metadata_class->supported_keys = grl_flickr_source_supported_keys;
+
+  g_type_class_add_private (klass, sizeof (GrlFlickrSourcePrivate));
 }
 
 static void
 grl_flickr_source_init (GrlFlickrSource *source)
 {
   source->priv = GRL_FLICKR_SOURCE_GET_PRIVATE (source);
-
-  if (!g_thread_supported ()) {
-    g_thread_init (NULL);
-  }
+  source->priv->flickr = g_flickr_new ();
 }
 
 G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_MEDIA_SOURCE);
@@ -456,6 +453,8 @@ update_media (GrlContentMedia *media, GHashTable *photo)
   gchar *title;
   gchar *url;
 
+  GList *keys = g_hash_table_get_keys (photo);
+  printf("%s\n", (gchar *)keys->data);
   author = g_hash_table_lookup (photo, "owner_realname");
   if (!author) {
     author = g_hash_table_lookup (photo, "photo_ownername");
@@ -509,7 +508,7 @@ update_media (GrlContentMedia *media, GHashTable *photo)
 }
 
 static void
-getInfo_cb (gpointer f, GHashTable *photo, gpointer user_data)
+getInfo_cb (GFlickr *f, GHashTable *photo, gpointer user_data)
 {
   GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
 
@@ -521,7 +520,7 @@ getInfo_cb (gpointer f, GHashTable *photo, gpointer user_data)
 }
 
 static void
-search_cb (gpointer f, GList *photolist, gpointer user_data)
+search_cb (GFlickr *f, GList *photolist, gpointer user_data)
 {
   GrlContentMedia *media;
   GrlMediaSourceSearchSpec *ss = (GrlMediaSourceSearchSpec *) user_data;
@@ -585,12 +584,18 @@ grl_flickr_source_metadata (GrlMediaSource *source,
     return;
   }
 
-  g_flickr_photos_getInfo (NULL, atol (id), getInfo_cb, ms);
+  g_flickr_photos_getInfo (GRL_FLICKR_SOURCE (source)->priv->flickr,
+                           atol (id),
+                           getInfo_cb,
+                           ms);
 }
 
 static void
 grl_flickr_source_search (GrlMediaSource *source,
                           GrlMediaSourceSearchSpec *ss)
 {
-  g_flickr_photos_search (NULL, ss->text, search_cb, ss);
+  g_flickr_photos_search (GRL_FLICKR_SOURCE (source)->priv->flickr,
+                          ss->text,
+                          search_cb,
+                          ss);
 }

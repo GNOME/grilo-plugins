@@ -6,6 +6,8 @@
 #define AUTH_TOKEN  "72157623286932154-c90318d470e96a29"
 #define AUTH_SECRET "9f6523b9c52e3317"
 
+#define FLICKR_PHOTO_ORIG_URL                           \
+  "http://farm%s.static.flickr.com/%s/%s_%s_o.%s"
 
 #define FLICKR_ENDPOINT "http://api.flickr.com/services/rest/?"
 
@@ -231,4 +233,35 @@ g_flickr_photos_getInfo (gpointer f,
 
   read_url_async (request, gfd);
   g_free (request);
+}
+
+gchar *
+g_flickr_photo_url_original (gpointer f, GHashTable *photo)
+{
+  gchar *extension;
+  gchar *farm_id;
+  gchar *o_secret;
+  gchar *photo_id;
+  gchar *server_id;
+
+  if (!photo) {
+    return NULL;
+  }
+
+  extension = g_hash_table_lookup (photo, "photo_originalformat");
+  farm_id = g_hash_table_lookup (photo, "photo_farm");
+  o_secret = g_hash_table_lookup (photo, "photo_originalsecret");
+  photo_id = g_hash_table_lookup (photo, "photo_id");
+  server_id = g_hash_table_lookup (photo, "photo_server");
+
+  if (!extension || !farm_id || !o_secret || !photo_id || !server_id) {
+    return NULL;
+  } else {
+    return g_strdup_printf (FLICKR_PHOTO_ORIG_URL,
+                            farm_id,
+                            server_id,
+                            photo_id,
+                            o_secret,
+                            extension);
+  }
 }

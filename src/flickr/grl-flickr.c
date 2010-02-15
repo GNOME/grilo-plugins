@@ -462,12 +462,14 @@ getInfo_cb (gpointer f, GHashTable *photo, gpointer user_data)
   gchar *date;
   gchar *description;
   gchar *title;
+  gchar *url;
 
   if (photo) {
     author = g_hash_table_lookup (photo, "owner_realname");
     title = g_hash_table_lookup (photo, "title");
     description = g_hash_table_lookup (photo, "description");
     date = g_hash_table_lookup (photo, "dates_taken");
+    url = g_flickr_photo_url_original (f, photo);
 
     if (author) {
       grl_content_media_set_author (ms->media, author);
@@ -478,11 +480,15 @@ getInfo_cb (gpointer f, GHashTable *photo, gpointer user_data)
     }
 
     if (description) {
-      grl_content_media_set_title (ms->media, description);
+      grl_content_media_set_description (ms->media, description);
     }
 
     if (date) {
-      grl_content_media_set_title (ms->media, date);
+      grl_content_media_set_date (ms->media, date);
+    }
+
+    if (url) {
+      grl_content_media_set_url (ms->media, url);
     }
   }
 

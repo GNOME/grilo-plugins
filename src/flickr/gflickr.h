@@ -31,8 +31,11 @@ typedef void (*GFlickrPhotoCb) (gpointer f, GHashTable *photo, gpointer user_dat
 
 void
 g_flickr_photos_getInfo (gpointer f,
-                         gint photo_id,
+                         glong photo_id,
                          GFlickrPhotoCb callback,
                          gpointer user_data);
+
+gchar *
+g_flickr_photo_url_original (gpointer f, GHashTable *photo);
 
 #endif /* _G_FLICKR_H_ */

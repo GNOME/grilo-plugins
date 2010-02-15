@@ -69,12 +69,6 @@ PKG_CHECK_MODULES(DEPS, glib-2.0 \
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
-PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
-AC_SUBST(GTHREAD_CFLAGS)
-AC_SUBST(GTHREAD_LIBS)
-AC_SUBST(HAVE_GTHREAD)
-AM_CONDITIONAL(HAVE_GTHREAD, test "x$HAVE_GTHREAD" = "xyes")
-
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 AC_SUBST(XML_CFLAGS)
 AC_SUBST(XML_LIBS)
@@ -98,18 +92,6 @@ AC_SUBST(GUPNPAV_CFLAGS)
 AC_SUBST(GUPNPAV_LIBS)
 AC_SUBST(HAVE_GUPNPAV)
 AM_CONDITIONAL(HAVE_GUPNPAV, test "x$HAVE_GUPNPAV" = "xyes")
-
-PKG_CHECK_MODULES(LIBCURL, libcurl, HAVE_LIBCURL=yes, HAVE_LIBCURL=no)
-AC_SUBST(LIBCURL_CFLAGS)
-AC_SUBST(LIBCURL_LIBS)
-AC_SUBST(HAVE_LIBCURL)
-AM_CONDITIONAL(HAVE_LIBCURL, test "x$HAVE_LIBCURL" = "xyes")
-
-PKG_CHECK_MODULES(FLICKCURL, flickcurl >= 1.10, HAVE_FLICKCURL=yes, HAVE_FLICKCURL=no)
-AC_SUBST(FLICKCURL_CFLAGS)
-AC_SUBST(FLICKCURL_LIBS)
-AC_SUBST(HAVE_FLICKCURL)
-AM_CONDITIONAL(HAVE_FLICKCURL, test "x$HAVE_FLICKCURL" = "xyes")
 
 PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
 AC_SUBST(SQLITE_CFLAGS)
@@ -321,24 +303,17 @@ AC_ARG_ENABLE(flickr,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_FLICKCURL" = "xno"; then
-                           AC_MSG_ERROR([flickcurl >= 1.10  not found, install it or use --disable-flickr])
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO  not found, install it or use --disable-flickr])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-flickr])
-                        fi
-                        if test "x$HAVE_LIBCURL" = "xno"; then
-                           AC_MSG_ERROR([libcurl not found, install it or use --disable-flickr])
-                        fi
-                        if test "x$HAVE_GTHREAD" = "xno"; then
-                           AC_MSG_ERROR([gthread-2.0 not found, install it or use --disable-flickr])
                         fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_FLICKCURL" = "xyes" -a "x$HAVE_XML" = "xyes" -a \
-                        "x$HAVE_LIBCURL" = "xyes" -a "x$HAVE_GTHREAD" = "xyes"; then
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_flickr=yes
                 else
                    enable_flickr=no

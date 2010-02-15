@@ -9,17 +9,13 @@ lib_LTLIBRARIES		 = libgrlflickr.la
 
 libgrlflickr_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
-	$(FLICKCURL_CFLAGS)	\
 	$(XML_CFLAGS)		\
-	$(LIBCURL_CFLAGS)	\
-	$(GTHREAD_CFLAGS)
+	$(GIO_CFLAGS)
 
 libgrlflickr_la_LIBADD =	\
 	$(DEPS_LIBS)		\
-	$(FLICKCURL_LIBS)	\
 	$(XML_LIBS)		\
-	$(LIBCURL_LIBS)		\
-	$(GTHREAD_LIBS)
+	$(GIO_LIBS)
 
 libgrlflickr_la_SOURCES =	\
 	grl-flickr.c		\

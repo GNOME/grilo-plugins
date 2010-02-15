@@ -23,7 +23,9 @@ libgrlflickr_la_LIBADD =	\
 
 libgrlflickr_la_SOURCES =	\
 	grl-flickr.c		\
-	grl-flickr.h
+	grl-flickr.h		\
+	gflickr.c		\
+	gflickr.h
 
 libdir=$(GRL_PLUGINS_DIR)
 

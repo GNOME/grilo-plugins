@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include "grl-flickr.h"
+#include "gflickr.h"
 
 #define GRL_FLICKR_SOURCE_GET_PRIVATE(object)                           \
   (G_TYPE_INSTANCE_GET_PRIVATE((object),                                \
@@ -197,19 +198,6 @@ get_content_image (flickcurl_photo *fc_photo)
 }
 
 static gboolean
-metadata_cb (gpointer data)
-{
-  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) data;
-
-  ms->callback(ms->source,
-               ms->media,
-               ms->user_data,
-               NULL);
-
-  return FALSE;
-}
-
-static gboolean
 search_cb (gpointer data)
 {
   SearchData *search_data = (SearchData *) data;
@@ -259,6 +247,7 @@ check_keys (GList *keys, gboolean *get_url, gboolean *get_others)
   }
 }
 
+#if 0
 static gpointer
 grl_flickr_source_metadata_main (gpointer data)
 {
@@ -336,6 +325,7 @@ grl_flickr_source_metadata_main (gpointer data)
 
   return NULL;
 }
+#endif
 
 static gpointer
 grl_flickr_source_search_main (gpointer data)
@@ -464,6 +454,41 @@ grl_flickr_source_search_main (gpointer data)
   return NULL;
 }
 
+static void
+getInfo_cb (gpointer f, GHashTable *photo, gpointer user_data)
+{
+  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
+  gchar *author;
+  gchar *date;
+  gchar *description;
+  gchar *title;
+
+  if (photo) {
+    author = g_hash_table_lookup (photo, "owner_realname");
+    title = g_hash_table_lookup (photo, "title");
+    description = g_hash_table_lookup (photo, "description");
+    date = g_hash_table_lookup (photo, "dates_taken");
+
+    if (author) {
+      grl_content_media_set_author (ms->media, author);
+    }
+
+    if (title) {
+      grl_content_media_set_title (ms->media, title);
+    }
+
+    if (description) {
+      grl_content_media_set_title (ms->media, description);
+    }
+
+    if (date) {
+      grl_content_media_set_title (ms->media, date);
+    }
+  }
+
+  ms->callback (ms->source, ms->media, ms->user_data, NULL);
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -486,12 +511,14 @@ static void
 grl_flickr_source_metadata (GrlMediaSource *source,
                             GrlMediaSourceMetadataSpec *ms)
 {
-  if (!g_thread_create (grl_flickr_source_metadata_main,
-                        ms,
-                        FALSE,
-                        NULL)) {
-    g_critical ("Unable to create thread");
+  const gchar *id;
+
+  if (!ms->media || (id = grl_content_media_get_id (ms->media)) == NULL) {
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    return;
   }
+
+  g_flickr_photos_getInfo (NULL, atol (id), getInfo_cb, ms);
 }
 
 static void

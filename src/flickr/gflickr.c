@@ -26,7 +26,7 @@
   "&auth_token=" AUTH_TOKEN                     \
   "&api_sig=%s"                                 \
   "&method=" FLICKR_PHOTOS_GETINFO_METHOD       \
-  "&photo_id=%d"
+  "&photo_id=%ld"
 
 typedef void (*ParseXML) (const gchar *xml_result, gpointer user_data);
 
@@ -54,7 +54,7 @@ typedef struct {
 /* } */
 
 static gchar *
-get_api_sig_photos_getInfo (gint photo_id)
+get_api_sig_photos_getInfo (glong photo_id)
 {
   gchar *signature;
   gchar *text_to_sign;
@@ -66,7 +66,7 @@ get_api_sig_photos_getInfo (gint photo_id)
                                   AUTH_TOKEN
                                   "method"
                                   FLICKR_PHOTOS_GETINFO_METHOD
-                                  "photo_id%d", photo_id);
+                                  "photo_id%ld", photo_id);
   signature = g_compute_checksum_for_string (G_CHECKSUM_MD5, text_to_sign, -1);
   g_free (text_to_sign);
 
@@ -210,7 +210,7 @@ read_url_async (const gchar *url, gpointer data)
 
 void
 g_flickr_photos_getInfo (gpointer f,
-                         gint photo_id,
+                         glong photo_id,
                          GFlickrPhotoCb callback,
                          gpointer user_data)
 {

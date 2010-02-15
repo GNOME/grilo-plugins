@@ -152,7 +152,7 @@ static void
 grl_flickr_source_init (GrlFlickrSource *source)
 {
   source->priv = GRL_FLICKR_SOURCE_GET_PRIVATE (source);
-  source->priv->flickr = g_flickr_new ();
+  source->priv->flickr = g_flickr_new (FLICKR_KEY, FLICKR_TOKEN, FLICKR_SECRET);
 }
 
 G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_MEDIA_SOURCE);

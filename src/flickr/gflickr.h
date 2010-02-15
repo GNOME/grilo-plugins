@@ -78,7 +78,7 @@ typedef void (*GFlickrPhotoListCb) (GFlickr *f, GList *photolist, gpointer user_
 
 GType g_flickr_get_type (void);
 
-GFlickr *g_flickr_new (void);
+GFlickr *g_flickr_new (const gchar *api_key, const gchar *auth_token, const gchar *auth_secret);
 
 void g_flickr_set_per_page (GFlickr *f, gint per_page);
 

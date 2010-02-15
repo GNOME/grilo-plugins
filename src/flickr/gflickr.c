@@ -7,10 +7,6 @@
                                G_FLICKR_TYPE,   \
                                GFlickrPrivate))
 
-#define API_KEY     "fa037bee8120a921b34f8209d715a2fa"
-#define AUTH_TOKEN  "72157623286932154-c90318d470e96a29"
-#define AUTH_SECRET "9f6523b9c52e3317"
-
 #define FLICKR_PHOTO_ORIG_URL                           \
   "http://farm%s.static.flickr.com/%s/%s_%s_o.%s"
 
@@ -24,8 +20,8 @@
 
 #define FLICKR_PHOTOS_SEARCH                            \
   FLICKR_ENDPOINT                                       \
-  "api_key=" API_KEY                                    \
-  "&auth_token=" AUTH_TOKEN                             \
+  "api_key=%s"                                          \
+  "&auth_token=%s"                                      \
   "&api_sig=%s"                                         \
   "&method=" FLICKR_PHOTOS_SEARCH_METHOD                \
   "&extras=media,date_taken,owner_name,url_o,url_t"     \
@@ -35,8 +31,8 @@
 
 #define FLICKR_PHOTOS_GETINFO                   \
   FLICKR_ENDPOINT                               \
-  "api_key=" API_KEY                            \
-  "&auth_token=" AUTH_TOKEN                     \
+  "api_key=%s"                                  \
+  "&auth_token=%s"                              \
   "&api_sig=%s"                                 \
   "&method=" FLICKR_PHOTOS_GETINFO_METHOD       \
   "&photo_id=%ld"
@@ -51,8 +47,13 @@ typedef struct {
 } GFlickrData;
 
 struct _GFlickrPrivate {
+  gchar *api_key;
+  gchar *auth_token;
+  gchar *auth_secret;
   gint per_page;
 };
+
+static void g_flickr_finalize (GObject *object);
 
 /* -------------------- GOBJECT -------------------- */
 
@@ -61,6 +62,9 @@ G_DEFINE_TYPE (GFlickr, g_flickr, G_TYPE_OBJECT);
 static void
 g_flickr_class_init (GFlickrClass *klass)
 {
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  gobject_class->finalize = g_flickr_finalize;
+
   g_type_class_add_private (klass, sizeof (GFlickrPrivate));
 }
 
@@ -71,10 +75,26 @@ g_flickr_init (GFlickr *f)
   f->priv->per_page = 100;
 }
 
-GFlickr *
-g_flickr_new (void)
+static void
+g_flickr_finalize (GObject *object)
 {
-  return g_object_new (G_FLICKR_TYPE, NULL);
+  GFlickr *f = G_FLICKR (object);
+  g_free (f->priv->api_key);
+  g_free (f->priv->auth_token);
+  g_free (f->priv->auth_secret);
+
+  G_OBJECT_CLASS (g_flickr_parent_class)->finalize (object);
+}
+
+GFlickr *
+g_flickr_new (const gchar *api_key, const gchar *auth_token, const gchar *auth_secret)
+{
+  GFlickr *f = g_object_new (G_FLICKR_TYPE, NULL);
+  f->priv->api_key = g_strdup (api_key);
+  f->priv->auth_token = g_strdup (auth_token);
+  f->priv->auth_secret = g_strdup (auth_secret);
+
+  return f;
 }
 
 /* -------------------- PRIVATE API -------------------- */
@@ -84,17 +104,17 @@ get_api_sig_photos_search (GFlickr *f, const gchar *text, gint page) {
   gchar *signature;
   gchar *text_to_sign;
 
-  text_to_sign = g_strdup_printf (AUTH_SECRET
-                                  "api_key"
-                                  API_KEY
-                                  "auth_token"
-                                  AUTH_TOKEN
+  text_to_sign = g_strdup_printf ("%s"
+                                  "api_key%s"
+                                  "auth_token%s"
                                   "extrasmedia,date_taken,owner_name,url_o,url_t"
-                                  "method"
-                                  FLICKR_PHOTOS_SEARCH_METHOD
+                                  "method" FLICKR_PHOTOS_SEARCH_METHOD
                                   "page%d"
                                   "per_page%d"
                                   "text%s",
+                                  f->priv->auth_secret,
+                                  f->priv->api_key,
+                                  f->priv->auth_token,
                                   page,
                                   f->priv->per_page,
                                   text);
@@ -110,14 +130,15 @@ get_api_sig_photos_getInfo (GFlickr *f, glong photo_id)
   gchar *signature;
   gchar *text_to_sign;
 
-  text_to_sign = g_strdup_printf (AUTH_SECRET
-                                  "api_key"
-                                  API_KEY
-                                  "auth_token"
-                                  AUTH_TOKEN
-                                  "method"
-                                  FLICKR_PHOTOS_GETINFO_METHOD
-                                  "photo_id%ld", photo_id);
+  text_to_sign = g_strdup_printf ("%s"
+                                  "api_key%s"
+                                  "auth_token%s"
+                                  "method" FLICKR_PHOTOS_GETINFO_METHOD
+                                  "photo_id%ld",
+                                  f->priv->auth_secret,
+                                  f->priv->api_key,
+                                  f->priv->auth_token,
+                                  photo_id);
   signature = g_compute_checksum_for_string (G_CHECKSUM_MD5, text_to_sign, -1);
   g_free (text_to_sign);
 
@@ -313,6 +334,8 @@ g_flickr_photos_getInfo (GFlickr *f,
 
   /* Build the request */
   gchar *request = g_strdup_printf (FLICKR_PHOTOS_GETINFO,
+                                    f->priv->api_key,
+                                    f->priv->auth_token,
                                     api_sig,
                                     photo_id);
   g_free (api_sig);
@@ -339,6 +362,8 @@ g_flickr_photos_search (GFlickr *f,
 
   /* Build the request */
   gchar *request = g_strdup_printf (FLICKR_PHOTOS_SEARCH,
+                                    f->priv->api_key,
+                                    f->priv->auth_token,
                                     api_sig,
                                     f->priv->per_page,
                                     page,

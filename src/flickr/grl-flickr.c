@@ -471,6 +471,9 @@ update_media (GrlContentMedia *media, GHashTable *photo)
     thumbnail = g_flickr_photo_url_thumbnail (NULL, photo);
   }
   title = g_hash_table_lookup (photo, "title");
+  if (!title) {
+    title = g_hash_table_lookup (photo, "photo_title");
+  }
   url = g_hash_table_lookup (photo, "photo_url_o");
   if (!url) {
     url = g_flickr_photo_url_original (NULL, photo);

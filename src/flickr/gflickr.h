@@ -29,11 +29,19 @@
 
 typedef void (*GFlickrPhotoCb) (gpointer f, GHashTable *photo, gpointer user_data);
 
+typedef void (*GFlickrPhotoListCb) (gpointer f, GList *photolist, gpointer user_data);
+
 void
 g_flickr_photos_getInfo (gpointer f,
                          glong photo_id,
                          GFlickrPhotoCb callback,
                          gpointer user_data);
+
+void
+g_flickr_photos_search (gpointer f,
+                        const gchar *text,
+                        GFlickrPhotoListCb callback,
+                        gpointer user_data);
 
 gchar *
 g_flickr_photo_url_original (gpointer f, GHashTable *photo);

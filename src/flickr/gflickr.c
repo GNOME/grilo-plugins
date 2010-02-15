@@ -17,12 +17,13 @@
 #define FLICKR_PHOTOS_SEARCH_METHOD "flickr.photos.search"
 #define FLICKR_PHOTOS_GETINFO_METHOD "flickr.photos.getInfo"
 
-#define FLICKR_PHOTOS_SEARCH                    \
-  FLICKR_ENDPOINT                               \
-  "api_key=" API_KEY                            \
-  "&auth_token=" AUTH_TOKEN                     \
-  "&api_sig=%s"                                 \
-  "&method=" FLICKR_PHOTOS_SEARCH_METHOD        \
+#define FLICKR_PHOTOS_SEARCH                            \
+  FLICKR_ENDPOINT                                       \
+  "api_key=" API_KEY                                    \
+  "&auth_token=" AUTH_TOKEN                             \
+  "&api_sig=%s"                                         \
+  "&method=" FLICKR_PHOTOS_SEARCH_METHOD                \
+  "&extras=media,date_taken,owner_name,url_o,url_t"     \
   "&text=%s"
 
 #define FLICKR_PHOTOS_GETINFO                   \
@@ -38,25 +39,31 @@ typedef void (*ParseXML) (const gchar *xml_result, gpointer user_data);
 typedef struct {
   ParseXML parse_xml;
   GFlickrPhotoCb get_info_cb;
+  GFlickrPhotoListCb search_cb;
   gpointer user_data;
 } GFlickrData;
 
 /* -------------------- PRIVATE API -------------------- */
 
-/* static gchar * */
-/* get_api_sig_photos_search (const gchar *text) { */
-/*   gchar *signature; */
-/*   gchar *text_to_sign; */
+static gchar *
+get_api_sig_photos_search (const gchar *text) {
+  gchar *signature;
+  gchar *text_to_sign;
 
-/*   text_to_sign = g_strdup_printf (AUTH_SECRET */
-/*                                   "method" */
-/*                                   FLICKR_PHOTOS_SEARCH_METHOD */
-/*                                   "text%s", text); */
-/*   signature = g_compute_checksum_for_string (G_CHECKSUM_MD5, text_to_sign, -1); */
-/*   g_free (text_to_sign); */
+  text_to_sign = g_strdup_printf (AUTH_SECRET
+                                  "api_key"
+                                  API_KEY
+                                  "auth_token"
+                                  AUTH_TOKEN
+                                  "extrasmedia,date_taken,owner_name,url_o,url_t"
+                                  "method"
+                                  FLICKR_PHOTOS_SEARCH_METHOD
+                                  "text%s", text);
+  signature = g_compute_checksum_for_string (G_CHECKSUM_MD5, text_to_sign, -1);
+  g_free (text_to_sign);
 
-/*   return signature; */
-/* } */
+  return signature;
+}
 
 static gchar *
 get_api_sig_photos_getInfo (glong photo_id)
@@ -178,6 +185,40 @@ process_photo_result (const gchar *xml_result, gpointer user_data)
 }
 
 static void
+process_photolist_result (const gchar *xml_result, gpointer user_data)
+{
+  GFlickrData *data = (GFlickrData *) user_data;
+  GList *photolist = NULL;
+  xmlDocPtr doc;
+  xmlNodePtr node;
+
+  doc = xmlRecoverDoc ((xmlChar *) xml_result);
+  node = xmlDocGetRootElement (doc);
+
+  /* Check result is ok */
+  if (!node || !result_is_correct (node)) {
+    data->search_cb (NULL, NULL, data->user_data);
+  } else {
+    node = node->xmlChildrenNode;
+    skip_garbage_nodes (&node);
+
+    /* Now we're at "photo pages" node */
+    node = node->xmlChildrenNode;
+    skip_garbage_nodes (&node);
+    while (node) {
+      photolist = g_list_prepend (photolist, get_photo (node));
+      node = node->next;
+      skip_garbage_nodes (&node);
+    }
+
+    data->search_cb (NULL, g_list_reverse (photolist), data->user_data);
+    g_list_foreach (photolist, (GFunc) g_hash_table_unref, NULL);
+    g_list_free (photolist);
+  }
+  xmlFreeDoc (doc);
+}
+
+static void
 read_done_cb (GObject *source_object,
               GAsyncResult *res,
               gpointer user_data)
@@ -232,6 +273,31 @@ g_flickr_photos_getInfo (gpointer f,
   GFlickrData *gfd = g_new (GFlickrData, 1);
   gfd->parse_xml = process_photo_result;
   gfd->get_info_cb = callback;
+  gfd->user_data = user_data;
+
+  read_url_async (request, gfd);
+  g_free (request);
+}
+
+void
+g_flickr_photos_search (gpointer f,
+                        const gchar *text,
+                        GFlickrPhotoListCb callback,
+                        gpointer user_data)
+{
+  //g_return_if_fail (G_IS_FLICKR (f));
+
+  gchar *api_sig = get_api_sig_photos_search (text);
+
+  /* Build the request */
+  gchar *request = g_strdup_printf (FLICKR_PHOTOS_SEARCH,
+                                    api_sig,
+                                    text);
+  g_free (api_sig);
+
+  GFlickrData *gfd = g_new (GFlickrData, 1);
+  gfd->parse_xml = process_photolist_result;
+  gfd->search_cb = callback;
   gfd->user_data = user_data;
 
   read_url_async (request, gfd);

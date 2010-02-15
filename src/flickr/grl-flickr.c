@@ -64,6 +64,12 @@
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
 
+typedef struct {
+  GrlMediaSourceSearchSpec *ss;
+  gint offset;
+  gint page;
+} SearchData;
+
 struct _GrlFlickrSourcePrivate {
   GFlickr *flickr;
 };
@@ -523,20 +529,25 @@ static void
 search_cb (GFlickr *f, GList *photolist, gpointer user_data)
 {
   GrlContentMedia *media;
-  GrlMediaSourceSearchSpec *ss = (GrlMediaSourceSearchSpec *) user_data;
+  SearchData *sd = (SearchData *) user_data;
   gchar *media_type;
 
+  /* Go to offset element */
+  photolist = g_list_nth (photolist, sd->offset);
+
+  /* No more elements can be sent */
   if (!photolist) {
-    ss->callback (ss->source,
-                  ss->search_id,
-                  NULL,
-                  0,
-                  ss->user_data,
-                  NULL);
+    sd->ss->callback (sd->ss->source,
+                      sd->ss->search_id,
+                      NULL,
+                      0,
+                      sd->ss->user_data,
+                      NULL);
+    g_free (sd);
     return;
   }
 
-  while (photolist) {
+  while (photolist && sd->ss->count) {
     media_type = g_hash_table_lookup (photolist->data, "photo_media");
     if (strcmp (media_type, "photo") == 0) {
       media = grl_content_image_new ();
@@ -544,13 +555,23 @@ search_cb (GFlickr *f, GList *photolist, gpointer user_data)
       media = grl_content_video_new ();
     }
     update_media (media, photolist->data);
-    ss->callback (ss->source,
-                  ss->search_id,
-                  media,
-                  -1,
-                  ss->user_data,
-                  NULL);
+    sd->ss->callback (sd->ss->source,
+                      sd->ss->search_id,
+                      media,
+                      sd->ss->count == 1? 0: -1,
+                      sd->ss->user_data,
+                      NULL);
     photolist = g_list_next (photolist);
+    sd->ss->count--;
+  }
+
+  /* Get more elements */
+  if (sd->ss->count) {
+    sd->offset = 0;
+    sd->page++;
+    g_flickr_photos_search (f, sd->ss->text, sd->page, search_cb, sd);
+  } else {
+    g_free (sd);
   }
 }
 
@@ -594,9 +615,17 @@ static void
 grl_flickr_source_search (GrlMediaSource *source,
                           GrlMediaSourceSearchSpec *ss)
 {
-  g_flickr_photos_search (GRL_FLICKR_SOURCE (source)->priv->flickr,
-                          ss->text,
-                          1,
-                          search_cb,
-                          ss);
+  GFlickr *f = GRL_FLICKR_SOURCE (source)->priv->flickr;
+  gint per_page;
+
+  /* Compute items per page and page offset */
+  per_page = CLAMP (1 + ss->skip + ss->count, 0, 100);
+  g_flickr_set_per_page (f, per_page);
+
+  SearchData *sd = g_new (SearchData, 1);
+  sd->page = 1 + (ss->skip / per_page);
+  sd->offset = ss->skip % per_page;
+  sd->ss = ss;
+
+  g_flickr_photos_search (f, ss->text, sd->page, search_cb, sd);
 }

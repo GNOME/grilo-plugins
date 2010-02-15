@@ -2,6 +2,11 @@
 #include <libxml/parser.h>
 #include <gio/gio.h>
 
+#define G_FLICKR_GET_PRIVATE(object)            \
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),        \
+                               G_FLICKR_TYPE,   \
+                               GFlickrPrivate))
+
 #define API_KEY     "fa037bee8120a921b34f8209d715a2fa"
 #define AUTH_TOKEN  "72157623286932154-c90318d470e96a29"
 #define AUTH_SECRET "9f6523b9c52e3317"
@@ -24,6 +29,8 @@
   "&api_sig=%s"                                         \
   "&method=" FLICKR_PHOTOS_SEARCH_METHOD                \
   "&extras=media,date_taken,owner_name,url_o,url_t"     \
+  "&per_page=%d"                                        \
+  "&page=%d"                                            \
   "&text=%s"
 
 #define FLICKR_PHOTOS_GETINFO                   \
@@ -43,6 +50,10 @@ typedef struct {
   gpointer user_data;
 } GFlickrData;
 
+struct _GFlickrPrivate {
+  gint per_page;
+};
+
 /* -------------------- GOBJECT -------------------- */
 
 G_DEFINE_TYPE (GFlickr, g_flickr, G_TYPE_OBJECT);
@@ -50,11 +61,14 @@ G_DEFINE_TYPE (GFlickr, g_flickr, G_TYPE_OBJECT);
 static void
 g_flickr_class_init (GFlickrClass *klass)
 {
+  g_type_class_add_private (klass, sizeof (GFlickrPrivate));
 }
 
 static void
 g_flickr_init (GFlickr *f)
 {
+  f->priv = G_FLICKR_GET_PRIVATE (f);
+  f->priv->per_page = 100;
 }
 
 GFlickr *
@@ -66,7 +80,7 @@ g_flickr_new (void)
 /* -------------------- PRIVATE API -------------------- */
 
 static gchar *
-get_api_sig_photos_search (const gchar *text) {
+get_api_sig_photos_search (GFlickr *f, const gchar *text, gint page) {
   gchar *signature;
   gchar *text_to_sign;
 
@@ -78,7 +92,12 @@ get_api_sig_photos_search (const gchar *text) {
                                   "extrasmedia,date_taken,owner_name,url_o,url_t"
                                   "method"
                                   FLICKR_PHOTOS_SEARCH_METHOD
-                                  "text%s", text);
+                                  "page%d"
+                                  "per_page%d"
+                                  "text%s",
+                                  page,
+                                  f->priv->per_page,
+                                  text);
   signature = g_compute_checksum_for_string (G_CHECKSUM_MD5, text_to_sign, -1);
   g_free (text_to_sign);
 
@@ -86,7 +105,7 @@ get_api_sig_photos_search (const gchar *text) {
 }
 
 static gchar *
-get_api_sig_photos_getInfo (glong photo_id)
+get_api_sig_photos_getInfo (GFlickr *f, glong photo_id)
 {
   gchar *signature;
   gchar *text_to_sign;
@@ -275,6 +294,14 @@ read_url_async (const gchar *url, gpointer data)
 /* -------------------- PUBLIC API -------------------- */
 
 void
+g_flickr_set_per_page (GFlickr *f, gint per_page)
+{
+  g_return_if_fail (G_IS_FLICKR (f));
+
+  f->priv->per_page = per_page;
+}
+
+void
 g_flickr_photos_getInfo (GFlickr *f,
                          glong photo_id,
                          GFlickrPhotoCb callback,
@@ -282,7 +309,7 @@ g_flickr_photos_getInfo (GFlickr *f,
 {
   g_return_if_fail (G_IS_FLICKR (f));
 
-  gchar *api_sig = get_api_sig_photos_getInfo (photo_id);
+  gchar *api_sig = get_api_sig_photos_getInfo (f, photo_id);
 
   /* Build the request */
   gchar *request = g_strdup_printf (FLICKR_PHOTOS_GETINFO,
@@ -302,16 +329,19 @@ g_flickr_photos_getInfo (GFlickr *f,
 void
 g_flickr_photos_search (GFlickr *f,
                         const gchar *text,
+                        gint page,
                         GFlickrPhotoListCb callback,
                         gpointer user_data)
 {
   g_return_if_fail (G_IS_FLICKR (f));
 
-  gchar *api_sig = get_api_sig_photos_search (text);
+  gchar *api_sig = get_api_sig_photos_search (f, text, page);
 
   /* Build the request */
   gchar *request = g_strdup_printf (FLICKR_PHOTOS_SEARCH,
                                     api_sig,
+                                    f->priv->per_page,
+                                    page,
                                     text);
   g_free (api_sig);
 

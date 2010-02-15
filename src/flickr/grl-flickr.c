@@ -596,6 +596,7 @@ grl_flickr_source_search (GrlMediaSource *source,
 {
   g_flickr_photos_search (GRL_FLICKR_SOURCE (source)->priv->flickr,
                           ss->text,
+                          1,
                           search_cb,
                           ss);
 }

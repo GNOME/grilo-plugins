@@ -80,6 +80,8 @@ GType g_flickr_get_type (void);
 
 GFlickr *g_flickr_new (void);
 
+void g_flickr_set_per_page (GFlickr *f, gint per_page);
+
 void
 g_flickr_photos_getInfo (GFlickr *f,
                          glong photo_id,
@@ -89,6 +91,7 @@ g_flickr_photos_getInfo (GFlickr *f,
 void
 g_flickr_photos_search (GFlickr *f,
                         const gchar *text,
+                        gint page,
                         GFlickrPhotoListCb callback,
                         gpointer user_data);
 

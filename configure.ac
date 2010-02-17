@@ -403,47 +403,6 @@ fi
 #AM_GLIB_GNU_GETTEXT
 
 # ----------------------------------------------------------
-# DEPENDENCIES
-# ----------------------------------------------------------
-
-# Framework
-
-PKG_CHECK_MODULES(DEPS, glib-2.0 \
-			gobject-2.0 \
-			gmodule-2.0 \
-			grilo-0.1)
-
-
-AC_SUBST(DEPS_CFLAGS)
-AC_SUBST(DEPS_LIBS)
-
-# Plugins requirements
-
-PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
-AC_SUBST(XML_CFLAGS)
-AC_SUBST(XML_LIBS)
-AC_SUBST(HAVE_XML)
-AM_CONDITIONAL(HAVE_XML, test "x$HAVE_XML" = "xyes")
-
-PKG_CHECK_MODULES(GIO, gio-2.0, HAVE_GIO=yes, HAVE_GIO=no)
-AC_SUBST(GIO_CFLAGS)
-AC_SUBST(GIO_LIBS)
-AC_SUBST(HAVE_GIO)
-AM_CONDITIONAL(HAVE_GIO, test "x$HAVE_GIO" = "xyes")
-
-PKG_CHECK_MODULES(GUPNP, gupnp-1.0, HAVE_GUPNP=yes, HAVE_GUPNP=no)
-AC_SUBST(GUPNP_CFLAGS)
-AC_SUBST(GUPNP_LIBS)
-AC_SUBST(HAVE_GUPNP)
-AM_CONDITIONAL(HAVE_GUPNP, test "x$HAVE_GUPNP" = "xyes")
-
-PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=no)
-AC_SUBST(GUPNPAV_CFLAGS)
-AC_SUBST(GUPNPAV_LIBS)
-AC_SUBST(HAVE_GUPNPAV)
-AM_CONDITIONAL(HAVE_GUPNPAV, test "x$HAVE_GUPNPAV" = "xyes")
-
-# ----------------------------------------------------------
 # WORKAROUNDS
 # ----------------------------------------------------------
 

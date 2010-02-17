@@ -43,14 +43,15 @@ if BOOKMARKS_PLUGIN
 SUBDIRS += bookmarks
 endif
 
-DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr podcasts bookmarks
+if SHOUTCAST_PLUGIN
+SUBDIRS += shoutcast
+endif
+
+DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr podcasts bookmarks shoutcast
 
 MAINTAINERCLEANFILES = \
         *.in \
         *~
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
-
-
 

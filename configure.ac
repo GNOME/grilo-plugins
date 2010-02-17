@@ -100,6 +100,25 @@ AC_SUBST(HAVE_SQLITE)
 AM_CONDITIONAL(HAVE_SQLITE, test "x$HAVE_SQLITE" = "xyes")
 
 # ----------------------------------------------------------
+# GUPNP-AV VERSION
+# ----------------------------------------------------------
+
+if test "x$HAVE_GUPNPAV" = "xyes"; then
+        gupnpav_version=`pkg-config --modversion gupnp-av-1.0`
+        gupnpav_version_major=`echo $gupnpav_version | awk -F. '{ print $1 }'`
+        gupnpav_version_minor=`echo $gupnpav_version | awk -F. '{ print $2 }'`
+        if test $gupnpav_version_major -eq 0 -a $gupnpav_version_minor -lt 5; then
+           GUPNPAV_OLD_VERSION=yes
+        else
+           GUPNPAV_OLD_VERSION=no
+        fi
+        AC_SUBST(GUPNPAV_OLD_VERSION)
+        AC_SUBST(gupnpav_version_major)
+        AC_SUBST(gupnpav_version_minor)
+        AM_CONDITIONAL(GUPNPAV_OLD_VERSION, test "x$GUPNPAV_OLD_VERSION" = "xyes")
+fi
+
+# ----------------------------------------------------------
 # UNINSTALLED SUPPORT
 # ----------------------------------------------------------
 
@@ -240,13 +259,18 @@ AC_ARG_ENABLE(upnp,
                         fi
                         if test "x$HAVE_GUPNPAV" = "xno"; then
                            AC_MSG_ERROR([gupnp-av not found, install it or use --disable-upnp])
+                        elif test "x$GUPNPAV_OLD_VERSION" = "xno" -a "$xHAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-upnp])
                         fi
-                        ;;
                 esac
         ],
         [
                 if test "x$HAVE_GUPNP" = "xyes" -a "x$HAVE_GUPNPAV" = "xyes"; then
-                   enable_upnp=yes
+                   if test "x$GUPNPAV_OLD_VERSION" = "xyes" -o "x$HAVE_XML" = "xyes"; then
+                        enable_upnp=yes
+                   else
+                        enable_upnp=no
+                   fi
                 else
                    enable_upnp=no
                 fi

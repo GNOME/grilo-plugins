@@ -191,6 +191,12 @@ typedef struct {
   gpointer user_data;
 } OperationSpec;
 
+typedef struct {
+  OperationSpec *os;
+  xmlDocPtr doc;
+  xmlNodePtr node;
+} OperationSpecParse;
+
 static GrlPodcastsSource *grl_podcasts_source_new (void);
 
 static void grl_podcasts_source_finalize (GObject *plugin);
@@ -812,6 +818,43 @@ touch_podcast (sqlite3 *db, const gchar *podcast_id)
   }
 }
 
+static gboolean
+parse_entry_idle (gpointer user_data)
+{
+  OperationSpecParse *osp = (OperationSpecParse *) user_data;
+
+  while (osp->node && xmlStrcmp (osp->node->name, (const xmlChar *) "item")) {
+    osp->node = osp->node->next;
+  }
+
+  if (osp->node) {
+    Entry *entry = g_new0 (Entry, 1);
+    parse_entry (osp->doc, osp->node, entry);
+    if (0) print_entry (entry);
+    store_stream (GRL_PODCASTS_SOURCE (osp->os->source)->priv->db,
+		  osp->os->media_id, entry);
+    free_entry (entry);
+    osp->node = osp->node->next;
+  }
+
+  if (!osp->node) {
+    /* We are done parsing */
+
+    /* Update the last_refreshed date of the podcast */
+    touch_podcast (GRL_PODCASTS_SOURCE (osp->os->source)->priv->db,
+		   osp->os->media_id);
+    
+    /* Now that we have parsed the feed and stored the contents, let's
+       resolve the user's query */
+    produce_podcast_contents_from_db (osp->os);
+
+    g_free (osp->os);
+    xmlFreeDoc (osp->doc);
+  }
+  
+  return osp->node != NULL;
+}
+
 static void
 parse_feed (OperationSpec *os, const gchar *str, GError **error)
 {
@@ -879,28 +922,13 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
     goto free_resources;
   }
 
-  /* Then we parse the feed and store the streams */
-  do {
-    while (node && xmlStrcmp (node->name, (const xmlChar *) "item")) {
-      node = node->next;
-    }
-    if (node) {
-      Entry *entry = g_new0 (Entry, 1);
-      parse_entry (doc, node, entry);
-      if (0) print_entry (entry);
-      store_stream (GRL_PODCASTS_SOURCE (os->source)->priv->db,
-		    os->media_id, entry);
-      free_entry (entry);
-      node = node->next;
-    }
-  } while (node);
-
-  /* We also update the last_refreshed date of the podcast */
-  touch_podcast (GRL_PODCASTS_SOURCE (os->source)->priv->db, os->media_id);
-
-  /* Now that we have parsed the feed and stored the contents, let's
-     resolve the user's query */
-  produce_podcast_contents_from_db (os);
+  /* Then we produce items using the idle loop to prevent blocking */
+  OperationSpecParse *osp = g_new0 (OperationSpecParse, 1);
+  osp->os = os;
+  osp->doc = doc;
+  osp->node = node;
+  g_idle_add (parse_entry_idle, osp);
+  return;
 
  free_resources:
   xmlFreeDoc (doc);
@@ -930,8 +958,8 @@ read_feed_cb (gchar *xmldata, gpointer user_data)
 		  os->user_data,
 		  error);
     g_error_free (error);
+    g_free (os);
   }
-  g_free (os);
 }
 
 static void

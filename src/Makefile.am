@@ -39,7 +39,11 @@ if PODCASTS_PLUGIN
 SUBDIRS += podcasts
 endif
 
-DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr podcasts
+if BOOKMARKS_PLUGIN
+SUBDIRS += bookmarks
+endif
+
+DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr podcasts bookmarks
 
 MAINTAINERCLEANFILES = \
         *.in \

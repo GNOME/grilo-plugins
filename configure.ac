@@ -392,6 +392,48 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED podcasts"
 fi
 
+
+# ----------------------------------------------------------
+# BUILD BOOKMARKS PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(bookmarks,
+        AC_HELP_STRING([--enable-bookmarks],
+                [enable Bookmarks plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO not found, install it or use --disable-bookmarks])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-bookmarks])
+                        fi
+                        if test "x$HAVE_SQLITE" = "xno"; then
+                           AC_MSG_ERROR([sqlite3 not found, install it or use --disable-bookmarks])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                   if test "x$HAVE_SQLITE" = "xyes"; then
+                     enable_bookmarks=yes
+                   else
+                     enable_bookmarks=no
+                   fi
+                else
+                   enable_bookmarks=no
+                fi
+        ])
+
+AM_CONDITIONAL([BOOKMARKS_PLUGIN], [test "x$enable_bookmarks" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL bookmarks"
+if test "x$enable_bookmarks" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED bookmarks"
+fi
+
 # ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
@@ -424,6 +466,7 @@ AC_CONFIG_FILES([
   src/upnp/Makefile
   src/flickr/Makefile
   src/podcasts/Makefile
+  src/bookmarks/Makefile
   test/Makefile
 ])
 

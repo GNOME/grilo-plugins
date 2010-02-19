@@ -192,6 +192,7 @@ build_media_from_station (OperationData *op_data)
 {
   GrlContentMedia *media;
   gchar *media_id;
+  gchar *media_url;
   gchar *station_genre;
   gchar *station_id;
   gchar *station_mime;
@@ -206,6 +207,7 @@ build_media_from_station (OperationData *op_data)
   station_genre = (gchar *) xmlGetProp (op_data->xml_entries,
                                         (const xmlChar *) "genre");
   media_id = g_strconcat (op_data->genre, "/", station_id, NULL);
+  media_url = g_strdup_printf (SHOUTCAST_TUNE, station_id);
 
   media = grl_content_audio_new ();
 
@@ -213,12 +215,14 @@ build_media_from_station (OperationData *op_data)
   grl_content_media_set_title (media, station_name);
   grl_content_media_set_mime (media, station_mime);
   grl_content_audio_set_genre (GRL_CONTENT_AUDIO (media), station_genre);
+  grl_content_media_set_url (media, media_url);
 
   g_free (station_name);
   g_free (station_mime);
   g_free (station_id);
   g_free (station_genre);
   g_free (media_id);
+  g_free (media_url);
 
   return media;
 }
@@ -407,6 +411,7 @@ grl_shoutcast_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_ID,
                                       GRL_METADATA_KEY_MIME,
                                       GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_URL,
                                       NULL);
   }
   return keys;

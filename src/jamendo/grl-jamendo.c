@@ -1023,6 +1023,8 @@ grl_jamendo_source_browse (GrlMediaSource *source,
   xpe->type = BROWSE;
   xpe->spec.bs = bs;
 
+  grl_media_source_set_operation_data (source, bs->browse_id, xpe);
+
   read_url_async (url, xpe);
   g_free (url);
   if (container_split) {
@@ -1086,6 +1088,8 @@ grl_jamendo_source_query (GrlMediaSource *source,
   xpe->type = QUERY;
   xpe->spec.qs = qs;
 
+  grl_media_source_set_operation_data (source, qs->query_id, xpe);
+
   read_url_async (url, xpe);
   g_free (url);
 
@@ -1118,6 +1122,8 @@ grl_jamendo_source_search (GrlMediaSource *source,
   xpe = g_new0 (XmlParseEntries, 1);
   xpe->type = SEARCH;
   xpe->spec.ss = ss;
+
+  grl_media_source_set_operation_data (source, ss->search_id, xpe);
 
   read_url_async (url, xpe);
   g_free (url);

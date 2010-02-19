@@ -30,6 +30,7 @@
 #include <gio/gio.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
+#include <libxml/xpath.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -64,9 +65,12 @@
 #define SITE        "http://www.igalia.com"
 
 typedef struct {
+  GrlContentMedia *media;
   GrlMediaSource *source;
-  GrlMediaSourceResultCb callback;
+  GrlMediaSourceMetadataCb metadata_cb;
+  GrlMediaSourceResultCb result_cb;
   gboolean cancelled;
+  gchar *filter_entry;
   gchar *genre;
   gint error_code;
   gint operation_id;
@@ -85,6 +89,8 @@ gboolean grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
 
 static const GList *grl_shoutcast_source_supported_keys (GrlMetadataSource *source);
 
+static void grl_shoutcast_source_metadata (GrlMediaSource *source,
+                                           GrlMediaSourceMetadataSpec *ms);
 
 static void grl_shoutcast_source_browse (GrlMediaSource *source,
                                          GrlMediaSourceBrowseSpec *bs);
@@ -138,6 +144,7 @@ grl_shoutcast_source_class_init (GrlShoutcastSourceClass * klass)
 {
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  source_class->metadata = grl_shoutcast_source_metadata;
   source_class->browse = grl_shoutcast_source_browse;
   source_class->search = grl_shoutcast_source_search;
   source_class->cancel = grl_shoutcast_source_cancel;
@@ -184,7 +191,12 @@ build_media_from_genre (OperationData *op_data)
   GrlContentMedia *media;
   gchar *genre_name;
 
-  media = grl_content_box_new ();
+  if (op_data->media) {
+    media = op_data->media;
+  } else {
+    media = grl_content_box_new ();
+  }
+
   genre_name = (gchar *) xmlGetProp (op_data->xml_entries,
                                      (const xmlChar *) "name");
 
@@ -220,7 +232,11 @@ build_media_from_station (OperationData *op_data)
   media_id = g_strconcat (op_data->genre, "/", station_id, NULL);
   media_url = g_strdup_printf (SHOUTCAST_TUNE, station_id);
 
-  media = grl_content_audio_new ();
+  if (op_data->media) {
+    media = op_data->media;
+  } else {
+    media = grl_content_audio_new ();
+  }
 
   grl_content_media_set_id (media, media_id);
   grl_content_media_set_title (media, station_name);
@@ -242,12 +258,12 @@ static gboolean
 send_media (OperationData *op_data, GrlContentMedia *media)
 {
   if (!op_data->cancelled) {
-    op_data->callback (op_data->source,
-                       op_data->operation_id,
-                       media,
-                       --op_data->to_send,
-                       op_data->user_data,
-                       NULL);
+    op_data->result_cb (op_data->source,
+                        op_data->operation_id,
+                        media,
+                        --op_data->to_send,
+                        op_data->user_data,
+                        NULL);
 
     op_data->xml_entries = op_data->xml_entries->next;
     skip_garbage_nodes (&op_data->xml_entries);
@@ -280,7 +296,11 @@ static void
 xml_parse_result (const gchar *str, OperationData *op_data)
 {
   GError *error = NULL;
+  gboolean stationlist_result;
+  gchar *xpath_expression;
   xmlNodePtr node;
+  xmlXPathContextPtr xpath_ctx;
+  xmlXPathObjectPtr xpath_res;
 
   if (op_data->cancelled) {
     g_free (op_data);
@@ -303,10 +323,62 @@ xml_parse_result (const gchar *str, OperationData *op_data)
     goto finalize;
   }
 
+  stationlist_result = (xmlStrcmp (node->name,
+                                   (const xmlChar *) "stationlist") == 0);
+
   op_data->xml_entries = node->xmlChildrenNode;
   skip_garbage_nodes (&op_data->xml_entries);
 
-  if (xmlStrcmp (node->name, (const xmlChar *) "stationlist") == 0) {
+  /* Check if we are interesting only in updating a media (that is, a metadata()
+     operation) or just browsing/searching */
+  if (op_data->media) {
+
+    /* Search for node */
+    xpath_ctx = xmlXPathNewContext (op_data->xml_doc);
+    if (xpath_ctx) {
+      if (stationlist_result) {
+        xpath_expression = g_strdup_printf ("//station[@id = \"%s\"]",
+                                            op_data->filter_entry);
+      } else {
+        xpath_expression = g_strdup_printf ("//genre[@name = \"%s\"]",
+                                            op_data->filter_entry);
+      }
+      xpath_res = xmlXPathEvalExpression ((xmlChar *) xpath_expression,
+                                          xpath_ctx);
+      g_free (xpath_expression);
+
+      if (xpath_res && xpath_res->nodesetval->nodeTab[0]) {
+        op_data->xml_entries = xpath_res->nodesetval->nodeTab[0];
+        if (stationlist_result) {
+          build_media_from_station (op_data);
+        } else {
+          build_media_from_genre (op_data);
+        }
+      } else {
+        error = g_error_new (GRL_ERROR,
+                             op_data->error_code,
+                             "Can not find media '%s'",
+                             grl_content_media_get_id (op_data->media));
+      }
+      if (xpath_res) {
+        xmlXPathFreeObject (xpath_res);
+      }
+      xmlXPathFreeContext (xpath_ctx);
+    } else {
+      error = g_error_new (GRL_ERROR,
+                           op_data->error_code,
+                           "Can not build xpath context");
+    }
+
+    op_data->metadata_cb (
+                          op_data->source,
+                          op_data->media,
+                          op_data->user_data,
+                          error);
+    goto free_resources;
+  }
+
+  if (stationlist_result) {
     /* First node is "tunein"; skip it */
     op_data->xml_entries = op_data->xml_entries->next;
     skip_garbage_nodes (&op_data->xml_entries);
@@ -330,31 +402,30 @@ xml_parse_result (const gchar *str, OperationData *op_data)
     op_data->to_send = op_data->count;
   }
 
-  if (xmlStrcmp (node->name, (const xmlChar *) "genrelist") == 0) {
-    g_idle_add ((GSourceFunc) send_genrelist_entries, op_data);
-  } else if (xmlStrcmp (node->name, (const xmlChar *) "stationlist") == 0) {
+  if (stationlist_result) {
     g_idle_add ((GSourceFunc) send_stationlist_entries, op_data);
   } else {
-    /* Unknown response */
-    error = g_error_new (GRL_ERROR,
-                         op_data->error_code,
-                         "Unkown response from SHOUTcast");
-    goto finalize;
+    g_idle_add ((GSourceFunc) send_genrelist_entries, op_data);
   }
 
   return;
 
  finalize:
+  op_data->result_cb (op_data->source,
+                      op_data->operation_id,
+                      NULL,
+                      0,
+                      op_data->user_data,
+                      error);
+
+ free_resources:
   if (op_data->xml_doc) {
     xmlFreeDoc (op_data->xml_doc);
   }
 
-  op_data->callback (op_data->source,
-                     op_data->operation_id,
-                     NULL,
-                     0,
-                     op_data->user_data,
-                     error);
+  if (op_data->filter_entry) {
+    g_free (op_data->filter_entry);
+  }
 
   if (error) {
     g_error_free (error);
@@ -382,12 +453,12 @@ read_done_cb (GObject *source_object,
                          op_data->error_code,
                          "Failed to connect SHOUTcast: '%s'",
                          vfs_error->message);
-    op_data->callback (op_data->source,
-                       op_data->operation_id,
-                       NULL,
-                       0,
-                       op_data->user_data,
-                       error);
+    op_data->result_cb (op_data->source,
+                        op_data->operation_id,
+                        NULL,
+                        0,
+                        op_data->user_data,
+                        error);
     g_error_free (error);
     g_free (op_data);
 
@@ -429,6 +500,68 @@ grl_shoutcast_source_supported_keys (GrlMetadataSource *source)
 }
 
 static void
+grl_shoutcast_source_metadata (GrlMediaSource *source,
+                               GrlMediaSourceMetadataSpec *ms)
+{
+  const gchar *media_id;
+  gchar **id_tokens;
+  gchar *url = NULL;
+  OperationData *data = NULL;
+
+  /* Unfortunately, shoutcast does not have an API to get information about a
+     station.  Thus, steps done to obtain the Content must be repeated. For
+     instance, if we have a Media with id "Pop/1321", it means that it is
+     station #1321 that was obtained after browsing "Pop" category. Thus we have
+     repeat the Pop browsing and get the result with station id 1321. If it
+     doesn't exist (think in results obtained from a search), we do nothing */
+
+  media_id = grl_content_media_get_id (ms->media);
+
+  /* Check if we need to report about root category */
+  if (!media_id) {
+    grl_content_media_set_title (ms->media, "SHOUTcast");
+  } else {
+    data = g_new0 (OperationData, 1);
+    data->source = source;
+    data->count = 1;
+    data->metadata_cb = ms->callback;
+    data->user_data = ms->user_data;
+    data->error_code = GRL_ERROR_METADATA_FAILED;
+    data->media = ms->media;
+
+    id_tokens = g_strsplit (media_id, "/", -1);
+
+    /* Check if Content is a media */
+    if (id_tokens[1]) {
+      data->filter_entry = g_strdup (id_tokens[1]);
+
+      /* Check if result is from a previous search */
+      if (id_tokens[0][0] == '?') {
+        url = g_strdup_printf (SHOUTCAST_SEARCH_RADIOS,
+                               id_tokens[0]+1,
+                               G_MAXINT);
+      } else {
+        url = g_strdup_printf (SHOUTCAST_GET_RADIOS,
+                               id_tokens[0],
+                               G_MAXINT);
+      }
+    } else {
+      data->filter_entry = g_strdup (id_tokens[0]);
+      url = g_strdup (SHOUTCAST_GET_GENRES);
+    }
+
+    g_strfreev (id_tokens);
+  }
+
+  if (url) {
+    read_url_async (url, data);
+    g_free (url);
+  } else {
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+  }
+}
+
+static void
 grl_shoutcast_source_browse (GrlMediaSource *source,
                              GrlMediaSourceBrowseSpec *bs)
 {
@@ -441,7 +574,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
   data = g_new0 (OperationData, 1);
   data->source = source;
   data->operation_id = bs->browse_id;
-  data->callback = bs->callback;
+  data->result_cb = bs->callback;
   data->skip = bs->skip;
   data->count = bs->count;
   data->user_data = bs->user_data;
@@ -493,7 +626,7 @@ grl_shoutcast_source_search (GrlMediaSource *source,
   data = g_new0 (OperationData, 1);
   data->source = source;
   data->operation_id = ss->search_id;
-  data->callback = ss->callback;
+  data->result_cb = ss->callback;
   data->skip = ss->skip;
   data->count = ss->count;
   data->user_data = ss->user_data;

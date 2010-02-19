@@ -85,6 +85,15 @@ media_from_id (const gchar *id)
   return media;
 }
 
+static GrlContentMedia *
+box_from_id (const gchar *id)
+{
+  GrlContentMedia *media;
+  media = grl_content_box_new ();
+  grl_content_media_set_id (media, id);
+  return media;
+}
+
 static void
 browse_cb (GrlMediaSource *source,
 	   guint browse_id,
@@ -291,7 +300,11 @@ main (void)
   if (0) grl_media_source_search (jamendo, "next", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) grl_media_source_browse (shoutcast, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) grl_media_source_browse (shoutcast, media_from_id("American"), keys, 2, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (1) grl_media_source_search (shoutcast, "Roxette", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_search (shoutcast, "Roxette", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_metadata (shoutcast, box_from_id("24hs"), keys, 0, metadata_cb, NULL);
+  if (0) grl_media_source_metadata (shoutcast, box_from_id("2424hs"), keys, 0, metadata_cb, NULL);
+  if (0) grl_media_source_metadata (shoutcast, media_from_id("American/556687"), keys, 0, metadata_cb, NULL);
+  if (1) grl_media_source_metadata (shoutcast, media_from_id("American/556682"), keys, 0, metadata_cb, NULL);
   if (0) {
     GrlContentMedia *media = media_from_id ("test");
     grl_content_set_string (GRL_CONTENT (media),

@@ -263,6 +263,20 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   op_data->xml_entries = node->xmlChildrenNode;
   skip_garbage_nodes (&op_data->xml_entries);
 
+  if (xmlStrcmp (node->name, (const xmlChar *) "stationlist") == 0) {
+    /* First node is "tunein"; skip it */
+    op_data->xml_entries = op_data->xml_entries->next;
+    skip_garbage_nodes (&op_data->xml_entries);
+  }
+
+  /* Skip elements */
+  while (op_data->xml_entries && op_data->bs->skip > 0) {
+    op_data->xml_entries = op_data->xml_entries->next;
+    skip_garbage_nodes (&op_data->xml_entries);
+    op_data->bs->skip--;
+  }
+
+  /* Check if there are elements to send*/
   if (!op_data->xml_entries) {
     goto finalize;
   }

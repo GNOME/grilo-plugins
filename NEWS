@@ -1,0 +1,42 @@
+NEW in 0.1.2
+============
+
+  * General
+    * Minor fixes.
+
+  * Bookmarks plugin
+    * New pluging used to save and retrieve bookmarks to other content.
+
+  * Flickr plugin
+    * Get rid of flickcurl library.
+    * It have its own methods to access flickr services, with GIO and libxml2.
+
+  * Jamendo plugin
+    * Minor fixes.
+
+  * Podcasts plugin
+    * Some fixes
+
+  * Shoutcast plugin
+    * New plugin to access SHOUTcast radios
+
+  * Upnp plugin
+    * Support for new versions of gupnp-av-1.0 (>=0.5).
+
+
+NEW in 0.1.1
+============
+
+  * First release
+
+  * Developed plugins for accessing:
+    * Local filesystem
+    * Flickr
+    * Jamendo
+    * Podcasts
+    * uPnP
+    * Youtube
+
+  * Developed metadata providers:
+    * Fake: provides fake data for almost all keys
+    * Last.FM: provides album covers

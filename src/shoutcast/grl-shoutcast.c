@@ -42,7 +42,11 @@
 
 /* ------ SHOUTcast API ------ */
 
-#define SHOUTCAST_BASE_ENTRY "http://api.shoutcast.com/get2"
+#define SHOUTCAST_BASE_ENTRY "http://yp.shoutcast.com"
+
+#define SHOUTCAST_GET_GENRES SHOUTCAST_BASE_ENTRY "/sbin/newxml.phtml"
+#define SHOUTCAST_GET_RADIOS SHOUTCAST_GET_GENRES "?genre=%s"
+#define SHOUTCAST_TUNE       SHOUTCAST_BASE_ENTRY "/sbin/tunein-station.pls?id=%s"
 
 /* --- Plugin information --- */
 
@@ -58,6 +62,12 @@
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
 
+typedef struct {
+  GrlMediaSourceBrowseSpec *bs;
+  xmlNodePtr xml_entries;
+  xmlDocPtr xml_doc;
+} OperationData;
+
 static GrlShoutcastSource *grl_shoutcast_source_new (void);
 
 gboolean grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
@@ -67,7 +77,7 @@ static const GList *grl_shoutcast_source_supported_keys (GrlMetadataSource *sour
 
 
 static void grl_shoutcast_source_browse (GrlMediaSource *source,
-                                       GrlMediaSourceBrowseSpec *bs);
+                                         GrlMediaSourceBrowseSpec *bs);
 
 
 /* =================== SHOUTcast Plugin  =============== */
@@ -124,6 +134,153 @@ grl_shoutcast_source_init (GrlShoutcastSource *source)
 
 G_DEFINE_TYPE (GrlShoutcastSource, grl_shoutcast_source, GRL_TYPE_MEDIA_SOURCE);
 
+/* ======================= Private ==================== */
+
+static void
+skip_garbage_nodes (xmlNodePtr *node)
+{
+  /* Result contains "\n" and "\t" to pretty align XML. Unfortunately, libxml
+     doesn't cope very fine with them, and it creates "fakes" nodes with name
+     "text" and value those characters. So we need to skip them */
+  while ((*node) && xmlStrcmp ((*node)->name, (const xmlChar *) "text") == 0) {
+    (*node) = (*node)->next;
+  }
+}
+
+static gboolean
+send_genrelist_entries (OperationData *op_data)
+{
+  GrlContentMedia *media;
+  gchar *genre_name;
+
+  media = grl_content_box_new ();
+  genre_name = (gchar *) xmlGetProp (op_data->xml_entries,
+                                     (const xmlChar *) "name");
+
+  grl_content_media_set_id (media, (gchar *) genre_name);
+  grl_content_media_set_title (media, (gchar *) genre_name);
+  grl_content_set_string (GRL_CONTENT (media),
+                          GRL_METADATA_KEY_GENRE,
+                          genre_name);
+  g_free (genre_name);
+
+  op_data->bs->callback (op_data->bs->source,
+                         op_data->bs->browse_id,
+                         media,
+                         op_data->xml_entries->next? -1: 0,
+                         op_data->bs->user_data,
+                         NULL);
+
+  op_data->xml_entries = op_data->xml_entries->next;
+  skip_garbage_nodes (&op_data->xml_entries);
+
+  if (!op_data->xml_entries) {
+    xmlFreeDoc (op_data->xml_doc);
+    g_free (op_data);
+    return FALSE;
+  } else {
+    return TRUE;
+  }
+}
+
+static void
+xml_parse_result (const gchar *str, OperationData *op_data)
+{
+  GError *error = NULL;
+  xmlNodePtr node;
+
+  op_data->xml_doc = xmlRecoverDoc ((xmlChar *) str);
+  if (!op_data->xml_doc) {
+    error = g_error_new (GRL_ERROR,
+                         GRL_ERROR_BROWSE_FAILED,
+                         "Failed to parse SHOUTcast's response");
+    goto send_error;
+  }
+
+  node = xmlDocGetRootElement (op_data->xml_doc);
+  if  (!node) {
+    error = g_error_new (GRL_ERROR,
+                         GRL_ERROR_BROWSE_FAILED,
+                         "Empty response from SHOUTcast");
+    goto send_error;
+  }
+
+  op_data->xml_entries = node->xmlChildrenNode;
+  skip_garbage_nodes (&op_data->xml_entries);
+
+  if (!op_data->xml_entries) {
+    goto send_error;
+  }
+
+  g_idle_add ((GSourceFunc) send_genrelist_entries, op_data);
+
+  return;
+
+ send_error:
+  if (op_data->xml_doc) {
+    xmlFreeDoc (op_data->xml_doc);
+  }
+
+  op_data->bs->callback (op_data->bs->source,
+                         op_data->bs->browse_id,
+                         NULL,
+                         0,
+                         op_data->bs->user_data,
+                         error);
+
+ g_error_free (error);
+ g_free (op_data);
+}
+
+static void
+read_done_cb (GObject *source_object,
+              GAsyncResult *res,
+              gpointer user_data)
+{
+  GError *error = NULL;
+  GError *vfs_error = NULL;
+  OperationData *op_data = (OperationData *) user_data;
+  gchar *content = NULL;
+
+  if (!g_file_load_contents_finish (G_FILE (source_object),
+                                    res,
+                                    &content,
+                                    NULL,
+                                    NULL,
+                                    &vfs_error)) {
+    error = g_error_new (GRL_ERROR,
+                         GRL_ERROR_BROWSE_FAILED,
+                         "Failed to connect SHOUTcast: '%s'",
+                         vfs_error->message);
+    op_data->bs->callback (op_data->bs->source,
+                           op_data->bs->browse_id,
+                           NULL,
+                           0,
+                           op_data->bs->user_data,
+                           error);
+    g_error_free (error);
+    g_free (op_data);
+
+    return;
+  }
+
+  xml_parse_result (content, op_data);
+  g_free (content);
+}
+
+static void
+read_url_async (const gchar *url, gpointer user_data)
+{
+  GVfs *vfs;
+  GFile *uri;
+
+  vfs = g_vfs_get_default ();
+
+  g_debug ("Opening '%s'", url);
+  uri = g_vfs_get_file_for_uri (vfs, url);
+  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -149,4 +306,25 @@ static void
 grl_shoutcast_source_browse (GrlMediaSource *source,
                              GrlMediaSourceBrowseSpec *bs)
 {
+  OperationData *data;
+  const gchar *container_id;
+  gchar *url;
+
+  g_debug ("grl_shoutcast_source_browse");
+
+  container_id = grl_content_media_get_id (bs->container);
+
+  /* If it's root category send list of genres; else send list of radios */
+  if (!container_id) {
+    url = g_strdup (SHOUTCAST_GET_GENRES);
+  } else {
+    url = g_strdup_printf (SHOUTCAST_GET_RADIOS,
+                           container_id);
+  }
+
+  data = g_new0 (OperationData, 1);
+  data->bs = bs;
+  read_url_async (url, data);
+
+  g_free (url);
 }

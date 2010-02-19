@@ -103,20 +103,19 @@ AM_CONDITIONAL(HAVE_SQLITE, test "x$HAVE_SQLITE" = "xyes")
 # GUPNP-AV VERSION
 # ----------------------------------------------------------
 
+GUPNPAV_OLD_VERSION=no
+AC_SUBST(GUPNPAV_OLD_VERSION)
 if test "x$HAVE_GUPNPAV" = "xyes"; then
         gupnpav_version=`pkg-config --modversion gupnp-av-1.0`
         gupnpav_version_major=`echo $gupnpav_version | awk -F. '{ print $1 }'`
         gupnpav_version_minor=`echo $gupnpav_version | awk -F. '{ print $2 }'`
         if test $gupnpav_version_major -eq 0 -a $gupnpav_version_minor -lt 5; then
            GUPNPAV_OLD_VERSION=yes
-        else
-           GUPNPAV_OLD_VERSION=no
         fi
-        AC_SUBST(GUPNPAV_OLD_VERSION)
         AC_SUBST(gupnpav_version_major)
         AC_SUBST(gupnpav_version_minor)
-        AM_CONDITIONAL(GUPNPAV_OLD_VERSION, test "x$GUPNPAV_OLD_VERSION" = "xyes")
 fi
+AM_CONDITIONAL(GUPNPAV_OLD_VERSION, test "x$GUPNPAV_OLD_VERSION" = "xyes")
 
 # ----------------------------------------------------------
 # UNINSTALLED SUPPORT

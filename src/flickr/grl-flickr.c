@@ -27,21 +27,16 @@
 #endif
 
 #include <grilo.h>
-#include <flickcurl.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "grl-flickr.h"
+#include "gflickr.h"
 
 #define GRL_FLICKR_SOURCE_GET_PRIVATE(object)                           \
   (G_TYPE_INSTANCE_GET_PRIVATE((object),                                \
                                GRL_FLICKR_SOURCE_TYPE,                  \
                                GrlFlickrSourcePrivate))
-
-typedef struct {
-  GrlMediaSourceSearchSpec *ss;
-  GrlContentMedia *media;
-  gint remaining;
-} SearchData;
 
 /* --------- Logging  -------- */
 
@@ -68,6 +63,16 @@ typedef struct {
 #define AUTHOR      "Igalia S.L."
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
+
+typedef struct {
+  GrlMediaSourceSearchSpec *ss;
+  gint offset;
+  gint page;
+} SearchData;
+
+struct _GrlFlickrSourcePrivate {
+  GFlickr *flickr;
+};
 
 static GrlFlickrSource *grl_flickr_source_new (void);
 
@@ -118,11 +123,6 @@ grl_flickr_source_new (void)
 {
   g_debug ("grl_flickr_source_new");
 
-  if (flickcurl_init ()) {
-    g_warning ("Unable to initialize Flickcurl");
-    return NULL;
-  }
-
   return g_object_new (GRL_FLICKR_SOURCE_TYPE,
                        "source-id", SOURCE_ID,
                        "source-name", SOURCE_NAME,
@@ -139,16 +139,15 @@ grl_flickr_source_class_init (GrlFlickrSourceClass * klass)
   source_class->metadata = grl_flickr_source_metadata;
   source_class->search = grl_flickr_source_search;
   metadata_class->supported_keys = grl_flickr_source_supported_keys;
+
+  g_type_class_add_private (klass, sizeof (GrlFlickrSourcePrivate));
 }
 
 static void
 grl_flickr_source_init (GrlFlickrSource *source)
 {
   source->priv = GRL_FLICKR_SOURCE_GET_PRIVATE (source);
-
-  if (!g_thread_supported ()) {
-    g_thread_init (NULL);
-  }
+  source->priv->flickr = g_flickr_new (FLICKR_KEY, FLICKR_TOKEN, FLICKR_SECRET);
 }
 
 G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_MEDIA_SOURCE);
@@ -156,312 +155,130 @@ G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_MEDIA_SOURCE);
 /* ======================= Utilities ==================== */
 
 static void
-update_media (GrlContentMedia *media, flickcurl_photo *fc_photo)
+update_media (GrlContentMedia *media, GHashTable *photo)
 {
-  if (fc_photo->uri) {
-    grl_content_media_set_url (media, fc_photo->uri);
-  }
-  if (fc_photo->fields[PHOTO_FIELD_owner_realname].string) {
-    grl_content_media_set_author (media,
-                                  fc_photo->fields[PHOTO_FIELD_owner_realname].string);
-  }
-  if (fc_photo->fields[PHOTO_FIELD_title].string) {
-    grl_content_media_set_title (media,
-                                 fc_photo->fields[PHOTO_FIELD_title].string);
-  }
-  if (fc_photo->fields[PHOTO_FIELD_description].string) {
-    grl_content_media_set_description (media,
-                                       fc_photo->fields[PHOTO_FIELD_description].string);
-  }
-  if (fc_photo->fields[PHOTO_FIELD_dates_taken].string) {
-    grl_content_media_set_date (media,
-                                fc_photo->fields[PHOTO_FIELD_dates_taken].string);
-  }
-}
-
-static GrlContentMedia *
-get_content_image (flickcurl_photo *fc_photo)
-{
-  GrlContentMedia *media;
-
-  if (strcmp (fc_photo->media_type, "photo") == 0) {
-    media = grl_content_image_new ();
-  } else {
-    media = grl_content_video_new ();
-  }
-
-  grl_content_media_set_id (media, fc_photo->id);
-  update_media (media, fc_photo);
-
-  return media;
-}
-
-static gboolean
-metadata_cb (gpointer data)
-{
-  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) data;
-
-  ms->callback(ms->source,
-               ms->media,
-               ms->user_data,
-               NULL);
-
-  return FALSE;
-}
-
-static gboolean
-search_cb (gpointer data)
-{
-  SearchData *search_data = (SearchData *) data;
-
-  search_data->ss->callback(search_data->ss->source,
-                            search_data->ss->search_id,
-                            search_data->media,
-                            search_data->remaining,
-                            search_data->ss->user_data,
-                            NULL);
-
-  g_free (data);
-
-  return FALSE;
-}
-
-/* Make get_url TRUE if url has been requested.
- * Make get_others TRUE if other (supported) keys has been requested
- */
-static void
-check_keys (GList *keys, gboolean *get_url, gboolean *get_others)
-{
-  GList *iter;
-  GrlKeyID key_id;
-  gboolean others = get_others? FALSE: TRUE;
-  gboolean url = get_url? FALSE: TRUE;
-
-  iter = keys;
-  while (iter && (!url || !others)) {
-    key_id = POINTER_TO_GRLKEYID (iter->data);
-    if (key_id == GRL_METADATA_KEY_AUTHOR ||
-        key_id == GRL_METADATA_KEY_DESCRIPTION ||
-        key_id == GRL_METADATA_KEY_DATE) {
-      others = TRUE;
-    } else if (key_id == GRL_METADATA_KEY_URL) {
-      url = TRUE;
-    }
-    iter = g_list_next (iter);
-  }
-
-  if (get_url) {
-    *get_url = url;
-  }
-
-  if (get_others) {
-    *get_others = others;
-  }
-}
-
-static gpointer
-grl_flickr_source_metadata_main (gpointer data)
-{
-  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) data;
-  const gchar *id;
-  flickcurl *fc = NULL;
-  flickcurl_photo *photo;
-  flickcurl_size **photo_sizes;
-  gboolean get_other_keys;
-  gboolean get_slow_url;
+  gchar *author;
+  gchar *date;
+  gchar *description;
+  gchar *id;
+  gchar *thumbnail;
+  gchar *title;
   gchar *url;
-  gint s;
-  gint width, height;
 
-  if (!ms->media || (id = grl_content_media_get_id (ms->media)) == NULL) {
-    g_idle_add (metadata_cb, ms);
-    return NULL;
+  author = g_hash_table_lookup (photo, "owner_realname");
+  if (!author) {
+    author = g_hash_table_lookup (photo, "photo_ownername");
+  }
+  date = g_hash_table_lookup (photo, "dates_taken");
+  if (!date) {
+    date = g_hash_table_lookup (photo, "photo_datetaken");
+  }
+  description = g_hash_table_lookup (photo, "description");
+  id = g_hash_table_lookup (photo, "photo_id");
+  thumbnail = g_strdup (g_hash_table_lookup (photo, "photo_url_t"));
+  if (!thumbnail) {
+    thumbnail = g_flickr_photo_url_thumbnail (NULL, photo);
+  }
+  title = g_hash_table_lookup (photo, "title");
+  if (!title) {
+    title = g_hash_table_lookup (photo, "photo_title");
+  }
+  url = g_strdup (g_hash_table_lookup (photo, "photo_url_o"));
+  if (!url) {
+    url = g_flickr_photo_url_original (NULL, photo);
   }
 
-  check_keys (ms->keys, &get_slow_url, &get_other_keys);
-
-  if (ms->flags & GRL_RESOLVE_FAST_ONLY && get_other_keys) {
-    get_slow_url = FALSE;
+  if (author) {
+    grl_content_media_set_author (media, author);
   }
 
-  fc = flickcurl_new ();
-  flickcurl_set_api_key (fc, FLICKR_KEY);
-  flickcurl_set_auth_token (fc, FLICKR_TOKEN);
-  flickcurl_set_shared_secret (fc, FLICKR_SECRET);
-
-  if (get_slow_url) {
-    photo_sizes = flickcurl_photos_getSizes (fc, id);
-    if (photo_sizes) {
-      url = photo_sizes[0]->source;
-      width = photo_sizes[0]->width;
-      height = photo_sizes[0]->height;
-
-      /* Look for "Original" size */
-      s = 0;
-      while (photo_sizes[s]) {
-        if (strcmp (photo_sizes[s]->label, "Original") == 0) {
-          url = photo_sizes[s]->source;
-          width = photo_sizes[s]->width;
-          height = photo_sizes[s]->height;
-          break;
-        }
-        s++;
-      }
-
-      /* Update media */
-      grl_content_media_set_url (ms->media, url);
-      if (GRL_IS_CONTENT_IMAGE (ms->media)) {
-        grl_content_image_set_size (GRL_CONTENT_IMAGE (ms->media),
-                                    width,
-                                    height);
-      } else if (GRL_IS_CONTENT_VIDEO (ms->media)) {
-        grl_content_video_set_size (GRL_CONTENT_VIDEO (ms->media),
-                                    width,
-                                    height);
-      }
-      flickcurl_free_sizes (photo_sizes);
-    }
+  if (date) {
+    grl_content_media_set_date (media, date);
   }
 
-  photo = flickcurl_photos_getInfo (fc, id);
+  if (description) {
+    grl_content_media_set_description (media, description);
+  }
+
+  if (id) {
+    grl_content_media_set_id (media, id);
+  }
+
+  if (thumbnail) {
+    grl_content_media_set_thumbnail (media, thumbnail);
+    g_free (thumbnail);
+  }
+
+  if (title) {
+    grl_content_media_set_title (media, title);
+  }
+
+  if (url) {
+    grl_content_media_set_url (media, url);
+    g_free (url);
+  }
+}
+
+static void
+getInfo_cb (GFlickr *f, GHashTable *photo, gpointer user_data)
+{
+  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
+
   if (photo) {
     update_media (ms->media, photo);
   }
 
-  flickcurl_free_photo (photo);
-
-  flickcurl_free (fc);
-
-  g_idle_add (metadata_cb, ms);
-
-  return NULL;
+  ms->callback (ms->source, ms->media, ms->user_data, NULL);
 }
 
-static gpointer
-grl_flickr_source_search_main (gpointer data)
+static void
+search_cb (GFlickr *f, GList *photolist, gpointer user_data)
 {
   GrlContentMedia *media;
-  GrlMediaSourceSearchSpec *ss = (GrlMediaSourceSearchSpec *) data;
-  SearchData *search_data;
-  char *url;
-  flickcurl *fc = NULL;
-  flickcurl_photo *photo;
-  flickcurl_photos_list *result;
-  flickcurl_photos_list_params lparams;
-  flickcurl_search_params sparams;
-  flickcurl_size **photo_sizes;
-  gboolean get_slow_keys = FALSE;
-  gboolean get_slow_url = FALSE;
-  int height;
-  int i, s;
-  int offset_in_page;
-  int per_page;
-  int width;
+  SearchData *sd = (SearchData *) user_data;
+  gchar *media_type;
 
-  fc = flickcurl_new ();
-  flickcurl_set_api_key (fc, FLICKR_KEY);
-  flickcurl_set_auth_token (fc, FLICKR_TOKEN);
-  flickcurl_set_shared_secret (fc, FLICKR_SECRET);
+  /* Go to offset element */
+  photolist = g_list_nth (photolist, sd->offset);
 
-  flickcurl_search_params_init (&sparams);
-  flickcurl_photos_list_params_init (&lparams);
-  sparams.text = ss->text;
-
-  /* Compute page offset */
-  per_page = 1 + ss->skip + ss->count;
-  lparams.per_page = per_page > 100? 100: per_page;
-  lparams.page = 1 + (ss->skip/lparams.per_page);
-  offset_in_page = 1 + (ss->skip%lparams.per_page);
-
-  /* Check if we need need to ask for complete information for each photo */
-  if (!(ss->flags & GRL_RESOLVE_FAST_ONLY)) {
-    /* Check if some "slow" key is requested */
-    check_keys (ss->keys, &get_slow_url, &get_slow_keys);
+  /* No more elements can be sent */
+  if (!photolist) {
+    sd->ss->callback (sd->ss->source,
+                      sd->ss->search_id,
+                      NULL,
+                      0,
+                      sd->ss->user_data,
+                      NULL);
+    g_free (sd);
+    return;
   }
 
-  for (;;) {
-    result = flickcurl_photos_search_params (fc, &sparams, &lparams);
-    /* No (more) results */
-    if (!result || result->photos_count == 0) {
-      g_debug ("No (more) results");
-      search_data = g_new (SearchData, 1);
-      search_data->ss = ss;
-      search_data->media = NULL;
-      search_data->remaining = 0;
-      g_idle_add (search_cb, search_data);
-      break;
+  while (photolist && sd->ss->count) {
+    media_type = g_hash_table_lookup (photolist->data, "photo_media");
+    if (strcmp (media_type, "photo") == 0) {
+      media = grl_content_image_new ();
+    } else {
+      media = grl_content_video_new ();
     }
-    for (i = offset_in_page; i < result->photos_count && ss->count > 0; i++) {
-      /* As we are not computing whether there are enough photos to satisfy user
-         requirement, use -1 in remaining elements (i.e., "unknown"), and use 0
-         no more elements are/can be sent */
-      media = get_content_image (result->photos[i]);
-      if (get_slow_url) {
-        photo_sizes = flickcurl_photos_getSizes (fc, result->photos[i]->id);
-        if (photo_sizes) {
-          url = photo_sizes[0]->source;
-          width = photo_sizes[0]->width;
-          height = photo_sizes[0]->height;
-
-          /* Look for "Original" size */
-          s = 0;
-          while (photo_sizes[s]) {
-            if (strcmp (photo_sizes[s]->label, "Original") == 0) {
-              url = photo_sizes[s]->source;
-              width = photo_sizes[s]->width;
-              height = photo_sizes[s]->height;
-              break;
-            }
-            s++;
-          }
-
-          /* Update media */
-          grl_content_media_set_url (media, url);
-          if (GRL_IS_CONTENT_IMAGE (media)) {
-            grl_content_image_set_size (GRL_CONTENT_IMAGE (media),
-                                        width,
-                                        height);
-          } else if (GRL_IS_CONTENT_VIDEO (media)) {
-            grl_content_video_set_size (GRL_CONTENT_VIDEO (media),
-                                        width,
-                                        height);
-          }
-          flickcurl_free_sizes (photo_sizes);
-        }
-      }
-
-      if (get_slow_keys) {
-        photo = flickcurl_photos_getInfo (fc, result->photos[i]->id);
-        if (photo) {
-          update_media (media, photo);
-        }
-
-        flickcurl_free_photo (photo);
-      }
-
-      search_data = g_new (SearchData, 1);
-      search_data->ss = ss;
-      search_data->media = media;
-      search_data->remaining = ss->count == 1? 0: -1;
-      g_idle_add (search_cb, search_data);
-
-      ss->count--;
-    }
-    /* Sent all requested photos */
-    if (ss->count == 0) {
-      g_debug ("All results sent");
-      break;
-    }
-    flickcurl_free_photos_list (result);
-    offset_in_page = 0;
-    lparams.page++;
+    update_media (media, photolist->data);
+    sd->ss->callback (sd->ss->source,
+                      sd->ss->search_id,
+                      media,
+                      sd->ss->count == 1? 0: -1,
+                      sd->ss->user_data,
+                      NULL);
+    photolist = g_list_next (photolist);
+    sd->ss->count--;
   }
-  /* Free last results */
-  flickcurl_free_photos_list (result);
 
-  flickcurl_free (fc);
-
-  return NULL;
+  /* Get more elements */
+  if (sd->ss->count) {
+    sd->offset = 0;
+    sd->page++;
+    g_flickr_photos_search (f, sd->ss->text, sd->page, search_cb, sd);
+  } else {
+    g_free (sd);
+  }
 }
 
 /* ================== API Implementation ================ */
@@ -471,12 +288,13 @@ grl_flickr_source_supported_keys (GrlMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
-                                      GRL_METADATA_KEY_URL,
-                                      GRL_METADATA_KEY_AUTHOR,
-                                      GRL_METADATA_KEY_TITLE,
-                                      GRL_METADATA_KEY_DESCRIPTION,
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_AUTHOR,
                                       GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_DESCRIPTION,
+                                      GRL_METADATA_KEY_ID,
+                                      GRL_METADATA_KEY_THUMBNAIL,
+                                      GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_URL,
                                       NULL);
   }
   return keys;
@@ -486,22 +304,34 @@ static void
 grl_flickr_source_metadata (GrlMediaSource *source,
                             GrlMediaSourceMetadataSpec *ms)
 {
-  if (!g_thread_create (grl_flickr_source_metadata_main,
-                        ms,
-                        FALSE,
-                        NULL)) {
-    g_critical ("Unable to create thread");
+  const gchar *id;
+
+  if (!ms->media || (id = grl_content_media_get_id (ms->media)) == NULL) {
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    return;
   }
+
+  g_flickr_photos_getInfo (GRL_FLICKR_SOURCE (source)->priv->flickr,
+                           atol (id),
+                           getInfo_cb,
+                           ms);
 }
 
 static void
 grl_flickr_source_search (GrlMediaSource *source,
                           GrlMediaSourceSearchSpec *ss)
 {
-  if (!g_thread_create (grl_flickr_source_search_main,
-                        ss,
-                        FALSE,
-                        NULL)) {
-    g_critical ("Unable to create thread");
-  }
+  GFlickr *f = GRL_FLICKR_SOURCE (source)->priv->flickr;
+  gint per_page;
+
+  /* Compute items per page and page offset */
+  per_page = CLAMP (1 + ss->skip + ss->count, 0, 100);
+  g_flickr_set_per_page (f, per_page);
+
+  SearchData *sd = g_new (SearchData, 1);
+  sd->page = 1 + (ss->skip / per_page);
+  sd->offset = ss->skip % per_page;
+  sd->ss = ss;
+
+  g_flickr_photos_search (f, ss->text, sd->page, search_cb, sd);
 }

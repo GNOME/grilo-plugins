@@ -10,12 +10,25 @@ lib_LTLIBRARIES	= libgrlupnp.la
 libgrlupnp_la_CFLAGS =		\
 	$(DEPS_CFLAGS)		\
 	$(GUPNP_CFLAGS)		\
-	$(GUPNPAV_CFLAGS)
+	$(GUPNPAV_CFLAGS)	\
+	$(XML_CFLAGS)
 
 libgrlupnp_la_LIBADD =	\
 	$(DEPS_LIBS)	\
 	$(GUPNP_LIBS)	\
-	$(GUPNPAV_LIBS)
+	$(GUPNPAV_LIBS)	\
+	$(XML_LIBS)
+
+if GUPNPAV_OLD_VERSION
+libgrlupnp_la_CFLAGS +=	\
+	-DGUPNPAV_OLD_VERSION
+else
+libgrlupnp_la_CFLAGS +=	\
+	$(XML_CFLAGS)
+
+libgrlupnp_la_LIBADD +=	\
+	$(XML_LIBS)
+endif
 
 libgrlupnp_la_SOURCES = grl-upnp.c grl-upnp.h
 

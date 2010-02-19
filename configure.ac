@@ -6,7 +6,7 @@
 # Copyright (C) 2010 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.1-0])
+m4_define([prj_version], [0.1.2])
 
 AC_INIT([prj_name], [prj_version])
 
@@ -69,12 +69,6 @@ PKG_CHECK_MODULES(DEPS, glib-2.0 \
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
-PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
-AC_SUBST(GTHREAD_CFLAGS)
-AC_SUBST(GTHREAD_LIBS)
-AC_SUBST(HAVE_GTHREAD)
-AM_CONDITIONAL(HAVE_GTHREAD, test "x$HAVE_GTHREAD" = "xyes")
-
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 AC_SUBST(XML_CFLAGS)
 AC_SUBST(XML_LIBS)
@@ -99,23 +93,30 @@ AC_SUBST(GUPNPAV_LIBS)
 AC_SUBST(HAVE_GUPNPAV)
 AM_CONDITIONAL(HAVE_GUPNPAV, test "x$HAVE_GUPNPAV" = "xyes")
 
-PKG_CHECK_MODULES(LIBCURL, libcurl, HAVE_LIBCURL=yes, HAVE_LIBCURL=no)
-AC_SUBST(LIBCURL_CFLAGS)
-AC_SUBST(LIBCURL_LIBS)
-AC_SUBST(HAVE_LIBCURL)
-AM_CONDITIONAL(HAVE_LIBCURL, test "x$HAVE_LIBCURL" = "xyes")
-
-PKG_CHECK_MODULES(FLICKCURL, flickcurl >= 1.10, HAVE_FLICKCURL=yes, HAVE_FLICKCURL=no)
-AC_SUBST(FLICKCURL_CFLAGS)
-AC_SUBST(FLICKCURL_LIBS)
-AC_SUBST(HAVE_FLICKCURL)
-AM_CONDITIONAL(HAVE_FLICKCURL, test "x$HAVE_FLICKCURL" = "xyes")
-
 PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
 AC_SUBST(SQLITE_CFLAGS)
 AC_SUBST(SQLITE_LIBS)
 AC_SUBST(HAVE_SQLITE)
 AM_CONDITIONAL(HAVE_SQLITE, test "x$HAVE_SQLITE" = "xyes")
+
+# ----------------------------------------------------------
+# GUPNP-AV VERSION
+# ----------------------------------------------------------
+
+if test "x$HAVE_GUPNPAV" = "xyes"; then
+        gupnpav_version=`pkg-config --modversion gupnp-av-1.0`
+        gupnpav_version_major=`echo $gupnpav_version | awk -F. '{ print $1 }'`
+        gupnpav_version_minor=`echo $gupnpav_version | awk -F. '{ print $2 }'`
+        if test $gupnpav_version_major -eq 0 -a $gupnpav_version_minor -lt 5; then
+           GUPNPAV_OLD_VERSION=yes
+        else
+           GUPNPAV_OLD_VERSION=no
+        fi
+        AC_SUBST(GUPNPAV_OLD_VERSION)
+        AC_SUBST(gupnpav_version_major)
+        AC_SUBST(gupnpav_version_minor)
+        AM_CONDITIONAL(GUPNPAV_OLD_VERSION, test "x$GUPNPAV_OLD_VERSION" = "xyes")
+fi
 
 # ----------------------------------------------------------
 # UNINSTALLED SUPPORT
@@ -258,13 +259,18 @@ AC_ARG_ENABLE(upnp,
                         fi
                         if test "x$HAVE_GUPNPAV" = "xno"; then
                            AC_MSG_ERROR([gupnp-av not found, install it or use --disable-upnp])
+                        elif test "x$GUPNPAV_OLD_VERSION" = "xno" -a "$xHAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-upnp])
                         fi
-                        ;;
                 esac
         ],
         [
                 if test "x$HAVE_GUPNP" = "xyes" -a "x$HAVE_GUPNPAV" = "xyes"; then
-                   enable_upnp=yes
+                   if test "x$GUPNPAV_OLD_VERSION" = "xyes" -o "x$HAVE_XML" = "xyes"; then
+                        enable_upnp=yes
+                   else
+                        enable_upnp=no
+                   fi
                 else
                    enable_upnp=no
                 fi
@@ -321,24 +327,17 @@ AC_ARG_ENABLE(flickr,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_FLICKCURL" = "xno"; then
-                           AC_MSG_ERROR([flickcurl >= 1.10  not found, install it or use --disable-flickr])
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO  not found, install it or use --disable-flickr])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-flickr])
-                        fi
-                        if test "x$HAVE_LIBCURL" = "xno"; then
-                           AC_MSG_ERROR([libcurl not found, install it or use --disable-flickr])
-                        fi
-                        if test "x$HAVE_GTHREAD" = "xno"; then
-                           AC_MSG_ERROR([gthread-2.0 not found, install it or use --disable-flickr])
                         fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_FLICKCURL" = "xyes" -a "x$HAVE_XML" = "xyes" -a \
-                        "x$HAVE_LIBCURL" = "xyes" -a "x$HAVE_GTHREAD" = "xyes"; then
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_flickr=yes
                 else
                    enable_flickr=no
@@ -393,6 +392,82 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED podcasts"
 fi
 
+
+# ----------------------------------------------------------
+# BUILD BOOKMARKS PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(bookmarks,
+        AC_HELP_STRING([--enable-bookmarks],
+                [enable Bookmarks plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO not found, install it or use --disable-bookmarks])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-bookmarks])
+                        fi
+                        if test "x$HAVE_SQLITE" = "xno"; then
+                           AC_MSG_ERROR([sqlite3 not found, install it or use --disable-bookmarks])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                   if test "x$HAVE_SQLITE" = "xyes"; then
+                     enable_bookmarks=yes
+                   else
+                     enable_bookmarks=no
+                   fi
+                else
+                   enable_bookmarks=no
+                fi
+        ])
+
+AM_CONDITIONAL([BOOKMARKS_PLUGIN], [test "x$enable_bookmarks" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL bookmarks"
+if test "x$enable_bookmarks" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED bookmarks"
+fi
+
+# ----------------------------------------------------------
+# BUILD SHOUTCAST PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(shoutcast,
+        AC_HELP_STRING([--enable-shoutcast],
+                [enable SHOUTcast plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO not found, install it or use --disable-shoutcast])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-shoutcast])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                   enable_shoutcast=yes
+                else
+                   enable_shoutcast=no
+                fi
+        ])
+
+AM_CONDITIONAL([SHOUTCAST_PLUGIN], [test "x$enable_shoutcast" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL shoutcast"
+if test "x$enable_shoutcast" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED shoutcast"
+fi
+
 # ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
@@ -402,47 +477,6 @@ fi
 #AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
 
 #AM_GLIB_GNU_GETTEXT
-
-# ----------------------------------------------------------
-# DEPENDENCIES
-# ----------------------------------------------------------
-
-# Framework
-
-PKG_CHECK_MODULES(DEPS, glib-2.0 \
-			gobject-2.0 \
-			gmodule-2.0 \
-			grilo-0.1)
-
-
-AC_SUBST(DEPS_CFLAGS)
-AC_SUBST(DEPS_LIBS)
-
-# Plugins requirements
-
-PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
-AC_SUBST(XML_CFLAGS)
-AC_SUBST(XML_LIBS)
-AC_SUBST(HAVE_XML)
-AM_CONDITIONAL(HAVE_XML, test "x$HAVE_XML" = "xyes")
-
-PKG_CHECK_MODULES(GIO, gio-2.0, HAVE_GIO=yes, HAVE_GIO=no)
-AC_SUBST(GIO_CFLAGS)
-AC_SUBST(GIO_LIBS)
-AC_SUBST(HAVE_GIO)
-AM_CONDITIONAL(HAVE_GIO, test "x$HAVE_GIO" = "xyes")
-
-PKG_CHECK_MODULES(GUPNP, gupnp-1.0, HAVE_GUPNP=yes, HAVE_GUPNP=no)
-AC_SUBST(GUPNP_CFLAGS)
-AC_SUBST(GUPNP_LIBS)
-AC_SUBST(HAVE_GUPNP)
-AM_CONDITIONAL(HAVE_GUPNP, test "x$HAVE_GUPNP" = "xyes")
-
-PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=no)
-AC_SUBST(GUPNPAV_CFLAGS)
-AC_SUBST(GUPNPAV_LIBS)
-AC_SUBST(HAVE_GUPNPAV)
-AM_CONDITIONAL(HAVE_GUPNPAV, test "x$HAVE_GUPNPAV" = "xyes")
 
 # ----------------------------------------------------------
 # WORKAROUNDS
@@ -466,6 +500,8 @@ AC_CONFIG_FILES([
   src/upnp/Makefile
   src/flickr/Makefile
   src/podcasts/Makefile
+  src/bookmarks/Makefile
+  src/shoutcast/Makefile
   test/Makefile
   debian/grilo-0.1-plugins.install
 ])

@@ -5,23 +5,19 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libgrlflickr.la
+lib_LTLIBRARIES		 = libgrlshoutcast.la
 
-libgrlflickr_la_CFLAGS =	\
+libgrlshoutcast_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
-	$(XML_CFLAGS)		\
-	$(GIO_CFLAGS)
+	$(GIO_CFLAGS)		\
+	$(XML_CFLAGS)
 
-libgrlflickr_la_LIBADD =	\
+libgrlshoutcast_la_LIBADD =	\
 	$(DEPS_LIBS)		\
-	$(XML_LIBS)		\
-	$(GIO_LIBS)
+	$(GIO_LIBS)		\
+	$(XML_LIBS)
 
-libgrlflickr_la_SOURCES =	\
-	grl-flickr.c		\
-	grl-flickr.h		\
-	gflickr.c		\
-	gflickr.h
+libgrlshoutcast_la_SOURCES	 = grl-shoutcast.c grl-shoutcast.h
 
 libdir=$(GRL_PLUGINS_DIR)
 

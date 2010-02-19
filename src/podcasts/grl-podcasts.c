@@ -27,7 +27,7 @@
 #include <grilo.h>
 #include <gio/gio.h>
 #include <libxml/parser.h>
-#include <libxml/xmlmemory.h>
+#include <libxml/xpath.h>
 #include <sqlite3.h>
 #include <string.h>
 #include <stdlib.h>
@@ -56,14 +56,14 @@
   "desc  TEXT,"                                 \
   "last_refreshed DATE)"
 
-#define GRL_SQL_CREATE_TABLE_STREAMS            \
-  "CREATE TABLE IF NOT EXISTS streams ("        \
-  "podcast INTEGER REFERENCES podcasts (id),"   \
-  "url     TEXT PRIMARY KEY,"                   \
-  "title   TEXT,"                               \
-  "length  INTEGER,"                            \
-  "mime    TEXT,"                               \
-  "date    TEXT,"                               \
+#define GRL_SQL_CREATE_TABLE_STREAMS		 \
+  "CREATE TABLE IF NOT EXISTS streams ( "        \
+  "podcast INTEGER REFERENCES podcasts (id), "   \
+  "url     TEXT, "				 \
+  "title   TEXT, "                               \
+  "length  INTEGER, "                            \
+  "mime    TEXT, "                               \
+  "date    TEXT, "                               \
   "desc    TEXT)"
 
 #define GRL_SQL_GET_PODCASTS			\
@@ -190,6 +190,17 @@ typedef struct {
   gboolean is_query;
   gpointer user_data;
 } OperationSpec;
+
+typedef struct {
+  OperationSpec *os;
+  xmlDocPtr doc;
+  xmlXPathContextPtr xpathCtx;
+  xmlXPathObjectPtr xpathObj;
+  guint parse_count;
+  guint parse_index;
+  guint parse_valid_index;
+  GrlContentMedia *last_media;
+} OperationSpecParse;
 
 static GrlPodcastsSource *grl_podcasts_source_new (void);
 
@@ -460,19 +471,17 @@ mime_is_audio (const gchar *mime)
 }
 
 static GrlContentMedia *
-build_media_from_stmt (GrlContentMedia *content,
-		       sqlite3_stmt *sql_stmt,
-		       gboolean is_podcast)
+build_media (GrlContentMedia *content,
+	     gboolean is_podcast,
+	     const gchar *id,
+	     const gchar *title,
+	     const gchar *url,
+	     const gchar *desc,
+	     const gchar *mime,
+	     const gchar *date,
+	     guint duration)
 {
   GrlContentMedia *media = NULL;
-  gchar *id;
-  gchar *title;
-  gchar *url;
-  gchar *desc;
-  gchar *mime;
-  gchar *date;
-  guint duration;
-  gchar *podcast;
 
   if (content) {
     media = content;
@@ -483,24 +492,12 @@ build_media_from_stmt (GrlContentMedia *content,
       media = GRL_CONTENT_MEDIA (grl_content_box_new ());
     }
 
-    id = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_ID);
-    title = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_TITLE);
-    url = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_URL);
-    desc = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_DESC);
-
     grl_content_media_set_id (media, id);
     grl_content_media_set_title (media, title);
     grl_content_media_set_url (media, url);
-    grl_content_media_set_description (media, desc);
-  } else { /* podcast stream */
-    mime = (gchar *) sqlite3_column_text (sql_stmt, STREAM_MIME);
-    podcast = (gchar *) sqlite3_column_text (sql_stmt, STREAM_PODCAST);
-    url = (gchar *) sqlite3_column_text (sql_stmt, STREAM_URL);
-    title = (gchar *) sqlite3_column_text (sql_stmt, STREAM_TITLE);
-    date = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DATE);
-    desc = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DESC);
-    duration = sqlite3_column_int (sql_stmt, STREAM_LENGTH);
-
+    if (desc)
+      grl_content_media_set_description (media, desc);
+  } else {
     if (!media) {
       if (mime_is_audio (mime)) {
 	media = grl_content_audio_new ();
@@ -514,12 +511,64 @@ build_media_from_stmt (GrlContentMedia *content,
     grl_content_media_set_id (media, url);
     grl_content_media_set_title (media, title);
     grl_content_media_set_url (media, url);
-    grl_content_media_set_date (media, date);
-    grl_content_media_set_description (media, desc);
-    grl_content_media_set_mime (media, mime);
+    if (date)
+      grl_content_media_set_date (media, date);
+    if (desc)
+      grl_content_media_set_description (media, desc);
+    if (mime)
+      grl_content_media_set_mime (media, mime);
     if (duration > 0) {
       grl_content_media_set_duration (media, duration);
     }
+  }
+
+  return media;
+}
+
+static GrlContentMedia *
+build_media_from_entry (Entry *entry)
+{
+  GrlContentMedia *media;
+  gint duration;
+
+  duration = duration_to_seconds (entry->duration);
+  media = build_media (NULL, FALSE,
+		       entry->url, entry->title, entry->url,
+		       entry->summary, entry->mime, entry->published,
+		       duration);
+  return media;
+}
+
+static GrlContentMedia *
+build_media_from_stmt (GrlContentMedia *content,
+		       sqlite3_stmt *sql_stmt,
+		       gboolean is_podcast)
+{
+  GrlContentMedia *media;
+  gchar *id;
+  gchar *title;
+  gchar *url;
+  gchar *desc;
+  gchar *mime;
+  gchar *date;
+  guint duration;
+
+  if (is_podcast) {
+    id = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_ID);
+    title = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_TITLE);
+    url = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_URL);
+    desc = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_DESC);
+    media = build_media (content, is_podcast,
+			 id, title, url, desc, NULL, NULL, 0);
+  } else {
+    mime = (gchar *) sqlite3_column_text (sql_stmt, STREAM_MIME);
+    url = (gchar *) sqlite3_column_text (sql_stmt, STREAM_URL);
+    title = (gchar *) sqlite3_column_text (sql_stmt, STREAM_TITLE);
+    date = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DATE);
+    desc = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DESC);
+    duration = sqlite3_column_int (sql_stmt, STREAM_LENGTH);
+    media = build_media (content, is_podcast,
+			 url, title, url, desc, mime, date, duration);
   }
 
   return media;
@@ -812,15 +861,88 @@ touch_podcast (sqlite3 *db, const gchar *podcast_id)
   }
 }
 
+static gboolean
+parse_entry_idle (gpointer user_data)
+{
+  OperationSpecParse *osp = (OperationSpecParse *) user_data;
+  xmlNodeSetPtr nodes;
+  guint remaining;
+  GrlContentMedia *media;
+
+  nodes = osp->xpathObj->nodesetval;
+
+  /* Parse entry */
+  Entry *entry = g_new0 (Entry, 1);
+  parse_entry (osp->doc, nodes->nodeTab[osp->parse_index], entry);
+  if (0) print_entry (entry);
+
+  /* Check if entry is valid */
+  if (!entry->url || entry->url[0] == '\0') {
+    g_debug ("Podcast stream has no URL, skipping");
+  } else {
+    /* Provide results to user as fast as possible */
+    if (osp->parse_valid_index >= osp->os->skip &&
+	osp->parse_valid_index < osp->os->skip + osp->os->count) {
+      media = build_media_from_entry (entry);
+      remaining = osp->os->skip + osp->os->count - osp->parse_valid_index - 1;
+
+      /* Hack: if we emit the last result now the UI may request more results
+	 right away while we are still parsing the XML, so we keep the last
+	 result until we are done processing the whole feed, this way when
+	 the next query arrives all the stuff is stored in the database 
+	 and the query can be resolved normally */
+      if (remaining > 0) {
+	osp->os->callback (osp->os->source,
+			   osp->os->operation_id,
+			   media,
+			   remaining,
+			   osp->os->user_data,
+			   NULL);
+      } else {
+	osp->last_media = media;
+      }
+    }
+
+    osp->parse_valid_index++;
+
+    /* And store stream in database cache */
+    store_stream (GRL_PODCASTS_SOURCE (osp->os->source)->priv->db,
+		  osp->os->media_id, entry);
+  }
+
+  osp->parse_index++;
+  free_entry (entry);
+
+  if (osp->parse_index >= osp->parse_count) {
+    /* Send last result */
+    osp->os->callback (osp->os->source,
+		       osp->os->operation_id,
+		       osp->last_media,
+		       0,
+		       osp->os->user_data,
+		       NULL);
+    
+    g_free (osp->os);
+    xmlXPathFreeObject (osp->xpathObj);
+    xmlXPathFreeContext (osp->xpathCtx);
+    xmlFreeDoc (osp->doc);
+    g_free (osp);
+  }
+  
+  return osp->parse_index < osp->parse_count;
+}
+
 static void
 parse_feed (OperationSpec *os, const gchar *str, GError **error)
 {
-  xmlDocPtr doc;
-  xmlNodePtr node;
+  xmlDocPtr doc = NULL;
+  xmlXPathContextPtr xpathCtx = NULL;
+  xmlXPathObjectPtr xpathObj = NULL;
+  guint stream_count;
 
   g_debug ("parse_feed");
 
-  doc = xmlRecoverDoc ((xmlChar *) str);
+  doc = xmlParseDoc ((xmlChar *) str);
   if (!doc) {
     *error = g_error_new (GRL_ERROR,
 			  os->error_code,
@@ -828,50 +950,27 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
     goto free_resources;
   }
 
-  node = xmlDocGetRootElement (doc);
-  if (!node) {
+  /* Get feed stream list */
+  xpathCtx = xmlXPathNewContext (doc);
+  if (!xpathCtx) {
     *error = g_error_new (GRL_ERROR,
 			  os->error_code,
-			  "Podcast contains no data");
+			  "Failed to parse podcast contents");
+    goto free_resources;
+  }
+  
+  xpathObj = xmlXPathEvalExpression ((xmlChar *) "/rss/channel/item",
+				     xpathCtx);
+  if(xpathObj == NULL) {
+    *error = g_error_new (GRL_ERROR,
+			  os->error_code,
+			  "Failed to parse podcast contents");
     goto free_resources;
   }
 
-  if (xmlStrcmp (node->name, (const xmlChar *) "rss")) {
-    *error = g_error_new (GRL_ERROR,
-			  os->error_code,
-			  "Podcast is not in RSS format");
-    goto free_resources;
-  }
+  /* Feed is ok, let's process it */
 
-  /* TODO: handle various channels, maybe as categories within the podcast.
-     Right now we only parse the first channel */
-
-  /* Search first channel node */
-  node = node->xmlChildrenNode;
-  while (node) {
-    if (!xmlStrcmp (node->name, (const xmlChar *) "channel")) {
-      break;
-    }
-    node = node->next;
-  }
-  if (!node) {
-    *error = g_error_new (GRL_ERROR,
-			  os->error_code,
-			  "Podcast contains no channels");
-    goto free_resources;
-  }
-
-  node = node->xmlChildrenNode;
-  if (!node) {
-    *error = g_error_new (GRL_ERROR,
-			  os->error_code,
-			  "Podcast contains no channel data");
-    goto free_resources;
-  }
-
-  /* The feed is ok, let's parse it and store the streams in the database */
-
-  /* First we remove old entries */
+  /* First, remove old entries for this podcast */
   remove_podcast_streams (GRL_PODCASTS_SOURCE (os->source)->priv->db,
 			  os->media_id, error);
   if (*error) {
@@ -879,32 +978,40 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
     goto free_resources;
   }
 
-  /* Then we parse the feed and store the streams */
-  do {
-    while (node && xmlStrcmp (node->name, (const xmlChar *) "item")) {
-      node = node->next;
-    }
-    if (node) {
-      Entry *entry = g_new0 (Entry, 1);
-      parse_entry (doc, node, entry);
-      if (0) print_entry (entry);
-      store_stream (GRL_PODCASTS_SOURCE (os->source)->priv->db,
-		    os->media_id, entry);
-      free_entry (entry);
-      node = node->next;
-    }
-  } while (node);
-
-  /* We also update the last_refreshed date of the podcast */
+  /* Then update the last_refreshed date of the podcast */
   touch_podcast (GRL_PODCASTS_SOURCE (os->source)->priv->db, os->media_id);
 
-  /* Now that we have parsed the feed and stored the contents, let's
-     resolve the user's query */
-  produce_podcast_contents_from_db (os);
+  /* If the feed contains no streams, notify and bail out */
+  stream_count = xpathObj->nodesetval ? xpathObj->nodesetval->nodeNr : 0;
+  g_debug ("Got %d streams", stream_count);
+  
+  if (stream_count <= 0) {
+    os->callback (os->source,
+		  os->operation_id,
+		  NULL,
+		  0,
+		  os->user_data,
+		  NULL);
+    goto free_resources;
+  }
+
+  /* Otherwise parse the streams in idle loop to prevent blocking */
+  OperationSpecParse *osp = g_new0 (OperationSpecParse, 1);
+  osp->os = os;
+  osp->doc = doc;
+  osp->xpathCtx = xpathCtx;
+  osp->xpathObj = xpathObj;
+  osp->parse_count = stream_count;
+  g_idle_add (parse_entry_idle, osp);
+  return;
 
  free_resources:
-  xmlFreeDoc (doc);
-  return;
+  if (xpathObj)
+    xmlXPathFreeObject (xpathObj);
+  if (xpathCtx)
+    xmlXPathFreeContext (xpathCtx);
+  if (doc)
+    xmlFreeDoc (doc);
 }
 
 static void
@@ -930,8 +1037,8 @@ read_feed_cb (gchar *xmldata, gpointer user_data)
 		  os->user_data,
 		  error);
     g_error_free (error);
+    g_free (os);
   }
-  g_free (os);
 }
 
 static void
@@ -975,7 +1082,7 @@ produce_podcast_contents (OperationSpec *os)
     /* Check if we have to refresh the podcast */
     lr_str = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_LAST_REFRESHED);
     g_debug ("Podcast last-refreshed: '%s'", lr_str);
-    g_time_val_from_iso8601 (lr_str, &lr);
+    g_time_val_from_iso8601 (lr_str ? lr_str : "", &lr);
     g_get_current_time (&now);
     now.tv_sec -= CACHE_DURATION;
     if (now.tv_sec >= lr.tv_sec) {

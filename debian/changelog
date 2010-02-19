@@ -1,3 +1,14 @@
+grilo-0.1-plugins (0.1.2-1) unstable; urgency=low
+
+  * Bookmarks: new plugin.
+  * Flickr: drop flickcurl library.
+  * Jamendo: some fixes.
+  * Podcasts: some fixes
+  * Shoutcast: new plugin.
+  * Upnp: support for new gupnp-av-1.0 versions (>=0.5).
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Fri, 19 Feb 2010 23:40:28 +0100
+
 grilo-0.1-plugins (0.1.1-1) unstable; urgency=low
 
   * Initial release.

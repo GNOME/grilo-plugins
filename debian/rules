@@ -10,11 +10,13 @@ DEB_CONFIGURE_SCRIPT := ./autogen.sh
 
 DEB_CONFIGURE_EXTRA_FLAGS :=		\
 	--disable-fakemetadata		\
+	--enable-bookmarks		\
 	--enable-filesystem		\
 	--enable-flickr			\
 	--enable-jamendo		\
 	--enable-lastfm-albumart	\
 	--enable-podcasts		\
+	--enable-shoutcast		\
 	--enable-upnp			\
 	--enable-youtube
 

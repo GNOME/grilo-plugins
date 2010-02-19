@@ -45,7 +45,7 @@
 #define SHOUTCAST_BASE_ENTRY "http://yp.shoutcast.com"
 
 #define SHOUTCAST_GET_GENRES SHOUTCAST_BASE_ENTRY "/sbin/newxml.phtml"
-#define SHOUTCAST_GET_RADIOS SHOUTCAST_GET_GENRES "?genre=%s"
+#define SHOUTCAST_GET_RADIOS SHOUTCAST_GET_GENRES "?genre=%s&limit=%d"
 #define SHOUTCAST_TUNE       SHOUTCAST_BASE_ENTRY "/sbin/tunein-station.pls?id=%s"
 
 /* --- Plugin information --- */
@@ -419,7 +419,8 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
     url = g_strdup (SHOUTCAST_GET_GENRES);
   } else {
     url = g_strdup_printf (SHOUTCAST_GET_RADIOS,
-                           container_id);
+                           container_id,
+                           bs->skip + bs->count);
     data->genre = g_strdup (container_id);
   }
 

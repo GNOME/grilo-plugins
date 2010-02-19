@@ -66,6 +66,7 @@ typedef struct {
   GrlMediaSourceBrowseSpec *bs;
   xmlNodePtr xml_entries;
   xmlDocPtr xml_doc;
+  gchar *genre;
 } OperationData;
 
 static GrlShoutcastSource *grl_shoutcast_source_new (void);
@@ -157,8 +158,8 @@ send_genrelist_entries (OperationData *op_data)
   genre_name = (gchar *) xmlGetProp (op_data->xml_entries,
                                      (const xmlChar *) "name");
 
-  grl_content_media_set_id (media, (gchar *) genre_name);
-  grl_content_media_set_title (media, (gchar *) genre_name);
+  grl_content_media_set_id (media, genre_name);
+  grl_content_media_set_title (media, genre_name);
   grl_content_set_string (GRL_CONTENT (media),
                           GRL_METADATA_KEY_GENRE,
                           genre_name);
@@ -183,6 +184,60 @@ send_genrelist_entries (OperationData *op_data)
   }
 }
 
+static gboolean
+send_stationlist_entries (OperationData *op_data)
+{
+  GrlContentMedia *media;
+  gchar *media_id;
+  gchar *station_genre;
+  gchar *station_id;
+  gchar *station_mime;
+  gchar *station_name;
+
+  if (xmlStrcmp (op_data->xml_entries->name, (const xmlChar *) "station") == 0) {
+    station_name = (gchar *) xmlGetProp (op_data->xml_entries,
+                                         (const xmlChar *) "name");
+    station_mime = (gchar *) xmlGetProp (op_data->xml_entries,
+                                         (const xmlChar *) "mt");
+    station_id = (gchar *) xmlGetProp (op_data->xml_entries,
+                                       (const xmlChar *) "id");
+    station_genre = (gchar *) xmlGetProp (op_data->xml_entries,
+                                          (const xmlChar *) "genre");
+    media_id = g_strconcat (op_data->genre, "/", station_id, NULL);
+
+    media = grl_content_audio_new ();
+
+    grl_content_media_set_id (media, media_id);
+    grl_content_media_set_title (media, station_name);
+    grl_content_media_set_mime (media, station_mime);
+    grl_content_audio_set_genre (GRL_CONTENT_AUDIO (media), station_genre);
+
+    g_free (station_name);
+    g_free (station_mime);
+    g_free (station_id);
+    g_free (station_genre);
+    g_free (media_id);
+
+    op_data->bs->callback (op_data->bs->source,
+                           op_data->bs->browse_id,
+                           media,
+                           op_data->xml_entries->next? -1: 0,
+                           op_data->bs->user_data,
+                           NULL);
+  }
+
+  op_data->xml_entries = op_data->xml_entries->next;
+  skip_garbage_nodes (&op_data->xml_entries);
+
+  if (!op_data->xml_entries) {
+    xmlFreeDoc (op_data->xml_doc);
+    g_free (op_data);
+    return FALSE;
+  } else {
+    return TRUE;
+  }
+}
+
 static void
 xml_parse_result (const gchar *str, OperationData *op_data)
 {
@@ -194,7 +249,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
     error = g_error_new (GRL_ERROR,
                          GRL_ERROR_BROWSE_FAILED,
                          "Failed to parse SHOUTcast's response");
-    goto send_error;
+    goto finalize;
   }
 
   node = xmlDocGetRootElement (op_data->xml_doc);
@@ -202,21 +257,31 @@ xml_parse_result (const gchar *str, OperationData *op_data)
     error = g_error_new (GRL_ERROR,
                          GRL_ERROR_BROWSE_FAILED,
                          "Empty response from SHOUTcast");
-    goto send_error;
+    goto finalize;
   }
 
   op_data->xml_entries = node->xmlChildrenNode;
   skip_garbage_nodes (&op_data->xml_entries);
 
   if (!op_data->xml_entries) {
-    goto send_error;
+    goto finalize;
   }
 
-  g_idle_add ((GSourceFunc) send_genrelist_entries, op_data);
+  if (xmlStrcmp (node->name, (const xmlChar *) "genrelist") == 0) {
+    g_idle_add ((GSourceFunc) send_genrelist_entries, op_data);
+  } else if (xmlStrcmp (node->name, (const xmlChar *) "stationlist") == 0) {
+    g_idle_add ((GSourceFunc) send_stationlist_entries, op_data);
+  } else {
+    /* Unknown response */
+    error = g_error_new (GRL_ERROR,
+                         GRL_ERROR_BROWSE_FAILED,
+                         "Unkown response from SHOUTcast");
+    goto finalize;
+  }
 
   return;
 
- send_error:
+ finalize:
   if (op_data->xml_doc) {
     xmlFreeDoc (op_data->xml_doc);
   }
@@ -228,8 +293,10 @@ xml_parse_result (const gchar *str, OperationData *op_data)
                          op_data->bs->user_data,
                          error);
 
- g_error_free (error);
- g_free (op_data);
+  if (error) {
+    g_error_free (error);
+  }
+  g_free (op_data);
 }
 
 static void
@@ -312,6 +379,9 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
 
   g_debug ("grl_shoutcast_source_browse");
 
+  data = g_new0 (OperationData, 1);
+  data->bs = bs;
+
   container_id = grl_content_media_get_id (bs->container);
 
   /* If it's root category send list of genres; else send list of radios */
@@ -320,10 +390,9 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
   } else {
     url = g_strdup_printf (SHOUTCAST_GET_RADIOS,
                            container_id);
+    data->genre = g_strdup (container_id);
   }
 
-  data = g_new0 (OperationData, 1);
-  data->bs = bs;
   read_url_async (url, data);
 
   g_free (url);

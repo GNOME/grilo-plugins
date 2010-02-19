@@ -288,7 +288,8 @@ main (void)
   if (0) grl_media_source_query (jamendo, "album=Nick", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) grl_media_source_query (jamendo, "track=asylum mind", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) grl_media_source_search (jamendo, "next", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (1) grl_media_source_browse (shoutcast, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_browse (shoutcast, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (1) grl_media_source_browse (shoutcast, media_from_id("American"), keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) {
     GrlContentMedia *media = media_from_id ("test");
     grl_content_set_string (GRL_CONTENT (media),

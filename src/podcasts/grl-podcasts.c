@@ -471,47 +471,17 @@ mime_is_audio (const gchar *mime)
 }
 
 static GrlContentMedia *
-build_media_from_entry (Entry *entry)
-{
-  GrlContentMedia *media;
-  gint duration;
-
-  if (mime_is_audio (entry->mime)) {
-    media = grl_content_audio_new ();
-  } else if (mime_is_video (entry->mime)) {
-    media = grl_content_video_new ();
-  } else {
-    media = grl_content_media_new ();
-  }
-  
-  grl_content_media_set_id (media, entry->url);
-  grl_content_media_set_title (media, entry->title);
-  grl_content_media_set_url (media, entry->url);
-  grl_content_media_set_date (media, entry->published);
-  grl_content_media_set_description (media, entry->summary);
-  grl_content_media_set_mime (media, entry->mime);
-  duration = duration_to_seconds (entry->duration);
-  if (duration > 0) {
-    grl_content_media_set_duration (media, duration);
-  }
-
-  return media;
-}
-
-static GrlContentMedia *
-build_media_from_stmt (GrlContentMedia *content,
-		       sqlite3_stmt *sql_stmt,
-		       gboolean is_podcast)
+build_media (GrlContentMedia *content,
+	     gboolean is_podcast,
+	     const gchar *id,
+	     const gchar *title,
+	     const gchar *url,
+	     const gchar *desc,
+	     const gchar *mime,
+	     const gchar *date,
+	     guint duration)
 {
   GrlContentMedia *media = NULL;
-  gchar *id;
-  gchar *title;
-  gchar *url;
-  gchar *desc;
-  gchar *mime;
-  gchar *date;
-  guint duration;
-  gchar *podcast;
 
   if (content) {
     media = content;
@@ -522,24 +492,12 @@ build_media_from_stmt (GrlContentMedia *content,
       media = GRL_CONTENT_MEDIA (grl_content_box_new ());
     }
 
-    id = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_ID);
-    title = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_TITLE);
-    url = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_URL);
-    desc = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_DESC);
-
     grl_content_media_set_id (media, id);
     grl_content_media_set_title (media, title);
     grl_content_media_set_url (media, url);
-    grl_content_media_set_description (media, desc);
-  } else { /* podcast stream */
-    mime = (gchar *) sqlite3_column_text (sql_stmt, STREAM_MIME);
-    podcast = (gchar *) sqlite3_column_text (sql_stmt, STREAM_PODCAST);
-    url = (gchar *) sqlite3_column_text (sql_stmt, STREAM_URL);
-    title = (gchar *) sqlite3_column_text (sql_stmt, STREAM_TITLE);
-    date = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DATE);
-    desc = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DESC);
-    duration = sqlite3_column_int (sql_stmt, STREAM_LENGTH);
-
+    if (desc)
+      grl_content_media_set_description (media, desc);
+  } else {
     if (!media) {
       if (mime_is_audio (mime)) {
 	media = grl_content_audio_new ();
@@ -553,12 +511,64 @@ build_media_from_stmt (GrlContentMedia *content,
     grl_content_media_set_id (media, url);
     grl_content_media_set_title (media, title);
     grl_content_media_set_url (media, url);
-    grl_content_media_set_date (media, date);
-    grl_content_media_set_description (media, desc);
-    grl_content_media_set_mime (media, mime);
+    if (date)
+      grl_content_media_set_date (media, date);
+    if (desc)
+      grl_content_media_set_description (media, desc);
+    if (mime)
+      grl_content_media_set_mime (media, mime);
     if (duration > 0) {
       grl_content_media_set_duration (media, duration);
     }
+  }
+
+  return media;
+}
+
+static GrlContentMedia *
+build_media_from_entry (Entry *entry)
+{
+  GrlContentMedia *media;
+  gint duration;
+
+  duration = duration_to_seconds (entry->duration);
+  media = build_media (NULL, FALSE,
+		       entry->url, entry->title, entry->url,
+		       entry->summary, entry->mime, entry->published,
+		       duration);
+  return media;
+}
+
+static GrlContentMedia *
+build_media_from_stmt (GrlContentMedia *content,
+		       sqlite3_stmt *sql_stmt,
+		       gboolean is_podcast)
+{
+  GrlContentMedia *media;
+  gchar *id;
+  gchar *title;
+  gchar *url;
+  gchar *desc;
+  gchar *mime;
+  gchar *date;
+  guint duration;
+
+  if (is_podcast) {
+    id = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_ID);
+    title = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_TITLE);
+    url = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_URL);
+    desc = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_DESC);
+    media = build_media (content, is_podcast,
+			 id, title, url, desc, NULL, NULL, 0);
+  } else {
+    mime = (gchar *) sqlite3_column_text (sql_stmt, STREAM_MIME);
+    url = (gchar *) sqlite3_column_text (sql_stmt, STREAM_URL);
+    title = (gchar *) sqlite3_column_text (sql_stmt, STREAM_TITLE);
+    date = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DATE);
+    desc = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DESC);
+    duration = sqlite3_column_int (sql_stmt, STREAM_LENGTH);
+    media = build_media (content, is_podcast,
+			 url, title, url, desc, mime, date, duration);
   }
 
   return media;

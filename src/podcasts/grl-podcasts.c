@@ -27,7 +27,7 @@
 #include <grilo.h>
 #include <gio/gio.h>
 #include <libxml/parser.h>
-#include <libxml/xmlmemory.h>
+#include <libxml/xpath.h>
 #include <sqlite3.h>
 #include <string.h>
 #include <stdlib.h>
@@ -194,7 +194,12 @@ typedef struct {
 typedef struct {
   OperationSpec *os;
   xmlDocPtr doc;
-  xmlNodePtr node;
+  xmlXPathContextPtr xpathCtx;
+  xmlXPathObjectPtr xpathObj;
+  guint parse_count;
+  guint parse_index;
+  guint parse_valid_index;
+  GrlContentMedia *last_media;
 } OperationSpecParse;
 
 static GrlPodcastsSource *grl_podcasts_source_new (void);
@@ -463,6 +468,34 @@ static gboolean
 mime_is_audio (const gchar *mime)
 {
   return mime && strstr (mime, "audio") != NULL;
+}
+
+static GrlContentMedia *
+build_media_from_entry (Entry *entry)
+{
+  GrlContentMedia *media;
+  gint duration;
+
+  if (mime_is_audio (entry->mime)) {
+    media = grl_content_audio_new ();
+  } else if (mime_is_video (entry->mime)) {
+    media = grl_content_video_new ();
+  } else {
+    media = grl_content_media_new ();
+  }
+  
+  grl_content_media_set_id (media, entry->url);
+  grl_content_media_set_title (media, entry->title);
+  grl_content_media_set_url (media, entry->url);
+  grl_content_media_set_date (media, entry->published);
+  grl_content_media_set_description (media, entry->summary);
+  grl_content_media_set_mime (media, entry->mime);
+  duration = duration_to_seconds (entry->duration);
+  if (duration > 0) {
+    grl_content_media_set_duration (media, duration);
+  }
+
+  return media;
 }
 
 static GrlContentMedia *
@@ -822,48 +855,84 @@ static gboolean
 parse_entry_idle (gpointer user_data)
 {
   OperationSpecParse *osp = (OperationSpecParse *) user_data;
+  xmlNodeSetPtr nodes;
+  guint remaining;
+  GrlContentMedia *media;
 
-  while (osp->node && xmlStrcmp (osp->node->name, (const xmlChar *) "item")) {
-    osp->node = osp->node->next;
-  }
+  nodes = osp->xpathObj->nodesetval;
 
-  if (osp->node) {
-    Entry *entry = g_new0 (Entry, 1);
-    parse_entry (osp->doc, osp->node, entry);
-    if (0) print_entry (entry);
+  /* Parse entry */
+  Entry *entry = g_new0 (Entry, 1);
+  parse_entry (osp->doc, nodes->nodeTab[osp->parse_index], entry);
+  if (0) print_entry (entry);
+
+  /* Check if entry is valid */
+  if (!entry->url || entry->url[0] == '\0') {
+    g_debug ("Podcast stream has no URL, skipping");
+  } else {
+    /* Provide results to user as fast as possible */
+    if (osp->parse_valid_index >= osp->os->skip &&
+	osp->parse_valid_index < osp->os->skip + osp->os->count) {
+      media = build_media_from_entry (entry);
+      remaining = osp->os->skip + osp->os->count - osp->parse_valid_index - 1;
+
+      /* Hack: if we emit the last result now the UI may request more results
+	 right away while we are still parsing the XML, so we keep the last
+	 result until we are done processing the whole feed, this way when
+	 the next query arrives all the stuff is stored in the database 
+	 and the query can be resolved normally */
+      if (remaining > 0) {
+	osp->os->callback (osp->os->source,
+			   osp->os->operation_id,
+			   media,
+			   remaining,
+			   osp->os->user_data,
+			   NULL);
+      } else {
+	osp->last_media = media;
+      }
+    }
+
+    osp->parse_valid_index++;
+
+    /* And store stream in database cache */
     store_stream (GRL_PODCASTS_SOURCE (osp->os->source)->priv->db,
 		  osp->os->media_id, entry);
-    free_entry (entry);
-    osp->node = osp->node->next;
   }
 
-  if (!osp->node) {
-    /* We are done parsing */
+  osp->parse_index++;
+  free_entry (entry);
 
-    /* Update the last_refreshed date of the podcast */
-    touch_podcast (GRL_PODCASTS_SOURCE (osp->os->source)->priv->db,
-		   osp->os->media_id);
+  if (osp->parse_index >= osp->parse_count) {
+    /* Send last result */
+    osp->os->callback (osp->os->source,
+		       osp->os->operation_id,
+		       osp->last_media,
+		       0,
+		       osp->os->user_data,
+		       NULL);
     
-    /* Now that we have parsed the feed and stored the contents, let's
-       resolve the user's query */
-    produce_podcast_contents_from_db (osp->os);
-
     g_free (osp->os);
+    xmlXPathFreeObject (osp->xpathObj);
+    xmlXPathFreeContext (osp->xpathCtx);
     xmlFreeDoc (osp->doc);
+    g_free (osp);
   }
   
-  return osp->node != NULL;
+  return osp->parse_index < osp->parse_count;
 }
 
 static void
 parse_feed (OperationSpec *os, const gchar *str, GError **error)
 {
-  xmlDocPtr doc;
-  xmlNodePtr node;
+  xmlDocPtr doc = NULL;
+  xmlXPathContextPtr xpathCtx = NULL;
+  xmlXPathObjectPtr xpathObj = NULL;
+  guint stream_count;
 
   g_debug ("parse_feed");
 
-  doc = xmlRecoverDoc ((xmlChar *) str);
+  doc = xmlParseDoc ((xmlChar *) str);
   if (!doc) {
     *error = g_error_new (GRL_ERROR,
 			  os->error_code,
@@ -871,50 +940,27 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
     goto free_resources;
   }
 
-  node = xmlDocGetRootElement (doc);
-  if (!node) {
+  /* Get feed stream list */
+  xpathCtx = xmlXPathNewContext (doc);
+  if (!xpathCtx) {
     *error = g_error_new (GRL_ERROR,
 			  os->error_code,
-			  "Podcast contains no data");
+			  "Failed to parse podcast contents");
+    goto free_resources;
+  }
+  
+  xpathObj = xmlXPathEvalExpression ((xmlChar *) "/rss/channel/item",
+				     xpathCtx);
+  if(xpathObj == NULL) {
+    *error = g_error_new (GRL_ERROR,
+			  os->error_code,
+			  "Failed to parse podcast contents");
     goto free_resources;
   }
 
-  if (xmlStrcmp (node->name, (const xmlChar *) "rss")) {
-    *error = g_error_new (GRL_ERROR,
-			  os->error_code,
-			  "Podcast is not in RSS format");
-    goto free_resources;
-  }
+  /* Feed is ok, let's process it */
 
-  /* TODO: handle various channels, maybe as categories within the podcast.
-     Right now we only parse the first channel */
-
-  /* Search first channel node */
-  node = node->xmlChildrenNode;
-  while (node) {
-    if (!xmlStrcmp (node->name, (const xmlChar *) "channel")) {
-      break;
-    }
-    node = node->next;
-  }
-  if (!node) {
-    *error = g_error_new (GRL_ERROR,
-			  os->error_code,
-			  "Podcast contains no channels");
-    goto free_resources;
-  }
-
-  node = node->xmlChildrenNode;
-  if (!node) {
-    *error = g_error_new (GRL_ERROR,
-			  os->error_code,
-			  "Podcast contains no channel data");
-    goto free_resources;
-  }
-
-  /* The feed is ok, let's parse it and store the streams in the database */
-
-  /* First we remove old entries */
+  /* First, remove old entries for this podcast */
   remove_podcast_streams (GRL_PODCASTS_SOURCE (os->source)->priv->db,
 			  os->media_id, error);
   if (*error) {
@@ -922,17 +968,40 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
     goto free_resources;
   }
 
-  /* Then we produce items using the idle loop to prevent blocking */
+  /* Then update the last_refreshed date of the podcast */
+  touch_podcast (GRL_PODCASTS_SOURCE (os->source)->priv->db, os->media_id);
+
+  /* If the feed contains no streams, notify and bail out */
+  stream_count = xpathObj->nodesetval ? xpathObj->nodesetval->nodeNr : 0;
+  g_debug ("Got %d streams", stream_count);
+  
+  if (stream_count <= 0) {
+    os->callback (os->source,
+		  os->operation_id,
+		  NULL,
+		  0,
+		  os->user_data,
+		  NULL);
+    goto free_resources;
+  }
+
+  /* Otherwise parse the streams in idle loop to prevent blocking */
   OperationSpecParse *osp = g_new0 (OperationSpecParse, 1);
   osp->os = os;
   osp->doc = doc;
-  osp->node = node;
+  osp->xpathCtx = xpathCtx;
+  osp->xpathObj = xpathObj;
+  osp->parse_count = stream_count;
   g_idle_add (parse_entry_idle, osp);
   return;
 
  free_resources:
-  xmlFreeDoc (doc);
-  return;
+  if (xpathObj)
+    xmlXPathFreeObject (xpathObj);
+  if (xpathCtx)
+    xmlXPathFreeContext (xpathCtx);
+  if (doc)
+    xmlFreeDoc (doc);
 }
 
 static void

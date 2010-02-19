@@ -498,7 +498,7 @@ grl_shoutcast_source_search (GrlMediaSource *source,
   data->count = ss->count;
   data->user_data = ss->user_data;
   data->error_code = GRL_ERROR_SEARCH_FAILED;
-  data->genre = g_strdup ("");
+  data->genre = g_strconcat ("?", ss->text, NULL);
 
   grl_media_source_set_operation_data (source, ss->search_id, data);
 

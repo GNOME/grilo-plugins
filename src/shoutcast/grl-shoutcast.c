@@ -63,12 +63,18 @@
 #define SITE        "http://www.igalia.com"
 
 typedef struct {
-  GrlMediaSourceBrowseSpec *bs;
-  xmlNodePtr xml_entries;
-  xmlDocPtr xml_doc;
-  gchar *genre;
-  gint to_send;
+  GrlMediaSource *source;
+  GrlMediaSourceResultCb callback;
   gboolean cancelled;
+  gchar *genre;
+  gint error_code;
+  gint operation_id;
+  gint to_send;
+  gpointer user_data;
+  guint count;
+  guint skip;
+  xmlDocPtr xml_doc;
+  xmlNodePtr xml_entries;
 } OperationData;
 
 static GrlShoutcastSource *grl_shoutcast_source_new (void);
@@ -231,12 +237,12 @@ static gboolean
 send_media (OperationData *op_data, GrlContentMedia *media)
 {
   if (!op_data->cancelled) {
-    op_data->bs->callback (op_data->bs->source,
-                           op_data->bs->browse_id,
-                           media,
-                           --op_data->to_send,
-                           op_data->bs->user_data,
-                           NULL);
+    op_data->callback (op_data->source,
+                       op_data->operation_id,
+                       media,
+                       --op_data->to_send,
+                       op_data->user_data,
+                       NULL);
 
     op_data->xml_entries = op_data->xml_entries->next;
     skip_garbage_nodes (&op_data->xml_entries);
@@ -279,7 +285,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   op_data->xml_doc = xmlRecoverDoc ((xmlChar *) str);
   if (!op_data->xml_doc) {
     error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_BROWSE_FAILED,
+                         op_data->error_code,
                          "Failed to parse SHOUTcast's response");
     goto finalize;
   }
@@ -287,7 +293,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   node = xmlDocGetRootElement (op_data->xml_doc);
   if  (!node) {
     error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_BROWSE_FAILED,
+                         op_data->error_code,
                          "Empty response from SHOUTcast");
     goto finalize;
   }
@@ -302,21 +308,21 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   }
 
   /* Skip elements */
-  while (op_data->xml_entries && op_data->bs->skip > 0) {
+  while (op_data->xml_entries && op_data->skip > 0) {
     op_data->xml_entries = op_data->xml_entries->next;
     skip_garbage_nodes (&op_data->xml_entries);
-    op_data->bs->skip--;
+    op_data->skip--;
   }
 
   /* Check if there are elements to send*/
-  if (!op_data->xml_entries || op_data->bs->count == 0) {
+  if (!op_data->xml_entries || op_data->count == 0) {
     goto finalize;
   }
 
   /* Compute how many items are to be sent */
   op_data->to_send = xml_count_nodes (op_data->xml_entries);
-  if (op_data->to_send > op_data->bs->count) {
-    op_data->to_send = op_data->bs->count;
+  if (op_data->to_send > op_data->count) {
+    op_data->to_send = op_data->count;
   }
 
   if (xmlStrcmp (node->name, (const xmlChar *) "genrelist") == 0) {
@@ -326,7 +332,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   } else {
     /* Unknown response */
     error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_BROWSE_FAILED,
+                         op_data->error_code,
                          "Unkown response from SHOUTcast");
     goto finalize;
   }
@@ -338,12 +344,12 @@ xml_parse_result (const gchar *str, OperationData *op_data)
     xmlFreeDoc (op_data->xml_doc);
   }
 
-  op_data->bs->callback (op_data->bs->source,
-                         op_data->bs->browse_id,
-                         NULL,
-                         0,
-                         op_data->bs->user_data,
-                         error);
+  op_data->callback (op_data->source,
+                     op_data->operation_id,
+                     NULL,
+                     0,
+                     op_data->user_data,
+                     error);
 
   if (error) {
     g_error_free (error);
@@ -368,15 +374,15 @@ read_done_cb (GObject *source_object,
                                     NULL,
                                     &vfs_error)) {
     error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_BROWSE_FAILED,
+                         op_data->error_code,
                          "Failed to connect SHOUTcast: '%s'",
                          vfs_error->message);
-    op_data->bs->callback (op_data->bs->source,
-                           op_data->bs->browse_id,
-                           NULL,
-                           0,
-                           op_data->bs->user_data,
-                           error);
+    op_data->callback (op_data->source,
+                       op_data->operation_id,
+                       NULL,
+                       0,
+                       op_data->user_data,
+                       error);
     g_error_free (error);
     g_free (op_data);
 
@@ -428,7 +434,13 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
   g_debug ("grl_shoutcast_source_browse");
 
   data = g_new0 (OperationData, 1);
-  data->bs = bs;
+  data->source = source;
+  data->operation_id = bs->browse_id;
+  data->callback = bs->callback;
+  data->skip = bs->skip;
+  data->count = bs->count;
+  data->user_data = bs->user_data;
+  data->error_code = GRL_ERROR_BROWSE_FAILED;
 
   container_id = grl_content_media_get_id (bs->container);
 

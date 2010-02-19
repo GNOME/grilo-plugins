@@ -67,6 +67,7 @@ typedef struct {
   xmlNodePtr xml_entries;
   xmlDocPtr xml_doc;
   gchar *genre;
+  gint to_send;
 } OperationData;
 
 static GrlShoutcastSource *grl_shoutcast_source_new (void);
@@ -148,6 +149,20 @@ skip_garbage_nodes (xmlNodePtr *node)
   }
 }
 
+static gint
+xml_count_nodes (xmlNodePtr node)
+{
+  gint count = 0;
+
+  while (node) {
+    count++;
+    node = node->next;
+    skip_garbage_nodes (&node);
+  }
+
+  return count;
+}
+
 static GrlContentMedia *
 build_media_from_genre (OperationData *op_data)
 {
@@ -207,27 +222,17 @@ build_media_from_station (OperationData *op_data)
 static gboolean
 send_media (OperationData *op_data, GrlContentMedia *media)
 {
-  gint remaining;
-
-  if (!op_data->xml_entries->next ||
-      op_data->bs->count == 1) {
-    remaining = 0;
-  } else {
-    remaining = -1;
-  }
-
   op_data->bs->callback (op_data->bs->source,
                          op_data->bs->browse_id,
                          media,
-                         remaining,
+                         --op_data->to_send,
                          op_data->bs->user_data,
                          NULL);
 
-  op_data->bs->count--;
   op_data->xml_entries = op_data->xml_entries->next;
   skip_garbage_nodes (&op_data->xml_entries);
 
-  if (!op_data->xml_entries || op_data->bs->count == 0) {
+  if (op_data->to_send == 0) {
     xmlFreeDoc (op_data->xml_doc);
     g_free (op_data);
     return FALSE;
@@ -291,6 +296,12 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   /* Check if there are elements to send*/
   if (!op_data->xml_entries || op_data->bs->count == 0) {
     goto finalize;
+  }
+
+  /* Compute how many items are to be sent */
+  op_data->to_send = xml_count_nodes (op_data->xml_entries);
+  if (op_data->to_send > op_data->bs->count) {
+    op_data->to_send = op_data->bs->count;
   }
 
   if (xmlStrcmp (node->name, (const xmlChar *) "genrelist") == 0) {

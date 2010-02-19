@@ -68,6 +68,7 @@ typedef struct {
   xmlDocPtr xml_doc;
   gchar *genre;
   gint to_send;
+  gboolean cancelled;
 } OperationData;
 
 static GrlShoutcastSource *grl_shoutcast_source_new (void);
@@ -81,6 +82,8 @@ static const GList *grl_shoutcast_source_supported_keys (GrlMetadataSource *sour
 static void grl_shoutcast_source_browse (GrlMediaSource *source,
                                          GrlMediaSourceBrowseSpec *bs);
 
+static void grl_shoutcast_source_cancel (GrlMediaSource *source,
+                                         guint operation_id);
 
 /* =================== SHOUTcast Plugin  =============== */
 
@@ -126,6 +129,7 @@ grl_shoutcast_source_class_init (GrlShoutcastSourceClass * klass)
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_shoutcast_source_browse;
+  source_class->cancel = grl_shoutcast_source_cancel;
   metadata_class->supported_keys = grl_shoutcast_source_supported_keys;
 }
 
@@ -222,17 +226,19 @@ build_media_from_station (OperationData *op_data)
 static gboolean
 send_media (OperationData *op_data, GrlContentMedia *media)
 {
-  op_data->bs->callback (op_data->bs->source,
-                         op_data->bs->browse_id,
-                         media,
-                         --op_data->to_send,
-                         op_data->bs->user_data,
-                         NULL);
+  if (!op_data->cancelled) {
+    op_data->bs->callback (op_data->bs->source,
+                           op_data->bs->browse_id,
+                           media,
+                           --op_data->to_send,
+                           op_data->bs->user_data,
+                           NULL);
 
-  op_data->xml_entries = op_data->xml_entries->next;
-  skip_garbage_nodes (&op_data->xml_entries);
+    op_data->xml_entries = op_data->xml_entries->next;
+    skip_garbage_nodes (&op_data->xml_entries);
+  }
 
-  if (op_data->to_send == 0) {
+  if (op_data->to_send == 0 || op_data->cancelled) {
     xmlFreeDoc (op_data->xml_doc);
     g_free (op_data);
     return FALSE;
@@ -260,6 +266,11 @@ xml_parse_result (const gchar *str, OperationData *op_data)
 {
   GError *error = NULL;
   xmlNodePtr node;
+
+  if (op_data->cancelled) {
+    g_free (op_data);
+    return;
+  }
 
   op_data->xml_doc = xmlRecoverDoc ((xmlChar *) str);
   if (!op_data->xml_doc) {
@@ -426,7 +437,23 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
     data->genre = g_strdup (container_id);
   }
 
+  grl_media_source_set_operation_data (source, bs->browse_id, data);
+
   read_url_async (url, data);
 
   g_free (url);
+}
+
+static void
+grl_shoutcast_source_cancel (GrlMediaSource *source, guint operation_id)
+{
+  OperationData *op_data;
+
+  g_debug ("grl_shoutcast_source_cancel");
+
+  op_data = (OperationData *) grl_media_source_get_operation_data (source, operation_id);
+
+  if (op_data) {
+    op_data->cancelled = TRUE;
+  }
 }

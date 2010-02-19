@@ -1082,7 +1082,7 @@ produce_podcast_contents (OperationSpec *os)
     /* Check if we have to refresh the podcast */
     lr_str = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_LAST_REFRESHED);
     g_debug ("Podcast last-refreshed: '%s'", lr_str);
-    g_time_val_from_iso8601 (lr_str, &lr);
+    g_time_val_from_iso8601 (lr_str ? lr_str : "", &lr);
     g_get_current_time (&now);
     now.tv_sec -= CACHE_DURATION;
     if (now.tv_sec >= lr.tv_sec) {

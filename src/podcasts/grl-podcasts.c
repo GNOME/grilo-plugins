@@ -56,14 +56,14 @@
   "desc  TEXT,"                                 \
   "last_refreshed DATE)"
 
-#define GRL_SQL_CREATE_TABLE_STREAMS            \
-  "CREATE TABLE IF NOT EXISTS streams ("        \
-  "podcast INTEGER REFERENCES podcasts (id),"   \
-  "url     TEXT PRIMARY KEY,"                   \
-  "title   TEXT,"                               \
-  "length  INTEGER,"                            \
-  "mime    TEXT,"                               \
-  "date    TEXT,"                               \
+#define GRL_SQL_CREATE_TABLE_STREAMS		 \
+  "CREATE TABLE IF NOT EXISTS streams ( "        \
+  "podcast INTEGER REFERENCES podcasts (id), "   \
+  "url     TEXT, "				 \
+  "title   TEXT, "                               \
+  "length  INTEGER, "                            \
+  "mime    TEXT, "                               \
+  "date    TEXT, "                               \
   "desc    TEXT)"
 
 #define GRL_SQL_GET_PODCASTS			\

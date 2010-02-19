@@ -44,9 +44,10 @@
 
 #define SHOUTCAST_BASE_ENTRY "http://yp.shoutcast.com"
 
-#define SHOUTCAST_GET_GENRES SHOUTCAST_BASE_ENTRY "/sbin/newxml.phtml"
-#define SHOUTCAST_GET_RADIOS SHOUTCAST_GET_GENRES "?genre=%s&limit=%d"
-#define SHOUTCAST_TUNE       SHOUTCAST_BASE_ENTRY "/sbin/tunein-station.pls?id=%s"
+#define SHOUTCAST_GET_GENRES    SHOUTCAST_BASE_ENTRY "/sbin/newxml.phtml"
+#define SHOUTCAST_GET_RADIOS    SHOUTCAST_GET_GENRES "?genre=%s&limit=%d"
+#define SHOUTCAST_SEARCH_RADIOS SHOUTCAST_GET_GENRES "?search=%s&limit=%d"
+#define SHOUTCAST_TUNE          SHOUTCAST_BASE_ENTRY "/sbin/tunein-station.pls?id=%s"
 
 /* --- Plugin information --- */
 
@@ -87,6 +88,9 @@ static const GList *grl_shoutcast_source_supported_keys (GrlMetadataSource *sour
 
 static void grl_shoutcast_source_browse (GrlMediaSource *source,
                                          GrlMediaSourceBrowseSpec *bs);
+
+static void grl_shoutcast_source_search (GrlMediaSource *source,
+                                         GrlMediaSourceSearchSpec *ss);
 
 static void grl_shoutcast_source_cancel (GrlMediaSource *source,
                                          guint operation_id);
@@ -135,6 +139,7 @@ grl_shoutcast_source_class_init (GrlShoutcastSourceClass * klass)
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_shoutcast_source_browse;
+  source_class->search = grl_shoutcast_source_search;
   source_class->cancel = grl_shoutcast_source_cancel;
   metadata_class->supported_keys = grl_shoutcast_source_supported_keys;
 }
@@ -455,6 +460,51 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
   }
 
   grl_media_source_set_operation_data (source, bs->browse_id, data);
+
+  read_url_async (url, data);
+
+  g_free (url);
+}
+
+static void
+grl_shoutcast_source_search (GrlMediaSource *source,
+                             GrlMediaSourceSearchSpec *ss)
+{
+  GError *error;
+  OperationData *data;
+  gchar *url;
+
+  /* Check if there is text to search */
+  if (!ss->text || ss->text[0] == '\0') {
+    error = g_error_new (GRL_ERROR,
+                         GRL_ERROR_SEARCH_FAILED,
+                         "Search text not specified");
+    ss->callback (ss->source,
+                  ss->search_id,
+                  NULL,
+                  0,
+                  ss->user_data,
+                  error);
+
+    g_error_free (error);
+    return;
+  }
+
+  data = g_new0 (OperationData, 1);
+  data->source = source;
+  data->operation_id = ss->search_id;
+  data->callback = ss->callback;
+  data->skip = ss->skip;
+  data->count = ss->count;
+  data->user_data = ss->user_data;
+  data->error_code = GRL_ERROR_SEARCH_FAILED;
+  data->genre = g_strdup ("");
+
+  grl_media_source_set_operation_data (source, ss->search_id, data);
+
+  url = g_strdup_printf (SHOUTCAST_SEARCH_RADIOS,
+                         ss->text,
+                         ss->skip + ss->count);
 
   read_url_async (url, data);
 

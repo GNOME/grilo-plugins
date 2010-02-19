@@ -385,15 +385,10 @@ grl_shoutcast_source_supported_keys (GrlMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_GENRE,
+                                      GRL_METADATA_KEY_ID,
+                                      GRL_METADATA_KEY_MIME,
                                       GRL_METADATA_KEY_TITLE,
-                                      GRL_METADATA_KEY_ARTIST,
-                                      GRL_METADATA_KEY_ALBUM,
-                                      GRL_METADATA_KEY_GENRE,
-                                      GRL_METADATA_KEY_URL,
-                                      GRL_METADATA_KEY_DURATION,
-                                      GRL_METADATA_KEY_THUMBNAIL,
-                                      GRL_METADATA_KEY_SITE,
                                       NULL);
   }
   return keys;

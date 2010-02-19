@@ -148,12 +148,11 @@ skip_garbage_nodes (xmlNodePtr *node)
   }
 }
 
-static gboolean
-send_genrelist_entries (OperationData *op_data)
+static GrlContentMedia *
+build_media_from_genre (OperationData *op_data)
 {
   GrlContentMedia *media;
   gchar *genre_name;
-  gint remaining;
 
   media = grl_content_box_new ();
   genre_name = (gchar *) xmlGetProp (op_data->xml_entries,
@@ -165,6 +164,50 @@ send_genrelist_entries (OperationData *op_data)
                           GRL_METADATA_KEY_GENRE,
                           genre_name);
   g_free (genre_name);
+
+  return media;
+}
+
+static GrlContentMedia *
+build_media_from_station (OperationData *op_data)
+{
+  GrlContentMedia *media;
+  gchar *media_id;
+  gchar *station_genre;
+  gchar *station_id;
+  gchar *station_mime;
+  gchar *station_name;
+
+  station_name = (gchar *) xmlGetProp (op_data->xml_entries,
+                                       (const xmlChar *) "name");
+  station_mime = (gchar *) xmlGetProp (op_data->xml_entries,
+                                       (const xmlChar *) "mt");
+  station_id = (gchar *) xmlGetProp (op_data->xml_entries,
+                                     (const xmlChar *) "id");
+  station_genre = (gchar *) xmlGetProp (op_data->xml_entries,
+                                        (const xmlChar *) "genre");
+  media_id = g_strconcat (op_data->genre, "/", station_id, NULL);
+
+  media = grl_content_audio_new ();
+
+  grl_content_media_set_id (media, media_id);
+  grl_content_media_set_title (media, station_name);
+  grl_content_media_set_mime (media, station_mime);
+  grl_content_audio_set_genre (GRL_CONTENT_AUDIO (media), station_genre);
+
+  g_free (station_name);
+  g_free (station_mime);
+  g_free (station_id);
+  g_free (station_genre);
+  g_free (media_id);
+
+  return media;
+}
+
+static gboolean
+send_media (OperationData *op_data, GrlContentMedia *media)
+{
+  gint remaining;
 
   if (!op_data->xml_entries->next ||
       op_data->bs->count == 1) {
@@ -194,64 +237,17 @@ send_genrelist_entries (OperationData *op_data)
 }
 
 static gboolean
+send_genrelist_entries (OperationData *op_data)
+{
+  return send_media (op_data,
+                     build_media_from_genre (op_data));
+}
+
+static gboolean
 send_stationlist_entries (OperationData *op_data)
 {
-  GrlContentMedia *media;
-  gchar *media_id;
-  gchar *station_genre;
-  gchar *station_id;
-  gchar *station_mime;
-  gchar *station_name;
-  gint remaining;
-
-  station_name = (gchar *) xmlGetProp (op_data->xml_entries,
-                                       (const xmlChar *) "name");
-  station_mime = (gchar *) xmlGetProp (op_data->xml_entries,
-                                       (const xmlChar *) "mt");
-  station_id = (gchar *) xmlGetProp (op_data->xml_entries,
-                                     (const xmlChar *) "id");
-  station_genre = (gchar *) xmlGetProp (op_data->xml_entries,
-                                        (const xmlChar *) "genre");
-  media_id = g_strconcat (op_data->genre, "/", station_id, NULL);
-
-  media = grl_content_audio_new ();
-
-  grl_content_media_set_id (media, media_id);
-  grl_content_media_set_title (media, station_name);
-  grl_content_media_set_mime (media, station_mime);
-  grl_content_audio_set_genre (GRL_CONTENT_AUDIO (media), station_genre);
-
-  g_free (station_name);
-  g_free (station_mime);
-  g_free (station_id);
-  g_free (station_genre);
-  g_free (media_id);
-
-  if (!op_data->xml_entries->next ||
-      op_data->bs->count == 1) {
-    remaining = 0;
-  } else {
-    remaining = -1;
-  }
-
-  op_data->bs->callback (op_data->bs->source,
-                         op_data->bs->browse_id,
-                         media,
-                         remaining,
-                         op_data->bs->user_data,
-                         NULL);
-
-  op_data->bs->count--;
-  op_data->xml_entries = op_data->xml_entries->next;
-  skip_garbage_nodes (&op_data->xml_entries);
-
-  if (!op_data->xml_entries || op_data->bs->count == 0) {
-    xmlFreeDoc (op_data->xml_doc);
-    g_free (op_data);
-    return FALSE;
-  } else {
-    return TRUE;
-  }
+  return send_media (op_data,
+                     build_media_from_station (op_data));
 }
 
 static void

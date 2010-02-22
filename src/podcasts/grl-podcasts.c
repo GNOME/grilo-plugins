@@ -470,6 +470,27 @@ mime_is_audio (const gchar *mime)
   return mime && strstr (mime, "audio") != NULL;
 }
 
+static gchar *
+get_site_from_url (const gchar *url)
+{
+  gchar *p;
+
+  if (g_str_has_prefix (url, "file://")) {
+    return NULL;
+  }
+
+  p = strstr (url, "://");
+  if (!p) {
+    return NULL;
+  } else {
+    p += 3;
+  }
+
+  while (*p != '/') p++;
+
+  return g_strndup (url, p - url);
+}
+
 static GrlContentMedia *
 build_media (GrlContentMedia *content,
 	     gboolean is_podcast,
@@ -482,6 +503,7 @@ build_media (GrlContentMedia *content,
 	     guint duration)
 {
   GrlContentMedia *media = NULL;
+  gchar *site;
 
   if (content) {
     media = content;
@@ -493,8 +515,6 @@ build_media (GrlContentMedia *content,
     }
 
     grl_content_media_set_id (media, id);
-    grl_content_media_set_title (media, title);
-    grl_content_media_set_url (media, url);
     if (desc)
       grl_content_media_set_description (media, desc);
   } else {
@@ -509,8 +529,6 @@ build_media (GrlContentMedia *content,
     }
 
     grl_content_media_set_id (media, url);
-    grl_content_media_set_title (media, title);
-    grl_content_media_set_url (media, url);
     if (date)
       grl_content_media_set_date (media, date);
     if (desc)
@@ -520,6 +538,15 @@ build_media (GrlContentMedia *content,
     if (duration > 0) {
       grl_content_media_set_duration (media, duration);
     }
+  }
+
+  grl_content_media_set_title (media, title);
+  grl_content_media_set_url (media, url);
+
+  site = get_site_from_url (url);
+  if (site) {
+    grl_content_media_set_site (media, site);
+    g_free (site);
   }
 
   return media;

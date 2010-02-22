@@ -66,17 +66,27 @@
   "date    TEXT, "                               \
   "desc    TEXT)"
 
-#define GRL_SQL_GET_PODCASTS			\
-  "SELECT * FROM podcasts LIMIT %u OFFSET %u"
-
-#define GRL_SQL_GET_PODCASTS_BY_TEXT			\
-  "SELECT * FROM podcasts "				\
-  "WHERE title LIKE '%%%s%%' OR desc LIKE '%%%s%%' "	\
+#define GRL_SQL_GET_PODCASTS				\
+  "SELECT p.*, count(s.podcast <> '') "			\
+  "FROM podcasts p LEFT OUTER JOIN streams s "		\
+  "  ON p.id = s.podcast "				\
+  "GROUP BY p.id "					\
   "LIMIT %u OFFSET %u"
 
-#define GRL_SQL_GET_PODCASTS_BY_QUERY           \
-  "SELECT * FROM podcasts "                     \
-  "WHERE %s "                                   \
+#define GRL_SQL_GET_PODCASTS_BY_TEXT				\
+  "SELECT p.*, count(s.podcast <> '') "				\
+  "FROM podcasts p LEFT OUTER JOIN streams s "			\
+  "  ON p.id = s.podcast "					\
+  "WHERE p.title LIKE '%%%s%%' OR p.desc LIKE '%%%s%%' "	\
+  "GROUP BY p.id "						\
+  "LIMIT %u OFFSET %u"
+
+#define GRL_SQL_GET_PODCASTS_BY_QUERY				\
+  "SELECT p.*, count(s.podcast <> '') "				\
+  "FROM podcasts p LEFT OUTER JOIN streams s "			\
+  "  ON p.id = s.podcast "					\
+  "WHERE %s "							\
+  "GROUP BY p.id "						\
   "LIMIT %u OFFSET %u"
 
 #define GRL_SQL_GET_PODCAST_BY_ID               \
@@ -144,6 +154,7 @@ enum {
   PODCAST_URL,
   PODCAST_DESC,
   PODCAST_LAST_REFRESHED,
+  PODCAST_LAST,
 };
 
 enum {
@@ -500,7 +511,8 @@ build_media (GrlContentMedia *content,
 	     const gchar *desc,
 	     const gchar *mime,
 	     const gchar *date,
-	     guint duration)
+	     guint duration,
+	     guint childcount)
 {
   GrlContentMedia *media = NULL;
   gchar *site;
@@ -517,6 +529,7 @@ build_media (GrlContentMedia *content,
     grl_content_media_set_id (media, id);
     if (desc)
       grl_content_media_set_description (media, desc);
+    grl_content_box_set_childcount (GRL_CONTENT_BOX (media), childcount);
   } else {
     if (!media) {
       if (mime_is_audio (mime)) {
@@ -562,7 +575,7 @@ build_media_from_entry (Entry *entry)
   media = build_media (NULL, FALSE,
 		       entry->url, entry->title, entry->url,
 		       entry->summary, entry->mime, entry->published,
-		       duration);
+		       duration, 0);
   return media;
 }
 
@@ -579,14 +592,16 @@ build_media_from_stmt (GrlContentMedia *content,
   gchar *mime;
   gchar *date;
   guint duration;
+  guint childcount;
 
   if (is_podcast) {
     id = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_ID);
     title = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_TITLE);
     url = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_URL);
     desc = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_DESC);
+    childcount = (guint) sqlite3_column_int (sql_stmt, PODCAST_LAST);
     media = build_media (content, is_podcast,
-			 id, title, url, desc, NULL, NULL, 0);
+			 id, title, url, desc, NULL, NULL, 0, childcount);
   } else {
     mime = (gchar *) sqlite3_column_text (sql_stmt, STREAM_MIME);
     url = (gchar *) sqlite3_column_text (sql_stmt, STREAM_URL);
@@ -595,7 +610,7 @@ build_media_from_stmt (GrlContentMedia *content,
     desc = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DESC);
     duration = sqlite3_column_int (sql_stmt, STREAM_LENGTH);
     media = build_media (content, is_podcast,
-			 url, title, url, desc, mime, date, duration);
+			 url, title, url, desc, mime, date, duration, 0);
   }
 
   return media;

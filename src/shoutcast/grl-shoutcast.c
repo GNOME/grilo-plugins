@@ -216,6 +216,7 @@ build_media_from_station (OperationData *op_data)
   GrlContentMedia *media;
   gchar *media_id;
   gchar *media_url;
+  gchar *station_bitrate;
   gchar *station_genre;
   gchar *station_id;
   gchar *station_mime;
@@ -229,6 +230,8 @@ build_media_from_station (OperationData *op_data)
                                      (const xmlChar *) "id");
   station_genre = (gchar *) xmlGetProp (op_data->xml_entries,
                                         (const xmlChar *) "genre");
+  station_bitrate = (gchar *) xmlGetProp (op_data->xml_entries,
+                                          (const xmlChar *) "br");
   media_id = g_strconcat (op_data->genre, "/", station_id, NULL);
   media_url = g_strdup_printf (SHOUTCAST_TUNE, station_id);
 
@@ -243,11 +246,14 @@ build_media_from_station (OperationData *op_data)
   grl_content_media_set_mime (media, station_mime);
   grl_content_audio_set_genre (GRL_CONTENT_AUDIO (media), station_genre);
   grl_content_media_set_url (media, media_url);
+  grl_content_audio_set_bitrate (GRL_CONTENT_AUDIO (media),
+                                 atoi (station_bitrate));
 
   g_free (station_name);
   g_free (station_mime);
   g_free (station_id);
   g_free (station_genre);
+  g_free (station_bitrate);
   g_free (media_id);
   g_free (media_url);
 
@@ -489,7 +495,8 @@ grl_shoutcast_source_supported_keys (GrlMetadataSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
-    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_GENRE,
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_BITRATE,
+                                      GRL_METADATA_KEY_GENRE,
                                       GRL_METADATA_KEY_ID,
                                       GRL_METADATA_KEY_MIME,
                                       GRL_METADATA_KEY_TITLE,

@@ -523,6 +523,7 @@ AC_SUBST([builddir])
 # ----------------------------------------------------------
 
 AC_CONFIG_FILES([
+  grilo-plugins.spec
   Makefile
   src/Makefile
   src/youtube/Makefile

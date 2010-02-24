@@ -889,14 +889,15 @@ gupnp_browse_result_cb (GUPnPDIDLLiteParser *parser,
 {
   GrlContentMedia *media;
   struct OperationSpec *os = (struct OperationSpec *) user_data;
-
-  media = build_media_from_didl (NULL, didl, os->keys);
-  os->callback (os->source,
-		os->operation_id,
-		media,
-		--os->count,
-		os->user_data,
-		NULL);
+  if (gupnp_didl_lite_object_get_id (didl)) {
+    media = build_media_from_didl (NULL, didl, os->keys);
+    os->callback (os->source,
+		  os->operation_id,
+		  media,
+		  --os->count,
+		  os->user_data,
+		  NULL);
+  }
 }
 
 static void
@@ -983,9 +984,10 @@ gupnp_metadata_result_cb (GUPnPDIDLLiteParser *parser,
 			  gpointer user_data)
 {
   GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
-
-  build_media_from_didl (ms->media, didl, ms->keys);
-  ms->callback (ms->source, ms->media, ms->user_data, NULL);
+  if (gupnp_didl_lite_object_get_id (didl)) {
+    build_media_from_didl (ms->media, didl, ms->keys);
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+  }
 }
 
 static void

@@ -66,10 +66,10 @@
 #define CONTENT_DIR_SERVICE "urn:schemas-upnp-org:service:ContentDirectory"
 #endif
 
-#define UPNP_SEARCH_SPEC                        \
-  "title contains \"%s\" or "			\
-  "album contains \"%s\" or "			\
-  "artist contains \"%s\""
+#define UPNP_SEARCH_SPEC				\
+  "dc:title contains \"%s\" or "			\
+  "upnp:album contains \"%s\" or "			\
+  "upnp:artist contains \"%s\""
 
 struct _GrlUpnpPrivate {
   GUPnPDeviceProxy* device;

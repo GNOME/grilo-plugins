@@ -1503,9 +1503,15 @@ grl_podcasts_source_store (GrlMediaSource *source, GrlMediaSourceStoreSpec *ss)
 {
   g_debug ("grl_podcasts_source_store");
   GError *error = NULL;
-  store_podcast (GRL_PODCASTS_SOURCE (ss->source)->priv->db,
-                 ss->media,
-                 &error);
+  if (GRL_IS_CONTENT_BOX (ss->media)) {
+    error = g_error_new (GRL_ERROR,
+			 GRL_ERROR_STORE_FAILED,
+			 "Cannot create containers. Only feeds are accepted.");
+  } else {
+    store_podcast (GRL_PODCASTS_SOURCE (ss->source)->priv->db,
+		   ss->media,
+		   &error);
+  }
   ss->callback (ss->source, ss->parent, ss->media, ss->user_data, error);
   if (error) {
     g_error_free (error);

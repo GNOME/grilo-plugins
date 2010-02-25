@@ -56,7 +56,7 @@
 #define PLUGIN_DESC "A plugin for browsing Apple Movie Trailers"
 
 #define SOURCE_ID   "grl-apple-trailers"
-#define SOURCE_NAME "Appe Movie Trailers"
+#define SOURCE_NAME "Apple Movie Trailers"
 #define SOURCE_DESC "A plugin for browsing Apple Movie Trailers"
 
 #define AUTHOR      "Igalia S.L."
@@ -67,6 +67,7 @@ typedef struct {
   GrlMediaSourceBrowseSpec *bs;
   xmlDocPtr xml_doc;
   xmlNodePtr xml_entries;
+  gboolean cancelled;
 } OperationData;
 
 static GrlAppleTrailersSource *grl_apple_trailers_source_new (void);
@@ -79,6 +80,8 @@ static const GList *grl_apple_trailers_source_supported_keys (GrlMetadataSource 
 static void grl_apple_trailers_source_browse (GrlMediaSource *source,
                                               GrlMediaSourceBrowseSpec *bs);
 
+static void grl_apple_trailers_source_cancel (GrlMediaSource *source,
+                                              guint operation_id);
 
 /* =================== Apple Trailers Plugin  =============== */
 
@@ -124,6 +127,7 @@ grl_apple_trailers_source_class_init (GrlAppleTrailersSourceClass * klass)
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_apple_trailers_source_browse;
+  source_class->cancel = grl_apple_trailers_source_cancel;
   metadata_class->supported_keys = grl_apple_trailers_source_supported_keys;
 }
 
@@ -250,19 +254,23 @@ send_movie_info (OperationData *op_data)
   GrlContentMedia *media;
   gboolean last = FALSE;
 
-  media = build_media_from_movie (op_data->xml_entries);
-  last =
-    !op_data->xml_entries->next  ||
-    op_data->bs->count == 1;
+  if (op_data->cancelled) {
+    last = TRUE;
+  } else {
+    media = build_media_from_movie (op_data->xml_entries);
+    last =
+      !op_data->xml_entries->next  ||
+      op_data->bs->count == 1;
 
-  op_data->bs->callback (op_data->bs->source,
-                         op_data->bs->browse_id,
-                         media,
-                         last? 0: -1,
-                         op_data->bs->user_data,
-                         NULL);
-  op_data->xml_entries = op_data->xml_entries->next;
-  op_data->bs->count--;
+    op_data->bs->callback (op_data->bs->source,
+                           op_data->bs->browse_id,
+                           media,
+                           last? 0: -1,
+                           op_data->bs->user_data,
+                           NULL);
+    op_data->xml_entries = op_data->xml_entries->next;
+    op_data->bs->count--;
+  }
 
   if (last) {
     xmlFreeDoc (op_data->xml_doc);
@@ -277,6 +285,11 @@ xml_parse_result (const gchar *str, OperationData *op_data)
 {
   GError *error = NULL;
   xmlNodePtr node;
+
+  if (op_data->cancelled) {
+    g_free (op_data);
+    return;
+  }
 
   if (op_data->bs->count == 0) {
     goto finalize;
@@ -414,5 +427,21 @@ grl_apple_trailers_source_browse (GrlMediaSource *source,
 
   op_data = g_new0 (OperationData, 1);
   op_data->bs = bs;
+  grl_media_source_set_operation_data (source, bs->browse_id, op_data);
+
   read_url_async (APPLE_TRAILERS_CURRENT_SD, op_data);
+}
+
+static void
+grl_apple_trailers_source_cancel (GrlMediaSource *source, guint operation_id)
+{
+  OperationData *op_data;
+
+  g_debug ("grl_apple_trailers_source_cancel");
+
+  op_data = (OperationData *) grl_media_source_get_operation_data (source, operation_id);
+
+  if (op_data) {
+    op_data->cancelled = TRUE;
+  }
 }

@@ -17,11 +17,13 @@ Description: Grilo framework plugins
  .
  This package contains plugins to get information from theses sources:
  .
+  - Bookmarks
   - Filesystem
   - Flickr
   - Jamendo
   - Last.fm (for album arts)
   - Podcasts
+  - SHOUTcast
   - uPnP
   - Youtube
 

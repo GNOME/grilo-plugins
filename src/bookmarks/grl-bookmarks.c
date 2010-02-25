@@ -604,10 +604,10 @@ store_bookmark (sqlite3 *db,
 
   g_debug ("URL: '%s'", url);
 
-  if (url && url[0]) {
-    type = BOOKMARK_TYPE_STREAM;
-  } else {
+  if (GRL_IS_CONTENT_BOX (bookmark)) {
     type = BOOKMARK_TYPE_CATEGORY;
+  } else {
+    type = BOOKMARK_TYPE_STREAM;
   }
 
   sqlite3_bind_text (sql_stmt, 1, parent_id, -1, SQLITE_STATIC);

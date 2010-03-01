@@ -1,3 +1,14 @@
+grilo-0.1-plugins (0.1.3-1) unstable; urgency=low
+
+  * General: some fixes
+  * Apple Trailers: new plugin
+  * Bookmarks: some fixes
+  * Podcasts: some fixes
+  * Shoutcast: some fixes
+  * Upnp: some fixes
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Mon, 01 Mar 2010 13:11:36 +0100
+
 grilo-0.1-plugins (0.1.2-1) unstable; urgency=low
 
   * Bookmarks: new plugin.

@@ -6,7 +6,7 @@
 # Copyright (C) 2010 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.2])
+m4_define([prj_version], [0.1.3])
 
 AC_INIT([prj_name], [prj_version])
 
@@ -65,7 +65,7 @@ AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 PKG_CHECK_MODULES(DEPS, glib-2.0 \
 			gobject-2.0 \
 			gmodule-2.0 \
-			grilo-0.1)
+			grilo-0.1 >= 0.1.3)
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
@@ -103,20 +103,19 @@ AM_CONDITIONAL(HAVE_SQLITE, test "x$HAVE_SQLITE" = "xyes")
 # GUPNP-AV VERSION
 # ----------------------------------------------------------
 
+GUPNPAV_OLD_VERSION=no
+AC_SUBST(GUPNPAV_OLD_VERSION)
 if test "x$HAVE_GUPNPAV" = "xyes"; then
         gupnpav_version=`pkg-config --modversion gupnp-av-1.0`
         gupnpav_version_major=`echo $gupnpav_version | awk -F. '{ print $1 }'`
         gupnpav_version_minor=`echo $gupnpav_version | awk -F. '{ print $2 }'`
         if test $gupnpav_version_major -eq 0 -a $gupnpav_version_minor -lt 5; then
            GUPNPAV_OLD_VERSION=yes
-        else
-           GUPNPAV_OLD_VERSION=no
         fi
-        AC_SUBST(GUPNPAV_OLD_VERSION)
         AC_SUBST(gupnpav_version_major)
         AC_SUBST(gupnpav_version_minor)
-        AM_CONDITIONAL(GUPNPAV_OLD_VERSION, test "x$GUPNPAV_OLD_VERSION" = "xyes")
 fi
+AM_CONDITIONAL(GUPNPAV_OLD_VERSION, test "x$GUPNPAV_OLD_VERSION" = "xyes")
 
 # ----------------------------------------------------------
 # UNINSTALLED SUPPORT
@@ -469,6 +468,40 @@ then
 fi
 
 # ----------------------------------------------------------
+# BUILD APPLE TRAILERS PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(apple_trailers,
+        AC_HELP_STRING([--enable-apple-trailers],
+                [enable Apple Movie Trailers plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO not found, install it or use --disable-apple-trailers])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-apple-trailers])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                   enable_apple_trailers=yes
+                else
+                   enable_apple_trailers=no
+                fi
+        ])
+
+AM_CONDITIONAL([APPLE_TRAILERS_PLUGIN], [test "x$enable_apple_trailers" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL apple-trailers"
+if test "x$enable_apple_trailers" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED apple-trailers"
+fi
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -502,6 +535,7 @@ AC_CONFIG_FILES([
   src/podcasts/Makefile
   src/bookmarks/Makefile
   src/shoutcast/Makefile
+  src/apple-trailers/Makefile
   test/Makefile
   debian/grilo-0.1-plugins.install
 ])

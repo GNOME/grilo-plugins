@@ -180,6 +180,7 @@ main (void)
                 "grl-filesystem:*,"
                 "grl-jamendo:*,"
                 "grl-shoutcast:*,"
+                "grl-apple-trailers:*,"
                 "grl-lastfm-albumart:*,"
                 "grl-flickr:*");
 
@@ -212,6 +213,8 @@ main (void)
   grl_plugin_registry_load (registry,
                             "../src/shoutcast/.libs/libgrlshoutcast.so");
   grl_plugin_registry_load (registry,
+                            "../src/apple-trailers/.libs/libgrlappletrailers.so");
+  grl_plugin_registry_load (registry,
                             "../src/fake-metadata/.libs/libgrlfakemetadata.so");
   grl_plugin_registry_load (registry,
                             "../src/lastfm-albumart/.libs/libgrllastfm-albumart.so");
@@ -240,6 +243,10 @@ main (void)
     (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
                                                           "grl-shoutcast");
 
+  GrlMediaSource *apple_trailers =
+    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
+                                                          "grl-apple-trailers");
+
   GrlMetadataSource *fake =
     (GrlMetadataSource *) grl_plugin_registry_lookup_source (registry,
                                                              "grl-fake-metadata");
@@ -253,6 +260,7 @@ main (void)
   g_assert (flickr);
   g_assert (jamendo);
   g_assert (shoutcast);
+  g_assert (apple_trailers);
   g_assert (fake);
   g_assert (lastfm);
 
@@ -262,6 +270,7 @@ main (void)
   print_supported_ops (GRL_METADATA_SOURCE (fs));
   print_supported_ops (GRL_METADATA_SOURCE (flickr));
   print_supported_ops (GRL_METADATA_SOURCE (jamendo));
+  print_supported_ops (GRL_METADATA_SOURCE (apple_trailers));
   print_supported_ops (GRL_METADATA_SOURCE (shoutcast));
   print_supported_ops (fake);
   print_supported_ops (lastfm);
@@ -304,7 +313,8 @@ main (void)
   if (0) grl_media_source_metadata (shoutcast, box_from_id("24hs"), keys, 0, metadata_cb, NULL);
   if (0) grl_media_source_metadata (shoutcast, box_from_id("2424hs"), keys, 0, metadata_cb, NULL);
   if (0) grl_media_source_metadata (shoutcast, media_from_id("American/556687"), keys, 0, metadata_cb, NULL);
-  if (1) grl_media_source_metadata (shoutcast, media_from_id("American/556682"), keys, 0, metadata_cb, NULL);
+  if (0) grl_media_source_metadata (shoutcast, media_from_id("American/556682"), keys, 0, metadata_cb, NULL);
+  if (1) grl_media_source_browse (apple_trailers, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) {
     GrlContentMedia *media = media_from_id ("test");
     grl_content_set_string (GRL_CONTENT (media),

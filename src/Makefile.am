@@ -47,7 +47,11 @@ if SHOUTCAST_PLUGIN
 SUBDIRS += shoutcast
 endif
 
-DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr podcasts bookmarks shoutcast
+if APPLE_TRAILERS_PLUGIN
+SUBDIRS += apple-trailers
+endif
+
+DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr podcasts bookmarks shoutcast apple-trailers
 
 MAINTAINERCLEANFILES = \
         *.in \

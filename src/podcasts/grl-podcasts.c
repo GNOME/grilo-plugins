@@ -66,17 +66,27 @@
   "date    TEXT, "                               \
   "desc    TEXT)"
 
-#define GRL_SQL_GET_PODCASTS			\
-  "SELECT * FROM podcasts LIMIT %u OFFSET %u"
-
-#define GRL_SQL_GET_PODCASTS_BY_TEXT			\
-  "SELECT * FROM podcasts "				\
-  "WHERE title LIKE '%%%s%%' OR desc LIKE '%%%s%%' "	\
+#define GRL_SQL_GET_PODCASTS				\
+  "SELECT p.*, count(s.podcast <> '') "			\
+  "FROM podcasts p LEFT OUTER JOIN streams s "		\
+  "  ON p.id = s.podcast "				\
+  "GROUP BY p.id "					\
   "LIMIT %u OFFSET %u"
 
-#define GRL_SQL_GET_PODCASTS_BY_QUERY           \
-  "SELECT * FROM podcasts "                     \
-  "WHERE %s "                                   \
+#define GRL_SQL_GET_PODCASTS_BY_TEXT				\
+  "SELECT p.*, count(s.podcast <> '') "				\
+  "FROM podcasts p LEFT OUTER JOIN streams s "			\
+  "  ON p.id = s.podcast "					\
+  "WHERE p.title LIKE '%%%s%%' OR p.desc LIKE '%%%s%%' "	\
+  "GROUP BY p.id "						\
+  "LIMIT %u OFFSET %u"
+
+#define GRL_SQL_GET_PODCASTS_BY_QUERY				\
+  "SELECT p.*, count(s.podcast <> '') "				\
+  "FROM podcasts p LEFT OUTER JOIN streams s "			\
+  "  ON p.id = s.podcast "					\
+  "WHERE %s "							\
+  "GROUP BY p.id "						\
   "LIMIT %u OFFSET %u"
 
 #define GRL_SQL_GET_PODCAST_BY_ID               \
@@ -144,6 +154,7 @@ enum {
   PODCAST_URL,
   PODCAST_DESC,
   PODCAST_LAST_REFRESHED,
+  PODCAST_LAST,
 };
 
 enum {
@@ -470,6 +481,27 @@ mime_is_audio (const gchar *mime)
   return mime && strstr (mime, "audio") != NULL;
 }
 
+static gchar *
+get_site_from_url (const gchar *url)
+{
+  gchar *p;
+
+  if (g_str_has_prefix (url, "file://")) {
+    return NULL;
+  }
+
+  p = strstr (url, "://");
+  if (!p) {
+    return NULL;
+  } else {
+    p += 3;
+  }
+
+  while (*p != '/') p++;
+
+  return g_strndup (url, p - url);
+}
+
 static GrlContentMedia *
 build_media (GrlContentMedia *content,
 	     gboolean is_podcast,
@@ -479,9 +511,11 @@ build_media (GrlContentMedia *content,
 	     const gchar *desc,
 	     const gchar *mime,
 	     const gchar *date,
-	     guint duration)
+	     guint duration,
+	     guint childcount)
 {
   GrlContentMedia *media = NULL;
+  gchar *site;
 
   if (content) {
     media = content;
@@ -493,10 +527,9 @@ build_media (GrlContentMedia *content,
     }
 
     grl_content_media_set_id (media, id);
-    grl_content_media_set_title (media, title);
-    grl_content_media_set_url (media, url);
     if (desc)
       grl_content_media_set_description (media, desc);
+    grl_content_box_set_childcount (GRL_CONTENT_BOX (media), childcount);
   } else {
     if (!media) {
       if (mime_is_audio (mime)) {
@@ -509,8 +542,6 @@ build_media (GrlContentMedia *content,
     }
 
     grl_content_media_set_id (media, url);
-    grl_content_media_set_title (media, title);
-    grl_content_media_set_url (media, url);
     if (date)
       grl_content_media_set_date (media, date);
     if (desc)
@@ -520,6 +551,15 @@ build_media (GrlContentMedia *content,
     if (duration > 0) {
       grl_content_media_set_duration (media, duration);
     }
+  }
+
+  grl_content_media_set_title (media, title);
+  grl_content_media_set_url (media, url);
+
+  site = get_site_from_url (url);
+  if (site) {
+    grl_content_media_set_site (media, site);
+    g_free (site);
   }
 
   return media;
@@ -535,7 +575,7 @@ build_media_from_entry (Entry *entry)
   media = build_media (NULL, FALSE,
 		       entry->url, entry->title, entry->url,
 		       entry->summary, entry->mime, entry->published,
-		       duration);
+		       duration, 0);
   return media;
 }
 
@@ -552,14 +592,16 @@ build_media_from_stmt (GrlContentMedia *content,
   gchar *mime;
   gchar *date;
   guint duration;
+  guint childcount;
 
   if (is_podcast) {
     id = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_ID);
     title = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_TITLE);
     url = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_URL);
     desc = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_DESC);
+    childcount = (guint) sqlite3_column_int (sql_stmt, PODCAST_LAST);
     media = build_media (content, is_podcast,
-			 id, title, url, desc, NULL, NULL, 0);
+			 id, title, url, desc, NULL, NULL, 0, childcount);
   } else {
     mime = (gchar *) sqlite3_column_text (sql_stmt, STREAM_MIME);
     url = (gchar *) sqlite3_column_text (sql_stmt, STREAM_URL);
@@ -568,7 +610,7 @@ build_media_from_stmt (GrlContentMedia *content,
     desc = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DESC);
     duration = sqlite3_column_int (sql_stmt, STREAM_LENGTH);
     media = build_media (content, is_podcast,
-			 url, title, url, desc, mime, date, duration);
+			 url, title, url, desc, mime, date, duration, 0);
   }
 
   return media;
@@ -1461,9 +1503,15 @@ grl_podcasts_source_store (GrlMediaSource *source, GrlMediaSourceStoreSpec *ss)
 {
   g_debug ("grl_podcasts_source_store");
   GError *error = NULL;
-  store_podcast (GRL_PODCASTS_SOURCE (ss->source)->priv->db,
-                 ss->media,
-                 &error);
+  if (GRL_IS_CONTENT_BOX (ss->media)) {
+    error = g_error_new (GRL_ERROR,
+			 GRL_ERROR_STORE_FAILED,
+			 "Cannot create containers. Only feeds are accepted.");
+  } else {
+    store_podcast (GRL_PODCASTS_SOURCE (ss->source)->priv->db,
+		   ss->media,
+		   &error);
+  }
   ss->callback (ss->source, ss->parent, ss->media, ss->user_data, error);
   if (error) {
     g_error_free (error);

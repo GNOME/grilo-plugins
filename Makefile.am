@@ -26,5 +26,7 @@ MAINTAINERCLEANFILES = \
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)
 
+EXTRA_DIST = ./m4/grilo.m4
+
 distclean-local:
 	-rm -rf autom4te.cache

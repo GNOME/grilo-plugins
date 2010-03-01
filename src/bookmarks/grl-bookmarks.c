@@ -31,8 +31,8 @@
 
 #include "grl-bookmarks.h"
 
-#define GRL_BOOKMARKS_GET_PRIVATE(object)                        \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                        \
+#define GRL_BOOKMARKS_GET_PRIVATE(object)			 \
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),			 \
                                GRL_BOOKMARKS_SOURCE_TYPE,        \
                                GrlBookmarksPrivate))
 
@@ -57,13 +57,19 @@
   "desc   TEXT)"
 
 #define GRL_SQL_GET_BOOKMARKS_BY_PARENT			\
-  "SELECT * FROM bookmarks "				\
-  "WHERE parent='%s' "					\
+  "SELECT b1.*, count(b2.parent <> '') "		\
+  "FROM bookmarks b1 LEFT OUTER JOIN bookmarks b2 "	\
+  "  ON b1.id = b2.parent "				\
+  "WHERE b1.parent='%s' "				\
+  "GROUP BY b1.id "					\
   "LIMIT %u OFFSET %u"
 
 #define GRL_SQL_GET_BOOKMARK_BY_ID			\
-  "SELECT * FROM bookmarks "				\
-  "WHERE id='%s' "					\
+  "SELECT b1.*, count(b2.parent <> '') "		\
+  "FROM bookmarks b1 LEFT OUTER JOIN bookmarks b2 "	\
+  "  ON b1.id = b2.parent "				\
+  "WHERE b1.id='%s' "					\
+  "GROUP BY b1.id "					\
   "LIMIT 1"
 
 #define GRL_SQL_STORE_BOOKMARK				  \
@@ -83,14 +89,20 @@
   "    SELECT DISTINCT id FROM bookmarks) "	\
   "  and parent <> 0)"
 
-#define GRL_SQL_GET_BOOKMARKS_BY_TEXT			\
-  "SELECT * FROM bookmarks "				\
-  "WHERE title LIKE '%%%s%%' OR desc LIKE '%%%s%%' "	\
+#define GRL_SQL_GET_BOOKMARKS_BY_TEXT				\
+  "SELECT b1.*, count(b2.parent <> '') "			\
+  "FROM bookmarks b1 LEFT OUTER JOIN bookmarks b2 "		\
+  "  ON b1.id = b2.parent "					\
+  "WHERE b1.title LIKE '%%%s%%' OR b1.desc LIKE '%%%s%%' "	\
+  "GROUP BY b1.id "						\
   "LIMIT %u OFFSET %u"
 
-#define GRL_SQL_GET_BOOKMARKS_BY_QUERY			\
-  "SELECT * FROM bookmarks "				\
-  "WHERE %s "						\
+#define GRL_SQL_GET_BOOKMARKS_BY_QUERY				\
+  "SELECT b1.*, count(b2.parent <> '') "			\
+  "FROM bookmarks b1 LEFT OUTER JOIN bookmarks b2 "		\
+  "  ON b1.id = b2.parent "					\
+  "WHERE %s "							\
+  "GROUP BY b1.id "						\
   "LIMIT %u OFFSET %u"
 
 /* --- Plugin information --- */
@@ -122,6 +134,7 @@ enum {
   BOOKMARK_DATE,
   BOOKMARK_MIME,
   BOOKMARK_DESC,
+  BOOKMARK_LAST
 };
 
 struct _GrlBookmarksPrivate {
@@ -311,6 +324,7 @@ build_media_from_stmt (GrlContentMedia *content, sqlite3_stmt *sql_stmt)
   gchar *date;
   gchar *mime;
   guint type;
+  guint childcount;
 
   if (content) {
     media = content;
@@ -323,6 +337,7 @@ build_media_from_stmt (GrlContentMedia *content, sqlite3_stmt *sql_stmt)
   date = (gchar *) sqlite3_column_text (sql_stmt, BOOKMARK_DATE);
   mime = (gchar *) sqlite3_column_text (sql_stmt, BOOKMARK_MIME);
   type = (guint) sqlite3_column_int (sql_stmt, BOOKMARK_TYPE);
+  childcount = (guint) sqlite3_column_int (sql_stmt, BOOKMARK_LAST);
 
   if (!media) {
     if (type == BOOKMARK_TYPE_CATEGORY) {
@@ -346,6 +361,10 @@ build_media_from_stmt (GrlContentMedia *content, sqlite3_stmt *sql_stmt)
   }
   if (date) {
     grl_content_media_set_date (media, date);
+  }
+
+  if (type == BOOKMARK_TYPE_CATEGORY) {
+    grl_content_box_set_childcount (GRL_CONTENT_BOX (media), childcount);
   }
 
   return media;
@@ -585,10 +604,10 @@ store_bookmark (sqlite3 *db,
 
   g_debug ("URL: '%s'", url);
 
-  if (url && url[0]) {
-    type = BOOKMARK_TYPE_STREAM;
-  } else {
+  if (GRL_IS_CONTENT_BOX (bookmark)) {
     type = BOOKMARK_TYPE_CATEGORY;
+  } else {
+    type = BOOKMARK_TYPE_STREAM;
   }
 
   sqlite3_bind_text (sql_stmt, 1, parent_id, -1, SQLITE_STATIC);

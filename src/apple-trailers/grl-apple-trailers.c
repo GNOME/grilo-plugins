@@ -73,7 +73,8 @@ typedef struct {
 static GrlAppleTrailersSource *grl_apple_trailers_source_new (void);
 
 gboolean grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
-                                         const GrlPluginInfo *plugin);
+                                         const GrlPluginInfo *plugin,
+                                         const GrlContentConfig *config);
 
 static const GList *grl_apple_trailers_source_supported_keys (GrlMetadataSource *source);
 
@@ -87,7 +88,8 @@ static void grl_apple_trailers_source_cancel (GrlMediaSource *source,
 
 gboolean
 grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
-                                const GrlPluginInfo *plugin)
+                                const GrlPluginInfo *plugin,
+                                const GrlContentConfig *config)
 {
   g_debug ("apple_trailers_plugin_init\n");
 

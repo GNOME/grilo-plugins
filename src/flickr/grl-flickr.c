@@ -77,7 +77,8 @@ struct _GrlFlickrSourcePrivate {
 static GrlFlickrSource *grl_flickr_source_new (void);
 
 gboolean grl_flickr_plugin_init (GrlPluginRegistry *registry,
-				 const GrlPluginInfo *plugin);
+				 const GrlPluginInfo *plugin,
+                                 const GrlContentConfig *config);
 
 static const GList *grl_flickr_source_supported_keys (GrlMetadataSource *source);
 
@@ -91,7 +92,8 @@ static void grl_flickr_source_search (GrlMediaSource *source,
 
 gboolean
 grl_flickr_plugin_init (GrlPluginRegistry *registry,
-                        const GrlPluginInfo *plugin)
+                        const GrlPluginInfo *plugin,
+                        const GrlContentConfig *config)
 {
   g_debug ("flickr_plugin_init\n");
 

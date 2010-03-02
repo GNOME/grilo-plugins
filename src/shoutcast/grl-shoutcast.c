@@ -85,7 +85,8 @@ typedef struct {
 static GrlShoutcastSource *grl_shoutcast_source_new (void);
 
 gboolean grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
-                                    const GrlPluginInfo *plugin);
+                                    const GrlPluginInfo *plugin,
+                                    const GrlContentConfig *config);
 
 static const GList *grl_shoutcast_source_supported_keys (GrlMetadataSource *source);
 
@@ -105,7 +106,8 @@ static void grl_shoutcast_source_cancel (GrlMediaSource *source,
 
 gboolean
 grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
-                           const GrlPluginInfo *plugin)
+                           const GrlPluginInfo *plugin,
+                           const GrlContentConfig *config)
 {
   g_debug ("shoutcast_plugin_init\n");
 

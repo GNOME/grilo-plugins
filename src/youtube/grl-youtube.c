@@ -189,7 +189,8 @@ typedef enum {
 static GrlYoutubeSource *grl_youtube_source_new (void);
 
 gboolean grl_youtube_plugin_init (GrlPluginRegistry *registry,
-                                  const GrlPluginInfo *plugin);
+                                  const GrlPluginInfo *plugin,
+                                  const GrlContentConfig *config);
 
 static const GList *grl_youtube_source_supported_keys (GrlMetadataSource *source);
 
@@ -241,7 +242,8 @@ CategoryInfo *categories_dir = NULL;
 
 gboolean
 grl_youtube_plugin_init (GrlPluginRegistry *registry,
-                         const GrlPluginInfo *plugin)
+                         const GrlPluginInfo *plugin,
+                         const GrlContentConfig *config)
 {
   g_debug ("youtube_plugin_init\n");
 

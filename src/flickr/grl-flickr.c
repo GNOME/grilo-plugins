@@ -43,13 +43,6 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "grl-flickr"
 
-/* ----- Security tokens ---- */
-
-#define FLICKR_KEY    "fa037bee8120a921b34f8209d715a2fa"
-#define FLICKR_SECRET "9f6523b9c52e3317"
-#define FLICKR_FROB   "416-357-743"
-#define FLICKR_TOKEN  "72157623286932154-c90318d470e96a29"
-
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-flickr"
@@ -95,17 +88,33 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
                         const GrlPluginInfo *plugin,
                         const GrlContentConfig *config)
 {
+  const gchar *flickr_key;
+  const gchar *flickr_secret;
+  const gchar *flickr_token;
+
   g_debug ("flickr_plugin_init\n");
 
-  GrlFlickrSource *source = grl_flickr_source_new ();
-  if (source) {
-    grl_plugin_registry_register_source (registry,
-                                         plugin,
-                                         GRL_MEDIA_PLUGIN (source));
-    return TRUE;
-  } else {
+  if (!config) {
+    g_warning ("Missing configuration");
     return FALSE;
   }
+
+  flickr_key = grl_content_config_get_api_key (config);
+  flickr_token = grl_content_config_get_api_token (config);
+  flickr_secret = grl_content_config_get_api_secret (config);
+
+  if (!flickr_key || ! flickr_token || !flickr_secret) {
+    g_warning ("Required configuration keys not set up");
+    return FALSE;
+  }
+
+  GrlFlickrSource *source = grl_flickr_source_new ();
+  source->priv->flickr = g_flickr_new (flickr_key, flickr_token, flickr_secret);
+
+  grl_plugin_registry_register_source (registry,
+                                       plugin,
+                                       GRL_MEDIA_PLUGIN (source));
+  return TRUE;
 }
 
 GRL_PLUGIN_REGISTER (grl_flickr_plugin_init,
@@ -149,7 +158,6 @@ static void
 grl_flickr_source_init (GrlFlickrSource *source)
 {
   source->priv = GRL_FLICKR_SOURCE_GET_PRIVATE (source);
-  source->priv->flickr = g_flickr_new (FLICKR_KEY, FLICKR_TOKEN, FLICKR_SECRET);
 }
 
 G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_MEDIA_SOURCE);

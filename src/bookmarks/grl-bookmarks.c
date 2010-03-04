@@ -570,6 +570,7 @@ store_bookmark (sqlite3 *db,
   const gchar *mime;
   gchar *date;
   guint type;
+  gchar *id;
 
   g_debug ("store_bookmark");
 
@@ -646,6 +647,10 @@ store_bookmark (sqlite3 *db,
   }
 
   sqlite3_finalize (sql_stmt);
+
+  id = g_strdup_printf ("%llu", sqlite3_last_insert_rowid (db));
+  grl_content_media_set_id (bookmark, id);
+  g_free (id);
 }
 
 /* ================== API Implementation ================ */

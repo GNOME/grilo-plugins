@@ -767,6 +767,7 @@ store_podcast (sqlite3 *db, GrlContentMedia *podcast, GError **error)
   const gchar *title;
   const gchar *url;
   const gchar *desc;
+  gchar *id;
 
   g_debug ("store_podcast");
 
@@ -807,6 +808,10 @@ store_podcast (sqlite3 *db, GrlContentMedia *podcast, GError **error)
   }
 
   sqlite3_finalize (sql_stmt);
+
+  id = g_strdup_printf ("%llu", sqlite3_last_insert_rowid (db));
+  grl_content_media_set_id (podcast, id);
+  g_free (id);
 }
 
 static void
@@ -1083,40 +1088,52 @@ read_feed_cb (gchar *xmldata, gpointer user_data)
   }
 }
 
-static void
-produce_podcast_contents (OperationSpec *os)
+static sqlite3_stmt *
+get_podcast_info (sqlite3 *db, const gchar *podcast_id)
 {
   gint r;
   sqlite3_stmt *sql_stmt = NULL;
-  sqlite3 *db;
-  GError *error = NULL;
   gchar *sql;
-  gchar *url;
 
-  g_debug ("produce_podcast_contents");
+  g_debug ("get_podcast_info");
 
-  /* First we get some information about the podcast */
-  db = GRL_PODCASTS_SOURCE (os->source)->priv->db;
-  sql = g_strdup_printf (GRL_SQL_GET_PODCAST_BY_ID, os->media_id);
+  sql = g_strdup_printf (GRL_SQL_GET_PODCAST_BY_ID, podcast_id);
   g_debug ("%s", sql);
   r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
   g_free (sql);
 
   if (r != SQLITE_OK) {
     g_warning ("Failed to retrieve podcast '%s': %s",
-	       os->media_id, sqlite3_errmsg (db));
-    error = g_error_new (GRL_ERROR,
-			 os->error_code,
-			 "Failed to retrieve podcast information");
-    os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
-    g_error_free (error);
-    g_free (os);
-    return;
+	       podcast_id, sqlite3_errmsg (db));
+    return NULL;
   }
 
   while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
 
   if (r == SQLITE_ROW) {
+    return sql_stmt;
+  } else {
+    g_warning ("Failed to retrieve podcast information: %s",
+	       sqlite3_errmsg (db));
+    sqlite3_finalize (sql_stmt);
+    return NULL;
+  }
+}
+
+static void
+produce_podcast_contents (OperationSpec *os)
+{
+  sqlite3_stmt *sql_stmt = NULL;
+  sqlite3 *db;
+  GError *error;
+  gchar *url;
+
+  g_debug ("produce_podcast_contents");
+
+  /* First we get some information about the podcast */
+  db = GRL_PODCASTS_SOURCE (os->source)->priv->db;
+  sql_stmt = get_podcast_info (db, os->media_id);
+  if (sql_stmt) {
     gchar *lr_str;
     GTimeVal lr;
     GTimeVal now;
@@ -1138,9 +1155,8 @@ produce_podcast_contents (OperationSpec *os)
       produce_podcast_contents_from_db (os);
       g_free (os);
     }
+    sqlite3_finalize (sql_stmt);
   } else {
-    g_warning ("Failed to retrieve podcast information: %s",
-	       sqlite3_errmsg (db));
     error = g_error_new (GRL_ERROR,
 			 os->error_code,
 			 "Failed to retrieve podcast information");
@@ -1149,7 +1165,6 @@ produce_podcast_contents (OperationSpec *os)
     g_free (os);
   }
 
-  sqlite3_finalize (sql_stmt);
 }
 
 static void
@@ -1287,11 +1302,9 @@ stream_metadata (GrlMediaSourceMetadataSpec *ms)
 static void
 podcast_metadata (GrlMediaSourceMetadataSpec *ms)
 {
-  gint r;
   sqlite3_stmt *sql_stmt = NULL;
   sqlite3 *db;
   GError *error = NULL;
-  gchar *sql;
   const gchar *id;
 
   g_debug ("podcast_metadata");
@@ -1306,26 +1319,12 @@ podcast_metadata (GrlMediaSourceMetadataSpec *ms)
     return;
   }
 
-  sql = g_strdup_printf (GRL_SQL_GET_PODCAST_BY_ID, id);
-  g_debug ("%s", sql);
-  r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
-  g_free (sql);
+  sql_stmt = get_podcast_info (db, id);
 
-  if (r != SQLITE_OK) {
-    g_warning ("Failed to get podcast: %s", sqlite3_errmsg (db));
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_METADATA_FAILED,
-			 "Failed to get podcast metadata");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
-    g_error_free (error);
-    return;
-  }
-
-  while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
-
-  if (r == SQLITE_ROW) {
+  if (sql_stmt) {
     build_media_from_stmt (ms->media, sql_stmt, TRUE);
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    sqlite3_finalize (sql_stmt);
   } else {
     g_warning ("Failed to get podcast: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_ERROR,
@@ -1334,8 +1333,6 @@ podcast_metadata (GrlMediaSourceMetadataSpec *ms)
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   }
-
-  sqlite3_finalize (sql_stmt);
 }
 
 static gboolean

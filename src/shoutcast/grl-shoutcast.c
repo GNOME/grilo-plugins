@@ -240,16 +240,16 @@ build_media_from_station (OperationData *op_data)
   if (op_data->media) {
     media = op_data->media;
   } else {
-    media = grl_data_audio_new ();
+    media = grl_media_audio_new ();
   }
 
   grl_media_set_id (media, media_id);
   grl_media_set_title (media, station_name);
   grl_media_set_mime (media, station_mime);
-  grl_data_audio_set_genre (GRL_DATA_AUDIO (media), station_genre);
+  grl_media_audio_set_genre (GRL_MEDIA_AUDIO (media), station_genre);
   grl_media_set_url (media, media_url);
-  grl_data_audio_set_bitrate (GRL_DATA_AUDIO (media),
-                              atoi (station_bitrate));
+  grl_media_audio_set_bitrate (GRL_MEDIA_AUDIO (media),
+                               atoi (station_bitrate));
 
   g_free (station_name);
   g_free (station_mime);

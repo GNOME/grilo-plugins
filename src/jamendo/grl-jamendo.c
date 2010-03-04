@@ -488,8 +488,8 @@ update_media_from_entry (GrlMedia *media, const Entry *entry)
     }
 
     if (entry->album_genre) {
-      grl_data_audio_set_genre (GRL_DATA_AUDIO (media),
-                                entry->album_genre);
+      grl_media_audio_set_genre (GRL_MEDIA_AUDIO (media),
+                                 entry->album_genre);
     }
 
     if (entry->track_url) {
@@ -525,7 +525,7 @@ xml_parse_entries_idle (gpointer user_data)
   if (parse_more) {
     entry = xml_parse_entry (xpe->doc, xpe->node);
     if (entry->category == JAMENDO_TRACK_CAT) {
-      media = grl_data_audio_new ();
+      media = grl_media_audio_new ();
     } else {
       media = grl_data_box_new ();
     }

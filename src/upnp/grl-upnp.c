@@ -769,13 +769,13 @@ set_metadata_value (GrlMedia *media,
     grl_media_set_title (media, value);
     break;
   case GRL_METADATA_KEY_ARTIST:
-    grl_data_audio_set_artist (media, value);
+    grl_media_audio_set_artist (media, value);
     break;
   case GRL_METADATA_KEY_ALBUM:
-    grl_data_audio_set_album (media, value);
+    grl_media_audio_set_album (media, value);
     break;
   case GRL_METADATA_KEY_GENRE:
-    grl_data_audio_set_genre (media, value);
+    grl_media_audio_set_genre (media, value);
     break;
   case GRL_METADATA_KEY_URL:
     grl_media_set_url (media, value);
@@ -843,7 +843,7 @@ build_media_from_didl (GrlMedia *content,
       class = gupnp_didl_lite_object_get_upnp_class (didl_node);
       if (class) {
 	if (g_str_has_prefix (class, "object.item.audioItem")) {
-	  media = grl_data_audio_new ();
+	  media = grl_media_audio_new ();
 	} else if (g_str_has_prefix (class, "object.item.videoItem")) {
 	  media = grl_data_video_new ();
 	} else if (g_str_has_prefix (class, "object.item.imageItem")) {

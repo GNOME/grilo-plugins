@@ -534,7 +534,7 @@ build_media (GrlMedia *content,
   } else {
     if (!media) {
       if (mime_is_audio (mime)) {
-	media = grl_data_audio_new ();
+	media = grl_media_audio_new ();
       } else if (mime_is_video (mime)) {
 	media = grl_data_video_new ();
       } else {

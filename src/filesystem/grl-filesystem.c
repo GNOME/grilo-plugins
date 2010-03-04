@@ -236,7 +236,7 @@ file_is_valid_content (const gchar *path, gboolean fast)
 
 static void
 set_container_childcount (const gchar *path,
-			  GrlDataMedia *media,
+			  GrlMedia *media,
 			  gboolean fast)
 {
   GDir *dir;
@@ -281,12 +281,12 @@ set_container_childcount (const gchar *path,
   grl_data_box_set_childcount (GRL_DATA_BOX (media), count);
 }
 
-static GrlDataMedia *
-create_content (GrlDataMedia *content,
+static GrlMedia *
+create_content (GrlMedia *content,
                 const gchar *path,
                 gboolean only_fast)
 {
-  GrlDataMedia *media = NULL;
+  GrlMedia *media = NULL;
   gchar *str;
   const gchar *mime;
   GError *error = NULL;
@@ -306,7 +306,7 @@ create_content (GrlDataMedia *content,
   if (error) {
     g_warning ("Failed to get info for file '%s': %s", path, error->message);
     if (!media) {
-      media = grl_data_media_new ();
+      media = grl_media_new ();
     }
 
     /* Title */
@@ -314,14 +314,14 @@ create_content (GrlDataMedia *content,
     if (!str) {
       str = (gchar *) path;
     }
-    grl_data_media_set_title (media, str);
+    grl_media_set_title (media, str);
     g_error_free (error);
   } else {
     mime = g_file_info_get_content_type (info);
 
     if (!media) {
       if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-	media = GRL_DATA_MEDIA (grl_data_box_new ());
+	media = GRL_MEDIA (grl_data_box_new ());
       } else {
 	if (mime_is_video (mime)) {
 	  media = grl_data_video_new ();
@@ -330,36 +330,36 @@ create_content (GrlDataMedia *content,
 	} else if (mime_is_image (mime)) {
 	  media = grl_data_image_new ();
 	} else {
-	  media = grl_data_media_new ();
+	  media = grl_media_new ();
 	}
       }
     }
 
     if (!GRL_IS_DATA_BOX (media)) {
-      grl_data_media_set_mime (GRL_DATA (media), mime);
+      grl_media_set_mime (GRL_DATA (media), mime);
     }
 
     /* Title */
     str = (gchar *) g_file_info_get_display_name (info);
-    grl_data_media_set_title (media, str);
+    grl_media_set_title (media, str);
 
     /* Date */
     GTimeVal time;
     gchar *time_str;
     g_file_info_get_modification_time (info, &time);
     time_str = g_time_val_to_iso8601 (&time);
-    grl_data_media_set_date (GRL_DATA (media), time_str);
+    grl_media_set_date (GRL_DATA (media), time_str);
     g_free (time_str);
 
     g_object_unref (info);
   }
 
   /* ID */
-  grl_data_media_set_id (media, path);
+  grl_media_set_id (media, path);
 
   /* URL */
   str = g_strconcat ("file://", path, NULL);
-  grl_data_media_set_url (media, str);
+  grl_media_set_url (media, str);
   g_free (str);
 
   /* Childcount */
@@ -385,7 +385,7 @@ browse_emit_idle (gpointer user_data)
   count = 0;
   do {
     gchar *entry_path;
-    GrlDataMedia *content;
+    GrlMedia *content;
 
     entry_path = (gchar *) idle_data->current->data;
     content = create_content (NULL,
@@ -522,7 +522,7 @@ grl_filesystem_source_browse (GrlMediaSource *source,
 
   g_debug ("grl_filesystem_source_browse");
 
-  id = grl_data_media_get_id (bs->container);
+  id = grl_media_get_id (bs->container);
   path = id ? id : G_DIR_SEPARATOR_S;
   produce_from_path (bs, path);
 }
@@ -536,7 +536,7 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
 
   g_debug ("grl_filesystem_source_metadata");
 
-  id = grl_data_media_get_id (ms->media);
+  id = grl_media_get_id (ms->media);
   path = id ? id : G_DIR_SEPARATOR_S;
 
   if (g_file_test (path, G_FILE_TEST_EXISTS)) {

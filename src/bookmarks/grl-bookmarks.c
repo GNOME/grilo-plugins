@@ -314,10 +314,10 @@ mime_is_audio (const gchar *mime)
   return mime && strstr (mime, "audio") != NULL;
 }
 
-static GrlDataMedia *
-build_media_from_stmt (GrlDataMedia *content, sqlite3_stmt *sql_stmt)
+static GrlMedia *
+build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
 {
-  GrlDataMedia *media = NULL;
+  GrlMedia *media = NULL;
   gchar *id;
   gchar *title;
   gchar *url;
@@ -342,26 +342,26 @@ build_media_from_stmt (GrlDataMedia *content, sqlite3_stmt *sql_stmt)
 
   if (!media) {
     if (type == BOOKMARK_TYPE_CATEGORY) {
-      media = GRL_DATA_MEDIA (grl_data_box_new ());
+      media = GRL_MEDIA (grl_data_box_new ());
     } else if (mime_is_audio (mime)) {
-      media = GRL_DATA_MEDIA (grl_data_media_new ());
+      media = GRL_MEDIA (grl_media_new ());
     } else if (mime_is_video (mime)) {
-      media = GRL_DATA_MEDIA (grl_data_media_new ());
+      media = GRL_MEDIA (grl_media_new ());
     } else {
-      media = GRL_DATA_MEDIA (grl_data_media_new ());
+      media = GRL_MEDIA (grl_media_new ());
     }
   }
 
-  grl_data_media_set_id (media, id);
-  grl_data_media_set_title (media, title);
+  grl_media_set_id (media, id);
+  grl_media_set_title (media, title);
   if (url) {
-    grl_data_media_set_url (media, url);
+    grl_media_set_url (media, url);
   }
   if (desc) {
-    grl_data_media_set_description (media, desc);
+    grl_media_set_description (media, desc);
   }
   if (date) {
-    grl_data_media_set_date (media, date);
+    grl_media_set_date (media, date);
   }
 
   if (type == BOOKMARK_TYPE_CATEGORY) {
@@ -385,10 +385,10 @@ bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
 
   db = GRL_BOOKMARKS_SOURCE (ms->source)->priv->db;
 
-  id = grl_data_media_get_id (ms->media);
+  id = grl_media_get_id (ms->media);
   if (!id) {
     /* Root category: special case */
-    grl_data_media_set_title (ms->media, "");
+    grl_media_set_title (ms->media, "");
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
     return;
   }
@@ -431,7 +431,7 @@ produce_bookmarks_from_sql (OperationSpec *os, const gchar *sql)
   gint r;
   sqlite3_stmt *sql_stmt = NULL;
   sqlite3 *db;
-  GrlDataMedia *media;
+  GrlMedia *media;
   GError *error = NULL;
   GList *medias = NULL;
   guint count = 0;
@@ -476,7 +476,7 @@ produce_bookmarks_from_sql (OperationSpec *os, const gchar *sql)
     medias = g_list_reverse (medias);
     iter = medias;
     while (iter) {
-      media = GRL_DATA_MEDIA (iter->data);
+      media = GRL_MEDIA (iter->data);
       os->callback (os->source,
 		    os->operation_id,
 		    media,
@@ -558,7 +558,7 @@ remove_bookmark (sqlite3 *db, const gchar *bookmark_id, GError **error)
 static void
 store_bookmark (sqlite3 *db,
 		GrlDataBox *parent,
-		GrlDataMedia *bookmark,
+		GrlMedia *bookmark,
 		GError **error)
 {
   gint r;
@@ -575,17 +575,17 @@ store_bookmark (sqlite3 *db,
 
   g_debug ("store_bookmark");
 
-  title = grl_data_media_get_title (bookmark);
-  url = grl_data_media_get_url (bookmark);
-  desc = grl_data_media_get_description (bookmark);
-  mime = grl_data_media_get_mime (bookmark);
+  title = grl_media_get_title (bookmark);
+  url = grl_media_get_url (bookmark);
+  desc = grl_media_get_description (bookmark);
+  mime = grl_media_get_mime (bookmark);
   g_get_current_time (&now);
   date = g_time_val_to_iso8601 (&now);
 
   if (!parent) {
     parent_id = "0";
   } else {
-    parent_id = grl_data_media_get_id (parent);
+    parent_id = grl_media_get_id (parent);
   }
   if (!parent_id) {
     parent_id = "0";
@@ -650,7 +650,7 @@ store_bookmark (sqlite3 *db,
   sqlite3_finalize (sql_stmt);
 
   id = g_strdup_printf ("%llu", sqlite3_last_insert_rowid (db));
-  grl_data_media_set_id (bookmark, id);
+  grl_media_set_id (bookmark, id);
   g_free (id);
 }
 
@@ -696,7 +696,7 @@ grl_bookmarks_source_browse (GrlMediaSource *source,
   os = g_new0 (OperationSpec, 1);
   os->source = bs->source;
   os->operation_id = bs->browse_id;
-  os->media_id = grl_data_media_get_id (bs->container);
+  os->media_id = grl_media_get_id (bs->container);
   os->count = bs->count;
   os->skip = bs->skip;
   os->callback = bs->callback;

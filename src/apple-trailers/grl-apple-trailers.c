@@ -191,10 +191,10 @@ runtime_to_seconds (const gchar *runtime)
 
   return seconds;
 }
-static GrlDataMedia *
+static GrlMedia *
 build_media_from_movie (xmlNodePtr node)
 {
-  GrlDataMedia * media;
+  GrlMedia * media;
   gchar *movie_author;
   gchar *movie_date;
   gchar *movie_description;
@@ -225,17 +225,17 @@ build_media_from_movie (xmlNodePtr node)
   movie_url = get_node_value (node_dup, "/movieinfo/preview/large");
   xmlFreeDoc (xml_doc);
 
-  grl_data_media_set_id (media, movie_id);
-  grl_data_media_set_author (media, movie_author);
-  grl_data_media_set_date (media, movie_date);
-  grl_data_media_set_description (media, movie_description);
-  grl_data_media_set_duration (media, runtime_to_seconds (movie_duration));
-  grl_data_media_set_title (media, movie_title);
+  grl_media_set_id (media, movie_id);
+  grl_media_set_author (media, movie_author);
+  grl_media_set_date (media, movie_date);
+  grl_media_set_description (media, movie_description);
+  grl_media_set_duration (media, runtime_to_seconds (movie_duration));
+  grl_media_set_title (media, movie_title);
   grl_data_set_string (GRL_DATA (media),
                        GRL_METADATA_KEY_GENRE,
                        movie_genre);
-  grl_data_media_set_thumbnail (media, movie_thumbnail);
-  grl_data_media_set_url (media, movie_url);
+  grl_media_set_thumbnail (media, movie_thumbnail);
+  grl_media_set_url (media, movie_url);
 
   g_free (movie_id);
   g_free (movie_author);
@@ -253,7 +253,7 @@ build_media_from_movie (xmlNodePtr node)
 static gboolean
 send_movie_info (OperationData *op_data)
 {
-  GrlDataMedia *media;
+  GrlMedia *media;
   gboolean last = FALSE;
 
   if (op_data->cancelled) {

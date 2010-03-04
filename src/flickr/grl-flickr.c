@@ -165,7 +165,7 @@ G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_MEDIA_SOURCE);
 /* ======================= Utilities ==================== */
 
 static void
-update_media (GrlDataMedia *media, GHashTable *photo)
+update_media (GrlMedia *media, GHashTable *photo)
 {
   gchar *author;
   gchar *date;
@@ -199,32 +199,32 @@ update_media (GrlDataMedia *media, GHashTable *photo)
   }
 
   if (author) {
-    grl_data_media_set_author (media, author);
+    grl_media_set_author (media, author);
   }
 
   if (date) {
-    grl_data_media_set_date (media, date);
+    grl_media_set_date (media, date);
   }
 
   if (description) {
-    grl_data_media_set_description (media, description);
+    grl_media_set_description (media, description);
   }
 
   if (id) {
-    grl_data_media_set_id (media, id);
+    grl_media_set_id (media, id);
   }
 
   if (thumbnail) {
-    grl_data_media_set_thumbnail (media, thumbnail);
+    grl_media_set_thumbnail (media, thumbnail);
     g_free (thumbnail);
   }
 
   if (title) {
-    grl_data_media_set_title (media, title);
+    grl_media_set_title (media, title);
   }
 
   if (url) {
-    grl_data_media_set_url (media, url);
+    grl_media_set_url (media, url);
     g_free (url);
   }
 }
@@ -244,7 +244,7 @@ getInfo_cb (GFlickr *f, GHashTable *photo, gpointer user_data)
 static void
 search_cb (GFlickr *f, GList *photolist, gpointer user_data)
 {
-  GrlDataMedia *media;
+  GrlMedia *media;
   SearchData *sd = (SearchData *) user_data;
   gchar *media_type;
 
@@ -316,7 +316,7 @@ grl_flickr_source_metadata (GrlMediaSource *source,
 {
   const gchar *id;
 
-  if (!ms->media || (id = grl_data_media_get_id (ms->media)) == NULL) {
+  if (!ms->media || (id = grl_media_get_id (ms->media)) == NULL) {
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
     return;
   }

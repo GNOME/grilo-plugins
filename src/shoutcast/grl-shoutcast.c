@@ -65,7 +65,7 @@
 #define SITE        "http://www.igalia.com"
 
 typedef struct {
-  GrlDataMedia *media;
+  GrlMedia *media;
   GrlMediaSource *source;
   GrlMediaSourceMetadataCb metadata_cb;
   GrlMediaSourceResultCb result_cb;
@@ -187,10 +187,10 @@ xml_count_nodes (xmlNodePtr node)
   return count;
 }
 
-static GrlDataMedia *
+static GrlMedia *
 build_media_from_genre (OperationData *op_data)
 {
-  GrlDataMedia *media;
+  GrlMedia *media;
   gchar *genre_name;
 
   if (op_data->media) {
@@ -202,8 +202,8 @@ build_media_from_genre (OperationData *op_data)
   genre_name = (gchar *) xmlGetProp (op_data->xml_entries,
                                      (const xmlChar *) "name");
 
-  grl_data_media_set_id (media, genre_name);
-  grl_data_media_set_title (media, genre_name);
+  grl_media_set_id (media, genre_name);
+  grl_media_set_title (media, genre_name);
   grl_data_set_string (GRL_DATA (media),
                        GRL_METADATA_KEY_GENRE,
                        genre_name);
@@ -212,10 +212,10 @@ build_media_from_genre (OperationData *op_data)
   return media;
 }
 
-static GrlDataMedia *
+static GrlMedia *
 build_media_from_station (OperationData *op_data)
 {
-  GrlDataMedia *media;
+  GrlMedia *media;
   gchar *media_id;
   gchar *media_url;
   gchar *station_bitrate;
@@ -243,11 +243,11 @@ build_media_from_station (OperationData *op_data)
     media = grl_data_audio_new ();
   }
 
-  grl_data_media_set_id (media, media_id);
-  grl_data_media_set_title (media, station_name);
-  grl_data_media_set_mime (media, station_mime);
+  grl_media_set_id (media, media_id);
+  grl_media_set_title (media, station_name);
+  grl_media_set_mime (media, station_mime);
   grl_data_audio_set_genre (GRL_DATA_AUDIO (media), station_genre);
-  grl_data_media_set_url (media, media_url);
+  grl_media_set_url (media, media_url);
   grl_data_audio_set_bitrate (GRL_DATA_AUDIO (media),
                               atoi (station_bitrate));
 
@@ -263,7 +263,7 @@ build_media_from_station (OperationData *op_data)
 }
 
 static gboolean
-send_media (OperationData *op_data, GrlDataMedia *media)
+send_media (OperationData *op_data, GrlMedia *media)
 {
   if (!op_data->cancelled) {
     op_data->result_cb (op_data->source,
@@ -366,7 +366,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
         error = g_error_new (GRL_ERROR,
                              op_data->error_code,
                              "Can not find media '%s'",
-                             grl_data_media_get_id (op_data->media));
+                             grl_media_get_id (op_data->media));
       }
       if (xpath_res) {
         xmlXPathFreeObject (xpath_res);
@@ -524,11 +524,11 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
      repeat the Pop browsing and get the result with station id 1321. If it
      doesn't exist (think in results obtained from a search), we do nothing */
 
-  media_id = grl_data_media_get_id (ms->media);
+  media_id = grl_media_get_id (ms->media);
 
   /* Check if we need to report about root category */
   if (!media_id) {
-    grl_data_media_set_title (ms->media, "SHOUTcast");
+    grl_media_set_title (ms->media, "SHOUTcast");
   } else {
     data = g_new0 (OperationData, 1);
     data->source = source;
@@ -589,7 +589,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
   data->user_data = bs->user_data;
   data->error_code = GRL_ERROR_BROWSE_FAILED;
 
-  container_id = grl_data_media_get_id (bs->container);
+  container_id = grl_media_get_id (bs->container);
 
   /* If it's root category send list of genres; else send list of radios */
   if (!container_id) {

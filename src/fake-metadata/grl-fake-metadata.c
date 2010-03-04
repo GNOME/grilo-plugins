@@ -118,11 +118,11 @@ G_DEFINE_TYPE (GrlFakeMetadataSource,
 /* ======================= Utilities ==================== */
 
 static void
-fill_metadata (GrlDataMedia *media, GrlKeyID key_id)
+fill_metadata (GrlMedia *media, GrlKeyID key_id)
 {
   switch (key_id) {
   case GRL_METADATA_KEY_AUTHOR:
-    grl_data_media_set_author (media, "fake author");
+    grl_media_set_author (media, "fake author");
     break;
   case GRL_METADATA_KEY_ARTIST:
     grl_data_set_string (GRL_DATA (media),
@@ -137,17 +137,17 @@ fill_metadata (GrlDataMedia *media, GrlKeyID key_id)
                          GRL_METADATA_KEY_GENRE, "fake genre");
     break;
   case GRL_METADATA_KEY_DESCRIPTION:
-    grl_data_media_set_description (media, "fake description");
+    grl_media_set_description (media, "fake description");
     break;
   case GRL_METADATA_KEY_DURATION:
-    grl_data_media_set_duration (media, 99);
+    grl_media_set_duration (media, 99);
     break;
   case GRL_METADATA_KEY_DATE:
     grl_data_set_string (GRL_DATA (media),
                          GRL_METADATA_KEY_DATE, "01/01/1970");
     break;
   case GRL_METADATA_KEY_THUMBNAIL:
-    grl_data_media_set_thumbnail (media,
+    grl_media_set_thumbnail (media,
                                   "http://fake.thumbnail.com/fake-image.jpg");
     break;
   default:
@@ -213,7 +213,7 @@ grl_fake_metadata_source_resolve (GrlMetadataSource *source,
   iter = rs->keys;
   while (iter) {
     GrlKeyID key_id = POINTER_TO_GRLKEYID (iter->data);
-    fill_metadata (GRL_DATA_MEDIA (rs->media), key_id);
+    fill_metadata (GRL_MEDIA (rs->media), key_id);
     iter = g_list_next (iter);
   }
 

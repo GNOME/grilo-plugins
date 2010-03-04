@@ -76,28 +76,28 @@ print_metadata (gpointer key, GrlData *content)
   }
 }
 
-static GrlDataMedia *
+static GrlMedia *
 media_from_id (const gchar *id)
 {
-  GrlDataMedia *media;
-  media = grl_data_media_new ();
-  grl_data_media_set_id (media, id);
+  GrlMedia *media;
+  media = grl_media_new ();
+  grl_media_set_id (media, id);
   return media;
 }
 
-static GrlDataMedia *
+static GrlMedia *
 box_from_id (const gchar *id)
 {
-  GrlDataMedia *media;
+  GrlMedia *media;
   media = grl_data_box_new ();
-  grl_data_media_set_id (media, id);
+  grl_media_set_id (media, id);
   return media;
 }
 
 static void
 browse_cb (GrlMediaSource *source,
 	   guint browse_id,
-           GrlDataMedia *media,
+           GrlMedia *media,
 	   guint remaining,
 	   gpointer user_data,
 	   const GError *error)
@@ -132,7 +132,7 @@ browse_cb (GrlMediaSource *source,
 
 static void
 metadata_cb (GrlMediaSource *source,
-	     GrlDataMedia *media,
+	     GrlMedia *media,
 	     gpointer user_data,
 	     const GError *error)
 {
@@ -146,7 +146,7 @@ metadata_cb (GrlMediaSource *source,
   }
 
   g_debug ("    Got metadata for object '%s'",
-	   grl_data_media_get_id (GRL_DATA_MEDIA (media)));
+	   grl_media_get_id (GRL_MEDIA (media)));
 
   g_debug ("\tContainer: %s",
 	   GRL_IS_DATA_BOX(media) ? "yes" : "no");
@@ -161,7 +161,7 @@ metadata_cb (GrlMediaSource *source,
 
 static void
 resolve_cb (GrlMetadataSource *source,
-            GrlDataMedia *media,
+            GrlMedia *media,
             gpointer user_data,
             const GError *error)
 {
@@ -316,7 +316,7 @@ main (void)
   if (0) grl_media_source_metadata (shoutcast, media_from_id("American/556682"), keys, 0, metadata_cb, NULL);
   if (1) grl_media_source_browse (apple_trailers, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) {
-    GrlDataMedia *media = media_from_id ("test");
+    GrlMedia *media = media_from_id ("test");
     grl_data_set_string (GRL_DATA (media),
                          GRL_METADATA_KEY_ARTIST,
                          "roxette");

@@ -439,12 +439,12 @@ read_url (const gchar *url)
   }
 }
 
-static GrlDataMedia *
-build_media_from_entry (GrlDataMedia *content,
+static GrlMedia *
+build_media_from_entry (GrlMedia *content,
 			const Entry *entry,
 			const GList *keys)
 {
-  GrlDataMedia *media;
+  GrlMedia *media;
   gchar *url;
   GList *iter;
 
@@ -459,40 +459,40 @@ build_media_from_entry (GrlDataMedia *content,
     GrlKeyID key_id = POINTER_TO_GRLKEYID (iter->data);
     switch (key_id) {
     case GRL_METADATA_KEY_ID:
-      grl_data_media_set_id (media, entry->id);
+      grl_media_set_id (media, entry->id);
       break;
     case GRL_METADATA_KEY_TITLE:
-      grl_data_media_set_title (media, entry->title);
+      grl_media_set_title (media, entry->title);
       break;
     case GRL_METADATA_KEY_AUTHOR:
-      grl_data_media_set_author (media, entry->author);
+      grl_media_set_author (media, entry->author);
       break;
     case GRL_METADATA_KEY_DESCRIPTION:
-      grl_data_media_set_description (media, entry->description);
+      grl_media_set_description (media, entry->description);
       break;
     case GRL_METADATA_KEY_THUMBNAIL:
-      grl_data_media_set_thumbnail (media, entry->thumbnail);
+      grl_media_set_thumbnail (media, entry->thumbnail);
       break;
     case GRL_METADATA_KEY_DATE:
-      grl_data_media_set_date (media, entry->published);
+      grl_media_set_date (media, entry->published);
       break;
     case GRL_METADATA_KEY_DURATION:
-      grl_data_media_set_duration (media, atoi (entry->duration));
+      grl_media_set_duration (media, atoi (entry->duration));
       break;
     case GRL_METADATA_KEY_MIME:
-      grl_data_media_set_mime (media, YOUTUBE_VIDEO_MIME);
+      grl_media_set_mime (media, YOUTUBE_VIDEO_MIME);
       break;
     case GRL_METADATA_KEY_SITE:
-      grl_data_media_set_site (media, YOUTUBE_SITE_URL);
+      grl_media_set_site (media, YOUTUBE_SITE_URL);
       break;
     case GRL_METADATA_KEY_RATING:
-      grl_data_media_set_rating (media, entry->rating, "5.00");
+      grl_media_set_rating (media, entry->rating, "5.00");
       break;
     case GRL_METADATA_KEY_URL:
       if (!entry->restricted) {
 	url = get_video_url (entry->id);
 	if (url) {
-	  grl_data_media_set_url (media, url);
+	  grl_media_set_url (media, url);
 	}
 	g_free (url);
       }
@@ -626,7 +626,7 @@ parse_entries_idle (gpointer user_data)
       Entry *entry = g_new0 (Entry, 1);
       parse_entry (pei->doc, pei->node, entry);
       if (0) print_entry (entry);
-      GrlDataMedia *media =
+      GrlMedia *media =
 	build_media_from_entry (NULL, entry, pei->os->keys);
       free_entry (entry);
 
@@ -778,7 +778,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   return;
 }
 
-static GrlDataMedia *
+static GrlMedia *
 parse_metadata_entry (GrlMediaSourceMetadataSpec *os,
 		      xmlDocPtr doc,
 		      xmlNodePtr node,
@@ -786,7 +786,7 @@ parse_metadata_entry (GrlMediaSourceMetadataSpec *os,
 {
   xmlNs *ns;
   guint total_results = 0;
-  GrlDataMedia *media = NULL;
+  GrlMedia *media = NULL;
 
   /* First checkout search information looking for totalResults */
   while (node && !total_results) {
@@ -1051,13 +1051,13 @@ set_category_childcount (GrlDataBox *content,
   }
 }
 
-static GrlDataMedia *
-produce_container_from_directory (GrlDataMedia *media,
+static GrlMedia *
+produce_container_from_directory (GrlMedia *media,
 				  CategoryInfo *dir,
 				  guint index,
 				  gboolean set_childcount)
 {
-  GrlDataMedia *content;
+  GrlMedia *content;
 
   if (!media) {
     /* Create mode */
@@ -1068,13 +1068,13 @@ produce_container_from_directory (GrlDataMedia *media,
   }
 
   if (!dir) {
-    grl_data_media_set_id (content, NULL);
-    grl_data_media_set_title (content, YOUTUBE_ROOT_NAME);
+    grl_media_set_id (content, NULL);
+    grl_media_set_title (content, YOUTUBE_ROOT_NAME);
   } else {
-    grl_data_media_set_id (content, dir[index].id);
-    grl_data_media_set_title (content, dir[index].name);
+    grl_media_set_id (content, dir[index].id);
+    grl_media_set_title (content, dir[index].name);
   }
-  grl_data_media_set_site (content, YOUTUBE_SITE_URL);
+  grl_media_set_site (content, YOUTUBE_SITE_URL);
   if (set_childcount) {
     set_category_childcount (GRL_DATA_BOX (content), dir, index);
   }
@@ -1082,13 +1082,13 @@ produce_container_from_directory (GrlDataMedia *media,
   return content;
 }
 
-static GrlDataMedia *
-produce_container_from_directory_by_id (GrlDataMedia *media,
+static GrlMedia *
+produce_container_from_directory_by_id (GrlMedia *media,
 					CategoryInfo *dir,
 					const gchar *id,
 					gboolean set_childcount)
 {
-  GrlDataMedia *content;
+  GrlMedia *content;
   guint index = 0;
 
   while (dir[index].id && strcmp (dir[index].id, id)) index++;
@@ -1125,7 +1125,7 @@ classify_media_id (const gchar *media_id)
 static gboolean
 produce_from_directory_idle (gpointer user_data)
 {
-  GrlDataMedia *content;
+  GrlMedia *content;
   ProduceFromDirectoryIdle *pfdi = (ProduceFromDirectoryIdle *) user_data;
 
   if (!pfdi->os->cancelled) {
@@ -1344,7 +1344,7 @@ grl_youtube_source_browse (GrlMediaSource *source,
 
   g_debug ("grl_youtube_source_browse");
 
-  container_id = grl_data_media_get_id (bs->container);
+  container_id = grl_media_get_id (bs->container);
 
   os = g_new0 (OperationSpec, 1);
   os->source = bs->source;
@@ -1412,14 +1412,14 @@ grl_youtube_source_metadata (GrlMediaSource *source,
 {
   gchar *url;
   GError *error = NULL;
-  GrlDataMedia *media = NULL;
+  GrlMedia *media = NULL;
   YoutubeMediaType media_type;
   gboolean set_childcount;
   const gchar *id;
 
   g_debug ("grl_youtube_source_metadata");
 
-  id = grl_data_media_get_id (ms->media);
+  id = grl_media_get_id (ms->media);
   media_type = classify_media_id (id);
 
   /* Do not compute childcount for expensive categories

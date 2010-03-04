@@ -760,13 +760,13 @@ get_value_for_key (GrlKeyID key_id,
 }
 
 static void
-set_metadata_value (GrlDataMedia *media,
+set_metadata_value (GrlMedia *media,
                     GrlKeyID key_id,
                     const gchar *value)
 {
   switch (key_id) {
   case GRL_METADATA_KEY_TITLE:
-    grl_data_media_set_title (media, value);
+    grl_media_set_title (media, value);
     break;
   case GRL_METADATA_KEY_ARTIST:
     grl_data_audio_set_artist (media, value);
@@ -778,19 +778,19 @@ set_metadata_value (GrlDataMedia *media,
     grl_data_audio_set_genre (media, value);
     break;
   case GRL_METADATA_KEY_URL:
-    grl_data_media_set_url (media, value);
+    grl_media_set_url (media, value);
     break;
   case GRL_METADATA_KEY_MIME:
-    grl_data_media_set_mime (media, value);
+    grl_media_set_mime (media, value);
     break;
   case GRL_METADATA_KEY_DATE:
-    grl_data_media_set_date (media, value);
+    grl_media_set_date (media, value);
     break;
   case GRL_METADATA_KEY_DURATION:
     {
       gint duration = didl_h_mm_ss_to_int (value);
       if (duration >= 0) {
-	grl_data_media_set_duration (media, duration);
+	grl_media_set_duration (media, duration);
       }
     }
     break;
@@ -804,8 +804,8 @@ set_metadata_value (GrlDataMedia *media,
   }
 }
 
-static GrlDataMedia *
-build_media_from_didl (GrlDataMedia *content,
+static GrlMedia *
+build_media_from_didl (GrlMedia *content,
 #ifdef GUPNPAV_OLD_VERSION
                        xmlNode *didl_node,
 #else
@@ -821,7 +821,7 @@ build_media_from_didl (GrlDataMedia *content,
   const gchar *class;
 #endif
 
-  GrlDataMedia *media = NULL;
+  GrlMedia *media = NULL;
   GList *didl_props;
   GList *iter;
 
@@ -849,16 +849,16 @@ build_media_from_didl (GrlDataMedia *content,
 	} else if (g_str_has_prefix (class, "object.item.imageItem")) {
 	  media = grl_data_image_new ();
 	} else {
-	  media = grl_data_media_new ();
+	  media = grl_media_new ();
 	}
       } else {
-	media = grl_data_media_new ();
+	media = grl_media_new ();
       }
     }
   }
 
   id = gupnp_didl_lite_object_get_id (didl_node);
-  grl_data_media_set_id (media, id);
+  grl_media_set_id (media, id);
 
   didl_props = didl_get_supported_resources (didl_node);
 
@@ -890,7 +890,7 @@ gupnp_browse_result_cb (GUPnPDIDLLiteParser *parser,
 #endif
 			gpointer user_data)
 {
-  GrlDataMedia *media;
+  GrlMedia *media;
   struct OperationSpec *os = (struct OperationSpec *) user_data;
   if (gupnp_didl_lite_object_get_id (didl)) {
     media = build_media_from_didl (NULL, didl, os->keys);
@@ -1103,7 +1103,7 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
   os->callback = bs->callback;
   os->user_data = bs->user_data;
 
-  container_id = (gchar *) grl_data_media_get_id (bs->container);
+  container_id = (gchar *) grl_media_get_id (bs->container);
   if (!container_id) {
     container_id = "0";
   }
@@ -1201,7 +1201,7 @@ grl_upnp_source_metadata (GrlMediaSource *source,
 
   g_debug ("filter: '%s'", upnp_filter);
 
-  id = (gchar *) grl_data_media_get_id (ms->media);
+  id = (gchar *) grl_media_get_id (ms->media);
   if (!id) {
     id = "0";
   }

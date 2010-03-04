@@ -237,7 +237,7 @@ static void grl_podcasts_source_remove (GrlMediaSource *source,
 static gboolean
 grl_podcasts_plugin_init (GrlPluginRegistry *registry,
                           const GrlPluginInfo *plugin,
-                          const GrlDataConfig *config)
+                          const GrlConfig *config)
 {
   g_debug ("podcasts_plugin_init\n");
 

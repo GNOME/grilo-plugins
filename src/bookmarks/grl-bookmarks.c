@@ -178,7 +178,7 @@ static void grl_bookmarks_source_remove (GrlMediaSource *source,
 static gboolean
 grl_bookmarks_plugin_init (GrlPluginRegistry *registry,
                            const GrlPluginInfo *plugin,
-                           const GrlDataConfig *config)
+                           const GrlConfig *config)
 {
   g_debug ("grl_bookmarks_plugin_init\n");
 

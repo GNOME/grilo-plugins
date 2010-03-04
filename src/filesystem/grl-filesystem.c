@@ -80,7 +80,7 @@ static GrlFilesystemSource *grl_filesystem_source_new (void);
 
 gboolean grl_filesystem_plugin_init (GrlPluginRegistry *registry,
                                      const GrlPluginInfo *plugin,
-                                     const GrlDataConfig *config);
+                                     const GrlConfig *config);
 
 static const GList *grl_filesystem_source_supported_keys (GrlMetadataSource *source);
 
@@ -96,7 +96,7 @@ static void grl_filesystem_source_browse (GrlMediaSource *source,
 gboolean
 grl_filesystem_plugin_init (GrlPluginRegistry *registry,
                             const GrlPluginInfo *plugin,
-                            const GrlDataConfig *config)
+                            const GrlConfig *config)
 {
   g_debug ("filesystem_plugin_init\n");
 

@@ -80,7 +80,7 @@ static GrlFilesystemSource *grl_filesystem_source_new (void);
 
 gboolean grl_filesystem_plugin_init (GrlPluginRegistry *registry,
                                      const GrlPluginInfo *plugin,
-                                     const GrlContentConfig *config);
+                                     const GrlDataConfig *config);
 
 static const GList *grl_filesystem_source_supported_keys (GrlMetadataSource *source);
 
@@ -96,7 +96,7 @@ static void grl_filesystem_source_browse (GrlMediaSource *source,
 gboolean
 grl_filesystem_plugin_init (GrlPluginRegistry *registry,
                             const GrlPluginInfo *plugin,
-                            const GrlContentConfig *config)
+                            const GrlDataConfig *config)
 {
   g_debug ("filesystem_plugin_init\n");
 
@@ -236,7 +236,7 @@ file_is_valid_content (const gchar *path, gboolean fast)
 
 static void
 set_container_childcount (const gchar *path,
-			  GrlContentMedia *media,
+			  GrlDataMedia *media,
 			  gboolean fast)
 {
   GDir *dir;
@@ -278,15 +278,15 @@ set_container_childcount (const gchar *path,
 
   g_dir_close (dir);
 
-  grl_content_box_set_childcount (GRL_CONTENT_BOX (media), count);
+  grl_data_box_set_childcount (GRL_DATA_BOX (media), count);
 }
 
-static GrlContentMedia *
-create_content (GrlContentMedia *content,
+static GrlDataMedia *
+create_content (GrlDataMedia *content,
                 const gchar *path,
                 gboolean only_fast)
 {
-  GrlContentMedia *media = NULL;
+  GrlDataMedia *media = NULL;
   gchar *str;
   const gchar *mime;
   GError *error = NULL;
@@ -306,7 +306,7 @@ create_content (GrlContentMedia *content,
   if (error) {
     g_warning ("Failed to get info for file '%s': %s", path, error->message);
     if (!media) {
-      media = grl_content_media_new ();
+      media = grl_data_media_new ();
     }
 
     /* Title */
@@ -314,56 +314,56 @@ create_content (GrlContentMedia *content,
     if (!str) {
       str = (gchar *) path;
     }
-    grl_content_media_set_title (media, str);
+    grl_data_media_set_title (media, str);
     g_error_free (error);
   } else {
     mime = g_file_info_get_content_type (info);
 
     if (!media) {
       if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-	media = GRL_CONTENT_MEDIA (grl_content_box_new ());
+	media = GRL_DATA_MEDIA (grl_data_box_new ());
       } else {
 	if (mime_is_video (mime)) {
-	  media = grl_content_video_new ();
+	  media = grl_data_video_new ();
 	} else if (mime_is_audio (mime)) {
-	  media = grl_content_audio_new ();
+	  media = grl_data_audio_new ();
 	} else if (mime_is_image (mime)) {
-	  media = grl_content_image_new ();
+	  media = grl_data_image_new ();
 	} else {
-	  media = grl_content_media_new ();
+	  media = grl_data_media_new ();
 	}
       }
     }
 
-    if (!GRL_IS_CONTENT_BOX (media)) {
-      grl_content_media_set_mime (GRL_CONTENT (media), mime);
+    if (!GRL_IS_DATA_BOX (media)) {
+      grl_data_media_set_mime (GRL_DATA (media), mime);
     }
 
     /* Title */
     str = (gchar *) g_file_info_get_display_name (info);
-    grl_content_media_set_title (media, str);
+    grl_data_media_set_title (media, str);
 
     /* Date */
     GTimeVal time;
     gchar *time_str;
     g_file_info_get_modification_time (info, &time);
     time_str = g_time_val_to_iso8601 (&time);
-    grl_content_media_set_date (GRL_CONTENT (media), time_str);
+    grl_data_media_set_date (GRL_DATA (media), time_str);
     g_free (time_str);
 
     g_object_unref (info);
   }
 
   /* ID */
-  grl_content_media_set_id (media, path);
+  grl_data_media_set_id (media, path);
 
   /* URL */
   str = g_strconcat ("file://", path, NULL);
-  grl_content_media_set_url (media, str);
+  grl_data_media_set_url (media, str);
   g_free (str);
 
   /* Childcount */
-  if (GRL_IS_CONTENT_BOX (media)) {
+  if (GRL_IS_DATA_BOX (media)) {
     set_container_childcount (path, media, only_fast);
   }
 
@@ -385,7 +385,7 @@ browse_emit_idle (gpointer user_data)
   count = 0;
   do {
     gchar *entry_path;
-    GrlContentMedia *content;
+    GrlDataMedia *content;
 
     entry_path = (gchar *) idle_data->current->data;
     content = create_content (NULL,
@@ -522,7 +522,7 @@ grl_filesystem_source_browse (GrlMediaSource *source,
 
   g_debug ("grl_filesystem_source_browse");
 
-  id = grl_content_media_get_id (bs->container);
+  id = grl_data_media_get_id (bs->container);
   path = id ? id : G_DIR_SEPARATOR_S;
   produce_from_path (bs, path);
 }
@@ -536,7 +536,7 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
 
   g_debug ("grl_filesystem_source_metadata");
 
-  id = grl_content_media_get_id (ms->media);
+  id = grl_data_media_get_id (ms->media);
   path = id ? id : G_DIR_SEPARATOR_S;
 
   if (g_file_test (path, G_FILE_TEST_EXISTS)) {

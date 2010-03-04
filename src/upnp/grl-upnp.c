@@ -103,7 +103,7 @@ static GrlUpnpSource *grl_upnp_source_new (const gchar *id, const gchar *name);
 
 gboolean grl_upnp_plugin_init (GrlPluginRegistry *registry,
                                const GrlPluginInfo *plugin,
-                               const GrlContentConfig *config);
+                               const GrlDataConfig *config);
 
 static void grl_upnp_source_finalize (GObject *plugin);
 
@@ -137,7 +137,7 @@ static GHashTable *filter_key_mapping = NULL;
 gboolean
 grl_upnp_plugin_init (GrlPluginRegistry *registry,
                       const GrlPluginInfo *plugin,
-                      const GrlContentConfig *config)
+                      const GrlDataConfig *config)
 {
   GError *error = NULL;
   GUPnPContext *context;
@@ -760,43 +760,43 @@ get_value_for_key (GrlKeyID key_id,
 }
 
 static void
-set_metadata_value (GrlContentMedia *media,
+set_metadata_value (GrlDataMedia *media,
                     GrlKeyID key_id,
                     const gchar *value)
 {
   switch (key_id) {
   case GRL_METADATA_KEY_TITLE:
-    grl_content_media_set_title (media, value);
+    grl_data_media_set_title (media, value);
     break;
   case GRL_METADATA_KEY_ARTIST:
-    grl_content_audio_set_artist (media, value);
+    grl_data_audio_set_artist (media, value);
     break;
   case GRL_METADATA_KEY_ALBUM:
-    grl_content_audio_set_album (media, value);
+    grl_data_audio_set_album (media, value);
     break;
   case GRL_METADATA_KEY_GENRE:
-    grl_content_audio_set_genre (media, value);
+    grl_data_audio_set_genre (media, value);
     break;
   case GRL_METADATA_KEY_URL:
-    grl_content_media_set_url (media, value);
+    grl_data_media_set_url (media, value);
     break;
   case GRL_METADATA_KEY_MIME:
-    grl_content_media_set_mime (media, value);
+    grl_data_media_set_mime (media, value);
     break;
   case GRL_METADATA_KEY_DATE:
-    grl_content_media_set_date (media, value);
+    grl_data_media_set_date (media, value);
     break;
   case GRL_METADATA_KEY_DURATION:
     {
       gint duration = didl_h_mm_ss_to_int (value);
       if (duration >= 0) {
-	grl_content_media_set_duration (media, duration);
+	grl_data_media_set_duration (media, duration);
       }
     }
     break;
   case GRL_METADATA_KEY_CHILDCOUNT:
-    if (value && GRL_IS_CONTENT_BOX (media)) {
-      grl_content_box_set_childcount (GRL_CONTENT_BOX (media), atoi (value));
+    if (value && GRL_IS_DATA_BOX (media)) {
+      grl_data_box_set_childcount (GRL_DATA_BOX (media), atoi (value));
     }
     break;
   default:
@@ -804,8 +804,8 @@ set_metadata_value (GrlContentMedia *media,
   }
 }
 
-static GrlContentMedia *
-build_media_from_didl (GrlContentMedia *content,
+static GrlDataMedia *
+build_media_from_didl (GrlDataMedia *content,
 #ifdef GUPNPAV_OLD_VERSION
                        xmlNode *didl_node,
 #else
@@ -821,7 +821,7 @@ build_media_from_didl (GrlContentMedia *content,
   const gchar *class;
 #endif
 
-  GrlContentMedia *media = NULL;
+  GrlDataMedia *media = NULL;
   GList *didl_props;
   GList *iter;
 
@@ -837,28 +837,28 @@ build_media_from_didl (GrlContentMedia *content,
   if (GUPNP_IS_DIDL_LITE_CONTAINER (didl_node)) {
 #endif
 
-    media = grl_content_box_new ();
+    media = grl_data_box_new ();
   } else {
     if (!media) {
       class = gupnp_didl_lite_object_get_upnp_class (didl_node);
       if (class) {
 	if (g_str_has_prefix (class, "object.item.audioItem")) {
-	  media = grl_content_audio_new ();
+	  media = grl_data_audio_new ();
 	} else if (g_str_has_prefix (class, "object.item.videoItem")) {
-	  media = grl_content_video_new ();
+	  media = grl_data_video_new ();
 	} else if (g_str_has_prefix (class, "object.item.imageItem")) {
-	  media = grl_content_image_new ();
+	  media = grl_data_image_new ();
 	} else {
-	  media = grl_content_media_new ();
+	  media = grl_data_media_new ();
 	}
       } else {
-	media = grl_content_media_new ();
+	media = grl_data_media_new ();
       }
     }
   }
 
   id = gupnp_didl_lite_object_get_id (didl_node);
-  grl_content_media_set_id (media, id);
+  grl_data_media_set_id (media, id);
 
   didl_props = didl_get_supported_resources (didl_node);
 
@@ -890,7 +890,7 @@ gupnp_browse_result_cb (GUPnPDIDLLiteParser *parser,
 #endif
 			gpointer user_data)
 {
-  GrlContentMedia *media;
+  GrlDataMedia *media;
   struct OperationSpec *os = (struct OperationSpec *) user_data;
   if (gupnp_didl_lite_object_get_id (didl)) {
     media = build_media_from_didl (NULL, didl, os->keys);
@@ -1103,7 +1103,7 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
   os->callback = bs->callback;
   os->user_data = bs->user_data;
 
-  container_id = (gchar *) grl_content_media_get_id (bs->container);
+  container_id = (gchar *) grl_data_media_get_id (bs->container);
   if (!container_id) {
     container_id = "0";
   }
@@ -1201,7 +1201,7 @@ grl_upnp_source_metadata (GrlMediaSource *source,
 
   g_debug ("filter: '%s'", upnp_filter);
 
-  id = (gchar *) grl_content_media_get_id (ms->media);
+  id = (gchar *) grl_data_media_get_id (ms->media);
   if (!id) {
     id = "0";
   }

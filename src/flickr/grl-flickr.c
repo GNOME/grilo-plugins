@@ -71,7 +71,7 @@ static GrlFlickrSource *grl_flickr_source_new (void);
 
 gboolean grl_flickr_plugin_init (GrlPluginRegistry *registry,
 				 const GrlPluginInfo *plugin,
-                                 const GrlContentConfig *config);
+                                 const GrlDataConfig *config);
 
 static const GList *grl_flickr_source_supported_keys (GrlMetadataSource *source);
 
@@ -86,7 +86,7 @@ static void grl_flickr_source_search (GrlMediaSource *source,
 gboolean
 grl_flickr_plugin_init (GrlPluginRegistry *registry,
                         const GrlPluginInfo *plugin,
-                        const GrlContentConfig *config)
+                        const GrlDataConfig *config)
 {
   const gchar *flickr_key;
   const gchar *flickr_secret;
@@ -99,9 +99,9 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
     return FALSE;
   }
 
-  flickr_key = grl_content_config_get_api_key (config);
-  flickr_token = grl_content_config_get_api_token (config);
-  flickr_secret = grl_content_config_get_api_secret (config);
+  flickr_key = grl_data_config_get_api_key (config);
+  flickr_token = grl_data_config_get_api_token (config);
+  flickr_secret = grl_data_config_get_api_secret (config);
 
   if (!flickr_key || ! flickr_token || !flickr_secret) {
     g_warning ("Required configuration keys not set up");
@@ -165,7 +165,7 @@ G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_MEDIA_SOURCE);
 /* ======================= Utilities ==================== */
 
 static void
-update_media (GrlContentMedia *media, GHashTable *photo)
+update_media (GrlDataMedia *media, GHashTable *photo)
 {
   gchar *author;
   gchar *date;
@@ -199,32 +199,32 @@ update_media (GrlContentMedia *media, GHashTable *photo)
   }
 
   if (author) {
-    grl_content_media_set_author (media, author);
+    grl_data_media_set_author (media, author);
   }
 
   if (date) {
-    grl_content_media_set_date (media, date);
+    grl_data_media_set_date (media, date);
   }
 
   if (description) {
-    grl_content_media_set_description (media, description);
+    grl_data_media_set_description (media, description);
   }
 
   if (id) {
-    grl_content_media_set_id (media, id);
+    grl_data_media_set_id (media, id);
   }
 
   if (thumbnail) {
-    grl_content_media_set_thumbnail (media, thumbnail);
+    grl_data_media_set_thumbnail (media, thumbnail);
     g_free (thumbnail);
   }
 
   if (title) {
-    grl_content_media_set_title (media, title);
+    grl_data_media_set_title (media, title);
   }
 
   if (url) {
-    grl_content_media_set_url (media, url);
+    grl_data_media_set_url (media, url);
     g_free (url);
   }
 }
@@ -244,7 +244,7 @@ getInfo_cb (GFlickr *f, GHashTable *photo, gpointer user_data)
 static void
 search_cb (GFlickr *f, GList *photolist, gpointer user_data)
 {
-  GrlContentMedia *media;
+  GrlDataMedia *media;
   SearchData *sd = (SearchData *) user_data;
   gchar *media_type;
 
@@ -266,9 +266,9 @@ search_cb (GFlickr *f, GList *photolist, gpointer user_data)
   while (photolist && sd->ss->count) {
     media_type = g_hash_table_lookup (photolist->data, "photo_media");
     if (strcmp (media_type, "photo") == 0) {
-      media = grl_content_image_new ();
+      media = grl_data_image_new ();
     } else {
-      media = grl_content_video_new ();
+      media = grl_data_video_new ();
     }
     update_media (media, photolist->data);
     sd->ss->callback (sd->ss->source,
@@ -316,7 +316,7 @@ grl_flickr_source_metadata (GrlMediaSource *source,
 {
   const gchar *id;
 
-  if (!ms->media || (id = grl_content_media_get_id (ms->media)) == NULL) {
+  if (!ms->media || (id = grl_data_media_get_id (ms->media)) == NULL) {
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
     return;
   }

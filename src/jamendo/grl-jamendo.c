@@ -142,7 +142,7 @@ static GrlJamendoSource *grl_jamendo_source_new (void);
 
 gboolean grl_jamendo_plugin_init (GrlPluginRegistry *registry,
                                   const GrlPluginInfo *plugin,
-                                  const GrlContentConfig *config);
+                                  const GrlDataConfig *config);
 
 static const GList *grl_jamendo_source_supported_keys (GrlMetadataSource *source);
 
@@ -166,7 +166,7 @@ static void grl_jamendo_source_cancel (GrlMediaSource *source,
 gboolean
 grl_jamendo_plugin_init (GrlPluginRegistry *registry,
                          const GrlPluginInfo *plugin,
-                         const GrlContentConfig *config)
+                         const GrlDataConfig *config)
 {
   g_debug ("jamendo_plugin_init\n");
 
@@ -411,7 +411,7 @@ xml_parse_entry (xmlDocPtr doc, xmlNodePtr entry)
 }
 
 static void
-update_media_from_entry (GrlContentMedia *media, const Entry *entry)
+update_media_from_entry (GrlDataMedia *media, const Entry *entry)
 {
   gchar *id;
 
@@ -422,90 +422,90 @@ update_media_from_entry (GrlContentMedia *media, const Entry *entry)
   }
 
   /* Common fields */
-  grl_content_media_set_id (media, id);
+  grl_data_media_set_id (media, id);
   g_free (id);
 
   if (entry->artist_name) {
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_ARTIST,
-                            entry->artist_name);
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_ARTIST,
+                         entry->artist_name);
   }
 
   if (entry->album_name) {
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_ALBUM,
-                            entry->album_name);
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_ALBUM,
+                         entry->album_name);
   }
 
   /* Fields for artist */
   if (entry->category == JAMENDO_ARTIST_CAT) {
     if (entry->artist_name) {
-      grl_content_media_set_title (media, entry->artist_name);
+      grl_data_media_set_title (media, entry->artist_name);
     }
 
     if (entry->artist_genre) {
-      grl_content_set_string (GRL_CONTENT (media),
-                              GRL_METADATA_KEY_GENRE,
-                              entry->artist_genre);
+      grl_data_set_string (GRL_DATA (media),
+                           GRL_METADATA_KEY_GENRE,
+                           entry->artist_genre);
     }
 
     if (entry->artist_url) {
-      grl_content_media_set_site (media, entry->artist_url);
+      grl_data_media_set_site (media, entry->artist_url);
     }
 
     if (entry->artist_image) {
-      grl_content_media_set_thumbnail (media, entry->artist_image);
+      grl_data_media_set_thumbnail (media, entry->artist_image);
     }
 
     /* Fields for album */
   } else if (entry->category == JAMENDO_ALBUM_CAT) {
     if (entry->album_name) {
-      grl_content_media_set_title (media, entry->album_name);
+      grl_data_media_set_title (media, entry->album_name);
     }
 
     if (entry->album_genre) {
-      grl_content_set_string (GRL_CONTENT (media),
-                              GRL_METADATA_KEY_GENRE,
-                              entry->album_genre);
+      grl_data_set_string (GRL_DATA (media),
+                           GRL_METADATA_KEY_GENRE,
+                           entry->album_genre);
     }
 
     if (entry->album_url) {
-      grl_content_media_set_site (media, entry->album_url);
+      grl_data_media_set_site (media, entry->album_url);
     }
 
     if (entry->album_image) {
-      grl_content_media_set_thumbnail (media, entry->album_image);
+      grl_data_media_set_thumbnail (media, entry->album_image);
     }
 
     if (entry->album_duration) {
-      grl_content_media_set_duration (media, atoi (entry->album_duration));
+      grl_data_media_set_duration (media, atoi (entry->album_duration));
     }
 
     /* Fields for track */
   } else if (entry->category == JAMENDO_TRACK_CAT) {
     if (entry->track_name) {
-      grl_content_media_set_title (media, entry->track_name);
+      grl_data_media_set_title (media, entry->track_name);
     }
 
     if (entry->album_genre) {
-      grl_content_audio_set_genre (GRL_CONTENT_AUDIO (media),
-                                   entry->album_genre);
+      grl_data_audio_set_genre (GRL_DATA_AUDIO (media),
+                                entry->album_genre);
     }
 
     if (entry->track_url) {
-      grl_content_media_set_site (media, entry->track_url);
+      grl_data_media_set_site (media, entry->track_url);
     }
 
     if (entry->album_image) {
-      grl_content_media_set_thumbnail (media, entry->album_image);
+      grl_data_media_set_thumbnail (media, entry->album_image);
     }
 
     if (entry->track_stream) {
-      grl_content_media_set_url (media, entry->track_stream);
+      grl_data_media_set_url (media, entry->track_stream);
     }
 
     if (entry->track_duration) {
-      grl_content_media_set_duration (media, atoi (entry->track_duration));
+      grl_data_media_set_duration (media, atoi (entry->track_duration));
     }
   }
 }
@@ -515,7 +515,7 @@ xml_parse_entries_idle (gpointer user_data)
 {
   XmlParseEntries *xpe = (XmlParseEntries *) user_data;
   gboolean parse_more;
-  GrlContentMedia *media;
+  GrlDataMedia *media;
   Entry *entry;
 
   g_debug ("xml_parse_entries_idle");
@@ -525,9 +525,9 @@ xml_parse_entries_idle (gpointer user_data)
   if (parse_more) {
     entry = xml_parse_entry (xpe->doc, xpe->node);
     if (entry->category == JAMENDO_TRACK_CAT) {
-      media = grl_content_audio_new ();
+      media = grl_data_audio_new ();
     } else {
-      media = grl_content_box_new ();
+      media = grl_data_box_new ();
     }
 
     update_media_from_entry (media, entry);
@@ -644,7 +644,7 @@ read_done_cb (GObject *source_object,
       error = g_error_new (GRL_ERROR,
                            GRL_ERROR_METADATA_FAILED,
                            "Unable to get information: '%s'",
-                           grl_content_media_get_id (xpe->spec.ms->media));
+                           grl_data_media_get_id (xpe->spec.ms->media));
     }
     goto invoke_cb;
   }
@@ -705,14 +705,14 @@ read_url_async (const gchar *url, gpointer user_data)
 }
 
 static void
-update_media_from_root (GrlContentMedia *media)
+update_media_from_root (GrlDataMedia *media)
 {
-  grl_content_media_set_title (media, JAMENDO_ROOT_NAME);
-  grl_content_box_set_childcount (GRL_CONTENT_BOX (media), 2);
+  grl_data_media_set_title (media, JAMENDO_ROOT_NAME);
+  grl_data_box_set_childcount (GRL_DATA_BOX (media), 2);
 }
 
 static void
-update_media_from_artists (GrlContentMedia *media)
+update_media_from_artists (GrlDataMedia *media)
 {
   Entry *entry;
 
@@ -724,7 +724,7 @@ update_media_from_artists (GrlContentMedia *media)
 }
 
 static void
-update_media_from_albums (GrlContentMedia *media)
+update_media_from_albums (GrlDataMedia *media)
 {
   Entry *entry;
 
@@ -738,13 +738,13 @@ update_media_from_albums (GrlContentMedia *media)
 static void
 send_toplevel_categories (GrlMediaSourceBrowseSpec *bs)
 {
-  GrlContentMedia *media;
+  GrlDataMedia *media;
 
-  media = grl_content_box_new ();
+  media = grl_data_box_new ();
   update_media_from_artists (media);
   bs->callback (bs->source, bs->browse_id, media, 1, bs->user_data, NULL);
 
-  media = grl_content_box_new ();
+  media = grl_data_box_new ();
   update_media_from_albums (media);
   bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
 }
@@ -833,15 +833,15 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
   g_debug ("grl_jamendo_source_metadata");
 
   if (!ms->media ||
-      !grl_content_key_is_known (GRL_CONTENT (ms->media),
-                                 GRL_METADATA_KEY_ID)) {
+      !grl_data_key_is_known (GRL_DATA (ms->media),
+                              GRL_METADATA_KEY_ID)) {
     /* Get info from root */
     if (!ms->media) {
-      ms->media = grl_content_box_new ();
+      ms->media = grl_data_box_new ();
     }
     update_media_from_root (ms->media);
   } else {
-    id = grl_content_media_get_id (ms->media);
+    id = grl_data_media_get_id (ms->media);
     id_split = g_strsplit (id, JAMENDO_ID_SEP, 0);
 
     if (g_strv_length (id_split) == 0) {
@@ -944,7 +944,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
 
   g_debug ("grl_jamendo_source_browse");
 
-  container_id = grl_content_media_get_id (bs->container);
+  container_id = grl_data_media_get_id (bs->container);
 
   if (!container_id) {
     /* Root category: return top-level predefined categories */

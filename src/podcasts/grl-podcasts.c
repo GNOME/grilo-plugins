@@ -210,7 +210,7 @@ typedef struct {
   guint parse_count;
   guint parse_index;
   guint parse_valid_index;
-  GrlContentMedia *last_media;
+  GrlDataMedia *last_media;
 } OperationSpecParse;
 
 static GrlPodcastsSource *grl_podcasts_source_new (void);
@@ -237,7 +237,7 @@ static void grl_podcasts_source_remove (GrlMediaSource *source,
 static gboolean
 grl_podcasts_plugin_init (GrlPluginRegistry *registry,
                           const GrlPluginInfo *plugin,
-                          const GrlContentConfig *config)
+                          const GrlDataConfig *config)
 {
   g_debug ("podcasts_plugin_init\n");
 
@@ -503,8 +503,8 @@ get_site_from_url (const gchar *url)
   return g_strndup (url, p - url);
 }
 
-static GrlContentMedia *
-build_media (GrlContentMedia *content,
+static GrlDataMedia *
+build_media (GrlDataMedia *content,
 	     gboolean is_podcast,
 	     const gchar *id,
 	     const gchar *title,
@@ -515,7 +515,7 @@ build_media (GrlContentMedia *content,
 	     guint duration,
 	     guint childcount)
 {
-  GrlContentMedia *media = NULL;
+  GrlDataMedia *media = NULL;
   gchar *site;
 
   if (content) {
@@ -524,52 +524,52 @@ build_media (GrlContentMedia *content,
 
   if (is_podcast) {
     if (!media) {
-      media = GRL_CONTENT_MEDIA (grl_content_box_new ());
+      media = GRL_DATA_MEDIA (grl_data_box_new ());
     }
 
-    grl_content_media_set_id (media, id);
+    grl_data_media_set_id (media, id);
     if (desc)
-      grl_content_media_set_description (media, desc);
-    grl_content_box_set_childcount (GRL_CONTENT_BOX (media), childcount);
+      grl_data_media_set_description (media, desc);
+    grl_data_box_set_childcount (GRL_DATA_BOX (media), childcount);
   } else {
     if (!media) {
       if (mime_is_audio (mime)) {
-	media = grl_content_audio_new ();
+	media = grl_data_audio_new ();
       } else if (mime_is_video (mime)) {
-	media = grl_content_video_new ();
+	media = grl_data_video_new ();
       } else {
-	media = grl_content_media_new ();
+	media = grl_data_media_new ();
       }
     }
 
-    grl_content_media_set_id (media, url);
+    grl_data_media_set_id (media, url);
     if (date)
-      grl_content_media_set_date (media, date);
+      grl_data_media_set_date (media, date);
     if (desc)
-      grl_content_media_set_description (media, desc);
+      grl_data_media_set_description (media, desc);
     if (mime)
-      grl_content_media_set_mime (media, mime);
+      grl_data_media_set_mime (media, mime);
     if (duration > 0) {
-      grl_content_media_set_duration (media, duration);
+      grl_data_media_set_duration (media, duration);
     }
   }
 
-  grl_content_media_set_title (media, title);
-  grl_content_media_set_url (media, url);
+  grl_data_media_set_title (media, title);
+  grl_data_media_set_url (media, url);
 
   site = get_site_from_url (url);
   if (site) {
-    grl_content_media_set_site (media, site);
+    grl_data_media_set_site (media, site);
     g_free (site);
   }
 
   return media;
 }
 
-static GrlContentMedia *
+static GrlDataMedia *
 build_media_from_entry (Entry *entry)
 {
-  GrlContentMedia *media;
+  GrlDataMedia *media;
   gint duration;
 
   duration = duration_to_seconds (entry->duration);
@@ -580,12 +580,12 @@ build_media_from_entry (Entry *entry)
   return media;
 }
 
-static GrlContentMedia *
-build_media_from_stmt (GrlContentMedia *content,
+static GrlDataMedia *
+build_media_from_stmt (GrlDataMedia *content,
 		       sqlite3_stmt *sql_stmt,
 		       gboolean is_podcast)
 {
-  GrlContentMedia *media;
+  GrlDataMedia *media;
   gchar *id;
   gchar *title;
   gchar *url;
@@ -625,7 +625,7 @@ produce_podcast_contents_from_db (OperationSpec *os)
   sqlite3_stmt *sql_stmt = NULL;
   GList *iter, *medias = NULL;
   guint count = 0;
-  GrlContentMedia *media;
+  GrlDataMedia *media;
   gint r;
   GError *error = NULL;
 
@@ -674,7 +674,7 @@ produce_podcast_contents_from_db (OperationSpec *os)
     medias = g_list_reverse (medias);
     iter = medias;
     while (iter) {
-      media = GRL_CONTENT_MEDIA (iter->data);
+      media = GRL_DATA_MEDIA (iter->data);
       os->callback (os->source,
 		    os->operation_id,
 		    media,
@@ -761,7 +761,7 @@ remove_stream (sqlite3 *db, const gchar *url, GError **error)
 }
 
 static void
-store_podcast (sqlite3 *db, GrlContentMedia *podcast, GError **error)
+store_podcast (sqlite3 *db, GrlDataMedia *podcast, GError **error)
 {
   gint r;
   sqlite3_stmt *sql_stmt = NULL;
@@ -772,9 +772,9 @@ store_podcast (sqlite3 *db, GrlContentMedia *podcast, GError **error)
 
   g_debug ("store_podcast");
 
-  title = grl_content_media_get_title (podcast);
-  url = grl_content_media_get_url (podcast);
-  desc = grl_content_media_get_description (podcast);
+  title = grl_data_media_get_title (podcast);
+  url = grl_data_media_get_url (podcast);
+  desc = grl_data_media_get_description (podcast);
 
   g_debug ("%s", GRL_SQL_STORE_PODCAST);
   r = sqlite3_prepare_v2 (db,
@@ -811,7 +811,7 @@ store_podcast (sqlite3 *db, GrlContentMedia *podcast, GError **error)
   sqlite3_finalize (sql_stmt);
 
   id = g_strdup_printf ("%llu", sqlite3_last_insert_rowid (db));
-  grl_content_media_set_id (podcast, id);
+  grl_data_media_set_id (podcast, id);
   g_free (id);
 }
 
@@ -915,7 +915,7 @@ parse_entry_idle (gpointer user_data)
   OperationSpecParse *osp = (OperationSpecParse *) user_data;
   xmlNodeSetPtr nodes;
   guint remaining;
-  GrlContentMedia *media;
+  GrlDataMedia *media;
 
   nodes = osp->xpathObj->nodesetval;
 
@@ -1174,7 +1174,7 @@ produce_podcasts (OperationSpec *os)
   gint r;
   sqlite3_stmt *sql_stmt = NULL;
   sqlite3 *db;
-  GrlContentMedia *media;
+  GrlDataMedia *media;
   GError *error = NULL;
   GList *medias = NULL;
   guint count = 0;
@@ -1234,7 +1234,7 @@ produce_podcasts (OperationSpec *os)
     medias = g_list_reverse (medias);
     iter = medias;
     while (iter) {
-      media = GRL_CONTENT_MEDIA (iter->data);
+      media = GRL_DATA_MEDIA (iter->data);
       os->callback (os->source,
 		    os->operation_id,
 		    media,
@@ -1267,7 +1267,7 @@ stream_metadata (GrlMediaSourceMetadataSpec *ms)
 
   db = GRL_PODCASTS_SOURCE (ms->source)->priv->db;
 
-  id = grl_content_media_get_id (ms->media);
+  id = grl_data_media_get_id (ms->media);
   sql = g_strdup_printf (GRL_SQL_GET_PODCAST_STREAM, id);
   g_debug ("%s", sql);
   r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
@@ -1312,10 +1312,10 @@ podcast_metadata (GrlMediaSourceMetadataSpec *ms)
 
   db = GRL_PODCASTS_SOURCE (ms->source)->priv->db;
 
-  id = grl_content_media_get_id (ms->media);
+  id = grl_data_media_get_id (ms->media);
   if (!id) {
     /* Root category: special case */
-    grl_content_media_set_title (ms->media, "");
+    grl_data_media_set_title (ms->media, "");
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
     return;
   }
@@ -1383,7 +1383,7 @@ grl_podcasts_source_browse (GrlMediaSource *source,
   os = g_new0 (OperationSpec, 1);
   os->source = bs->source;
   os->operation_id = bs->browse_id;
-  os->media_id = grl_content_media_get_id (bs->container);
+  os->media_id = grl_data_media_get_id (bs->container);
   os->count = bs->count;
   os->skip = bs->skip;
   os->callback = bs->callback;
@@ -1488,7 +1488,7 @@ grl_podcasts_source_metadata (GrlMediaSource *source,
     g_error_free (error);
   }
 
-  media_id = grl_content_media_get_id (ms->media);
+  media_id = grl_data_media_get_id (ms->media);
   if (!media_id || media_id_is_podcast (media_id)) {
     podcast_metadata (ms);
   } else {
@@ -1501,7 +1501,7 @@ grl_podcasts_source_store (GrlMediaSource *source, GrlMediaSourceStoreSpec *ss)
 {
   g_debug ("grl_podcasts_source_store");
   GError *error = NULL;
-  if (GRL_IS_CONTENT_BOX (ss->media)) {
+  if (GRL_IS_DATA_BOX (ss->media)) {
     error = g_error_new (GRL_ERROR,
 			 GRL_ERROR_STORE_FAILED,
 			 "Cannot create containers. Only feeds are accepted.");

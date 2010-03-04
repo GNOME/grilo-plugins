@@ -70,7 +70,7 @@ static const GList *grl_lastfm_albumart_source_key_depends (GrlMetadataSource *s
 
 gboolean grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
                                                  const GrlPluginInfo *plugin,
-                                                 const GrlContentConfig *config);
+                                                 const GrlDataConfig *config);
 
 
 /* =================== Last.FM-AlbumArt Plugin  =============== */
@@ -78,7 +78,7 @@ gboolean grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
 gboolean
 grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
                                         const GrlPluginInfo *plugin,
-                                        const GrlContentConfig *config)
+                                        const GrlDataConfig *config)
 {
   g_debug ("grl_lastfm_albumart_source_plugin_init");
   GrlLastfmAlbumartSource *source = grl_lastfm_albumart_source_new ();
@@ -201,9 +201,9 @@ read_done_cb (GObject *source_object,
   image = xml_get_image (content);
   g_free (content);
   if (image) {
-    grl_content_set_string (GRL_CONTENT (rs->media),
-                            GRL_METADATA_KEY_THUMBNAIL,
-                            image);
+    grl_data_set_string (GRL_DATA (rs->media),
+                         GRL_METADATA_KEY_THUMBNAIL,
+                         image);
     g_free (image);
   }
 
@@ -288,11 +288,11 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
     g_debug ("No supported key was requested");
     rs->callback (source, rs->media, rs->user_data, NULL);
   } else {
-    artist = grl_content_get_string (GRL_CONTENT (rs->media),
-                                     GRL_METADATA_KEY_ARTIST);
+    artist = grl_data_get_string (GRL_DATA (rs->media),
+                                  GRL_METADATA_KEY_ARTIST);
 
-    album = grl_content_get_string (GRL_CONTENT (rs->media),
-                                    GRL_METADATA_KEY_ALBUM);
+    album = grl_data_get_string (GRL_DATA (rs->media),
+                                 GRL_METADATA_KEY_ALBUM);
 
     if (!artist || !album) {
       g_debug ("Missing dependencies");

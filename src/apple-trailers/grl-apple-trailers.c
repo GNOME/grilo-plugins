@@ -74,7 +74,7 @@ static GrlAppleTrailersSource *grl_apple_trailers_source_new (void);
 
 gboolean grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
                                          const GrlPluginInfo *plugin,
-                                         const GrlContentConfig *config);
+                                         const GrlDataConfig *config);
 
 static const GList *grl_apple_trailers_source_supported_keys (GrlMetadataSource *source);
 
@@ -89,7 +89,7 @@ static void grl_apple_trailers_source_cancel (GrlMediaSource *source,
 gboolean
 grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
                                 const GrlPluginInfo *plugin,
-                                const GrlContentConfig *config)
+                                const GrlDataConfig *config)
 {
   g_debug ("apple_trailers_plugin_init\n");
 
@@ -191,10 +191,10 @@ runtime_to_seconds (const gchar *runtime)
 
   return seconds;
 }
-static GrlContentMedia *
+static GrlDataMedia *
 build_media_from_movie (xmlNodePtr node)
 {
-  GrlContentMedia * media;
+  GrlDataMedia * media;
   gchar *movie_author;
   gchar *movie_date;
   gchar *movie_description;
@@ -205,7 +205,7 @@ build_media_from_movie (xmlNodePtr node)
   gchar *movie_title;
   gchar *movie_url;
 
-  media = grl_content_video_new ();
+  media = grl_data_video_new ();
 
   movie_id = (gchar *) xmlGetProp (node, (const xmlChar *) "id");
 
@@ -225,17 +225,17 @@ build_media_from_movie (xmlNodePtr node)
   movie_url = get_node_value (node_dup, "/movieinfo/preview/large");
   xmlFreeDoc (xml_doc);
 
-  grl_content_media_set_id (media, movie_id);
-  grl_content_media_set_author (media, movie_author);
-  grl_content_media_set_date (media, movie_date);
-  grl_content_media_set_description (media, movie_description);
-  grl_content_media_set_duration (media, runtime_to_seconds (movie_duration));
-  grl_content_media_set_title (media, movie_title);
-  grl_content_set_string (GRL_CONTENT (media),
-                          GRL_METADATA_KEY_GENRE,
-                          movie_genre);
-  grl_content_media_set_thumbnail (media, movie_thumbnail);
-  grl_content_media_set_url (media, movie_url);
+  grl_data_media_set_id (media, movie_id);
+  grl_data_media_set_author (media, movie_author);
+  grl_data_media_set_date (media, movie_date);
+  grl_data_media_set_description (media, movie_description);
+  grl_data_media_set_duration (media, runtime_to_seconds (movie_duration));
+  grl_data_media_set_title (media, movie_title);
+  grl_data_set_string (GRL_DATA (media),
+                       GRL_METADATA_KEY_GENRE,
+                       movie_genre);
+  grl_data_media_set_thumbnail (media, movie_thumbnail);
+  grl_data_media_set_url (media, movie_url);
 
   g_free (movie_id);
   g_free (movie_author);
@@ -253,7 +253,7 @@ build_media_from_movie (xmlNodePtr node)
 static gboolean
 send_movie_info (OperationData *op_data)
 {
-  GrlContentMedia *media;
+  GrlDataMedia *media;
   gboolean last = FALSE;
 
   if (op_data->cancelled) {

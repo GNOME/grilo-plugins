@@ -56,7 +56,7 @@ static const GList *grl_fake_metadata_source_key_depends (GrlMetadataSource *sou
 
 gboolean grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
                                                const GrlPluginInfo *plugin,
-                                               const GrlContentConfig *config);
+                                               const GrlDataConfig *config);
 
 
 /* =================== GrlFakeMetadata Plugin  =============== */
@@ -64,7 +64,7 @@ gboolean grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
 gboolean
 grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
                                       const GrlPluginInfo *plugin,
-                                      const GrlContentConfig *config)
+                                      const GrlDataConfig *config)
 {
   g_debug ("grl_fake_metadata_source_plugin_init");
   GrlFakeMetadataSource *source = grl_fake_metadata_source_new ();
@@ -118,37 +118,37 @@ G_DEFINE_TYPE (GrlFakeMetadataSource,
 /* ======================= Utilities ==================== */
 
 static void
-fill_metadata (GrlContentMedia *media, GrlKeyID key_id)
+fill_metadata (GrlDataMedia *media, GrlKeyID key_id)
 {
   switch (key_id) {
   case GRL_METADATA_KEY_AUTHOR:
-    grl_content_media_set_author (media, "fake author");
+    grl_data_media_set_author (media, "fake author");
     break;
   case GRL_METADATA_KEY_ARTIST:
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_ARTIST, "fake artist");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_ARTIST, "fake artist");
     break;
   case GRL_METADATA_KEY_ALBUM:
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_ALBUM, "fake album");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_ALBUM, "fake album");
     break;
   case GRL_METADATA_KEY_GENRE:
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_GENRE, "fake genre");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_GENRE, "fake genre");
     break;
   case GRL_METADATA_KEY_DESCRIPTION:
-    grl_content_media_set_description (media, "fake description");
+    grl_data_media_set_description (media, "fake description");
     break;
   case GRL_METADATA_KEY_DURATION:
-    grl_content_media_set_duration (media, 99);
+    grl_data_media_set_duration (media, 99);
     break;
   case GRL_METADATA_KEY_DATE:
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_DATE, "01/01/1970");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_DATE, "01/01/1970");
     break;
   case GRL_METADATA_KEY_THUMBNAIL:
-    grl_content_media_set_thumbnail (media,
-                                     "http://fake.thumbnail.com/fake-image.jpg");
+    grl_data_media_set_thumbnail (media,
+                                  "http://fake.thumbnail.com/fake-image.jpg");
     break;
   default:
     break;
@@ -213,7 +213,7 @@ grl_fake_metadata_source_resolve (GrlMetadataSource *source,
   iter = rs->keys;
   while (iter) {
     GrlKeyID key_id = POINTER_TO_GRLKEYID (iter->data);
-    fill_metadata (GRL_CONTENT_MEDIA (rs->media), key_id);
+    fill_metadata (GRL_DATA_MEDIA (rs->media), key_id);
     iter = g_list_next (iter);
   }
 

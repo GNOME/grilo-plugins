@@ -54,7 +54,7 @@ print_supported_ops (GrlMetadataSource *source)
 }
 
 static void
-print_metadata (gpointer key, GrlContent *content)
+print_metadata (gpointer key, GrlData *content)
 {
   GrlKeyID key_id = POINTER_TO_GRLKEYID(key);
 
@@ -66,7 +66,7 @@ print_metadata (gpointer key, GrlContent *content)
   const GrlMetadataKey *mkey =
     grl_plugin_registry_lookup_metadata_key (registry, key_id);
 
-  const GValue *value = grl_content_get (content, key_id);
+  const GValue *value = grl_data_get (content, key_id);
   if (value && G_VALUE_HOLDS_STRING (value)) {
     g_debug ("\t%s: %s", GRL_METADATA_KEY_GET_NAME (mkey),
 	     g_value_get_string (value));
@@ -76,28 +76,28 @@ print_metadata (gpointer key, GrlContent *content)
   }
 }
 
-static GrlContentMedia *
+static GrlDataMedia *
 media_from_id (const gchar *id)
 {
-  GrlContentMedia *media;
-  media = grl_content_media_new ();
-  grl_content_media_set_id (media, id);
+  GrlDataMedia *media;
+  media = grl_data_media_new ();
+  grl_data_media_set_id (media, id);
   return media;
 }
 
-static GrlContentMedia *
+static GrlDataMedia *
 box_from_id (const gchar *id)
 {
-  GrlContentMedia *media;
-  media = grl_content_box_new ();
-  grl_content_media_set_id (media, id);
+  GrlDataMedia *media;
+  media = grl_data_box_new ();
+  grl_data_media_set_id (media, id);
   return media;
 }
 
 static void
 browse_cb (GrlMediaSource *source,
 	   guint browse_id,
-           GrlContentMedia *media,
+           GrlDataMedia *media,
 	   guint remaining,
 	   gpointer user_data,
 	   const GError *error)
@@ -118,10 +118,10 @@ browse_cb (GrlMediaSource *source,
   }
 
   g_debug ("\tContainer: %s",
-	   GRL_IS_CONTENT_BOX(media) ? "yes" : "no");
+	   GRL_IS_DATA_BOX(media) ? "yes" : "no");
 
-  keys = grl_content_get_keys (GRL_CONTENT (media));
-  g_list_foreach (keys, (GFunc) print_metadata, GRL_CONTENT (media));
+  keys = grl_data_get_keys (GRL_DATA (media));
+  g_list_foreach (keys, (GFunc) print_metadata, GRL_DATA (media));
   g_list_free (keys);
   g_object_unref (media);
 
@@ -132,7 +132,7 @@ browse_cb (GrlMediaSource *source,
 
 static void
 metadata_cb (GrlMediaSource *source,
-	     GrlContentMedia *media,
+	     GrlDataMedia *media,
 	     gpointer user_data,
 	     const GError *error)
 {
@@ -146,13 +146,13 @@ metadata_cb (GrlMediaSource *source,
   }
 
   g_debug ("    Got metadata for object '%s'",
-	   grl_content_media_get_id (GRL_CONTENT_MEDIA (media)));
+	   grl_data_media_get_id (GRL_DATA_MEDIA (media)));
 
   g_debug ("\tContainer: %s",
-	   GRL_IS_CONTENT_BOX(media) ? "yes" : "no");
+	   GRL_IS_DATA_BOX(media) ? "yes" : "no");
 
-  keys = grl_content_get_keys (GRL_CONTENT (media));
-  g_list_foreach (keys, (GFunc) print_metadata, GRL_CONTENT (media));
+  keys = grl_data_get_keys (GRL_DATA (media));
+  g_list_foreach (keys, (GFunc) print_metadata, GRL_DATA (media));
   g_list_free (keys);
   g_object_unref (media);
 
@@ -161,7 +161,7 @@ metadata_cb (GrlMediaSource *source,
 
 static void
 resolve_cb (GrlMetadataSource *source,
-            GrlContentMedia *media,
+            GrlDataMedia *media,
             gpointer user_data,
             const GError *error)
 {
@@ -316,13 +316,13 @@ main (void)
   if (0) grl_media_source_metadata (shoutcast, media_from_id("American/556682"), keys, 0, metadata_cb, NULL);
   if (1) grl_media_source_browse (apple_trailers, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) {
-    GrlContentMedia *media = media_from_id ("test");
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_ARTIST,
-                            "roxette");
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_ALBUM,
-                            "pop hits");
+    GrlDataMedia *media = media_from_id ("test");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_ARTIST,
+                         "roxette");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_ALBUM,
+                         "pop hits");
     grl_metadata_source_resolve (lastfm, keys, media, GRL_RESOLVE_IDLE_RELAY, resolve_cb, NULL);
   }
 

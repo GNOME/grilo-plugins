@@ -324,7 +324,7 @@ create_content (GrlMedia *content,
 	media = GRL_MEDIA (grl_media_box_new ());
       } else {
 	if (mime_is_video (mime)) {
-	  media = grl_data_video_new ();
+	  media = grl_media_video_new ();
 	} else if (mime_is_audio (mime)) {
 	  media = grl_media_audio_new ();
 	} else if (mime_is_image (mime)) {

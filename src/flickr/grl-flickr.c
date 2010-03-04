@@ -268,7 +268,7 @@ search_cb (GFlickr *f, GList *photolist, gpointer user_data)
     if (strcmp (media_type, "photo") == 0) {
       media = grl_media_image_new ();
     } else {
-      media = grl_data_video_new ();
+      media = grl_media_video_new ();
     }
     update_media (media, photolist->data);
     sd->ss->callback (sd->ss->source,

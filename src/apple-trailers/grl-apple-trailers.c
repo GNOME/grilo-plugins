@@ -205,7 +205,7 @@ build_media_from_movie (xmlNodePtr node)
   gchar *movie_title;
   gchar *movie_url;
 
-  media = grl_data_video_new ();
+  media = grl_media_video_new ();
 
   movie_id = (gchar *) xmlGetProp (node, (const xmlChar *) "id");
 

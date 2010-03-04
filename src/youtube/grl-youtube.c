@@ -449,7 +449,7 @@ build_media_from_entry (GrlMedia *content,
   GList *iter;
 
   if (!content) {
-    media = grl_data_video_new ();
+    media = grl_media_video_new ();
   } else {
     media = content;
   }

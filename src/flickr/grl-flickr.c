@@ -266,7 +266,7 @@ search_cb (GFlickr *f, GList *photolist, gpointer user_data)
   while (photolist && sd->ss->count) {
     media_type = g_hash_table_lookup (photolist->data, "photo_media");
     if (strcmp (media_type, "photo") == 0) {
-      media = grl_data_image_new ();
+      media = grl_media_image_new ();
     } else {
       media = grl_data_video_new ();
     }

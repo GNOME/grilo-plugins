@@ -847,7 +847,7 @@ build_media_from_didl (GrlMedia *content,
 	} else if (g_str_has_prefix (class, "object.item.videoItem")) {
 	  media = grl_data_video_new ();
 	} else if (g_str_has_prefix (class, "object.item.imageItem")) {
-	  media = grl_data_image_new ();
+	  media = grl_media_image_new ();
 	} else {
 	  media = grl_media_new ();
 	}

@@ -89,7 +89,7 @@ static GrlMedia *
 box_from_id (const gchar *id)
 {
   GrlMedia *media;
-  media = grl_data_box_new ();
+  media = grl_media_box_new ();
   grl_media_set_id (media, id);
   return media;
 }
@@ -118,7 +118,7 @@ browse_cb (GrlMediaSource *source,
   }
 
   g_debug ("\tContainer: %s",
-	   GRL_IS_DATA_BOX(media) ? "yes" : "no");
+	   GRL_IS_MEDIA_BOX(media) ? "yes" : "no");
 
   keys = grl_data_get_keys (GRL_DATA (media));
   g_list_foreach (keys, (GFunc) print_metadata, GRL_DATA (media));
@@ -149,7 +149,7 @@ metadata_cb (GrlMediaSource *source,
 	   grl_media_get_id (GRL_MEDIA (media)));
 
   g_debug ("\tContainer: %s",
-	   GRL_IS_DATA_BOX(media) ? "yes" : "no");
+	   GRL_IS_MEDIA_BOX(media) ? "yes" : "no");
 
   keys = grl_data_get_keys (GRL_DATA (media));
   g_list_foreach (keys, (GFunc) print_metadata, GRL_DATA (media));

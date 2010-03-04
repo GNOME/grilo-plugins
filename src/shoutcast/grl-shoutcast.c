@@ -196,7 +196,7 @@ build_media_from_genre (OperationData *op_data)
   if (op_data->media) {
     media = op_data->media;
   } else {
-    media = grl_data_box_new ();
+    media = grl_media_box_new ();
   }
 
   genre_name = (gchar *) xmlGetProp (op_data->xml_entries,

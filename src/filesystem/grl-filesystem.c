@@ -278,7 +278,7 @@ set_container_childcount (const gchar *path,
 
   g_dir_close (dir);
 
-  grl_data_box_set_childcount (GRL_DATA_BOX (media), count);
+  grl_media_box_set_childcount (GRL_MEDIA_BOX (media), count);
 }
 
 static GrlMedia *
@@ -321,7 +321,7 @@ create_content (GrlMedia *content,
 
     if (!media) {
       if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-	media = GRL_MEDIA (grl_data_box_new ());
+	media = GRL_MEDIA (grl_media_box_new ());
       } else {
 	if (mime_is_video (mime)) {
 	  media = grl_data_video_new ();
@@ -335,7 +335,7 @@ create_content (GrlMedia *content,
       }
     }
 
-    if (!GRL_IS_DATA_BOX (media)) {
+    if (!GRL_IS_MEDIA_BOX (media)) {
       grl_media_set_mime (GRL_DATA (media), mime);
     }
 
@@ -363,7 +363,7 @@ create_content (GrlMedia *content,
   g_free (str);
 
   /* Childcount */
-  if (GRL_IS_DATA_BOX (media)) {
+  if (GRL_IS_MEDIA_BOX (media)) {
     set_container_childcount (path, media, only_fast);
   }
 

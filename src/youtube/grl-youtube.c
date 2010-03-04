@@ -1012,7 +1012,7 @@ get_container_url (const gchar *container_id)
 }
 
 static void
-set_category_childcount (GrlDataBox *content,
+set_category_childcount (GrlMediaBox *content,
                          CategoryInfo *dir,
                          guint index)
 {
@@ -1047,7 +1047,7 @@ set_category_childcount (GrlDataBox *content,
   }
 
   if (set_childcount) {
-    grl_data_box_set_childcount (content, childcount);
+    grl_media_box_set_childcount (content, childcount);
   }
 }
 
@@ -1061,7 +1061,7 @@ produce_container_from_directory (GrlMedia *media,
 
   if (!media) {
     /* Create mode */
-    content = grl_data_box_new ();
+    content = grl_media_box_new ();
   } else {
     /* Update mode */
     content = media;
@@ -1076,7 +1076,7 @@ produce_container_from_directory (GrlMedia *media,
   }
   grl_media_set_site (content, YOUTUBE_SITE_URL);
   if (set_childcount) {
-    set_category_childcount (GRL_DATA_BOX (content), dir, index);
+    set_category_childcount (GRL_MEDIA_BOX (content), dir, index);
   }
 
   return content;

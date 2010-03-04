@@ -342,7 +342,7 @@ build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
 
   if (!media) {
     if (type == BOOKMARK_TYPE_CATEGORY) {
-      media = GRL_MEDIA (grl_data_box_new ());
+      media = GRL_MEDIA (grl_media_box_new ());
     } else if (mime_is_audio (mime)) {
       media = GRL_MEDIA (grl_media_new ());
     } else if (mime_is_video (mime)) {
@@ -365,7 +365,7 @@ build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
   }
 
   if (type == BOOKMARK_TYPE_CATEGORY) {
-    grl_data_box_set_childcount (GRL_DATA_BOX (media), childcount);
+    grl_media_box_set_childcount (GRL_MEDIA_BOX (media), childcount);
   }
 
   return media;
@@ -557,7 +557,7 @@ remove_bookmark (sqlite3 *db, const gchar *bookmark_id, GError **error)
 
 static void
 store_bookmark (sqlite3 *db,
-		GrlDataBox *parent,
+		GrlMediaBox *parent,
 		GrlMedia *bookmark,
 		GError **error)
 {
@@ -606,7 +606,7 @@ store_bookmark (sqlite3 *db,
 
   g_debug ("URL: '%s'", url);
 
-  if (GRL_IS_DATA_BOX (bookmark)) {
+  if (GRL_IS_MEDIA_BOX (bookmark)) {
     type = BOOKMARK_TYPE_CATEGORY;
   } else {
     type = BOOKMARK_TYPE_STREAM;

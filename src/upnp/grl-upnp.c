@@ -795,8 +795,8 @@ set_metadata_value (GrlMedia *media,
     }
     break;
   case GRL_METADATA_KEY_CHILDCOUNT:
-    if (value && GRL_IS_DATA_BOX (media)) {
-      grl_data_box_set_childcount (GRL_DATA_BOX (media), atoi (value));
+    if (value && GRL_IS_MEDIA_BOX (media)) {
+      grl_media_box_set_childcount (GRL_MEDIA_BOX (media), atoi (value));
     }
     break;
   default:
@@ -837,7 +837,7 @@ build_media_from_didl (GrlMedia *content,
   if (GUPNP_IS_DIDL_LITE_CONTAINER (didl_node)) {
 #endif
 
-    media = grl_data_box_new ();
+    media = grl_media_box_new ();
   } else {
     if (!media) {
       class = gupnp_didl_lite_object_get_upnp_class (didl_node);

@@ -527,7 +527,7 @@ xml_parse_entries_idle (gpointer user_data)
     if (entry->category == JAMENDO_TRACK_CAT) {
       media = grl_media_audio_new ();
     } else {
-      media = grl_data_box_new ();
+      media = grl_media_box_new ();
     }
 
     update_media_from_entry (media, entry);
@@ -708,7 +708,7 @@ static void
 update_media_from_root (GrlMedia *media)
 {
   grl_media_set_title (media, JAMENDO_ROOT_NAME);
-  grl_data_box_set_childcount (GRL_DATA_BOX (media), 2);
+  grl_media_box_set_childcount (GRL_MEDIA_BOX (media), 2);
 }
 
 static void
@@ -740,11 +740,11 @@ send_toplevel_categories (GrlMediaSourceBrowseSpec *bs)
 {
   GrlMedia *media;
 
-  media = grl_data_box_new ();
+  media = grl_media_box_new ();
   update_media_from_artists (media);
   bs->callback (bs->source, bs->browse_id, media, 1, bs->user_data, NULL);
 
-  media = grl_data_box_new ();
+  media = grl_media_box_new ();
   update_media_from_albums (media);
   bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
 }
@@ -837,7 +837,7 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
                               GRL_METADATA_KEY_ID)) {
     /* Get info from root */
     if (!ms->media) {
-      ms->media = grl_data_box_new ();
+      ms->media = grl_media_box_new ();
     }
     update_media_from_root (ms->media);
   } else {

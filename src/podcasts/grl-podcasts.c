@@ -524,13 +524,13 @@ build_media (GrlMedia *content,
 
   if (is_podcast) {
     if (!media) {
-      media = GRL_MEDIA (grl_data_box_new ());
+      media = GRL_MEDIA (grl_media_box_new ());
     }
 
     grl_media_set_id (media, id);
     if (desc)
       grl_media_set_description (media, desc);
-    grl_data_box_set_childcount (GRL_DATA_BOX (media), childcount);
+    grl_media_box_set_childcount (GRL_MEDIA_BOX (media), childcount);
   } else {
     if (!media) {
       if (mime_is_audio (mime)) {
@@ -1501,7 +1501,7 @@ grl_podcasts_source_store (GrlMediaSource *source, GrlMediaSourceStoreSpec *ss)
 {
   g_debug ("grl_podcasts_source_store");
   GError *error = NULL;
-  if (GRL_IS_DATA_BOX (ss->media)) {
+  if (GRL_IS_MEDIA_BOX (ss->media)) {
     error = g_error_new (GRL_ERROR,
 			 GRL_ERROR_STORE_FAILED,
 			 "Cannot create containers. Only feeds are accepted.");

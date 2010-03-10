@@ -51,6 +51,17 @@ print_supported_ops (GrlMetadataSource *source)
   if (caps & GRL_OP_QUERY) {
     g_debug ("    + Query");
   }
+  if (caps & GRL_OP_STORE_PARENT) {
+    g_debug ("    + Store (parent)");
+  } else  if (caps & GRL_OP_STORE) {
+    g_debug ("    + Store");
+  }
+  if (caps & GRL_OP_REMOVE) {
+    g_debug ("    + Remove");
+  }
+  if (caps & GRL_OP_SET_METADATA) {
+    g_debug ("    + Set Metadata");
+  }
 }
 
 static void
@@ -166,6 +177,17 @@ resolve_cb (GrlMetadataSource *source,
             const GError *error)
 {
   metadata_cb (NULL, media, user_data, error);
+}
+
+static void
+set_cb (GrlMetadataSource *source,
+	GrlMedia *media,
+	gpointer user_data,
+	const GError *error)
+{
+  if (error) {
+    g_critical ("Error: %s", error->message);
+  }
 }
 
 gint
@@ -293,7 +315,7 @@ main (void)
   if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) grl_media_source_browse (youtube, media_from_id ("standard-feeds/most-viewed"), keys, 0, 10, GRL_RESOLVE_FAST_ONLY , browse_cb, NULL);
   if (0) grl_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (1) grl_media_source_search (youtube, "igalia", keys, 0, 3, GRL_RESOLVE_FULL | GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_search (youtube, "igalia", keys, 0, 3, GRL_RESOLVE_FULL | GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) grl_media_source_search (youtube, "igalia", keys, 1, 10, GRL_RESOLVE_FULL | GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) grl_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
   if (0) grl_media_source_metadata (youtube, NULL, keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY | GRL_RESOLVE_FULL, metadata_cb, NULL);
@@ -336,6 +358,18 @@ main (void)
                          GRL_METADATA_KEY_ALBUM,
                          "pop hits");
     grl_metadata_source_resolve (lastfm, keys, media, GRL_RESOLVE_IDLE_RELAY, resolve_cb, NULL);
+  }
+  if (1) {
+    GrlMedia *media = media_from_id ("test-id");
+    grl_media_set_source (media, "some-source-id");
+    grl_media_set_play_count (media,  68);
+    grl_media_set_rating (media,  "4.5", "5");
+    grl_media_set_last_position (media, 60);
+    grl_media_set_last_played (media, "26/02/2010");
+    grl_metadata_source_set_metadata (metadata_store, media, GRL_METADATA_KEY_PLAY_COUNT, set_cb, NULL);
+    grl_metadata_source_set_metadata (metadata_store, media, GRL_METADATA_KEY_RATING, set_cb, NULL);
+    grl_metadata_source_set_metadata (metadata_store, media, GRL_METADATA_KEY_LAST_POSITION, set_cb, NULL);
+    grl_metadata_source_set_metadata (metadata_store, media, GRL_METADATA_KEY_LAST_PLAYED, set_cb, NULL);
   }
 
   g_debug ("Running main loop");

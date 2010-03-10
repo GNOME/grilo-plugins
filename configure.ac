@@ -502,6 +502,37 @@ then
 fi
 
 # ----------------------------------------------------------
+# BUILD METADATA-STORE PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(metadata-store,
+        AC_HELP_STRING([--enable-metadata-store],
+                [enable Metadata Store plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_SQLITE" = "xno"; then
+                           AC_MSG_ERROR([sqlite3 not found, install it or use --disable-metadata-store])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_SQLITE" = "xyes"; then
+                  enable_metadata_store=yes
+                else
+                  enable_metadata_store=no
+                fi
+        ])
+
+AM_CONDITIONAL([METADATA_STORE_PLUGIN], [test "x$enable_metadata_store" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL metadata-store"
+if test "x$enable_metadata_store" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED metadata-store"
+fi
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -536,6 +567,7 @@ AC_CONFIG_FILES([
   src/bookmarks/Makefile
   src/shoutcast/Makefile
   src/apple-trailers/Makefile
+  src/metadata-store/Makefile
   test/Makefile
 ])
 

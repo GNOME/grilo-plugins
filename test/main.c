@@ -182,7 +182,8 @@ main (void)
                 "grl-shoutcast:*,"
                 "grl-apple-trailers:*,"
                 "grl-lastfm-albumart:*,"
-                "grl-flickr:*");
+                "grl-flickr:*,"
+                "grl-metadata-store:*");
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
                                     GRL_METADATA_KEY_TITLE,
@@ -197,6 +198,10 @@ main (void)
                                     GRL_METADATA_KEY_DURATION,
                                     GRL_METADATA_KEY_CHILDCOUNT,
                                     GRL_METADATA_KEY_MIME,
+                                    GRL_METADATA_KEY_PLAY_COUNT,
+                                    GRL_METADATA_KEY_LAST_PLAYED,
+                                    GRL_METADATA_KEY_LAST_POSITION,
+                                    GRL_METADATA_KEY_RATING,
                                     NULL);
 
   g_debug ("start");
@@ -220,6 +225,8 @@ main (void)
                             "../src/lastfm-albumart/.libs/libgrllastfm-albumart.so");
   grl_plugin_registry_load (registry,
                             "../src/flickr/.libs/libgrlflickr.so");
+  grl_plugin_registry_load (registry,
+                            "../src/metadata-store/.libs/libgrlmetadatastore.so");
 
   g_debug ("Obtaining sources");
 
@@ -255,14 +262,18 @@ main (void)
     (GrlMetadataSource *) grl_plugin_registry_lookup_source (registry,
                                                              "grl-lastfm-albumart");
 
+  GrlMetadataSource *metadata_store =
+    (GrlMetadataSource *) grl_plugin_registry_lookup_source (registry,
+                                                             "grl-metadata-store");
+
   g_assert (youtube);
   g_assert (fs);
-  g_assert (flickr);
   g_assert (jamendo);
   g_assert (shoutcast);
   g_assert (apple_trailers);
   g_assert (fake);
   g_assert (lastfm);
+  g_assert (metadata_store);
 
   g_debug ("Supported operations");
 
@@ -274,14 +285,15 @@ main (void)
   print_supported_ops (GRL_METADATA_SOURCE (shoutcast));
   print_supported_ops (fake);
   print_supported_ops (lastfm);
+  print_supported_ops (metadata_store);
 
   g_debug ("testing");
 
   if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) grl_media_source_browse (youtube, media_from_id ("standard-feeds/most-viewed"), keys, 0, 10, GRL_RESOLVE_FAST_ONLY , browse_cb, NULL);
-  if (0) grl_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 173, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) grl_media_source_search (youtube, "igalia", keys, 6, 10, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (1) grl_media_source_search (youtube, "igalia", keys, 0, 3, GRL_RESOLVE_FULL | GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) grl_media_source_search (youtube, "igalia", keys, 1, 10, GRL_RESOLVE_FULL | GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) grl_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
   if (0) grl_media_source_metadata (youtube, NULL, keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY | GRL_RESOLVE_FULL, metadata_cb, NULL);
@@ -314,7 +326,7 @@ main (void)
   if (0) grl_media_source_metadata (shoutcast, box_from_id("2424hs"), keys, 0, metadata_cb, NULL);
   if (0) grl_media_source_metadata (shoutcast, media_from_id("American/556687"), keys, 0, metadata_cb, NULL);
   if (0) grl_media_source_metadata (shoutcast, media_from_id("American/556682"), keys, 0, metadata_cb, NULL);
-  if (1) grl_media_source_browse (apple_trailers, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_browse (apple_trailers, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) {
     GrlMedia *media = media_from_id ("test");
     grl_data_set_string (GRL_DATA (media),

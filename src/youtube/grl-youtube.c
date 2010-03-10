@@ -806,23 +806,28 @@ parse_metadata_entry (GrlMediaSourceMetadataSpec *os,
     node = node->next;
   }
 
-  /* Should have exactly 1 result */
-  if (total_results != 1) {
+  if (total_results <= 0) {
     *error = g_error_new (GRL_ERROR,
 			  GRL_ERROR_MEDIA_NOT_FOUND,
 			  "Could not find requested media");
     return NULL;
   }
 
-  /* Now go for the entry data */
   while (node && xmlStrcmp (node->name, (const xmlChar *) "entry")) {
     node = node->next;
   }
   if (node) {
+    const gchar *target_id = grl_media_get_id (os->media);
     Entry *entry = g_new0 (Entry, 1);
     parse_entry (doc, node, entry);
     if (0) print_entry (entry);
-    build_media_from_entry (os->media, entry, os->keys);
+    if (!strcmp (entry->id, target_id)) {
+      build_media_from_entry (os->media, entry, os->keys);
+    } else {
+      /* FIXME: The query using the video id at target text resulted in various
+	 matches and the one we were looking for was not the first one */
+      g_warning ("Metadata query did not match expected target");
+    }
     free_entry (entry);
   }
 

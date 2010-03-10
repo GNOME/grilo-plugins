@@ -57,7 +57,7 @@
   "source_id TEXT,"					 \
   "media_id TEXT,"					 \
   "play_count INTEGER,"					 \
-  "rating INTEGER,"					 \
+  "rating REAL,"					 \
   "last_position INTEGER,"				 \
   "last_played DATE)"
 
@@ -65,6 +65,15 @@
   "SELECT * FROM store "				\
   "WHERE source_id='%s' AND media_id='%s' "		\
   "LIMIT 1"
+
+#define GRL_SQL_UPDATE_METADATA			\
+  "UPDATE store SET %s=? "			\
+  "WHERE source_id=? AND media_id=?"
+
+#define GRL_SQL_INSERT_METADATA			\
+  "INSERT INTO store "				\
+  "(%s, source_id, media_id) VALUES "		\
+  "(?, ?, ?)"
 
 struct _GrlMetadataStorePrivate {
   sqlite3 *db;
@@ -83,6 +92,9 @@ static GrlMetadataStoreSource *grl_metadata_store_source_new (void);
 
 static void grl_metadata_store_source_resolve (GrlMetadataSource *source,
 					       GrlMetadataSourceResolveSpec *rs);
+
+static void grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
+						    GrlMetadataSourceSetMetadataSpec *sms);
 
 static const GList *grl_metadata_store_source_supported_keys (GrlMetadataSource *source);
 
@@ -141,6 +153,7 @@ grl_metadata_store_source_class_init (GrlMetadataStoreSourceClass * klass)
   metadata_class->key_depends = grl_metadata_store_source_key_depends;
   metadata_class->writable_keys = grl_metadata_store_source_writable_keys;
   metadata_class->resolve = grl_metadata_store_source_resolve;
+  metadata_class->set_metadata = grl_metadata_store_source_set_metadata;
 
   g_type_class_add_private (klass, sizeof (GrlMetadataStorePrivate));
 }
@@ -226,7 +239,8 @@ static void
 fill_metadata (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
 {
   GList *iter;
-  gint rating, play_count, last_position;
+  gint play_count, last_position;
+  gdouble rating;
   gchar *last_played, *rating_str;
   gint r;
 
@@ -247,8 +261,8 @@ fill_metadata (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
       grl_media_set_play_count (media, play_count);
       break;
     case GRL_METADATA_KEY_RATING:
-      rating = sqlite3_column_int (stmt, STORE_RATING);
-      rating_str = g_strdup_printf ("%d", rating);
+      rating = sqlite3_column_double (stmt, STORE_RATING);
+      rating_str = g_strdup_printf ("%.2f", rating);
       grl_media_set_rating (media, rating_str, "5");
       g_free (rating_str);
       break;
@@ -267,6 +281,89 @@ fill_metadata (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
   }
 
   sqlite3_finalize (stmt);
+}
+
+static const gchar *
+get_column_name_from_key_id (GrlKeyID key_id)
+{
+  static const gchar *col_names[] = {"rating", "last_played", "last_position",
+				     "play_count"};
+  switch (key_id) {
+  case GRL_METADATA_KEY_RATING:
+    return col_names[0];
+  case GRL_METADATA_KEY_LAST_PLAYED:
+    return col_names[1];
+  case GRL_METADATA_KEY_LAST_POSITION:
+    return col_names[2];
+  case GRL_METADATA_KEY_PLAY_COUNT:
+    return col_names[3];
+  default:
+    return NULL;
+  }
+}
+
+static gboolean
+prepare_and_exec (sqlite3 *db,
+		  const gchar *query,
+		  const gchar *col_name,
+		  const gchar *source_id,
+		  const gchar *media_id,
+		  GrlKeyID key_id,
+		  GrlMedia *media)
+{
+  gchar *sql;
+  sqlite3_stmt *stmt;
+  gint r;
+  const gchar *char_value;
+  gint int_value;
+  double double_value;
+
+  sql = g_strdup_printf (query, col_name);
+  g_debug ("%s", sql);
+  r = sqlite3_prepare_v2 (db, sql, strlen (sql), &stmt, NULL);
+  g_free (sql);
+
+  if (r != SQLITE_OK) {
+    g_warning ("Failed to update metadata for '%s - %s': %s",
+	       source_id, media_id, sqlite3_errmsg (db));
+    sqlite3_finalize (stmt);
+    return FALSE;
+  }
+
+  switch (key_id) {
+  case GRL_METADATA_KEY_RATING:
+    char_value = grl_media_get_rating (media);
+    if (char_value) {
+      double_value = g_ascii_strtod (char_value, NULL);
+    } else {
+      double_value = 0;
+    }
+    sqlite3_bind_double (stmt, 1, double_value);
+    break;
+  case GRL_METADATA_KEY_PLAY_COUNT:
+    int_value = grl_media_get_play_count (media);
+    sqlite3_bind_int (stmt, 1, int_value);
+    break;
+  case GRL_METADATA_KEY_LAST_POSITION:
+    int_value = grl_media_get_last_position (media);
+    sqlite3_bind_int (stmt, 1, int_value);
+    break;
+  case GRL_METADATA_KEY_LAST_PLAYED:
+    char_value = grl_media_get_last_played (media);
+    sqlite3_bind_text (stmt, 1, char_value, -1, SQLITE_STATIC);
+    break;
+  default:
+    break;
+  }
+
+  sqlite3_bind_text (stmt, 2, source_id, -1, SQLITE_STATIC);
+  sqlite3_bind_text (stmt, 3, media_id, -1, SQLITE_STATIC);
+
+  while ((r = sqlite3_step (stmt)) == SQLITE_BUSY);
+
+  sqlite3_finalize (stmt);
+
+  return (r == SQLITE_DONE);
 }
 
 /* ================== API Implementation ================ */
@@ -363,4 +460,91 @@ grl_metadata_store_source_resolve (GrlMetadataSource *source,
     rs->callback (rs->source, rs->media, rs->user_data, error);
     g_error_free (error);
   }
+}
+
+static void
+grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
+					GrlMetadataSourceSetMetadataSpec *sms)
+{
+  g_debug ("grl_metadata_store_source_set_metadata");
+
+  const gchar *media_id, *source_id, *col_name;
+  GError *error = NULL;
+  sqlite3 *db;
+  gboolean r;
+
+  source_id = grl_media_get_source (sms->media);
+  media_id = grl_media_get_id (sms->media);
+
+  /* We need the source id */
+  if (!source_id) {
+    g_warning ("Failed to update metadata: source-id not available");
+    error = g_error_new (GRL_ERROR,
+			 GRL_ERROR_SET_METADATA_FAILED,
+			 "source-id not available, cannot update metadata.");
+    sms->callback (sms->source, sms->media, sms->user_data, error);
+    g_error_free (error);
+    return;
+  }
+
+  /* Special case for root categories */
+  if (!media_id) {
+    media_id = "";
+  }
+
+  db = GRL_METADATA_STORE_SOURCE (source)->priv->db;
+
+  col_name = get_column_name_from_key_id (sms->key_id);
+  if (!col_name) {
+    g_warning ("Key %u is not supported for writing", sms->key_id);
+    error = g_error_new (GRL_ERROR,
+			 GRL_ERROR_SET_METADATA_FAILED,
+			 "Failed to update metadata: key not supported");
+    sms->callback (sms->source, sms->media, sms->user_data, error);
+    g_error_free (error);
+    return;
+  }
+
+  r = prepare_and_exec (db,
+			GRL_SQL_UPDATE_METADATA,
+			col_name,
+			source_id,
+			media_id,
+			sms->key_id,
+			sms->media);
+    
+  if (!r) {
+    g_warning ("Failed to update metadata for '%s - %s': %s",
+	       source_id, media_id, sqlite3_errmsg (db));
+    error = g_error_new (GRL_ERROR,
+			 GRL_ERROR_SET_METADATA_FAILED,
+			 "Failed to update metadata");
+    sms->callback (sms->source, sms->media, sms->user_data, error);
+    g_error_free (error);
+    return;
+  } 
+
+  if (sqlite3_changes (db) == 0) {
+    /* We have to create the row */
+    r = prepare_and_exec (db,
+			  GRL_SQL_INSERT_METADATA,
+			  col_name,
+			  source_id,
+			  media_id,
+			  sms->key_id,
+			  sms->media);
+  }
+
+  if (!r) {
+    g_warning ("Failed to update metadata for '%s - %s': %s",
+	       source_id, media_id, sqlite3_errmsg (db));
+    error = g_error_new (GRL_ERROR,
+			 GRL_ERROR_SET_METADATA_FAILED,
+			 "Failed to update metadata");
+    sms->callback (sms->source, sms->media, sms->user_data, error);
+    g_error_free (error);
+    return;
+  } 
+
+  sms->callback (sms->source, sms->media, sms->user_data, NULL);
 }

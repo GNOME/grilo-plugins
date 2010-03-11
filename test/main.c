@@ -187,10 +187,8 @@ set_cb (GrlMetadataSource *source,
 	const GError *error)
 {
   if (error) {
-    g_critical ("Error: %s", error->message);
-  }
-  if (failed_keys) {
-    g_warning ("Some keys could not be updated!");
+    g_critical ("%s: %d keys not written",
+		error->message, g_list_length (failed_keys));
   }
 }
 
@@ -373,7 +371,10 @@ main (void)
     GList *keys_to_write = grl_metadata_key_list_new (GRL_METADATA_KEY_PLAY_COUNT,
                                                       GRL_METADATA_KEY_RATING,
                                                       GRL_METADATA_KEY_LAST_POSITION,
+                                                      GRL_METADATA_KEY_ALBUM,
                                                       GRL_METADATA_KEY_LAST_PLAYED,
+						      GRL_METADATA_KEY_TITLE,
+                                                      GRL_METADATA_KEY_GENRE,
 						      NULL);
     grl_metadata_source_set_metadata (metadata_store, media, keys_to_write, set_cb, NULL);
   }

@@ -365,11 +365,12 @@ main (void)
     grl_media_set_play_count (media,  68);
     grl_media_set_rating (media,  "4.5", "5");
     grl_media_set_last_position (media, 60);
-    grl_media_set_last_played (media, "26/02/2010");
-    grl_metadata_source_set_metadata (metadata_store, media, GRL_METADATA_KEY_PLAY_COUNT, set_cb, NULL);
-    grl_metadata_source_set_metadata (metadata_store, media, GRL_METADATA_KEY_RATING, set_cb, NULL);
-    grl_metadata_source_set_metadata (metadata_store, media, GRL_METADATA_KEY_LAST_POSITION, set_cb, NULL);
-    grl_metadata_source_set_metadata (metadata_store, media, GRL_METADATA_KEY_LAST_PLAYED, set_cb, NULL);
+    grl_media_set_last_played (media, "19/11/2009");
+    GList *keys_to_write = grl_metadata_key_list_new (GRL_METADATA_KEY_PLAY_COUNT,
+                                                      GRL_METADATA_KEY_RATING,
+                                                      GRL_METADATA_KEY_LAST_POSITION,
+                                                      GRL_METADATA_KEY_LAST_PLAYED, NULL);
+    grl_metadata_source_set_metadata (metadata_store, media, keys_to_write, set_cb, NULL);
   }
 
   g_debug ("Running main loop");

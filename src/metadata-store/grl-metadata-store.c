@@ -463,7 +463,7 @@ prepare_and_exec_insert (sqlite3 *db,
   return r;
 }
 
-static void
+static GList *
 write_keys (sqlite3 *db,
 	    const gchar *source_id,
 	    const gchar *media_id,
@@ -472,6 +472,7 @@ write_keys (sqlite3 *db,
 {
   GList *col_names = NULL;
   GList *iter;
+  GList *failed_keys = NULL;
   guint supported_keys = 0;
   gint r;
 
@@ -482,6 +483,7 @@ write_keys (sqlite3 *db,
     const gchar *col_name = get_column_name_from_key_id (key_id);
     if (!col_name) {
       g_warning ("Key %u is not supported for writing, ignoring...", key_id);
+      failed_keys = g_list_prepend (failed_keys, GRLKEYID_TO_POINTER (key_id));
     } else {
       supported_keys++;
     }
@@ -510,6 +512,8 @@ write_keys (sqlite3 *db,
   if (!r) {
     g_warning ("Failed to update metadata for '%s - %s': %s",
 	       source_id, media_id, sqlite3_errmsg (db));
+    g_list_free (failed_keys);
+    failed_keys = g_list_copy (sms->keys);
     *error = g_error_new (GRL_ERROR,
 			  GRL_ERROR_SET_METADATA_FAILED,
 			  "Failed to update metadata");
@@ -529,6 +533,8 @@ write_keys (sqlite3 *db,
   if (!r) {
     g_warning ("Failed to update metadata for '%s - %s': %s",
 	       source_id, media_id, sqlite3_errmsg (db));
+    g_list_free (failed_keys);
+    failed_keys = g_list_copy (sms->keys);
     *error = g_error_new (GRL_ERROR,
 			  GRL_ERROR_SET_METADATA_FAILED,
 			  "Failed to update metadata");
@@ -537,6 +543,7 @@ write_keys (sqlite3 *db,
 
  done:
   g_list_free (col_names);
+  return failed_keys;
 }
 
 /* ================== API Implementation ================ */
@@ -643,6 +650,7 @@ grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
 
   const gchar *media_id, *source_id;
   GError *error = NULL;
+  GList *failed_keys = NULL;
 
   source_id = grl_media_get_source (sms->media);
   media_id = grl_media_get_id (sms->media);
@@ -653,20 +661,21 @@ grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
     error = g_error_new (GRL_ERROR,
 			 GRL_ERROR_SET_METADATA_FAILED,
 			 "source-id not available, cannot update metadata.");
-    return;
+    failed_keys = g_list_copy (sms->keys);
   } else {
     /* Special case for root categories */
     if (!media_id) {
       media_id = "";
     }
     
-    write_keys (GRL_METADATA_STORE_SOURCE (source)->priv->db,
-		source_id, media_id, sms, &error);
+    failed_keys = write_keys (GRL_METADATA_STORE_SOURCE (source)->priv->db,
+			      source_id, media_id, sms, &error);
   }
 
-  sms->callback (sms->source, sms->media, sms->user_data, error);
+  sms->callback (sms->source, sms->media, failed_keys, sms->user_data, error);
 
   if (error) {
     g_error_free (error);
   }
+  g_list_free (failed_keys);
 }

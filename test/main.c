@@ -182,11 +182,15 @@ resolve_cb (GrlMetadataSource *source,
 static void
 set_cb (GrlMetadataSource *source,
 	GrlMedia *media,
+	GList *failed_keys,
 	gpointer user_data,
 	const GError *error)
 {
   if (error) {
     g_critical ("Error: %s", error->message);
+  }
+  if (failed_keys) {
+    g_warning ("Some keys could not be updated!");
   }
 }
 
@@ -369,7 +373,8 @@ main (void)
     GList *keys_to_write = grl_metadata_key_list_new (GRL_METADATA_KEY_PLAY_COUNT,
                                                       GRL_METADATA_KEY_RATING,
                                                       GRL_METADATA_KEY_LAST_POSITION,
-                                                      GRL_METADATA_KEY_LAST_PLAYED, NULL);
+                                                      GRL_METADATA_KEY_LAST_PLAYED,
+						      NULL);
     grl_metadata_source_set_metadata (metadata_store, media, keys_to_write, set_cb, NULL);
   }
 

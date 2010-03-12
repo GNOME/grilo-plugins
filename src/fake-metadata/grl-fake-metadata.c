@@ -61,7 +61,7 @@ static const GList *grl_fake_metadata_source_writable_keys (GrlMetadataSource *s
 
 gboolean grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
                                                const GrlPluginInfo *plugin,
-                                               const GrlConfig *config);
+                                               GList *configs);
 
 
 /* =================== GrlFakeMetadata Plugin  =============== */
@@ -69,7 +69,7 @@ gboolean grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
 gboolean
 grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
                                       const GrlPluginInfo *plugin,
-                                      const GrlConfig *config)
+                                      GList *configs)
 {
   g_debug ("grl_fake_metadata_source_plugin_init");
   GrlFakeMetadataSource *source = grl_fake_metadata_source_new ();

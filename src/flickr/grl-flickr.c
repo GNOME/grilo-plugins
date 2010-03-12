@@ -71,7 +71,7 @@ static GrlFlickrSource *grl_flickr_source_new (void);
 
 gboolean grl_flickr_plugin_init (GrlPluginRegistry *registry,
 				 const GrlPluginInfo *plugin,
-                                 const GrlConfig *config);
+                                 GList *configs);
 
 static const GList *grl_flickr_source_supported_keys (GrlMetadataSource *source);
 
@@ -86,18 +86,27 @@ static void grl_flickr_source_search (GrlMediaSource *source,
 gboolean
 grl_flickr_plugin_init (GrlPluginRegistry *registry,
                         const GrlPluginInfo *plugin,
-                        const GrlConfig *config)
+                        GList *configs)
 {
   const gchar *flickr_key;
   const gchar *flickr_secret;
   const gchar *flickr_token;
+  const GrlConfig *config;
+  gint config_count;
 
   g_debug ("flickr_plugin_init\n");
 
-  if (!config) {
+  if (!configs) {
     g_warning ("Missing configuration");
     return FALSE;
   }
+
+  config_count = g_list_length (configs);
+  if (config_count > 1) {
+    g_warning ("Provided %d configs, but will only use one", config_count);
+  }
+
+  config = GRL_CONFIG (configs->data);
 
   flickr_key = grl_config_get_api_key (config);
   flickr_token = grl_config_get_api_token (config);

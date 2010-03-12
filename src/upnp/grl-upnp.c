@@ -103,7 +103,7 @@ static GrlUpnpSource *grl_upnp_source_new (const gchar *id, const gchar *name);
 
 gboolean grl_upnp_plugin_init (GrlPluginRegistry *registry,
                                const GrlPluginInfo *plugin,
-                               const GrlConfig *config);
+                               GList *configs);
 
 static void grl_upnp_source_finalize (GObject *plugin);
 
@@ -137,7 +137,7 @@ static GHashTable *filter_key_mapping = NULL;
 gboolean
 grl_upnp_plugin_init (GrlPluginRegistry *registry,
                       const GrlPluginInfo *plugin,
-                      const GrlConfig *config)
+                      GList *configs)
 {
   GError *error = NULL;
   GUPnPContext *context;

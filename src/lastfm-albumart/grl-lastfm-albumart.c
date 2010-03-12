@@ -70,7 +70,7 @@ static const GList *grl_lastfm_albumart_source_key_depends (GrlMetadataSource *s
 
 gboolean grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
                                                  const GrlPluginInfo *plugin,
-                                                 const GrlConfig *config);
+                                                 GList *configs);
 
 
 /* =================== Last.FM-AlbumArt Plugin  =============== */
@@ -78,7 +78,7 @@ gboolean grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
 gboolean
 grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
                                         const GrlPluginInfo *plugin,
-                                        const GrlConfig *config)
+                                        GList *configs)
 {
   g_debug ("grl_lastfm_albumart_source_plugin_init");
   GrlLastfmAlbumartSource *source = grl_lastfm_albumart_source_new ();

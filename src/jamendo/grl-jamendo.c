@@ -142,7 +142,7 @@ static GrlJamendoSource *grl_jamendo_source_new (void);
 
 gboolean grl_jamendo_plugin_init (GrlPluginRegistry *registry,
                                   const GrlPluginInfo *plugin,
-                                  const GrlConfig *config);
+                                  GList *configs);
 
 static const GList *grl_jamendo_source_supported_keys (GrlMetadataSource *source);
 
@@ -166,7 +166,7 @@ static void grl_jamendo_source_cancel (GrlMediaSource *source,
 gboolean
 grl_jamendo_plugin_init (GrlPluginRegistry *registry,
                          const GrlPluginInfo *plugin,
-                         const GrlConfig *config)
+                         GList *configs)
 {
   g_debug ("jamendo_plugin_init\n");
 

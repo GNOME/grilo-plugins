@@ -149,8 +149,8 @@ AM_CONDITIONAL([DEBUG], [test "x$enable_debug" = "xyes"])
 
 AC_ARG_ENABLE(fakemetadata,
         AC_HELP_STRING([--enable-fakemetadata],
-                [enable Fake Metadata plugin (default: yes)]),,
-        [enable_fakemetadata=yes])
+                [enable Fake Metadata plugin (default: no)]),,
+        [enable_fakemetadata=no])
 
 AM_CONDITIONAL([FAKEMETADATA_PLUGIN], [test "x$enable_fakemetadata" = "xyes"])
 GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL fakemetadata"

@@ -376,7 +376,8 @@ main (void)
 						      GRL_METADATA_KEY_TITLE,
                                                       GRL_METADATA_KEY_GENRE,
 						      NULL);
-    grl_metadata_source_set_metadata (metadata_store, media, keys_to_write, set_cb, NULL);
+    grl_metadata_source_set_metadata (metadata_store, media, keys_to_write,
+				      GRL_WRITE_FULL, set_cb, NULL);
   }
 
   g_debug ("Running main loop");

@@ -6,7 +6,7 @@
 # Copyright (C) 2010 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.3])
+m4_define([prj_version], [0.1.4])
 
 AC_INIT([prj_name], [prj_version])
 
@@ -65,7 +65,7 @@ AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 PKG_CHECK_MODULES(DEPS, glib-2.0 \
 			gobject-2.0 \
 			gmodule-2.0 \
-			grilo-0.1 >= 0.1.3)
+			grilo-0.1 >= 0.1.4)
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
@@ -149,8 +149,8 @@ AM_CONDITIONAL([DEBUG], [test "x$enable_debug" = "xyes"])
 
 AC_ARG_ENABLE(fakemetadata,
         AC_HELP_STRING([--enable-fakemetadata],
-                [enable Fake Metadata plugin (default: yes)]),,
-        [enable_fakemetadata=yes])
+                [enable Fake Metadata plugin (default: no)]),,
+        [enable_fakemetadata=no])
 
 AM_CONDITIONAL([FAKEMETADATA_PLUGIN], [test "x$enable_fakemetadata" = "xyes"])
 GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL fakemetadata"
@@ -321,7 +321,7 @@ fi
 # ----------------------------------------------------------
 
 AC_ARG_ENABLE(flickr,
-        AC_HELP_STRING([--flickr],
+        AC_HELP_STRING([--enable-flickr],
                 [enable Flickr plugin (default: auto)]),
         [
                 case "$enableval" in
@@ -502,6 +502,37 @@ then
 fi
 
 # ----------------------------------------------------------
+# BUILD METADATA-STORE PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(metadata-store,
+        AC_HELP_STRING([--enable-metadata-store],
+                [enable Metadata Store plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_SQLITE" = "xno"; then
+                           AC_MSG_ERROR([sqlite3 not found, install it or use --disable-metadata-store])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_SQLITE" = "xyes"; then
+                  enable_metadata_store=yes
+                else
+                  enable_metadata_store=no
+                fi
+        ])
+
+AM_CONDITIONAL([METADATA_STORE_PLUGIN], [test "x$enable_metadata_store" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL metadata-store"
+if test "x$enable_metadata_store" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED metadata-store"
+fi
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -537,6 +568,7 @@ AC_CONFIG_FILES([
   src/bookmarks/Makefile
   src/shoutcast/Makefile
   src/apple-trailers/Makefile
+  src/metadata-store/Makefile
   test/Makefile
 ])
 

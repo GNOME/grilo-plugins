@@ -51,10 +51,21 @@ print_supported_ops (GrlMetadataSource *source)
   if (caps & GRL_OP_QUERY) {
     g_debug ("    + Query");
   }
+  if (caps & GRL_OP_STORE_PARENT) {
+    g_debug ("    + Store (parent)");
+  } else  if (caps & GRL_OP_STORE) {
+    g_debug ("    + Store");
+  }
+  if (caps & GRL_OP_REMOVE) {
+    g_debug ("    + Remove");
+  }
+  if (caps & GRL_OP_SET_METADATA) {
+    g_debug ("    + Set Metadata");
+  }
 }
 
 static void
-print_metadata (gpointer key, GrlContent *content)
+print_metadata (gpointer key, GrlData *content)
 {
   GrlKeyID key_id = POINTER_TO_GRLKEYID(key);
 
@@ -66,7 +77,7 @@ print_metadata (gpointer key, GrlContent *content)
   const GrlMetadataKey *mkey =
     grl_plugin_registry_lookup_metadata_key (registry, key_id);
 
-  const GValue *value = grl_content_get (content, key_id);
+  const GValue *value = grl_data_get (content, key_id);
   if (value && G_VALUE_HOLDS_STRING (value)) {
     g_debug ("\t%s: %s", GRL_METADATA_KEY_GET_NAME (mkey),
 	     g_value_get_string (value));
@@ -76,28 +87,28 @@ print_metadata (gpointer key, GrlContent *content)
   }
 }
 
-static GrlContentMedia *
+static GrlMedia *
 media_from_id (const gchar *id)
 {
-  GrlContentMedia *media;
-  media = grl_content_media_new ();
-  grl_content_media_set_id (media, id);
+  GrlMedia *media;
+  media = grl_media_new ();
+  grl_media_set_id (media, id);
   return media;
 }
 
-static GrlContentMedia *
+static GrlMedia *
 box_from_id (const gchar *id)
 {
-  GrlContentMedia *media;
-  media = grl_content_box_new ();
-  grl_content_media_set_id (media, id);
+  GrlMedia *media;
+  media = grl_media_box_new ();
+  grl_media_set_id (media, id);
   return media;
 }
 
 static void
 browse_cb (GrlMediaSource *source,
 	   guint browse_id,
-           GrlContentMedia *media,
+           GrlMedia *media,
 	   guint remaining,
 	   gpointer user_data,
 	   const GError *error)
@@ -118,10 +129,10 @@ browse_cb (GrlMediaSource *source,
   }
 
   g_debug ("\tContainer: %s",
-	   GRL_IS_CONTENT_BOX(media) ? "yes" : "no");
+	   GRL_IS_MEDIA_BOX(media) ? "yes" : "no");
 
-  keys = grl_content_get_keys (GRL_CONTENT (media));
-  g_list_foreach (keys, (GFunc) print_metadata, GRL_CONTENT (media));
+  keys = grl_data_get_keys (GRL_DATA (media));
+  g_list_foreach (keys, (GFunc) print_metadata, GRL_DATA (media));
   g_list_free (keys);
   g_object_unref (media);
 
@@ -132,7 +143,7 @@ browse_cb (GrlMediaSource *source,
 
 static void
 metadata_cb (GrlMediaSource *source,
-	     GrlContentMedia *media,
+	     GrlMedia *media,
 	     gpointer user_data,
 	     const GError *error)
 {
@@ -146,13 +157,13 @@ metadata_cb (GrlMediaSource *source,
   }
 
   g_debug ("    Got metadata for object '%s'",
-	   grl_content_media_get_id (GRL_CONTENT_MEDIA (media)));
+	   grl_media_get_id (GRL_MEDIA (media)));
 
   g_debug ("\tContainer: %s",
-	   GRL_IS_CONTENT_BOX(media) ? "yes" : "no");
+	   GRL_IS_MEDIA_BOX(media) ? "yes" : "no");
 
-  keys = grl_content_get_keys (GRL_CONTENT (media));
-  g_list_foreach (keys, (GFunc) print_metadata, GRL_CONTENT (media));
+  keys = grl_data_get_keys (GRL_DATA (media));
+  g_list_foreach (keys, (GFunc) print_metadata, GRL_DATA (media));
   g_list_free (keys);
   g_object_unref (media);
 
@@ -161,11 +172,24 @@ metadata_cb (GrlMediaSource *source,
 
 static void
 resolve_cb (GrlMetadataSource *source,
-            GrlContentMedia *media,
+            GrlMedia *media,
             gpointer user_data,
             const GError *error)
 {
   metadata_cb (NULL, media, user_data, error);
+}
+
+static void
+set_cb (GrlMetadataSource *source,
+	GrlMedia *media,
+	GList *failed_keys,
+	gpointer user_data,
+	const GError *error)
+{
+  if (error) {
+    g_critical ("%s: %d keys not written",
+		error->message, g_list_length (failed_keys));
+  }
 }
 
 gint
@@ -182,7 +206,8 @@ main (void)
                 "grl-shoutcast:*,"
                 "grl-apple-trailers:*,"
                 "grl-lastfm-albumart:*,"
-                "grl-flickr:*");
+                "grl-flickr:*,"
+                "grl-metadata-store:*");
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
                                     GRL_METADATA_KEY_TITLE,
@@ -197,6 +222,10 @@ main (void)
                                     GRL_METADATA_KEY_DURATION,
                                     GRL_METADATA_KEY_CHILDCOUNT,
                                     GRL_METADATA_KEY_MIME,
+                                    GRL_METADATA_KEY_PLAY_COUNT,
+                                    GRL_METADATA_KEY_LAST_PLAYED,
+                                    GRL_METADATA_KEY_LAST_POSITION,
+                                    GRL_METADATA_KEY_RATING,
                                     NULL);
 
   g_debug ("start");
@@ -220,6 +249,12 @@ main (void)
                             "../src/lastfm-albumart/.libs/libgrllastfm-albumart.so");
   grl_plugin_registry_load (registry,
                             "../src/flickr/.libs/libgrlflickr.so");
+  grl_plugin_registry_load (registry,
+                            "../src/metadata-store/.libs/libgrlmetadatastore.so");
+  grl_plugin_registry_load (registry,
+                            "../src/bookmarks/.libs/libgrlbookmarks.so");
+  grl_plugin_registry_load (registry,
+                            "../src/podcasts/.libs/libgrlpodcasts.so");
 
   g_debug ("Obtaining sources");
 
@@ -255,33 +290,48 @@ main (void)
     (GrlMetadataSource *) grl_plugin_registry_lookup_source (registry,
                                                              "grl-lastfm-albumart");
 
+  GrlMetadataSource *metadata_store =
+    (GrlMetadataSource *) grl_plugin_registry_lookup_source (registry,
+                                                             "grl-metadata-store");
+
+  GrlMediaSource *bookmarks =
+    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
+                                                          "grl-bookmarks");
+
+  GrlMediaSource *podcasts =
+    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
+                                                          "grl-podcasts");
+
   g_assert (youtube);
   g_assert (fs);
-  g_assert (flickr);
   g_assert (jamendo);
   g_assert (shoutcast);
   g_assert (apple_trailers);
-  g_assert (fake);
   g_assert (lastfm);
-
+  g_assert (metadata_store);
+  g_assert (bookmarks);
+  g_assert (podcasts);
   g_debug ("Supported operations");
 
   print_supported_ops (GRL_METADATA_SOURCE (youtube));
   print_supported_ops (GRL_METADATA_SOURCE (fs));
-  print_supported_ops (GRL_METADATA_SOURCE (flickr));
+  if (flickr) print_supported_ops (GRL_METADATA_SOURCE (flickr));
   print_supported_ops (GRL_METADATA_SOURCE (jamendo));
   print_supported_ops (GRL_METADATA_SOURCE (apple_trailers));
   print_supported_ops (GRL_METADATA_SOURCE (shoutcast));
-  print_supported_ops (fake);
+  if (fake) print_supported_ops (fake);
+  print_supported_ops (GRL_METADATA_SOURCE (podcasts));
+  print_supported_ops (GRL_METADATA_SOURCE (bookmarks));
   print_supported_ops (lastfm);
+  print_supported_ops (metadata_store);
 
   g_debug ("testing");
 
   if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) grl_media_source_browse (youtube, media_from_id ("standard-feeds/most-viewed"), keys, 0, 10, GRL_RESOLVE_FAST_ONLY , browse_cb, NULL);
-  if (0) grl_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 173, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) grl_media_source_search (youtube, "igalia", keys, 6, 10, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_media_source_search (youtube, "igalia", keys, 0, 3, GRL_RESOLVE_FULL | GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) grl_media_source_search (youtube, "igalia", keys, 1, 10, GRL_RESOLVE_FULL | GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) grl_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
   if (0) grl_media_source_metadata (youtube, NULL, keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY | GRL_RESOLVE_FULL, metadata_cb, NULL);
@@ -314,16 +364,34 @@ main (void)
   if (0) grl_media_source_metadata (shoutcast, box_from_id("2424hs"), keys, 0, metadata_cb, NULL);
   if (0) grl_media_source_metadata (shoutcast, media_from_id("American/556687"), keys, 0, metadata_cb, NULL);
   if (0) grl_media_source_metadata (shoutcast, media_from_id("American/556682"), keys, 0, metadata_cb, NULL);
-  if (1) grl_media_source_browse (apple_trailers, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_media_source_browse (apple_trailers, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) {
-    GrlContentMedia *media = media_from_id ("test");
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_ARTIST,
-                            "roxette");
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_ALBUM,
-                            "pop hits");
+    GrlMedia *media = media_from_id ("test");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_ARTIST,
+                         "roxette");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_ALBUM,
+                         "pop hits");
     grl_metadata_source_resolve (lastfm, keys, media, GRL_RESOLVE_IDLE_RELAY, resolve_cb, NULL);
+  }
+  if (1) {
+    GrlMedia *media = media_from_id ("test-id");
+    grl_media_set_source (media, "some-source-id");
+    grl_media_set_play_count (media,  68);
+    grl_media_set_rating (media,  "4.5", "5");
+    grl_media_set_last_position (media, 60);
+    grl_media_set_last_played (media, "19/11/2009");
+    GList *keys_to_write = grl_metadata_key_list_new (GRL_METADATA_KEY_PLAY_COUNT,
+                                                      GRL_METADATA_KEY_RATING,
+                                                      GRL_METADATA_KEY_LAST_POSITION,
+                                                      GRL_METADATA_KEY_ALBUM,
+                                                      GRL_METADATA_KEY_LAST_PLAYED,
+						      GRL_METADATA_KEY_TITLE,
+                                                      GRL_METADATA_KEY_GENRE,
+						      NULL);
+    grl_metadata_source_set_metadata (metadata_store, media, keys_to_write,
+				      GRL_WRITE_FULL, set_cb, NULL);
   }
 
   g_debug ("Running main loop");

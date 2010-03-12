@@ -321,7 +321,7 @@ fi
 # ----------------------------------------------------------
 
 AC_ARG_ENABLE(flickr,
-        AC_HELP_STRING([--flickr],
+        AC_HELP_STRING([--enable-flickr],
                 [enable Flickr plugin (default: auto)]),
         [
                 case "$enableval" in

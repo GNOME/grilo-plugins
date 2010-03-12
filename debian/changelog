@@ -1,3 +1,13 @@
+grilo-0.1-plugins (0.1.4-1) unstable; urgency=low
+
+  * General: changes in Grilo API
+  * Bookmarks: some fixes
+  * Flickr: use the Grilo configuration system
+  * Metadata Storage: new plugin
+  * Podcasts: some fixes
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Fri, 12 Mar 2010 21:29:14 +0100
+
 grilo-0.1-plugins (0.1.3-1) unstable; urgency=low
 
   * General: some fixes

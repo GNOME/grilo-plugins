@@ -251,6 +251,10 @@ main (void)
                             "../src/flickr/.libs/libgrlflickr.so");
   grl_plugin_registry_load (registry,
                             "../src/metadata-store/.libs/libgrlmetadatastore.so");
+  grl_plugin_registry_load (registry,
+                            "../src/bookmarks/.libs/libgrlbookmarks.so");
+  grl_plugin_registry_load (registry,
+                            "../src/podcasts/.libs/libgrlpodcasts.so");
 
   g_debug ("Obtaining sources");
 
@@ -290,24 +294,34 @@ main (void)
     (GrlMetadataSource *) grl_plugin_registry_lookup_source (registry,
                                                              "grl-metadata-store");
 
+  GrlMediaSource *bookmarks =
+    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
+                                                          "grl-bookmarks");
+
+  GrlMediaSource *podcasts =
+    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
+                                                          "grl-podcasts");
+
   g_assert (youtube);
   g_assert (fs);
   g_assert (jamendo);
   g_assert (shoutcast);
   g_assert (apple_trailers);
-  g_assert (fake);
   g_assert (lastfm);
   g_assert (metadata_store);
-
+  g_assert (bookmarks);
+  g_assert (podcasts);
   g_debug ("Supported operations");
 
   print_supported_ops (GRL_METADATA_SOURCE (youtube));
   print_supported_ops (GRL_METADATA_SOURCE (fs));
-  print_supported_ops (GRL_METADATA_SOURCE (flickr));
+  if (flickr) print_supported_ops (GRL_METADATA_SOURCE (flickr));
   print_supported_ops (GRL_METADATA_SOURCE (jamendo));
   print_supported_ops (GRL_METADATA_SOURCE (apple_trailers));
   print_supported_ops (GRL_METADATA_SOURCE (shoutcast));
-  print_supported_ops (fake);
+  if (fake) print_supported_ops (fake);
+  print_supported_ops (GRL_METADATA_SOURCE (podcasts));
+  print_supported_ops (GRL_METADATA_SOURCE (bookmarks));
   print_supported_ops (lastfm);
   print_supported_ops (metadata_store);
 

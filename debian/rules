@@ -15,6 +15,7 @@ DEB_CONFIGURE_EXTRA_FLAGS :=		\
 	--enable-flickr			\
 	--enable-jamendo		\
 	--enable-lastfm-albumart	\
+	--enable-metadata-store		\
 	--enable-podcasts		\
 	--enable-shoutcast		\
 	--enable-upnp			\

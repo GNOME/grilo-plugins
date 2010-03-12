@@ -23,9 +23,10 @@ Description: Grilo framework plugins
   - Flickr
   - Jamendo
   - Last.fm (for album arts)
+  - Metadata Store
   - Podcasts
   - SHOUTcast
-  - uPnP
+  - UPnP
   - Youtube
 
 Package: @GRL_NAME@-plugins-dbg

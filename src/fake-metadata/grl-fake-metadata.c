@@ -49,20 +49,27 @@ static GrlFakeMetadataSource *grl_fake_metadata_source_new (void);
 static void grl_fake_metadata_source_resolve (GrlMetadataSource *source,
                                               GrlMetadataSourceResolveSpec *rs);
 
+static void grl_fake_metadata_source_set_metadata (GrlMetadataSource *source,
+						   GrlMetadataSourceSetMetadataSpec *sms);
+
 static const GList *grl_fake_metadata_source_supported_keys (GrlMetadataSource *source);
 
 static const GList *grl_fake_metadata_source_key_depends (GrlMetadataSource *source,
                                                           GrlKeyID key_id);
 
+static const GList *grl_fake_metadata_source_writable_keys (GrlMetadataSource *source);
+
 gboolean grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
-                                               const GrlPluginInfo *plugin);
+                                               const GrlPluginInfo *plugin,
+                                               GList *configs);
 
 
 /* =================== GrlFakeMetadata Plugin  =============== */
 
 gboolean
 grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
-                                      const GrlPluginInfo *plugin)
+                                      const GrlPluginInfo *plugin,
+                                      GList *configs)
 {
   g_debug ("grl_fake_metadata_source_plugin_init");
   GrlFakeMetadataSource *source = grl_fake_metadata_source_new ();
@@ -102,6 +109,8 @@ grl_fake_metadata_source_class_init (GrlFakeMetadataSourceClass * klass)
   metadata_class->supported_keys = grl_fake_metadata_source_supported_keys;
   metadata_class->key_depends = grl_fake_metadata_source_key_depends;
   metadata_class->resolve = grl_fake_metadata_source_resolve;
+  metadata_class->set_metadata = grl_fake_metadata_source_set_metadata;
+  metadata_class->writable_keys = grl_fake_metadata_source_writable_keys;
 }
 
 static void
@@ -116,37 +125,37 @@ G_DEFINE_TYPE (GrlFakeMetadataSource,
 /* ======================= Utilities ==================== */
 
 static void
-fill_metadata (GrlContentMedia *media, GrlKeyID key_id)
+fill_metadata (GrlMedia *media, GrlKeyID key_id)
 {
   switch (key_id) {
   case GRL_METADATA_KEY_AUTHOR:
-    grl_content_media_set_author (media, "fake author");
+    grl_media_set_author (media, "fake author");
     break;
   case GRL_METADATA_KEY_ARTIST:
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_ARTIST, "fake artist");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_ARTIST, "fake artist");
     break;
   case GRL_METADATA_KEY_ALBUM:
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_ALBUM, "fake album");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_ALBUM, "fake album");
     break;
   case GRL_METADATA_KEY_GENRE:
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_GENRE, "fake genre");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_GENRE, "fake genre");
     break;
   case GRL_METADATA_KEY_DESCRIPTION:
-    grl_content_media_set_description (media, "fake description");
+    grl_media_set_description (media, "fake description");
     break;
   case GRL_METADATA_KEY_DURATION:
-    grl_content_media_set_duration (media, 99);
+    grl_media_set_duration (media, 99);
     break;
   case GRL_METADATA_KEY_DATE:
-    grl_content_set_string (GRL_CONTENT (media),
-                            GRL_METADATA_KEY_DATE, "01/01/1970");
+    grl_data_set_string (GRL_DATA (media),
+                         GRL_METADATA_KEY_DATE, "01/01/1970");
     break;
   case GRL_METADATA_KEY_THUMBNAIL:
-    grl_content_media_set_thumbnail (media,
-                                     "http://fake.thumbnail.com/fake-image.jpg");
+    grl_media_set_thumbnail (media,
+                                  "http://fake.thumbnail.com/fake-image.jpg");
     break;
   default:
     break;
@@ -200,6 +209,19 @@ grl_fake_metadata_source_key_depends (GrlMetadataSource *source,
   return  NULL;
 }
 
+static const GList *
+grl_fake_metadata_source_writable_keys (GrlMetadataSource *source)
+{
+  static GList *keys = NULL;
+  if (!keys) {
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ALBUM,
+                                      GRL_METADATA_KEY_ARTIST,
+                                      GRL_METADATA_KEY_GENRE,
+                                      NULL);
+  }
+  return keys;
+}
+
 static void
 grl_fake_metadata_source_resolve (GrlMetadataSource *source,
                                   GrlMetadataSourceResolveSpec *rs)
@@ -211,9 +233,18 @@ grl_fake_metadata_source_resolve (GrlMetadataSource *source,
   iter = rs->keys;
   while (iter) {
     GrlKeyID key_id = POINTER_TO_GRLKEYID (iter->data);
-    fill_metadata (GRL_CONTENT_MEDIA (rs->media), key_id);
+    fill_metadata (GRL_MEDIA (rs->media), key_id);
     iter = g_list_next (iter);
   }
 
   rs->callback (source, rs->media, rs->user_data, NULL);
+}
+
+static void
+grl_fake_metadata_source_set_metadata (GrlMetadataSource *source,
+				       GrlMetadataSourceSetMetadataSpec *sms)
+{
+  g_debug ("grl_fake_metadata_source_set_metadata");
+  g_debug ("  Faking set metadata for %d keys!", g_list_length (sms->keys));
+  sms->callback (sms->source, sms->media, NULL, sms->user_data, NULL);
 }

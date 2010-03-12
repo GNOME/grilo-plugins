@@ -1,0 +1,6 @@
+- Consider using libgdata.
+- Fix get_metadata() for standard feeds.
+- Consider implementing store() -> video upload.
+- Consider implementing configuration (personal account)
+  -> Could add new category for browsing (my videos)
+  -> would enable store() and remove() operations.

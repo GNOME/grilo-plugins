@@ -1,4 +1,23 @@
-New in 0.1.3
+NEW in 0.1.4
+============
+
+  * General
+    * Updates related with changes in Grilo API
+
+  * Bookmarks
+    * Small improvements
+
+  * Flickr plugin
+    * Use the new configuration system
+
+  * Metadata-Store plugin
+    * New plugin where to save metadata
+
+  * Podcasts plugin
+    * Small improvements
+
+
+NEW in 0.1.3
 ============
 
   * General
@@ -10,7 +29,7 @@ New in 0.1.3
   * Bookmarks plugin
     * Small improvements
 
-  * Podcats plugin
+  * Podcasts plugin
     * Small improvements
 
   * Shoutcast plugin

@@ -75,6 +75,7 @@ struct _GrlUpnpPrivate {
   GUPnPDeviceProxy* device;
   GUPnPServiceProxy* service;
   gboolean search_enabled;
+  gchar *upnp_name;
 };
 
 struct OperationSpec {
@@ -206,6 +207,8 @@ grl_upnp_source_new (const gchar *source_id, const gchar *name)
 			 "source-desc", source_desc,
 			 NULL);
 
+  source->priv->upnp_name = g_strdup (name);
+
   g_free (source_name);
   g_free (source_desc);
 
@@ -251,6 +254,7 @@ grl_upnp_source_finalize (GObject *object)
 
   g_object_unref (source->priv->device);
   g_object_unref (source->priv->service);
+  g_free (source->priv->upnp_name);
 
   G_OBJECT_CLASS (grl_upnp_source_parent_class)->finalize (object);
 }
@@ -1203,6 +1207,7 @@ grl_upnp_source_metadata (GrlMediaSource *source,
 
   id = (gchar *) grl_media_get_id (ms->media);
   if (!id) {
+    grl_media_set_title (ms->media, GRL_UPNP_SOURCE (source)->priv->upnp_name);
     id = "0";
   }
 

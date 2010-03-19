@@ -36,6 +36,8 @@
                                GRL_BOOKMARKS_SOURCE_TYPE,        \
                                GrlBookmarksPrivate))
 
+#define GRL_ROOT_TITLE "Bookmarks"
+
 /* --------- Logging  -------- */
 
 #undef G_LOG_DOMAIN
@@ -388,7 +390,7 @@ bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
   id = grl_media_get_id (ms->media);
   if (!id) {
     /* Root category: special case */
-    grl_media_set_title (ms->media, "");
+    grl_media_set_title (ms->media, GRL_ROOT_TITLE);
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
     return;
   }

@@ -39,6 +39,8 @@
                                GRL_PODCASTS_SOURCE_TYPE,        \
                                GrlPodcastsPrivate))
 
+#define GRL_ROOT_TITLE "Podcasts"
+
 /* --------- Logging  -------- */
 
 #undef G_LOG_DOMAIN
@@ -1315,7 +1317,7 @@ podcast_metadata (GrlMediaSourceMetadataSpec *ms)
   id = grl_media_get_id (ms->media);
   if (!id) {
     /* Root category: special case */
-    grl_media_set_title (ms->media, "");
+    grl_media_set_title (ms->media, GRL_ROOT_TITLE);
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
     return;
   }

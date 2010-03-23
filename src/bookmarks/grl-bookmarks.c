@@ -247,7 +247,6 @@ grl_bookmarks_source_init (GrlBookmarksSource *source)
   gchar *sql_error = NULL;
 
   source->priv = GRL_BOOKMARKS_GET_PRIVATE (source);
-  memset (source->priv, 0, sizeof (GrlBookmarksPrivate));
 
   home = g_getenv ("HOME");
   if (!home) {

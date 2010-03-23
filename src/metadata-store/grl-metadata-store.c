@@ -167,7 +167,6 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
   gchar *sql_error = NULL;
 
   source->priv = GRL_METADATA_STORE_GET_PRIVATE (source);
-  memset (source->priv, 0, sizeof (GrlMetadataStorePrivate));
 
   home = g_getenv ("HOME");
   if (!home) {

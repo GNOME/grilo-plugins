@@ -303,7 +303,6 @@ grl_podcasts_source_init (GrlPodcastsSource *source)
   gchar *sql_error = NULL;
 
   source->priv = GRL_PODCASTS_GET_PRIVATE (source);
-  memset (source->priv, 0, sizeof (GrlPodcastsPrivate));
 
   home = g_getenv ("HOME");
   if (!home) {

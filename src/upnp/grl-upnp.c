@@ -240,7 +240,6 @@ static void
 grl_upnp_source_init (GrlUpnpSource *source)
 {
   source->priv = GRL_UPNP_GET_PRIVATE (source);
-  memset (source->priv, 0, sizeof (GrlUpnpPrivate));
 }
 
 static void

@@ -10,7 +10,7 @@ m4_define([prj_version], [0.1.4])
 
 AC_INIT([prj_name], [prj_version])
 
-AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
+AM_INIT_AUTOMAKE([foreign])
 
 AC_CONFIG_SRCDIR([src])
 
@@ -25,6 +25,8 @@ AM_PROG_CC_C_O
 AC_HEADER_STDC
 
 AM_MAINTAINER_MODE
+
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 # ----------------------------------------------------------
 # ENVIRONMENT CONFIGURATION

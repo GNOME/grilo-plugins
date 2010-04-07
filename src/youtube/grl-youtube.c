@@ -454,13 +454,15 @@ build_media_from_entry (GrlMedia *content,
     media = content;
   }
 
+  /* Make sure we set the media id in any case */
+  if (!grl_media_get_id (media)) {
+    grl_media_set_id (media, entry->id);
+  }
+
   iter = (GList *) keys;
   while (iter) {
     GrlKeyID key_id = POINTER_TO_GRLKEYID (iter->data);
     switch (key_id) {
-    case GRL_METADATA_KEY_ID:
-      grl_media_set_id (media, entry->id);
-      break;
     case GRL_METADATA_KEY_TITLE:
       grl_media_set_title (media, entry->title);
       break;

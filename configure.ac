@@ -101,6 +101,12 @@ AC_SUBST(SQLITE_LIBS)
 AC_SUBST(HAVE_SQLITE)
 AM_CONDITIONAL(HAVE_SQLITE, test "x$HAVE_SQLITE" = "xyes")
 
+PKG_CHECK_MODULES(GDATA, libgdata, HAVE_GDATA=yes, HAVE_GDATA=no)
+AC_SUBST(GDATA_CFLAGS)
+AC_SUBST(GDATA_LIBS)
+AC_SUBST(HAVE_GDATA)
+AM_CONDITIONAL(HAVE_GDATA, test "x$HAVE_GDATA" = "xyes")
+
 # ----------------------------------------------------------
 # GUPNP-AV VERSION
 # ----------------------------------------------------------
@@ -300,11 +306,19 @@ AC_ARG_ENABLE(youtube,
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-youtube])
                         fi
+                        if test "x$HAVE_GDATA" = "xno"; then
+                           AC_MSG_ERROR([libgdata not found, install it or use --disable-youtube])
+                        fi
                         ;;
                 esac
         ],
         [
                 if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                   if test "x$HAVE_GDATA" = "xyes"; then
+                     enable_youtube=yes
+                   else
+                     enable_youtube=no
+                   fi
                    enable_youtube=yes
                 else
                    enable_youtube=no

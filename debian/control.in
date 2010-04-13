@@ -18,15 +18,9 @@ Description: Grilo framework plugins
  This package contains plugins to get information from theses sources:
  .
   - Apple Trailers
-  - Bookmarks
   - Filesystem
-  - Flickr
   - Jamendo
-  - Last.fm (for album arts)
-  - Metadata Store
-  - Podcasts
   - SHOUTcast
-  - UPnP
   - Youtube
 
 Package: @GRL_NAME@-plugins-dbg

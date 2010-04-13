@@ -11,14 +11,15 @@ DEB_CONFIGURE_SCRIPT := ./autogen.sh
 DEB_CONFIGURE_EXTRA_FLAGS :=		\
 	--disable-debug			\
 	--disable-fakemetadata		\
-	--enable-bookmarks		\
+	--disable-bookmarks		\
 	--enable-filesystem		\
-	--enable-flickr			\
+	--disable-flickr		\
 	--enable-jamendo		\
-	--enable-lastfm-albumart	\
-	--enable-metadata-store		\
-	--enable-podcasts		\
+	--disable-lastfm-albumart	\
+	--disable-metadata-store	\
+	--disable-podcasts		\
 	--enable-shoutcast		\
-	--enable-upnp			\
+	--disable-upnp			\
+	--enable-apple-trailers		\
 	--enable-youtube
 

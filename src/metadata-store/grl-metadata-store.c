@@ -240,7 +240,7 @@ fill_metadata (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
   GList *iter;
   gint play_count, last_position;
   gdouble rating;
-  gchar *last_played, *rating_str;
+  gchar *last_played;
   gint r;
 
   while ((r = sqlite3_step (stmt)) == SQLITE_BUSY);
@@ -261,9 +261,7 @@ fill_metadata (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
       break;
     case GRL_METADATA_KEY_RATING:
       rating = sqlite3_column_double (stmt, STORE_RATING);
-      rating_str = g_strdup_printf ("%.2f", rating);
-      grl_media_set_rating (media, rating_str, "5");
-      g_free (rating_str);
+      grl_media_set_rating (media, rating, 5.00);
       break;
     case GRL_METADATA_KEY_LAST_PLAYED:
       last_played = (gchar *) sqlite3_column_text (stmt, STORE_LAST_PLAYED);
@@ -338,12 +336,7 @@ bind_and_exec (sqlite3 *db,
       GrlKeyID key_id = POINTER_TO_GRLKEYID (iter_keys->data);
       switch (key_id) {
       case GRL_METADATA_KEY_RATING:
-	char_value = grl_media_get_rating (media);
-	if (char_value) {
-	  double_value = g_ascii_strtod (char_value, NULL);
-	} else {
-	  double_value = 0;
-	}
+	double_value = grl_media_get_rating (media);
 	sqlite3_bind_double (stmt, count, double_value);
 	break;
       case GRL_METADATA_KEY_PLAY_COUNT:

@@ -93,6 +93,9 @@
 #define YOUTUBE_VIDEO_MIME  "application/x-shockwave-flash"
 #define YOUTUBE_SITE_URL    "www.youtube.com"
 
+
+#define GRL_CONFIG_KEY_YOUTUBE_CLIENT_ID 100
+
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-youtube"
@@ -160,10 +163,10 @@ typedef enum {
   YOUTUBE_MEDIA_TYPE_VIDEO,
 } YoutubeMediaType;
 
-#define YOUTUBE_DEVELOPER_KEY "AI39si4EfscPllSfUy1IwexMf__kntTL_G5dfSr2iUEVN45RHGq92Aq0lX25OlnOkG6KTN-4soVAkAf67fWYXuHfVADZYr7S1A"
-#define YOUTUBE_CLIENT_ID "test-client"
+#define YOUTUBE_CLIENT_ID "grilo"
 
-static GrlYoutubeSource *grl_youtube_source_new (void);
+static GrlYoutubeSource *grl_youtube_source_new (const gchar *api_key,
+						 const gchar *client_id);
 
 gboolean grl_youtube_plugin_init (GrlPluginRegistry *registry,
                                   const GrlPluginInfo *plugin,
@@ -216,16 +219,44 @@ CategoryInfo *categories_dir = NULL;
 gboolean
 grl_youtube_plugin_init (GrlPluginRegistry *registry,
                          const GrlPluginInfo *plugin,
-                         GList *config)
+                         GList *configs)
 {
+  const gchar *api_key;
+  const gchar *client_id;
+  const GrlConfig *config;
+  gint config_count;
+
   g_debug ("youtube_plugin_init");
+
+  if (!configs) {
+    g_warning ("Configuration not provided! Cannot configure plugin.");
+    return FALSE;
+  }
+
+  config_count = g_list_length (configs);
+  if (config_count > 1) {
+    g_warning ("Provided %d configs, but will only use one", config_count);
+  }
+
+  config = GRL_CONFIG (configs->data);
+  api_key = grl_config_get_api_key (config);
+  if (!api_key) {
+    g_warning ("Missing API Key, cannot configure Youtube plugin");
+    return FALSE;
+  }
+  client_id = grl_data_get_string (GRL_DATA (config),
+				   GRL_CONFIG_KEY_YOUTUBE_CLIENT_ID);
+  if (!client_id) {
+    g_warning ("No client id set, using default: %s", YOUTUBE_CLIENT_ID);
+    return FALSE;
+  }
 
   /* libgdata needs this */
   if (!g_thread_supported()) {
     g_thread_init (NULL);
   }
 
-  GrlYoutubeSource *source = grl_youtube_source_new ();
+  GrlYoutubeSource *source = grl_youtube_source_new (api_key, client_id);
   grl_plugin_registry_register_source (registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source));
@@ -245,14 +276,14 @@ GRL_PLUGIN_REGISTER (grl_youtube_plugin_init,
 /* ================== Youtube GObject ================ */
 
 static GrlYoutubeSource *
-grl_youtube_source_new (void)
+grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
 {
   g_debug ("grl_youtube_source_new");
 
   GrlYoutubeSource *source;
 
   GDataYouTubeService *service =
-    gdata_youtube_service_new (YOUTUBE_DEVELOPER_KEY, YOUTUBE_CLIENT_ID);
+    gdata_youtube_service_new (api_key, client_id);
   
   if (!service) {
     g_warning ("Failed to connect to Youtube");

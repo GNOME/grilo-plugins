@@ -729,6 +729,18 @@ compute_feed_counts (GDataYouTubeService *service)
 }
 
 static void
+process_entry (GDataEntry *entry, guint count, OperationSpec *os)
+{
+  GrlMedia *media = build_media_from_entry (NULL, entry, os->keys);
+  os->callback (os->source,
+		os->operation_id,
+		media,
+		count,
+		os->user_data,
+		NULL);
+}
+
+static void
 build_directories (GDataYouTubeService *service)
 {
   g_debug ("build_drectories");
@@ -740,40 +752,6 @@ build_directories (GDataYouTubeService *service)
 
   /* Compute feed counts */
   compute_feed_counts (service);
-}
-
-static void
-process_feed (GDataFeed *feed, OperationSpec *os)
-{
-  GList *entries;
-  guint count;
-
-  /* Send results to client */
-  entries = gdata_feed_get_entries (feed);
-  count = g_list_length (entries);
-  if (!entries) {
-    os->callback (os->source,
-		  os->operation_id,
-		  NULL,
-		  0,
-		  os->user_data,
-		  NULL);      
-  } else {
-    while (entries) {
-      GrlMedia *media =
-	build_media_from_entry (NULL, GDATA_ENTRY (entries->data), os->keys);
-      os->callback (os->source,
-		  os->operation_id,
-		    media,
-		    --count,
-		    os->user_data,
-		    NULL);
-      entries = g_list_next (entries);
-    }
-  }
-
-  free_operation_spec (os);
-  g_object_unref (feed);
 }
 
 static void
@@ -815,6 +793,21 @@ metadata_cb (GObject *object,
 }
 
 static void
+search_progress_cb (GDataEntry *entry,
+		    guint index,
+		    guint count,
+		    gpointer user_data)
+{
+  OperationSpec *os = (OperationSpec *) user_data;
+  if (index < count) {
+    os->count = count - index - 1;
+    process_entry (entry, os->count, os);
+  } else {
+    g_warning ("Invalid index/count received grom libgdata, ignoring result");
+  }
+}
+
+static void
 search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
 {
   g_debug ("search_cb");
@@ -837,7 +830,10 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
       os->category_info->count = gdata_feed_get_total_results (feed);
     }
 
-    process_feed (feed, os);
+    /* Should not be necessary, but just in case... */
+    if (os->count > 0) {
+      os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+    }
   } else {
     if (!error) {
       error = g_error_new (GRL_ERROR,
@@ -1046,8 +1042,8 @@ produce_from_feed (OperationSpec *os)
                                                    feed_type,
                                                    query,
                                                    NULL,
-                                                   NULL,
-                                                   NULL,
+                                                   search_progress_cb,
+                                                   os,
                                                    (GAsyncReadyCallback) search_cb,
                                                    os);
   g_object_unref (query);
@@ -1085,7 +1081,9 @@ produce_from_category (OperationSpec *os)
   gdata_query_set_categories (query, category_term);
   gdata_youtube_service_query_videos_async (service,
 					    query,
-					    NULL, NULL, NULL,
+					    NULL,
+					    search_progress_cb,
+					    os,
 					    (GAsyncReadyCallback) search_cb,
 					    os);
   g_object_unref (query);
@@ -1148,8 +1146,8 @@ grl_youtube_source_search (GrlMediaSource *source,
   gdata_youtube_service_query_videos_async (GRL_YOUTUBE_SOURCE (source)->service,
 					    query,
 					    NULL,
-					    NULL,
-					    NULL,
+					    search_progress_cb,
+					    os,
 					    (GAsyncReadyCallback) search_cb,
 					    os);
   g_object_unref (query);

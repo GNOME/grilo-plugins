@@ -131,13 +131,11 @@ typedef struct {
   GrlMediaSourceResultCb callback;
   gpointer user_data;
   guint error_code;
-  GDataQuery *query;
   CategoryInfo *category_info;
 } OperationSpec;
 
 typedef struct {
   GDataYouTubeService *service;
-  GDataQuery *query;
   CategoryInfo *category_info;
 } CategoryCountCb;
 
@@ -248,7 +246,7 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
 				   GRL_CONFIG_KEY_YOUTUBE_CLIENT_ID);
   if (!client_id) {
     g_warning ("No client id set, using default: %s", YOUTUBE_CLIENT_ID);
-    return FALSE;
+    client_id = YOUTUBE_CLIENT_ID;
   }
 
   /* libgdata needs this */
@@ -331,9 +329,6 @@ G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_MEDIA_SOURCE);
 static void
 free_operation_spec (OperationSpec *os)
 {
-  if (os->query) {
-    g_object_unref (os->query);
-  }
   g_free (os);
 }
 
@@ -685,7 +680,6 @@ item_count_cb (GObject *object, GAsyncResult *result, CategoryCountCb *cc)
   if (feed) {
     g_object_unref (feed);
   }
-  g_object_unref (cc->query);
   g_free (cc);
 }
 
@@ -701,7 +695,6 @@ compute_category_counts (GDataYouTubeService *service)
       get_category_term_from_id (categories_dir[i].id);
     gdata_query_set_categories (query, category_term);
     CategoryCountCb *cc = g_new (CategoryCountCb, 1);
-    cc->query = query;
     cc->service = service;
     cc->category_info = &categories_dir[i];
     gdata_youtube_service_query_videos_async (service,
@@ -709,6 +702,7 @@ compute_category_counts (GDataYouTubeService *service)
 					      NULL, NULL, NULL,
 					      (GAsyncReadyCallback) item_count_cb,
 					      cc);
+    g_object_unref (query);
   }
 }
 
@@ -722,7 +716,6 @@ compute_feed_counts (GDataYouTubeService *service)
     gint feed_type = get_feed_type_from_id (feeds_dir[i].id);
     GDataQuery *query = gdata_query_new_with_limits (NULL, 0, 1);
     CategoryCountCb *cc = g_new (CategoryCountCb, 1);
-    cc->query = query;
     cc->service = service;
     cc->category_info = &feeds_dir[i];
     gdata_youtube_service_query_standard_feed_async (service,
@@ -731,6 +724,7 @@ compute_feed_counts (GDataYouTubeService *service)
 						     NULL, NULL, NULL,
 						     (GAsyncReadyCallback) item_count_cb,
 						     cc);
+    g_object_unref (query);
   }
 }
 
@@ -1047,7 +1041,6 @@ produce_from_feed (OperationSpec *os)
 
   service = GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (os->source)->service);
   query = gdata_query_new_with_limits (NULL , os->skip, os->count);
-  os->query = query;
   os->category_info = &feeds_dir[feed_type];
   gdata_youtube_service_query_standard_feed_async (service,
                                                    feed_type,
@@ -1057,6 +1050,7 @@ produce_from_feed (OperationSpec *os)
                                                    NULL,
                                                    (GAsyncReadyCallback) search_cb,
                                                    os);
+  g_object_unref (query);
 }
 
 static void
@@ -1087,7 +1081,6 @@ produce_from_category (OperationSpec *os)
 
   service = GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (os->source)->service);
   query = gdata_query_new_with_limits (NULL , os->skip, os->count);
-  os->query = query;
   os->category_info = &categories_dir[category_index];
   gdata_query_set_categories (query, category_term);
   gdata_youtube_service_query_videos_async (service,
@@ -1095,6 +1088,7 @@ produce_from_category (OperationSpec *os)
 					    NULL, NULL, NULL,
 					    (GAsyncReadyCallback) search_cb,
 					    os);
+  g_object_unref (query);
 }
 
 /* ================== API Implementation ================ */
@@ -1136,6 +1130,7 @@ grl_youtube_source_search (GrlMediaSource *source,
                            GrlMediaSourceSearchSpec *ss)
 {
   OperationSpec *os;
+  GDataQuery *query;
 
   g_debug ("grl_youtube_source_search %u", ss->count);
 
@@ -1148,15 +1143,16 @@ grl_youtube_source_search (GrlMediaSource *source,
   os->callback = ss->callback;
   os->user_data = ss->user_data;
   os->error_code = GRL_ERROR_SEARCH_FAILED;
-  os->query = gdata_query_new_with_limits (ss->text, ss->skip, ss->count);
 
+  query = gdata_query_new_with_limits (ss->text, ss->skip, ss->count);
   gdata_youtube_service_query_videos_async (GRL_YOUTUBE_SOURCE (source)->service,
-					    os->query,
+					    query,
 					    NULL,
 					    NULL,
 					    NULL,
 					    (GAsyncReadyCallback) search_cb,
 					    os);
+  g_object_unref (query);
 }
 
 static void

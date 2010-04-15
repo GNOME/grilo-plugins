@@ -94,8 +94,6 @@
 #define YOUTUBE_SITE_URL        "www.youtube.com"
 
 
-#define GRL_CONFIG_KEY_YOUTUBE_CLIENT_ID 100
-
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-youtube"
@@ -213,7 +211,6 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
                          GList *configs)
 {
   const gchar *api_key;
-  const gchar *client_id;
   const GrlConfig *config;
   gint config_count;
 
@@ -235,19 +232,15 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
     g_warning ("Missing API Key, cannot configure Youtube plugin");
     return FALSE;
   }
-  client_id = grl_data_get_string (GRL_DATA (config),
-				   GRL_CONFIG_KEY_YOUTUBE_CLIENT_ID);
-  if (!client_id) {
-    g_warning ("No client id set, using default: %s", YOUTUBE_CLIENT_ID);
-    client_id = YOUTUBE_CLIENT_ID;
-  }
 
   /* libgdata needs this */
   if (!g_thread_supported()) {
     g_thread_init (NULL);
   }
 
-  GrlYoutubeSource *source = grl_youtube_source_new (api_key, client_id);
+  GrlYoutubeSource *source =
+    grl_youtube_source_new (api_key, YOUTUBE_CLIENT_ID);
+
   grl_plugin_registry_register_source (registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source));
@@ -272,15 +265,16 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
   g_debug ("grl_youtube_source_new");
 
   GrlYoutubeSource *source;
+  GDataYouTubeService *service;
 
-  GDataYouTubeService *service =
-    gdata_youtube_service_new (api_key, client_id);
-  
+  service = gdata_youtube_service_new (api_key, client_id);
   if (!service) {
-    g_warning ("Failed to connect to Youtube");
+    g_warning ("Failed to initialize gdata service");
     return NULL;
   }
 
+  /* Use auto-split mode because Youtube fails for queries
+     that request more than YOUTUBE_MAX_CHUNK results */
   source = GRL_YOUTUBE_SOURCE (g_object_new (GRL_YOUTUBE_SOURCE_TYPE,
 					     "source-id", SOURCE_ID,
 					     "source-name", SOURCE_NAME,
@@ -290,7 +284,10 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
 					     NULL));
   source->service = service;
 
-  /* Obtain categories (and chilcounts) only once */
+  /* Build browse content hierarchy:
+      - Query Youtube for available categories 
+      - Compute category childcounts 
+      We only need to do this once */
   if (!categories_dir) {
     build_directories (service);
   }
@@ -748,13 +745,6 @@ build_directories (GDataYouTubeService *service)
 }
 
 static void
-process_metadata (GDataYouTubeVideo *video, GrlMediaSourceMetadataSpec *ms)
-{
-  build_media_from_entry (ms->media, GDATA_ENTRY (video), ms->keys);
-  ms->callback (ms->source, ms->media, ms->user_data, NULL);
-}
-
-static void
 metadata_cb (GObject *object,
 	     GAsyncResult *result,
 	     gpointer user_data)
@@ -778,7 +768,8 @@ metadata_cb (GObject *object,
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   } else {
-    process_metadata (video, ms);
+    build_media_from_entry (ms->media, GDATA_ENTRY (video), ms->keys);
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
   }
 
   if (video) {
@@ -812,13 +803,7 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
   
   feed = gdata_service_query_finish (GDATA_SERVICE (source->service),
 				     result, &error);
-  if (!error && feed) {
-    g_debug ("Feed info: %s - %u/%u/%u",
-	     gdata_feed_get_title (feed),
-	     gdata_feed_get_start_index (feed),
-	     gdata_feed_get_items_per_page (feed),
-	     gdata_feed_get_total_results (feed));
-    
+  if (!error && feed) {    
     /* If we are browsing a category, update the count for it */
     if (os->category_info) {
       os->category_info->count = gdata_feed_get_total_results (feed);
@@ -838,9 +823,11 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
     }
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
-    if (feed) g_object_unref (feed);
-    free_operation_spec (os);
   }
+
+  if (feed)
+    g_object_unref (feed);
+  free_operation_spec (os);
 }
 
 static gboolean
@@ -1008,6 +995,7 @@ produce_from_feed (OperationSpec *os)
 		  os->user_data,
 		  error);
     g_error_free (error);
+    free_operation_spec (os);
     return;
   }
 
@@ -1048,6 +1036,7 @@ produce_from_category (OperationSpec *os)
 		  os->user_data,
 		  error);
     g_error_free (error);
+    free_operation_spec (os);
     return;
   }
 

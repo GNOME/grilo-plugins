@@ -101,7 +101,7 @@ AC_SUBST(SQLITE_LIBS)
 AC_SUBST(HAVE_SQLITE)
 AM_CONDITIONAL(HAVE_SQLITE, test "x$HAVE_SQLITE" = "xyes")
 
-PKG_CHECK_MODULES(GDATA, libgdata, HAVE_GDATA=yes, HAVE_GDATA=no)
+PKG_CHECK_MODULES(GDATA, libgdata >= 0.4.0, HAVE_GDATA=yes, HAVE_GDATA=no)
 AC_SUBST(GDATA_CFLAGS)
 AC_SUBST(GDATA_LIBS)
 AC_SUBST(HAVE_GDATA)
@@ -319,7 +319,6 @@ AC_ARG_ENABLE(youtube,
                    else
                      enable_youtube=no
                    fi
-                   enable_youtube=yes
                 else
                    enable_youtube=no
                 fi

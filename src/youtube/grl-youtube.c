@@ -84,14 +84,14 @@
 
 /* --- Other --- */
 
-#define YOUTUBE_MAX_CHUNK   50
+#define YOUTUBE_MAX_CHUNK       50
 
 #define YOUTUBE_VIDEO_INFO_URL  "http://www.youtube.com/get_video_info?video_id=%s"
 #define YOUTUBE_VIDEO_URL       "http://www.youtube.com/get_video?video_id=%s&t=%s"
 #define YOUTUBE_CATEGORY_URL    "http://gdata.youtube.com/feeds/api/videos/-/%s?&start-index=%s&max-results=%s"
 
-#define YOUTUBE_VIDEO_MIME  "application/x-shockwave-flash"
-#define YOUTUBE_SITE_URL    "www.youtube.com"
+#define YOUTUBE_VIDEO_MIME      "application/x-shockwave-flash"
+#define YOUTUBE_SITE_URL        "www.youtube.com"
 
 
 #define GRL_CONFIG_KEY_YOUTUBE_CLIENT_ID 100
@@ -144,13 +144,6 @@ typedef struct {
   gchar *url;
   gpointer user_data;
 } AsyncReadCb;
-
-typedef struct {
-  OperationSpec *os;
-  CategoryInfo *directory;
-  guint index;
-  guint remaining;
-} ProduceFromDirectoryIdle;
 
 typedef enum {
   YOUTUBE_MEDIA_TYPE_ROOT,
@@ -764,7 +757,7 @@ process_metadata (GDataYouTubeVideo *video, GrlMediaSourceMetadataSpec *ms)
 static void
 metadata_cb (GObject *object,
 	     GAsyncResult *result,
-	     GrlMediaSourceMetadataSpec *ms)
+	     gpointer user_data)
 {
   g_debug ("metadata_cb");
 
@@ -772,6 +765,7 @@ metadata_cb (GObject *object,
   GrlYoutubeSource *source;
   GDataYouTubeVideo *video;
   GDataYouTubeService *service;
+  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
 
   source = GRL_YOUTUBE_SOURCE (ms->source);
   service = GDATA_YOUTUBE_SERVICE (source->service);
@@ -950,36 +944,6 @@ produce_container_from_directory (GDataYouTubeService *service,
   return content;
 }
 
-static gboolean
-produce_from_directory_idle (gpointer user_data)
-{
-  GrlMedia *content;
-  ProduceFromDirectoryIdle *pfdi = (ProduceFromDirectoryIdle *) user_data;
-
-  content =
-    produce_container_from_directory (GRL_YOUTUBE_SOURCE (pfdi->os->source)->service,
-				      NULL,
-				      pfdi->directory,
-				      pfdi->index);
-  pfdi->remaining--;
-  pfdi->index++;
-
-  pfdi->os->callback (pfdi->os->source,
-		      pfdi->os->operation_id,
-		      content,
-		      pfdi->remaining,
-		      pfdi->os->user_data,
-		      NULL);
-
-  if (pfdi->remaining == 0) {
-    free_operation_spec (pfdi->os);
-    g_free (pfdi);
-    return FALSE;
-  }
-
-  return TRUE;
-}
-
 static void
 produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os)
 {
@@ -1000,14 +964,26 @@ produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os)
     index = os->skip;
     remaining = MIN (dir_size - os->skip, os->count);
 
-    /* We use the idle loop because computing the childcount is blocking
-       and it may be called for every entry in the directory */
-    ProduceFromDirectoryIdle *pfdi = g_new0 (ProduceFromDirectoryIdle, 1);
-    pfdi->os = os;
-    pfdi->directory = dir;
-    pfdi->index = index;
-    pfdi->remaining = remaining;
-    g_idle_add (produce_from_directory_idle, pfdi);
+    do {
+      GDataYouTubeService *service = GRL_YOUTUBE_SOURCE (os->source)->service;
+
+      GrlMedia *content =
+	produce_container_from_directory (service, NULL, dir, index);
+      
+      remaining--;
+      index++;
+      
+      os->callback (os->source,
+		    os->operation_id,
+		    content,
+		    remaining,
+		    os->user_data,
+		    NULL);
+      
+      if (remaining == 0) {
+	free_operation_spec (os);
+      }
+    } while (remaining > 0);
   }
 }
 
@@ -1255,11 +1231,11 @@ grl_youtube_source_metadata (GrlMediaSource *source,
     break;
   case YOUTUBE_MEDIA_TYPE_VIDEO:
   default:
-    gdata_youtube_service_query_single_video_async (GRL_YOUTUBE_SOURCE (source)->service,
+    gdata_youtube_service_query_single_video_async (service,
 						    NULL,
 						    id,
 						    NULL,
-						    (GAsyncReadyCallback) metadata_cb,
+						    metadata_cb,
 						    ms);
     break;
   }

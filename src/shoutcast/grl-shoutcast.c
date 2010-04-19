@@ -27,7 +27,6 @@
 #endif
 
 #include <grilo.h>
-#include <gio/gio.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/xpath.h>

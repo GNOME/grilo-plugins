@@ -31,6 +31,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "util/gnomevfs.h"
 #include "grl-youtube.h"
 
 /* --------- Logging  -------- */
@@ -372,23 +373,13 @@ get_video_url (const gchar *id)
 }
 
 static void
-read_done_cb (GObject *source_object,
-              GAsyncResult *res,
+read_done_cb (gchar *content,
               gpointer user_data)
 {
   AsyncReadCb *arc = (AsyncReadCb *) user_data;
-  GError *vfs_error = NULL;
-  gchar *content = NULL;
 
-  g_file_load_contents_finish (G_FILE (source_object),
-                               res,
-                               &content,
-                               NULL,
-                               NULL,
-                               &vfs_error);
-  g_object_unref (source_object);
-  if (vfs_error) {
-    g_warning ("Failed to open '%s': %s", arc->url, vfs_error->message);
+  if (!content) {
+    g_warning ("Failed to open '%s'", arc->url);
   } else {
     arc->callback (content, arc->user_data);
   }
@@ -401,11 +392,7 @@ read_url_async (const gchar *url,
                 AsyncReadCbFunc callback,
                 gpointer user_data)
 {
-  GVfs *vfs;
-  GFile *uri;
   AsyncReadCb *arc;
-
-  vfs = g_vfs_get_default ();
 
   g_debug ("Opening async '%s'", url);
 
@@ -413,8 +400,8 @@ read_url_async (const gchar *url,
   arc->url = g_strdup (url);
   arc->callback = callback;
   arc->user_data = user_data;
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, arc);
+
+  grl_plugins_gnome_vfs_read_url_async (url, read_done_cb, arc);
 }
 
 static gchar *

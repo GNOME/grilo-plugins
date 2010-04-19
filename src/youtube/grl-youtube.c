@@ -96,7 +96,7 @@
 /* --- Other --- */
 
 #define YOUTUBE_MAX_CHUNK   50
-#define YOUTUBE_VIDEO_MIME  "application/x-shockwave-flash"
+#define YOUTUBE_VIDEO_MIME  "video/x-shockwave-flash"
 #define YOUTUBE_SITE_URL    "www.youtube.com"
 
 /* --- Plugin information --- */

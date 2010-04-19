@@ -13,8 +13,10 @@ libgrlshoutcast_la_CFLAGS =	\
 	$(XML_CFLAGS)
 
 libgrlshoutcast_la_LIBADD =	\
+	${top_builddir}/src/util/libutil.a		\
 	$(DEPS_LIBS)		\
 	$(GIO_LIBS)		\
+	$(GNOMEVFS_LIBS)	\
 	$(XML_LIBS)
 
 libgrlshoutcast_la_SOURCES	 = grl-shoutcast.c grl-shoutcast.h

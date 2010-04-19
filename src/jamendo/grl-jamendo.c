@@ -33,6 +33,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "util/gnomevfs.h"
 #include "grl-jamendo.h"
 
 /* --------- Logging  -------- */

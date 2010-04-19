@@ -408,19 +408,15 @@ read_url_async (const gchar *url,
 static gchar *
 read_url (const gchar *url)
 {
-  GVfs *vfs;
-  GFile *uri;
-  GError *vfs_error = NULL;
   gchar *content = NULL;
-
-  vfs = g_vfs_get_default ();
+  GnomeVFSResult result;
 
   g_debug ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents (uri, NULL, &content, NULL, NULL, &vfs_error);
-  g_object_unref (uri);
-  if (vfs_error) {
-    g_warning ("Failed reading '%s': %s", url, vfs_error->message);
+  result = gnome_vfs_read_entire_file (url, NULL, &content);
+  if (result != GNOME_VFS_OK) {
+    g_warning ("Failed reading '%s': %s", url,
+               gnome_vfs_result_to_string (result));
+    g_free (content);
     return NULL;
   } else {
     return content;

@@ -25,7 +25,6 @@
 #endif
 
 #include <grilo.h>
-#include <gio/gio.h>
 #include <libgnomevfs/gnome-vfs.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>

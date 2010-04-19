@@ -574,30 +574,20 @@ xml_parse_entries_idle (gpointer user_data)
 }
 
 static void
-read_done_cb (GObject *source_object,
-              GAsyncResult *res,
-              gpointer user_data)
+read_done_cb (gchar *contents, gpointer user_data)
 {
-  XmlParseEntries *xpe = (XmlParseEntries *) user_data;
+  XmlParseEntries *xpe = user_data;
   gint error_code = -1;
-  GError *vfs_error = NULL;
   GError *error = NULL;
-  gchar *content = NULL;
   Entry *entry = NULL;
 
   /* Check if operation was cancelled */
   if (xpe->cancelled) {
-    g_object_unref (source_object);
     g_free (xpe);
     return;
   }
 
-  if (!g_file_load_contents_finish (G_FILE (source_object),
-                                    res,
-                                    &content,
-                                    NULL,
-                                    NULL,
-                                    &vfs_error)) {
+  if (!contents) {
     switch (xpe->type) {
     case METADATA:
       error_code = GRL_ERROR_METADATA_FAILED;
@@ -615,16 +605,12 @@ read_done_cb (GObject *source_object,
 
     error = g_error_new (GRL_ERROR,
                          error_code,
-                         "Failed to connect Jamendo: '%s'",
-                         vfs_error->message);
-    g_object_unref (source_object);
+                         "Failed to connect Jamendo");
     goto invoke_cb;
   }
 
-  g_object_unref (source_object);
-
-  xml_parse_result (content, &error, xpe);
-  g_free (content);
+  xml_parse_result (contents, &error, xpe);
+  g_free (contents);
 
   if (error) {
     goto invoke_cb;
@@ -695,14 +681,8 @@ read_done_cb (GObject *source_object,
 static void
 read_url_async (const gchar *url, gpointer user_data)
 {
-  GVfs *vfs;
-  GFile *uri;
-
-  vfs = g_vfs_get_default ();
-
   g_debug ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
+  grl_plugins_gnome_vfs_read_url_async (url, read_done_cb, user_data);
 }
 
 static void

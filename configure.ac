@@ -562,6 +562,7 @@ AC_SUBST([builddir])
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
+  src/util/Makefile
   src/youtube/Makefile
   src/fake-metadata/Makefile
   src/filesystem/Makefile

@@ -13,8 +13,10 @@ libgrljamendo_la_CFLAGS =	\
 	$(XML_CFLAGS)
 
 libgrljamendo_la_LIBADD =	\
+	${top_builddir}/src/util/libutil.a		\
 	$(DEPS_LIBS)		\
 	$(GIO_LIBS)		\
+	$(GNOMEVFS_LIBS)	\
 	$(XML_LIBS)
 
 libgrljamendo_la_SOURCES	 = grl-jamendo.c grl-jamendo.h

@@ -7,6 +7,10 @@
 
 SUBDIRS =
 
+if HAVE_GNOMEVFS
+SUBDIRS += util
+endif
+
 if FAKEMETADATA_PLUGIN
 SUBDIRS += fake-metadata
 endif

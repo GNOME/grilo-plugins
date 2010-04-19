@@ -298,8 +298,8 @@ AC_ARG_ENABLE(youtube,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO not found, install it or use --disable-youtube])
+                        if test "x$HAVE_GNOMEVFS" = "xno"; then
+                           AC_MSG_ERROR([GNOMEVFS not found, install it or use --disable-youtube])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-youtube])
@@ -308,7 +308,7 @@ AC_ARG_ENABLE(youtube,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GNOMEVFS" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_youtube=yes
                 else
                    enable_youtube=no

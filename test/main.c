@@ -28,6 +28,8 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "test-main"
 
+#define YOUTUBE_KEY "AI39si4EfscPllSfUy1IwexMf__kntTL_G5dfSr2iUEVN45RHGq92Aq0lX25OlnOkG6KTN-4soVAkAf67fWYXuHfVADZYr7S1A"
+
 static void
 print_supported_ops (GrlMetadataSource *source)
 {
@@ -233,6 +235,11 @@ main (void)
   g_debug ("loading plugins");
 
   GrlPluginRegistry *registry = grl_plugin_registry_get_instance ();
+
+  GrlConfig *config = grl_config_new ("grl-youtube", NULL);
+  grl_config_set_api_key (config, YOUTUBE_KEY);
+  grl_plugin_registry_add_config (registry, config);
+
   grl_plugin_registry_load (registry,
                             "../src/youtube/.libs/libgrlyoutube.so");
   grl_plugin_registry_load (registry,
@@ -331,7 +338,7 @@ main (void)
   if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) grl_media_source_browse (youtube, media_from_id ("standard-feeds/most-viewed"), keys, 0, 10, GRL_RESOLVE_FAST_ONLY , browse_cb, NULL);
   if (0) grl_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (1) grl_media_source_search (youtube, "igalia", keys, 0, 5, GRL_RESOLVE_NORMAL, browse_cb, NULL);
+  if (0) grl_media_source_search (youtube, "igalia", keys, 0, 5, GRL_RESOLVE_NORMAL, browse_cb, NULL);
   if (0) grl_media_source_search (youtube, "igalia", keys, 1, 10, GRL_RESOLVE_FULL | GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
   if (0) grl_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
   if (0) grl_media_source_metadata (youtube, NULL, keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY | GRL_RESOLVE_FULL, metadata_cb, NULL);

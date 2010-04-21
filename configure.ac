@@ -69,6 +69,12 @@ PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
 
 PKG_CHECK_MODULES(GDATA, libgdata >= 0.4.0, HAVE_GDATA=yes, HAVE_GDATA=no)
 
+PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4, HAVE_LIBSOUP=yes, HAVE_LIBSOUP=no)
+
+AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
+
+PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
+
 # ----------------------------------------------------------
 # GUPNP-AV VERSION
 # ----------------------------------------------------------
@@ -516,6 +522,46 @@ then
 fi
 
 # ----------------------------------------------------------
+# BUILD VIMEO PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(vimeo,
+        AC_HELP_STRING([--enable-vimeo],
+                [enable Vimeo plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-vimeo])
+                        fi
+                        if test "x$HAVE_LIBSOUP" = "xno"; then
+                           AC_MSG_ERROR([libsoup not found, install it or use --disable-vimeo])
+                        fi
+			if test "x$HAVE_GCRYPT" = "xno"; then
+                           AC_MSG_ERROR([libgcrypt not found, install it or use --disable-vimeo])
+                        fi
+			if test "x$HAVE_GTHREAD" = "xno"; then
+                           AC_MSG_ERROR([gthread not found, install it or use --disable-vimeo])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_XML" = "xyes" -a "x$HAVE_LIBSOUP" = "xyes" -a "x$HAVE_GCRYPT" = "xyes" -a "x$HAVE_GTHREAD" = "xyes"; then
+                   enable_vimeo=yes
+                else
+                   enable_vimeo=no
+                fi
+        ])
+
+AM_CONDITIONAL([VIMEO_PLUGIN], [test "x$enable_vimeo" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL vimeo"
+if test "x$enable_vimeo" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED vimeo"
+fi
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -551,6 +597,7 @@ AC_CONFIG_FILES([
   src/shoutcast/Makefile
   src/apple-trailers/Makefile
   src/metadata-store/Makefile
+  src/vimeo/Makefile
   test/Makefile
 ])
 

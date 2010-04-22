@@ -10,6 +10,7 @@ noinst_LIBRARIES		 = libutil.a
 libutil_a_SOURCES	 = gnomevfs.c gnomevfs.h
 
 libutil_a_CFLAGS =		\
+	-fPIC			\
 	$(DEPS_CFLAGS)		\
 	$(GNOMEVFS_CFLAGS)
 

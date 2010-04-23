@@ -18,13 +18,13 @@ AM_CONFIG_HEADER(src/config.h)
 
 AC_PROG_CC
 AC_PROG_INSTALL
-AC_PROG_LIBTOOL
+
+LT_PREREQ([2.2.6])
+LT_INIT
 
 AM_PROG_CC_C_O
 
 AC_HEADER_STDC
-
-AM_MAINTAINER_MODE
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -32,27 +32,14 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 # ENVIRONMENT CONFIGURATION
 # ----------------------------------------------------------
 
-CFLAGS="$CFLAGS -Wall -Werror -Wmissing-prototypes -Wmissing-declarations -std=c99"
+GNOME_COMPILE_WARNINGS([maximum])
+CFLAGS+=" ${WARN_CFLAGS} -Wmissing-declarations -std=c99 "
+
+GNOME_MAINTAINER_MODE_DEFINES
 
 # ----------------------------------------------------------
 # DEFINITIONS
 # ----------------------------------------------------------
-
-# ABI version
-
-GRL_MAJORMINOR=0.1
-AC_SUBST(GRL_MAJORMINOR)
-AC_DEFINE_UNQUOTED(GRL_MAJORMINOR, "$GRL_MAJORMINOR", [library major.minor version])
-
-# Give parameters a default value
-
-if test $prefix = "NONE" ; then
-	prefix="/usr/local"
-fi
-
-if test $libdir = "\${exec_prefix}/lib" ; then
-	libdir="$prefix/lib"
-fi
 
 # Plugins directory
 
@@ -68,51 +55,24 @@ PKG_CHECK_MODULES(DEPS, glib-2.0 \
 			gobject-2.0 \
 			gmodule-2.0 \
 			grilo-0.1 >= 0.1.4)
-AC_SUBST(DEPS_CFLAGS)
-AC_SUBST(DEPS_LIBS)
 
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
-AC_SUBST(XML_CFLAGS)
-AC_SUBST(XML_LIBS)
-AC_SUBST(HAVE_XML)
-AM_CONDITIONAL(HAVE_XML, test "x$HAVE_XML" = "xyes")
 
 PKG_CHECK_MODULES(GIO, gio-2.0, HAVE_GIO=yes, HAVE_GIO=no)
-AC_SUBST(GIO_CFLAGS)
-AC_SUBST(GIO_LIBS)
-AC_SUBST(HAVE_GIO)
-AM_CONDITIONAL(HAVE_GIO, test "x$HAVE_GIO" = "xyes")
 
 PKG_CHECK_MODULES(GUPNP, gupnp-1.0, HAVE_GUPNP=yes, HAVE_GUPNP=no)
-AC_SUBST(GUPNP_CFLAGS)
-AC_SUBST(GUPNP_LIBS)
-AC_SUBST(HAVE_GUPNP)
-AM_CONDITIONAL(HAVE_GUPNP, test "x$HAVE_GUPNP" = "xyes")
 
 PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=no)
-AC_SUBST(GUPNPAV_CFLAGS)
-AC_SUBST(GUPNPAV_LIBS)
-AC_SUBST(HAVE_GUPNPAV)
-AM_CONDITIONAL(HAVE_GUPNPAV, test "x$HAVE_GUPNPAV" = "xyes")
 
 PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
-AC_SUBST(SQLITE_CFLAGS)
-AC_SUBST(SQLITE_LIBS)
-AC_SUBST(HAVE_SQLITE)
-AM_CONDITIONAL(HAVE_SQLITE, test "x$HAVE_SQLITE" = "xyes")
 
 PKG_CHECK_MODULES(GDATA, libgdata >= 0.4.0, HAVE_GDATA=yes, HAVE_GDATA=no)
-AC_SUBST(GDATA_CFLAGS)
-AC_SUBST(GDATA_LIBS)
-AC_SUBST(HAVE_GDATA)
-AM_CONDITIONAL(HAVE_GDATA, test "x$HAVE_GDATA" = "xyes")
 
 # ----------------------------------------------------------
 # GUPNP-AV VERSION
 # ----------------------------------------------------------
 
 GUPNPAV_OLD_VERSION=no
-AC_SUBST(GUPNPAV_OLD_VERSION)
 if test "x$HAVE_GUPNPAV" = "xyes"; then
         gupnpav_version=`pkg-config --modversion gupnp-av-1.0`
         gupnpav_version_major=`echo $gupnpav_version | awk -F. '{ print $1 }'`
@@ -120,8 +80,6 @@ if test "x$HAVE_GUPNPAV" = "xyes"; then
         if test $gupnpav_version_major -eq 0 -a $gupnpav_version_minor -lt 5; then
            GUPNPAV_OLD_VERSION=yes
         fi
-        AC_SUBST(gupnpav_version_major)
-        AC_SUBST(gupnpav_version_minor)
 fi
 AM_CONDITIONAL(GUPNPAV_OLD_VERSION, test "x$GUPNPAV_OLD_VERSION" = "xyes")
 
@@ -133,8 +91,6 @@ AC_ARG_ENABLE(uninstalled,
         AC_HELP_STRING([--enable-uninstalled],
                 [run uninstalled (default: no)]),,
         [enable_uninstalled=no])
-
-AM_CONDITIONAL([UNINSTALLED], [test "x$enable_uninstalled" = "xyes"])
 
 # ----------------------------------------------------------
 # DEBUG SUPPORT
@@ -148,8 +104,6 @@ AC_ARG_ENABLE(debug,
 if test "x$enable_debug" = "xyes"; then
 	CFLAGS="$CFLAGS -g3 -O0"
 fi
-
-AM_CONDITIONAL([DEBUG], [test "x$enable_debug" = "xyes"])
 
 # ----------------------------------------------------------
 # BUILD FAKE METADATA PLUGIN

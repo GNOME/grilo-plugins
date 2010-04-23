@@ -57,7 +57,7 @@ typedef struct _GrlYoutubeSource GrlYoutubeSource;
 struct _GrlYoutubeSource {
 
   GrlMediaSource parent;
-  GDataYouTubeService *service;
+  GDataService *service;
 };
 
 typedef struct _GrlYoutubeSourceClass GrlYoutubeSourceClass;

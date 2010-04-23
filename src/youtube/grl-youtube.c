@@ -133,7 +133,7 @@ typedef struct {
 } OperationSpec;
 
 typedef struct {
-  GDataYouTubeService *service;
+  GDataService *service;
   CategoryInfo *category_info;
 } CategoryCountCb;
 
@@ -174,9 +174,9 @@ static void grl_youtube_source_browse (GrlMediaSource *source,
 static void grl_youtube_source_metadata (GrlMediaSource *source,
                                          GrlMediaSourceMetadataSpec *ms);
 
-static void build_directories (GDataYouTubeService *service);
-static void compute_feed_counts (GDataYouTubeService *service);
-static void compute_category_counts (GDataYouTubeService *service);
+static void build_directories (GDataService *service);
+static void compute_feed_counts (GDataService *service);
+static void compute_category_counts (GDataService *service);
 
 /* ==================== Global Data  ================= */
 
@@ -282,14 +282,14 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
 					     "auto-split-threshold",
 					     YOUTUBE_MAX_CHUNK,
 					     NULL));
-  source->service = service;
+  source->service = GDATA_SERVICE (service);
 
   /* Build browse content hierarchy:
-      - Query Youtube for available categories 
-      - Compute category childcounts 
+      - Query Youtube for available categories
+      - Compute category childcounts
       We only need to do this once */
   if (!categories_dir) {
-    build_directories (service);
+    build_directories (source->service);
   }
 
   return source;
@@ -523,7 +523,7 @@ build_media_from_entry (GrlMedia *content,
 }
 
 static void
-parse_categories (xmlDocPtr doc, xmlNodePtr node, GDataYouTubeService *service)
+parse_categories (xmlDocPtr doc, xmlNodePtr node, GDataService *service)
 {
   g_debug ("parse_categories");
 
@@ -598,7 +598,7 @@ build_categories_directory_read_cb (gchar *xmldata, gpointer user_data)
     goto free_resources;
   }
 
-  parse_categories (doc, node, GDATA_YOUTUBE_SERVICE (user_data));
+  parse_categories (doc, node, GDATA_SERVICE (user_data));
 
  free_resources:
   xmlFreeDoc (doc);
@@ -674,7 +674,7 @@ item_count_cb (GObject *object, GAsyncResult *result, CategoryCountCb *cc)
 }
 
 static void
-compute_category_counts (GDataYouTubeService *service)
+compute_category_counts (GDataService *service)
 {
   g_debug ("compute_category_counts");
 
@@ -687,7 +687,7 @@ compute_category_counts (GDataYouTubeService *service)
     CategoryCountCb *cc = g_new (CategoryCountCb, 1);
     cc->service = service;
     cc->category_info = &categories_dir[i];
-    gdata_youtube_service_query_videos_async (service,
+    gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (service),
 					      query,
 					      NULL, NULL, NULL,
 					      (GAsyncReadyCallback) item_count_cb,
@@ -697,7 +697,7 @@ compute_category_counts (GDataYouTubeService *service)
 }
 
 static void
-compute_feed_counts (GDataYouTubeService *service)
+compute_feed_counts (GDataService *service)
 {
   g_debug ("compute_feed_counts");
 
@@ -708,7 +708,7 @@ compute_feed_counts (GDataYouTubeService *service)
     CategoryCountCb *cc = g_new (CategoryCountCb, 1);
     cc->service = service;
     cc->category_info = &feeds_dir[i];
-    gdata_youtube_service_query_standard_feed_async (service,
+    gdata_youtube_service_query_standard_feed_async (GDATA_YOUTUBE_SERVICE (service),
 						     feed_type,
 						     query,
 						     NULL, NULL, NULL,
@@ -731,7 +731,7 @@ process_entry (GDataEntry *entry, guint count, OperationSpec *os)
 }
 
 static void
-build_directories (GDataYouTubeService *service)
+build_directories (GDataService *service)
 {
   g_debug ("build_drectories");
 
@@ -753,22 +753,26 @@ metadata_cb (GObject *object,
 
   GError *error = NULL;
   GrlYoutubeSource *source;
-  GDataYouTubeVideo *video;
-  GDataYouTubeService *service;
+  GDataEntry *video;
+  GDataService *service;
   GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
 
   source = GRL_YOUTUBE_SOURCE (ms->source);
-  service = GDATA_YOUTUBE_SERVICE (source->service);
+  service = GDATA_SERVICE (source->service);
 
-  video = gdata_youtube_service_query_single_video_finish (service,
-							   result,
-							   &error);
+#ifdef GDATA_API_SUBJECT_TO_CHANGE
+  video = gdata_service_query_single_entry_finish (service, result, &error);
+#else
+  video =
+    GDATA_ENTRY (gdata_youtube_service_query_single_video_finish
+                   (GDATA_YOUTUBE_SERVICE (service), result, &error));
+#endif
   if (error) {
     error->code = GRL_ERROR_METADATA_FAILED;
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   } else {
-    build_media_from_entry (ms->media, GDATA_ENTRY (video), ms->keys);
+    build_media_from_entry (ms->media, video, ms->keys);
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
   }
 
@@ -800,10 +804,9 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
   GDataFeed *feed;
   GError *error = NULL;
   GrlYoutubeSource *source = GRL_YOUTUBE_SOURCE (os->source);
-  
-  feed = gdata_service_query_finish (GDATA_SERVICE (source->service),
-				     result, &error);
-  if (!error && feed) {    
+
+  feed = gdata_service_query_finish (source->service, result, &error);
+  if (!error && feed) {
     /* If we are browsing a category, update the count for it */
     if (os->category_info) {
       os->category_info->count = gdata_feed_get_total_results (feed);
@@ -861,7 +864,7 @@ classify_media_id (const gchar *media_id)
 }
 
 static void
-set_category_childcount (GDataYouTubeService *service,
+set_category_childcount (GDataService *service,
 			 GrlMediaBox *content,
                          CategoryInfo *dir,
                          guint index)
@@ -903,7 +906,7 @@ set_category_childcount (GDataYouTubeService *service,
 }
 
 static GrlMedia *
-produce_container_from_directory (GDataYouTubeService *service,
+produce_container_from_directory (GDataService *service,
 				  GrlMedia *media,
 				  CategoryInfo *dir,
 				  guint index)
@@ -952,21 +955,21 @@ produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os)
     remaining = MIN (dir_size - os->skip, os->count);
 
     do {
-      GDataYouTubeService *service = GRL_YOUTUBE_SOURCE (os->source)->service;
+      GDataService *service = GRL_YOUTUBE_SOURCE (os->source)->service;
 
       GrlMedia *content =
 	produce_container_from_directory (service, NULL, dir, index);
-      
+
       remaining--;
       index++;
-      
+
       os->callback (os->source,
 		    os->operation_id,
 		    content,
 		    remaining,
 		    os->user_data,
 		    NULL);
-      
+
       if (remaining == 0) {
 	free_operation_spec (os);
       }
@@ -980,7 +983,7 @@ produce_from_feed (OperationSpec *os)
   GError *error = NULL;
   gint feed_type;
   GDataQuery *query;
-  GDataYouTubeService *service;
+  GDataService *service;
 
   feed_type = get_feed_type_from_id (os->container_id);
 
@@ -999,10 +1002,10 @@ produce_from_feed (OperationSpec *os)
     return;
   }
 
-  service = GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (os->source)->service);
+  service = GRL_YOUTUBE_SOURCE (os->source)->service;
   query = gdata_query_new_with_limits (NULL , os->skip, os->count);
   os->category_info = &feeds_dir[feed_type];
-  gdata_youtube_service_query_standard_feed_async (service,
+  gdata_youtube_service_query_standard_feed_async (GDATA_YOUTUBE_SERVICE (service),
                                                    feed_type,
                                                    query,
                                                    NULL,
@@ -1018,7 +1021,7 @@ produce_from_category (OperationSpec *os)
 {
   GError *error = NULL;
   GDataQuery *query;
-  GDataYouTubeService *service;
+  GDataService *service;
   const gchar *category_term;
   gint category_index;
 
@@ -1040,11 +1043,11 @@ produce_from_category (OperationSpec *os)
     return;
   }
 
-  service = GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (os->source)->service);
+  service = GRL_YOUTUBE_SOURCE (os->source)->service;
   query = gdata_query_new_with_limits (NULL , os->skip, os->count);
   os->category_info = &categories_dir[category_index];
   gdata_query_set_categories (query, category_term);
-  gdata_youtube_service_query_videos_async (service,
+  gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (service),
 					    query,
 					    NULL,
 					    search_progress_cb,
@@ -1108,7 +1111,7 @@ grl_youtube_source_search (GrlMediaSource *source,
   os->error_code = GRL_ERROR_SEARCH_FAILED;
 
   query = gdata_query_new_with_limits (ss->text, ss->skip, ss->count);
-  gdata_youtube_service_query_videos_async (GRL_YOUTUBE_SOURCE (source)->service,
+  gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (source)->service),
 					    query,
 					    NULL,
 					    search_progress_cb,
@@ -1141,7 +1144,7 @@ grl_youtube_source_browse (GrlMediaSource *source,
   os->user_data = bs->user_data;
   os->error_code = GRL_ERROR_BROWSE_FAILED;
 
-  switch (classify_media_id (container_id)) 
+  switch (classify_media_id (container_id))
     {
     case YOUTUBE_MEDIA_TYPE_ROOT:
       produce_from_directory (root_dir, root_dir_size, os);
@@ -1172,7 +1175,7 @@ grl_youtube_source_metadata (GrlMediaSource *source,
 {
   YoutubeMediaType media_type;
   const gchar *id;
-  GDataYouTubeService *service;
+  GDataService *service;
   GError *error = NULL;
   GrlMedia *media = NULL;
 
@@ -1181,7 +1184,7 @@ grl_youtube_source_metadata (GrlMediaSource *source,
   id = grl_media_get_id (ms->media);
   media_type = classify_media_id (id);
   service = GRL_YOUTUBE_SOURCE (source)->service;
-  
+
   switch (media_type) {
   case YOUTUBE_MEDIA_TYPE_ROOT:
     media = produce_container_from_directory (service, ms->media, NULL, 0);
@@ -1220,12 +1223,26 @@ grl_youtube_source_metadata (GrlMediaSource *source,
     break;
   case YOUTUBE_MEDIA_TYPE_VIDEO:
   default:
-    gdata_youtube_service_query_single_video_async (service,
-						    NULL,
-						    id,
-						    NULL,
-						    metadata_cb,
-						    ms);
+#ifdef GDATA_API_SUBJECT_TO_CHANGE
+    {
+      gchar *entryid = g_strconcat ("tag:youtube.com,2008:video:", id, NULL);
+      gdata_service_query_single_entry_async (service,
+                                              entryid,
+                                              NULL,
+                                              GDATA_TYPE_YOUTUBE_VIDEO,
+                                              NULL,
+                                              metadata_cb,
+                                              ms);
+      g_free (entryid);
+    }
+#else
+    gdata_youtube_service_query_single_video_async (GDATA_YOUTUBE_SERVICE (service),
+                                                    NULL,
+                                                    id,
+                                                    NULL,
+                                                    metadata_cb,
+                                                    ms);
+#endif
     break;
   }
 

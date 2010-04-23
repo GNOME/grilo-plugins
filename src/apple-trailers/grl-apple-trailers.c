@@ -34,6 +34,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "util/gnomevfs.h"
 #include "grl-apple-trailers.h"
 
 /* --------- Logging  -------- */
@@ -350,25 +351,16 @@ xml_parse_result (const gchar *str, OperationData *op_data)
 }
 
 static void
-read_done_cb (GObject *source_object,
-              GAsyncResult *res,
+read_done_cb (gchar *content,
               gpointer user_data)
 {
   GError *error = NULL;
-  GError *vfs_error = NULL;
   OperationData *op_data = (OperationData *) user_data;
-  gchar *content = NULL;
 
-  if (!g_file_load_contents_finish (G_FILE (source_object),
-                                    res,
-                                    &content,
-                                    NULL,
-                                    NULL,
-                                    &vfs_error)) {
+  if (!content) {
     error = g_error_new (GRL_ERROR,
                          GRL_ERROR_BROWSE_FAILED,
-                         "Failed to connect Apple Trailers: '%s'",
-                         vfs_error->message);
+                         "Failed to connect Apple Trailers");
     op_data->bs->callback (op_data->bs->source,
                            op_data->bs->browse_id,
                            NULL,
@@ -388,14 +380,8 @@ read_done_cb (GObject *source_object,
 static void
 read_url_async (const gchar *url, gpointer user_data)
 {
-  GVfs *vfs;
-  GFile *uri;
-
-  vfs = g_vfs_get_default ();
-
   g_debug ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
+  grl_plugins_gnome_vfs_read_url_async (url, read_done_cb, user_data);
 }
 
 /* ================== API Implementation ================ */

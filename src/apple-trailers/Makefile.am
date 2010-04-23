@@ -9,13 +9,11 @@ lib_LTLIBRARIES		 = libgrlappletrailers.la
 
 libgrlappletrailers_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
-	$(GIO_CFLAGS)		\
 	$(XML_CFLAGS)
 
 libgrlappletrailers_la_LIBADD =	\
 	${top_builddir}/src/util/libutil.a		\
 	$(DEPS_LIBS)		\
-	$(GIO_LIBS)		\
 	$(GNOMEVFS_LIBS)	\
 	$(XML_LIBS)
 

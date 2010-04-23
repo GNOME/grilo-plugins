@@ -271,7 +271,8 @@ send_movie_info (OperationData *op_data)
                            op_data->bs->user_data,
                            NULL);
     op_data->xml_entries = op_data->xml_entries->next;
-    op_data->bs->count--;
+    if (!last)
+      op_data->bs->count--;
   }
 
   if (last) {

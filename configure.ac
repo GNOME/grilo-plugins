@@ -12,6 +12,7 @@ AC_INIT([prj_name], [prj_version])
 
 AM_INIT_AUTOMAKE([foreign])
 
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src])
 
 AM_CONFIG_HEADER(src/config.h)

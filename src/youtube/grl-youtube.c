@@ -460,7 +460,8 @@ build_media_from_entry (GrlMedia *content,
       grl_media_set_date (media, entry->published);
       break;
     case GRL_METADATA_KEY_DURATION:
-      grl_media_set_duration (media, atoi (entry->duration));
+      if (entry->duration)
+        grl_media_set_duration (media, atoi (entry->duration));
       break;
     case GRL_METADATA_KEY_MIME:
       grl_media_set_mime (media, YOUTUBE_VIDEO_MIME);

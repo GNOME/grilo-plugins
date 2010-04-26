@@ -20,6 +20,6 @@ DEB_CONFIGURE_EXTRA_FLAGS :=		\
 	--disable-podcasts		\
 	--enable-shoutcast		\
 	--disable-upnp			\
-	--enable-apple-trailers		\
+	--disable-apple-trailers	\
 	--enable-youtube
 

@@ -412,7 +412,7 @@ read_done_cb (GObject *source_object,
     arc->callback (content, arc->user_data);
   }
   g_free (arc->url);
-  g_free (arc);
+  g_slice_free (AsyncReadCb, arc);
 }
 
 static void
@@ -428,7 +428,7 @@ read_url_async (const gchar *url,
 
   g_debug ("Opening async '%s'", url);
 
-  arc = g_new0 (AsyncReadCb, 1);
+  arc = g_slice_new0 (AsyncReadCb);
   arc->url = g_strdup (url);
   arc->callback = callback;
   arc->user_data = user_data;
@@ -921,7 +921,7 @@ parse_entry_idle (gpointer user_data)
   nodes = osp->xpathObj->nodesetval;
 
   /* Parse entry */
-  Entry *entry = g_new0 (Entry, 1);
+  Entry *entry = g_slice_new0 (Entry);
   parse_entry (osp->doc, nodes->nodeTab[osp->parse_index], entry);
   if (0) print_entry (entry);
 
@@ -971,11 +971,11 @@ parse_entry_idle (gpointer user_data)
 		       osp->os->user_data,
 		       NULL);
     
-    g_free (osp->os);
+    g_slice_free (OperationSpec, osp->os);
     xmlXPathFreeObject (osp->xpathObj);
     xmlXPathFreeContext (osp->xpathCtx);
     xmlFreeDoc (osp->doc);
-    g_free (osp);
+    g_slice_free (OperationSpecParse, osp);
   }
   
   return osp->parse_index < osp->parse_count;
@@ -1045,7 +1045,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   }
 
   /* Otherwise parse the streams in idle loop to prevent blocking */
-  OperationSpecParse *osp = g_new0 (OperationSpecParse, 1);
+  OperationSpecParse *osp = g_slice_new0 (OperationSpecParse);
   osp->os = os;
   osp->doc = doc;
   osp->xpathCtx = xpathCtx;
@@ -1086,7 +1086,7 @@ read_feed_cb (gchar *xmldata, gpointer user_data)
 		  os->user_data,
 		  error);
     g_error_free (error);
-    g_free (os);
+    g_slice_free (OperationSpec, os);
   }
 }
 
@@ -1155,7 +1155,7 @@ produce_podcast_contents (OperationSpec *os)
     } else {
       /* We can read the podcast entries from the database cache */
       produce_podcast_contents_from_db (os);
-      g_free (os);
+      g_slice_free (OperationSpec, os);
     }
     sqlite3_finalize (sql_stmt);
   } else {
@@ -1164,7 +1164,7 @@ produce_podcast_contents (OperationSpec *os)
 			 "Failed to retrieve podcast information");
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
-    g_free (os);
+    g_slice_free (OperationSpec, os);
   }
 
 }
@@ -1381,7 +1381,7 @@ grl_podcasts_source_browse (GrlMediaSource *source,
   }
 
   /* Configure browse operation */
-  os = g_new0 (OperationSpec, 1);
+  os = g_slice_new0 (OperationSpec);
   os->source = bs->source;
   os->operation_id = bs->browse_id;
   os->media_id = grl_media_get_id (bs->container);
@@ -1394,7 +1394,7 @@ grl_podcasts_source_browse (GrlMediaSource *source,
   if (!os->media_id) {
     /* Browsing podcasts list */
     produce_podcasts (os);
-    g_free (os);
+    g_slice_free (OperationSpec, os);
   } else {
     /* Browsing a particular podcast. We may need to parse
        the feed (async) and in that case we will need to keep
@@ -1423,7 +1423,7 @@ grl_podcasts_source_search (GrlMediaSource *source,
     g_error_free (error);
   }
 
-  os = g_new0 (OperationSpec, 1);
+  os = g_slice_new0 (OperationSpec);
   os->source = ss->source;
   os->operation_id = ss->search_id;
   os->text = ss->text;
@@ -1433,7 +1433,7 @@ grl_podcasts_source_search (GrlMediaSource *source,
   os->user_data = ss->user_data;
   os->error_code = GRL_ERROR_SEARCH_FAILED;
   produce_podcasts (os);
-  g_free (os);
+  g_slice_free (OperationSpec, os);
 }
 
 static void
@@ -1455,7 +1455,7 @@ grl_podcasts_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
     g_error_free (error);
   }
 
-  os = g_new0 (OperationSpec, 1);
+  os = g_slice_new0 (OperationSpec);
   os->source = qs->source;
   os->operation_id = qs->query_id;
   os->text = qs->query;
@@ -1466,7 +1466,7 @@ grl_podcasts_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
   os->is_query = TRUE;
   os->error_code = GRL_ERROR_QUERY_FAILED;
   produce_podcasts (os);
-  g_free (os);
+  g_slice_free (OperationSpec, os);
 }
 
 static void

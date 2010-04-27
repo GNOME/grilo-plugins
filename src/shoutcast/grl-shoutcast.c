@@ -279,7 +279,7 @@ send_media (OperationData *op_data, GrlMedia *media)
 
   if (op_data->to_send == 0 || op_data->cancelled) {
     xmlFreeDoc (op_data->xml_doc);
-    g_free (op_data);
+    g_slice_free (OperationData, op_data);
     return FALSE;
   } else {
     return TRUE;
@@ -311,7 +311,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   xmlXPathObjectPtr xpath_res;
 
   if (op_data->cancelled) {
-    g_free (op_data);
+    g_slice_free (OperationData, op_data);
     return;
   }
 
@@ -438,7 +438,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   if (error) {
     g_error_free (error);
   }
-  g_free (op_data);
+  g_slice_free (OperationData, op_data);
 }
 
 static void
@@ -468,7 +468,7 @@ read_done_cb (GObject *source_object,
                         op_data->user_data,
                         error);
     g_error_free (error);
-    g_free (op_data);
+    g_slice_free (OperationData, op_data);
 
     return;
   }
@@ -530,7 +530,7 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
   if (!media_id) {
     grl_media_set_title (ms->media, "SHOUTcast");
   } else {
-    data = g_new0 (OperationData, 1);
+    data = g_slice_new0 (OperationData);
     data->source = source;
     data->count = 1;
     data->metadata_cb = ms->callback;
@@ -580,7 +580,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
 
   g_debug ("grl_shoutcast_source_browse");
 
-  data = g_new0 (OperationData, 1);
+  data = g_slice_new0 (OperationData);
   data->source = source;
   data->operation_id = bs->browse_id;
   data->result_cb = bs->callback;
@@ -632,7 +632,7 @@ grl_shoutcast_source_search (GrlMediaSource *source,
     return;
   }
 
-  data = g_new0 (OperationData, 1);
+  data = g_slice_new0 (OperationData);
   data->source = source;
   data->operation_id = ss->search_id;
   data->result_cb = ss->callback;

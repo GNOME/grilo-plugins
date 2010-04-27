@@ -277,7 +277,7 @@ send_movie_info (OperationData *op_data)
 
   if (last) {
     xmlFreeDoc (op_data->xml_doc);
-    g_free (op_data);
+    g_slice_free (OperationData, op_data);
   }
 
   return !last;
@@ -290,7 +290,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   xmlNodePtr node;
 
   if (op_data->cancelled) {
-    g_free (op_data);
+    g_slice_free (OperationData, op_data);
     return;
   }
 
@@ -347,7 +347,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
     g_error_free (error);
   }
 
-  g_free (op_data);
+  g_slice_free (OperationData, op_data);
 }
 
 static void
@@ -377,7 +377,7 @@ read_done_cb (GObject *source_object,
                            op_data->bs->user_data,
                            error);
     g_error_free (error);
-    g_free (op_data);
+    g_slice_free (OperationData, op_data);
 
     return;
   }
@@ -428,7 +428,7 @@ grl_apple_trailers_source_browse (GrlMediaSource *source,
 
   g_debug ("grl_apple_trailers_source_browse");
 
-  op_data = g_new0 (OperationData, 1);
+  op_data = g_slice_new0 (OperationData);
   op_data->bs = bs;
   grl_media_source_set_operation_data (source, bs->browse_id, op_data);
 

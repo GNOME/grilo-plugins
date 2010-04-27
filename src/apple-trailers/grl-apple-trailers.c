@@ -298,7 +298,8 @@ xml_parse_result (const gchar *str, OperationData *op_data)
     goto finalize;
   }
 
-  op_data->xml_doc = xmlRecoverDoc ((xmlChar *) str);
+  op_data->xml_doc = xmlReadMemory (str, xmlStrlen ((xmlChar*) str), NULL, NULL,
+                                    XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!op_data->xml_doc) {
     error = g_error_new (GRL_ERROR,
                          GRL_ERROR_BROWSE_FAILED,

@@ -244,7 +244,7 @@ process_photo_result (const gchar *xml_result, gpointer user_data)
     data->get_info_cb (NULL, photo, data->user_data);
     g_hash_table_unref (photo);
   }
-  g_free (data);
+  g_slice_free (GFlickrData, data);
   xmlFreeDoc (doc);
 }
 
@@ -279,7 +279,7 @@ process_photolist_result (const gchar *xml_result, gpointer user_data)
     g_list_foreach (photolist, (GFunc) g_hash_table_unref, NULL);
     g_list_free (photolist);
   }
-  g_free (data);
+  g_slice_free (GFlickrData, data);
   xmlFreeDoc (doc);
 }
 
@@ -345,7 +345,7 @@ g_flickr_photos_getInfo (GFlickr *f,
                                     photo_id);
   g_free (api_sig);
 
-  GFlickrData *gfd = g_new (GFlickrData, 1);
+  GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->parse_xml = process_photo_result;
   gfd->get_info_cb = callback;
   gfd->user_data = user_data;
@@ -375,7 +375,7 @@ g_flickr_photos_search (GFlickr *f,
                                     text);
   g_free (api_sig);
 
-  GFlickrData *gfd = g_new (GFlickrData, 1);
+  GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->parse_xml = process_photolist_result;
   gfd->search_cb = callback;
   gfd->user_data = user_data;

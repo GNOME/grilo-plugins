@@ -268,7 +268,7 @@ search_cb (GFlickr *f, GList *photolist, gpointer user_data)
                       0,
                       sd->ss->user_data,
                       NULL);
-    g_free (sd);
+    g_slice_free (SearchData, sd);
     return;
   }
 
@@ -296,7 +296,7 @@ search_cb (GFlickr *f, GList *photolist, gpointer user_data)
     sd->page++;
     g_flickr_photos_search (f, sd->ss->text, sd->page, search_cb, sd);
   } else {
-    g_free (sd);
+    g_slice_free (SearchData, sd);
   }
 }
 
@@ -347,7 +347,7 @@ grl_flickr_source_search (GrlMediaSource *source,
   per_page = CLAMP (1 + ss->skip + ss->count, 0, 100);
   g_flickr_set_per_page (f, per_page);
 
-  SearchData *sd = g_new (SearchData, 1);
+  SearchData *sd = g_slice_new (SearchData);
   sd->page = 1 + (ss->skip / per_page);
   sd->offset = ss->skip % per_page;
   sd->ss = ss;

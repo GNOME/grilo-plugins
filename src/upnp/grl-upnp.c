@@ -273,7 +273,7 @@ free_source_info (struct SourceInfo *info)
   g_free (info->source_name);
   g_object_unref (info->device);
   g_object_unref (info->service);
-  g_free (info);
+  g_slice_free (struct SourceInfo, info);
 }
 
 static void
@@ -378,7 +378,7 @@ device_available_cb (GUPnPControlPoint *cp,
 
   /* We got a valid UPnP source */
   /* Now let's check if it supports search operations before registering */
-  struct SourceInfo *source_info = g_new0 (struct SourceInfo, 1);
+  struct SourceInfo *source_info = g_slice_new0 (struct SourceInfo);
   source_info->source_id = g_strdup (source_id);
   source_info->source_name = g_strdup (name);
   source_info->device = g_object_ref (device);
@@ -1097,7 +1097,7 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
   upnp_filter = get_upnp_filter (bs->keys);
   g_debug ("filter: '%s'", upnp_filter);
 
-  os = g_new0 (struct OperationSpec, 1);
+  os = g_slice_new0 (struct OperationSpec);
   os->source = bs->source;
   os->operation_id = bs->browse_id;
   os->keys = bs->keys;
@@ -1154,7 +1154,7 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   upnp_search = get_upnp_search (ss->text);
   g_debug ("search: '%s'", upnp_search);
 
-  os = g_new0 (struct OperationSpec, 1);
+  os = g_slice_new0 (struct OperationSpec);
   os->source = ss->source;
   os->operation_id = ss->search_id;
   os->keys = ss->keys;

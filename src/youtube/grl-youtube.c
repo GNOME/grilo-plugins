@@ -319,7 +319,7 @@ G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_MEDIA_SOURCE);
 static void
 free_operation_spec (OperationSpec *os)
 {
-  g_free (os);
+  g_slice_free (OperationSpec, os);
 }
 
 static gchar *
@@ -366,7 +366,7 @@ read_done_cb (GObject *source_object,
     arc->callback (content, arc->user_data);
   }
   g_free (arc->url);
-  g_free (arc);
+  g_slice_free (AsyncReadCb, arc);
 }
 
 static void
@@ -382,7 +382,7 @@ read_url_async (const gchar *url,
 
   g_debug ("Opening async '%s'", url);
 
-  arc = g_new0 (AsyncReadCb, 1);
+  arc = g_slice_new0 (AsyncReadCb);
   arc->url = g_strdup (url);
   arc->callback = callback;
   arc->user_data = user_data;
@@ -534,7 +534,7 @@ parse_categories (xmlDocPtr doc, xmlNodePtr node, GDataService *service)
   guint index = 0;
 
   while (node) {
-    cat_info = g_new (CategoryInfo, 1);
+    cat_info = g_slice_new (CategoryInfo);
     id = (gchar *) xmlGetProp (node, (xmlChar *) "term");
     cat_info->id = g_strconcat (YOUTUBE_CATEGORIES_ID, "/", id, NULL);
     cat_info->name = (gchar *) xmlGetProp (node, (xmlChar *) "label");
@@ -555,7 +555,7 @@ parse_categories (xmlDocPtr doc, xmlNodePtr node, GDataService *service)
       categories_dir[total - 1].name = cat_info->name;
       categories_dir[total - 1].count = 0;
       total--;
-      g_free (cat_info);
+      g_slice_free (CategoryInfo, cat_info);
       iter = g_list_next (iter);
     } while (iter);
     g_list_free (all);
@@ -670,7 +670,7 @@ item_count_cb (GObject *object, GAsyncResult *result, CategoryCountCb *cc)
   if (feed) {
     g_object_unref (feed);
   }
-  g_free (cc);
+  g_slice_free (CategoryCountCb, cc);
 }
 
 static void
@@ -684,7 +684,7 @@ compute_category_counts (GDataService *service)
     const gchar *category_term =
       get_category_term_from_id (categories_dir[i].id);
     gdata_query_set_categories (query, category_term);
-    CategoryCountCb *cc = g_new (CategoryCountCb, 1);
+    CategoryCountCb *cc = g_slice_new (CategoryCountCb);
     cc->service = service;
     cc->category_info = &categories_dir[i];
     gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (service),
@@ -705,7 +705,7 @@ compute_feed_counts (GDataService *service)
     g_debug ("Computing chilcount for feed '%s'", feeds_dir[i].id);
     gint feed_type = get_feed_type_from_id (feeds_dir[i].id);
     GDataQuery *query = gdata_query_new_with_limits (NULL, 0, 1);
-    CategoryCountCb *cc = g_new (CategoryCountCb, 1);
+    CategoryCountCb *cc = g_slice_new (CategoryCountCb);
     cc->service = service;
     cc->category_info = &feeds_dir[i];
     gdata_youtube_service_query_standard_feed_async (GDATA_YOUTUBE_SERVICE (service),
@@ -1100,7 +1100,7 @@ grl_youtube_source_search (GrlMediaSource *source,
 
   g_debug ("grl_youtube_source_search %u", ss->count);
 
-  os = g_new0 (OperationSpec, 1);
+  os = g_slice_new0 (OperationSpec);
   os->source = source;
   os->operation_id = ss->search_id;
   os->keys = ss->keys;
@@ -1132,7 +1132,7 @@ grl_youtube_source_browse (GrlMediaSource *source,
 
   container_id = grl_media_get_id (bs->container);
 
-  os = g_new0 (OperationSpec, 1);
+  os = g_slice_new0 (OperationSpec);
   os->source = bs->source;
   os->operation_id = bs->browse_id;
   os->container_id = container_id;

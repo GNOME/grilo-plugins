@@ -289,7 +289,8 @@ xml_parse_result (const gchar *str, GError **error, XmlParseEntries *xpe)
   xmlNodePtr node;
   gint child_nodes = 0;
 
-  doc = xmlRecoverDoc ((xmlChar *) str);
+  doc = xmlReadMemory (str, strlen (str), NULL, NULL,
+                       XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!doc) {
     *error = g_error_new (GRL_ERROR,
 			  GRL_ERROR_BROWSE_FAILED,

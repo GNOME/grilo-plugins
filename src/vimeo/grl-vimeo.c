@@ -270,7 +270,7 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
                       0,
                       sd->ss->user_data,
                       NULL);
-    g_free (sd);
+    g_slice_free (SearchData, sd);
     return;
   }
 
@@ -305,7 +305,7 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
   }
   else
   {
-    g_free (sd);
+    g_slice_free (SearchData, sd);
   }
 }
 
@@ -382,7 +382,7 @@ grl_vimeo_source_search (GrlMediaSource *source,
   per_page = CLAMP (1 + ss->skip + ss->count, 0, 100);
   g_vimeo_set_per_page (vimeo, per_page);
 
-  sd = g_new (SearchData, 1);
+  sd = g_slice_new (SearchData);
   sd->page = 1 + (ss->skip / per_page);
   sd->offset = ss->skip % per_page;
   sd->ss = ss;

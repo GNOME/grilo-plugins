@@ -351,7 +351,7 @@ process_video_search_result (const gchar *xml_result, gpointer user_data)
     g_list_foreach (video_list, (GFunc) g_hash_table_unref, NULL);
     g_list_free (video_list);
   }
-  g_free (data);
+  g_slice_free (GVimeoVideoSearchData, data);
   xmlFreeDoc (doc);
 }
 
@@ -405,7 +405,7 @@ get_video_play_url_complete_cb (SoupSession *session,
   url =  get_play_url_from_vimeo_xml (message->response_body->data,
 				      url_data->video_id);
   url_data->callback (url, url_data->user_data);
-  g_free (url_data);
+  g_slice_free (GVimeoVideoURLData, url_data);
 }
 
 static gchar *
@@ -472,7 +472,7 @@ g_vimeo_videos_search (GVimeo *vimeo,
   g_return_if_fail (G_IS_VIMEO (vimeo));
 
   request = build_request (vimeo, text, page);
-  search_data = g_new (GVimeoVideoSearchData, 1);
+  search_data = g_slice_new (GVimeoVideoSearchData);
   search_data->vimeo = vimeo;
   search_data->search_cb = callback;
   search_data->user_data = user_data;
@@ -499,7 +499,7 @@ g_vimeo_video_get_play_url (GVimeo *vimeo,
   SoupMessageHeaders *headers = message->request_headers;
   soup_message_headers_append (headers, "User-Agent", PLUGIN_USER_AGENT);
 
-  data = g_new (GVimeoVideoURLData, 1);
+  data = g_slice_new (GVimeoVideoURLData);
   data->video_id = id;
   data->vimeo = vimeo;
   data->callback = callback;

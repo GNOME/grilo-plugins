@@ -575,7 +575,8 @@ build_categories_directory_read_cb (gchar *xmldata, gpointer user_data)
     return;
   }
 
-  doc = xmlRecoverDoc ((xmlChar *) xmldata);
+  doc = xmlReadMemory (xmldata, strlen (xmldata), NULL, NULL,
+                       XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!doc) {
     g_critical ("Failed to build category directory (2)");
     goto free_resources;

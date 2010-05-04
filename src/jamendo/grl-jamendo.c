@@ -739,14 +739,28 @@ static void
 send_toplevel_categories (GrlMediaSourceBrowseSpec *bs)
 {
   GrlMedia *media;
+  gint remaining;
 
-  media = grl_media_box_new ();
-  update_media_from_artists (media);
-  bs->callback (bs->source, bs->browse_id, media, 1, bs->user_data, NULL);
+  /* Check if all elements must be skipped */
+  if (bs->skip > 1 || bs->count == 0) {
+    bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, NULL);
+    return;
+  }
 
-  media = grl_media_box_new ();
-  update_media_from_albums (media);
-  bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
+  remaining = bs->count;
+
+  if (bs->skip == 0) {
+    media = grl_media_box_new ();
+    update_media_from_artists (media);
+    remaining--;
+    bs->callback (bs->source, bs->browse_id, media, remaining, bs->user_data, NULL);
+  }
+
+  if (remaining) {
+    media = grl_media_box_new ();
+    update_media_from_albums (media);
+    bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
+  }
 }
 
 static gchar *

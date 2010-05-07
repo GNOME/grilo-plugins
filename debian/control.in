@@ -27,6 +27,7 @@ Description: Grilo framework plugins
   - Podcasts
   - SHOUTcast
   - UPnP
+  - Vimeo
   - Youtube
 
 Package: @GRL_NAME@-plugins-dbg

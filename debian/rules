@@ -19,5 +19,6 @@ DEB_CONFIGURE_EXTRA_FLAGS :=		\
 	--enable-podcasts		\
 	--enable-shoutcast		\
 	--enable-upnp			\
+	--enable-vimeo			\
 	--enable-youtube
 

@@ -261,7 +261,7 @@ free_entry (Entry *entry)
   g_free (entry->track_url);
   g_free (entry->track_stream);
   g_free (entry->track_duration);
-  g_free (entry);
+  g_slice_free (Entry, entry);
 }
 
 static gint
@@ -289,7 +289,8 @@ xml_parse_result (const gchar *str, GError **error, XmlParseEntries *xpe)
   xmlNodePtr node;
   gint child_nodes = 0;
 
-  doc = xmlRecoverDoc ((xmlChar *) str);
+  doc = xmlReadMemory (str, strlen (str), NULL, NULL,
+                       XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!doc) {
     *error = g_error_new (GRL_ERROR,
 			  GRL_ERROR_BROWSE_FAILED,
@@ -330,7 +331,7 @@ xml_parse_entry (xmlDocPtr doc, xmlNodePtr entry)
 {
   xmlNodePtr node;
   xmlNs *ns;
-  Entry *data = g_new0 (Entry, 1);
+  Entry *data = g_slice_new0 (Entry);
 
   if (strcmp ((gchar *) entry->name, JAMENDO_ARTIST) == 0) {
     data->category = JAMENDO_ARTIST_CAT;
@@ -566,7 +567,7 @@ xml_parse_entries_idle (gpointer user_data)
 
   if (!parse_more) {
     xmlFreeDoc (xpe->doc);
-    g_free (xpe);
+    g_slice_free (XmlParseEntries, xpe);
   }
 
   return parse_more;
@@ -587,7 +588,7 @@ read_done_cb (GObject *source_object,
   /* Check if operation was cancelled */
   if (xpe->cancelled) {
     g_object_unref (source_object);
-    g_free (xpe);
+    g_slice_free (XmlParseEntries, xpe);
     return;
   }
 
@@ -685,7 +686,7 @@ read_done_cb (GObject *source_object,
     break;
   }
 
-  g_free (xpe);
+  g_slice_free (XmlParseEntries, xpe);
   if (error) {
     g_error_free (error);
   }
@@ -716,7 +717,7 @@ update_media_from_artists (GrlMedia *media)
 {
   Entry *entry;
 
-  entry = g_new0 (Entry, 1);
+  entry = g_slice_new0 (Entry);
   entry->category = JAMENDO_ARTIST_CAT;
   entry->artist_name = g_strdup (JAMENDO_ARTIST "s");
   update_media_from_entry (media, entry);
@@ -728,7 +729,7 @@ update_media_from_albums (GrlMedia *media)
 {
   Entry *entry;
 
-  entry = g_new0 (Entry, 1);
+  entry = g_slice_new0 (Entry);
   entry->category = JAMENDO_ALBUM_CAT;
   entry->album_name = g_strdup (JAMENDO_ALBUM "s");
   update_media_from_entry (media, entry);
@@ -739,14 +740,28 @@ static void
 send_toplevel_categories (GrlMediaSourceBrowseSpec *bs)
 {
   GrlMedia *media;
+  gint remaining;
 
-  media = grl_media_box_new ();
-  update_media_from_artists (media);
-  bs->callback (bs->source, bs->browse_id, media, 1, bs->user_data, NULL);
+  /* Check if all elements must be skipped */
+  if (bs->skip > 1 || bs->count == 0) {
+    bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, NULL);
+    return;
+  }
 
-  media = grl_media_box_new ();
-  update_media_from_albums (media);
-  bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
+  remaining = bs->count;
+
+  if (bs->skip == 0) {
+    media = grl_media_box_new ();
+    update_media_from_artists (media);
+    remaining--;
+    bs->callback (bs->source, bs->browse_id, media, remaining, bs->user_data, NULL);
+  }
+
+  if (remaining) {
+    media = grl_media_box_new ();
+    update_media_from_albums (media);
+    bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
+  }
 }
 
 static gchar *
@@ -912,7 +927,7 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
   }
 
   if (url) {
-    xpe = g_new0 (XmlParseEntries, 1);
+    xpe = g_slice_new0 (XmlParseEntries);
     xpe->type = METADATA;
     xpe->spec.ms = ms;
     read_url_async (url, xpe);
@@ -1021,7 +1036,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
     return;
   }
 
-  xpe = g_new0 (XmlParseEntries, 1);
+  xpe = g_slice_new0 (XmlParseEntries);
   xpe->type = BROWSE;
   xpe->spec.bs = bs;
 
@@ -1086,7 +1101,7 @@ grl_jamendo_source_query (GrlMediaSource *source,
                          term);
   g_free (term);
 
-  xpe = g_new0 (XmlParseEntries, 1);
+  xpe = g_slice_new0 (XmlParseEntries);
   xpe->type = QUERY;
   xpe->spec.qs = qs;
 
@@ -1121,7 +1136,7 @@ grl_jamendo_source_search (GrlMediaSource *source,
                          ss->skip + 1,
                          ss->text);
 
-  xpe = g_new0 (XmlParseEntries, 1);
+  xpe = g_slice_new0 (XmlParseEntries);
   xpe->type = SEARCH;
   xpe->spec.ss = ss;
 

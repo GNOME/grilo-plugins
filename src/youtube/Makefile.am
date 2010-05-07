@@ -10,12 +10,14 @@ lib_LTLIBRARIES = libgrlyoutube.la
 libgrlyoutube_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
 	$(GIO_CFLAGS)		\
-	$(XML_CFLAGS)
+	$(XML_CFLAGS) 		\
+	$(GDATA_CFLAGS)
 
 libgrlyoutube_la_LIBADD =	\
 	$(DEPS_LIBS)		\
 	$(GIO_LIBS)		\
-	$(XML_LIBS)
+	$(XML_LIBS) 		\	
+	$(GDATA_LIBS)
 
 libgrlyoutube_la_SOURCES = grl-youtube.c grl-youtube.h
 

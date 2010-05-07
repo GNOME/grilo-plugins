@@ -1,3 +1,43 @@
+NEW in 0.1.5
+============
+
+  * General
+    * Code moved to gnome.org
+    * Improved build system
+    * Use of glib slices when possible
+
+  * Apple trailers plugin
+    * General fixes
+
+  * Bookmarks plugin
+    * Added a title to root category
+
+  * Flickr plugin
+    * General fixes
+
+  * Jamendo plugin
+    * General fixes
+
+  * LastFM album art plugin provider
+    * General fixes
+
+  * Podcasts plugin
+    * Added a title to root category
+
+  * SHOUTCast plugin
+    * General fixes
+
+  * UPnP plugin
+    * Use source name as title in root category
+
+  * Vimeo plugin
+    * New plugin that shows content from Vimeo service
+
+  * Youtube plugin
+    * General fixes
+    * Refactored plugin to use libgdata
+
+
 NEW in 0.1.4
 ============
 

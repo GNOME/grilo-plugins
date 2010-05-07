@@ -145,17 +145,6 @@ get_api_sig_photos_getInfo (GFlickr *f, glong photo_id)
   return signature;
 }
 
-static void
-skip_garbage_nodes (xmlNodePtr *node)
-{
-  /* Result contains "\n" and "\t" to pretty align XML. Unfortunately, libxml
-     doesn't cope very fine with them, and it creates "fakes" nodes with name
-     "text" and value those characters. So we need to skip them */
-  while ((*node) && xmlStrcmp ((*node)->name, (const xmlChar *) "text") == 0) {
-    (*node) = (*node)->next;
-  }
-}
-
 static gboolean
 result_is_correct (xmlNodePtr node)
 {
@@ -202,7 +191,6 @@ get_photo (xmlNodePtr node)
   /* Add children nodes with their properties */
 
   node = node->xmlChildrenNode;
-  skip_garbage_nodes (&node);
 
   while (node) {
     if (xmlStrcmp (node->name, (const xmlChar *) "owner") == 0 ||
@@ -216,7 +204,6 @@ get_photo (xmlNodePtr node)
     }
 
     node = node->next;
-    skip_garbage_nodes (&node);
   }
 
   return photo;
@@ -230,7 +217,8 @@ process_photo_result (const gchar *xml_result, gpointer user_data)
   GFlickrData *data = (GFlickrData *) user_data;
   GHashTable *photo;
 
-  doc = xmlRecoverDoc ((xmlChar *) xml_result);
+  doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar*) xml_result), NULL,
+                       NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   node = xmlDocGetRootElement (doc);
 
   /* Check result is ok */
@@ -238,13 +226,12 @@ process_photo_result (const gchar *xml_result, gpointer user_data)
     data->get_info_cb (NULL, NULL, data->user_data);
   } else {
     node = node->xmlChildrenNode;
-    skip_garbage_nodes (&node);
 
     photo = get_photo (node);
     data->get_info_cb (NULL, photo, data->user_data);
     g_hash_table_unref (photo);
   }
-  g_free (data);
+  g_slice_free (GFlickrData, data);
   xmlFreeDoc (doc);
 }
 
@@ -256,7 +243,8 @@ process_photolist_result (const gchar *xml_result, gpointer user_data)
   xmlDocPtr doc;
   xmlNodePtr node;
 
-  doc = xmlRecoverDoc ((xmlChar *) xml_result);
+  doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar*) xml_result), NULL,
+                       NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   node = xmlDocGetRootElement (doc);
 
   /* Check result is ok */
@@ -264,22 +252,19 @@ process_photolist_result (const gchar *xml_result, gpointer user_data)
     data->search_cb (NULL, NULL, data->user_data);
   } else {
     node = node->xmlChildrenNode;
-    skip_garbage_nodes (&node);
 
     /* Now we're at "photo pages" node */
     node = node->xmlChildrenNode;
-    skip_garbage_nodes (&node);
     while (node) {
       photolist = g_list_prepend (photolist, get_photo (node));
       node = node->next;
-      skip_garbage_nodes (&node);
     }
 
     data->search_cb (NULL, g_list_reverse (photolist), data->user_data);
     g_list_foreach (photolist, (GFunc) g_hash_table_unref, NULL);
     g_list_free (photolist);
   }
-  g_free (data);
+  g_slice_free (GFlickrData, data);
   xmlFreeDoc (doc);
 }
 
@@ -345,7 +330,7 @@ g_flickr_photos_getInfo (GFlickr *f,
                                     photo_id);
   g_free (api_sig);
 
-  GFlickrData *gfd = g_new (GFlickrData, 1);
+  GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->parse_xml = process_photo_result;
   gfd->get_info_cb = callback;
   gfd->user_data = user_data;
@@ -375,7 +360,7 @@ g_flickr_photos_search (GFlickr *f,
                                     text);
   g_free (api_sig);
 
-  GFlickrData *gfd = g_new (GFlickrData, 1);
+  GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->parse_xml = process_photolist_result;
   gfd->search_cb = callback;
   gfd->user_data = user_data;

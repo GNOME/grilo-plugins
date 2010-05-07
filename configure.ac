@@ -6,7 +6,7 @@
 # Copyright (C) 2010 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.4])
+m4_define([prj_version], [0.1.5])
 
 AC_INIT([prj_name], [prj_version])
 
@@ -55,7 +55,7 @@ AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 PKG_CHECK_MODULES(DEPS, glib-2.0 \
 			gobject-2.0 \
 			gmodule-2.0 \
-			grilo-0.1 >= 0.1.4)
+			grilo-0.1 >= 0.1.5)
 
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 

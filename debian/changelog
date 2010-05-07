@@ -1,3 +1,19 @@
+grilo-0.1-plugins (0.1.5-1) unstable; urgency=low
+
+  * General: general fixes
+  * Apple Trailers: general fixes
+  * Bookmarks: set root category title
+  * Flickr: general fixes
+  * Jamendo: general fixes
+  * LastFM Album Art: general fixes
+  * Podcasts: set root category title
+  * Shoutcast: general fixes
+  * UPnP: use source name as root category title
+  * Vimeo: new plugin
+  * Youtube: use libgdata
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Fri, 07 May 2010 19:44:19 +0200
+
 grilo-0.1-plugins (0.1.4-1) unstable; urgency=low
 
   * General: changes in Grilo API

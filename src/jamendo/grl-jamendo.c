@@ -43,6 +43,8 @@
 #define JAMENDO_ID_SEP    "/"
 #define JAMENDO_ROOT_NAME "Jamendo"
 
+#define MAX_ELEMENTS 100
+
 /* ------- Categories ------- */
 
 #define JAMENDO_ARTIST "artist"
@@ -216,6 +218,10 @@ grl_jamendo_source_class_init (GrlJamendoSourceClass * klass)
 static void
 grl_jamendo_source_init (GrlJamendoSource *source)
 {
+  /* If we try to get too much elements in a single step, Jamendo might return
+     nothing. So limit the maximum amount of elements in each query */
+  grl_media_source_set_auto_split_threshold (GRL_MEDIA_SOURCE (source),
+                                             MAX_ELEMENTS);
 }
 
 G_DEFINE_TYPE (GrlJamendoSource, grl_jamendo_source, GRL_TYPE_MEDIA_SOURCE);

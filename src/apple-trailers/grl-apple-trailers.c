@@ -68,7 +68,7 @@ typedef struct {
   gboolean cancelled;
 } OperationData;
 
-static GrlAppleTrailersSource *grl_apple_trailers_source_new (void);
+static GrlAppleTrailersSource *grl_apple_trailers_source_new (gboolean hd);
 
 gboolean grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
                                          const GrlPluginInfo *plugin,
@@ -89,9 +89,25 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
                                 const GrlPluginInfo *plugin,
                                 GList *configs)
 {
+  GrlAppleTrailersSource *source;
+  gboolean hd = FALSE;
+
   g_debug ("apple_trailers_plugin_init\n");
 
-  GrlAppleTrailersSource *source = grl_apple_trailers_source_new ();
+  for (; configs; configs = g_list_next (configs)) {
+    GrlConfig *config;
+    const gchar *definition;
+
+    config = GRL_CONFIG (configs->data);
+    definition = grl_config_get_string (config, "definition");
+    if (definition && *definition != '\0') {
+      if (g_str_equal (definition, "hd")) {
+        hd = TRUE;
+      }
+    }
+  }
+
+  source = grl_apple_trailers_source_new (hd);
   grl_plugin_registry_register_source (registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source));
@@ -105,14 +121,20 @@ GRL_PLUGIN_REGISTER (grl_apple_trailers_plugin_init,
 /* ================== AppleTrailers GObject ================ */
 
 static GrlAppleTrailersSource *
-grl_apple_trailers_source_new (void)
+grl_apple_trailers_source_new (gboolean high_definition)
 {
-  g_debug ("grl_apple_trailers_source_new");
-  return g_object_new (GRL_APPLE_TRAILERS_SOURCE_TYPE,
-		       "source-id", SOURCE_ID,
-		       "source-name", SOURCE_NAME,
-		       "source-desc", SOURCE_DESC,
-		       NULL);
+  GrlAppleTrailersSource *source;
+
+  g_debug ("grl_apple_trailers_source_new%s", high_definition ? " (HD)" : "");
+  source = g_object_new (GRL_APPLE_TRAILERS_SOURCE_TYPE,
+                         "source-id", SOURCE_ID,
+                         "source-name", SOURCE_NAME,
+                         "source-desc", SOURCE_DESC,
+                         NULL);
+
+  source->hd = high_definition;
+
+  return source;
 }
 
 static void
@@ -435,6 +457,7 @@ static void
 grl_apple_trailers_source_browse (GrlMediaSource *source,
                                   GrlMediaSourceBrowseSpec *bs)
 {
+  GrlAppleTrailersSource *at_source = (GrlAppleTrailersSource *) source;
   OperationData *op_data;
 
   g_debug ("grl_apple_trailers_source_browse");
@@ -443,7 +466,11 @@ grl_apple_trailers_source_browse (GrlMediaSource *source,
   op_data->bs = bs;
   grl_media_source_set_operation_data (source, bs->browse_id, op_data);
 
-  read_url_async (APPLE_TRAILERS_CURRENT_SD, op_data);
+  if (at_source->hd) {
+    read_url_async (APPLE_TRAILERS_CURRENT_HD, op_data);
+  } else {
+    read_url_async (APPLE_TRAILERS_CURRENT_SD, op_data);
+  }
 }
 
 static void

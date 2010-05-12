@@ -196,6 +196,10 @@ build_media_from_movie (xmlNodePtr node)
   gchar *movie_thumbnail;
   gchar *movie_title;
   gchar *movie_url;
+  gchar *movie_rating;
+  gchar *movie_studio;
+  gchar *movie_copyright;
+  gchar *movie_license;
 
   media = grl_media_video_new ();
 
@@ -215,6 +219,9 @@ build_media_from_movie (xmlNodePtr node)
   movie_genre = get_node_value (node_dup, "/movieinfo/genre/name");
   movie_thumbnail = get_node_value (node_dup, "/movieinfo/poster/location");
   movie_url = get_node_value (node_dup, "/movieinfo/preview/large");
+  movie_rating = get_node_value (node_dup, "/movieinfo/info/rating");
+  movie_studio = get_node_value (node_dup, "/movieinfo/info/studio");
+  movie_copyright = get_node_value (node_dup, "/movieinfo/info/copyright");
   xmlFreeDoc (xml_doc);
 
   grl_media_set_id (media, movie_id);
@@ -228,6 +235,13 @@ build_media_from_movie (xmlNodePtr node)
                        movie_genre);
   grl_media_set_thumbnail (media, movie_thumbnail);
   grl_media_set_url (media, movie_url);
+  grl_media_set_certificate (media, movie_rating);
+  grl_media_set_studio (media, movie_studio);
+
+  /* FIXME: Translation */
+  movie_license = g_strdup_printf ("Copyright %s", movie_copyright);
+  grl_media_set_license (media, movie_license);
+  g_free (movie_license);
 
   g_free (movie_id);
   g_free (movie_author);
@@ -238,6 +252,9 @@ build_media_from_movie (xmlNodePtr node)
   g_free (movie_genre);
   g_free (movie_thumbnail);
   g_free (movie_url);
+  g_free (movie_rating);
+  g_free (movie_studio);
+  g_free (movie_copyright);
 
   return media;
 }
@@ -409,6 +426,9 @@ grl_apple_trailers_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_THUMBNAIL,
                                       GRL_METADATA_KEY_TITLE,
                                       GRL_METADATA_KEY_URL,
+                                      GRL_METADATA_KEY_CERTIFICATE,
+                                      GRL_METADATA_KEY_STUDIO,
+                                      GRL_METADATA_KEY_LICENSE,
                                       NULL);
   }
   return keys;

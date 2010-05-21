@@ -354,8 +354,10 @@ create_content (GrlMedia *content,
     g_object_unref (info);
   }
 
-  /* ID */
-  grl_media_set_id (media, path);
+  /* ID: if root path, then id must be kept NULL */
+  grl_media_set_id (media,
+                    g_strcmp0 (path,
+                               G_DIR_SEPARATOR_S) == 0? NULL: path);
 
   /* URL */
   str = g_strconcat ("file://", path, NULL);

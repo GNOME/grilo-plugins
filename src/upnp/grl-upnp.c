@@ -832,30 +832,31 @@ build_media_from_didl (GrlMedia *content,
 
   if (content) {
     media = content;
-  }
+  } else {
 
 #ifdef GUPNPAV_OLD_VERSION
-  if (gupnp_didl_lite_object_is_container (didl_node)) {
+    if (gupnp_didl_lite_object_is_container (didl_node)) {
 #else
-  if (GUPNP_IS_DIDL_LITE_CONTAINER (didl_node)) {
+    if (GUPNP_IS_DIDL_LITE_CONTAINER (didl_node)) {
 #endif
 
-    media = grl_media_box_new ();
-  } else {
-    if (!media) {
-      class = gupnp_didl_lite_object_get_upnp_class (didl_node);
-      if (class) {
-	if (g_str_has_prefix (class, "object.item.audioItem")) {
-	  media = grl_media_audio_new ();
-	} else if (g_str_has_prefix (class, "object.item.videoItem")) {
-	  media = grl_media_video_new ();
-	} else if (g_str_has_prefix (class, "object.item.imageItem")) {
-	  media = grl_media_image_new ();
-	} else {
-	  media = grl_media_new ();
-	}
-      } else {
-	media = grl_media_new ();
+      media = grl_media_box_new ();
+    } else {
+      if (!media) {
+        class = gupnp_didl_lite_object_get_upnp_class (didl_node);
+        if (class) {
+          if (g_str_has_prefix (class, "object.item.audioItem")) {
+            media = grl_media_audio_new ();
+          } else if (g_str_has_prefix (class, "object.item.videoItem")) {
+            media = grl_media_video_new ();
+          } else if (g_str_has_prefix (class, "object.item.imageItem")) {
+            media = grl_media_image_new ();
+          } else {
+            media = grl_media_new ();
+          }
+        } else {
+          media = grl_media_new ();
+        }
       }
     }
   }

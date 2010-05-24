@@ -862,7 +862,12 @@ build_media_from_didl (GrlMedia *content,
   }
 
   id = gupnp_didl_lite_object_get_id (didl_node);
-  grl_media_set_id (media, id);
+  /* Root category's id is always NULL */
+  if (g_strcmp0 (id, "0") == 0) {
+    grl_media_set_id (media, NULL);
+  } else {
+    grl_media_set_id (media, id);
+  }
 
   didl_props = didl_get_supported_resources (didl_node);
 

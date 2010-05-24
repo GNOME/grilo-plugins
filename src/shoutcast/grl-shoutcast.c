@@ -36,6 +36,8 @@
 
 #include "grl-shoutcast.h"
 
+#define EXPIRE_CACHE_TIMEOUT 300
+
 /* --------- Logging  -------- */
 
 #undef G_LOG_DOMAIN
@@ -70,6 +72,7 @@ typedef struct {
   GrlMediaSourceMetadataCb metadata_cb;
   GrlMediaSourceResultCb result_cb;
   gboolean cancelled;
+  gboolean cache;
   gchar *filter_entry;
   gchar *genre;
   gint error_code;
@@ -81,6 +84,9 @@ typedef struct {
   xmlDocPtr xml_doc;
   xmlNodePtr xml_entries;
 } OperationData;
+
+static gchar *cached_page = NULL;
+static gboolean cached_page_expired = TRUE;
 
 static GrlShoutcastSource *grl_shoutcast_source_new (void);
 
@@ -101,6 +107,8 @@ static void grl_shoutcast_source_search (GrlMediaSource *source,
 
 static void grl_shoutcast_source_cancel (GrlMediaSource *source,
                                          guint operation_id);
+
+static void read_url_async (const gchar *url, OperationData *op_data);
 
 /* =================== SHOUTcast Plugin  =============== */
 
@@ -426,6 +434,14 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   g_slice_free (OperationData, op_data);
 }
 
+static gboolean
+expire_cache (gpointer user_data)
+{
+  g_debug ("Cached page expired");
+  cached_page_expired = TRUE;
+  return FALSE;
+}
+
 static void
 read_done_cb (GObject *source_object,
               GAsyncResult *res,
@@ -434,6 +450,7 @@ read_done_cb (GObject *source_object,
   GError *error = NULL;
   GError *vfs_error = NULL;
   OperationData *op_data = (OperationData *) user_data;
+  gboolean cache;
   gchar *content = NULL;
 
   if (!g_file_load_contents_finish (G_FILE (source_object),
@@ -458,21 +475,41 @@ read_done_cb (GObject *source_object,
     return;
   }
 
+  cache = op_data->cache;
   xml_parse_result (content, op_data);
-  g_free (content);
+  if (cache && cached_page_expired) {
+    g_debug ("Caching page");
+    g_free (cached_page);
+    cached_page = content;
+    cached_page_expired = FALSE;
+    g_timeout_add_seconds (EXPIRE_CACHE_TIMEOUT, expire_cache, NULL);
+  } else {
+    g_free (content);
+  }
+}
+
+static gboolean
+read_cached_page (OperationData *op_data)
+{
+  xml_parse_result (cached_page, op_data);
+  return FALSE;
 }
 
 static void
-read_url_async (const gchar *url, gpointer user_data)
+read_url_async (const gchar *url, OperationData *op_data)
 {
   GVfs *vfs;
   GFile *uri;
 
-  vfs = g_vfs_get_default ();
-
-  g_debug ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
+  if (op_data->cache && !cached_page_expired) {
+    g_debug ("Using cached page");
+    g_idle_add ((GSourceFunc) read_cached_page, op_data);
+  } else {
+    vfs = g_vfs_get_default ();
+    g_debug ("Opening '%s'", url);
+    uri = g_vfs_get_file_for_uri (vfs, url);
+    g_file_load_contents_async (uri, NULL, read_done_cb, op_data);
+  }
 }
 
 /* ================== API Implementation ================ */
@@ -541,6 +578,7 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
       }
     } else {
       data->filter_entry = g_strdup (id_tokens[0]);
+      data->cache = TRUE;
       url = g_strdup (SHOUTCAST_GET_GENRES);
     }
 
@@ -578,6 +616,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
 
   /* If it's root category send list of genres; else send list of radios */
   if (!container_id) {
+    data->cache = TRUE;
     url = g_strdup (SHOUTCAST_GET_GENRES);
   } else {
     url = g_strdup_printf (SHOUTCAST_GET_RADIOS,

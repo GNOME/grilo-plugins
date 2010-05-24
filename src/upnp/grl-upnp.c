@@ -505,8 +505,15 @@ setup_key_mappings (void)
 		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DATE),
 		       "modified");
 
-  /* For filter_key_mapping we only have to set mapping for
-     optional keys (the others are included by default) */
+  g_hash_table_insert (filter_key_mapping,
+		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE),
+		       "title");
+  g_hash_table_insert (filter_key_mapping,
+		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL),
+		       "res");
+  g_hash_table_insert (filter_key_mapping,
+		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DATE),
+		       "modified");
   g_hash_table_insert (filter_key_mapping,
 		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST),
 		       "upnp:artist");

@@ -43,7 +43,9 @@
   G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","    \
   G_FILE_ATTRIBUTE_STANDARD_TYPE ","            \
   G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN ","       \
-  G_FILE_ATTRIBUTE_TIME_MODIFIED
+  G_FILE_ATTRIBUTE_TIME_MODIFIED ","            \
+  G_FILE_ATTRIBUTE_THUMBNAIL_PATH ","           \
+  G_FILE_ATTRIBUTE_THUMBNAILING_FAILED
 
 #define FILE_ATTRIBUTES_FAST                    \
   G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN
@@ -350,6 +352,21 @@ create_content (GrlMedia *content,
     time_str = g_time_val_to_iso8601 (&time);
     grl_media_set_date (GRL_DATA (media), time_str);
     g_free (time_str);
+
+    /* Thumbnail */
+    gboolean thumb_failed =
+      g_file_info_get_attribute_boolean (info,
+                                         G_FILE_ATTRIBUTE_THUMBNAILING_FAILED);
+    if (!thumb_failed) {
+      const gchar *thumb =
+        g_file_info_get_attribute_byte_string (info,
+                                               G_FILE_ATTRIBUTE_THUMBNAIL_PATH);
+      gchar *thumb_uri = g_filename_to_uri (thumb, NULL, NULL);
+      if (thumb_uri) {
+        grl_media_set_thumbnail (GRL_DATA (media), thumb_uri);
+        g_free (thumb_uri);
+      }
+    }
 
     g_object_unref (info);
   }

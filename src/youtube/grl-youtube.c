@@ -454,7 +454,8 @@ build_media_from_entry (GrlMedia *content,
       grl_media_set_title (media, gdata_entry_get_title (entry));
       break;
     case GRL_METADATA_KEY_DESCRIPTION:
-      grl_media_set_description (media, gdata_entry_get_summary (entry));
+      grl_media_set_description (media,
+				 gdata_youtube_video_get_description (video));
       break;
     case GRL_METADATA_KEY_THUMBNAIL:
       {

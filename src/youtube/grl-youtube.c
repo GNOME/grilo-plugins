@@ -486,7 +486,7 @@ build_media_from_entry (GrlMedia *content,
       grl_media_set_mime (media, YOUTUBE_VIDEO_MIME);
       break;
     case GRL_METADATA_KEY_SITE:
-      grl_media_set_site (media, YOUTUBE_SITE_URL);
+      grl_media_set_site (media, gdata_youtube_video_get_player_uri (video));
       break;
     case GRL_METADATA_KEY_RATING:
       {

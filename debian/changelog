@@ -1,3 +1,13 @@
+grilo-0.1-plugins (0.1.4-1fremantle) unstable; urgency=low
+
+  * Disabled debug
+  * Disabled flickr, lastfm, metadata-store, podcasts and upnp
+  * Ported code to GnomeVFS as GVFS has problems in fremantle
+  * Changed youtube default mime to video/x-shockwave-flash
+  * Check for NULL duration before setting it to the GrlMedia
+
+ -- Xabier Rodriguez Calvar <xrcalvar@igalia.com>  Tue, 01 Jun 2010 09:41:41 +0200
+
 grilo-0.1-plugins (0.1.4-1) unstable; urgency=low
 
   * General: changes in Grilo API

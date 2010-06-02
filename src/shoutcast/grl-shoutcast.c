@@ -270,6 +270,13 @@ send_media (OperationData *op_data, GrlMedia *media)
                         NULL);
 
     op_data->xml_entries = op_data->xml_entries->next;
+  } else {
+    op_data->result_cb (op_data->source,
+                        op_data->operation_id,
+                        NULL,
+                        0,
+                        op_data->user_data,
+                        NULL);
   }
 
   if (op_data->to_send == 0 || op_data->cancelled) {
@@ -306,6 +313,12 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   xmlXPathObjectPtr xpath_res;
 
   if (op_data->cancelled) {
+    op_data->result_cb (op_data->source,
+                        op_data->operation_id,
+                        NULL,
+                        0,
+                        op_data->user_data,
+                        NULL);
     g_slice_free (OperationData, op_data);
     return;
   }

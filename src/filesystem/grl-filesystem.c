@@ -361,10 +361,12 @@ create_content (GrlMedia *content,
       const gchar *thumb =
         g_file_info_get_attribute_byte_string (info,
                                                G_FILE_ATTRIBUTE_THUMBNAIL_PATH);
-      gchar *thumb_uri = g_filename_to_uri (thumb, NULL, NULL);
-      if (thumb_uri) {
-        grl_media_set_thumbnail (GRL_DATA (media), thumb_uri);
-        g_free (thumb_uri);
+      if (thumb) {
+	gchar *thumb_uri = g_filename_to_uri (thumb, NULL, NULL);
+	if (thumb_uri) {
+	  grl_media_set_thumbnail (GRL_DATA (media), thumb_uri);
+	  g_free (thumb_uri);
+	}
       }
     }
 

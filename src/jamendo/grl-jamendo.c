@@ -515,8 +515,9 @@ xml_parse_entries_idle (gpointer user_data)
 {
   XmlParseEntries *xpe = (XmlParseEntries *) user_data;
   gboolean parse_more;
-  GrlMedia *media;
+  GrlMedia *media = NULL;
   Entry *entry;
+  gint remaining = 0;
 
   g_debug ("xml_parse_entries_idle");
 
@@ -534,12 +535,17 @@ xml_parse_entries_idle (gpointer user_data)
     free_entry (entry);
 
     xpe->index++;
+    xpe->node = xpe->node->next;
+    remaining = xpe->total_results - xpe->index;
+  }
+
+  if (parse_more || xpe->cancelled) {
     switch (xpe->type) {
     case BROWSE:
       xpe->spec.bs->callback (xpe->spec.bs->source,
                               xpe->spec.bs->browse_id,
                               media,
-                              xpe->total_results - xpe->index,
+                              remaining,
                               xpe->spec.bs->user_data,
                               NULL);
       break;
@@ -547,7 +553,7 @@ xml_parse_entries_idle (gpointer user_data)
       xpe->spec.qs->callback (xpe->spec.qs->source,
                               xpe->spec.qs->query_id,
                               media,
-                              xpe->total_results - xpe->index,
+                              remaining,
                               xpe->spec.qs->user_data,
                               NULL);
       break;
@@ -555,13 +561,11 @@ xml_parse_entries_idle (gpointer user_data)
       xpe->spec.ss->callback (xpe->spec.ss->source,
                               xpe->spec.ss->search_id,
                               media,
-                              xpe->total_results - xpe->index,
+                              remaining,
                               xpe->spec.ss->user_data,
                               NULL);
       break;
     }
-
-    xpe->node = xpe->node->next;
   }
 
   if (!parse_more) {
@@ -582,8 +586,7 @@ read_done_cb (gchar *contents, gpointer user_data)
 
   /* Check if operation was cancelled */
   if (xpe->cancelled) {
-    g_free (xpe);
-    return;
+    goto invoke_cb;
   }
 
   if (!contents) {

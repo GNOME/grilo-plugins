@@ -257,6 +257,12 @@ send_movie_info (OperationData *op_data)
   gboolean last = FALSE;
 
   if (op_data->cancelled) {
+    op_data->bs->callback (op_data->bs->source,
+                           op_data->bs->browse_id,
+                           NULL,
+                           0,
+                           op_data->bs->user_data,
+                           NULL);
     last = TRUE;
   } else {
     media = build_media_from_movie (op_data->xml_entries);
@@ -289,12 +295,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   GError *error = NULL;
   xmlNodePtr node;
 
-  if (op_data->cancelled) {
-    g_slice_free (OperationData, op_data);
-    return;
-  }
-
-  if (op_data->bs->count == 0) {
+  if (op_data->cancelled || op_data->bs->count == 0) {
     goto finalize;
   }
 

@@ -212,10 +212,12 @@ static GrlMedia *
 build_media_from_station (OperationData *op_data)
 {
   GrlMedia *media;
+  gchar **station_genres = NULL;
   gchar *media_id;
   gchar *media_url;
   gchar *station_bitrate;
   gchar *station_genre;
+  gchar *station_genre_field;
   gchar *station_id;
   gchar *station_mime;
   gchar *station_name;
@@ -226,18 +228,26 @@ build_media_from_station (OperationData *op_data)
                                        (const xmlChar *) "mt");
   station_id = (gchar *) xmlGetProp (op_data->xml_entries,
                                      (const xmlChar *) "id");
-  station_genre = (gchar *) xmlGetProp (op_data->xml_entries,
-                                        (const xmlChar *) "genre");
   station_bitrate = (gchar *) xmlGetProp (op_data->xml_entries,
                                           (const xmlChar *) "br");
-  media_id = g_strconcat (op_data->genre, "/", station_id, NULL);
-  media_url = g_strdup_printf (SHOUTCAST_TUNE, station_id);
-
   if (op_data->media) {
     media = op_data->media;
   } else {
     media = grl_media_audio_new ();
   }
+
+  if (op_data->genre) {
+    station_genre = op_data->genre;
+  } else {
+    station_genre_field = (gchar *) xmlGetProp (op_data->xml_entries,
+                                                (const xmlChar *) "genre");
+    station_genres = g_strsplit (station_genre_field, " ", -1);
+    g_free (station_genre_field);
+    station_genre = station_genres[0];
+  }
+
+  media_id = g_strconcat (station_genre, "/", station_id, NULL);
+  media_url = g_strdup_printf (SHOUTCAST_TUNE, station_id);
 
   grl_media_set_id (media, media_id);
   grl_media_set_title (media, station_name);
@@ -250,10 +260,12 @@ build_media_from_station (OperationData *op_data)
   g_free (station_name);
   g_free (station_mime);
   g_free (station_id);
-  g_free (station_genre);
   g_free (station_bitrate);
   g_free (media_id);
   g_free (media_url);
+  if (station_genres) {
+    g_strfreev (station_genres);
+  }
 
   return media;
 }
@@ -677,7 +689,6 @@ grl_shoutcast_source_search (GrlMediaSource *source,
   data->count = ss->count;
   data->user_data = ss->user_data;
   data->error_code = GRL_ERROR_SEARCH_FAILED;
-  data->genre = g_strconcat ("?", ss->text, NULL);
 
   grl_media_source_set_operation_data (source, ss->search_id, data);
 

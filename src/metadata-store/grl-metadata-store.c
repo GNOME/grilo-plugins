@@ -474,7 +474,8 @@ write_keys (sqlite3 *db,
     GrlKeyID key_id = POINTER_TO_GRLKEYID (iter->data);
     const gchar *col_name = get_column_name_from_key_id (key_id);
     if (!col_name) {
-      g_warning ("Key %u is not supported for writing, ignoring...", key_id);
+      g_warning ("Key %" GRL_KEYID_FORMAT " is not supported for writing, ignoring...",
+                 key_id);
       failed_keys = g_list_prepend (failed_keys, GRLKEYID_TO_POINTER (key_id));
     } else {
       supported_keys++;

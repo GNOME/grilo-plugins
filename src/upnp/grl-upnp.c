@@ -435,14 +435,13 @@ device_unavailable_cb (GUPnPControlPoint *cp,
 const static gchar *
 get_upnp_key (const GrlKeyID key_id)
 {
-  return g_hash_table_lookup (key_mapping, GRLKEYID_TO_POINTER (key_id));
+  return g_hash_table_lookup (key_mapping, key_id);
 }
 
 const static gchar *
 get_upnp_key_for_filter (const GrlKeyID key_id)
 {
-  return g_hash_table_lookup (filter_key_mapping,
-                              GRLKEYID_TO_POINTER (key_id));
+  return g_hash_table_lookup (filter_key_mapping, key_id);
 }
 
 static gchar *
@@ -457,7 +456,7 @@ get_upnp_filter (const GList *keys)
   iter = (GList *) keys;
   while (iter) {
     upnp_key =
-      (gchar *) get_upnp_key_for_filter (POINTER_TO_GRLKEYID (iter->data));
+      (gchar *) get_upnp_key_for_filter (iter->data);
     if (upnp_key) {
       if (!first) {
 	g_string_append (filter, ",");
@@ -486,49 +485,20 @@ setup_key_mappings (void)
   key_mapping = g_hash_table_new (g_direct_hash, g_direct_equal);
   filter_key_mapping = g_hash_table_new (g_direct_hash, g_direct_equal);
 
-  g_hash_table_insert (key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE),
-		       "title");
-  g_hash_table_insert (key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST),
-		       "artist");
-  g_hash_table_insert (key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM),
-		       "album");
-  g_hash_table_insert (key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_GENRE),
-		       "genre");
-  g_hash_table_insert (key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL),
-		       "res");
-  g_hash_table_insert (key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DATE),
-		       "modified");
-
-  g_hash_table_insert (filter_key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE),
-		       "title");
-  g_hash_table_insert (filter_key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL),
-		       "res");
-  g_hash_table_insert (filter_key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DATE),
-		       "modified");
-  g_hash_table_insert (filter_key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST),
-		       "upnp:artist");
-  g_hash_table_insert (filter_key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM),
-		       "upnp:album");
-  g_hash_table_insert (filter_key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_GENRE),
-		       "upnp:genre");
-  g_hash_table_insert (filter_key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DURATION),
-		       "res@duration");
-  g_hash_table_insert (filter_key_mapping,
-		       GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DATE),
-		       "modified");
+  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_TITLE, "title");
+  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_ARTIST, "artist");
+  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_ALBUM, "album");
+  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_GENRE, "genre");
+  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_URL, "res");
+  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_DATE, "modified");
+  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_TITLE, "title");
+  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_URL, "res");
+  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DATE, "modified");
+  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_ARTIST, "upnp:artist");
+  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_ALBUM, "upnp:album");
+  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_GENRE, "upnp:genre");
+  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DURATION, "res@duration");
+  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DATE, "modified");
 }
 
 static gchar *
@@ -700,8 +670,7 @@ get_value_for_key (GrlKeyID key_id,
 
   upnp_key = get_upnp_key (key_id);
 
-  switch (key_id) {
-  case GRL_METADATA_KEY_CHILDCOUNT:
+  if (key_id == GRL_METADATA_KEY_CHILDCOUNT) {
 
 #ifdef GUPNPAV_OLD_VERSION
     val = gupnp_didl_lite_property_get_attribute (didl_node, "childCount");
@@ -709,61 +678,48 @@ get_value_for_key (GrlKeyID key_id,
     val = (gchar *) xmlGetProp (didl_node, (const xmlChar *) "childCount");
 #endif
 
-    break;
-  case GRL_METADATA_KEY_MIME:
-    if (props) {
-      val = didl_res_get_protocol_info ((xmlNode *) props->data, 2);
-    }
-    break;
-  case GRL_METADATA_KEY_DURATION:
-    if (props) {
+  } else if (key_id == GRL_METADATA_KEY_MIME && props) {
+    val = didl_res_get_protocol_info ((xmlNode *) props->data, 2);
+  } else if (key_id == GRL_METADATA_KEY_DURATION && props) {
 
 #ifdef GUPNPAV_OLD_VERSION
+    val = gupnp_didl_lite_property_get_attribute ((xmlNode *) props->data,
+                                                  "duration");
+#else
+    val = (gchar *) xmlGetProp ((xmlNodePtr) props->data,
+                                (const xmlChar *) "duration");
+#endif
+
+  } else if (key_id == GRL_METADATA_KEY_URL && props) {
+
+#ifdef GUPNPAV_OLD_VERSION
+    val = gupnp_didl_lite_property_get_value ((xmlNode *) props->data);
+#else
+    val = (gchar *) xmlNodeGetContent ((xmlNode *) props->data);
+#endif
+
+  } else if (upnp_key) {
+
+#ifdef GUPNPAV_OLD_VERSION
+    list = gupnp_didl_lite_object_get_property (didl_node, upnp_key);
+    if (list) {
+      val = gupnp_didl_lite_property_get_value ((xmlNode*) list->data);
+      g_list_free (list);
+    } else if (props && props->data) {
       val = gupnp_didl_lite_property_get_attribute ((xmlNode *) props->data,
-						    "duration");
+                                                    upnp_key);
+    }
 #else
+    list = gupnp_didl_lite_object_get_properties (didl, upnp_key);
+    if (list) {
+      val = (gchar *) xmlNodeGetContent ((xmlNode*) list->data);
+      g_list_free (list);
+    } else if (props && props->data) {
       val = (gchar *) xmlGetProp ((xmlNodePtr) props->data,
-                                  (const xmlChar *) "duration");
+                                  (const xmlChar *) upnp_key);
+    }
 #endif
 
-    }
-    break;
-  case GRL_METADATA_KEY_URL:
-    if (props) {
-
-#ifdef GUPNPAV_OLD_VERSION
-      val = gupnp_didl_lite_property_get_value ((xmlNode *) props->data);
-#else
-      val = (gchar *) xmlNodeGetContent ((xmlNode *) props->data);
-#endif
-
-    }
-    break;
-  default:
-    if (upnp_key) {
-
-#ifdef GUPNPAV_OLD_VERSION
-      list = gupnp_didl_lite_object_get_property (didl_node, upnp_key);
-      if (list) {
-	val = gupnp_didl_lite_property_get_value ((xmlNode*) list->data);
-	g_list_free (list);
-      } else if (props && props->data) {
-	val = gupnp_didl_lite_property_get_attribute ((xmlNode *) props->data,
-						      upnp_key);
-      }
-#else
-      list = gupnp_didl_lite_object_get_properties (didl, upnp_key);
-      if (list) {
-	val = (gchar *) xmlNodeGetContent ((xmlNode*) list->data);
-	g_list_free (list);
-      } else if (props && props->data) {
-        val = (gchar *) xmlGetProp ((xmlNodePtr) props->data,
-                                    (const xmlChar *) upnp_key);
-      }
-#endif
-
-    }
-    break;
   }
 
   return val;
@@ -774,43 +730,27 @@ set_metadata_value (GrlMedia *media,
                     GrlKeyID key_id,
                     const gchar *value)
 {
-  switch (key_id) {
-  case GRL_METADATA_KEY_TITLE:
+  if (key_id == GRL_METADATA_KEY_TITLE) {
     grl_media_set_title (media, value);
-    break;
-  case GRL_METADATA_KEY_ARTIST:
+  } else if (key_id == GRL_METADATA_KEY_ARTIST) {
     grl_media_audio_set_artist (media, value);
-    break;
-  case GRL_METADATA_KEY_ALBUM:
+  } else if (key_id == GRL_METADATA_KEY_ALBUM) {
     grl_media_audio_set_album (media, value);
-    break;
-  case GRL_METADATA_KEY_GENRE:
+  } else if (key_id == GRL_METADATA_KEY_GENRE) {
     grl_media_audio_set_genre (media, value);
-    break;
-  case GRL_METADATA_KEY_URL:
+  } else if (key_id == GRL_METADATA_KEY_URL) {
     grl_media_set_url (media, value);
-    break;
-  case GRL_METADATA_KEY_MIME:
+  } else if (key_id == GRL_METADATA_KEY_MIME) {
     grl_media_set_mime (media, value);
-    break;
-  case GRL_METADATA_KEY_DATE:
+  } else if (key_id == GRL_METADATA_KEY_DATE) {
     grl_media_set_date (media, value);
-    break;
-  case GRL_METADATA_KEY_DURATION:
-    {
-      gint duration = didl_h_mm_ss_to_int (value);
-      if (duration >= 0) {
-	grl_media_set_duration (media, duration);
-      }
+  } else if (key_id == GRL_METADATA_KEY_DURATION) {
+    gint duration = didl_h_mm_ss_to_int (value);
+    if (duration >= 0) {
+      grl_media_set_duration (media, duration);
     }
-    break;
-  case GRL_METADATA_KEY_CHILDCOUNT:
-    if (value && GRL_IS_MEDIA_BOX (media)) {
+  } else if (key_id == GRL_METADATA_KEY_CHILDCOUNT && value && GRL_IS_MEDIA_BOX (media)) {
       grl_media_box_set_childcount (GRL_MEDIA_BOX (media), atoi (value));
-    }
-    break;
-  default:
-    break;
   }
 }
 
@@ -880,10 +820,9 @@ build_media_from_didl (GrlMedia *content,
 
   iter = keys;
   while (iter) {
-    GrlKeyID key_id = POINTER_TO_GRLKEYID (iter->data);
-    gchar *value = get_value_for_key (key_id, didl_node, didl_props);
+    gchar *value = get_value_for_key (iter->data, didl_node, didl_props);
     if (value) {
-      set_metadata_value (media, key_id, value);
+      set_metadata_value (media, iter->data, value);
     }
     iter = g_list_next (iter);
   }

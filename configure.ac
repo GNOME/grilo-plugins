@@ -562,6 +562,26 @@ then
 fi
 
 # ----------------------------------------------------------
+# BUILD GRAVATAR PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(gravatar,
+        AC_HELP_STRING([--enable-gravatar],
+                [enable Gravatar plugin (default: auto)]),
+        [
+        ],
+        [
+                enable_gravatar=yes
+        ])
+
+AM_CONDITIONAL([GRAVATAR_PLUGIN], [test "x$enable_gravatar" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL gravatar"
+if test "x$enable_gravatar" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED gravatar"
+fi
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -598,6 +618,7 @@ AC_CONFIG_FILES([
   src/apple-trailers/Makefile
   src/metadata-store/Makefile
   src/vimeo/Makefile
+  src/gravatar/Makefile
   test/Makefile
 ])
 

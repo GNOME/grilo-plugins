@@ -59,7 +59,11 @@ if VIMEO_PLUGIN
 SUBDIRS += vimeo
 endif
 
-DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr podcasts bookmarks shoutcast apple-trailers metadata-store vimeo
+if GRAVATAR_PLUGIN
+SUBDIRS += gravatar
+endif
+
+DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr podcasts bookmarks shoutcast apple-trailers metadata-store vimeo gravatar
 
 MAINTAINERCLEANFILES = \
         *.in \

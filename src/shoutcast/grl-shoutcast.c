@@ -355,7 +355,8 @@ xml_parse_result (const gchar *str, OperationData *op_data)
                                           xpath_ctx);
       g_free (xpath_expression);
 
-      if (xpath_res && xpath_res->nodesetval->nodeTab[0]) {
+      if (xpath_res && xpath_res->nodesetval->nodeTab &&
+          xpath_res->nodesetval->nodeTab[0]) {
         op_data->xml_entries = xpath_res->nodesetval->nodeTab[0];
         if (stationlist_result) {
           build_media_from_station (op_data);

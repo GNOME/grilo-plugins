@@ -448,74 +448,53 @@ build_media_from_entry (GrlMedia *content,
 
   iter = (GList *) keys;
   while (iter) {
-    GrlKeyID key_id = POINTER_TO_GRLKEYID (iter->data);
-    switch (key_id) {
-    case GRL_METADATA_KEY_TITLE:
+    if (iter->data == GRL_METADATA_KEY_TITLE) {
       grl_media_set_title (media, gdata_entry_get_title (entry));
-      break;
-    case GRL_METADATA_KEY_DESCRIPTION:
+    } else if (iter->data == GRL_METADATA_KEY_DESCRIPTION) {
       grl_media_set_description (media,
 				 gdata_youtube_video_get_description (video));
-      break;
-    case GRL_METADATA_KEY_THUMBNAIL:
-      {
-	GList *thumb_list;
-	thumb_list = gdata_youtube_video_get_thumbnails (video);
-	if (thumb_list) {
-	  GDataMediaThumbnail *thumbnail;
-	  thumbnail = GDATA_MEDIA_THUMBNAIL (thumb_list->data);
-	  grl_media_set_thumbnail (media,
-				   gdata_media_thumbnail_get_uri (thumbnail));
-	}
+    } else if (iter->data == GRL_METADATA_KEY_THUMBNAIL) {
+      GList *thumb_list;
+      thumb_list = gdata_youtube_video_get_thumbnails (video);
+      if (thumb_list) {
+        GDataMediaThumbnail *thumbnail;
+        thumbnail = GDATA_MEDIA_THUMBNAIL (thumb_list->data);
+        grl_media_set_thumbnail (media,
+                                 gdata_media_thumbnail_get_uri (thumbnail));
       }
-      break;
-    case GRL_METADATA_KEY_DATE:
-      {
-	GTimeVal date;
-	gchar *date_str;
-	gdata_entry_get_published (entry, &date);
-	date_str = g_time_val_to_iso8601 (&date);
-	grl_media_set_date (media, date_str);
-	g_free (date_str);
-      }
-      break;
-    case GRL_METADATA_KEY_DURATION:
+    } else if (iter->data == GRL_METADATA_KEY_DATE) {
+      GTimeVal date;
+      gchar *date_str;
+      gdata_entry_get_published (entry, &date);
+      date_str = g_time_val_to_iso8601 (&date);
+      grl_media_set_date (media, date_str);
+      g_free (date_str);
+    } else if (iter->data == GRL_METADATA_KEY_DURATION) {
       grl_media_set_duration (media, gdata_youtube_video_get_duration (video));
-      break;
-    case GRL_METADATA_KEY_MIME:
+    } else if (iter->data == GRL_METADATA_KEY_MIME) {
       grl_media_set_mime (media, YOUTUBE_VIDEO_MIME);
-      break;
-    case GRL_METADATA_KEY_SITE:
+    } else if (iter->data == GRL_METADATA_KEY_SITE) {
       grl_media_set_site (media, gdata_youtube_video_get_player_uri (video));
-      break;
-    case GRL_METADATA_KEY_RATING:
-      {
-	gdouble average;
-	gdata_youtube_video_get_rating (video, NULL, NULL, NULL, &average);
-	grl_media_set_rating (media, average, 5.00);
+    } else if (iter->data == GRL_METADATA_KEY_RATING) {
+      gdouble average;
+      gdata_youtube_video_get_rating (video, NULL, NULL, NULL, &average);
+      grl_media_set_rating (media, average, 5.00);
+    } else if (iter->data == GRL_METADATA_KEY_URL) {
+      gchar *url = get_video_url (gdata_youtube_video_get_video_id (video));
+      if (url) {
+        grl_media_set_url (media, url);
+        g_free (url);
+      } else {
+        GDataYouTubeContent *youtube_content;
+        youtube_content =
+          gdata_youtube_video_look_up_content (video,
+                                               "application/x-shockwave-flash");
+        if (youtube_content != NULL) {
+          GDataMediaContent *content = GDATA_MEDIA_CONTENT (youtube_content);
+          grl_media_set_url (media,
+                             gdata_media_content_get_uri (content));
+        }
       }
-      break;
-    case GRL_METADATA_KEY_URL:
-      {
-	gchar *url = get_video_url (gdata_youtube_video_get_video_id (video));
-	if (url) {
-	  grl_media_set_url (media, url);
-	  g_free (url);
-	} else {
-	  GDataYouTubeContent *youtube_content;
-	  youtube_content =
-	    gdata_youtube_video_look_up_content (video,
-						 "application/x-shockwave-flash");
-	  if (youtube_content != NULL) {
-	    GDataMediaContent *content = GDATA_MEDIA_CONTENT (youtube_content);
-	    grl_media_set_url (media,
-			       gdata_media_content_get_uri (content));
-	  }
-	}
-      }
-      break;
-    default:
-      break;
     }
     iter = g_list_next (iter);
   }

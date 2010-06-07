@@ -1,3 +1,9 @@
+grilo-0.1-plugins (0.1.4-1fremantle1) unstable; urgency=low
+
+  * [shoutcast] solved a crash related to a null nodeTab
+
+ -- Xabier Rodriguez Calvar <xrcalvar@igalia.com>  Mon, 07 Jun 2010 18:29:53 +0200
+
 grilo-0.1-plugins (0.1.4-1fremantle) unstable; urgency=low
 
   * Disabled debug

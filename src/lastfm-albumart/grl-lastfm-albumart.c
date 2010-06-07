@@ -253,11 +253,8 @@ grl_lastfm_albumart_source_key_depends (GrlMetadataSource *source,
                                       NULL);
   }
 
-  switch (key_id) {
-  case GRL_METADATA_KEY_THUMBNAIL:
+  if (key_id == GRL_METADATA_KEY_THUMBNAIL) {
     return deps;
-  default:
-    break;
   }
 
   return  NULL;
@@ -280,7 +277,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
   /* Check that albumart is requested */
   iter = rs->keys;
   while (iter) {
-    if (POINTER_TO_GRLKEYID (iter->data) == GRL_METADATA_KEY_THUMBNAIL) {
+    if (iter->data == GRL_METADATA_KEY_THUMBNAIL) {
       break;
     } else {
       iter = g_list_next (iter);

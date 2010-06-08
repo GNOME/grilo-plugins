@@ -137,7 +137,7 @@ xml_get_image (const gchar *xmldata)
   xmlDocPtr doc;
   xmlXPathContextPtr xpath_ctx;
   xmlXPathObjectPtr xpath_res;
-  gchar *image;
+  gchar *image = NULL;
 
   doc = xmlReadMemory (xmldata, xmlStrlen ((xmlChar*) xmldata), NULL, NULL,
                        XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
@@ -159,10 +159,12 @@ xml_get_image (const gchar *xmldata)
     return NULL;
   }
 
-  image =
-    (gchar *) xmlNodeListGetString (doc,
-                                    xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
-                                    1);
+  if (xpath_res->nodesetval->nodeTab) {
+    image =
+      (gchar *) xmlNodeListGetString (doc,
+                                      xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
+                                      1);
+  }
   xmlXPathFreeObject (xpath_res);
   xmlXPathFreeContext (xpath_ctx);
   xmlFreeDoc (doc);

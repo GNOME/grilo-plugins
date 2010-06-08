@@ -922,7 +922,9 @@ parse_entry_idle (gpointer user_data)
 
   /* Parse entry */
   Entry *entry = g_slice_new0 (Entry);
-  parse_entry (osp->doc, nodes->nodeTab[osp->parse_index], entry);
+  if (nodes->nodeTab) {
+    parse_entry (osp->doc, nodes->nodeTab[osp->parse_index], entry);
+  }
   if (0) print_entry (entry);
 
   /* Check if entry is valid */

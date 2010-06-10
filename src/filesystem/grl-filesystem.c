@@ -111,12 +111,27 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
                             const GrlPluginInfo *plugin,
                             GList *configs)
 {
+  GrlConfig *config;
+  GList *chosen_paths = NULL;
+
   g_debug ("filesystem_plugin_init\n");
 
   GrlFilesystemSource *source = grl_filesystem_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source));
+
+  for (; configs; configs = g_list_next (configs)) {
+    const gchar *path;
+    config = GRL_CONFIG (configs->data);
+    path = grl_config_get_string (config, GRILO_CONF_CHOSEN_PATH);
+    if (!path) {
+      continue;
+    }
+    chosen_paths = g_list_append (chosen_paths, g_strdup (path));
+  }
+  source->priv->chosen_paths = chosen_paths;
+
   return TRUE;
 }
 
@@ -387,9 +402,7 @@ create_content (GrlMedia *content,
   }
 
   /* ID: if root path, then id must be kept NULL */
-  grl_media_set_id (media,
-                    g_strcmp0 (path,
-                               G_DIR_SEPARATOR_S) == 0? NULL: path);
+  grl_media_set_id (media, path);
 
   /* URL */
   str = g_strconcat ("file://", path, NULL);
@@ -551,14 +564,30 @@ static void
 grl_filesystem_source_browse (GrlMediaSource *source,
                               GrlMediaSourceBrowseSpec *bs)
 {
-  const gchar *path;
   const gchar *id;
+  GList *chosen_paths;
 
   g_debug ("grl_filesystem_source_browse");
 
   id = grl_media_get_id (bs->container);
-  path = id ? id : G_DIR_SEPARATOR_S;
-  produce_from_path (bs, path);
+  chosen_paths = GRL_FILESYSTEM_SOURCE(source)->priv->chosen_paths;
+  if (!id && chosen_paths) {
+    guint remaining = g_list_length (chosen_paths);
+    for (; chosen_paths; chosen_paths = g_list_next (chosen_paths)) {
+      GrlMedia *content = create_content (NULL,
+					  (gchar *) chosen_paths->data,
+					  GRL_RESOLVE_FAST_ONLY);
+
+      bs->callback (source,
+		    bs->browse_id,
+		    content,
+		    --remaining,
+		    bs->user_data,
+		    NULL);
+    }
+  } else {
+    produce_from_path (bs, id ? id : G_DIR_SEPARATOR_S);
+  }
 }
 
 static void

@@ -91,6 +91,8 @@ typedef struct {
 
 static GrlFilesystemSource *grl_filesystem_source_new (void);
 
+static void grl_filesystem_source_finalize (GObject *object);
+
 gboolean grl_filesystem_plugin_init (GrlPluginRegistry *registry,
                                      const GrlPluginInfo *plugin,
                                      GList *configs);
@@ -102,8 +104,6 @@ static void grl_filesystem_source_metadata (GrlMediaSource *source,
 
 static void grl_filesystem_source_browse (GrlMediaSource *source,
                                           GrlMediaSourceBrowseSpec *bs);
-
-static void grl_filesystem_source_finalize (GObject *object);
 
 /* =================== Filesystem Plugin  =============== */
 
@@ -148,6 +148,11 @@ GRL_PLUGIN_REGISTER (grl_filesystem_plugin_init,
 
 /* ================== Filesystem GObject ================ */
 
+
+G_DEFINE_TYPE (GrlFilesystemSource,
+               grl_filesystem_source,
+               GRL_TYPE_MEDIA_SOURCE);
+
 static GrlFilesystemSource *
 grl_filesystem_source_new (void)
 {
@@ -177,9 +182,14 @@ grl_filesystem_source_init (GrlFilesystemSource *source)
   source->priv = GRL_FILESYSTEM_SOURCE_GET_PRIVATE (source);
 }
 
-G_DEFINE_TYPE (GrlFilesystemSource,
-               grl_filesystem_source,
-               GRL_TYPE_MEDIA_SOURCE);
+static void
+grl_filesystem_source_finalize (GObject *object)
+{
+  GrlFilesystemSource *filesystem_source = GRL_FILESYSTEM_SOURCE (object);
+  g_list_foreach (filesystem_source->priv->chosen_paths, (GFunc) g_free, NULL);
+  g_list_free (filesystem_source->priv->chosen_paths);
+  G_OBJECT_CLASS (grl_filesystem_source_parent_class)->finalize (object);
+}
 
 /* ======================= Utilities ==================== */
 
@@ -619,13 +629,4 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   }
-}
-
-static void
-grl_filesystem_source_finalize (GObject *object)
-{
-  GrlFilesystemSource *filesystem_source = GRL_FILESYSTEM_SOURCE (object);
-  g_list_foreach (filesystem_source->priv->chosen_paths, (GFunc) g_free, NULL);
-  g_list_free (filesystem_source->priv->chosen_paths);
-  G_OBJECT_CLASS (grl_filesystem_source_parent_class)->finalize (object);
 }

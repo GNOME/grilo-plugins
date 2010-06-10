@@ -316,7 +316,8 @@ set_container_childcount (const gchar *path,
 static GrlMedia *
 create_content (GrlMedia *content,
                 const gchar *path,
-                gboolean only_fast)
+                gboolean only_fast,
+		gboolean root_dir)
 {
   GrlMedia *media = NULL;
   gchar *str;
@@ -403,8 +404,7 @@ create_content (GrlMedia *content,
     g_object_unref (info);
   }
 
-  /* ID: if root path, then id must be kept NULL */
-  grl_media_set_id (media, path);
+  grl_media_set_id (media,  root_dir ? NULL : path);
 
   /* URL */
   str = g_strconcat ("file://", path, NULL);
@@ -439,7 +439,8 @@ browse_emit_idle (gpointer user_data)
     entry_path = (gchar *) idle_data->current->data;
     content = create_content (NULL,
 			      entry_path,
-			      idle_data->spec->flags & GRL_RESOLVE_FAST_ONLY);
+			      idle_data->spec->flags & GRL_RESOLVE_FAST_ONLY,
+			      FALSE);
     g_free (idle_data->current->data);
 
     idle_data->spec->callback (idle_data->spec->source,
@@ -578,7 +579,8 @@ grl_filesystem_source_browse (GrlMediaSource *source,
     for (; chosen_paths; chosen_paths = g_list_next (chosen_paths)) {
       GrlMedia *content = create_content (NULL,
 					  (gchar *) chosen_paths->data,
-					  GRL_RESOLVE_FAST_ONLY);
+					  GRL_RESOLVE_FAST_ONLY,
+					  FALSE);
 
       bs->callback (source,
 		    bs->browse_id,
@@ -606,7 +608,8 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
 
   if (g_file_test (path, G_FILE_TEST_EXISTS)) {
     create_content (ms->media, path,
-		    ms->flags & GRL_RESOLVE_FAST_ONLY);
+		    ms->flags & GRL_RESOLVE_FAST_ONLY,
+		    !id);
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
   } else {
     GError *error = g_error_new (GRL_ERROR,

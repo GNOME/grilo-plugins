@@ -103,6 +103,7 @@ static void grl_filesystem_source_metadata (GrlMediaSource *source,
 static void grl_filesystem_source_browse (GrlMediaSource *source,
                                           GrlMediaSourceBrowseSpec *bs);
 
+static void grl_filesystem_source_finalize (GObject *object);
 
 /* =================== Filesystem Plugin  =============== */
 
@@ -165,6 +166,7 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_filesystem_source_browse;
   source_class->metadata = grl_filesystem_source_metadata;
+  G_OBJECT_CLASS (source_class)->finalize = grl_filesystem_source_finalize;
   metadata_class->supported_keys = grl_filesystem_source_supported_keys;
   g_type_class_add_private (klass, sizeof (GrlFilesystemSourcePrivate));
 }
@@ -614,4 +616,13 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   }
+}
+
+static void
+grl_filesystem_source_finalize (GObject *object)
+{
+  GrlFilesystemSource *filesystem_source = GRL_FILESYSTEM_SOURCE (object);
+  g_list_foreach (filesystem_source->priv->chosen_paths, (GFunc) g_free, NULL);
+  g_list_free (filesystem_source->priv->chosen_paths);
+  G_OBJECT_CLASS (grl_filesystem_source_parent_class)->finalize (object);
 }

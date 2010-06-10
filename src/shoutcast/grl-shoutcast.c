@@ -46,8 +46,8 @@
 #define SHOUTCAST_BASE_ENTRY "http://yp.shoutcast.com"
 
 #define SHOUTCAST_GET_GENRES    SHOUTCAST_BASE_ENTRY "/sbin/newxml.phtml"
-#define SHOUTCAST_GET_RADIOS    SHOUTCAST_GET_GENRES "?genre=%s&limit=%d"
-#define SHOUTCAST_SEARCH_RADIOS SHOUTCAST_GET_GENRES "?search=%s&limit=%d"
+#define SHOUTCAST_GET_RADIOS    SHOUTCAST_GET_GENRES "?genre=%s&limit=%u"
+#define SHOUTCAST_SEARCH_RADIOS SHOUTCAST_GET_GENRES "?search=%s&limit=%u"
 #define SHOUTCAST_TUNE          SHOUTCAST_BASE_ENTRY "/sbin/tunein-station.pls?id=%s"
 
 /* --- Plugin information --- */

@@ -53,7 +53,7 @@
 
 #define JAMENDO_BASE_ENTRY "http://api.jamendo.com/get2"
 #define JAMENDO_FORMAT     "xml"
-#define JAMENDO_RANGE      "n=%d&pn=%d"
+#define JAMENDO_RANGE      "n=%u&pn=%u"
 
 #define JAMENDO_ARTIST_ENTRY JAMENDO_BASE_ENTRY "/%s/" JAMENDO_ARTIST "/" JAMENDO_FORMAT
 

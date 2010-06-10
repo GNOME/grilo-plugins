@@ -68,6 +68,17 @@
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
 
+/* --- Grilo Filesystem Private --- */
+
+#define GRL_FILESYSTEM_SOURCE_GET_PRIVATE(object)         \
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),                  \
+			     GRL_FILESYSTEM_SOURCE_TYPE,  \
+			     GrlFilesystemSourcePrivate))
+
+struct _GrlFilesystemSourcePrivate {
+  GList *chosen_paths;
+};
+
 /* --- Data types --- */
 
 typedef struct {
@@ -140,11 +151,13 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   source_class->browse = grl_filesystem_source_browse;
   source_class->metadata = grl_filesystem_source_metadata;
   metadata_class->supported_keys = grl_filesystem_source_supported_keys;
+  g_type_class_add_private (klass, sizeof (GrlFilesystemSourcePrivate));
 }
 
 static void
 grl_filesystem_source_init (GrlFilesystemSource *source)
 {
+  source->priv = GRL_FILESYSTEM_SOURCE_GET_PRIVATE (source);
 }
 
 G_DEFINE_TYPE (GrlFilesystemSource,

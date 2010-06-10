@@ -52,11 +52,14 @@
                               GrlFilesystemSourceClass))
 
 typedef struct _GrlFilesystemSource GrlFilesystemSource;
+typedef struct _GrlFilesystemSourcePrivate GrlFilesystemSourcePrivate;
 
 struct _GrlFilesystemSource {
 
   GrlMediaSource parent;
 
+  /*< private >*/
+  GrlFilesystemSourcePrivate *priv;
 };
 
 typedef struct _GrlFilesystemSourceClass GrlFilesystemSourceClass;

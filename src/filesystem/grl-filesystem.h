@@ -52,7 +52,7 @@
                               GrlFilesystemSourceClass))
 
 /* --- Grilo Configuration --- */
-#define GRILO_CONF_CHOSEN_PATH "FS_PATH"
+#define GRILO_CONF_CHOSEN_PATH "base-path"
 
 
 typedef struct _GrlFilesystemSource GrlFilesystemSource;

@@ -76,6 +76,8 @@ typedef void (*GFlickrPhotoCb) (GFlickr *f, GHashTable *photo, gpointer user_dat
 
 typedef void (*GFlickrPhotoListCb) (GFlickr *f, GList *photolist, gpointer user_data);
 
+typedef void (*GFlickrTagListCb) (GFlickr *f, GList *taglist, gpointer user_data);
+
 GType g_flickr_get_type (void);
 
 GFlickr *g_flickr_new (const gchar *api_key, const gchar *auth_token, const gchar *auth_secret);
@@ -101,5 +103,11 @@ g_flickr_photo_url_original (GFlickr *f, GHashTable *photo);
 
 gchar *
 g_flickr_photo_url_thumbnail (GFlickr *f, GHashTable *photo);
+
+void
+g_flickr_tags_getHotList (GFlickr *f,
+                          gint count,
+                          GFlickrTagListCb callback,
+                          gpointer user_data);
 
 #endif /* _G_FLICKR_H_ */

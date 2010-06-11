@@ -17,6 +17,7 @@
 
 #define FLICKR_PHOTOS_SEARCH_METHOD "flickr.photos.search"
 #define FLICKR_PHOTOS_GETINFO_METHOD "flickr.photos.getInfo"
+#define FLICKR_TAGS_GETHOTLIST_METHOD "flickr.tags.getHotList"
 
 #define FLICKR_PHOTOS_SEARCH                            \
   FLICKR_ENDPOINT                                       \
@@ -29,6 +30,14 @@
   "&page=%d"                                            \
   "&tags=%s"                                            \
   "&text=%s"
+
+#define FLICKR_TAGS_GETHOTLIST                          \
+  FLICKR_ENDPOINT                                       \
+  "api_key=%s"                                          \
+  "&auth_token=%s"                                      \
+  "&api_sig=%s"                                         \
+  "&method=" FLICKR_TAGS_GETHOTLIST_METHOD              \
+  "&count=%d"
 
 #define FLICKR_PHOTOS_GETINFO                   \
   FLICKR_ENDPOINT                               \
@@ -44,6 +53,7 @@ typedef struct {
   ParseXML parse_xml;
   GFlickrPhotoCb get_info_cb;
   GFlickrPhotoListCb search_cb;
+  GFlickrTagListCb gethotlist_cb;
   gpointer user_data;
 } GFlickrData;
 
@@ -124,6 +134,28 @@ get_api_sig_photos_search (GFlickr *f,
                                   f->priv->per_page,
                                   tags,
                                   text);
+  signature = g_compute_checksum_for_string (G_CHECKSUM_MD5, text_to_sign, -1);
+  g_free (text_to_sign);
+
+  return signature;
+}
+
+static gchar *
+get_api_sig_tags_gethotlist (GFlickr *f,
+                             gint count)
+{
+  gchar *signature;
+  gchar *text_to_sign;
+
+  text_to_sign = g_strdup_printf ("%s"
+                                  "api_key%s"
+                                  "auth_token%s"
+                                  "count%d"
+                                  "method" FLICKR_TAGS_GETHOTLIST_METHOD,
+                                  f->priv->auth_secret,
+                                  f->priv->api_key,
+                                  f->priv->auth_token,
+                                  count);
   signature = g_compute_checksum_for_string (G_CHECKSUM_MD5, text_to_sign, -1);
   g_free (text_to_sign);
 
@@ -215,6 +247,16 @@ get_photo (xmlNodePtr node)
   return photo;
 }
 
+static gchar *
+get_tag (xmlNodePtr node)
+{
+  if (xmlStrcmp (node->name, (const xmlChar *) "tag") == 0) {
+    return (gchar *) xmlNodeGetContent (node);
+  } else {
+    return NULL;
+  }
+}
+
 static void
 process_photo_result (const gchar *xml_result, gpointer user_data)
 {
@@ -269,6 +311,39 @@ process_photolist_result (const gchar *xml_result, gpointer user_data)
     data->search_cb (NULL, g_list_reverse (photolist), data->user_data);
     g_list_foreach (photolist, (GFunc) g_hash_table_unref, NULL);
     g_list_free (photolist);
+  }
+  g_slice_free (GFlickrData, data);
+  xmlFreeDoc (doc);
+}
+
+static void
+process_taglist_result (const gchar *xml_result, gpointer user_data)
+{
+  GFlickrData *data = (GFlickrData *) user_data;
+  GList *taglist = NULL;
+  xmlDocPtr doc;
+  xmlNodePtr node;
+
+  doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar*) xml_result), NULL,
+                       NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
+  node = xmlDocGetRootElement (doc);
+
+  /* Check if result is OK */
+  if (!node || !result_is_correct (node)) {
+    data->gethotlist_cb (NULL, NULL, data->user_data);
+  } else {
+    node = node->xmlChildrenNode;
+
+    /* Now we're at "hot tags" node */
+    node = node->xmlChildrenNode;
+    while (node) {
+      taglist = g_list_prepend (taglist, get_tag (node));
+      node = node->next;
+    }
+
+    data->gethotlist_cb (NULL, g_list_reverse (taglist), data->user_data);
+    g_list_foreach (taglist, (GFunc) g_free, NULL);
+    g_list_free (taglist);
   }
   g_slice_free (GFlickrData, data);
   xmlFreeDoc (doc);
@@ -442,4 +517,32 @@ g_flickr_photo_url_thumbnail (GFlickr *f, GHashTable *photo)
                             photo_id,
                             secret);
   }
+}
+
+void
+g_flickr_tags_getHotList (GFlickr *f,
+                          gint count,
+                          GFlickrTagListCb callback,
+                          gpointer user_data)
+{
+  g_return_if_fail (G_IS_FLICKR (f));
+
+  gchar *api_sig = get_api_sig_tags_gethotlist (f, count);
+
+  /* Build the request */
+  gchar *request = g_strdup_printf (FLICKR_TAGS_GETHOTLIST,
+                                    f->priv->api_key,
+                                    f->priv->auth_token,
+                                    api_sig,
+                                    count);
+
+  g_free (api_sig);
+
+  GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd->parse_xml = process_taglist_result;
+  gfd->gethotlist_cb = callback;
+  gfd->user_data = user_data;
+
+  read_url_async (request, gfd);
+  g_free (request);
 }

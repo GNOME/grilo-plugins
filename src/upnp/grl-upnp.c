@@ -49,8 +49,6 @@
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-upnp"
-#define PLUGIN_NAME "UPnP"
-#define PLUGIN_DESC "A plugin for browsing UPnP servers"
 
 #define SOURCE_ID_TEMPLATE    "grl-upnp-%s"
 #define SOURCE_NAME_TEMPLATE  "UPnP - %s"
@@ -179,13 +177,7 @@ grl_upnp_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_upnp_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== UPnP GObject ================ */
 

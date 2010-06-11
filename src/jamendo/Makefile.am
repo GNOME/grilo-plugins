@@ -21,6 +21,11 @@ libgrljamendo_la_SOURCES	 = grl-jamendo.c grl-jamendo.h
 
 libdir=$(GRL_PLUGINS_DIR)
 
+jamendolibxmldir	= $(libdir)
+jamendolibxml_DATA	= libgrljamendo.xml
+
+EXTRA_DIR = $(jamendolibdata_DATA)
+
 MAINTAINERCLEANFILES =	\
 	*.in		\
 	*~

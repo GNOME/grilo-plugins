@@ -110,8 +110,6 @@
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-bookmarks"
-#define PLUGIN_NAME "Bookmarks"
-#define PLUGIN_DESC "A plugin for organizing media bookmarks"
 
 #define SOURCE_ID   "grl-bookmarks"
 #define SOURCE_NAME "Bookmarks"
@@ -193,13 +191,7 @@ grl_bookmarks_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_bookmarks_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Bookmarks GObject ================ */
 

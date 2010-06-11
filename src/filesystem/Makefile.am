@@ -19,6 +19,11 @@ libgrlfilesystem_la_SOURCES = grl-filesystem.c grl-filesystem.h
 
 libdir=$(GRL_PLUGINS_DIR)
 
+filesystemlibxmldir	= $(libdir)
+filesystemlibxml_DATA	= libgrlfilesystem.xml
+
+EXTRA_DIR = $(filesystemlibdata_DATA)
+
 MAINTAINERCLEANFILES =	\
 	*.in		\
 	*~

@@ -25,6 +25,11 @@ libgrlflickr_la_SOURCES =	\
 
 libdir=$(GRL_PLUGINS_DIR)
 
+flickrlibxmldir		= $(libdir)
+flickrlibxml_DATA	= libgrlflickr.xml
+
+EXTRA_DIR = $(flickrlibdata_DATA)
+
 MAINTAINERCLEANFILES =	\
 	*.in		\
 	*~

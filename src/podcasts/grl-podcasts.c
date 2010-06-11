@@ -139,8 +139,6 @@
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-podcasts"
-#define PLUGIN_NAME "Podcasts"
-#define PLUGIN_DESC "A plugin for browsing podcasts"
 
 #define SOURCE_ID   "grl-podcasts"
 #define SOURCE_NAME "Podcasts"
@@ -252,13 +250,7 @@ grl_podcasts_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_podcasts_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Podcasts GObject ================ */
 

@@ -19,6 +19,11 @@ libgrlbookmarks_la_SOURCES = grl-bookmarks.c grl-bookmarks.h
 
 libdir=$(GRL_PLUGINS_DIR)
 
+bookmarkslibxmldir	= $(libdir)
+bookmarkslibxml_DATA	= libgrlbookmarks.xml
+
+EXTRA_DIR = $(bookmarkslibdata_DATA)
+
 MAINTAINERCLEANFILES =	\
 	*.in		\
 	*~

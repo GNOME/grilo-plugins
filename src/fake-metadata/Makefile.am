@@ -17,6 +17,11 @@ libgrlfakemetadata_la_SOURCES = grl-fake-metadata.c grl-fake-metadata.h
 
 libdir=$(GRL_PLUGINS_DIR)
 
+fakemetadatalibxmldir		= $(libdir)
+fakemetadatalibxml_DATA		= libgrlfakemetadata.xml
+
+EXTRA_DIR = $(fakemetadatalibdata_DATA)
+
 MAINTAINERCLEANFILES	 = \
 	*.in \
 	*~

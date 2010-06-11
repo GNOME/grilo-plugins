@@ -40,12 +40,10 @@
 /* ------- Pluging Info -------- */
 
 #define PLUGIN_ID   "grl-gravatar"
-#define PLUGIN_NAME "Avatar provider from Gravatar"
-#define PLUGIN_DESC "A plugin to get avatars for artist and author fields"
 
 #define SOURCE_ID   PLUGIN_ID
-#define SOURCE_NAME PLUGIN_NAME
-#define SOURCE_DESC PLUGIN_DESC
+#define SOURCE_NAME "Avatar provider from Gravatar"
+#define SOURCE_DESC "A plugin to get avatars for artist and author fields"
 
 #define AUTHOR      "Igalia S.L."
 #define LICENSE     "LGPL"
@@ -109,13 +107,7 @@ grl_gravatar_source_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_gravatar_source_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Gravatar GObject ================ */
 

@@ -27,6 +27,7 @@
   "&extras=media,date_taken,owner_name,url_o,url_t"     \
   "&per_page=%d"                                        \
   "&page=%d"                                            \
+  "&tags=%s"                                            \
   "&text=%s"
 
 #define FLICKR_PHOTOS_GETINFO                   \
@@ -100,7 +101,10 @@ g_flickr_new (const gchar *api_key, const gchar *auth_token, const gchar *auth_s
 /* -------------------- PRIVATE API -------------------- */
 
 static gchar *
-get_api_sig_photos_search (GFlickr *f, const gchar *text, gint page) {
+get_api_sig_photos_search (GFlickr *f,
+                           const gchar *text,
+                           const gchar *tags,
+                           gint page) {
   gchar *signature;
   gchar *text_to_sign;
 
@@ -111,12 +115,14 @@ get_api_sig_photos_search (GFlickr *f, const gchar *text, gint page) {
                                   "method" FLICKR_PHOTOS_SEARCH_METHOD
                                   "page%d"
                                   "per_page%d"
+                                  "tags%s"
                                   "text%s",
                                   f->priv->auth_secret,
                                   f->priv->api_key,
                                   f->priv->auth_token,
                                   page,
                                   f->priv->per_page,
+                                  tags,
                                   text);
   signature = g_compute_checksum_for_string (G_CHECKSUM_MD5, text_to_sign, -1);
   g_free (text_to_sign);
@@ -342,13 +348,22 @@ g_flickr_photos_getInfo (GFlickr *f,
 void
 g_flickr_photos_search (GFlickr *f,
                         const gchar *text,
+                        const gchar *tags,
                         gint page,
                         GFlickrPhotoListCb callback,
                         gpointer user_data)
 {
   g_return_if_fail (G_IS_FLICKR (f));
 
-  gchar *api_sig = get_api_sig_photos_search (f, text, page);
+  if (!text) {
+    text = "";
+  }
+
+  if (!tags) {
+    tags = "";
+  }
+
+  gchar *api_sig = get_api_sig_photos_search (f, text, tags, page);
 
   /* Build the request */
   gchar *request = g_strdup_printf (FLICKR_PHOTOS_SEARCH,
@@ -357,6 +372,7 @@ g_flickr_photos_search (GFlickr *f,
                                     api_sig,
                                     f->priv->per_page,
                                     page,
+                                    tags,
                                     text);
   g_free (api_sig);
 

@@ -294,7 +294,7 @@ search_cb (GFlickr *f, GList *photolist, gpointer user_data)
   if (sd->ss->count) {
     sd->offset = 0;
     sd->page++;
-    g_flickr_photos_search (f, sd->ss->text, sd->page, search_cb, sd);
+    g_flickr_photos_search (f, sd->ss->text, NULL, sd->page, search_cb, sd);
   } else {
     g_slice_free (SearchData, sd);
   }
@@ -352,5 +352,5 @@ grl_flickr_source_search (GrlMediaSource *source,
   sd->offset = ss->skip % per_page;
   sd->ss = ss;
 
-  g_flickr_photos_search (f, ss->text, sd->page, search_cb, sd);
+  g_flickr_photos_search (f, ss->text, NULL, sd->page, search_cb, sd);
 }

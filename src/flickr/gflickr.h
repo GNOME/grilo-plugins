@@ -91,6 +91,7 @@ g_flickr_photos_getInfo (GFlickr *f,
 void
 g_flickr_photos_search (GFlickr *f,
                         const gchar *text,
+                        const gchar *tags,
                         gint page,
                         GFlickrPhotoListCb callback,
                         gpointer user_data);

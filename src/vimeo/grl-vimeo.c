@@ -47,8 +47,6 @@
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-vimeo"
-#define PLUGIN_NAME "Vimeo"
-#define PLUGIN_DESC "A plugin for browsing and searching Vimeo videos"
 
 #define SOURCE_ID   "grl-vimeo"
 #define SOURCE_NAME "Vimeo"
@@ -132,13 +130,7 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_vimeo_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Vimeo GObject ================ */
 

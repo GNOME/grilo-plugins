@@ -97,8 +97,6 @@
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-youtube"
-#define PLUGIN_NAME "Youtube"
-#define PLUGIN_DESC "A plugin for browsing and searching Youtube videos"
 
 #define SOURCE_ID   "grl-youtube"
 #define SOURCE_NAME "Youtube"
@@ -249,13 +247,7 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_youtube_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Youtube GObject ================ */
 

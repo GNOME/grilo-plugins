@@ -39,8 +39,6 @@
 #define G_LOG_DOMAIN "grl-metadata-store"
 
 #define PLUGIN_ID   "grl-metadata-store"
-#define PLUGIN_NAME "Metadata Store"
-#define PLUGIN_DESC "A plugin for storing extra metadata information"
 
 #define SOURCE_ID   "grl-metadata-store"
 #define SOURCE_NAME "Metadata Store"
@@ -124,13 +122,7 @@ grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_metadata_store_source_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== GrlMetadataStore GObject ================ */
 

@@ -34,6 +34,11 @@ libgrlupnp_la_SOURCES = grl-upnp.c grl-upnp.h
 
 libdir = $(GRL_PLUGINS_DIR)
 
+upnplibxmldir		= $(libdir)
+upnplibxml_DATA	= libgrlupnp.xml
+
+EXTRA_DIR = $(upnplibdata_DATA)
+
 MAINTAINERCLEANFILES =	\
 	*.in		\
 	*~

@@ -1,0 +1,9 @@
+<plugin>
+  <info>
+    <name>Podcasts</name>
+    <description>A plugin for browsing podcasts</description>
+    <author>Igalia S.L.</author>
+    <license>LGPL</license>
+    <site>http://www.igalia.com</site>
+  </info>
+</plugin>

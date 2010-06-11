@@ -23,6 +23,11 @@ libgrlpodcasts_la_SOURCES = grl-podcasts.c grl-podcasts.h
 
 libdir=$(GRL_PLUGINS_DIR)
 
+podcastslibxmldir	= $(libdir)
+podcastslibxml_DATA	= libgrlpodcasts.xml
+
+EXTRA_DIR = $(podcastslibdata_DATA)
+
 MAINTAINERCLEANFILES =	\
 	*.in		\
 	*~

@@ -17,6 +17,11 @@ libgrlgravatar_la_SOURCES = grl-gravatar.c grl-gravatar.h
 
 libdir=$(GRL_PLUGINS_DIR)
 
+gravatarlibxmldir	= $(libdir)
+gravatarlibxml_DATA	= libgrlgravatar.xml
+
+EXTRA_DIR = $(gravatarlibdata_DATA)
+
 MAINTAINERCLEANFILES =	\
 	*.in	\
 	*~

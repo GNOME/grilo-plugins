@@ -23,6 +23,11 @@ libgrlappletrailers_la_SOURCES =	\
 
 libdir=$(GRL_PLUGINS_DIR)
 
+appletrailerslibxmldir		= $(libdir)
+appletrailerslibxml_DATA	= libgrlappletrailers.xml
+
+EXTRA_DIR = $(appletrailerslibdata_DATA)
+
 MAINTAINERCLEANFILES =	\
 	*.in		\
 	*~

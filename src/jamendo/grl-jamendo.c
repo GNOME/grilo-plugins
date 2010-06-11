@@ -83,8 +83,6 @@
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-jamendo"
-#define PLUGIN_NAME "Jamendo"
-#define PLUGIN_DESC "A plugin for browsing and searching Jamendo videos"
 
 #define SOURCE_ID   "grl-jamendo"
 #define SOURCE_NAME "Jamendo"
@@ -181,13 +179,7 @@ grl_jamendo_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_jamendo_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Jamendo GObject ================ */
 

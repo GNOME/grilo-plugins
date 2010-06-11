@@ -55,8 +55,6 @@
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-shoutcast"
-#define PLUGIN_NAME "SHOUTcast"
-#define PLUGIN_DESC "A plugin for browsing SHOUTcast radios"
 
 #define SOURCE_ID   "grl-shoutcast"
 #define SOURCE_NAME "SHOUTcast"
@@ -128,13 +126,7 @@ grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_shoutcast_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== SHOUTcast GObject ================ */
 

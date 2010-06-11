@@ -46,8 +46,6 @@
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-flickr"
-#define PLUGIN_NAME "Flickr"
-#define PLUGIN_DESC "A plugin for browsing and searching Flickr photos"
 
 #define SOURCE_ID   "grl-flickr"
 #define SOURCE_NAME "Flickr"
@@ -137,13 +135,7 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_flickr_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Flickr GObject ================ */
 

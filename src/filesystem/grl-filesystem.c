@@ -57,8 +57,6 @@
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-filesystem"
-#define PLUGIN_NAME "Filesystem"
-#define PLUGIN_DESC "A plugin for browsing the filesystem"
 
 #define SOURCE_ID   "grl-filesystem"
 #define SOURCE_NAME "Filesystem"
@@ -138,13 +136,7 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_filesystem_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Filesystem GObject ================ */
 

@@ -52,8 +52,6 @@
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-apple-trailers"
-#define PLUGIN_NAME "Apple Movie Trailers"
-#define PLUGIN_DESC "A plugin for browsing Apple Movie Trailers"
 
 #define SOURCE_ID   "grl-apple-trailers"
 #define SOURCE_NAME "Apple Movie Trailers"
@@ -102,13 +100,7 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_apple_trailers_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== AppleTrailers GObject ================ */
 

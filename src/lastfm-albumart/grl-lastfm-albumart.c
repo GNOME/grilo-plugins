@@ -46,8 +46,6 @@
 /* ------- Pluging Info -------- */
 
 #define PLUGIN_ID   "grl-lastfm-albumart"
-#define PLUGIN_NAME "Album art Provider from Last.FM"
-#define PLUGIN_DESC "A plugin for getting album arts using Last.FM as backend"
 
 #define SOURCE_ID   "grl-lastfm-albumart"
 #define SOURCE_NAME "Album art Provider from Last.FM"
@@ -90,13 +88,7 @@ grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_lastfm_albumart_source_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Last.FM-AlbumArt GObject ================ */
 

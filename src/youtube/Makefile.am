@@ -16,7 +16,7 @@ libgrlyoutube_la_CFLAGS =	\
 libgrlyoutube_la_LIBADD =	\
 	$(DEPS_LIBS)		\
 	$(GIO_LIBS)		\
-	$(XML_LIBS) 		\	
+	$(XML_LIBS) 		\
 	$(GDATA_LIBS)
 
 libgrlyoutube_la_SOURCES = grl-youtube.c grl-youtube.h

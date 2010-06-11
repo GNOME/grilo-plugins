@@ -32,8 +32,6 @@
 #define G_LOG_DOMAIN "grl-fake-metadata"
 
 #define PLUGIN_ID   "grl-fake-metadata"
-#define PLUGIN_NAME "Fake Metadata Provider"
-#define PLUGIN_DESC "A plugin for faking metadata resolution"
 
 #define SOURCE_ID   "grl-fake-metadata"
 #define SOURCE_NAME "Fake Metadata Provider"
@@ -81,13 +79,7 @@ grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_fake_metadata_source_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== GrlFakeMetadata GObject ================ */
 

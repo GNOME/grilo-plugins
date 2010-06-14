@@ -58,9 +58,15 @@
 #define SITE        "http://www.igalia.com"
 
 typedef struct {
-  GrlMediaSourceSearchSpec *ss;
+  GrlMediaSource *source;
+  GrlMediaSourceResultCb callback;
+  gchar *tags;
+  gchar *text;
   gint offset;
   gint page;
+  gpointer user_data;
+  guint count;
+  guint search_id;
 } SearchData;
 
 struct _GrlFlickrSourcePrivate {
@@ -74,6 +80,9 @@ gboolean grl_flickr_plugin_init (GrlPluginRegistry *registry,
                                  GList *configs);
 
 static const GList *grl_flickr_source_supported_keys (GrlMetadataSource *source);
+
+static void grl_flickr_source_browse (GrlMediaSource *source,
+                                      GrlMediaSourceBrowseSpec *bs);
 
 static void grl_flickr_source_metadata (GrlMediaSource *source,
                                         GrlMediaSourceMetadataSpec *ss);
@@ -156,6 +165,7 @@ grl_flickr_source_class_init (GrlFlickrSourceClass * klass)
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
 
+  source_class->browse = grl_flickr_source_browse;
   source_class->metadata = grl_flickr_source_metadata;
   source_class->search = grl_flickr_source_search;
   metadata_class->supported_keys = grl_flickr_source_supported_keys;
@@ -262,17 +272,17 @@ search_cb (GFlickr *f, GList *photolist, gpointer user_data)
 
   /* No more elements can be sent */
   if (!photolist) {
-    sd->ss->callback (sd->ss->source,
-                      sd->ss->search_id,
-                      NULL,
-                      0,
-                      sd->ss->user_data,
-                      NULL);
+    sd->callback (sd->source,
+                  sd->search_id,
+                  NULL,
+                  0,
+                  sd->user_data,
+                  NULL);
     g_slice_free (SearchData, sd);
     return;
   }
 
-  while (photolist && sd->ss->count) {
+  while (photolist && sd->count) {
     media_type = g_hash_table_lookup (photolist->data, "photo_media");
     if (strcmp (media_type, "photo") == 0) {
       media = grl_media_image_new ();
@@ -280,23 +290,61 @@ search_cb (GFlickr *f, GList *photolist, gpointer user_data)
       media = grl_media_video_new ();
     }
     update_media (media, photolist->data);
-    sd->ss->callback (sd->ss->source,
-                      sd->ss->search_id,
-                      media,
-                      sd->ss->count == 1? 0: -1,
-                      sd->ss->user_data,
-                      NULL);
+    sd->callback (sd->source,
+                  sd->search_id,
+                  media,
+                  sd->count == 1? 0: -1,
+                  sd->user_data,
+                  NULL);
     photolist = g_list_next (photolist);
-    sd->ss->count--;
+    sd->count--;
   }
 
   /* Get more elements */
-  if (sd->ss->count) {
+  if (sd->count) {
     sd->offset = 0;
     sd->page++;
-    g_flickr_photos_search (f, sd->ss->text, NULL, sd->page, search_cb, sd);
+    g_flickr_photos_search (f, sd->text, sd->tags, sd->page, search_cb, sd);
   } else {
     g_slice_free (SearchData, sd);
+  }
+}
+
+static void
+gettags_cb (GFlickr *f, GList *taglist, gpointer user_data)
+{
+  GrlMedia *media;
+  GrlMediaSourceBrowseSpec *bs = (GrlMediaSourceBrowseSpec *) user_data;
+  gint count;
+
+  /* Go to offset element */
+  taglist = g_list_nth (taglist, bs->skip);
+
+  /* No more elements can be sent */
+  if (!taglist) {
+    bs->callback (bs->source,
+                  bs->browse_id,
+                  NULL,
+                  0,
+                  bs->user_data,
+                  NULL);
+    return;
+  }
+
+  /* Send data */
+  count = g_list_length (taglist);
+  while (taglist) {
+    count--;
+    media = grl_media_box_new ();
+    grl_media_set_id (media, taglist->data);
+    grl_media_set_title (media, taglist->data);
+    bs->callback (bs->source,
+                  bs->browse_id,
+                  media,
+                  count,
+                  bs->user_data,
+                  NULL);
+    taglist = g_list_next (taglist);
   }
 }
 
@@ -317,6 +365,43 @@ grl_flickr_source_supported_keys (GrlMetadataSource *source)
                                       NULL);
   }
   return keys;
+}
+
+static void
+grl_flickr_source_browse (GrlMediaSource *source,
+                          GrlMediaSourceBrowseSpec *bs)
+{
+  GFlickr *f = GRL_FLICKR_SOURCE (source)->priv->flickr;
+  const gchar *container_id;
+  gint per_page;
+  gint request_size;
+
+  container_id = grl_media_get_id (bs->container);
+
+  if (!container_id) {
+    /* Get hot tags list. List is limited up to 200 tags */
+    if (bs->skip >= 200) {
+      bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, NULL);
+    } else {
+      request_size = bs->skip + CLAMP (bs->count, 0, 200);
+      g_flickr_tags_getHotList (f, request_size, gettags_cb, bs);
+    }
+  } else {
+    per_page = CLAMP (1 + bs->skip + bs->count, 0, 100);
+    g_flickr_set_per_page (f, per_page);
+
+    SearchData *sd = g_slice_new (SearchData);
+    sd->source = bs->source;
+    sd->callback = bs->callback;
+    sd->tags = (gchar *) container_id;
+    sd->text = NULL;
+    sd->page = 1 + (bs->skip / per_page);
+    sd->offset = bs->skip % per_page;
+    sd->user_data = bs->user_data;
+    sd->count = bs->count;
+    sd->search_id = bs->browse_id;
+    g_flickr_photos_search (f, NULL, sd->tags, sd->page, search_cb, sd);
+  }
 }
 
 static void
@@ -348,9 +433,14 @@ grl_flickr_source_search (GrlMediaSource *source,
   g_flickr_set_per_page (f, per_page);
 
   SearchData *sd = g_slice_new (SearchData);
+  sd->source = ss->source;
+  sd->callback = ss->callback;
+  sd->tags = NULL;
+  sd->text = ss->text;
   sd->page = 1 + (ss->skip / per_page);
   sd->offset = ss->skip % per_page;
-  sd->ss = ss;
-
+  sd->user_data = ss->user_data;
+  sd->count = ss->count;
+  sd->search_id = ss->search_id;
   g_flickr_photos_search (f, ss->text, NULL, sd->page, search_cb, sd);
 }

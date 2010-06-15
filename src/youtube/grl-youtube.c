@@ -914,6 +914,9 @@ produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os)
 
   guint index, remaining;
 
+  /* Youtube's first index is 1, but the directories start at 0 */
+  os->skip--;
+
   if (os->skip >= dir_size) {
     /* No results */
     os->callback (os->source,
@@ -1071,19 +1074,19 @@ grl_youtube_source_search (GrlMediaSource *source,
   OperationSpec *os;
   GDataQuery *query;
 
-  g_debug ("grl_youtube_source_search %u", ss->count);
+  g_debug ("grl_youtube_source_search (%u, %u)", ss->skip, ss->count);
 
   os = g_slice_new0 (OperationSpec);
   os->source = source;
   os->operation_id = ss->search_id;
   os->keys = ss->keys;
-  os->skip = ss->skip;
+  os->skip = ss->skip + 1;
   os->count = ss->count;
   os->callback = ss->callback;
   os->user_data = ss->user_data;
   os->error_code = GRL_ERROR_SEARCH_FAILED;
 
-  query = gdata_query_new_with_limits (ss->text, ss->skip, ss->count);
+  query = gdata_query_new_with_limits (ss->text, os->skip, os->count);
   gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (source)->service),
 					    query,
 					    NULL,
@@ -1111,7 +1114,7 @@ grl_youtube_source_browse (GrlMediaSource *source,
   os->container_id = container_id;
   os->keys = bs->keys;
   os->flags = bs->flags;
-  os->skip = bs->skip;
+  os->skip = bs->skip + 1;
   os->count = bs->count;
   os->callback = bs->callback;
   os->user_data = bs->user_data;

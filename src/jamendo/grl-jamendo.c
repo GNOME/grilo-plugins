@@ -950,7 +950,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
           g_strdup_printf (JAMENDO_GET_ALBUMS_FROM_ARTIST,
                            jamendo_keys,
                            bs->count,
-                           bs->skip + 1,
+                           bs->skip / bs->count + 1,
                            container_split[1]);
       } else {
         /* Browsing through artists */
@@ -958,7 +958,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
         url = g_strdup_printf (JAMENDO_GET_ARTISTS,
                                jamendo_keys,
                                bs->count,
-                               bs->skip + 1);
+                               bs->skip / bs->count + 1);
       }
       g_free (jamendo_keys);
 
@@ -970,7 +970,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
           g_strdup_printf (JAMENDO_GET_TRACKS_FROM_ALBUM,
                            jamendo_keys,
                            bs->count,
-                           bs->skip + 1,
+                           bs->skip / bs->count + 1,
                            container_split[1]);
       } else {
         /* Browsing through albums */
@@ -978,7 +978,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
         url = g_strdup_printf (JAMENDO_GET_ALBUMS,
                                jamendo_keys,
                                bs->count,
-                               bs->skip + 1);
+                               bs->skip / bs->count + 1);
       }
       g_free (jamendo_keys);
 

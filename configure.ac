@@ -42,11 +42,19 @@ GNOME_MAINTAINER_MODE_DEFINES
 # DEFINITIONS
 # ----------------------------------------------------------
 
+GRL_VERSION=0.1
+GRL_NAME=grilo-${GRL_VERSION}
+
 # Plugins directory
 
 GRL_PLUGINS_DIR=`pkg-config --variable=plugindir grilo-0.1`
 AC_SUBST(GRL_PLUGINS_DIR)
 AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
+
+# Plugins configuration directory
+
+GRL_PLUGINS_CONF_DIR="${datadir}/${GRL_NAME}/plugins"
+AC_SUBST(GRL_PLUGINS_CONF_DIR)
 
 # ----------------------------------------------------------
 # DEPENDENCIES

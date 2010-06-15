@@ -22,11 +22,10 @@ libgrlappletrailers_la_SOURCES =	\
 	grl-apple-trailers.h
 
 libdir=$(GRL_PLUGINS_DIR)
+appletrailersxmldir	= $(GRL_PLUGINS_CONF_DIR)
+appletrailersxml_DATA	= $(APPLE_TRAILERS_PLUGIN_ID).xml
 
-appletrailerslibxmldir		= $(libdir)
-appletrailerslibxml_DATA	= libgrlappletrailers.xml
-
-EXTRA_DIR = $(appletrailerslibdata_DATA)
+EXTRA_DIR = $(appletrailersxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

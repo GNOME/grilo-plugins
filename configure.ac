@@ -499,6 +499,7 @@ then
 fi
 
 APPLE_TRAILERS_PLUGIN_ID="grl-apple-trailers"
+AC_SUBST(APPLE_TRAILERS_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([APPLE_TRAILERS_PLUGIN_ID], ["$APPLE_TRAILERS_PLUGIN_ID"], [Apple Trailers plugin ID])
 
 # ----------------------------------------------------------

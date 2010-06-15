@@ -51,7 +51,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-apple-trailers"
+#define PLUGIN_ID   APPLE_TRAILERS_PLUGIN_ID
 
 #define SOURCE_ID   "grl-apple-trailers"
 #define SOURCE_NAME "Apple Movie Trailers"

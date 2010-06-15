@@ -498,6 +498,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED apple-trailers"
 fi
 
+APPLE_TRAILERS_PLUGIN_ID="grl-apple-trailers"
+AC_DEFINE_UNQUOTED([APPLE_TRAILERS_PLUGIN_ID], ["$APPLE_TRAILERS_PLUGIN_ID"], [Apple Trailers plugin ID])
+
 # ----------------------------------------------------------
 # BUILD METADATA-STORE PLUGIN
 # ----------------------------------------------------------

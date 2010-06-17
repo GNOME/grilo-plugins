@@ -43,6 +43,8 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "grl-flickr"
 
+#define SEARCH_MAX  500
+
 /* --- Plugin information --- */
 
 #define PLUGIN_ID   "grl-flickr"
@@ -169,6 +171,9 @@ static void
 grl_flickr_source_init (GrlFlickrSource *source)
 {
   source->priv = GRL_FLICKR_SOURCE_GET_PRIVATE (source);
+
+  grl_media_source_set_auto_split_threshold (GRL_MEDIA_SOURCE (source),
+                                             SEARCH_MAX);
 }
 
 G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_MEDIA_SOURCE);

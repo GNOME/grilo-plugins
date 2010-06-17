@@ -44,6 +44,7 @@
 #define G_LOG_DOMAIN "grl-flickr"
 
 #define SEARCH_MAX  500
+#define HOTLIST_MAX 200
 
 /* --- Plugin information --- */
 
@@ -376,11 +377,11 @@ grl_flickr_source_browse (GrlMediaSource *source,
   container_id = grl_media_get_id (bs->container);
 
   if (!container_id) {
-    /* Get hot tags list. List is limited up to 200 tags */
-    if (bs->skip >= 200) {
+    /* Get hot tags list. List is limited up to HOTLIST_MAX tags */
+    if (bs->skip >= HOTLIST_MAX) {
       bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, NULL);
     } else {
-      request_size = bs->skip + CLAMP (bs->count, 0, 200);
+      request_size = CLAMP (bs->skip + bs->count, 0, HOTLIST_MAX);
       g_flickr_tags_getHotList (f, request_size, gettags_cb, bs);
     }
   } else {

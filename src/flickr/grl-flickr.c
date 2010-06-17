@@ -63,8 +63,8 @@ typedef struct {
   GrlMediaSourceResultCb callback;
   gchar *tags;
   gchar *text;
-  gint offset;
-  gint page;
+  guint offset;
+  guint page;
   gpointer user_data;
   guint count;
   guint search_id;
@@ -385,16 +385,20 @@ grl_flickr_source_browse (GrlMediaSource *source,
       g_flickr_tags_getHotList (f, request_size, gettags_cb, bs);
     }
   } else {
-    per_page = CLAMP (1 + bs->skip + bs->count, 0, 100);
+    SearchData *sd = g_slice_new (SearchData);
+
+    grl_paging_translate (bs->skip,
+                          bs->count,
+                          SEARCH_MAX,
+                          &per_page,
+                          &(sd->page),
+                          &(sd->offset));
     g_flickr_set_per_page (f, per_page);
 
-    SearchData *sd = g_slice_new (SearchData);
     sd->source = bs->source;
     sd->callback = bs->callback;
     sd->tags = (gchar *) container_id;
     sd->text = NULL;
-    sd->page = 1 + (bs->skip / per_page);
-    sd->offset = bs->skip % per_page;
     sd->user_data = bs->user_data;
     sd->count = bs->count;
     sd->search_id = bs->browse_id;
@@ -424,19 +428,22 @@ grl_flickr_source_search (GrlMediaSource *source,
                           GrlMediaSourceSearchSpec *ss)
 {
   GFlickr *f = GRL_FLICKR_SOURCE (source)->priv->flickr;
-  gint per_page;
+  guint per_page;
+  SearchData *sd = g_slice_new (SearchData);
 
   /* Compute items per page and page offset */
-  per_page = CLAMP (1 + ss->skip + ss->count, 0, 100);
+  grl_paging_translate (ss->skip,
+                        ss->count,
+                        SEARCH_MAX,
+                        &per_page,
+                        &(sd->page),
+                        &(sd->offset));
   g_flickr_set_per_page (f, per_page);
 
-  SearchData *sd = g_slice_new (SearchData);
   sd->source = ss->source;
   sd->callback = ss->callback;
   sd->tags = NULL;
   sd->text = ss->text;
-  sd->page = 1 + (ss->skip / per_page);
-  sd->offset = ss->skip % per_page;
   sd->user_data = ss->user_data;
   sd->count = ss->count;
   sd->search_id = ss->search_id;

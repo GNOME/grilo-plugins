@@ -602,6 +602,7 @@ then
 fi
 
 GRAVATAR_PLUGIN_ID="grl-gravatar"
+AC_SUBST(GRAVATAR_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([GRAVATAR_PLUGIN_ID], ["$GRAVATAR_PLUGIN_ID"], [Gravatar plugin ID])
 
 # ----------------------------------------------------------

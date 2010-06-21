@@ -314,6 +314,7 @@ then
 fi
 
 YOUTUBE_PLUGIN_ID="grl-youtube"
+AC_SUBST(YOUTUBE_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([YOUTUBE_PLUGIN_ID], ["$YOUTUBE_PLUGIN_ID"], [YouTube plugin ID])
 
 # ----------------------------------------------------------

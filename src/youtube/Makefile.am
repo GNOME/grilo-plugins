@@ -22,11 +22,10 @@ libgrlyoutube_la_LIBADD =	\
 libgrlyoutube_la_SOURCES = grl-youtube.c grl-youtube.h
 
 libdir=$(GRL_PLUGINS_DIR)
+youtubexmldir	= $(GRL_PLUGINS_CONF_DIR)
+youtubexml_DATA	= $(YOUTUBE_PLUGIN_ID).xml
 
-youtubelibxmldir	= $(libdir)
-youtubelibxml_DATA	= libgrlyoutube.xml
-
-EXTRA_DIR = $(youtubelibdata_DATA)
+EXTRA_DIR = $(youtubexml_DATA)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

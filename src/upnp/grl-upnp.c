@@ -48,7 +48,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-upnp"
+#define PLUGIN_ID   UPNP_PLUGIN_ID
 
 #define SOURCE_ID_TEMPLATE    "grl-upnp-%s"
 #define SOURCE_NAME_TEMPLATE  "UPnP - %s"

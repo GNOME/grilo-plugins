@@ -272,6 +272,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED upnp"
 fi
 
+UPNP_PLUGIN_ID="grl-upnp"
+AC_DEFINE_UNQUOTED([UPNP_PLUGIN_ID], ["$UPNP_PLUGIN_ID"], [UPnP plugin ID])
+
 # ----------------------------------------------------------
 # BUILD YOUTUBE PLUGIN
 # ----------------------------------------------------------

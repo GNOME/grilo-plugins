@@ -273,6 +273,7 @@ then
 fi
 
 UPNP_PLUGIN_ID="grl-upnp"
+AC_SUBST(UPNP_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([UPNP_PLUGIN_ID], ["$UPNP_PLUGIN_ID"], [UPnP plugin ID])
 
 # ----------------------------------------------------------

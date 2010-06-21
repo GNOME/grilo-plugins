@@ -33,11 +33,10 @@ endif
 libgrlupnp_la_SOURCES = grl-upnp.c grl-upnp.h
 
 libdir = $(GRL_PLUGINS_DIR)
+upnpxmldir	= $(GRL_PLUGINS_CONF_DIR)
+upnpxml_DATA	= $(UPNP_PLUGIN_ID).xml
 
-upnplibxmldir		= $(libdir)
-upnplibxml_DATA	= libgrlupnp.xml
-
-EXTRA_DIR = $(upnplibdata_DATA)
+EXTRA_DIR = $(upnpxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

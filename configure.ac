@@ -578,6 +578,7 @@ then
 fi
 
 VIMEO_PLUGIN_ID="grl-vimeo"
+AC_SUBST(VIMEO_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([VIMEO_PLUGIN_ID], ["$VIMEO_PLUGIN_ID"], [Vimeo plugin ID])
 
 # ----------------------------------------------------------

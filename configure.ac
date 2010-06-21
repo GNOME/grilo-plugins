@@ -347,6 +347,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED flickr"
 fi
 
+FLICKR_PLUGIN_ID="grl-flickr"
+AC_DEFINE_UNQUOTED([FLICKR_PLUGIN_ID], ["$FLICKR_PLUGIN_ID"], [Flickr plugin ID])
+
 # ----------------------------------------------------------
 # BUILD PODCASTS PLUGIN
 # ----------------------------------------------------------

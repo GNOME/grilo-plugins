@@ -48,7 +48,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-flickr"
+#define PLUGIN_ID   FLICKR_PLUGIN_ID
 
 #define SOURCE_ID   "grl-flickr"
 #define SOURCE_NAME "Flickr"

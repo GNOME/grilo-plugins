@@ -96,7 +96,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-youtube"
+#define PLUGIN_ID   YOUTUBE_PLUGIN_ID
 
 #define SOURCE_ID   "grl-youtube"
 #define SOURCE_NAME "Youtube"

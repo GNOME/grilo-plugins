@@ -313,6 +313,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED youtube"
 fi
 
+YOUTUBE_PLUGIN_ID="grl-youtube"
+AC_DEFINE_UNQUOTED([YOUTUBE_PLUGIN_ID], ["$YOUTUBE_PLUGIN_ID"], [YouTube plugin ID])
+
 # ----------------------------------------------------------
 # BUILD FLICKR PLUGIN
 # ----------------------------------------------------------

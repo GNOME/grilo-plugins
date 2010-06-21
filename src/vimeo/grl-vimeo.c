@@ -46,7 +46,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-vimeo"
+#define PLUGIN_ID   VIMEO_PLUGIN_ID
 
 #define SOURCE_ID   "grl-vimeo"
 #define SOURCE_NAME "Vimeo"

@@ -577,6 +577,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED vimeo"
 fi
 
+VIMEO_PLUGIN_ID="grl-vimeo"
+AC_DEFINE_UNQUOTED([VIMEO_PLUGIN_ID], ["$VIMEO_PLUGIN_ID"], [Vimeo plugin ID])
+
 # ----------------------------------------------------------
 # BUILD GRAVATAR PLUGIN
 # ----------------------------------------------------------

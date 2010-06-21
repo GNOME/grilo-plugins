@@ -601,6 +601,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED gravatar"
 fi
 
+GRAVATAR_PLUGIN_ID="grl-gravatar"
+AC_DEFINE_UNQUOTED([GRAVATAR_PLUGIN_ID], ["$GRAVATAR_PLUGIN_ID"], [Gravatar plugin ID])
+
 # ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------

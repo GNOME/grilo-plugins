@@ -39,7 +39,7 @@
 
 /* ------- Pluging Info -------- */
 
-#define PLUGIN_ID   "grl-gravatar"
+#define PLUGIN_ID   GRAVATAR_PLUGIN_ID
 
 #define SOURCE_ID   PLUGIN_ID
 #define SOURCE_NAME "Avatar provider from Gravatar"

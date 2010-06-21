@@ -109,7 +109,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-bookmarks"
+#define PLUGIN_ID   BOOKMARKS_PLUGIN_ID
 
 #define SOURCE_ID   "grl-bookmarks"
 #define SOURCE_NAME "Bookmarks"

@@ -430,6 +430,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED bookmarks"
 fi
 
+BOOKMARKS_PLUGIN_ID="grl-bookmarks"
+AC_DEFINE_UNQUOTED([BOOKMARKS_PLUGIN_ID], ["$BOOKMARKS_PLUGIN_ID"], [Bookmarks plugin ID])
+
 # ----------------------------------------------------------
 # BUILD SHOUTCAST PLUGIN
 # ----------------------------------------------------------

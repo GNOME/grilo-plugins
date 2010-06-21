@@ -389,6 +389,7 @@ then
 fi
 
 PODCASTS_PLUGIN_ID="grl-podcasts"
+AC_SUBST(PODCASTS_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([PODCASTS_PLUGIN_ID], ["$PODCASTS_PLUGIN_ID"], [Podcasts plugin ID])
 
 # ----------------------------------------------------------

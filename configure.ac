@@ -465,6 +465,7 @@ then
 fi
 
 SHOUTCAST_PLUGIN_ID="grl-shoutcast"
+AC_SUBST(SHOUTCAST_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([SHOUTCAST_PLUGIN_ID], ["$SHOUTCAST_PLUGIN_ID"], [Shoutcast plugin ID])
 
 # ----------------------------------------------------------

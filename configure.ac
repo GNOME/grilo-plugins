@@ -431,6 +431,7 @@ then
 fi
 
 BOOKMARKS_PLUGIN_ID="grl-bookmarks"
+AC_SUBST(BOOKMARKS_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([BOOKMARKS_PLUGIN_ID], ["$BOOKMARKS_PLUGIN_ID"], [Bookmarks plugin ID])
 
 # ----------------------------------------------------------

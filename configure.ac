@@ -47,7 +47,7 @@ GRL_NAME=grilo-${GRL_VERSION}
 
 # Plugins directory
 
-GRL_PLUGINS_DIR=`pkg-config --variable=plugindir grilo-0.1`
+GRL_PLUGINS_DIR=`pkg-config --variable=plugindir ${GRL_NAME}`
 AC_SUBST(GRL_PLUGINS_DIR)
 AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 

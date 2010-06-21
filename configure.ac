@@ -464,6 +464,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED shoutcast"
 fi
 
+SHOUTCAST_PLUGIN_ID="grl-shoutcast"
+AC_DEFINE_UNQUOTED([SHOUTCAST_PLUGIN_ID], ["$SHOUTCAST_PLUGIN_ID"], [Shoutcast plugin ID])
+
 # ----------------------------------------------------------
 # BUILD APPLE TRAILERS PLUGIN
 # ----------------------------------------------------------

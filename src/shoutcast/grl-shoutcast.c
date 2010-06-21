@@ -54,7 +54,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-shoutcast"
+#define PLUGIN_ID   SHOUTCAST_PLUGIN_ID
 
 #define SOURCE_ID   "grl-shoutcast"
 #define SOURCE_NAME "SHOUTcast"

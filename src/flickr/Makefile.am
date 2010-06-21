@@ -24,11 +24,10 @@ libgrlflickr_la_SOURCES =	\
 	gflickr.h
 
 libdir=$(GRL_PLUGINS_DIR)
+flickrxmldir	= $(GRL_PLUGINS_CONF_DIR)
+flickrxml_DATA	= $(FLICKR_PLUGIN_ID).xml
 
-flickrlibxmldir		= $(libdir)
-flickrlibxml_DATA	= libgrlflickr.xml
-
-EXTRA_DIR = $(flickrlibdata_DATA)
+EXTRA_DIR = $(flickrxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

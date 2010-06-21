@@ -348,6 +348,7 @@ then
 fi
 
 FLICKR_PLUGIN_ID="grl-flickr"
+AC_SUBST(FLICKR_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([FLICKR_PLUGIN_ID], ["$FLICKR_PLUGIN_ID"], [Flickr plugin ID])
 
 # ----------------------------------------------------------

@@ -38,7 +38,7 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "grl-metadata-store"
 
-#define PLUGIN_ID   "grl-metadata-store"
+#define PLUGIN_ID   METADATA_STORE_PLUGIN_ID
 
 #define SOURCE_ID   "grl-metadata-store"
 #define SOURCE_NAME "Metadata Store"

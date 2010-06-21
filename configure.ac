@@ -533,6 +533,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED metadata-store"
 fi
 
+METADATA_STORE_PLUGIN_ID="grl-metadata-store"
+AC_DEFINE_UNQUOTED([METADATA_STORE_PLUGIN_ID], ["$METADATA_STORE_PLUGIN_ID"], [Metadata Store plugin ID])
+
 # ----------------------------------------------------------
 # BUILD VIMEO PLUGIN
 # ----------------------------------------------------------

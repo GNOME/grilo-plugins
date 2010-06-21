@@ -534,6 +534,7 @@ then
 fi
 
 METADATA_STORE_PLUGIN_ID="grl-metadata-store"
+AC_SUBST(METADATA_STORE_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([METADATA_STORE_PLUGIN_ID], ["$METADATA_STORE_PLUGIN_ID"], [Metadata Store plugin ID])
 
 # ----------------------------------------------------------

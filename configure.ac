@@ -388,6 +388,8 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED podcasts"
 fi
 
+PODCASTS_PLUGIN_ID="grl-podcasts"
+AC_DEFINE_UNQUOTED([PODCASTS_PLUGIN_ID], ["$PODCASTS_PLUGIN_ID"], [Podcasts plugin ID])
 
 # ----------------------------------------------------------
 # BUILD BOOKMARKS PLUGIN

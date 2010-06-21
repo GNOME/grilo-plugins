@@ -138,7 +138,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-podcasts"
+#define PLUGIN_ID   PODCASTS_PLUGIN_ID
 
 #define SOURCE_ID   "grl-podcasts"
 #define SOURCE_NAME "Podcasts"

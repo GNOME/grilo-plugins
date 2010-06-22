@@ -199,6 +199,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED jamendo"
 fi
 
+JAMENDO_PLUGIN_ID="grl-jamendo"
+AC_DEFINE_UNQUOTED([JAMENDO_PLUGIN_ID], ["$JAMENDO_PLUGIN_ID"], [Jamendo plugin ID])
+
 # ----------------------------------------------------------
 # BUILD LASTFM ALBUM ART PLUGIN
 # ----------------------------------------------------------

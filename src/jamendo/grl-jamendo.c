@@ -82,7 +82,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-jamendo"
+#define PLUGIN_ID   JAMENDO_PLUGIN_ID
 
 #define SOURCE_ID   "grl-jamendo"
 #define SOURCE_NAME "Jamendo"

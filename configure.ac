@@ -234,6 +234,7 @@ then
 fi
 
 LASTFM_ALBUMART_PLUGIN_ID="grl-lastfm-albumart"
+AC_SUBST(LASTFM_ALBUMART_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([LASTFM_ALBUMART_PLUGIN_ID], ["$LASTFM_ALBUMART_PLUGIN_ID"], [Last.fm album art plugin ID])
 
 # ----------------------------------------------------------

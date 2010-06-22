@@ -20,11 +20,10 @@ libgrllastfm_albumart_la_LIBADD =	\
 libgrllastfm_albumart_la_SOURCES = grl-lastfm-albumart.c grl-lastfm-albumart.h
 
 libdir=$(GRL_PLUGINS_DIR)
+lastfmalbumartxmldir	= $(GRL_PLUGINS_CONF_DIR)
+lastfmalbumartxml_DATA	= $(LASTFM_ALBUMART_PLUGIN_ID).xml
 
-lastfmalbumartlibxmldir		= $(libdir)
-lastfmalbumartlibxml_DATA	= libgrllastfm-albumart.xml
-
-EXTRA_DIR = $(lastfmalbumartlibdata_DATA)
+EXTRA_DIR = $(lastfmalbumartxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in	\

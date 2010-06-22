@@ -31,7 +31,7 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "grl-fake-metadata"
 
-#define PLUGIN_ID   "grl-fake-metadata"
+#define PLUGIN_ID   FAKEMETADATA_PLUGIN_ID
 
 #define SOURCE_ID   "grl-fake-metadata"
 #define SOURCE_NAME "Fake Metadata Provider"

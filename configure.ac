@@ -149,6 +149,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED fakemetadata"
 fi
 
+FAKEMETADATA_PLUGIN_ID="grl-fake-metadata"
+AC_DEFINE_UNQUOTED([FAKEMETADATA_PLUGIN_ID], ["$FAKEMETADATA_PLUGIN_ID"], [Fake metadata plugin ID])
+
 # ----------------------------------------------------------
 # BUILD FILE SYSTEM PLUGIN
 # ----------------------------------------------------------

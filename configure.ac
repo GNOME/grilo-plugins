@@ -200,6 +200,7 @@ then
 fi
 
 JAMENDO_PLUGIN_ID="grl-jamendo"
+AC_SUBST(JAMENDO_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([JAMENDO_PLUGIN_ID], ["$JAMENDO_PLUGIN_ID"], [Jamendo plugin ID])
 
 # ----------------------------------------------------------

@@ -150,6 +150,7 @@ then
 fi
 
 FAKEMETADATA_PLUGIN_ID="grl-fake-metadata"
+AC_SUBST(FAKEMETADATA_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([FAKEMETADATA_PLUGIN_ID], ["$FAKEMETADATA_PLUGIN_ID"], [Fake metadata plugin ID])
 
 # ----------------------------------------------------------

@@ -166,6 +166,7 @@ then
 fi
 
 FILESYSTEM_PLUGIN_ID="grl-filesystem"
+AC_SUBST(FILESYSTEM_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([FILESYSTEM_PLUGIN_ID], ["$FILESYSTEM_PLUGIN_ID"], [Filesystem plugin ID])
 
 # ----------------------------------------------------------

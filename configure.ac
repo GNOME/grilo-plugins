@@ -233,6 +233,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED lastfm-albumart"
 fi
 
+LASTFM_ALBUMART_PLUGIN_ID="grl-lastfm-albumart"
+AC_DEFINE_UNQUOTED([LASTFM_ALBUMART_PLUGIN_ID], ["$LASTFM_ALBUMART_PLUGIN_ID"], [Last.fm album art plugin ID])
+
 # ----------------------------------------------------------
 # BUILD UPNP PLUGIN
 # ----------------------------------------------------------

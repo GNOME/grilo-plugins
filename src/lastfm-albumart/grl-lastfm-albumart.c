@@ -45,7 +45,7 @@
 
 /* ------- Pluging Info -------- */
 
-#define PLUGIN_ID   "grl-lastfm-albumart"
+#define PLUGIN_ID   LASTFM_ALBUMART_PLUGIN_ID
 
 #define SOURCE_ID   "grl-lastfm-albumart"
 #define SOURCE_NAME "Album art Provider from Last.FM"

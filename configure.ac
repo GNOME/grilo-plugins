@@ -165,6 +165,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED filesystem"
 fi
 
+FILESYSTEM_PLUGIN_ID="grl-filesystem"
+AC_DEFINE_UNQUOTED([FILESYSTEM_PLUGIN_ID], ["$FILESYSTEM_PLUGIN_ID"], [Filesystem plugin ID])
+
 # ----------------------------------------------------------
 # BUILD JAMENDO PLUGIN
 # ----------------------------------------------------------

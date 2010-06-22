@@ -56,7 +56,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-filesystem"
+#define PLUGIN_ID   FILESYSTEM_PLUGIN_ID
 
 #define SOURCE_ID   "grl-filesystem"
 #define SOURCE_NAME "Filesystem"

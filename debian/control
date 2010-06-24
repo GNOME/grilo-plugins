@@ -2,14 +2,14 @@ Source: grilo-0.1-plugins
 Section: libs
 Priority: extra
 Maintainer: Juan A. Suarez Romero <jasuarez@igalia.com>
-Build-Depends: cdbs (>= 0.4.48-0osso2), debhelper (>= 5), libgrilo-0.1-dev (>= 0.1.3) ,
+Build-Depends: cdbs (>= 0.4.48-0osso2), debhelper (>= 5), libgrilo-0.1-dev (>= 0.1.4-1fremantle1) ,
  gnome-common, libglib2.0-dev, libxml2-dev, libosso-gnomevfs2-dev
 Standards-Version: 3.7.2
 Homepage: http://gitorious.org/grilo
 
 Package: grilo-0.1-plugins
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libgrilo-0.1 (>= 0.1.3)
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgrilo-0.1 (>= 0.1.4-1fremantle1)
 Description: Grilo framework plugins
  Grilo is a framework that provides access to different sources of
  multimedia content, using a pluggable system.

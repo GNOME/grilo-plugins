@@ -371,7 +371,7 @@ grl_flickr_source_browse (GrlMediaSource *source,
 {
   GFlickr *f = GRL_FLICKR_SOURCE (source)->priv->flickr;
   const gchar *container_id;
-  gint per_page;
+  guint per_page;
   gint request_size;
 
   container_id = grl_media_get_id (bs->container);

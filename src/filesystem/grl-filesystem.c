@@ -578,18 +578,23 @@ grl_filesystem_source_browse (GrlMediaSource *source,
   chosen_paths = GRL_FILESYSTEM_SOURCE(source)->priv->chosen_paths;
   if (!id && chosen_paths) {
     guint remaining = g_list_length (chosen_paths);
-    for (; chosen_paths; chosen_paths = g_list_next (chosen_paths)) {
-      GrlMedia *content = create_content (NULL,
-					  (gchar *) chosen_paths->data,
-					  GRL_RESOLVE_FAST_ONLY,
-					  FALSE);
 
-      bs->callback (source,
-		    bs->browse_id,
-		    content,
-		    --remaining,
-		    bs->user_data,
-		    NULL);
+    if (remaining == 1) {
+        produce_from_path (bs, chosen_paths->data);
+    } else {
+      for (; chosen_paths; chosen_paths = g_list_next (chosen_paths)) {
+        GrlMedia *content = create_content (NULL,
+                                            (gchar *) chosen_paths->data,
+                                            GRL_RESOLVE_FAST_ONLY,
+                                            FALSE);
+
+        bs->callback (source,
+                      bs->browse_id,
+                      content,
+                      --remaining,
+                      bs->user_data,
+                      NULL);
+      }
     }
   } else {
     produce_from_path (bs, id ? id : G_DIR_SEPARATOR_S);

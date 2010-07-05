@@ -467,6 +467,9 @@ build_media_from_entry (GrlMedia *content,
       grl_media_set_mime (media, YOUTUBE_VIDEO_MIME);
     } else if (iter->data == GRL_METADATA_KEY_SITE) {
       grl_media_set_site (media, gdata_youtube_video_get_player_uri (video));
+    } else if (iter->data == GRL_METADATA_KEY_EXTERNAL_URL) {
+      grl_media_set_external_url (media, 
+				  gdata_youtube_video_get_player_uri (video));
     } else if (iter->data == GRL_METADATA_KEY_RATING) {
       gdouble average;
       gdata_youtube_video_get_rating (video, NULL, NULL, NULL, &average);
@@ -476,16 +479,16 @@ build_media_from_entry (GrlMedia *content,
       if (url) {
         grl_media_set_url (media, url);
         g_free (url);
-      } else {
-        GDataYouTubeContent *youtube_content;
-        youtube_content =
-          gdata_youtube_video_look_up_content (video,
-                                               "application/x-shockwave-flash");
-        if (youtube_content != NULL) {
-          GDataMediaContent *content = GDATA_MEDIA_CONTENT (youtube_content);
-          grl_media_set_url (media,
-                             gdata_media_content_get_uri (content));
-        }
+      }
+    } else if (iter->data == GRL_METADATA_KEY_EXTERNAL_PLAYER) {
+      GDataYouTubeContent *youtube_content;
+      youtube_content =
+	gdata_youtube_video_look_up_content (video,
+					     "application/x-shockwave-flash");
+      if (youtube_content != NULL) {
+	GDataMediaContent *content = GDATA_MEDIA_CONTENT (youtube_content);
+	grl_media_set_external_player (media,
+				       gdata_media_content_get_uri (content));
       }
     }
     iter = g_list_next (iter);
@@ -1043,6 +1046,7 @@ grl_youtube_source_supported_keys (GrlMetadataSource *source)
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
                                       GRL_METADATA_KEY_TITLE,
                                       GRL_METADATA_KEY_URL,
+				      GRL_METADATA_KEY_EXTERNAL_URL,
                                       GRL_METADATA_KEY_DESCRIPTION,
                                       GRL_METADATA_KEY_DURATION,
                                       GRL_METADATA_KEY_DATE,
@@ -1051,6 +1055,7 @@ grl_youtube_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_CHILDCOUNT,
                                       GRL_METADATA_KEY_SITE,
                                       GRL_METADATA_KEY_RATING,
+				      GRL_METADATA_KEY_EXTERNAL_PLAYER,
                                       NULL);
   }
   return keys;

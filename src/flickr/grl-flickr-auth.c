@@ -133,3 +133,47 @@ grl_flickr_get_frob (const gchar *api_key,
 
   return frob;
 }
+
+gchar *
+grl_flickr_get_login_link (const gchar *api_key,
+                           const gchar *secret,
+                           const gchar *frob,
+                           FlickrPerm perm)
+{
+  gchar *api_sig;
+  gchar *strperm;
+  gchar *url;
+
+  switch (perm) {
+  case FLICKR_PERM_READ:
+    strperm = "read";
+    break;
+  case FLICKR_PERM_WRITE:
+    strperm = "write";
+    break;
+  case FLICKR_PERM_DELETE:
+    strperm = "delete";
+    break;
+  default:
+    g_warning ("Unknown perm");
+    return NULL;
+  }
+
+  api_sig = get_api_sig (secret,
+                         "api_key", api_key,
+                         "frob", frob,
+                         "perms", strperm,
+                         NULL);
+  url = g_strdup_printf (FLICKR_AUTH
+                         "api_key=%s&"
+                         "perms=%s&"
+                         "frob=%s&"
+                         "api_sig=%s",
+                         api_key,
+                         strperm,
+                         frob,
+                         api_sig);
+  g_free (api_sig);
+
+  return url;
+}

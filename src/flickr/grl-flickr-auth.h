@@ -27,6 +27,18 @@
 
 #include <glib.h>
 
+typedef enum {
+  FLICKR_PERM_READ,
+  FLICKR_PERM_WRITE,
+  FLICKR_PERM_DELETE
+} FlickrPerm;
+
 gchar * grl_flickr_get_frob (const gchar *api_key,
                              const gchar *secret);
+
+gchar *grl_flickr_get_login_link (const gchar *api_key,
+                                  const gchar *secret,
+                                  const gchar *frob,
+                                  FlickrPerm perm);
+
 #endif /* _GRL_FLICKR_AUTH_SOURCE_H_ */

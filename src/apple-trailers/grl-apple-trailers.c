@@ -199,7 +199,6 @@ build_media_from_movie (xmlNodePtr node)
   gchar *movie_rating;
   gchar *movie_studio;
   gchar *movie_copyright;
-  gchar *movie_license;
 
   media = grl_media_video_new ();
 
@@ -239,9 +238,7 @@ build_media_from_movie (xmlNodePtr node)
   grl_media_set_studio (media, movie_studio);
 
   /* FIXME: Translation */
-  movie_license = g_strdup_printf ("Copyright %s", movie_copyright);
-  grl_media_set_license (media, movie_license);
-  g_free (movie_license);
+  grl_media_set_license (media, movie_copyright);
 
   g_free (movie_id);
   g_free (movie_author);

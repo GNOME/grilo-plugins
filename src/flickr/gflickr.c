@@ -60,8 +60,8 @@ typedef struct {
 
 struct _GFlickrPrivate {
   gchar *api_key;
-  gchar *auth_token;
   gchar *auth_secret;
+  gchar *auth_token;
   gint per_page;
 };
 
@@ -99,12 +99,14 @@ g_flickr_finalize (GObject *object)
 }
 
 GFlickr *
-g_flickr_new (const gchar *api_key, const gchar *auth_token, const gchar *auth_secret)
+g_flickr_new (const gchar *api_key, const gchar *auth_secret, const gchar *auth_token)
 {
+  g_return_val_if_fail (api_key && auth_secret);
+
   GFlickr *f = g_object_new (G_FLICKR_TYPE, NULL);
   f->priv->api_key = g_strdup (api_key);
-  f->priv->auth_token = g_strdup (auth_token);
   f->priv->auth_secret = g_strdup (auth_secret);
+  f->priv->auth_token = g_strdup (auth_token);
 
   return f;
 }

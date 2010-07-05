@@ -128,7 +128,7 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
   }
 
   GrlFlickrSource *source = grl_flickr_source_new ();
-  source->priv->flickr = g_flickr_new (flickr_key, flickr_token, flickr_secret);
+  source->priv->flickr = g_flickr_new (flickr_key, flickr_secret, flickr_token);
 
   grl_plugin_registry_register_source (registry,
                                        plugin,

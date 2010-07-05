@@ -122,7 +122,7 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
   flickr_token = grl_config_get_api_token (config);
   flickr_secret = grl_config_get_api_secret (config);
 
-  if (!flickr_key || ! flickr_token || !flickr_secret) {
+  if (!flickr_key || !flickr_secret) {
     g_warning ("Required configuration keys not set up");
     return FALSE;
   }

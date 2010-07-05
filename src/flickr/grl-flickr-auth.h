@@ -41,4 +41,8 @@ gchar *grl_flickr_get_login_link (const gchar *api_key,
                                   const gchar *frob,
                                   FlickrPerm perm);
 
+gchar *grl_flickr_get_token (const gchar *api_key,
+                             const gchar *secret,
+                             const gchar *frob);
+
 #endif /* _GRL_FLICKR_AUTH_SOURCE_H_ */

@@ -177,3 +177,52 @@ grl_flickr_get_login_link (const gchar *api_key,
 
   return url;
 }
+
+gchar *
+grl_flickr_get_token (const gchar *api_key,
+                      const gchar *secret,
+                      const gchar *frob)
+{
+  GError *error = NULL;
+  GFile *uri;
+  GVfs *vfs;
+  gchar *api_sig;
+  gchar *contents;
+  gchar *token;
+  gchar *url;
+
+  api_sig = get_api_sig (secret,
+                         "method", "flickr.auth.getToken",
+                         "api_key", api_key,
+                         "frob", frob,
+                         NULL);
+
+  /* Build url */
+  url = g_strdup_printf (FLICKR_ENTRYPOINT
+                         "method=flickr.auth.getToken&"
+                         "api_key=%s&"
+                         "api_sig=%s&"
+                         "frob=%s",
+                         api_key,
+                         api_sig,
+                         frob);
+  g_free (api_sig);
+
+  /* Load content */
+  vfs = g_vfs_get_default ();
+  uri = g_vfs_get_file_for_uri (vfs, url);
+  g_free (url);
+  if (!g_file_load_contents (uri, NULL, &contents, NULL, NULL, &error)) {
+    g_warning ("Unable to get Flickr's token: %s", error->message);
+    return NULL;
+  }
+
+  /* Get token */
+  token = get_xpath_element (contents, "/rsp/auth/token");
+  g_free (contents);
+  if (!token) {
+    g_warning ("Can not get Flickr's token");
+  }
+
+  return token;
+}

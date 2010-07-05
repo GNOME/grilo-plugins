@@ -50,6 +50,46 @@ get_api_sig (const gchar *secret, ...)
   return api_sig;
 }
 
+static gchar *
+get_xpath_element (const gchar *content,
+                   const gchar *xpath_element)
+{
+  gchar *element = NULL;
+  xmlDocPtr xmldoc = NULL;
+  xmlXPathContextPtr xpath_ctx = NULL;
+  xmlXPathObjectPtr xpath_res = NULL;
+
+  xmldoc = xmlReadMemory (content, xmlStrlen ((xmlChar *) content), NULL, NULL,
+                          XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
+  if (xmldoc) {
+    xpath_ctx = xmlXPathNewContext (xmldoc);
+    if (xpath_ctx) {
+      xpath_res = xmlXPathEvalExpression ((xmlChar *) xpath_element, xpath_ctx);
+      if (xpath_res && xpath_res->nodesetval->nodeTab) {
+        element =
+          (gchar *) xmlNodeListGetString (xmldoc,
+                                          xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
+                                          1);
+      }
+    }
+  }
+
+  /* Free data */
+  if (xmldoc) {
+    xmlFreeDoc (xmldoc);
+  }
+
+  if (xpath_ctx) {
+    xmlXPathFreeContext (xpath_ctx);
+  }
+
+  if (xpath_res) {
+    xmlXPathFreeObject (xpath_res);
+  }
+
+  return element;
+}
+
 gchar *
 grl_flickr_get_frob (const gchar *api_key,
                      const gchar *secret)
@@ -59,9 +99,6 @@ grl_flickr_get_frob (const gchar *api_key,
   GVfs *vfs;
   GFile *uri;
   gchar *contents;
-  xmlDocPtr xmldoc = NULL;
-  xmlXPathContextPtr xpath_ctx = NULL;
-  xmlXPathObjectPtr xpath_res = NULL;
   GError *error = NULL;
   gchar *frob = NULL;
 
@@ -88,39 +125,10 @@ grl_flickr_get_frob (const gchar *api_key,
   }
 
   /* Get frob */
-  xmldoc = xmlReadMemory (contents, xmlStrlen ((xmlChar *)contents), NULL, NULL,
-                          XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
+  frob = get_xpath_element (contents, "/rsp/frob");
   g_free (contents);
-
-  if (xmldoc) {
-    xpath_ctx = xmlXPathNewContext (xmldoc);
-    if (xpath_ctx) {
-      xpath_res = xmlXPathEvalExpression ((xmlChar *) "/rsp/frob", xpath_ctx);
-      if (xpath_res && xpath_res->nodesetval->nodeTab) {
-        frob = (gchar *) xmlNodeListGetString (xmldoc,
-                                               xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
-                                               1);
-      } else {
-        g_warning ("Flick's frob not found");
-      }
-    } else {
-      g_warning ("Unable to create Flickr's XPath");
-    }
-  } else {
-    g_warning ("Unable to parse Flickr XML reply");
-  }
-
-  /* Free data */
-  if (xmldoc) {
-    xmlFreeDoc (xmldoc);
-  }
-
-  if (xpath_ctx) {
-    xmlXPathFreeContext (xpath_ctx);
-  }
-
-  if (xpath_res) {
-    xmlXPathFreeObject (xpath_res);
+  if (!frob) {
+    g_warning ("Can not get Flickr's frob");
   }
 
   return frob;

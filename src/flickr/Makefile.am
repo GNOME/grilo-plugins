@@ -33,7 +33,9 @@ libgrlflickrauth_la_LIBADD =	\
 
 libgrlflickrauth_la_SOURCES =	\
 	grl-flickr-auth.c	\
-	grl-flickr-auth.h
+	grl-flickr-auth.h	\
+	gflickr.c		\
+	gflickr.h
 
 libplugindir		= $(GRL_PLUGINS_DIR)
 libauthdir			= $(libdir)

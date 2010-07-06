@@ -220,82 +220,6 @@ get_xpath_element (const gchar *content,
   return element;
 }
 
-static gchar *
-get_api_sig_photos_search (GFlickr *f,
-                           const gchar *text,
-                           const gchar *tags,
-                           gint page) {
-  gchar *signature;
-  gchar *text_to_sign;
-
-  text_to_sign = g_strdup_printf ("%s"
-                                  "api_key%s"
-                                  "%s""%s"
-                                  "extrasmedia,date_taken,owner_name,url_o,url_t"
-                                  "method" FLICKR_PHOTOS_SEARCH_METHOD
-                                  "page%d"
-                                  "per_page%d"
-                                  "tags%s"
-                                  "text%s",
-                                  f->priv->auth_secret,
-                                  f->priv->api_key,
-                                  f->priv->auth_token? "auth_token": "",
-                                  f->priv->auth_token? f->priv->auth_token: "",
-                                  page,
-                                  f->priv->per_page,
-                                  tags,
-                                  text);
-  signature = g_compute_checksum_for_string (G_CHECKSUM_MD5, text_to_sign, -1);
-  g_free (text_to_sign);
-
-  return signature;
-}
-
-static gchar *
-get_api_sig_tags_gethotlist (GFlickr *f,
-                             gint count)
-{
-  gchar *signature;
-  gchar *text_to_sign;
-
-  text_to_sign = g_strdup_printf ("%s"
-                                  "api_key%s"
-                                  "%s""%s"
-                                  "count%d"
-                                  "method" FLICKR_TAGS_GETHOTLIST_METHOD,
-                                  f->priv->auth_secret,
-                                  f->priv->api_key,
-                                  f->priv->auth_token? "auth_token": "",
-                                  f->priv->auth_token? f->priv->auth_token: "",
-                                  count);
-  signature = g_compute_checksum_for_string (G_CHECKSUM_MD5, text_to_sign, -1);
-  g_free (text_to_sign);
-
-  return signature;
-}
-
-static gchar *
-get_api_sig_photos_getInfo (GFlickr *f, glong photo_id)
-{
-  gchar *signature;
-  gchar *text_to_sign;
-
-  text_to_sign = g_strdup_printf ("%s"
-                                  "api_key%s"
-                                  "%s""%s"
-                                  "method" FLICKR_PHOTOS_GETINFO_METHOD
-                                  "photo_id%ld",
-                                  f->priv->auth_secret,
-                                  f->priv->api_key,
-                                  f->priv->auth_token? "auth_token": "",
-                                  f->priv->auth_token? f->priv->auth_token: "",
-                                  photo_id);
-  signature = g_compute_checksum_for_string (G_CHECKSUM_MD5, text_to_sign, -1);
-  g_free (text_to_sign);
-
-  return signature;
-}
-
 static gboolean
 result_is_correct (xmlNodePtr node)
 {
@@ -515,7 +439,15 @@ g_flickr_photos_getInfo (GFlickr *f,
 
   g_return_if_fail (G_IS_FLICKR (f));
 
-  gchar *api_sig = get_api_sig_photos_getInfo (f, photo_id);
+  gchar *str_photo_id = g_strdup_printf ("%ld", photo_id);
+  gchar *api_sig = get_api_sig (f->priv->auth_secret,
+                                "api_key", f->priv->api_key,
+                                "method", FLICKR_PHOTOS_GETINFO_METHOD,
+                                "photo_id", str_photo_id,
+                                f->priv->auth_token? "auth_token": "",
+                                f->priv->auth_token? f->priv->auth_token: "",
+                                NULL);
+  g_free (str_photo_id);
 
   /* Build the request */
   if (f->priv->auth_token) {
@@ -560,7 +492,23 @@ g_flickr_photos_search (GFlickr *f,
     tags = "";
   }
 
-  gchar *api_sig = get_api_sig_photos_search (f, text, tags, page);
+  gchar *strpage = g_strdup_printf ("%d", page);
+  gchar *strperpage = g_strdup_printf ("%d", f->priv->per_page);
+
+  gchar *api_sig =
+    get_api_sig (f->priv->auth_secret,
+                 "api_key", f->priv->api_key,
+                 "extras", "media,date_taken,owner_name,url_o,url_t",
+                 "method", FLICKR_PHOTOS_SEARCH_METHOD,
+                 "page", strpage,
+                 "per_page", strperpage,
+                 "tags", tags,
+                 "text", text,
+                 f->priv->auth_token? "auth_token": "",
+                 f->priv->auth_token? f->priv->auth_token: "",
+                 NULL);
+  g_free (strpage);
+  g_free (strperpage);
 
   /* Build the request */
   if (f->priv->auth_token) {
@@ -658,7 +606,16 @@ g_flickr_tags_getHotList (GFlickr *f,
 
   g_return_if_fail (G_IS_FLICKR (f));
 
-  gchar *api_sig = get_api_sig_tags_gethotlist (f, count);
+  gchar *strcount = g_strdup_printf ("%d", count);
+
+  gchar *api_sig = get_api_sig (f->priv->auth_secret,
+                                "api_key", f->priv->api_key,
+                                "count", strcount,
+                                "method", FLICKR_TAGS_GETHOTLIST_METHOD,
+                                f->priv->auth_token? "auth_token": "",
+                                f->priv->auth_token? f->priv->auth_token: "",
+                                NULL);
+  g_free (strcount);
 
   /* Build the request */
   if (f->priv->auth_token) {

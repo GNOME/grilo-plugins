@@ -77,6 +77,8 @@ typedef void (*GFlickrHashTableCb) (GFlickr *f, GHashTable *result, gpointer use
 
 typedef void (*GFlickrListCb) (GFlickr *f, GList *result, gpointer user_data);
 
+typedef void (*GFlickrCheckToken) (GFlickr *f, GHashTable *tokeninfo, gpointer user_data);
+
 GType g_flickr_get_type (void);
 
 GFlickr *g_flickr_new (const gchar *api_key, const gchar *auth_secret, const gchar *auth_token);
@@ -120,5 +122,11 @@ g_flickr_auth_loginLink (GFlickr *f,
 gchar *
 g_flickr_auth_getToken (GFlickr *f,
                         const gchar *frob);
+
+void
+g_flickr_auth_checkToken (GFlickr *f,
+                          const gchar *token,
+                          GFlickrHashTableCb callback,
+                          gpointer user_data);
 
 #endif /* _G_FLICKR_H_ */

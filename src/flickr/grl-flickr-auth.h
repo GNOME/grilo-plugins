@@ -39,4 +39,8 @@ gchar *grl_flickr_get_token (const gchar *api_key,
                              const gchar *secret,
                              const gchar *frob);
 
+gboolean grl_flickr_check_token (const gchar *api_key,
+                                 const gchar *secret,
+                                 const gchar *token);
+
 #endif /* _GRL_FLICKR_AUTH_SOURCE_H_ */

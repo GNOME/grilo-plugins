@@ -24,6 +24,7 @@
 #define FLICKR_TAGS_GETHOTLIST_METHOD "flickr.tags.getHotList"
 #define FLICKR_AUTH_GETFROB_METHOD "flickr.auth.getFrob"
 #define FLICKR_AUTH_GETTOKEN_METHOD "flickr.auth.getToken"
+#define FLICKR_AUTH_CHECKTOKEN_METHOD "flickr.auth.checkToken"
 
 #define FLICKR_PHOTOS_SEARCH                            \
   FLICKR_ENDPOINT                                       \
@@ -65,6 +66,13 @@
   "&api_sig=%s"                                 \
   "&method=" FLICKR_AUTH_GETTOKEN_METHOD        \
   "&frob=%s"
+
+#define FLICKR_AUTH_CHECKTOKEN                  \
+  FLICKR_ENDPOINT                               \
+  "api_key=%s"                                  \
+  "&api_sig=%s"                                 \
+  "&method=" FLICKR_AUTH_CHECKTOKEN_METHOD      \
+  "&auth_token=%s"
 
 #define FLICKR_AUTH_LOGINLINK                   \
   FLICKR_AUTHPOINT                              \
@@ -293,6 +301,26 @@ get_tag (xmlNodePtr node)
   }
 }
 
+static GHashTable *
+get_token_info (xmlNodePtr node)
+{
+  GHashTable *token = g_hash_table_new_full (g_str_hash,
+                                             g_str_equal,
+                                             g_free,
+                                             g_free);
+  node = node->xmlChildrenNode;
+
+  while (node) {
+    g_hash_table_insert (token,
+                         g_strdup ((const gchar *) node->name),
+                         (gchar *) xmlNodeGetContent (node));
+    add_node (node, token);
+    node = node->next;
+  }
+
+  return token;
+}
+
 static void
 process_photo_result (const gchar *xml_result, gpointer user_data)
 {
@@ -381,6 +409,32 @@ process_taglist_result (const gchar *xml_result, gpointer user_data)
     g_list_foreach (taglist, (GFunc) g_free, NULL);
     g_list_free (taglist);
   }
+  g_slice_free (GFlickrData, data);
+  xmlFreeDoc (doc);
+}
+
+static void
+process_token_result (const gchar *xml_result, gpointer user_data)
+{
+  xmlDocPtr doc;
+  xmlNodePtr node;
+  GFlickrData *data = (GFlickrData *) user_data;
+  GHashTable *token;
+
+  doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar*) xml_result), NULL,
+                       NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
+  node = xmlDocGetRootElement (doc);
+
+  /* Check if result is OK */
+  if (!node || !result_is_correct (node)) {
+    data->hashtable_cb (NULL, NULL, data->user_data);
+  } else {
+    node = node->xmlChildrenNode;
+    token = get_token_info (node);
+    data->hashtable_cb (NULL, token, data->user_data);
+    g_hash_table_unref (token);
+  }
+
   g_slice_free (GFlickrData, data);
   xmlFreeDoc (doc);
 }
@@ -755,4 +809,39 @@ g_flickr_auth_getToken (GFlickr *f,
   }
 
   return token;
+}
+
+void
+g_flickr_auth_checkToken (GFlickr *f,
+                          const gchar *token,
+                          GFlickrHashTableCb callback,
+                          gpointer user_data)
+{
+  gchar *api_sig;
+  gchar *request;
+
+  g_return_if_fail (G_IS_FLICKR (f));
+  g_return_if_fail (token);
+  g_return_if_fail (callback);
+
+  api_sig = get_api_sig (f->priv->auth_secret,
+                         "method", FLICKR_AUTH_CHECKTOKEN_METHOD,
+                         "api_key", f->priv->api_key,
+                         "auth_token", token,
+                         NULL);
+
+  /* Build request */
+  request  = g_strdup_printf (FLICKR_AUTH_CHECKTOKEN,
+                              f->priv->api_key,
+                              api_sig,
+                              token);
+  g_free (api_sig);
+
+  GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd->parse_xml = process_token_result;
+  gfd->hashtable_cb = callback;
+  gfd->user_data = user_data;
+
+  read_url_async (request, gfd);
+  g_free (request);
 }

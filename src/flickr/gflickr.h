@@ -73,11 +73,9 @@ struct _GFlickrClass {
 };
 
 
-typedef void (*GFlickrPhotoCb) (GFlickr *f, GHashTable *photo, gpointer user_data);
+typedef void (*GFlickrHashTableCb) (GFlickr *f, GHashTable *result, gpointer user_data);
 
-typedef void (*GFlickrPhotoListCb) (GFlickr *f, GList *photolist, gpointer user_data);
-
-typedef void (*GFlickrTagListCb) (GFlickr *f, GList *taglist, gpointer user_data);
+typedef void (*GFlickrListCb) (GFlickr *f, GList *result, gpointer user_data);
 
 GType g_flickr_get_type (void);
 
@@ -88,7 +86,7 @@ void g_flickr_set_per_page (GFlickr *f, gint per_page);
 void
 g_flickr_photos_getInfo (GFlickr *f,
                          glong photo_id,
-                         GFlickrPhotoCb callback,
+                         GFlickrHashTableCb callback,
                          gpointer user_data);
 
 void
@@ -96,7 +94,7 @@ g_flickr_photos_search (GFlickr *f,
                         const gchar *text,
                         const gchar *tags,
                         gint page,
-                        GFlickrPhotoListCb callback,
+                        GFlickrListCb callback,
                         gpointer user_data);
 
 gchar *
@@ -108,7 +106,7 @@ g_flickr_photo_url_thumbnail (GFlickr *f, GHashTable *photo);
 void
 g_flickr_tags_getHotList (GFlickr *f,
                           gint count,
-                          GFlickrTagListCb callback,
+                          GFlickrListCb callback,
                           gpointer user_data);
 
 gchar *

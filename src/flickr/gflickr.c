@@ -77,9 +77,8 @@ typedef void (*ParseXML) (const gchar *xml_result, gpointer user_data);
 
 typedef struct {
   ParseXML parse_xml;
-  GFlickrPhotoCb get_info_cb;
-  GFlickrPhotoListCb search_cb;
-  GFlickrTagListCb gethotlist_cb;
+  GFlickrHashTableCb hashtable_cb;
+  GFlickrListCb list_cb;
   gpointer user_data;
 } GFlickrData;
 
@@ -308,12 +307,12 @@ process_photo_result (const gchar *xml_result, gpointer user_data)
 
   /* Check result is ok */
   if (!node || !result_is_correct (node)) {
-    data->get_info_cb (NULL, NULL, data->user_data);
+    data->hashtable_cb (NULL, NULL, data->user_data);
   } else {
     node = node->xmlChildrenNode;
 
     photo = get_photo (node);
-    data->get_info_cb (NULL, photo, data->user_data);
+    data->hashtable_cb (NULL, photo, data->user_data);
     g_hash_table_unref (photo);
   }
   g_slice_free (GFlickrData, data);
@@ -334,7 +333,7 @@ process_photolist_result (const gchar *xml_result, gpointer user_data)
 
   /* Check result is ok */
   if (!node || !result_is_correct (node)) {
-    data->search_cb (NULL, NULL, data->user_data);
+    data->list_cb (NULL, NULL, data->user_data);
   } else {
     node = node->xmlChildrenNode;
 
@@ -345,7 +344,7 @@ process_photolist_result (const gchar *xml_result, gpointer user_data)
       node = node->next;
     }
 
-    data->search_cb (NULL, g_list_reverse (photolist), data->user_data);
+    data->list_cb (NULL, g_list_reverse (photolist), data->user_data);
     g_list_foreach (photolist, (GFunc) g_hash_table_unref, NULL);
     g_list_free (photolist);
   }
@@ -367,7 +366,7 @@ process_taglist_result (const gchar *xml_result, gpointer user_data)
 
   /* Check if result is OK */
   if (!node || !result_is_correct (node)) {
-    data->gethotlist_cb (NULL, NULL, data->user_data);
+    data->list_cb (NULL, NULL, data->user_data);
   } else {
     node = node->xmlChildrenNode;
 
@@ -378,7 +377,7 @@ process_taglist_result (const gchar *xml_result, gpointer user_data)
       node = node->next;
     }
 
-    data->gethotlist_cb (NULL, g_list_reverse (taglist), data->user_data);
+    data->list_cb (NULL, g_list_reverse (taglist), data->user_data);
     g_list_foreach (taglist, (GFunc) g_free, NULL);
     g_list_free (taglist);
   }
@@ -432,7 +431,7 @@ g_flickr_set_per_page (GFlickr *f, gint per_page)
 void
 g_flickr_photos_getInfo (GFlickr *f,
                          glong photo_id,
-                         GFlickrPhotoCb callback,
+                         GFlickrHashTableCb callback,
                          gpointer user_data)
 {
   gchar *auth;
@@ -466,7 +465,7 @@ g_flickr_photos_getInfo (GFlickr *f,
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->parse_xml = process_photo_result;
-  gfd->get_info_cb = callback;
+  gfd->hashtable_cb = callback;
   gfd->user_data = user_data;
 
   read_url_async (request, gfd);
@@ -478,7 +477,7 @@ g_flickr_photos_search (GFlickr *f,
                         const gchar *text,
                         const gchar *tags,
                         gint page,
-                        GFlickrPhotoListCb callback,
+                        GFlickrListCb callback,
                         gpointer user_data)
 {
   gchar *auth;
@@ -530,7 +529,7 @@ g_flickr_photos_search (GFlickr *f,
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->parse_xml = process_photolist_result;
-  gfd->search_cb = callback;
+  gfd->list_cb = callback;
   gfd->user_data = user_data;
 
   read_url_async (request, gfd);
@@ -599,7 +598,7 @@ g_flickr_photo_url_thumbnail (GFlickr *f, GHashTable *photo)
 void
 g_flickr_tags_getHotList (GFlickr *f,
                           gint count,
-                          GFlickrTagListCb callback,
+                          GFlickrListCb callback,
                           gpointer user_data)
 {
   gchar *auth;
@@ -633,7 +632,7 @@ g_flickr_tags_getHotList (GFlickr *f,
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->parse_xml = process_taglist_result;
-  gfd->gethotlist_cb = callback;
+  gfd->list_cb = callback;
   gfd->user_data = user_data;
 
   read_url_async (request, gfd);

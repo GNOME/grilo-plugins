@@ -1,6 +1,9 @@
 #include "gflickr.h"
+
 #include <libxml/parser.h>
+#include <libxml/xpath.h>
 #include <gio/gio.h>
+#include <string.h>
 
 #define G_FLICKR_GET_PRIVATE(object)            \
   (G_TYPE_INSTANCE_GET_PRIVATE((object),        \
@@ -14,10 +17,13 @@
   "http://farm%s.static.flickr.com/%s/%s_%s_t.jpg"
 
 #define FLICKR_ENDPOINT "http://api.flickr.com/services/rest/?"
+#define FLICKR_AUTHPOINT "http://flickr.com/services/auth/?"
 
 #define FLICKR_PHOTOS_SEARCH_METHOD "flickr.photos.search"
 #define FLICKR_PHOTOS_GETINFO_METHOD "flickr.photos.getInfo"
 #define FLICKR_TAGS_GETHOTLIST_METHOD "flickr.tags.getHotList"
+#define FLICKR_AUTH_GETFROB_METHOD "flickr.auth.getFrob"
+#define FLICKR_AUTH_GETTOKEN_METHOD "flickr.auth.getToken"
 
 #define FLICKR_PHOTOS_SEARCH                            \
   FLICKR_ENDPOINT                                       \
@@ -39,7 +45,6 @@
   "&count=%d"                                           \
   "%s"
 
-
 #define FLICKR_PHOTOS_GETINFO                   \
   FLICKR_ENDPOINT                               \
   "api_key=%s"                                  \
@@ -47,6 +52,26 @@
   "&method=" FLICKR_PHOTOS_GETINFO_METHOD       \
   "&photo_id=%ld"                               \
   "%s"
+
+#define FLICKR_AUTH_GETFROB                     \
+  FLICKR_ENDPOINT                               \
+  "api_key=%s"                                  \
+  "&api_sig=%s"                                 \
+  "&method=" FLICKR_AUTH_GETFROB_METHOD
+
+#define FLICKR_AUTH_GETTOKEN                    \
+  FLICKR_ENDPOINT                               \
+  "api_key=%s"                                  \
+  "&api_sig=%s"                                 \
+  "&method=" FLICKR_AUTH_GETTOKEN_METHOD        \
+  "&frob=%s"
+
+#define FLICKR_AUTH_LOGINLINK                   \
+  FLICKR_AUTHPOINT                              \
+  "api_key=%s"                                  \
+  "&api_sig=%s"                                 \
+  "&frob=%s"                                    \
+  "&perms=%s"
 
 typedef void (*ParseXML) (const gchar *xml_result, gpointer user_data);
 
@@ -101,7 +126,7 @@ g_flickr_finalize (GObject *object)
 GFlickr *
 g_flickr_new (const gchar *api_key, const gchar *auth_secret, const gchar *auth_token)
 {
-  g_return_val_if_fail (api_key && auth_secret);
+  g_return_val_if_fail (api_key && auth_secret, NULL);
 
   GFlickr *f = g_object_new (G_FLICKR_TYPE, NULL);
   f->priv->api_key = g_strdup (api_key);
@@ -112,6 +137,88 @@ g_flickr_new (const gchar *api_key, const gchar *auth_secret, const gchar *auth_
 }
 
 /* -------------------- PRIVATE API -------------------- */
+
+static gchar *
+get_api_sig (const gchar *secret, ...)
+{
+  GHashTable *hash;
+  GList *key_iter;
+  GList *keys;
+  GString *to_sign;
+  gchar *api_sig;
+  gchar *key;
+  gchar *value;
+  gint text_size = strlen (secret);
+  va_list va_params;
+
+  hash = g_hash_table_new (g_str_hash, g_str_equal);
+
+  va_start (va_params, secret);
+  while ((key = va_arg (va_params, gchar *))) {
+    text_size += strlen (key);
+    value = va_arg (va_params, gchar *);
+    text_size += strlen (value);
+    g_hash_table_insert (hash, key, value);
+  }
+  va_end (va_params);
+
+  to_sign = g_string_sized_new (text_size);
+  g_string_append (to_sign, secret);
+
+  keys = g_hash_table_get_keys (hash);
+  keys = g_list_sort (keys, (GCompareFunc) g_strcmp0);
+  for (key_iter = keys; key_iter; key_iter = g_list_next (key_iter)) {
+    g_string_append (to_sign, key_iter->data);
+    g_string_append (to_sign, g_hash_table_lookup (hash, key_iter->data));
+  }
+
+  api_sig = g_compute_checksum_for_string (G_CHECKSUM_MD5, to_sign->str, -1);
+  g_hash_table_unref (hash);
+  g_list_free (keys);
+  g_string_free (to_sign, TRUE);
+
+  return api_sig;
+}
+
+static gchar *
+get_xpath_element (const gchar *content,
+                   const gchar *xpath_element)
+{
+  gchar *element = NULL;
+  xmlDocPtr xmldoc = NULL;
+  xmlXPathContextPtr xpath_ctx = NULL;
+  xmlXPathObjectPtr xpath_res = NULL;
+
+  xmldoc = xmlReadMemory (content, xmlStrlen ((xmlChar *) content), NULL, NULL,
+                          XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
+  if (xmldoc) {
+    xpath_ctx = xmlXPathNewContext (xmldoc);
+    if (xpath_ctx) {
+      xpath_res = xmlXPathEvalExpression ((xmlChar *) xpath_element, xpath_ctx);
+      if (xpath_res && xpath_res->nodesetval->nodeTab) {
+        element =
+          (gchar *) xmlNodeListGetString (xmldoc,
+                                          xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
+                                          1);
+      }
+    }
+  }
+
+  /* Free data */
+  if (xmldoc) {
+    xmlFreeDoc (xmldoc);
+  }
+
+  if (xpath_ctx) {
+    xmlXPathFreeContext (xpath_ctx);
+  }
+
+  if (xpath_res) {
+    xmlXPathFreeObject (xpath_res);
+  }
+
+  return element;
+}
 
 static gchar *
 get_api_sig_photos_search (GFlickr *f,
@@ -574,4 +681,122 @@ g_flickr_tags_getHotList (GFlickr *f,
 
   read_url_async (request, gfd);
   g_free (request);
+}
+
+gchar *
+g_flickr_auth_getFrob (GFlickr *f)
+{
+  gchar *api_sig;
+  gchar *url;
+  GVfs *vfs;
+  GFile *uri;
+  gchar *contents;
+  GError *error = NULL;
+  gchar *frob = NULL;
+
+  g_return_val_if_fail (G_IS_FLICKR (f), NULL);
+
+  api_sig = get_api_sig (f->priv->auth_secret,
+                         "api_key", f->priv->api_key,
+                         "method", "flickr.auth.getFrob",
+                         NULL);
+
+  /* Build url */
+  url = g_strdup_printf (FLICKR_AUTH_GETFROB,
+                         f->priv->api_key,
+                         api_sig);
+  g_free (api_sig);
+
+  /* Load content */
+  vfs = g_vfs_get_default ();
+  uri = g_vfs_get_file_for_uri (vfs, url);
+  g_free (url);
+  if (!g_file_load_contents (uri, NULL, &contents, NULL, NULL, &error)) {
+    g_warning ("Unable to get Flickr's frob: %s", error->message);
+    return NULL;
+  }
+
+  /* Get frob */
+  frob = get_xpath_element (contents, "/rsp/frob");
+  g_free (contents);
+  if (!frob) {
+    g_warning ("Can not get Flickr's frob");
+  }
+
+  return frob;
+}
+
+gchar *
+g_flickr_auth_loginLink (GFlickr *f,
+                         const gchar *frob,
+                         const gchar *perm)
+{
+  gchar *api_sig;
+  gchar *url;
+
+  g_return_val_if_fail (G_IS_FLICKR (f), NULL);
+  g_return_val_if_fail (frob, NULL);
+  g_return_val_if_fail (perm, NULL);
+
+  api_sig = get_api_sig (f->priv->auth_secret,
+                         "api_key", f->priv->api_key,
+                         "frob", frob,
+                         "perms", perm,
+                         NULL);
+
+  url = g_strdup_printf (FLICKR_AUTH_LOGINLINK,
+                         f->priv->api_key,
+                         api_sig,
+                         frob,
+                         perm);
+  g_free (api_sig);
+
+  return url;
+}
+
+gchar *
+g_flickr_auth_getToken (GFlickr *f,
+                        const gchar *frob)
+{
+  GError *error = NULL;
+  GFile *uri;
+  GVfs *vfs;
+  gchar *api_sig;
+  gchar *contents;
+  gchar *token;
+  gchar *url;
+
+  g_return_val_if_fail (G_IS_FLICKR (f), NULL);
+  g_return_val_if_fail (frob, NULL);
+
+  api_sig = get_api_sig (f->priv->auth_secret,
+                         "method", "flickr.auth.getToken",
+                         "api_key", f->priv->api_key,
+                         "frob", frob,
+                         NULL);
+
+  /* Build url */
+  url = g_strdup_printf (FLICKR_AUTH_GETTOKEN,
+                         f->priv->api_key,
+                         api_sig,
+                         frob);
+  g_free (api_sig);
+
+  /* Load content */
+  vfs = g_vfs_get_default ();
+  uri = g_vfs_get_file_for_uri (vfs, url);
+  g_free (url);
+  if (!g_file_load_contents (uri, NULL, &contents, NULL, NULL, &error)) {
+    g_warning ("Unable to get Flickr's token: %s", error->message);
+    return NULL;
+  }
+
+  /* Get token */
+  token = get_xpath_element (contents, "/rsp/auth/token");
+  g_free (contents);
+  if (!token) {
+    g_warning ("Can not get Flickr's token");
+  }
+
+  return token;
 }

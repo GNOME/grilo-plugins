@@ -1,4 +1,5 @@
 #include "grl-flickr-auth.h"
+#include "gflickr.h"
 
 #include <gio/gio.h>
 #include <libxml/parser.h>
@@ -94,42 +95,16 @@ gchar *
 grl_flickr_get_frob (const gchar *api_key,
                      const gchar *secret)
 {
-  gchar *api_sig;
-  gchar *url;
-  GVfs *vfs;
-  GFile *uri;
-  gchar *contents;
-  GError *error = NULL;
-  gchar *frob = NULL;
+  GFlickr *f;
+  gchar *frob;
 
-  api_sig = get_api_sig (secret,
-                         "api_key", api_key,
-                         "method", "flickr.auth.getFrob",
-                         NULL);
-  /* Build url */
-  url = g_strdup_printf (FLICKR_ENTRYPOINT
-                         "method=flickr.auth.getFrob&"
-                         "api_key=%s&"
-                         "api_sig=%s",
-                         api_key,
-                         api_sig);
-  g_free (api_sig);
-
-  /* Load content */
-  vfs = g_vfs_get_default ();
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_free (url);
-  if (!g_file_load_contents (uri, NULL, &contents, NULL, NULL, &error)) {
-    g_warning ("Unable to get Flickr's frob: %s", error->message);
+  f = g_flickr_new (api_key, secret, NULL);
+  if (!f) {
     return NULL;
   }
 
-  /* Get frob */
-  frob = get_xpath_element (contents, "/rsp/frob");
-  g_free (contents);
-  if (!frob) {
-    g_warning ("Can not get Flickr's frob");
-  }
+  frob = g_flickr_auth_getFrob (f);
+  g_object_unref (f);
 
   return frob;
 }
@@ -138,42 +113,18 @@ gchar *
 grl_flickr_get_login_link (const gchar *api_key,
                            const gchar *secret,
                            const gchar *frob,
-                           FlickrPerm perm)
+                           const gchar *perm)
 {
-  gchar *api_sig;
-  gchar *strperm;
+  GFlickr *f;
   gchar *url;
 
-  switch (perm) {
-  case FLICKR_PERM_READ:
-    strperm = "read";
-    break;
-  case FLICKR_PERM_WRITE:
-    strperm = "write";
-    break;
-  case FLICKR_PERM_DELETE:
-    strperm = "delete";
-    break;
-  default:
-    g_warning ("Unknown perm");
+  f = g_flickr_new (api_key, secret, NULL);
+  if (!f) {
     return NULL;
   }
 
-  api_sig = get_api_sig (secret,
-                         "api_key", api_key,
-                         "frob", frob,
-                         "perms", strperm,
-                         NULL);
-  url = g_strdup_printf (FLICKR_AUTH
-                         "api_key=%s&"
-                         "perms=%s&"
-                         "frob=%s&"
-                         "api_sig=%s",
-                         api_key,
-                         strperm,
-                         frob,
-                         api_sig);
-  g_free (api_sig);
+  url = g_flickr_auth_loginLink (f, frob, perm);
+  g_object_unref (f);
 
   return url;
 }
@@ -183,46 +134,16 @@ grl_flickr_get_token (const gchar *api_key,
                       const gchar *secret,
                       const gchar *frob)
 {
-  GError *error = NULL;
-  GFile *uri;
-  GVfs *vfs;
-  gchar *api_sig;
-  gchar *contents;
+  GFlickr *f;
   gchar *token;
-  gchar *url;
 
-  api_sig = get_api_sig (secret,
-                         "method", "flickr.auth.getToken",
-                         "api_key", api_key,
-                         "frob", frob,
-                         NULL);
-
-  /* Build url */
-  url = g_strdup_printf (FLICKR_ENTRYPOINT
-                         "method=flickr.auth.getToken&"
-                         "api_key=%s&"
-                         "api_sig=%s&"
-                         "frob=%s",
-                         api_key,
-                         api_sig,
-                         frob);
-  g_free (api_sig);
-
-  /* Load content */
-  vfs = g_vfs_get_default ();
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_free (url);
-  if (!g_file_load_contents (uri, NULL, &contents, NULL, NULL, &error)) {
-    g_warning ("Unable to get Flickr's token: %s", error->message);
+  f = g_flickr_new (api_key, secret, NULL);
+  if (!f) {
     return NULL;
   }
 
-  /* Get token */
-  token = get_xpath_element (contents, "/rsp/auth/token");
-  g_free (contents);
-  if (!token) {
-    g_warning ("Can not get Flickr's token");
-  }
+  token = g_flickr_auth_getToken (f, frob);
+  g_object_unref (f);
 
   return token;
 }

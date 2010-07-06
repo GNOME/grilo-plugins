@@ -72,6 +72,7 @@ struct _GFlickrClass {
 
 };
 
+
 typedef void (*GFlickrPhotoCb) (GFlickr *f, GHashTable *photo, gpointer user_data);
 
 typedef void (*GFlickrPhotoListCb) (GFlickr *f, GList *photolist, gpointer user_data);
@@ -80,7 +81,7 @@ typedef void (*GFlickrTagListCb) (GFlickr *f, GList *taglist, gpointer user_data
 
 GType g_flickr_get_type (void);
 
-GFlickr *g_flickr_new (const gchar *api_key, const gchar *auth_token, const gchar *auth_secret);
+GFlickr *g_flickr_new (const gchar *api_key, const gchar *auth_secret, const gchar *auth_token);
 
 void g_flickr_set_per_page (GFlickr *f, gint per_page);
 
@@ -109,5 +110,17 @@ g_flickr_tags_getHotList (GFlickr *f,
                           gint count,
                           GFlickrTagListCb callback,
                           gpointer user_data);
+
+gchar *
+g_flickr_auth_getFrob (GFlickr *f);
+
+gchar *
+g_flickr_auth_loginLink (GFlickr *f,
+                         const gchar *frob,
+                         const gchar *perm);
+
+gchar *
+g_flickr_auth_getToken (GFlickr *f,
+                        const gchar *frob);
 
 #endif /* _G_FLICKR_H_ */

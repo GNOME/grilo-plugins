@@ -50,9 +50,13 @@
 
 #define PLUGIN_ID   FLICKR_PLUGIN_ID
 
-#define SOURCE_ID   "grl-flickr"
-#define SOURCE_NAME "Flickr"
-#define SOURCE_DESC "A source for browsing and searching Flickr photos"
+#define PUBLIC_SOURCE_ID   "grl-flickr"
+#define PUBLIC_SOURCE_NAME "Flickr"
+#define PUBLIC_SOURCE_DESC "A source for browsing and searching Flickr photos"
+
+#define PERSONAL_SOURCE_ID "grl-flickr-%s"
+#define PERSONAL_SOURCE_NAME "%s's Flickr"
+#define PERSONAL_SOURCE_DESC "A source for browsing and searching %s' flickr photos"
 
 #define AUTHOR      "Igalia S.L."
 #define LICENSE     "LGPL"
@@ -74,7 +78,17 @@ struct _GrlFlickrSourcePrivate {
   GFlickr *flickr;
 };
 
-static GrlFlickrSource *grl_flickr_source_new (void);
+static void token_info_cb (GFlickr *f,
+                           GHashTable *info,
+                           gpointer user_data);
+
+static GrlFlickrSource *grl_flickr_source_public_new (const gchar *flickr_api_key,
+                                                      const gchar *flickr_secret);
+
+static void grl_flickr_source_personal_new (const GrlPluginInfo *plugin,
+                                            const gchar *flickr_api_key,
+                                            const gchar *flickr_secret,
+                                            const gchar *flickr_token);
 
 gboolean grl_flickr_plugin_init (GrlPluginRegistry *registry,
 				 const GrlPluginInfo *plugin,
@@ -102,7 +116,7 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
   const gchar *flickr_secret;
   const gchar *flickr_token;
   const GrlConfig *config;
-  gint config_count;
+  gboolean public_source_created = FALSE;
 
   g_debug ("flickr_plugin_init\n");
 
@@ -111,28 +125,33 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
     return FALSE;
   }
 
-  config_count = g_list_length (configs);
-  if (config_count > 1) {
-    g_warning ("Provided %d configs, but will only use one", config_count);
+  while (configs) {
+    config = GRL_CONFIG (configs->data);
+
+    flickr_key = grl_config_get_api_key (config);
+    flickr_token = grl_config_get_api_token (config);
+    flickr_secret = grl_config_get_api_secret (config);
+
+    if (!flickr_key || !flickr_secret) {
+      g_warning ("Required configuration keys not set up");
+    } else if (flickr_token) {
+      grl_flickr_source_personal_new (plugin,
+                                      flickr_key,
+                                      flickr_secret,
+                                      flickr_token);
+    } else if (public_source_created) {
+      g_warning ("Only one public source can be created");
+    } else {
+      GrlFlickrSource *source = grl_flickr_source_public_new (flickr_key, flickr_secret);
+      public_source_created = TRUE;
+      grl_plugin_registry_register_source (registry,
+                                           plugin,
+                                           GRL_MEDIA_PLUGIN (source));
+    }
+
+    configs = g_list_next (configs);
   }
 
-  config = GRL_CONFIG (configs->data);
-
-  flickr_key = grl_config_get_api_key (config);
-  flickr_token = grl_config_get_api_token (config);
-  flickr_secret = grl_config_get_api_secret (config);
-
-  if (!flickr_key || !flickr_secret) {
-    g_warning ("Required configuration keys not set up");
-    return FALSE;
-  }
-
-  GrlFlickrSource *source = grl_flickr_source_new ();
-  source->priv->flickr = g_flickr_new (flickr_key, flickr_secret, flickr_token);
-
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_MEDIA_PLUGIN (source));
   return TRUE;
 }
 
@@ -143,15 +162,33 @@ GRL_PLUGIN_REGISTER (grl_flickr_plugin_init,
 /* ================== Flickr GObject ================ */
 
 static GrlFlickrSource *
-grl_flickr_source_new (void)
+grl_flickr_source_public_new (const gchar *flickr_api_key,
+                              const gchar *flickr_secret)
 {
+  GrlFlickrSource *source;
+
   g_debug ("grl_flickr_source_new");
 
-  return g_object_new (GRL_FLICKR_SOURCE_TYPE,
-                       "source-id", SOURCE_ID,
-                       "source-name", SOURCE_NAME,
-                       "source-desc", SOURCE_DESC,
-                       NULL);
+  source = g_object_new (GRL_FLICKR_SOURCE_TYPE,
+                         "source-id", PUBLIC_SOURCE_ID,
+                         "source-name", PUBLIC_SOURCE_NAME,
+                         "source-desc", PUBLIC_SOURCE_DESC,
+                         NULL);
+  source->priv->flickr = g_flickr_new (flickr_api_key, flickr_secret, NULL);
+
+  return source;
+}
+
+static void
+grl_flickr_source_personal_new (const GrlPluginInfo *plugin,
+                                const gchar *flickr_api_key,
+                                const gchar *flickr_secret,
+                                const gchar *flickr_token)
+{
+  GFlickr *f;
+
+  f = g_flickr_new (flickr_api_key, flickr_secret, flickr_token);
+  g_flickr_auth_checkToken (f, flickr_token, token_info_cb, (gpointer) plugin);
 }
 
 static void
@@ -180,6 +217,57 @@ grl_flickr_source_init (GrlFlickrSource *source)
 G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_MEDIA_SOURCE);
 
 /* ======================= Utilities ==================== */
+
+static void
+token_info_cb (GFlickr *f,
+               GHashTable *info,
+               gpointer user_data)
+{
+  GrlFlickrSource *source;
+  GrlPluginInfo *plugin = (GrlPluginInfo *) user_data;
+  GrlPluginRegistry *registry;
+  gchar *fullname;
+  gchar *source_desc;
+  gchar *source_id;
+  gchar *source_name;
+  gchar *username;
+
+  if (!info) {
+    g_warning ("Wrong token!");
+    g_object_unref (f);
+    return;
+  }
+
+  registry = grl_plugin_registry_get_instance ();
+
+  username = g_hash_table_lookup (info, "user_username");
+  fullname = g_hash_table_lookup (info, "user_fullname");
+
+  source_id = g_strdup_printf (PERSONAL_SOURCE_ID, username);
+  source_name = g_strdup_printf (PERSONAL_SOURCE_NAME, fullname);
+  source_desc = g_strdup_printf (PERSONAL_SOURCE_DESC, fullname);
+
+  /* Check if source is already registered */
+  if (grl_plugin_registry_lookup_source (registry, source_id)) {
+    g_debug ("A source with id '%s' is already registered. Skipping...",
+             source_id);
+    g_object_unref (f);
+  } else {
+    source = g_object_new (GRL_FLICKR_SOURCE_TYPE,
+                           "source-id", source_id,
+                           "source-name", source_name,
+                           "source-desc", source_desc,
+                           NULL);
+    source->priv->flickr = f;
+    grl_plugin_registry_register_source (registry,
+                                         plugin,
+                                         GRL_MEDIA_PLUGIN (source));
+  }
+
+  g_free (source_id);
+  g_free (source_name);
+  g_free (source_desc);
+}
 
 static void
 update_media (GrlMedia *media, GHashTable *photo)

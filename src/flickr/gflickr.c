@@ -84,6 +84,7 @@
 typedef void (*ParseXML) (const gchar *xml_result, gpointer user_data);
 
 typedef struct {
+  GFlickr *flickr;
   ParseXML parse_xml;
   GFlickrHashTableCb hashtable_cb;
   GFlickrListCb list_cb;
@@ -335,14 +336,15 @@ process_photo_result (const gchar *xml_result, gpointer user_data)
 
   /* Check result is ok */
   if (!node || !result_is_correct (node)) {
-    data->hashtable_cb (NULL, NULL, data->user_data);
+    data->hashtable_cb (data->flickr, NULL, data->user_data);
   } else {
     node = node->xmlChildrenNode;
 
     photo = get_photo (node);
-    data->hashtable_cb (NULL, photo, data->user_data);
+    data->hashtable_cb (data->flickr, photo, data->user_data);
     g_hash_table_unref (photo);
   }
+  g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
   xmlFreeDoc (doc);
 }
@@ -361,7 +363,7 @@ process_photolist_result (const gchar *xml_result, gpointer user_data)
 
   /* Check result is ok */
   if (!node || !result_is_correct (node)) {
-    data->list_cb (NULL, NULL, data->user_data);
+    data->list_cb (data->flickr, NULL, data->user_data);
   } else {
     node = node->xmlChildrenNode;
 
@@ -372,10 +374,11 @@ process_photolist_result (const gchar *xml_result, gpointer user_data)
       node = node->next;
     }
 
-    data->list_cb (NULL, g_list_reverse (photolist), data->user_data);
+    data->list_cb (data->flickr, g_list_reverse (photolist), data->user_data);
     g_list_foreach (photolist, (GFunc) g_hash_table_unref, NULL);
     g_list_free (photolist);
   }
+  g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
   xmlFreeDoc (doc);
 }
@@ -394,7 +397,7 @@ process_taglist_result (const gchar *xml_result, gpointer user_data)
 
   /* Check if result is OK */
   if (!node || !result_is_correct (node)) {
-    data->list_cb (NULL, NULL, data->user_data);
+    data->list_cb (data->flickr, NULL, data->user_data);
   } else {
     node = node->xmlChildrenNode;
 
@@ -405,10 +408,11 @@ process_taglist_result (const gchar *xml_result, gpointer user_data)
       node = node->next;
     }
 
-    data->list_cb (NULL, g_list_reverse (taglist), data->user_data);
+    data->list_cb (data->flickr, g_list_reverse (taglist), data->user_data);
     g_list_foreach (taglist, (GFunc) g_free, NULL);
     g_list_free (taglist);
   }
+  g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
   xmlFreeDoc (doc);
 }
@@ -427,14 +431,15 @@ process_token_result (const gchar *xml_result, gpointer user_data)
 
   /* Check if result is OK */
   if (!node || !result_is_correct (node)) {
-    data->hashtable_cb (NULL, NULL, data->user_data);
+    data->hashtable_cb (data->flickr, NULL, data->user_data);
   } else {
     node = node->xmlChildrenNode;
     token = get_token_info (node);
-    data->hashtable_cb (NULL, token, data->user_data);
+    data->hashtable_cb (data->flickr, token, data->user_data);
     g_hash_table_unref (token);
   }
 
+  g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
   xmlFreeDoc (doc);
 }
@@ -518,6 +523,7 @@ g_flickr_photos_getInfo (GFlickr *f,
   g_free (auth);
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_photo_result;
   gfd->hashtable_cb = callback;
   gfd->user_data = user_data;
@@ -582,6 +588,7 @@ g_flickr_photos_search (GFlickr *f,
   g_free (auth);
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_photolist_result;
   gfd->list_cb = callback;
   gfd->user_data = user_data;
@@ -685,6 +692,7 @@ g_flickr_tags_getHotList (GFlickr *f,
   g_free (auth);
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_taglist_result;
   gfd->list_cb = callback;
   gfd->user_data = user_data;
@@ -838,6 +846,7 @@ g_flickr_auth_checkToken (GFlickr *f,
   g_free (api_sig);
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_token_result;
   gfd->hashtable_cb = callback;
   gfd->user_data = user_data;

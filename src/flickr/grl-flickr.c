@@ -301,6 +301,9 @@ update_media (GrlMedia *media, GHashTable *photo)
   url = g_strdup (g_hash_table_lookup (photo, "photo_url_o"));
   if (!url) {
     url = g_flickr_photo_url_original (NULL, photo);
+    if (!url) {
+      url = g_flickr_photo_url_largest (NULL, photo);
+    }
   }
 
   if (author) {

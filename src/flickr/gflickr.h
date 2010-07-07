@@ -105,6 +105,9 @@ g_flickr_photo_url_original (GFlickr *f, GHashTable *photo);
 gchar *
 g_flickr_photo_url_thumbnail (GFlickr *f, GHashTable *photo);
 
+gchar *
+g_flickr_photo_url_largest (GFlickr *f, GHashTable *photo);
+
 void
 g_flickr_tags_getHotList (GFlickr *f,
                           gint count,

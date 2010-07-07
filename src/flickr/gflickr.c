@@ -16,6 +16,9 @@
 #define FLICKR_PHOTO_THUMB_URL                          \
   "http://farm%s.static.flickr.com/%s/%s_%s_t.jpg"
 
+#define FLICKR_PHOTO_LARGEST_URL                        \
+  "http://farm%s.static.flickr.com/%s/%s_%s_b.jpg"
+
 #define FLICKR_ENDPOINT "http://api.flickr.com/services/rest/?"
 #define FLICKR_AUTHPOINT "http://flickr.com/services/auth/?"
 
@@ -762,6 +765,34 @@ g_flickr_photo_url_thumbnail (GFlickr *f, GHashTable *photo)
     return NULL;
   } else {
     return g_strdup_printf (FLICKR_PHOTO_THUMB_URL,
+                            farm_id,
+                            server_id,
+                            photo_id,
+                            secret);
+  }
+}
+
+gchar *
+g_flickr_photo_url_largest (GFlickr *f, GHashTable *photo)
+{
+  gchar *farm_id;
+  gchar *secret;
+  gchar *photo_id;
+  gchar *server_id;
+
+  if (!photo) {
+    return NULL;
+  }
+
+  farm_id = g_hash_table_lookup (photo, "photo_farm");
+  secret = g_hash_table_lookup (photo, "photo_secret");
+  photo_id = g_hash_table_lookup (photo, "photo_id");
+  server_id = g_hash_table_lookup (photo, "photo_server");
+
+  if (!farm_id || !secret || !photo_id || !server_id) {
+    return NULL;
+  } else {
+    return g_strdup_printf (FLICKR_PHOTO_LARGEST_URL,
                             farm_id,
                             server_id,
                             photo_id,

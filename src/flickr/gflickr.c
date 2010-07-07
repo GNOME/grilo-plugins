@@ -36,6 +36,7 @@
   "api_key=%s"                                          \
   "&api_sig=%s"                                         \
   "&method=" FLICKR_PHOTOS_SEARCH_METHOD                \
+  "&user_id=%s"                                         \
   "&extras=media,date_taken,owner_name,url_o,url_t"     \
   "&per_page=%d"                                        \
   "&page=%d"                                            \
@@ -650,6 +651,7 @@ g_flickr_photos_getInfo (GFlickr *f,
 
 void
 g_flickr_photos_search (GFlickr *f,
+                        const gchar *user_id,
                         const gchar *text,
                         const gchar *tags,
                         gint page,
@@ -658,6 +660,10 @@ g_flickr_photos_search (GFlickr *f,
 {
   gchar *auth;
   g_return_if_fail (G_IS_FLICKR (f));
+
+  if (!user_id) {
+    user_id = "";
+  }
 
   if (!text) {
     text = "";
@@ -675,6 +681,7 @@ g_flickr_photos_search (GFlickr *f,
                  "api_key", f->priv->api_key,
                  "extras", "media,date_taken,owner_name,url_o,url_t",
                  "method", FLICKR_PHOTOS_SEARCH_METHOD,
+                 "user_id", user_id,
                  "page", strpage,
                  "per_page", strperpage,
                  "tags", tags,
@@ -695,6 +702,7 @@ g_flickr_photos_search (GFlickr *f,
   gchar *request = g_strdup_printf (FLICKR_PHOTOS_SEARCH,
                                     f->priv->api_key,
                                     api_sig,
+                                    user_id,
                                     f->priv->per_page,
                                     page,
                                     tags,
@@ -844,7 +852,6 @@ g_flickr_tags_getHotList (GFlickr *f,
   read_url_async (request, gfd);
   g_free (request);
 }
-
 
 void
 g_flickr_photosets_getList (GFlickr *f,

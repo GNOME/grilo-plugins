@@ -314,7 +314,7 @@ update_media (GrlMedia *media, GHashTable *photo)
     grl_media_set_date (media, date);
   }
 
-  if (description) {
+  if (description && description[0] != '\0') {
     grl_media_set_description (media, description);
   }
 
@@ -327,7 +327,7 @@ update_media (GrlMedia *media, GHashTable *photo)
     g_free (thumbnail);
   }
 
-  if (title) {
+  if (title && title[0] != '\0') {
     grl_media_set_title (media, title);
   }
 

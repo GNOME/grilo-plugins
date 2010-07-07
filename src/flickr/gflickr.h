@@ -117,6 +117,13 @@ g_flickr_photosets_getList (GFlickr *f,
                             GFlickrListCb callback,
                             gpointer user_data);
 
+void
+g_flickr_photosets_getPhotos (GFlickr *f,
+                              const gchar *photoset_id,
+                              gint page,
+                              GFlickrListCb callback,
+                              gpointer user_data);
+
 gchar *
 g_flickr_auth_getFrob (GFlickr *f);
 

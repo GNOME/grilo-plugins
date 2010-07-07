@@ -111,6 +111,12 @@ g_flickr_tags_getHotList (GFlickr *f,
                           GFlickrListCb callback,
                           gpointer user_data);
 
+void
+g_flickr_photosets_getList (GFlickr *f,
+                            const gchar *user_id,
+                            GFlickrListCb callback,
+                            gpointer user_data);
+
 gchar *
 g_flickr_auth_getFrob (GFlickr *f);
 

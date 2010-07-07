@@ -21,6 +21,7 @@
 
 #define FLICKR_PHOTOS_SEARCH_METHOD "flickr.photos.search"
 #define FLICKR_PHOTOS_GETINFO_METHOD "flickr.photos.getInfo"
+#define FLICKR_PHOTOSETS_GETLIST_METHOD "flickr.photosets.getList"
 #define FLICKR_TAGS_GETHOTLIST_METHOD "flickr.tags.getHotList"
 #define FLICKR_AUTH_GETFROB_METHOD "flickr.auth.getFrob"
 #define FLICKR_AUTH_GETTOKEN_METHOD "flickr.auth.getToken"
@@ -36,6 +37,14 @@
   "&page=%d"                                            \
   "&tags=%s"                                            \
   "&text=%s"                                            \
+  "%s"
+
+#define FLICKR_PHOTOSETS_GETLIST                \
+  FLICKR_ENDPOINT                               \
+  "api_key=%s"                                  \
+  "&api_sig=%s"                                 \
+  "&method=" FLICKR_PHOTOSETS_GETLIST_METHOD    \
+  "%s"                                          \
   "%s"
 
 #define FLICKR_TAGS_GETHOTLIST                          \
@@ -292,6 +301,30 @@ get_photo (xmlNodePtr node)
   return photo;
 }
 
+static GHashTable *
+get_photoset (xmlNodePtr node)
+{
+  GHashTable *photoset = g_hash_table_new_full (g_str_hash,
+                                             g_str_equal,
+                                             g_free,
+                                             g_free);
+
+  /* Add photoset node */
+  add_node (node, photoset);
+
+  /* Add children nodes with their properties */
+  node = node->xmlChildrenNode;
+
+  while (node) {
+    g_hash_table_insert (photoset,
+                         g_strdup ((const gchar *) node->name),
+                         (gchar *) xmlNodeGetContent (node));
+    node = node->next;
+  }
+
+  return photoset;
+}
+
 static gchar *
 get_tag (xmlNodePtr node)
 {
@@ -411,6 +444,40 @@ process_taglist_result (const gchar *xml_result, gpointer user_data)
     data->list_cb (data->flickr, g_list_reverse (taglist), data->user_data);
     g_list_foreach (taglist, (GFunc) g_free, NULL);
     g_list_free (taglist);
+  }
+  g_object_unref (data->flickr);
+  g_slice_free (GFlickrData, data);
+  xmlFreeDoc (doc);
+}
+
+static void
+process_photosetslist_result (const gchar *xml_result, gpointer user_data)
+{
+  GFlickrData *data = (GFlickrData *) user_data;
+  GList *photosets = NULL;
+  xmlDocPtr doc;
+  xmlNodePtr node;
+
+  doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar*) xml_result), NULL,
+                       NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
+  node = xmlDocGetRootElement (doc);
+
+  /* Check if result is OK */
+  if (!node || !result_is_correct (node)) {
+    data->list_cb (data->flickr, NULL, data->user_data);
+  } else {
+    node = node->xmlChildrenNode;
+
+    /* Now we're at "photosets" node */
+    node = node->xmlChildrenNode;
+    while (node) {
+      photosets = g_list_prepend (photosets, get_photoset (node));
+      node = node->next;
+    }
+
+    data->list_cb (data->flickr, g_list_reverse (photosets), data->user_data);
+    g_list_foreach (photosets, (GFunc) g_hash_table_unref, NULL);
+    g_list_free (photosets);
   }
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
@@ -694,6 +761,58 @@ g_flickr_tags_getHotList (GFlickr *f,
   GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_taglist_result;
+  gfd->list_cb = callback;
+  gfd->user_data = user_data;
+
+  read_url_async (request, gfd);
+  g_free (request);
+}
+
+
+void
+g_flickr_photosets_getList (GFlickr *f,
+                           const gchar *user_id,
+                           GFlickrListCb callback,
+                           gpointer user_data)
+{
+  gchar *user;
+  gchar *auth;
+
+  gchar *api_sig = get_api_sig (f->priv->auth_secret,
+                                "api_key", f->priv->api_key,
+                                "method", FLICKR_PHOTOSETS_GETLIST_METHOD,
+                                user_id? "user_id": "",
+                                user_id? user_id: "",
+                                f->priv->auth_token? "auth_token": "",
+                                f->priv->auth_token? f->priv->auth_token: "",
+                                NULL);
+
+  /* Build the request */
+  if (user_id) {
+    user = g_strdup_printf ("&user_id=%s", user_id);
+  } else {
+    user = g_strdup ("");
+  }
+
+  if (f->priv->auth_token) {
+    auth = g_strdup_printf ("&auth_token=%s", f->priv->auth_token);
+  } else {
+    auth = g_strdup ("");
+  }
+
+  gchar *request = g_strdup_printf (FLICKR_PHOTOSETS_GETLIST,
+                                    f->priv->api_key,
+                                    api_sig,
+                                    user,
+                                    auth);
+
+  g_free (api_sig);
+  g_free (user);
+  g_free (auth);
+
+  GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd->flickr = g_object_ref (f);
+  gfd->parse_xml = process_photosetslist_result;
   gfd->list_cb = callback;
   gfd->user_data = user_data;
 

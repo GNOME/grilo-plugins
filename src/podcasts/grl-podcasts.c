@@ -400,6 +400,7 @@ read_done_cb (GObject *source_object,
   g_object_unref (source_object);
   if (vfs_error) {
     g_warning ("Failed to open '%s': %s", arc->url, vfs_error->message);
+    g_error_free (vfs_error);
   } else {
     arc->callback (content, arc->user_data);
   }

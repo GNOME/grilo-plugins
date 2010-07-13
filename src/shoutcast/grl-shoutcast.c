@@ -487,6 +487,7 @@ read_done_cb (GObject *source_object,
                         0,
                         op_data->user_data,
                         error);
+    g_error_free (vfs_error);
     g_error_free (error);
     g_slice_free (OperationData, op_data);
 

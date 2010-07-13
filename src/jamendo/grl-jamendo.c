@@ -626,6 +626,7 @@ read_done_cb (GObject *source_object,
                          error_code,
                          "Failed to connect Jamendo: '%s'",
                          vfs_error->message);
+    g_error_free (vfs_error);
     g_object_unref (source_object);
     goto invoke_cb;
   }

@@ -359,7 +359,6 @@ read_done_cb (GObject *source_object,
               gpointer user_data)
 {
   gchar *content = NULL;
-  GError *vfs_error;
   GFlickrData *data = (GFlickrData *) user_data;
 
   g_file_load_contents_finish (G_FILE (source_object),
@@ -367,7 +366,7 @@ read_done_cb (GObject *source_object,
                                &content,
                                NULL,
                                NULL,
-                               &vfs_error);
+                               NULL);
 
   g_object_unref (source_object);
 

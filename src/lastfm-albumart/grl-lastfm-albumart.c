@@ -187,6 +187,7 @@ read_done_cb (GObject *source_object,
                          "Failed to connect to Last.FM: '%s'",
                          vfs_error->message);
     rs->callback (rs->source, rs->media, rs->user_data, error);
+    g_error_free (vfs_error);
     g_error_free (error);
     g_object_unref (source_object);
     return;

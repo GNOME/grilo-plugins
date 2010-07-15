@@ -7,8 +7,6 @@
 
 libplugin_LTLIBRARIES	= libgrlflickr.la
 
-libauth_LTLIBRARIES	= libgrlflickrauth.la
-
 libgrlflickr_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
 	$(XML_CFLAGS)		\
@@ -25,20 +23,7 @@ libgrlflickr_la_SOURCES =	\
 	gflickr.c		\
 	gflickr.h
 
-libgrlflickrauth_la_CFLAGS =	\
-	$(libgrlflickr_la_CFLAGS)
-
-libgrlflickrauth_la_LIBADD =	\
-	$(libgrlflickr_la_LIBADD)
-
-libgrlflickrauth_la_SOURCES =	\
-	grl-flickr-auth.c	\
-	grl-flickr-auth.h	\
-	gflickr.c		\
-	gflickr.h
-
 libplugindir		= $(GRL_PLUGINS_DIR)
-libauthdir			= $(libdir)
 flickrlibxmldir		= $(GRL_PLUGINS_CONF_DIR)
 flickrlibxml_DATA	= $(FLICKR_PLUGIN_ID).xml
 

@@ -228,7 +228,7 @@ main (void)
 
   g_debug ("loading plugins");
 
-  GrlPluginRegistry *registry = grl_plugin_registry_get_instance ();
+  GrlPluginRegistry *registry = grl_plugin_registry_get_default ();
 
   GrlConfig *config = grl_config_new ("grl-youtube", NULL);
   grl_config_set_api_key (config, YOUTUBE_KEY);

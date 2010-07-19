@@ -258,7 +258,7 @@ token_info_cb (GFlickr *f,
     return;
   }
 
-  registry = grl_plugin_registry_get_instance ();
+  registry = grl_plugin_registry_get_default ();
 
   username = g_hash_table_lookup (info, "user_username");
   fullname = g_hash_table_lookup (info, "user_fullname");

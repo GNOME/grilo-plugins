@@ -298,7 +298,7 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
   name = source_info->source_name;
   source_id = source_info->source_id;
 
-  registry = grl_plugin_registry_get_instance ();
+  registry = grl_plugin_registry_get_default ();
   if (grl_plugin_registry_lookup_source (registry, source_id)) {
     g_debug ("A source with id '%s' is already registered. Skipping...",
 	     source_id);
@@ -360,7 +360,7 @@ device_available_cb (GUPnPControlPoint *cp,
   name = gupnp_device_info_get_friendly_name (GUPNP_DEVICE_INFO (device));
   g_debug ("  name: %s", name);
 
-  registry = grl_plugin_registry_get_instance ();
+  registry = grl_plugin_registry_get_default ();
   source_id = build_source_id (udn);
   if (grl_plugin_registry_lookup_source (registry, source_id)) {
     g_debug ("A source with id '%s' is already registered. Skipping...",
@@ -385,7 +385,7 @@ device_available_cb (GUPnPControlPoint *cp,
     GrlUpnpSource *source = grl_upnp_source_new (source_id, name);
     g_warning ("Failed to start GetCapabilitiesSearch action");
     g_debug ("Setting search disabled for source '%s'", name );
-    registry = grl_plugin_registry_get_instance ();
+    registry = grl_plugin_registry_get_default ();
     grl_plugin_registry_register_source (registry,
                                          source_info->plugin,
                                          GRL_MEDIA_PLUGIN (source));
@@ -412,7 +412,7 @@ device_unavailable_cb (GUPnPControlPoint *cp,
   udn = gupnp_device_info_get_udn (GUPNP_DEVICE_INFO (device));
   g_debug ("   udn: %s ", udn);
 
-  registry = grl_plugin_registry_get_instance ();
+  registry = grl_plugin_registry_get_default ();
   source_id = build_source_id (udn);
   source = grl_plugin_registry_lookup_source (registry, source_id);
   if (!source) {

@@ -39,11 +39,48 @@ CFLAGS+=" ${WARN_CFLAGS} -Wmissing-declarations -std=c99 "
 GNOME_MAINTAINER_MODE_DEFINES
 
 # ----------------------------------------------------------
-# DEFINITIONS
+# UNINSTALLED SUPPORT
 # ----------------------------------------------------------
 
-GRL_VERSION=0.1
+AC_ARG_ENABLE(uninstalled,
+        AC_HELP_STRING([--enable-uninstalled],
+                [run uninstalled (default: no)]),,
+        [enable_uninstalled=no])
+
+if test "x$enable_uninstalled" = "xyes"; then
+        AC_MSG_WARN("Configuring for running uninstalled!")
+	GRL_VERSION=uninstalled
+else
+	GRL_VERSION=0.1
+fi
+
 GRL_NAME=grilo-${GRL_VERSION}
+
+# ----------------------------------------------------------
+# DEBUG SUPPORT
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(debug,
+        AC_HELP_STRING([--enable-debug],
+                [include debug symbols (default: no)]),,
+        [enable_debug=no])
+
+if test "x$enable_debug" = "xyes"; then
+	CFLAGS="$CFLAGS -g3 -O0"
+fi
+
+# ----------------------------------------------------------
+# HARD DEPENDENCIES
+# ----------------------------------------------------------
+
+PKG_CHECK_MODULES([DEPS], glib-2.0 \
+			  gobject-2.0 \
+			  gmodule-2.0 \
+			  ${GRL_NAME} = 0.1.5)
+
+# ----------------------------------------------------------
+# DEFINITIONS
+# ----------------------------------------------------------
 
 # Plugins directory
 
@@ -57,13 +94,8 @@ GRL_PLUGINS_CONF_DIR="${datadir}/${GRL_NAME}/plugins"
 AC_SUBST(GRL_PLUGINS_CONF_DIR)
 
 # ----------------------------------------------------------
-# DEPENDENCIES
+# EXTERNAL/OPTIONAL DEPENDENCIES
 # ----------------------------------------------------------
-
-PKG_CHECK_MODULES(DEPS, glib-2.0 \
-			gobject-2.0 \
-			gmodule-2.0 \
-			grilo-0.1 >= 0.1.5)
 
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 
@@ -109,28 +141,6 @@ if test "x$HAVE_GDATA" = "xyes"; then
    if test $gdata_version_major -eq 0 -a $gdata_version_minor -ge 7; then
       GDATA_CFLAGS+=" -DGDATA_API_SUBJECT_TO_CHANGE"
    fi
-fi
-
-# ----------------------------------------------------------
-# UNINSTALLED SUPPORT
-# ----------------------------------------------------------
-
-AC_ARG_ENABLE(uninstalled,
-        AC_HELP_STRING([--enable-uninstalled],
-                [run uninstalled (default: no)]),,
-        [enable_uninstalled=no])
-
-# ----------------------------------------------------------
-# DEBUG SUPPORT
-# ----------------------------------------------------------
-
-AC_ARG_ENABLE(debug,
-        AC_HELP_STRING([--enable-debug],
-                [include debug symbols (default: no)]),,
-        [enable_debug=no])
-
-if test "x$enable_debug" = "xyes"; then
-	CFLAGS="$CFLAGS -g3 -O0"
 fi
 
 # ----------------------------------------------------------

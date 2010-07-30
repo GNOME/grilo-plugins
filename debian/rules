@@ -13,6 +13,7 @@ DEB_CONFIGURE_EXTRA_FLAGS :=		\
 	--enable-bookmarks		\
 	--enable-filesystem		\
 	--enable-flickr			\
+	--enable-gravatar		\
 	--enable-jamendo		\
 	--enable-lastfm-albumart	\
 	--enable-metadata-store		\

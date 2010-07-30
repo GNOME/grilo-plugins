@@ -1,3 +1,23 @@
+grilo-0.1-plugins (0.1.6-1) unstable; urgency=low
+
+  * General fixes, new metadata key system, new registering framework
+  * Apple trailers: general fixes, more keys, handling SD and HD videos
+  * Bookmarks: general fixes
+  * Fake metadata: general fixes
+  * Filesystem: general fixes, restrict content to a set of directories
+  * Flickr: general fixes, browse operation, handle personal content
+  * Gravatar: new plugin
+  * Jamendo: general fixes
+  * LastFMAalbum Art: general fixes
+  * Metadata Store: general fixes
+  * Podcasts: general fixes
+  * SHOUTCast: general fixes, cache root page, change ID encoding
+  * uPnP: general fixes
+  * Vimeo: general fixes
+  * Youtube: general fixes, handle more keys
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Thu, 26 Aug 2010 19:26:27 +0200
+
 grilo-0.1-plugins (0.1.5-1) unstable; urgency=low
 
   * General: general fixes

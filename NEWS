@@ -1,3 +1,73 @@
+NEW in 0.1.6
+============
+
+  * General
+    * General fixes
+    * Use the new metadata key system
+    * Use the new way of registering plugins
+
+  * Apple trailers plugin
+    * General fixes
+    * Handle more metadata keys
+    * Handle both SD and HD videos
+
+  * Bookmarks plugin
+    * General fixes
+
+  * Fake metadata plugin
+    * General fixes
+
+  * Filesystem plugin
+    * General fixes
+    * Restrict content to a set of directories
+
+  * Flickr plugin
+    * General fixes
+    * Added browse operation
+    * Instance source to handle personal content
+
+  * Gravatar plugin
+    * New plugin that shows avatar for author/artist
+
+  * Jamendo plugin
+    * General fixes
+
+  * LastFM album art plugin
+    * General fixes
+
+  * Metadata Store plugin
+    * General fixes
+
+  * Podcasts plugin
+    * General fixes
+
+  * SHOUTCast plugin
+    * General fixes
+    * Cache root page for some minutes
+    * Change ID encoding
+
+  * uPnP plugin
+    * General fixes
+
+  * Vimeo plugin
+    * General fixes
+
+  * Youtube plugin
+    * General fixes
+    * Handle more metadata keys
+
+  * Contributors to this release:
+      Chris Lord <chris@linux.intel.com>
+      Damien Lespiau <damien.lespiau@intel.com>
+      Iago Toral Quiroga <itoral@igalia.com>
+      iain <iain@linux.intel.com>
+      Joaquim Rocha <jrocha@igalia.com>
+      Juan A. Suarez Romero <jasuarez@igalia.com>
+      Simón Pena <spenap@gmail.com>
+      Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+      Xabier Rodriguez Calvar <xrcalvar@igalia.com>
+
+
 NEW in 0.1.5
 ============
 
@@ -37,6 +107,13 @@ NEW in 0.1.5
     * General fixes
     * Refactored plugin to use libgdata
 
+  * Contributors to this release:
+      Iago Toral Quiroga <itoral@igalia.com>
+      Joaquim Rocha <jrocha@igalia.com>
+      Juan A. Suarez Romero <jasuarez@igalia.com>
+      Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+      Xabier Rodriguez Calvar <xrcalvar@igalia.com>
+
 
 NEW in 0.1.4
 ============
@@ -55,6 +132,10 @@ NEW in 0.1.4
 
   * Podcasts plugin
     * Small improvements
+
+  * Contributors to this release:
+      Iago Toral Quiroga <itoral@igalia.com>
+      Juan A. Suarez Romero <jasuarez@igalia.com>
 
 
 NEW in 0.1.3
@@ -77,6 +158,11 @@ NEW in 0.1.3
 
   * Upnp pugin
     * Small improvements
+
+  * Contributors to this release:
+      Iago Toral Quiroga <itoral@igalia.com>
+      Juan A. Suarez Romero <jasuarez@igalia.com>
+      Philippe Normand <phil@base-art.net>
 
 
 NEW in 0.1.2
@@ -104,6 +190,10 @@ NEW in 0.1.2
   * Upnp plugin
     * Support for new versions of gupnp-av-1.0 (>=0.5).
 
+  * Contributors to this release:
+      Iago Toral <itoral@igalia.com>
+      Juan A. Suarez Romero <jasuarez@igalia.com>
+
 
 NEW in 0.1.1
 ============
@@ -121,3 +211,8 @@ NEW in 0.1.1
   * Developed metadata providers:
     * Fake: provides fake data for almost all keys
     * Last.FM: provides album covers
+
+  * Contributors to this release:
+      Iago Toral <itoral@igalia.com>
+      Juan A. Suarez Romero <jasuarez@igalia.com>
+

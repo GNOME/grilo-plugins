@@ -385,34 +385,75 @@ read_url_async (const gchar *url,
 static gchar *
 get_video_url (const gchar *id)
 {
-  gchar *token_start;
-  gchar *token_end;
-  gchar *token;
   gchar *video_info_url;
   gchar *data;
-  gchar *url;
+  GMatchInfo *match_info;
+  gchar *url = NULL;
+  static GRegex *regex = NULL;
+
+  /* The procedure to get the video url is:
+   * 1) Get the video info URL using the video id
+   * 2) In the video info page, there should be an array of supported formats
+   *    and their corresponding URLs, right now we just use the first one we get.
+   *    TODO: we should be able to provide various urls or at least
+   *          select preferred formats via configuration
+   * 3) As a workaround in case no format array is found we get the video token
+   *    and figure out the url of the video using the video id and the token.
+   */
 
   video_info_url = g_strdup_printf (YOUTUBE_VIDEO_INFO_URL, id);
   data = read_url (video_info_url);
   if (!data) {
-    g_free (video_info_url);
-    return NULL;
+    goto done;
   }
 
-  token_start = g_strrstr (data, "&token=");
-  if (!token_start) {
-    g_free (video_info_url);
-    return NULL;
+  if (regex == NULL) {
+    regex = g_regex_new (".*&fmt_url_map=([^&]+)&", G_REGEX_OPTIMIZE, 0, NULL);
   }
-  token_start += 7;
-  token_end = strstr (token_start, "&");
-  token = g_strndup (token_start, token_end - token_start);
 
-  url = g_strdup_printf (YOUTUBE_VIDEO_URL, id, token);
+  /* Check if we find the url mapping */
+  g_regex_match (regex, data, 0, &match_info);
+  if (g_match_info_matches (match_info) == TRUE) {
+    gchar *url_map_escaped, *url_map;
+    gchar **mappings, **i;
 
+    url_map_escaped = g_match_info_fetch (match_info, 1);
+    url_map = g_uri_unescape_string (url_map_escaped, NULL);
+    g_free (url_map_escaped);
+
+    mappings = g_strsplit (url_map, ",", 0);
+    g_free (url_map);
+
+    if (mappings != NULL) {
+      /* TODO: We get the URL from the first format available.
+       * We should provide the list of available urls or let the user
+       * configure preferred formats
+       */
+      gchar **mapping = g_strsplit (mappings[0], "|", 2);
+      url = g_strdup (mapping[1]);
+      g_strfreev (mapping);
+    }
+  } else {
+    g_debug ("Format array not found, using token workaround");
+    gchar *token_start;
+    gchar *token_end;
+    gchar *token;
+    token_start = g_strrstr (data, "&token=");
+    if (!token_start) {
+      goto done;
+    }
+    token_start += 7;
+    token_end = strstr (token_start, "&");
+    token = g_strndup (token_start, token_end - token_start);
+
+    url = g_strdup_printf (YOUTUBE_VIDEO_URL, id, token);
+    g_free (token);
+  }
+
+ done:
   g_free (video_info_url);
-  g_free (token);
-
+  g_free (data);
+  
   return url;
 }
 

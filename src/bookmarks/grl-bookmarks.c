@@ -578,7 +578,7 @@ store_bookmark (sqlite3 *db,
   if (!parent) {
     parent_id = "0";
   } else {
-    parent_id = grl_media_get_id (parent);
+    parent_id = grl_media_get_id (GRL_MEDIA (parent));
   }
   if (!parent_id) {
     parent_id = "0";

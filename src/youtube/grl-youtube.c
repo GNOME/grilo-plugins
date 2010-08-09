@@ -415,7 +415,7 @@ get_video_url (const gchar *id)
   g_regex_match (regex, data, 0, &match_info);
   if (g_match_info_matches (match_info) == TRUE) {
     gchar *url_map_escaped, *url_map;
-    gchar **mappings, **i;
+    gchar **mappings;
 
     url_map_escaped = g_match_info_fetch (match_info, 1);
     url_map = g_uri_unescape_string (url_map_escaped, NULL);

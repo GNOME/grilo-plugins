@@ -120,7 +120,7 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
   const gchar *flickr_key;
   const gchar *flickr_secret;
   const gchar *flickr_token;
-  const GrlConfig *config;
+  GrlConfig *config;
   gboolean public_source_created = FALSE;
 
   g_debug ("flickr_plugin_init\n");

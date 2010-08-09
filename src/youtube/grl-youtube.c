@@ -656,7 +656,9 @@ get_category_term_from_id (const gchar *category_id)
 static gint
 get_category_index_from_id (const gchar *category_id)
 {
-  for (gint i=0; i<root_dir[ROOT_DIR_CATEGORIES_INDEX].count; i++) {
+  gint i;
+
+  for (i=0; i<root_dir[ROOT_DIR_CATEGORIES_INDEX].count; i++) {
     if (!strcmp (categories_dir[i].id, category_id)) {
       return i;
     }
@@ -693,9 +695,11 @@ item_count_cb (GObject *object, GAsyncResult *result, CategoryCountCb *cc)
 static void
 compute_category_counts (GDataService *service)
 {
+  gint i;
+
   g_debug ("compute_category_counts");
 
-  for (gint i=0; i<root_dir[ROOT_DIR_CATEGORIES_INDEX].count; i++) {
+  for (i=0; i<root_dir[ROOT_DIR_CATEGORIES_INDEX].count; i++) {
     g_debug ("Computing chilcount for category '%s'", categories_dir[i].id);
     GDataQuery *query = gdata_query_new_with_limits (NULL, 0, 1);
     const gchar *category_term =
@@ -716,9 +720,10 @@ compute_category_counts (GDataService *service)
 static void
 compute_feed_counts (GDataService *service)
 {
+  gint i;
   g_debug ("compute_feed_counts");
 
-  for (gint i=0; i<root_dir[ROOT_DIR_FEEDS_INDEX].count; i++) {
+  for (i=0; i<root_dir[ROOT_DIR_FEEDS_INDEX].count; i++) {
     g_debug ("Computing chilcount for feed '%s'", feeds_dir[i].id);
     gint feed_type = get_feed_type_from_id (feeds_dir[i].id);
     GDataQuery *query = gdata_query_new_with_limits (NULL, 0, 1);

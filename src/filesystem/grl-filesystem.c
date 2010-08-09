@@ -371,7 +371,7 @@ create_content (GrlMedia *content,
     }
 
     if (!GRL_IS_MEDIA_BOX (media)) {
-      grl_media_set_mime (GRL_DATA (media), mime);
+      grl_media_set_mime (media, mime);
     }
 
     /* Title */
@@ -383,7 +383,7 @@ create_content (GrlMedia *content,
     gchar *time_str;
     g_file_info_get_modification_time (info, &time);
     time_str = g_time_val_to_iso8601 (&time);
-    grl_media_set_date (GRL_DATA (media), time_str);
+    grl_media_set_date (media, time_str);
     g_free (time_str);
 
     /* Thumbnail */
@@ -397,7 +397,7 @@ create_content (GrlMedia *content,
       if (thumb) {
 	gchar *thumb_uri = g_filename_to_uri (thumb, NULL, NULL);
 	if (thumb_uri) {
-	  grl_media_set_thumbnail (GRL_DATA (media), thumb_uri);
+	  grl_media_set_thumbnail (media, thumb_uri);
 	  g_free (thumb_uri);
 	}
       }

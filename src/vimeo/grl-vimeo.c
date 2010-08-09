@@ -89,7 +89,7 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
 {
   const gchar *vimeo_key;
   const gchar *vimeo_secret;
-  const GrlConfig *config;
+  GrlConfig *config;
   gint config_count;
   GrlVimeoSource *source;
 
@@ -233,13 +233,13 @@ update_media (GrlMedia *media, GHashTable *video)
   str = g_hash_table_lookup (video, VIMEO_VIDEO_WIDTH);
   if (str)
   {
-    grl_media_video_set_width (media, str_to_gint (str));
+    grl_media_video_set_width (GRL_MEDIA_VIDEO (media), str_to_gint (str));
   }
 
   str = g_hash_table_lookup (video, VIMEO_VIDEO_HEIGHT);
   if (str)
   {
-    grl_media_video_set_height (media, str_to_gint (str));
+    grl_media_video_set_height (GRL_MEDIA_VIDEO (media), str_to_gint (str));
   }
 }
 

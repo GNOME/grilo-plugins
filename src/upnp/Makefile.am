@@ -11,12 +11,14 @@ libgrlupnp_la_CFLAGS =		\
 	$(DEPS_CFLAGS)		\
 	$(GUPNP_CFLAGS)		\
 	$(GUPNPAV_CFLAGS)	\
+	$(GTHREAD_CFLAGS)	\
 	$(XML_CFLAGS)
 
 libgrlupnp_la_LIBADD =	\
 	$(DEPS_LIBS)	\
 	$(GUPNP_LIBS)	\
 	$(GUPNPAV_LIBS)	\
+	$(GTHREAD_LIBS)	\
 	$(XML_LIBS)
 
 if GUPNPAV_OLD_VERSION

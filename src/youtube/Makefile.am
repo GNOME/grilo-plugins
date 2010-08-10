@@ -11,12 +11,14 @@ libgrlyoutube_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
 	$(GIO_CFLAGS)		\
 	$(XML_CFLAGS) 		\
+	$(GTHREAD_CFLAGS)	\
 	$(GDATA_CFLAGS)
 
 libgrlyoutube_la_LIBADD =	\
 	$(DEPS_LIBS)		\
 	$(GIO_LIBS)		\
 	$(XML_LIBS) 		\
+	$(GTHREAD_LIBS)		\
 	$(GDATA_LIBS)
 
 libgrlyoutube_la_SOURCES = grl-youtube.c grl-youtube.h

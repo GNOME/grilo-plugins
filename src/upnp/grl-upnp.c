@@ -725,11 +725,11 @@ set_metadata_value (GrlMedia *media,
   if (key_id == GRL_METADATA_KEY_TITLE) {
     grl_media_set_title (media, value);
   } else if (key_id == GRL_METADATA_KEY_ARTIST) {
-    grl_media_audio_set_artist (media, value);
+    grl_media_audio_set_artist (GRL_MEDIA_AUDIO(media), value);
   } else if (key_id == GRL_METADATA_KEY_ALBUM) {
-    grl_media_audio_set_album (media, value);
+    grl_media_audio_set_album (GRL_MEDIA_AUDIO(media), value);
   } else if (key_id == GRL_METADATA_KEY_GENRE) {
-    grl_media_audio_set_genre (media, value);
+    grl_media_audio_set_genre (GRL_MEDIA_AUDIO(media), value);
   } else if (key_id == GRL_METADATA_KEY_URL) {
     grl_media_set_url (media, value);
   } else if (key_id == GRL_METADATA_KEY_MIME) {

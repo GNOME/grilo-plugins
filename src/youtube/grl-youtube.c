@@ -209,7 +209,7 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
                          GList *configs)
 {
   const gchar *api_key;
-  const GrlConfig *config;
+  GrlConfig *config;
   gint config_count;
 
   g_debug ("youtube_plugin_init");

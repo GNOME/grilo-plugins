@@ -110,6 +110,8 @@
 
 typedef void (*AsyncReadCbFunc) (gchar *data, gpointer user_data);
 
+typedef void (*BuildMediaFromEntryCbFunc) (GrlMedia *media, gpointer user_data);
+
 typedef struct {
   gchar *id;
   gchar *name;
@@ -128,6 +130,9 @@ typedef struct {
   gpointer user_data;
   guint error_code;
   CategoryInfo *category_info;
+  guint emitted;
+  guint matches;
+  guint ref_count;
 } OperationSpec;
 
 typedef struct {
@@ -140,6 +145,12 @@ typedef struct {
   gchar *url;
   gpointer user_data;
 } AsyncReadCb;
+
+typedef struct {
+  GrlMedia *media;
+  BuildMediaFromEntryCbFunc callback;
+  gpointer user_data;
+} SetMediaUrlAsyncReadCb;
 
 typedef enum {
   YOUTUBE_MEDIA_TYPE_ROOT,
@@ -308,32 +319,30 @@ G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_MEDIA_SOURCE);
 
 /* ======================= Utilities ==================== */
 
-static void
-free_operation_spec (OperationSpec *os)
+static OperationSpec *
+operation_spec_new ()
 {
-  g_slice_free (OperationSpec, os);
+  g_debug ("Allocating new spec");
+  OperationSpec *os =  g_slice_new0 (OperationSpec);
+  os->ref_count = 1;
+  return os;
 }
 
-static gchar *
-read_url (const gchar *url)
+static void
+operation_spec_unref (OperationSpec *os)
 {
-  GVfs *vfs;
-  GFile *uri;
-  GError *vfs_error = NULL;
-  gchar *content = NULL;
-
-  vfs = g_vfs_get_default ();
-
-  g_debug ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents (uri, NULL, &content, NULL, NULL, &vfs_error);
-  g_object_unref (uri);
-  if (vfs_error) {
-    g_warning ("Failed reading '%s': %s", url, vfs_error->message);
-    return NULL;
-  } else {
-    return content;
+  os->ref_count--;
+  if (os->ref_count == 0) {
+    g_slice_free (OperationSpec, os);
+    g_debug ("freeing spec");
   }
+}
+
+static void
+operation_spec_ref (OperationSpec *os)
+{
+  g_debug ("Reffing spec");
+  os->ref_count++;
 }
 
 static void
@@ -354,6 +363,7 @@ read_done_cb (GObject *source_object,
   g_object_unref (source_object);
   if (vfs_error) {
     g_warning ("Failed to open '%s': %s", arc->url, vfs_error->message);
+    arc->callback (NULL, arc->user_data);
   } else {
     arc->callback (content, arc->user_data);
   }
@@ -366,11 +376,8 @@ read_url_async (const gchar *url,
                 AsyncReadCbFunc callback,
                 gpointer user_data)
 {
-  GVfs *vfs;
   GFile *uri;
   AsyncReadCb *arc;
-
-  vfs = g_vfs_get_default ();
 
   g_debug ("Opening async '%s'", url);
 
@@ -378,31 +385,18 @@ read_url_async (const gchar *url,
   arc->url = g_strdup (url);
   arc->callback = callback;
   arc->user_data = user_data;
-  uri = g_vfs_get_file_for_uri (vfs, url);
+  uri = g_file_new_for_uri (url);
   g_file_load_contents_async (uri, NULL, read_done_cb, arc);
 }
 
-static gchar *
-get_video_url (const gchar *id)
+static void
+set_media_url_async_read_cb (gchar *data, gpointer user_data)
 {
-  gchar *video_info_url;
-  gchar *data;
-  GMatchInfo *match_info;
+  SetMediaUrlAsyncReadCb *cb_data = (SetMediaUrlAsyncReadCb *) user_data;
   gchar *url = NULL;
+  GMatchInfo *match_info = NULL;
   static GRegex *regex = NULL;
 
-  /* The procedure to get the video url is:
-   * 1) Get the video info URL using the video id
-   * 2) In the video info page, there should be an array of supported formats
-   *    and their corresponding URLs, right now we just use the first one we get.
-   *    TODO: we should be able to provide various urls or at least
-   *          select preferred formats via configuration
-   * 3) As a workaround in case no format array is found we get the video token
-   *    and figure out the url of the video using the video id and the token.
-   */
-
-  video_info_url = g_strdup_printf (YOUTUBE_VIDEO_INFO_URL, id);
-  data = read_url (video_info_url);
   if (!data) {
     goto done;
   }
@@ -438,6 +432,8 @@ get_video_url (const gchar *id)
     gchar *token_start;
     gchar *token_end;
     gchar *token;
+    const gchar *video_id;
+
     token_start = g_strrstr (data, "&token=");
     if (!token_start) {
       goto done;
@@ -446,25 +442,71 @@ get_video_url (const gchar *id)
     token_end = strstr (token_start, "&");
     token = g_strndup (token_start, token_end - token_start);
 
-    url = g_strdup_printf (YOUTUBE_VIDEO_URL, id, token);
+    video_id = grl_media_get_id (cb_data->media);
+    url = g_strdup_printf (YOUTUBE_VIDEO_URL, video_id, token);
     g_free (token);
   }
 
  done:
-  g_free (video_info_url);
   g_free (data);
   
-  return url;
+  if (url) {
+    grl_media_set_url (cb_data->media, url);
+    g_free (url);
+  }
+
+  cb_data->callback (cb_data->media, cb_data->user_data);
+
+  g_free (cb_data);
 }
 
-static GrlMedia *
+static void
+set_media_url (GrlMedia *media,
+	       BuildMediaFromEntryCbFunc callback,
+	       gpointer user_data)
+{
+  const gchar *video_id;
+  gchar *video_info_url;
+  SetMediaUrlAsyncReadCb *set_media_url_async_read_data;
+
+  /* The procedure to get the video url is:
+   * 1) Read the video info URL using the video id (async operation)
+   * 2) In the video info page, there should be an array of supported formats
+   *    and their corresponding URLs, right now we just use the first one we get.
+   *    (see set_media_url_async_read_cb).
+   *    TODO: we should be able to provide various urls or at least
+   *          select preferred formats via configuration
+   *    TODO: we should set mime-type accordingly to the format selected
+   * 3) As a workaround in case no format array is found we get the video token
+   *    and figure out the url of the video using the video id and the token.
+   */
+
+  video_id = grl_media_get_id (media);
+  video_info_url = g_strdup_printf (YOUTUBE_VIDEO_INFO_URL, video_id);
+
+  set_media_url_async_read_data = g_new0 (SetMediaUrlAsyncReadCb, 1);
+  set_media_url_async_read_data->media = media;
+  set_media_url_async_read_data->callback = callback;
+  set_media_url_async_read_data->user_data = user_data;
+
+  read_url_async (video_info_url,
+		  set_media_url_async_read_cb,
+		  set_media_url_async_read_data);
+
+  g_free (video_info_url);
+}
+
+static void
 build_media_from_entry (GrlMedia *content,
 			GDataEntry *entry,
-			const GList *keys)
+			const GList *keys,
+			BuildMediaFromEntryCbFunc callback,
+			gpointer user_data)
 {
   GDataYouTubeVideo *video;
   GrlMedia *media;
   GList *iter;
+  gboolean need_url = FALSE;
 
   if (!content) {
     media = grl_media_video_new ();
@@ -516,11 +558,8 @@ build_media_from_entry (GrlMedia *content,
       gdata_youtube_video_get_rating (video, NULL, NULL, NULL, &average);
       grl_media_set_rating (media, average, 5.00);
     } else if (iter->data == GRL_METADATA_KEY_URL) {
-      gchar *url = get_video_url (gdata_youtube_video_get_video_id (video));
-      if (url) {
-        grl_media_set_url (media, url);
-        g_free (url);
-      }
+      /* This needs another query and will be resolved asynchronously p Q*/
+      need_url = TRUE;
     } else if (iter->data == GRL_METADATA_KEY_EXTERNAL_PLAYER) {
       GDataYouTubeContent *youtube_content;
       youtube_content =
@@ -535,7 +574,12 @@ build_media_from_entry (GrlMedia *content,
     iter = g_list_next (iter);
   }
 
-  return media;
+  if (need_url) {
+    /* URL resolution is async */
+    set_media_url (media, callback, user_data);
+  } else {
+    callback (media, user_data);
+  }
 }
 
 static void
@@ -741,15 +785,40 @@ compute_feed_counts (GDataService *service)
 }
 
 static void
-process_entry (GDataEntry *entry, guint count, OperationSpec *os)
+build_media_from_entry_metadata_cb (GrlMedia *media, gpointer user_data)
 {
-  GrlMedia *media = build_media_from_entry (NULL, entry, os->keys);
-  os->callback (os->source,
-		os->operation_id,
-		media,
-		count,
-		os->user_data,
-		NULL);
+  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
+  ms->callback (ms->source, media, ms->user_data, NULL);
+}
+
+static void
+build_media_from_entry_search_cb (GrlMedia *media, gpointer user_data)
+{
+  /*
+   * TODO: Async resolution of URL messes (or could mess) with the sorting,
+   * If we want to ensure a particular sorting or implement sorting
+   * mechanisms we should add code to handle that here so we emit items in
+   * the right order and not just when we got the URL resolved (would
+   * damage response time though).
+   */
+  OperationSpec *os = (OperationSpec *) user_data;
+  guint remaining;
+
+  if (os->emitted < os->count) {
+    remaining = os->count - os->emitted - 1;
+    os->callback (os->source,
+		  os->operation_id,
+		  media,
+		  remaining,
+		  os->user_data,
+		  NULL);
+    if (remaining == 0) {
+      g_debug ("Unreffing spec in build_media_from_entry_search_cb");
+      operation_spec_unref (os);
+    } else {
+      os->emitted++;
+    }
+  }
 }
 
 static void
@@ -794,8 +863,8 @@ metadata_cb (GObject *object,
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   } else {
-    build_media_from_entry (ms->media, video, ms->keys);
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    build_media_from_entry (ms->media, video, ms->keys,
+			    build_media_from_entry_metadata_cb, ms);
   }
 
   if (video) {
@@ -811,11 +880,18 @@ search_progress_cb (GDataEntry *entry,
 {
   OperationSpec *os = (OperationSpec *) user_data;
   if (index < count) {
-    os->count = count - index - 1;
-    process_entry (entry, os->count, os);
+    /* Keep track of the items we got here. Due to the asynchronous
+     * nature of build_media_from_entry(), when search_cb is invoked
+     * we have to check if we got as many results as we requested or
+     * not, and handle that situation properly */
+    os->matches++;
+    build_media_from_entry (NULL, entry, os->keys,
+			    build_media_from_entry_search_cb, os);
   } else {
     g_warning ("Invalid index/count received grom libgdata, ignoring result");
   }
+
+  /* The entry will be freed when freeing the feed in search_cb */
 }
 
 static void
@@ -825,6 +901,7 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
 
   GDataFeed *feed;
   GError *error = NULL;
+  gboolean need_extra_unref = FALSE;
   GrlYoutubeSource *source = GRL_YOUTUBE_SOURCE (os->source);
 
   feed = gdata_service_query_finish (source->service, result, &error);
@@ -834,9 +911,20 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
       os->category_info->count = gdata_feed_get_total_results (feed);
     }
 
-    /* Should not be necessary, but just in case... */
-    if (os->count > 0) {
-      os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+    /* Check if we got as many results as we requested */
+    if (os->matches < os->count) {
+      os->count = os->matches;
+      /* In case we are resolving URLs asynchronously, from now on
+       * results will be sent with appropriate remaining, but it can
+       * also be the case that we have sent all the results already
+       * and the last one was sent with remaining>0, in that case
+       * we should send a finishing message now. */
+      if (os->emitted == os->count) {
+	g_debug ("sending finishing message");
+	os->callback (os->source, os->operation_id,
+		      NULL, 0, os->user_data, NULL);
+	need_extra_unref = TRUE;
+      }
     }
   } else {
     if (!error) {
@@ -848,11 +936,19 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
     }
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
+    need_extra_unref = TRUE;
   }
 
   if (feed)
     g_object_unref (feed);
-  free_operation_spec (os);
+
+  g_debug ("Unreffing spec in search_cb");
+  operation_spec_unref (os);
+  if (need_extra_unref) {
+    /* We did not free the spec in the emission callback, do it here */
+    g_debug ("need extra spec unref in search_cb");
+    operation_spec_unref (os);
+  }
 }
 
 static gboolean
@@ -974,7 +1070,7 @@ produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os)
 		  0,
 		  os->user_data,
 		  NULL);
-    free_operation_spec (os);
+    operation_spec_unref (os);
   } else {
     index = os->skip;
     remaining = MIN (dir_size - os->skip, os->count);
@@ -996,7 +1092,7 @@ produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os)
 		    NULL);
 
       if (remaining == 0) {
-	free_operation_spec (os);
+	operation_spec_unref (os);
       }
     } while (remaining > 0);
   }
@@ -1023,9 +1119,21 @@ produce_from_feed (OperationSpec *os)
 		  os->user_data,
 		  error);
     g_error_free (error);
-    free_operation_spec (os);
+    operation_spec_unref (os);
     return;
   }
+  /* OPERATION_SPEC_REF_RATIONALE
+   * Depending on wether the URL has been requested, metadata resolution
+   * for each item in the result set may or may not be asynchronous.
+   * We cannot free the spec in search_cb because that may be called
+   * before the asynchronous URL resolution is finished, and we cannot
+   * do it in build_media_from_entry_search_cb either, because in the
+   * synchronous case (when we do not request URL) search_cb will
+   * be invoked after it.
+   * Thus, the solution is to increase the reference count here and
+   * have both places unreffing the spec, that way, no matter which
+   * is invoked last, the spec will be freed only once. */
+  operation_spec_ref (os);
 
   service = GRL_YOUTUBE_SOURCE (os->source)->service;
   query = gdata_query_new_with_limits (NULL , os->skip, os->count);
@@ -1064,9 +1172,12 @@ produce_from_category (OperationSpec *os)
 		  os->user_data,
 		  error);
     g_error_free (error);
-    free_operation_spec (os);
+    operation_spec_unref (os);
     return;
   }
+
+  /* Look for OPERATION_SPEC_REF_RATIONALE for details */
+  operation_spec_ref (os);
 
   service = GRL_YOUTUBE_SOURCE (os->source)->service;
   query = gdata_query_new_with_limits (NULL , os->skip, os->count);
@@ -1127,7 +1238,7 @@ grl_youtube_source_search (GrlMediaSource *source,
 
   g_debug ("grl_youtube_source_search (%u, %u)", ss->skip, ss->count);
 
-  os = g_slice_new0 (OperationSpec);
+  os = operation_spec_new ();
   os->source = source;
   os->operation_id = ss->search_id;
   os->keys = ss->keys;
@@ -1136,6 +1247,9 @@ grl_youtube_source_search (GrlMediaSource *source,
   os->callback = ss->callback;
   os->user_data = ss->user_data;
   os->error_code = GRL_ERROR_SEARCH_FAILED;
+
+  /* Look for OPERATION_SPEC_REF_RATIONALE for details */
+  operation_spec_ref (os);
 
   query = gdata_query_new_with_limits (ss->text, os->skip, os->count);
   gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (source)->service),
@@ -1159,7 +1273,7 @@ grl_youtube_source_browse (GrlMediaSource *source,
 
   container_id = grl_media_get_id (bs->container);
 
-  os = g_slice_new0 (OperationSpec);
+  os = operation_spec_new ();
   os->source = bs->source;
   os->operation_id = bs->browse_id;
   os->container_id = container_id;

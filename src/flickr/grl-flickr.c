@@ -602,7 +602,7 @@ grl_flickr_source_public_browse (GrlMediaSource *source,
     if (bs->skip >= HOTLIST_MAX) {
       bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, NULL);
     } else {
-      request_size = CLAMP (bs->skip + bs->count, 0, HOTLIST_MAX);
+      request_size = CLAMP (bs->skip + bs->count, 1, HOTLIST_MAX);
       g_flickr_tags_getHotList (f, request_size, gettags_cb, bs);
     }
   } else {

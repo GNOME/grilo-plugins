@@ -725,25 +725,23 @@ update_media_from_root (GrlMedia *media)
 static void
 update_media_from_artists (GrlMedia *media)
 {
-  Entry *entry;
+  Entry entry = {
+    .category = JAMENDO_ARTIST_CAT,
+    .artist_name = JAMENDO_ARTIST "s",
+  };
 
-  entry = g_slice_new0 (Entry);
-  entry->category = JAMENDO_ARTIST_CAT;
-  entry->artist_name = g_strdup (JAMENDO_ARTIST "s");
-  update_media_from_entry (media, entry);
-  free_entry (entry);
+  update_media_from_entry (media, &entry);
 }
 
 static void
 update_media_from_albums (GrlMedia *media)
 {
-  Entry *entry;
+  Entry entry = {
+    .category = JAMENDO_ALBUM_CAT,
+    .album_name = JAMENDO_ALBUM "s",
+  };
 
-  entry = g_slice_new0 (Entry);
-  entry->category = JAMENDO_ALBUM_CAT;
-  entry->album_name = g_strdup (JAMENDO_ALBUM "s");
-  update_media_from_entry (media, entry);
-  free_entry (entry);
+  update_media_from_entry (media, &entry);
 }
 
 static void

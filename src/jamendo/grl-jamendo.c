@@ -1217,6 +1217,8 @@ grl_jamendo_source_query (GrlMediaSource *source,
   case JAMENDO_TRACK_CAT:
     query = JAMENDO_SEARCH_TRACK;
     break;
+  default:
+    g_return_if_reached ();
   }
 
   grl_paging_translate (qs->skip,

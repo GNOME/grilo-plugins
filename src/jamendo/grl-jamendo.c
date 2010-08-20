@@ -102,7 +102,8 @@ enum {
 typedef enum {
   JAMENDO_ARTIST_CAT = 1,
   JAMENDO_ALBUM_CAT,
-  JAMENDO_TRACK_CAT
+  JAMENDO_FEEDS_CAT,
+  JAMENDO_TRACK_CAT,
 } JamendoCategory;
 
 typedef struct {
@@ -121,6 +122,7 @@ typedef struct {
   gchar *track_url;
   gchar *track_stream;
   gchar *track_duration;
+  gchar *feed_name;
 } Entry;
 
 typedef struct {
@@ -138,6 +140,25 @@ typedef struct {
   guint offset;
   gboolean cancelled;
 } XmlParseEntries;
+
+struct Feeds {
+  gchar *name;
+  JamendoCategory cat;
+  gchar *url;
+} feeds[] = {
+  { "Albums of the week", JAMENDO_ALBUM_CAT,
+    JAMENDO_GET_ALBUMS "&order=ratingweek_desc", },
+  { "Tracks of the week", JAMENDO_TRACK_CAT,
+    JAMENDO_GET_TRACKS "&order=ratingweek_desc", },
+  { "New releases", JAMENDO_TRACK_CAT,
+    JAMENDO_GET_TRACKS "&order=releasedate_desc", },
+  { "Top artists", JAMENDO_ARTIST_CAT,
+    JAMENDO_GET_ARTISTS "&order=rating_desc", },
+  { "Top albums", JAMENDO_ALBUM_CAT,
+    JAMENDO_GET_ALBUMS "&order=rating_desc", },
+  { "Top tracks", JAMENDO_TRACK_CAT,
+    JAMENDO_GET_TRACKS "&order=rating_desc", },
+};
 
 static GrlJamendoSource *grl_jamendo_source_new (void);
 
@@ -240,6 +261,7 @@ print_entry (Entry *entry)
   g_print ("     Track URL: %s\n", entry->track_url);
   g_print ("  Track Stream: %s\n", entry->track_stream);
   g_print ("Track Duration: %s\n", entry->track_duration);
+  g_print ("     Feed Name: %s\n", entry->feed_name);
 }
 #endif
 
@@ -260,6 +282,7 @@ free_entry (Entry *entry)
   g_free (entry->track_url);
   g_free (entry->track_stream);
   g_free (entry->track_duration);
+  g_free (entry->feed_name);
   g_slice_free (Entry, entry);
 }
 
@@ -514,6 +537,10 @@ update_media_from_entry (GrlMedia *media, const Entry *entry)
     if (entry->track_duration) {
       grl_media_set_duration (media, atoi (entry->track_duration));
     }
+  } else if (entry->category == JAMENDO_FEEDS_CAT) {
+    if (entry->feed_name) {
+      grl_media_set_title (media, entry->feed_name);
+    }
   }
 }
 
@@ -719,7 +746,7 @@ static void
 update_media_from_root (GrlMedia *media)
 {
   grl_media_set_title (media, JAMENDO_ROOT_NAME);
-  grl_media_box_set_childcount (GRL_MEDIA_BOX (media), 2);
+  grl_media_box_set_childcount (GRL_MEDIA_BOX (media), 3);
 }
 
 static void
@@ -742,6 +769,18 @@ update_media_from_albums (GrlMedia *media)
   };
 
   update_media_from_entry (media, &entry);
+}
+
+static void
+update_media_from_feeds (GrlMedia *media)
+{
+  Entry entry = {
+    .category = JAMENDO_FEEDS_CAT,
+    .feed_name = "feeds",
+  };
+
+  update_media_from_entry (media, &entry);
+  grl_media_box_set_childcount (GRL_MEDIA_BOX (media), G_N_ELEMENTS(feeds));
 }
 
 static void
@@ -768,7 +807,48 @@ send_toplevel_categories (GrlMediaSourceBrowseSpec *bs)
   if (remaining) {
     media = grl_media_box_new ();
     update_media_from_albums (media);
+    bs->callback (bs->source, bs->browse_id, media, remaining, bs->user_data, NULL);
+    remaining--;
+  }
+
+  if (remaining) {
+    media = grl_media_box_new ();
+    update_media_from_feeds (media);
     bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
+  }
+}
+
+static void
+update_media_from_feed (GrlMedia *media, int i)
+{
+  char *id;
+
+  id = g_strdup_printf("%d/%d", JAMENDO_FEEDS_CAT, i);
+  grl_media_set_id (media, id);
+  g_free (id);
+
+  grl_media_set_title (media, feeds[i].name);
+}
+
+static void
+send_feeds (GrlMediaSourceBrowseSpec *bs)
+{
+  int i;
+  int remaining;
+
+  remaining = MIN (bs->count, G_N_ELEMENTS (feeds));
+  for (i = bs->skip; remaining > 0 && i < G_N_ELEMENTS (feeds); i++) {
+    GrlMedia *media;
+
+    media = grl_media_box_new ();
+    update_media_from_feed (media, i);
+    bs->callback (bs->source,
+                  bs->browse_id,
+                  media,
+                  remaining,
+                  bs->user_data,
+                  NULL);
+    remaining--;
   }
 }
 
@@ -920,6 +1000,15 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
         g_strfreev (id_split);
         goto send_error;
       }
+    } else if (category == JAMENDO_FEEDS_CAT) {
+      if (id_split[1]) {
+        int i;
+
+        i = atoi (id_split[0]);
+        update_media_from_feed (ms->media, i);
+      } else {
+        update_media_from_feeds (ms->media);
+      }
     } else {
       error = g_error_new (GRL_ERROR,
                            GRL_ERROR_METADATA_FAILED,
@@ -1033,6 +1122,21 @@ grl_jamendo_source_browse (GrlMediaSource *source,
                                page_number);
       }
       g_free (jamendo_keys);
+
+    } else if (category == JAMENDO_FEEDS_CAT) {
+      if (container_split[1]) {
+        int feed_id;
+
+        feed_id = atoi (container_split[1]);
+        jamendo_keys = get_jamendo_keys (feeds[feed_id].cat);
+        url = g_strdup_printf (feeds[feed_id].url,
+                               jamendo_keys,
+                               page_size,
+                               page_number);
+      } else {
+        send_feeds (bs);
+        return;
+      }
 
     } else if (category == JAMENDO_TRACK_CAT) {
       error = g_error_new (GRL_ERROR,

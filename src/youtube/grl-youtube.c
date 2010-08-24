@@ -33,8 +33,8 @@
 
 /* --------- Logging  -------- */
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-youtube"
+#define GRL_LOG_DOMAIN_DEFAULT youtube_log_domain
+GRL_LOG_DOMAIN_STATIC(youtube_log_domain);
 
 /* ----- Root categories ---- */
 
@@ -223,22 +223,24 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
   GrlConfig *config;
   gint config_count;
 
-  g_debug ("youtube_plugin_init");
+  GRL_LOG_DOMAIN_INIT (youtube_log_domain, "youtube");
+
+  GRL_DEBUG ("youtube_plugin_init");
 
   if (!configs) {
-    g_warning ("Configuration not provided! Cannot configure plugin.");
+    GRL_WARNING ("Configuration not provided! Cannot configure plugin.");
     return FALSE;
   }
 
   config_count = g_list_length (configs);
   if (config_count > 1) {
-    g_warning ("Provided %d configs, but will only use one", config_count);
+    GRL_WARNING ("Provided %d configs, but will only use one", config_count);
   }
 
   config = GRL_CONFIG (configs->data);
   api_key = grl_config_get_api_key (config);
   if (!api_key) {
-    g_warning ("Missing API Key, cannot configure Youtube plugin");
+    GRL_WARNING ("Missing API Key, cannot configure Youtube plugin");
     return FALSE;
   }
 
@@ -265,14 +267,14 @@ GRL_PLUGIN_REGISTER (grl_youtube_plugin_init,
 static GrlYoutubeSource *
 grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
 {
-  g_debug ("grl_youtube_source_new");
+  GRL_DEBUG ("grl_youtube_source_new");
 
   GrlYoutubeSource *source;
   GDataYouTubeService *service;
 
   service = gdata_youtube_service_new (api_key, client_id);
   if (!service) {
-    g_warning ("Failed to initialize gdata service");
+    GRL_WARNING ("Failed to initialize gdata service");
     return NULL;
   }
 
@@ -322,7 +324,7 @@ G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_MEDIA_SOURCE);
 static OperationSpec *
 operation_spec_new ()
 {
-  g_debug ("Allocating new spec");
+  GRL_DEBUG ("Allocating new spec");
   OperationSpec *os =  g_slice_new0 (OperationSpec);
   os->ref_count = 1;
   return os;
@@ -334,14 +336,14 @@ operation_spec_unref (OperationSpec *os)
   os->ref_count--;
   if (os->ref_count == 0) {
     g_slice_free (OperationSpec, os);
-    g_debug ("freeing spec");
+    GRL_DEBUG ("freeing spec");
   }
 }
 
 static void
 operation_spec_ref (OperationSpec *os)
 {
-  g_debug ("Reffing spec");
+  GRL_DEBUG ("Reffing spec");
   os->ref_count++;
 }
 
@@ -362,7 +364,7 @@ read_done_cb (GObject *source_object,
                                &vfs_error);
   g_object_unref (source_object);
   if (vfs_error) {
-    g_warning ("Failed to open '%s': %s", arc->url, vfs_error->message);
+    GRL_WARNING ("Failed to open '%s': %s", arc->url, vfs_error->message);
     arc->callback (NULL, arc->user_data);
   } else {
     arc->callback (content, arc->user_data);
@@ -379,7 +381,7 @@ read_url_async (const gchar *url,
   GFile *uri;
   AsyncReadCb *arc;
 
-  g_debug ("Opening async '%s'", url);
+  GRL_DEBUG ("Opening async '%s'", url);
 
   arc = g_slice_new0 (AsyncReadCb);
   arc->url = g_strdup (url);
@@ -428,7 +430,7 @@ set_media_url_async_read_cb (gchar *data, gpointer user_data)
       g_strfreev (mapping);
     }
   } else {
-    g_debug ("Format array not found, using token workaround");
+    GRL_DEBUG ("Format array not found, using token workaround");
     gchar *token_start;
     gchar *token_end;
     gchar *token;
@@ -585,7 +587,7 @@ build_media_from_entry (GrlMedia *content,
 static void
 parse_categories (xmlDocPtr doc, xmlNodePtr node, GDataService *service)
 {
-  g_debug ("parse_categories");
+  GRL_DEBUG ("parse_categories");
 
   guint total = 0;
   GList *all = NULL, *iter;
@@ -602,7 +604,7 @@ parse_categories (xmlDocPtr doc, xmlNodePtr node, GDataService *service)
     g_free (id);
     node = node->next;
     total++;
-    g_debug ("  Found category: '%d - %s'", index++, cat_info->name);
+    GRL_DEBUG ("  Found category: '%d - %s'", index++, cat_info->name);
   }
 
   if (all) {
@@ -713,7 +715,7 @@ get_category_index_from_id (const gchar *category_id)
 static void
 item_count_cb (GObject *object, GAsyncResult *result, CategoryCountCb *cc)
 {
-  g_debug ("item_count_cb");
+  GRL_DEBUG ("item_count_cb");
 
   GDataFeed *feed;
   GError *error = NULL;
@@ -721,13 +723,13 @@ item_count_cb (GObject *object, GAsyncResult *result, CategoryCountCb *cc)
   feed = gdata_service_query_finish (GDATA_SERVICE (cc->service),
 				     result, &error);
   if (error) {
-    g_warning ("Failed to compute count for category '%s': %s",
-	       cc->category_info->id, error->message);
+    GRL_WARNING ("Failed to compute count for category '%s': %s",
+                 cc->category_info->id, error->message);
     g_error_free (error);
   } else if (feed) {
     cc->category_info->count = gdata_feed_get_total_results (feed);
-    g_debug ("Category '%s' - childcount: '%u'", 
-	     cc->category_info->id, cc->category_info->count);
+    GRL_DEBUG ("Category '%s' - childcount: '%u'",
+               cc->category_info->id, cc->category_info->count);
   }
 
   if (feed) {
@@ -741,10 +743,10 @@ compute_category_counts (GDataService *service)
 {
   gint i;
 
-  g_debug ("compute_category_counts");
+  GRL_DEBUG ("compute_category_counts");
 
   for (i=0; i<root_dir[ROOT_DIR_CATEGORIES_INDEX].count; i++) {
-    g_debug ("Computing chilcount for category '%s'", categories_dir[i].id);
+    GRL_DEBUG ("Computing chilcount for category '%s'", categories_dir[i].id);
     GDataQuery *query = gdata_query_new_with_limits (NULL, 0, 1);
     const gchar *category_term =
       get_category_term_from_id (categories_dir[i].id);
@@ -765,10 +767,10 @@ static void
 compute_feed_counts (GDataService *service)
 {
   gint i;
-  g_debug ("compute_feed_counts");
+  GRL_DEBUG ("compute_feed_counts");
 
   for (i=0; i<root_dir[ROOT_DIR_FEEDS_INDEX].count; i++) {
-    g_debug ("Computing chilcount for feed '%s'", feeds_dir[i].id);
+    GRL_DEBUG ("Computing chilcount for feed '%s'", feeds_dir[i].id);
     gint feed_type = get_feed_type_from_id (feeds_dir[i].id);
     GDataQuery *query = gdata_query_new_with_limits (NULL, 0, 1);
     CategoryCountCb *cc = g_slice_new (CategoryCountCb);
@@ -813,7 +815,7 @@ build_media_from_entry_search_cb (GrlMedia *media, gpointer user_data)
 		  os->user_data,
 		  NULL);
     if (remaining == 0) {
-      g_debug ("Unreffing spec in build_media_from_entry_search_cb");
+      GRL_DEBUG ("Unreffing spec in build_media_from_entry_search_cb");
       operation_spec_unref (os);
     } else {
       os->emitted++;
@@ -824,7 +826,7 @@ build_media_from_entry_search_cb (GrlMedia *media, gpointer user_data)
 static void
 build_directories (GDataService *service)
 {
-  g_debug ("build_drectories");
+  GRL_DEBUG ("build_drectories");
 
   /* Parse category list from Youtube and compute category counts */
   read_url_async (YOUTUBE_CATEGORIES_URL,
@@ -840,7 +842,7 @@ metadata_cb (GObject *object,
 	     GAsyncResult *result,
 	     gpointer user_data)
 {
-  g_debug ("metadata_cb");
+  GRL_DEBUG ("metadata_cb");
 
   GError *error = NULL;
   GrlYoutubeSource *source;
@@ -888,7 +890,7 @@ search_progress_cb (GDataEntry *entry,
     build_media_from_entry (NULL, entry, os->keys,
 			    build_media_from_entry_search_cb, os);
   } else {
-    g_warning ("Invalid index/count received grom libgdata, ignoring result");
+    GRL_WARNING ("Invalid index/count received grom libgdata, ignoring result");
   }
 
   /* The entry will be freed when freeing the feed in search_cb */
@@ -897,7 +899,7 @@ search_progress_cb (GDataEntry *entry,
 static void
 search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
 {
-  g_debug ("search_cb");
+  GRL_DEBUG ("search_cb");
 
   GDataFeed *feed;
   GError *error = NULL;
@@ -920,7 +922,7 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
        * and the last one was sent with remaining>0, in that case
        * we should send a finishing message now. */
       if (os->emitted == os->count) {
-	g_debug ("sending finishing message");
+	GRL_DEBUG ("sending finishing message");
 	os->callback (os->source, os->operation_id,
 		      NULL, 0, os->user_data, NULL);
 	need_extra_unref = TRUE;
@@ -942,11 +944,11 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
   if (feed)
     g_object_unref (feed);
 
-  g_debug ("Unreffing spec in search_cb");
+  GRL_DEBUG ("Unreffing spec in search_cb");
   operation_spec_unref (os);
   if (need_extra_unref) {
     /* We did not free the spec in the emission callback, do it here */
-    g_debug ("need extra spec unref in search_cb");
+    GRL_DEBUG ("need extra spec unref in search_cb");
     operation_spec_unref (os);
   }
 }
@@ -1055,7 +1057,7 @@ produce_container_from_directory (GDataService *service,
 static void
 produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os)
 {
-  g_debug ("produce_from_directory");
+  GRL_DEBUG ("produce_from_directory");
 
   guint index, remaining;
 
@@ -1236,7 +1238,7 @@ grl_youtube_source_search (GrlMediaSource *source,
   OperationSpec *os;
   GDataQuery *query;
 
-  g_debug ("grl_youtube_source_search (%u, %u)", ss->skip, ss->count);
+  GRL_DEBUG ("grl_youtube_source_search (%u, %u)", ss->skip, ss->count);
 
   os = operation_spec_new ();
   os->source = source;
@@ -1269,7 +1271,7 @@ grl_youtube_source_browse (GrlMediaSource *source,
   OperationSpec *os;
   const gchar *container_id;
 
-  g_debug ("grl_youtube_source_browse: %s", grl_media_get_id (bs->container));
+  GRL_DEBUG ("grl_youtube_source_browse: %s", grl_media_get_id (bs->container));
 
   container_id = grl_media_get_id (bs->container);
 
@@ -1320,7 +1322,7 @@ grl_youtube_source_metadata (GrlMediaSource *source,
   GError *error = NULL;
   GrlMedia *media = NULL;
 
-  g_debug ("grl_youtube_source_metadata");
+  GRL_DEBUG ("grl_youtube_source_metadata");
 
   id = grl_media_get_id (ms->media);
   media_type = classify_media_id (id);

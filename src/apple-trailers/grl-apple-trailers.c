@@ -38,8 +38,8 @@
 
 /* --------- Logging  -------- */
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-apple-trailers"
+#define GRL_LOG_DOMAIN_DEFAULT apple_trailers_log_domain
+GRL_LOG_DOMAIN_STATIC(apple_trailers_log_domain);
 
 /* ---- Apple Trailers Service ---- */
 
@@ -92,7 +92,9 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
   GrlAppleTrailersSource *source;
   gboolean hd = FALSE;
 
-  g_debug ("apple_trailers_plugin_init\n");
+  GRL_LOG_DOMAIN_INIT (apple_trailers_log_domain, "apple-trailers");
+
+  GRL_DEBUG ("apple_trailers_plugin_init");
 
   for (; configs; configs = g_list_next (configs)) {
     GrlConfig *config;
@@ -125,7 +127,7 @@ grl_apple_trailers_source_new (gboolean high_definition)
 {
   GrlAppleTrailersSource *source;
 
-  g_debug ("grl_apple_trailers_source_new%s", high_definition ? " (HD)" : "");
+  GRL_DEBUG ("grl_apple_trailers_source_new%s", high_definition ? " (HD)" : "");
   source = g_object_new (GRL_APPLE_TRAILERS_SOURCE_TYPE,
                          "source-id", SOURCE_ID,
                          "source-name", SOURCE_NAME,
@@ -425,7 +427,7 @@ read_url_async (const gchar *url, gpointer user_data)
 
   vfs = g_vfs_get_default ();
 
-  g_debug ("Opening '%s'", url);
+  GRL_DEBUG ("Opening '%s'", url);
   uri = g_vfs_get_file_for_uri (vfs, url);
   g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
 }
@@ -461,7 +463,7 @@ grl_apple_trailers_source_browse (GrlMediaSource *source,
   GrlAppleTrailersSource *at_source = (GrlAppleTrailersSource *) source;
   OperationData *op_data;
 
-  g_debug ("grl_apple_trailers_source_browse");
+  GRL_DEBUG ("grl_apple_trailers_source_browse");
 
   op_data = g_slice_new0 (OperationData);
   op_data->bs = bs;
@@ -479,7 +481,7 @@ grl_apple_trailers_source_cancel (GrlMediaSource *source, guint operation_id)
 {
   OperationData *op_data;
 
-  g_debug ("grl_apple_trailers_source_cancel");
+  GRL_DEBUG ("grl_apple_trailers_source_cancel");
 
   op_data = (OperationData *) grl_media_source_get_operation_data (source, operation_id);
 

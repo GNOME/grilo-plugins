@@ -41,8 +41,8 @@
 
 /* --------- Logging  -------- */
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-vimeo"
+#define GRL_LOG_DOMAIN_DEFAULT vimeo_log_domain
+GRL_LOG_DOMAIN_STATIC(vimeo_log_domain);
 
 /* --- Plugin information --- */
 
@@ -93,20 +93,22 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
   gint config_count;
   GrlVimeoSource *source;
 
-  g_debug ("vimeo_plugin_init\n");
+  GRL_LOG_DOMAIN_INIT (vimeo_log_domain, "vimeo");
+
+  GRL_DEBUG ("vimeo_plugin_init");
 
   if (!g_thread_supported ()) {
     g_thread_init (NULL);
   }
 
   if (!configs) {
-    g_warning ("Missing configuration");
+    GRL_WARNING ("Missing configuration");
     return FALSE;
   }
 
   config_count = g_list_length (configs);
   if (config_count > 1) {
-    g_warning ("Provided %d configs, but will only use one", config_count);
+    GRL_WARNING ("Provided %d configs, but will only use one", config_count);
   }
 
   config = GRL_CONFIG (configs->data);
@@ -115,7 +117,7 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
   vimeo_secret = grl_config_get_api_secret (config);
 
   if (!vimeo_key || !vimeo_secret) {
-    g_warning ("Required configuration keys not set up");
+    GRL_WARNING ("Required configuration keys not set up");
     return FALSE;
   }
 
@@ -137,7 +139,7 @@ GRL_PLUGIN_REGISTER (grl_vimeo_plugin_init,
 static GrlVimeoSource *
 grl_vimeo_source_new (void)
 {
-  g_debug ("grl_vimeo_source_new");
+  GRL_DEBUG ("grl_vimeo_source_new");
 
   return g_object_new (GRL_VIMEO_SOURCE_TYPE,
                        "source-id", SOURCE_ID,

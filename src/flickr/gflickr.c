@@ -1,14 +1,20 @@
 #include "gflickr.h"
+#include "grl-flickr.h"       /* log domain */
 
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <gio/gio.h>
 #include <string.h>
 
+#include <grilo.h>
+
+
 #define G_FLICKR_GET_PRIVATE(object)            \
   (G_TYPE_INSTANCE_GET_PRIVATE((object),        \
                                G_FLICKR_TYPE,   \
                                GFlickrPrivate))
+
+#define GRL_LOG_DOMAIN_DEFAULT flickr_log_domain
 
 #define FLICKR_PHOTO_ORIG_URL                           \
   "http://farm%s.static.flickr.com/%s/%s_%s_o.%s"
@@ -589,7 +595,7 @@ read_url_async (const gchar *url, gpointer data)
   GFile *uri;
 
   vfs = g_vfs_get_default ();
-  g_debug ("Opening '%s'", url);
+  GRL_DEBUG ("Opening '%s'", url);
   uri = g_vfs_get_file_for_uri (vfs, url);
   g_file_load_contents_async (uri, NULL, read_done_cb, data);
 }
@@ -990,7 +996,7 @@ g_flickr_auth_getFrob (GFlickr *f)
   uri = g_vfs_get_file_for_uri (vfs, url);
   g_free (url);
   if (!g_file_load_contents (uri, NULL, &contents, NULL, NULL, &error)) {
-    g_warning ("Unable to get Flickr's frob: %s", error->message);
+    GRL_WARNING ("Unable to get Flickr's frob: %s", error->message);
     return NULL;
   }
 
@@ -998,7 +1004,7 @@ g_flickr_auth_getFrob (GFlickr *f)
   frob = get_xpath_element (contents, "/rsp/frob");
   g_free (contents);
   if (!frob) {
-    g_warning ("Can not get Flickr's frob");
+    GRL_WARNING ("Can not get Flickr's frob");
   }
 
   return frob;
@@ -1065,7 +1071,7 @@ g_flickr_auth_getToken (GFlickr *f,
   uri = g_vfs_get_file_for_uri (vfs, url);
   g_free (url);
   if (!g_file_load_contents (uri, NULL, &contents, NULL, NULL, &error)) {
-    g_warning ("Unable to get Flickr's token: %s", error->message);
+    GRL_WARNING ("Unable to get Flickr's token: %s", error->message);
     return NULL;
   }
 
@@ -1073,7 +1079,7 @@ g_flickr_auth_getToken (GFlickr *f,
   token = get_xpath_element (contents, "/rsp/auth/token");
   g_free (contents);
   if (!token) {
-    g_warning ("Can not get Flickr's token");
+    GRL_WARNING ("Can not get Flickr's token");
   }
 
   return token;

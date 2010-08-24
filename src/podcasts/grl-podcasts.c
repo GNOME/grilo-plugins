@@ -43,8 +43,8 @@
 
 /* --------- Logging  -------- */
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-podcasts"
+#define GRL_LOG_DOMAIN_DEFAULT podcasts_log_domain
+GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
 
 /* --- Database --- */
 
@@ -239,7 +239,9 @@ grl_podcasts_plugin_init (GrlPluginRegistry *registry,
                           const GrlPluginInfo *plugin,
                           GList *configs)
 {
-  g_debug ("podcasts_plugin_init\n");
+  GRL_LOG_DOMAIN_INIT (podcasts_log_domain, "pocasts");
+
+  GRL_DEBUG ("podcasts_plugin_init");
 
   GrlPodcastsSource *source = grl_podcasts_source_new ();
   grl_plugin_registry_register_source (registry,
@@ -257,7 +259,7 @@ GRL_PLUGIN_REGISTER (grl_podcasts_plugin_init,
 static GrlPodcastsSource *
 grl_podcasts_source_new (void)
 {
-  g_debug ("grl_podcasts_source_new");
+  GRL_DEBUG ("grl_podcasts_source_new");
   return g_object_new (GRL_PODCASTS_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
@@ -298,11 +300,11 @@ grl_podcasts_source_init (GrlPodcastsSource *source)
 
   home = g_getenv ("HOME");
   if (!home) {
-    g_warning ("$HOME not set, cannot open database");
+    GRL_WARNING ("$HOME not set, cannot open database");
     return;
   }
 
-  g_debug ("Opening database connection...");
+  GRL_DEBUG ("Opening database connection...");
   db_path = g_strconcat (home, G_DIR_SEPARATOR_S, GRL_SQL_DB, NULL);
   r = sqlite3_open (db_path, &source->priv->db);
   if (r) {
@@ -311,9 +313,9 @@ grl_podcasts_source_init (GrlPodcastsSource *source)
     sqlite3_close (source->priv->db);
     return;
   }
-  g_debug ("  OK");
+  GRL_DEBUG ("  OK");
 
-  g_debug ("Checking database tables...");
+  GRL_DEBUG ("Checking database tables...");
   r = sqlite3_exec (source->priv->db, GRL_SQL_CREATE_TABLE_PODCASTS,
 		    NULL, NULL, &sql_error);
 
@@ -324,16 +326,16 @@ grl_podcasts_source_init (GrlPodcastsSource *source)
   }
   if (r) {
     if (sql_error) {
-      g_warning ("Failed to create database tables: %s", sql_error);
+      GRL_WARNING ("Failed to create database tables: %s", sql_error);
       sqlite3_free (sql_error);
       sql_error = NULL;
     } else {
-      g_warning ("Failed to create database tables.");
+      GRL_WARNING ("Failed to create database tables.");
     }
     sqlite3_close (source->priv->db);
     return;
   }
-  g_debug ("  OK");
+  GRL_DEBUG ("  OK");
 
   g_free (db_path);
 }
@@ -345,7 +347,7 @@ grl_podcasts_source_finalize (GObject *object)
 {
   GrlPodcastsSource *source;
 
-  g_debug ("grl_podcasts_source_finalize");
+  GRL_DEBUG ("grl_podcasts_source_finalize");
 
   source = GRL_PODCASTS_SOURCE (object);
 
@@ -389,7 +391,7 @@ read_done_cb (GObject *source_object,
   GError *vfs_error = NULL;
   gchar *content = NULL;
 
-  g_debug ("  Done");
+  GRL_DEBUG ("  Done");
 
   g_file_load_contents_finish (G_FILE (source_object),
                                res,
@@ -399,7 +401,7 @@ read_done_cb (GObject *source_object,
                                &vfs_error);
   g_object_unref (source_object);
   if (vfs_error) {
-    g_warning ("Failed to open '%s': %s", arc->url, vfs_error->message);
+    GRL_WARNING ("Failed to open '%s': %s", arc->url, vfs_error->message);
     g_error_free (vfs_error);
   } else {
     arc->callback (content, arc->user_data);
@@ -419,7 +421,7 @@ read_url_async (const gchar *url,
 
   vfs = g_vfs_get_default ();
 
-  g_debug ("Opening async '%s'", url);
+  GRL_DEBUG ("Opening async '%s'", url);
 
   arc = g_slice_new0 (AsyncReadCb);
   arc->url = g_strdup (url);
@@ -623,17 +625,17 @@ produce_podcast_contents_from_db (OperationSpec *os)
   gint r;
   GError *error = NULL;
 
-  g_debug ("produce_podcast_contents_from_db");
+  GRL_DEBUG ("produce_podcast_contents_from_db");
 
   db = GRL_PODCASTS_SOURCE (os->source)->priv->db;
   sql = g_strdup_printf (GRL_SQL_GET_PODCAST_STREAMS,
 			 os->media_id, os->count, os->skip);
-  g_debug ("%s", sql);
+  GRL_DEBUG ("%s", sql);
   r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
   g_free (sql);
 
   if (r != SQLITE_OK) {
-    g_warning ("Failed to retrieve podcast streams: %s", sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to retrieve podcast streams: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
 			 os->error_code,
 			 "Failed to retrieve podcast streams");
@@ -652,7 +654,7 @@ produce_podcast_contents_from_db (OperationSpec *os)
   }
 
   if (r != SQLITE_DONE) {
-    g_warning ("Failed to retrive podcast streams: %s", sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to retrive podcast streams: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
 			 os->error_code,
 			 "Failed to retrieve podcast streams");
@@ -691,11 +693,11 @@ remove_podcast_streams (sqlite3 *db, const gchar *podcast_id, GError **error)
   gint r;
 
   sql = g_strdup_printf (GRL_SQL_DELETE_PODCAST_STREAMS, podcast_id);
-  g_debug ("%s", sql);
+  GRL_DEBUG ("%s", sql);
   r = sqlite3_exec (db, sql, NULL, NULL, &sql_error);
   g_free (sql);
   if (r) {
-    g_warning ("Failed to remove podcast streams cache: %s", sql_error);
+    GRL_WARNING ("Failed to remove podcast streams cache: %s", sql_error);
     *error = g_error_new (GRL_CORE_ERROR,
 			  GRL_CORE_ERROR_REMOVE_FAILED,
 			  "Failed to remove podcast streams");
@@ -710,7 +712,7 @@ remove_podcast (sqlite3 *db, const gchar *podcast_id, GError **error)
   gchar *sql_error;
   gchar *sql;
 
-  g_debug ("remove_podcast");
+  GRL_DEBUG ("remove_podcast");
 
   remove_podcast_streams (db, podcast_id, error);
   if (*error) {
@@ -718,12 +720,12 @@ remove_podcast (sqlite3 *db, const gchar *podcast_id, GError **error)
   }
 
   sql = g_strdup_printf (GRL_SQL_REMOVE_PODCAST, podcast_id);
-  g_debug ("%s", sql);
+  GRL_DEBUG ("%s", sql);
   r = sqlite3_exec (db, sql, NULL, NULL, &sql_error);
   g_free (sql);
 
   if (r != SQLITE_OK) {
-    g_warning ("Failed to remove podcast '%s': %s", podcast_id, sql_error);
+    GRL_WARNING ("Failed to remove podcast '%s': %s", podcast_id, sql_error);
     *error = g_error_new (GRL_CORE_ERROR,
 			  GRL_CORE_ERROR_REMOVE_FAILED,
 			  "Failed to remove podcast");
@@ -738,15 +740,15 @@ remove_stream (sqlite3 *db, const gchar *url, GError **error)
   gchar *sql_error;
   gchar *sql;
 
-  g_debug ("remove_stream");
+  GRL_DEBUG ("remove_stream");
 
   sql = g_strdup_printf (GRL_SQL_REMOVE_STREAM, url);
-  g_debug ("%s", sql);
+  GRL_DEBUG ("%s", sql);
   r = sqlite3_exec (db, sql, NULL, NULL, &sql_error);
   g_free (sql);
 
   if (r != SQLITE_OK) {
-    g_warning ("Failed to remove podcast stream '%s': %s", url, sql_error);
+    GRL_WARNING ("Failed to remove podcast stream '%s': %s", url, sql_error);
     *error = g_error_new (GRL_CORE_ERROR,
 			  GRL_CORE_ERROR_REMOVE_FAILED,
 			  "Failed to remove podcast stream");
@@ -764,19 +766,20 @@ store_podcast (sqlite3 *db, GrlMedia *podcast, GError **error)
   const gchar *desc;
   gchar *id;
 
-  g_debug ("store_podcast");
+  GRL_DEBUG ("store_podcast");
 
   title = grl_media_get_title (podcast);
   url = grl_media_get_url (podcast);
   desc = grl_media_get_description (podcast);
 
-  g_debug ("%s", GRL_SQL_STORE_PODCAST);
+  GRL_DEBUG ("%s", GRL_SQL_STORE_PODCAST);
   r = sqlite3_prepare_v2 (db,
 			  GRL_SQL_STORE_PODCAST,
 			  strlen (GRL_SQL_STORE_PODCAST),
 			  &sql_stmt, NULL);
   if (r != SQLITE_OK) {
-    g_warning ("Failed to store podcast '%s': %s", title, sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to store podcast '%s': %s", title,
+                 sqlite3_errmsg (db));
     *error = g_error_new (GRL_CORE_ERROR,
 			  GRL_CORE_ERROR_STORE_FAILED,
 			  "Failed to store podcast '%s'", title);
@@ -794,7 +797,8 @@ store_podcast (sqlite3 *db, GrlMedia *podcast, GError **error)
   while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
 
   if (r != SQLITE_DONE) {
-    g_warning ("Failed to store podcast '%s': %s", title, sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to store podcast '%s': %s", title,
+                 sqlite3_errmsg (db));
     *error = g_error_new (GRL_CORE_ERROR,
 			  GRL_CORE_ERROR_STORE_FAILED,
 			  "Failed to store podcast '%s'", title);
@@ -817,19 +821,19 @@ store_stream (sqlite3 *db, const gchar *podcast_id, Entry *entry)
   sqlite3_stmt *sql_stmt = NULL;
 
   if (!entry->url || entry->url[0] == '\0') {
-    g_debug ("Podcast stream has no URL, skipping");
+    GRL_DEBUG ("Podcast stream has no URL, skipping");
     return;
   }
 
   seconds = duration_to_seconds (entry->duration);
-  g_debug ("%s", GRL_SQL_STORE_STREAM);
+  GRL_DEBUG ("%s", GRL_SQL_STORE_STREAM);
   r = sqlite3_prepare_v2 (db,
 			  GRL_SQL_STORE_STREAM,
 			  strlen (GRL_SQL_STORE_STREAM),
 			  &sql_stmt, NULL);
   if (r != SQLITE_OK) {
-    g_warning ("Failed to store podcast stream '%s': %s",
-	       entry->url, sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to store podcast stream '%s': %s",
+                 entry->url, sqlite3_errmsg (db));
     return;
   }
 
@@ -844,8 +848,8 @@ store_stream (sqlite3 *db, const gchar *podcast_id, Entry *entry)
   while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
 
   if (r != SQLITE_DONE) {
-    g_warning ("Failed to store podcast stream '%s': %s",
-	       entry->url, sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to store podcast stream '%s': %s",
+                 entry->url, sqlite3_errmsg (db));
   }
 
   sqlite3_finalize (sql_stmt);
@@ -886,18 +890,18 @@ touch_podcast (sqlite3 *db, const gchar *podcast_id)
   GTimeVal now;
   gchar *now_str;
 
-  g_debug ("touch_podcast");
+  GRL_DEBUG ("touch_podcast");
 
   g_get_current_time (&now);
   now_str = g_time_val_to_iso8601 (&now);
 
   sql = g_strdup_printf (GRL_SQL_TOUCH_PODCAST, now_str, podcast_id);
-  g_debug ("%s", sql);
+  GRL_DEBUG ("%s", sql);
   r = sqlite3_exec (db, sql, NULL, NULL, &sql_error);
   g_free (sql);
 
   if (r != SQLITE_OK) {
-    g_warning ("Failed to touch podcast, '%s': %s", podcast_id, sql_error);
+    GRL_WARNING ("Failed to touch podcast, '%s': %s", podcast_id, sql_error);
     sqlite3_free (sql_error);
     return;
   }
@@ -922,7 +926,7 @@ parse_entry_idle (gpointer user_data)
 
   /* Check if entry is valid */
   if (!entry->url || entry->url[0] == '\0') {
-    g_debug ("Podcast stream has no URL, skipping");
+    GRL_DEBUG ("Podcast stream has no URL, skipping");
   } else {
     /* Provide results to user as fast as possible */
     if (osp->parse_valid_index >= osp->os->skip &&
@@ -984,7 +988,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   xmlXPathObjectPtr xpathObj = NULL;
   guint stream_count;
 
-  g_debug ("parse_feed");
+  GRL_DEBUG ("parse_feed");
 
   doc = xmlParseDoc ((xmlChar *) str);
   if (!doc) {
@@ -1027,7 +1031,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
 
   /* If the feed contains no streams, notify and bail out */
   stream_count = xpathObj->nodesetval ? xpathObj->nodesetval->nodeNr : 0;
-  g_debug ("Got %d streams", stream_count);
+  GRL_DEBUG ("Got %d streams", stream_count);
   
   if (stream_count <= 0) {
     os->callback (os->source,
@@ -1092,16 +1096,16 @@ get_podcast_info (sqlite3 *db, const gchar *podcast_id)
   sqlite3_stmt *sql_stmt = NULL;
   gchar *sql;
 
-  g_debug ("get_podcast_info");
+  GRL_DEBUG ("get_podcast_info");
 
   sql = g_strdup_printf (GRL_SQL_GET_PODCAST_BY_ID, podcast_id);
-  g_debug ("%s", sql);
+  GRL_DEBUG ("%s", sql);
   r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
   g_free (sql);
 
   if (r != SQLITE_OK) {
-    g_warning ("Failed to retrieve podcast '%s': %s",
-	       podcast_id, sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to retrieve podcast '%s': %s",
+                 podcast_id, sqlite3_errmsg (db));
     return NULL;
   }
 
@@ -1110,8 +1114,8 @@ get_podcast_info (sqlite3 *db, const gchar *podcast_id)
   if (r == SQLITE_ROW) {
     return sql_stmt;
   } else {
-    g_warning ("Failed to retrieve podcast information: %s",
-	       sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to retrieve podcast information: %s",
+                 sqlite3_errmsg (db));
     sqlite3_finalize (sql_stmt);
     return NULL;
   }
@@ -1125,7 +1129,7 @@ produce_podcast_contents (OperationSpec *os)
   GError *error;
   gchar *url;
 
-  g_debug ("produce_podcast_contents");
+  GRL_DEBUG ("produce_podcast_contents");
 
   /* First we get some information about the podcast */
   db = GRL_PODCASTS_SOURCE (os->source)->priv->db;
@@ -1137,13 +1141,13 @@ produce_podcast_contents (OperationSpec *os)
 
     /* Check if we have to refresh the podcast */
     lr_str = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_LAST_REFRESHED);
-    g_debug ("Podcast last-refreshed: '%s'", lr_str);
+    GRL_DEBUG ("Podcast last-refreshed: '%s'", lr_str);
     g_time_val_from_iso8601 (lr_str ? lr_str : "", &lr);
     g_get_current_time (&now);
     now.tv_sec -= CACHE_DURATION;
     if (now.tv_sec >= lr.tv_sec) {
       /* We have to read the podcast feed again */
-      g_debug ("Refreshing podcast '%s'...", os->media_id);
+      GRL_DEBUG ("Refreshing podcast '%s'...", os->media_id);
       url = g_strdup ((gchar *) sqlite3_column_text (sql_stmt, PODCAST_URL));
       read_url_async (url, read_feed_cb, os);
       g_free (url);
@@ -1177,7 +1181,7 @@ produce_podcasts (OperationSpec *os)
   GList *iter;
   gchar *sql;
 
-  g_debug ("produce_podcasts");
+  GRL_DEBUG ("produce_podcasts");
 
   db = GRL_PODCASTS_SOURCE (os->source)->priv->db;
 
@@ -1193,12 +1197,12 @@ produce_podcasts (OperationSpec *os)
     sql = g_strdup_printf (GRL_SQL_GET_PODCASTS_BY_TEXT,
 			   os->text, os->text, os->count, os->skip);
   }
-  g_debug ("%s", sql);
+  GRL_DEBUG ("%s", sql);
   r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
   g_free (sql);
 
   if (r != SQLITE_OK) {
-    g_warning ("Failed to retrieve podcasts: %s", sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to retrieve podcasts: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
 			 os->error_code,
 			 "Failed to retrieve podcasts list");
@@ -1217,7 +1221,7 @@ produce_podcasts (OperationSpec *os)
   }
 
   if (r != SQLITE_DONE) {
-    g_warning ("Failed to retrieve podcasts: %s", sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to retrieve podcasts: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
 			 os->error_code,
 			 "Failed to retrieve podcasts list");
@@ -1259,18 +1263,18 @@ stream_metadata (GrlMediaSourceMetadataSpec *ms)
   gchar *sql;
   const gchar *id;
 
-  g_debug ("stream_metadata");
+  GRL_DEBUG ("stream_metadata");
 
   db = GRL_PODCASTS_SOURCE (ms->source)->priv->db;
 
   id = grl_media_get_id (ms->media);
   sql = g_strdup_printf (GRL_SQL_GET_PODCAST_STREAM, id);
-  g_debug ("%s", sql);
+  GRL_DEBUG ("%s", sql);
   r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
   g_free (sql);
 
   if (r != SQLITE_OK) {
-    g_warning ("Failed to get podcast stream: %s", sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to get podcast stream: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to get podcast stream metadata");
@@ -1285,7 +1289,7 @@ stream_metadata (GrlMediaSourceMetadataSpec *ms)
     build_media_from_stmt (ms->media, sql_stmt, FALSE);
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
   } else {
-    g_warning ("Failed to get podcast stream: %s", sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to get podcast stream: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to get podcast stream metadata");
@@ -1304,7 +1308,7 @@ podcast_metadata (GrlMediaSourceMetadataSpec *ms)
   GError *error = NULL;
   const gchar *id;
 
-  g_debug ("podcast_metadata");
+  GRL_DEBUG ("podcast_metadata");
 
   db = GRL_PODCASTS_SOURCE (ms->source)->priv->db;
 
@@ -1323,7 +1327,7 @@ podcast_metadata (GrlMediaSourceMetadataSpec *ms)
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
     sqlite3_finalize (sql_stmt);
   } else {
-    g_warning ("Failed to get podcast: %s", sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to get podcast: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to get podcast metadata");
@@ -1359,7 +1363,7 @@ static void
 grl_podcasts_source_browse (GrlMediaSource *source,
                             GrlMediaSourceBrowseSpec *bs)
 {
-  g_debug ("grl_podcasts_source_browse");
+  GRL_DEBUG ("grl_podcasts_source_browse");
 
   OperationSpec *os;
   GrlPodcastsSource *podcasts_source;
@@ -1367,7 +1371,7 @@ grl_podcasts_source_browse (GrlMediaSource *source,
 
   podcasts_source = GRL_PODCASTS_SOURCE (source);
   if (!podcasts_source->priv->db) {
-    g_warning ("Can't execute operation: no database connection.");
+    GRL_WARNING ("Can't execute operation: no database connection.");
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_BROWSE_FAILED,
 			 "No database connection");
@@ -1402,7 +1406,7 @@ static void
 grl_podcasts_source_search (GrlMediaSource *source,
                             GrlMediaSourceSearchSpec *ss)
 {
-  g_debug ("grl_podcasts_source_search");
+  GRL_DEBUG ("grl_podcasts_source_search");
 
   GrlPodcastsSource *podcasts_source;
   OperationSpec *os;
@@ -1410,7 +1414,7 @@ grl_podcasts_source_search (GrlMediaSource *source,
 
   podcasts_source = GRL_PODCASTS_SOURCE (source);
   if (!podcasts_source->priv->db) {
-    g_warning ("Can't execute operation: no database connection.");
+    GRL_WARNING ("Can't execute operation: no database connection.");
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_QUERY_FAILED,
 			 "No database connection");
@@ -1434,7 +1438,7 @@ grl_podcasts_source_search (GrlMediaSource *source,
 static void
 grl_podcasts_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
 {
-  g_debug ("grl_podcasts_source_query");
+  GRL_DEBUG ("grl_podcasts_source_query");
 
   GrlPodcastsSource *podcasts_source;
   OperationSpec *os;
@@ -1442,7 +1446,7 @@ grl_podcasts_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
 
   podcasts_source = GRL_PODCASTS_SOURCE (source);
   if (!podcasts_source->priv->db) {
-    g_warning ("Can't execute operation: no database connection.");
+    GRL_WARNING ("Can't execute operation: no database connection.");
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_QUERY_FAILED,
 			 "No database connection");
@@ -1468,7 +1472,7 @@ static void
 grl_podcasts_source_metadata (GrlMediaSource *source,
                               GrlMediaSourceMetadataSpec *ms)
 {
-  g_debug ("grl_podcasts_source_metadata");
+  GRL_DEBUG ("grl_podcasts_source_metadata");
 
   GrlPodcastsSource *podcasts_source;
   GError *error = NULL;
@@ -1476,7 +1480,7 @@ grl_podcasts_source_metadata (GrlMediaSource *source,
 
   podcasts_source = GRL_PODCASTS_SOURCE (source);
   if (!podcasts_source->priv->db) {
-    g_warning ("Can't execute operation: no database connection.");
+    GRL_WARNING ("Can't execute operation: no database connection.");
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "No database connection");
@@ -1495,7 +1499,7 @@ grl_podcasts_source_metadata (GrlMediaSource *source,
 static void
 grl_podcasts_source_store (GrlMediaSource *source, GrlMediaSourceStoreSpec *ss)
 {
-  g_debug ("grl_podcasts_source_store");
+  GRL_DEBUG ("grl_podcasts_source_store");
   GError *error = NULL;
   if (GRL_IS_MEDIA_BOX (ss->media)) {
     error = g_error_new (GRL_CORE_ERROR,
@@ -1516,7 +1520,7 @@ static void
 grl_podcasts_source_remove (GrlMediaSource *source,
                             GrlMediaSourceRemoveSpec *rs)
 {
-  g_debug ("grl_podcasts_source_remove");
+  GRL_DEBUG ("grl_podcasts_source_remove");
   GError *error = NULL;
   if (media_id_is_podcast (rs->media_id)) {
     remove_podcast (GRL_PODCASTS_SOURCE (rs->source)->priv->db,

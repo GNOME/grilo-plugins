@@ -43,8 +43,8 @@
 
 /* --------- Logging  -------- */
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-upnp"
+#define GRL_LOG_DOMAIN_DEFAULT upnp_log_domain
+GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
 
 /* --- Plugin information --- */
 
@@ -142,7 +142,9 @@ grl_upnp_plugin_init (GrlPluginRegistry *registry,
   GUPnPContext *context;
   GUPnPControlPoint *cp;
 
-  g_debug ("grl_upnp_plugin_init\n");
+  GRL_LOG_DOMAIN_INIT (upnp_log_domain, "upnp");
+
+  GRL_DEBUG ("grl_upnp_plugin_init");
 
   /* libsoup needs this */
   if (!g_thread_supported()) {
@@ -189,7 +191,7 @@ grl_upnp_source_new (const gchar *source_id, const gchar *name)
   gchar *source_name, *source_desc;
   GrlUpnpSource *source;
 
-  g_debug ("grl_upnp_source_new");
+  GRL_DEBUG ("grl_upnp_source_new");
   source_name = g_strdup_printf (SOURCE_NAME_TEMPLATE, name);
   source_desc = g_strdup_printf (SOURCE_DESC_TEMPLATE, name);
 
@@ -239,7 +241,7 @@ grl_upnp_source_finalize (GObject *object)
 {
   GrlUpnpSource *source;
 
-  g_debug ("grl_upnp_source_finalize");
+  GRL_DEBUG ("grl_upnp_source_finalize");
 
   source = GRL_UPNP_SOURCE (object);
 
@@ -287,9 +289,9 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
 				    "SearchCaps", G_TYPE_STRING, &caps,
 				    NULL);
   if (!result) {
-    g_warning ("Failed to execute GetSeachCaps operation");
+    GRL_WARNING ("Failed to execute GetSeachCaps operation");
     if (error) {
-      g_warning ("Reason: %s", error->message);
+      GRL_WARNING ("Reason: %s", error->message);
       g_error_free (error);
     }
   }
@@ -300,8 +302,8 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
 
   registry = grl_plugin_registry_get_default ();
   if (grl_plugin_registry_lookup_source (registry, source_id)) {
-    g_debug ("A source with id '%s' is already registered. Skipping...",
-	     source_id);
+    GRL_DEBUG ("A source with id '%s' is already registered. Skipping...",
+               source_id);
     goto free_resources;
   }
 
@@ -309,13 +311,13 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
   source->priv->device = g_object_ref (source_info->device);
   source->priv->service = g_object_ref (source_info->service);
 
-  g_debug ("Search caps for source '%s': '%s'", name, caps);
+  GRL_DEBUG ("Search caps for source '%s': '%s'", name, caps);
 
   if (caps && caps[0] != '\0') {
-    g_debug ("Setting search enabled for source '%s'", name );
+    GRL_DEBUG ("Setting search enabled for source '%s'", name );
     source->priv->search_enabled = TRUE;
   } else {
-    g_debug ("Setting search disabled for source '%s'", name );
+    GRL_DEBUG ("Setting search disabled for source '%s'", name );
   }
 
   grl_plugin_registry_register_source (registry,
@@ -338,10 +340,10 @@ device_available_cb (GUPnPControlPoint *cp,
   GrlPluginRegistry *registry;
   gchar *source_id;
 
-  g_debug ("device_available_cb");
+  GRL_DEBUG ("device_available_cb");
 
   type = gupnp_device_info_get_device_type (GUPNP_DEVICE_INFO (device));
-  g_debug ("  type: %s", type);
+  GRL_DEBUG ("  type: %s", type);
   if (!g_pattern_match_simple ("urn:schemas-upnp-org:device:MediaServer:*",
 			       type)) {
     return;
@@ -350,21 +352,21 @@ device_available_cb (GUPnPControlPoint *cp,
   service = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (device),
 					   CONTENT_DIR_SERVICE);
   if (!service) {
-    g_debug ("Device does not provide requied service, ignoring...");
+    GRL_DEBUG ("Device does not provide requied service, ignoring...");
     return;
   }
 
   udn = gupnp_device_info_get_udn (GUPNP_DEVICE_INFO (device));
-  g_debug ("   udn: %s ", udn);
+  GRL_DEBUG ("   udn: %s ", udn);
 
   name = gupnp_device_info_get_friendly_name (GUPNP_DEVICE_INFO (device));
-  g_debug ("  name: %s", name);
+  GRL_DEBUG ("  name: %s", name);
 
   registry = grl_plugin_registry_get_default ();
   source_id = build_source_id (udn);
   if (grl_plugin_registry_lookup_source (registry, source_id)) {
-    g_debug ("A source with id '%s' is already registered. Skipping...",
-	     source_id);
+    GRL_DEBUG ("A source with id '%s' is already registered. Skipping...",
+               source_id);
     goto free_resources;
   }
 
@@ -383,8 +385,8 @@ device_available_cb (GUPnPControlPoint *cp,
 					 source_info,
 					 NULL)) {
     GrlUpnpSource *source = grl_upnp_source_new (source_id, name);
-    g_warning ("Failed to start GetCapabilitiesSearch action");
-    g_debug ("Setting search disabled for source '%s'", name );
+    GRL_WARNING ("Failed to start GetCapabilitiesSearch action");
+    GRL_DEBUG ("Setting search disabled for source '%s'", name );
     registry = grl_plugin_registry_get_default ();
     grl_plugin_registry_register_source (registry,
                                          source_info->plugin,
@@ -407,16 +409,16 @@ device_unavailable_cb (GUPnPControlPoint *cp,
   GrlPluginRegistry *registry;
   gchar *source_id;
 
-  g_debug ("device_unavailable_cb");
+  GRL_DEBUG ("device_unavailable_cb");
 
   udn = gupnp_device_info_get_udn (GUPNP_DEVICE_INFO (device));
-  g_debug ("   udn: %s ", udn);
+  GRL_DEBUG ("   udn: %s ", udn);
 
   registry = grl_plugin_registry_get_default ();
   source_id = build_source_id (udn);
   source = grl_plugin_registry_lookup_source (registry, source_id);
   if (!source) {
-    g_debug ("No source registered with id '%s', ignoring", source_id);
+    GRL_DEBUG ("No source registered with id '%s', ignoring", source_id);
   } else {
     grl_plugin_registry_unregister_source (registry, source);
   }
@@ -767,7 +769,7 @@ build_media_from_didl (GrlMedia *content,
   GList *didl_props;
   GList *iter;
 
-  g_debug ("build_media_from_didl");
+  GRL_DEBUG ("build_media_from_didl");
 
   if (content) {
     media = content;
@@ -865,7 +867,7 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
 
   os = (struct OperationSpec *) user_data;
 
-  g_debug ("gupnp_browse_cb");
+  GRL_DEBUG ("gupnp_browse_cb");
 
   result =
     gupnp_service_proxy_end_action (service, action, &error,
@@ -875,17 +877,17 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
 				    NULL);
 
   if (!result) {
-    g_warning ("Browse operation failed");
+    GRL_WARNING ("Browse operation failed");
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     if (error) {
-      g_warning ("  Reason: %s", error->message);
+      GRL_WARNING ("  Reason: %s", error->message);
       g_error_free (error);
     }
     return;
   }
 
   if (!didl || !returned) {
-    g_debug ("Got no results");
+    GRL_DEBUG ("Got no results");
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
     return;
   }
@@ -914,7 +916,7 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
 #endif
 
   if (error) {
-    g_warning ("Failed to parse DIDL result: %s", error->message);
+    GRL_WARNING ("Failed to parse DIDL result: %s", error->message);
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
     return;
@@ -951,7 +953,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
   GrlMediaSourceMetadataSpec *ms;
   GUPnPDIDLLiteParser *didl_parser;
 
-  g_debug ("gupnp_metadata_cb");
+  GRL_DEBUG ("gupnp_metadata_cb");
 
   ms = (GrlMediaSourceMetadataSpec *) user_data;
 
@@ -961,17 +963,17 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
 				    NULL);
 
   if (!result) {
-    g_warning ("Metadata operation failed");
+    GRL_WARNING ("Metadata operation failed");
     ms->callback (ms->source, ms->media, ms->user_data, error);
     if (error) {
-      g_warning ("  Reason: %s", error->message);
+      GRL_WARNING ("  Reason: %s", error->message);
       g_error_free (error);
     }
     return;
   }
 
   if (!didl) {
-    g_debug ("Got no metadata");
+    GRL_DEBUG ("Got no metadata");
     ms->callback (ms->source, ms->media,  ms->user_data, NULL);
     return;
   }
@@ -995,7 +997,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
 #endif
 
   if (error) {
-    g_warning ("Failed to parse DIDL result: %s", error->message);
+    GRL_WARNING ("Failed to parse DIDL result: %s", error->message);
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
     return;
@@ -1036,10 +1038,10 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
   GError *error = NULL;
   struct OperationSpec *os;
 
-  g_debug ("grl_upnp_source_browse");
+  GRL_DEBUG ("grl_upnp_source_browse");
 
   upnp_filter = get_upnp_filter (bs->keys);
-  g_debug ("filter: '%s'", upnp_filter);
+  GRL_DEBUG ("filter: '%s'", upnp_filter);
 
   os = g_slice_new0 (struct OperationSpec);
   os->source = bs->source;
@@ -1090,13 +1092,13 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   gchar *upnp_search;
   struct OperationSpec *os;
 
-  g_debug ("grl_upnp_source_search");
+  GRL_DEBUG ("grl_upnp_source_search");
 
   upnp_filter = get_upnp_filter (ss->keys);
-  g_debug ("filter: '%s'", upnp_filter);
+  GRL_DEBUG ("filter: '%s'", upnp_filter);
 
   upnp_search = get_upnp_search (ss->text);
-  g_debug ("search: '%s'", upnp_search);
+  GRL_DEBUG ("search: '%s'", upnp_search);
 
   os = g_slice_new0 (struct OperationSpec);
   os->source = ss->source;
@@ -1142,11 +1144,11 @@ grl_upnp_source_metadata (GrlMediaSource *source,
   gchar *id;
   GError *error = NULL;
 
-  g_debug ("grl_upnp_source_metadata");
+  GRL_DEBUG ("grl_upnp_source_metadata");
 
   upnp_filter = get_upnp_filter (ms->keys);
 
-  g_debug ("filter: '%s'", upnp_filter);
+  GRL_DEBUG ("filter: '%s'", upnp_filter);
 
   id = (gchar *) grl_media_get_id (ms->media);
   if (!id) {

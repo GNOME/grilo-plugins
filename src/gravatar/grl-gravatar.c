@@ -30,8 +30,8 @@
 
 /* ---------- Logging ---------- */
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-gravatar"
+#define GRL_LOG_DOMAIN_DEFAULT gravatar_log_domain
+GRL_LOG_DOMAIN_STATIC(gravatar_log_domain);
 
 /* -------- Gravatar API -------- */
 
@@ -79,7 +79,10 @@ grl_gravatar_source_plugin_init (GrlPluginRegistry *registry,
                                  const GrlPluginInfo *plugin,
                                  GList *configs)
 {
-  g_debug ("grl_gravatar_source_plugin_init");
+  GRL_LOG_DOMAIN_INIT (gravatar_log_domain, "gravatar");
+
+  GRL_DEBUG ("grl_gravatar_source_plugin_init");
+
   /* Register keys */
   GRL_METADATA_KEY_ARTIST_AVATAR =
     register_gravatar_key (registry,
@@ -94,7 +97,7 @@ grl_gravatar_source_plugin_init (GrlPluginRegistry *registry,
                             "Avatar for the author");
   if (!GRL_METADATA_KEY_ARTIST_AVATAR &&
       !GRL_METADATA_KEY_AUTHOR_AVATAR) {
-    g_warning ("Unable to register \"autor-avatar\" nor \"artist-avatar\"");
+    GRL_WARNING ("Unable to register \"autor-avatar\" nor \"artist-avatar\"");
     return FALSE;
   }
 
@@ -114,7 +117,7 @@ GRL_PLUGIN_REGISTER (grl_gravatar_source_plugin_init,
 static GrlGravatarSource *
 grl_gravatar_source_new (void)
 {
-  g_debug ("grl_gravatar_source_new");
+  GRL_DEBUG ("grl_gravatar_source_new");
   return g_object_new (GRL_GRAVATAR_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
@@ -256,7 +259,7 @@ grl_gravatar_source_resolve (GrlMetadataSource *source,
   gboolean author_avatar_required = FALSE;
   gchar *avatar_url;
 
-  g_debug ("grl_gravatar_source_resolve");
+  GRL_DEBUG ("grl_gravatar_source_resolve");
 
   GList *iter;
 

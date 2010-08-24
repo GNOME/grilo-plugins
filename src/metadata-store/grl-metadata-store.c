@@ -35,8 +35,8 @@
                                GRL_METADATA_STORE_SOURCE_TYPE,	 \
                                GrlMetadataStorePrivate))
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-metadata-store"
+#define GRL_LOG_DOMAIN_DEFAULT metadata_store_log_domain
+GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
 
 #define PLUGIN_ID   METADATA_STORE_PLUGIN_ID
 
@@ -112,7 +112,10 @@ grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
                                       const GrlPluginInfo *plugin,
                                       GList *configs)
 {
-  g_debug ("grl_metadata_store_source_plugin_init");
+  GRL_LOG_DOMAIN_INIT (metadata_store_log_domain, "metadata-store");
+
+  GRL_DEBUG ("grl_metadata_store_source_plugin_init");
+
   GrlMetadataStoreSource *source = grl_metadata_store_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
@@ -129,7 +132,7 @@ GRL_PLUGIN_REGISTER (grl_metadata_store_source_plugin_init,
 static GrlMetadataStoreSource *
 grl_metadata_store_source_new (void)
 {
-  g_debug ("grl_metadata_store_source_new");
+  GRL_DEBUG ("grl_metadata_store_source_new");
   return g_object_new (GRL_METADATA_STORE_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
@@ -162,11 +165,11 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
 
   home = g_getenv ("HOME");
   if (!home) {
-    g_warning ("$HOME not set, cannot open database");
+    GRL_WARNING ("$HOME not set, cannot open database");
     return;
   }
 
-  g_debug ("Opening database connection...");
+  GRL_DEBUG ("Opening database connection...");
   db_path = g_strconcat (home, G_DIR_SEPARATOR_S, GRL_SQL_DB, NULL);
   r = sqlite3_open (db_path, &source->priv->db);
   if (r) {
@@ -175,24 +178,24 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
     sqlite3_close (source->priv->db);
     return;
   }
-  g_debug ("  OK");
+  GRL_DEBUG ("  OK");
 
-  g_debug ("Checking database tables...");
+  GRL_DEBUG ("Checking database tables...");
   r = sqlite3_exec (source->priv->db, GRL_SQL_CREATE_TABLE_STORE,
 		    NULL, NULL, &sql_error);
 
   if (r) {
     if (sql_error) {
-      g_warning ("Failed to create database tables: %s", sql_error);
+      GRL_WARNING ("Failed to create database tables: %s", sql_error);
       sqlite3_free (sql_error);
       sql_error = NULL;
     } else {
-      g_warning ("Failed to create database tables.");
+      GRL_WARNING ("Failed to create database tables.");
     }
     sqlite3_close (source->priv->db);
     return;
   }
-  g_debug ("  OK");
+  GRL_DEBUG ("  OK");
 
   g_free (db_path);
 }
@@ -211,15 +214,15 @@ query_metadata_store (sqlite3 *db,
   sqlite3_stmt *sql_stmt = NULL;
   gchar *sql;
 
-  g_debug ("get_metadata");
+  GRL_DEBUG ("get_metadata");
 
   sql = g_strdup_printf (GRL_SQL_GET_METADATA, source_id, media_id);
-  g_debug ("%s", sql);
+  GRL_DEBUG ("%s", sql);
   r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
   g_free (sql);
 
   if (r != SQLITE_OK) {
-    g_warning ("Failed to get metadata: %s", sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to get metadata: %s", sqlite3_errmsg (db));
     return NULL;
   }
 
@@ -300,12 +303,12 @@ bind_and_exec (sqlite3 *db,
   sqlite3_stmt *stmt;
 
   /* Create statement from sql */
-  g_debug ("%s", sql);
+  GRL_DEBUG ("%s", sql);
   r = sqlite3_prepare_v2 (db, sql, strlen (sql), &stmt, NULL);
 
   if (r != SQLITE_OK) {
-    g_warning ("Failed to update metadata for '%s - %s': %s",
-	       source_id, media_id, sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to update metadata for '%s - %s': %s",
+                     source_id, media_id, sqlite3_errmsg (db));
     sqlite3_finalize (stmt);
     return FALSE;
   }
@@ -361,7 +364,7 @@ prepare_and_exec_update (sqlite3 *db,
   gchar *sql_set;
   guint count;
 
-  g_debug ("prepare_and_exec_update");
+  GRL_DEBUG ("prepare_and_exec_update");
 
   /* Prepare sql "set" for update query */
   count = 0;
@@ -403,7 +406,7 @@ prepare_and_exec_insert (sqlite3 *db,
   GString *sql_buf_cols, *sql_buf_values;
   gchar *sql_cols, *sql_values;
 
-  g_debug ("prepare_and_exec_insert");
+  GRL_DEBUG ("prepare_and_exec_insert");
 
   /* Prepare sql for insert query */
   sql_buf_cols = g_string_new ("");
@@ -448,7 +451,8 @@ write_keys (sqlite3 *db,
   while (iter) {
     const gchar *col_name = get_column_name_from_key_id (iter->data);
     if (!col_name) {
-      g_warning ("Key %" GRL_KEYID_FORMAT " is not supported for writing, ignoring...",
+      GRL_WARNING ("Key %" GRL_KEYID_FORMAT " is not supported for "
+                       "writing, ignoring...",
                  iter->data);
       failed_keys = g_list_prepend (failed_keys, iter->data);
     } else {
@@ -460,8 +464,8 @@ write_keys (sqlite3 *db,
   col_names = g_list_reverse (col_names);
 
   if (supported_keys == 0) {
-    g_warning ("Failed to update metadata, none of the specified "
-	       "keys is writable");
+    GRL_WARNING ("Failed to update metadata, none of the specified "
+                     "keys is writable");
     *error = g_error_new (GRL_CORE_ERROR,
 			  GRL_CORE_ERROR_SET_METADATA_FAILED,
 			  "Failed to update metadata, "
@@ -477,8 +481,8 @@ write_keys (sqlite3 *db,
 			       sms->media);
     
   if (!r) {
-    g_warning ("Failed to update metadata for '%s - %s': %s",
-	       source_id, media_id, sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to update metadata for '%s - %s': %s",
+                     source_id, media_id, sqlite3_errmsg (db));
     g_list_free (failed_keys);
     failed_keys = g_list_copy (sms->keys);
     *error = g_error_new (GRL_CORE_ERROR,
@@ -498,8 +502,8 @@ write_keys (sqlite3 *db,
   }
 
   if (!r) {
-    g_warning ("Failed to update metadata for '%s - %s': %s",
-	       source_id, media_id, sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to update metadata for '%s - %s': %s",
+                     source_id, media_id, sqlite3_errmsg (db));
     g_list_free (failed_keys);
     failed_keys = g_list_copy (sms->keys);
     *error = g_error_new (GRL_CORE_ERROR,
@@ -566,7 +570,7 @@ static void
 grl_metadata_store_source_resolve (GrlMetadataSource *source,
 				   GrlMetadataSourceResolveSpec *rs)
 {
-  g_debug ("grl_metadata_store_source_resolve");
+  GRL_DEBUG ("grl_metadata_store_source_resolve");
 
   const gchar *source_id, *media_id;
   sqlite3_stmt *stmt;
@@ -577,7 +581,7 @@ grl_metadata_store_source_resolve (GrlMetadataSource *source,
 
   /* We need the source id */
   if (!source_id) {
-    g_warning ("Failed to resolve metadata: source-id not available");
+    GRL_WARNING ("Failed to resolve metadata: source-id not available");
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_RESOLVE_FAILED,
 			 "source-id not available, cannot resolve metadata.");
@@ -597,7 +601,7 @@ grl_metadata_store_source_resolve (GrlMetadataSource *source,
     fill_metadata (rs->media, rs->keys, stmt);
     rs->callback (rs->source, rs->media, rs->user_data, NULL);
   } else {
-    g_warning ("Failed to resolve metadata");
+    GRL_WARNING ("Failed to resolve metadata");
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_RESOLVE_FAILED,
 			 "Failed to resolve metadata.");
@@ -610,7 +614,7 @@ static void
 grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
 					GrlMetadataSourceSetMetadataSpec *sms)
 {
-  g_debug ("grl_metadata_store_source_set_metadata");
+  GRL_DEBUG ("grl_metadata_store_source_set_metadata");
 
   const gchar *media_id, *source_id;
   GError *error = NULL;
@@ -621,7 +625,7 @@ grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
 
   /* We need the source id */
   if (!source_id) {
-    g_warning ("Failed to update metadata: source-id not available");
+    GRL_WARNING ("Failed to update metadata: source-id not available");
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_SET_METADATA_FAILED,
 			 "source-id not available, cannot update metadata.");

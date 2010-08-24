@@ -40,8 +40,8 @@
 
 /* --------- Logging  -------- */
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-shoutcast"
+#define GRL_LOG_DOMAIN_DEFAULT shoutcast_log_domain
+GRL_LOG_DOMAIN_STATIC(shoutcast_log_domain);
 
 /* ------ SHOUTcast API ------ */
 
@@ -115,7 +115,9 @@ grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
                            const GrlPluginInfo *plugin,
                            GList *configs)
 {
-  g_debug ("shoutcast_plugin_init\n");
+  GRL_LOG_DOMAIN_INIT (shoutcast_log_domain, "shoutcast");
+
+  GRL_DEBUG ("shoutcast_plugin_init");
 
   GrlShoutcastSource *source = grl_shoutcast_source_new ();
   grl_plugin_registry_register_source (registry,
@@ -133,7 +135,7 @@ GRL_PLUGIN_REGISTER (grl_shoutcast_plugin_init,
 static GrlShoutcastSource *
 grl_shoutcast_source_new (void)
 {
-  g_debug ("grl_shoutcast_source_new");
+  GRL_DEBUG ("grl_shoutcast_source_new");
   return g_object_new (GRL_SHOUTCAST_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
@@ -455,7 +457,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
 static gboolean
 expire_cache (gpointer user_data)
 {
-  g_debug ("Cached page expired");
+  GRL_DEBUG ("Cached page expired");
   cached_page_expired = TRUE;
   return FALSE;
 }
@@ -497,7 +499,7 @@ read_done_cb (GObject *source_object,
   cache = op_data->cache;
   xml_parse_result (content, op_data);
   if (cache && cached_page_expired) {
-    g_debug ("Caching page");
+    GRL_DEBUG ("Caching page");
     g_free (cached_page);
     cached_page = content;
     cached_page_expired = FALSE;
@@ -521,11 +523,11 @@ read_url_async (const gchar *url, OperationData *op_data)
   GFile *uri;
 
   if (op_data->cache && !cached_page_expired) {
-    g_debug ("Using cached page");
+    GRL_DEBUG ("Using cached page");
     g_idle_add ((GSourceFunc) read_cached_page, op_data);
   } else {
     vfs = g_vfs_get_default ();
-    g_debug ("Opening '%s'", url);
+    GRL_DEBUG ("Opening '%s'", url);
     uri = g_vfs_get_file_for_uri (vfs, url);
     g_file_load_contents_async (uri, NULL, read_done_cb, op_data);
   }
@@ -620,7 +622,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
   const gchar *container_id;
   gchar *url;
 
-  g_debug ("grl_shoutcast_source_browse");
+  GRL_DEBUG ("grl_shoutcast_source_browse");
 
   data = g_slice_new0 (OperationData);
   data->source = source;
@@ -700,7 +702,7 @@ grl_shoutcast_source_cancel (GrlMediaSource *source, guint operation_id)
 {
   OperationData *op_data;
 
-  g_debug ("grl_shoutcast_source_cancel");
+  GRL_DEBUG ("grl_shoutcast_source_cancel");
 
   op_data = (OperationData *) grl_media_source_get_operation_data (source, operation_id);
 

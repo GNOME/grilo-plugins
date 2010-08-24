@@ -35,8 +35,8 @@
 
 /* ---------- Logging ---------- */
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-lastfm-albumart"
+#define GRL_LOG_DOMAIN_DEFAULT lastfm_albumart_log_domain
+GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 
 /* -------- Last.FM API -------- */
 
@@ -78,7 +78,10 @@ grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
                                         const GrlPluginInfo *plugin,
                                         GList *configs)
 {
-  g_debug ("grl_lastfm_albumart_source_plugin_init");
+  GRL_LOG_DOMAIN_INIT (lastfm_albumart_log_domain, "lastfm-albumart");
+
+  GRL_DEBUG ("grl_lastfm_albumart_source_plugin_init");
+
   GrlLastfmAlbumartSource *source = grl_lastfm_albumart_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
@@ -95,7 +98,7 @@ GRL_PLUGIN_REGISTER (grl_lastfm_albumart_source_plugin_init,
 static GrlLastfmAlbumartSource *
 grl_lastfm_albumart_source_new (void)
 {
-  g_debug ("grl_lastfm_albumart_source_new");
+  GRL_DEBUG ("grl_lastfm_albumart_source_new");
   return g_object_new (GRL_LASTFM_ALBUMART_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
@@ -214,7 +217,7 @@ read_url_async (const gchar *url, gpointer user_data)
 
   vfs = g_vfs_get_default ();
 
-  g_debug ("Opening '%s'", url);
+  GRL_DEBUG ("Opening '%s'", url);
   uri = g_vfs_get_file_for_uri (vfs, url);
   g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
 }
@@ -263,7 +266,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
   gchar *esc_album = NULL;
   gchar *url = NULL;
 
-  g_debug ("grl_lastfm_albumart_source_resolve");
+  GRL_DEBUG ("grl_lastfm_albumart_source_resolve");
 
   GList *iter;
 
@@ -278,7 +281,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
   }
 
   if (iter == NULL) {
-    g_debug ("No supported key was requested");
+    GRL_DEBUG ("No supported key was requested");
     rs->callback (source, rs->media, rs->user_data, NULL);
   } else {
     artist = grl_data_get_string (GRL_DATA (rs->media),
@@ -288,7 +291,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
                                  GRL_METADATA_KEY_ALBUM);
 
     if (!artist || !album) {
-      g_debug ("Missing dependencies");
+      GRL_DEBUG ("Missing dependencies");
       rs->callback (source, rs->media, rs->user_data, NULL);
     } else {
       esc_artist = g_uri_escape_string (artist, NULL, TRUE);

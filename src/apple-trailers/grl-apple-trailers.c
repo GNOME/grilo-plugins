@@ -51,9 +51,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-apple-trailers"
-#define PLUGIN_NAME "Apple Movie Trailers"
-#define PLUGIN_DESC "A plugin for browsing Apple Movie Trailers"
+#define PLUGIN_ID   APPLE_TRAILERS_PLUGIN_ID
 
 #define SOURCE_ID   "grl-apple-trailers"
 #define SOURCE_NAME "Apple Movie Trailers"
@@ -70,7 +68,7 @@ typedef struct {
   gboolean cancelled;
 } OperationData;
 
-static GrlAppleTrailersSource *grl_apple_trailers_source_new (void);
+static GrlAppleTrailersSource *grl_apple_trailers_source_new (gboolean hd);
 
 gboolean grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
                                          const GrlPluginInfo *plugin,
@@ -91,9 +89,25 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
                                 const GrlPluginInfo *plugin,
                                 GList *configs)
 {
+  GrlAppleTrailersSource *source;
+  gboolean hd = FALSE;
+
   g_debug ("apple_trailers_plugin_init\n");
 
-  GrlAppleTrailersSource *source = grl_apple_trailers_source_new ();
+  for (; configs; configs = g_list_next (configs)) {
+    GrlConfig *config;
+    const gchar *definition;
+
+    config = GRL_CONFIG (configs->data);
+    definition = grl_config_get_string (config, "definition");
+    if (definition && *definition != '\0') {
+      if (g_str_equal (definition, "hd")) {
+        hd = TRUE;
+      }
+    }
+  }
+
+  source = grl_apple_trailers_source_new (hd);
   grl_plugin_registry_register_source (registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source));
@@ -102,25 +116,25 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_apple_trailers_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== AppleTrailers GObject ================ */
 
 static GrlAppleTrailersSource *
-grl_apple_trailers_source_new (void)
+grl_apple_trailers_source_new (gboolean high_definition)
 {
-  g_debug ("grl_apple_trailers_source_new");
-  return g_object_new (GRL_APPLE_TRAILERS_SOURCE_TYPE,
-		       "source-id", SOURCE_ID,
-		       "source-name", SOURCE_NAME,
-		       "source-desc", SOURCE_DESC,
-		       NULL);
+  GrlAppleTrailersSource *source;
+
+  g_debug ("grl_apple_trailers_source_new%s", high_definition ? " (HD)" : "");
+  source = g_object_new (GRL_APPLE_TRAILERS_SOURCE_TYPE,
+                         "source-id", SOURCE_ID,
+                         "source-name", SOURCE_NAME,
+                         "source-desc", SOURCE_DESC,
+                         NULL);
+
+  source->hd = high_definition;
+
+  return source;
 }
 
 static void
@@ -204,6 +218,9 @@ build_media_from_movie (xmlNodePtr node)
   gchar *movie_thumbnail;
   gchar *movie_title;
   gchar *movie_url;
+  gchar *movie_rating;
+  gchar *movie_studio;
+  gchar *movie_copyright;
 
   media = grl_media_video_new ();
 
@@ -223,6 +240,9 @@ build_media_from_movie (xmlNodePtr node)
   movie_genre = get_node_value (node_dup, "/movieinfo/genre/name");
   movie_thumbnail = get_node_value (node_dup, "/movieinfo/poster/location");
   movie_url = get_node_value (node_dup, "/movieinfo/preview/large");
+  movie_rating = get_node_value (node_dup, "/movieinfo/info/rating");
+  movie_studio = get_node_value (node_dup, "/movieinfo/info/studio");
+  movie_copyright = get_node_value (node_dup, "/movieinfo/info/copyright");
   xmlFreeDoc (xml_doc);
 
   grl_media_set_id (media, movie_id);
@@ -236,6 +256,11 @@ build_media_from_movie (xmlNodePtr node)
                        movie_genre);
   grl_media_set_thumbnail (media, movie_thumbnail);
   grl_media_set_url (media, movie_url);
+  grl_media_set_certificate (media, movie_rating);
+  grl_media_set_studio (media, movie_studio);
+
+  /* FIXME: Translation */
+  grl_media_set_license (media, movie_copyright);
 
   g_free (movie_id);
   g_free (movie_author);
@@ -246,6 +271,9 @@ build_media_from_movie (xmlNodePtr node)
   g_free (movie_genre);
   g_free (movie_thumbnail);
   g_free (movie_url);
+  g_free (movie_rating);
+  g_free (movie_studio);
+  g_free (movie_copyright);
 
   return media;
 }
@@ -257,6 +285,12 @@ send_movie_info (OperationData *op_data)
   gboolean last = FALSE;
 
   if (op_data->cancelled) {
+    op_data->bs->callback (op_data->bs->source,
+                           op_data->bs->browse_id,
+                           NULL,
+                           0,
+                           op_data->bs->user_data,
+                           NULL);
     last = TRUE;
   } else {
     media = build_media_from_movie (op_data->xml_entries);
@@ -289,12 +323,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   GError *error = NULL;
   xmlNodePtr node;
 
-  if (op_data->cancelled) {
-    g_slice_free (OperationData, op_data);
-    return;
-  }
-
-  if (op_data->bs->count == 0) {
+  if (op_data->cancelled || op_data->bs->count == 0) {
     goto finalize;
   }
 
@@ -377,6 +406,7 @@ read_done_cb (GObject *source_object,
                            0,
                            op_data->bs->user_data,
                            error);
+    g_error_free (vfs_error);
     g_error_free (error);
     g_slice_free (OperationData, op_data);
 
@@ -416,6 +446,9 @@ grl_apple_trailers_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_THUMBNAIL,
                                       GRL_METADATA_KEY_TITLE,
                                       GRL_METADATA_KEY_URL,
+                                      GRL_METADATA_KEY_CERTIFICATE,
+                                      GRL_METADATA_KEY_STUDIO,
+                                      GRL_METADATA_KEY_LICENSE,
                                       NULL);
   }
   return keys;
@@ -425,6 +458,7 @@ static void
 grl_apple_trailers_source_browse (GrlMediaSource *source,
                                   GrlMediaSourceBrowseSpec *bs)
 {
+  GrlAppleTrailersSource *at_source = (GrlAppleTrailersSource *) source;
   OperationData *op_data;
 
   g_debug ("grl_apple_trailers_source_browse");
@@ -433,7 +467,11 @@ grl_apple_trailers_source_browse (GrlMediaSource *source,
   op_data->bs = bs;
   grl_media_source_set_operation_data (source, bs->browse_id, op_data);
 
-  read_url_async (APPLE_TRAILERS_CURRENT_SD, op_data);
+  if (at_source->hd) {
+    read_url_async (APPLE_TRAILERS_CURRENT_HD, op_data);
+  } else {
+    read_url_async (APPLE_TRAILERS_CURRENT_SD, op_data);
+  }
 }
 
 static void

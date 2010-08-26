@@ -58,7 +58,7 @@ typedef struct _GrlAppleTrailersSource GrlAppleTrailersSource;
 struct _GrlAppleTrailersSource {
 
   GrlMediaSource parent;
-
+  gboolean hd;
 };
 
 typedef struct _GrlAppleTrailersSourceClass GrlAppleTrailersSourceClass;

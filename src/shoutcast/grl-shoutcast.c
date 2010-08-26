@@ -36,6 +36,8 @@
 
 #include "grl-shoutcast.h"
 
+#define EXPIRE_CACHE_TIMEOUT 300
+
 /* --------- Logging  -------- */
 
 #undef G_LOG_DOMAIN
@@ -46,15 +48,13 @@
 #define SHOUTCAST_BASE_ENTRY "http://yp.shoutcast.com"
 
 #define SHOUTCAST_GET_GENRES    SHOUTCAST_BASE_ENTRY "/sbin/newxml.phtml"
-#define SHOUTCAST_GET_RADIOS    SHOUTCAST_GET_GENRES "?genre=%s&limit=%d"
-#define SHOUTCAST_SEARCH_RADIOS SHOUTCAST_GET_GENRES "?search=%s&limit=%d"
+#define SHOUTCAST_GET_RADIOS    SHOUTCAST_GET_GENRES "?genre=%s&limit=%u"
+#define SHOUTCAST_SEARCH_RADIOS SHOUTCAST_GET_GENRES "?search=%s&limit=%u"
 #define SHOUTCAST_TUNE          SHOUTCAST_BASE_ENTRY "/sbin/tunein-station.pls?id=%s"
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-shoutcast"
-#define PLUGIN_NAME "SHOUTcast"
-#define PLUGIN_DESC "A plugin for browsing SHOUTcast radios"
+#define PLUGIN_ID   SHOUTCAST_PLUGIN_ID
 
 #define SOURCE_ID   "grl-shoutcast"
 #define SOURCE_NAME "SHOUTcast"
@@ -70,6 +70,7 @@ typedef struct {
   GrlMediaSourceMetadataCb metadata_cb;
   GrlMediaSourceResultCb result_cb;
   gboolean cancelled;
+  gboolean cache;
   gchar *filter_entry;
   gchar *genre;
   gint error_code;
@@ -81,6 +82,9 @@ typedef struct {
   xmlDocPtr xml_doc;
   xmlNodePtr xml_entries;
 } OperationData;
+
+static gchar *cached_page = NULL;
+static gboolean cached_page_expired = TRUE;
 
 static GrlShoutcastSource *grl_shoutcast_source_new (void);
 
@@ -102,6 +106,8 @@ static void grl_shoutcast_source_search (GrlMediaSource *source,
 static void grl_shoutcast_source_cancel (GrlMediaSource *source,
                                          guint operation_id);
 
+static void read_url_async (const gchar *url, OperationData *op_data);
+
 /* =================== SHOUTcast Plugin  =============== */
 
 gboolean
@@ -120,13 +126,7 @@ grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_shoutcast_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== SHOUTcast GObject ================ */
 
@@ -204,10 +204,12 @@ static GrlMedia *
 build_media_from_station (OperationData *op_data)
 {
   GrlMedia *media;
+  gchar **station_genres = NULL;
   gchar *media_id;
   gchar *media_url;
   gchar *station_bitrate;
   gchar *station_genre;
+  gchar *station_genre_field;
   gchar *station_id;
   gchar *station_mime;
   gchar *station_name;
@@ -218,18 +220,26 @@ build_media_from_station (OperationData *op_data)
                                        (const xmlChar *) "mt");
   station_id = (gchar *) xmlGetProp (op_data->xml_entries,
                                      (const xmlChar *) "id");
-  station_genre = (gchar *) xmlGetProp (op_data->xml_entries,
-                                        (const xmlChar *) "genre");
   station_bitrate = (gchar *) xmlGetProp (op_data->xml_entries,
                                           (const xmlChar *) "br");
-  media_id = g_strconcat (op_data->genre, "/", station_id, NULL);
-  media_url = g_strdup_printf (SHOUTCAST_TUNE, station_id);
-
   if (op_data->media) {
     media = op_data->media;
   } else {
     media = grl_media_audio_new ();
   }
+
+  if (op_data->genre) {
+    station_genre = op_data->genre;
+  } else {
+    station_genre_field = (gchar *) xmlGetProp (op_data->xml_entries,
+                                                (const xmlChar *) "genre");
+    station_genres = g_strsplit (station_genre_field, " ", -1);
+    g_free (station_genre_field);
+    station_genre = station_genres[0];
+  }
+
+  media_id = g_strconcat (station_genre, "/", station_id, NULL);
+  media_url = g_strdup_printf (SHOUTCAST_TUNE, station_id);
 
   grl_media_set_id (media, media_id);
   grl_media_set_title (media, station_name);
@@ -242,10 +252,12 @@ build_media_from_station (OperationData *op_data)
   g_free (station_name);
   g_free (station_mime);
   g_free (station_id);
-  g_free (station_genre);
   g_free (station_bitrate);
   g_free (media_id);
   g_free (media_url);
+  if (station_genres) {
+    g_strfreev (station_genres);
+  }
 
   return media;
 }
@@ -262,6 +274,13 @@ send_media (OperationData *op_data, GrlMedia *media)
                         NULL);
 
     op_data->xml_entries = op_data->xml_entries->next;
+  } else {
+    op_data->result_cb (op_data->source,
+                        op_data->operation_id,
+                        NULL,
+                        0,
+                        op_data->user_data,
+                        NULL);
   }
 
   if (op_data->to_send == 0 || op_data->cancelled) {
@@ -298,6 +317,12 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   xmlXPathObjectPtr xpath_res;
 
   if (op_data->cancelled) {
+    op_data->result_cb (op_data->source,
+                        op_data->operation_id,
+                        NULL,
+                        0,
+                        op_data->user_data,
+                        NULL);
     g_slice_free (OperationData, op_data);
     return;
   }
@@ -342,7 +367,8 @@ xml_parse_result (const gchar *str, OperationData *op_data)
                                           xpath_ctx);
       g_free (xpath_expression);
 
-      if (xpath_res && xpath_res->nodesetval->nodeTab[0]) {
+      if (xpath_res && xpath_res->nodesetval->nodeTab &&
+          xpath_res->nodesetval->nodeTab[0]) {
         op_data->xml_entries = xpath_res->nodesetval->nodeTab[0];
         if (stationlist_result) {
           build_media_from_station (op_data);
@@ -426,6 +452,14 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   g_slice_free (OperationData, op_data);
 }
 
+static gboolean
+expire_cache (gpointer user_data)
+{
+  g_debug ("Cached page expired");
+  cached_page_expired = TRUE;
+  return FALSE;
+}
+
 static void
 read_done_cb (GObject *source_object,
               GAsyncResult *res,
@@ -434,6 +468,7 @@ read_done_cb (GObject *source_object,
   GError *error = NULL;
   GError *vfs_error = NULL;
   OperationData *op_data = (OperationData *) user_data;
+  gboolean cache;
   gchar *content = NULL;
 
   if (!g_file_load_contents_finish (G_FILE (source_object),
@@ -452,27 +487,48 @@ read_done_cb (GObject *source_object,
                         0,
                         op_data->user_data,
                         error);
+    g_error_free (vfs_error);
     g_error_free (error);
     g_slice_free (OperationData, op_data);
 
     return;
   }
 
+  cache = op_data->cache;
   xml_parse_result (content, op_data);
-  g_free (content);
+  if (cache && cached_page_expired) {
+    g_debug ("Caching page");
+    g_free (cached_page);
+    cached_page = content;
+    cached_page_expired = FALSE;
+    g_timeout_add_seconds (EXPIRE_CACHE_TIMEOUT, expire_cache, NULL);
+  } else {
+    g_free (content);
+  }
+}
+
+static gboolean
+read_cached_page (OperationData *op_data)
+{
+  xml_parse_result (cached_page, op_data);
+  return FALSE;
 }
 
 static void
-read_url_async (const gchar *url, gpointer user_data)
+read_url_async (const gchar *url, OperationData *op_data)
 {
   GVfs *vfs;
   GFile *uri;
 
-  vfs = g_vfs_get_default ();
-
-  g_debug ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
+  if (op_data->cache && !cached_page_expired) {
+    g_debug ("Using cached page");
+    g_idle_add ((GSourceFunc) read_cached_page, op_data);
+  } else {
+    vfs = g_vfs_get_default ();
+    g_debug ("Opening '%s'", url);
+    uri = g_vfs_get_file_for_uri (vfs, url);
+    g_file_load_contents_async (uri, NULL, read_done_cb, op_data);
+  }
 }
 
 /* ================== API Implementation ================ */
@@ -541,6 +597,7 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
       }
     } else {
       data->filter_entry = g_strdup (id_tokens[0]);
+      data->cache = TRUE;
       url = g_strdup (SHOUTCAST_GET_GENRES);
     }
 
@@ -578,6 +635,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
 
   /* If it's root category send list of genres; else send list of radios */
   if (!container_id) {
+    data->cache = TRUE;
     url = g_strdup (SHOUTCAST_GET_GENRES);
   } else {
     url = g_strdup_printf (SHOUTCAST_GET_RADIOS,
@@ -625,7 +683,6 @@ grl_shoutcast_source_search (GrlMediaSource *source,
   data->count = ss->count;
   data->user_data = ss->user_data;
   data->error_code = GRL_ERROR_SEARCH_FAILED;
-  data->genre = g_strconcat ("?", ss->text, NULL);
 
   grl_media_source_set_operation_data (source, ss->search_id, data);
 

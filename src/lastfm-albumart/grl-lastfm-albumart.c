@@ -45,9 +45,7 @@
 
 /* ------- Pluging Info -------- */
 
-#define PLUGIN_ID   "grl-lastfm-albumart"
-#define PLUGIN_NAME "Album art Provider from Last.FM"
-#define PLUGIN_DESC "A plugin for getting album arts using Last.FM as backend"
+#define PLUGIN_ID   LASTFM_ALBUMART_PLUGIN_ID
 
 #define SOURCE_ID   "grl-lastfm-albumart"
 #define SOURCE_NAME "Album art Provider from Last.FM"
@@ -90,13 +88,7 @@ grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_lastfm_albumart_source_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Last.FM-AlbumArt GObject ================ */
 
@@ -137,7 +129,7 @@ xml_get_image (const gchar *xmldata)
   xmlDocPtr doc;
   xmlXPathContextPtr xpath_ctx;
   xmlXPathObjectPtr xpath_res;
-  gchar *image;
+  gchar *image = NULL;
 
   doc = xmlReadMemory (xmldata, xmlStrlen ((xmlChar*) xmldata), NULL, NULL,
                        XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
@@ -159,10 +151,12 @@ xml_get_image (const gchar *xmldata)
     return NULL;
   }
 
-  image =
-    (gchar *) xmlNodeListGetString (doc,
-                                    xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
-                                    1);
+  if (xpath_res->nodesetval->nodeTab) {
+    image =
+      (gchar *) xmlNodeListGetString (doc,
+                                      xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
+                                      1);
+  }
   xmlXPathFreeObject (xpath_res);
   xmlXPathFreeContext (xpath_ctx);
   xmlFreeDoc (doc);
@@ -193,6 +187,7 @@ read_done_cb (GObject *source_object,
                          "Failed to connect to Last.FM: '%s'",
                          vfs_error->message);
     rs->callback (rs->source, rs->media, rs->user_data, error);
+    g_error_free (vfs_error);
     g_error_free (error);
     g_object_unref (source_object);
     return;
@@ -251,11 +246,8 @@ grl_lastfm_albumart_source_key_depends (GrlMetadataSource *source,
                                       NULL);
   }
 
-  switch (key_id) {
-  case GRL_METADATA_KEY_THUMBNAIL:
+  if (key_id == GRL_METADATA_KEY_THUMBNAIL) {
     return deps;
-  default:
-    break;
   }
 
   return  NULL;
@@ -278,7 +270,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
   /* Check that albumart is requested */
   iter = rs->keys;
   while (iter) {
-    if (POINTER_TO_GRLKEYID (iter->data) == GRL_METADATA_KEY_THUMBNAIL) {
+    if (iter->data == GRL_METADATA_KEY_THUMBNAIL) {
       break;
     } else {
       iter = g_list_next (iter);

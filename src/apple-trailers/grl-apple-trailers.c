@@ -201,9 +201,12 @@ runtime_to_seconds (const gchar *runtime)
     return 0;
   }
 
+  seconds = 0;
   items = g_strsplit (runtime, ":", -1);
-  seconds = 3600 * atoi (items[0]) + 60 * atoi (items[1]);
-  g_strfreev (items);
+  if (items && items[0] && items[1]) {
+    seconds = 3600 * atoi (items[0]) + 60 * atoi (items[1]);
+    g_strfreev (items);
+  }
 
   return seconds;
 }

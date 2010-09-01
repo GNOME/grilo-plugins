@@ -330,7 +330,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   op_data->xml_doc = xmlReadMemory (str, xmlStrlen ((xmlChar*) str), NULL, NULL,
                                     XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!op_data->xml_doc) {
-    error = g_error_new (GRL_ERROR,
+    error = g_error_new (GRL_CORE_ERROR,
                          op_data->error_code,
                          "Failed to parse SHOUTcast's response");
     goto finalize;
@@ -338,7 +338,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
 
   node = xmlDocGetRootElement (op_data->xml_doc);
   if  (!node) {
-    error = g_error_new (GRL_ERROR,
+    error = g_error_new (GRL_CORE_ERROR,
                          op_data->error_code,
                          "Empty response from SHOUTcast");
     goto finalize;
@@ -376,7 +376,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
           build_media_from_genre (op_data);
         }
       } else {
-        error = g_error_new (GRL_ERROR,
+        error = g_error_new (GRL_CORE_ERROR,
                              op_data->error_code,
                              "Can not find media '%s'",
                              grl_media_get_id (op_data->media));
@@ -386,7 +386,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
       }
       xmlXPathFreeContext (xpath_ctx);
     } else {
-      error = g_error_new (GRL_ERROR,
+      error = g_error_new (GRL_CORE_ERROR,
                            op_data->error_code,
                            "Can not build xpath context");
     }
@@ -477,7 +477,7 @@ read_done_cb (GObject *source_object,
                                     NULL,
                                     NULL,
                                     &vfs_error)) {
-    error = g_error_new (GRL_ERROR,
+    error = g_error_new (GRL_CORE_ERROR,
                          op_data->error_code,
                          "Failed to connect SHOUTcast: '%s'",
                          vfs_error->message);
@@ -576,7 +576,7 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
     data->count = 1;
     data->metadata_cb = ms->callback;
     data->user_data = ms->user_data;
-    data->error_code = GRL_ERROR_METADATA_FAILED;
+    data->error_code = GRL_CORE_ERROR_METADATA_FAILED;
     data->media = ms->media;
 
     id_tokens = g_strsplit (media_id, "/", -1);
@@ -629,7 +629,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
   data->skip = bs->skip;
   data->count = bs->count;
   data->user_data = bs->user_data;
-  data->error_code = GRL_ERROR_BROWSE_FAILED;
+  data->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
 
   container_id = grl_media_get_id (bs->container);
 
@@ -661,8 +661,8 @@ grl_shoutcast_source_search (GrlMediaSource *source,
 
   /* Check if there is text to search */
   if (!ss->text || ss->text[0] == '\0') {
-    error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_SEARCH_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_SEARCH_FAILED,
                          "Search text not specified");
     ss->callback (ss->source,
                   ss->search_id,
@@ -682,7 +682,7 @@ grl_shoutcast_source_search (GrlMediaSource *source,
   data->skip = ss->skip;
   data->count = ss->count;
   data->user_data = ss->user_data;
-  data->error_code = GRL_ERROR_SEARCH_FAILED;
+  data->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
 
   grl_media_source_set_operation_data (source, ss->search_id, data);
 

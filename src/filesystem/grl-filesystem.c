@@ -619,8 +619,8 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
 		    !id);
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
   } else {
-    GError *error = g_error_new (GRL_ERROR,
-				 GRL_ERROR_METADATA_FAILED,
+    GError *error = g_error_new (GRL_CORE_ERROR,
+				 GRL_CORE_ERROR_METADATA_FAILED,
 				 "File '%s' does not exist",
 				 path);
     ms->callback (ms->source, ms->media, ms->user_data, error);

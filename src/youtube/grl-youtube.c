@@ -859,7 +859,7 @@ metadata_cb (GObject *object,
                    (GDATA_YOUTUBE_SERVICE (service), result, &error));
 #endif
   if (error) {
-    error->code = GRL_ERROR_METADATA_FAILED;
+    error->code = GRL_CORE_ERROR_METADATA_FAILED;
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   } else {
@@ -928,7 +928,7 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
     }
   } else {
     if (!error) {
-      error = g_error_new (GRL_ERROR,
+      error = g_error_new (GRL_CORE_ERROR,
 			   os->error_code,
 			   "Failed to obtain feed from Youtube");
     } else {
@@ -1109,8 +1109,8 @@ produce_from_feed (OperationSpec *os)
   feed_type = get_feed_type_from_id (os->container_id);
 
   if (feed_type < 0) {
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_BROWSE_FAILED,
 			 "Invalid feed id: %s", os->container_id);
     os->callback (os->source,
 		  os->operation_id,
@@ -1162,8 +1162,8 @@ produce_from_category (OperationSpec *os)
   category_index = get_category_index_from_id (os->container_id);
 
   if (!category_term) {
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_BROWSE_FAILED,
 			 "Invalid category id: %s", os->container_id);
     os->callback (os->source,
 		  os->operation_id,
@@ -1246,7 +1246,7 @@ grl_youtube_source_search (GrlMediaSource *source,
   os->count = ss->count;
   os->callback = ss->callback;
   os->user_data = ss->user_data;
-  os->error_code = GRL_ERROR_SEARCH_FAILED;
+  os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
 
   /* Look for OPERATION_SPEC_REF_RATIONALE for details */
   operation_spec_ref (os);
@@ -1283,7 +1283,7 @@ grl_youtube_source_browse (GrlMediaSource *source,
   os->count = bs->count;
   os->callback = bs->callback;
   os->user_data = bs->user_data;
-  os->error_code = GRL_ERROR_BROWSE_FAILED;
+  os->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
 
   switch (classify_media_id (container_id))
     {
@@ -1343,8 +1343,8 @@ grl_youtube_source_metadata (GrlMediaSource *source,
 	media = produce_container_from_directory (service, ms->media, feeds_dir,
 						  index);
       } else {
-	error = g_error_new (GRL_ERROR,
-			     GRL_ERROR_METADATA_FAILED,
+	error = g_error_new (GRL_CORE_ERROR,
+			     GRL_CORE_ERROR_METADATA_FAILED,
 			     "Invalid feed id");
       }
     }
@@ -1356,8 +1356,8 @@ grl_youtube_source_metadata (GrlMediaSource *source,
 	media = produce_container_from_directory (service, ms->media,
 						  categories_dir, index);
       } else {
-	error = g_error_new (GRL_ERROR,
-			     GRL_ERROR_METADATA_FAILED,
+	error = g_error_new (GRL_CORE_ERROR,
+			     GRL_CORE_ERROR_METADATA_FAILED,
 			     "Invalid category id");
       }
     }

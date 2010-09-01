@@ -1073,8 +1073,8 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
                                       "",
 				      NULL);
   if (!action) {
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_BROWSE_FAILED,
 			 "Failed to start browse action");
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
@@ -1125,8 +1125,8 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
                                       "",
 				      NULL);
   if (!action) {
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_SEARCH_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_SEARCH_FAILED,
 			 "Failed to start browse action");
     ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
@@ -1172,8 +1172,8 @@ grl_upnp_source_metadata (GrlMediaSource *source,
                                       "",
 				      NULL);
   if (!action) {
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_METADATA_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to start metadata action");
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);

@@ -393,8 +393,8 @@ bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
 
   if (r != SQLITE_OK) {
     g_warning ("Failed to get bookmark: %s", sqlite3_errmsg (db));
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_METADATA_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to get bookmark metadata");
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
@@ -408,8 +408,8 @@ bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
   } else {
     g_warning ("Failed to get bookmark: %s", sqlite3_errmsg (db));
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_METADATA_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to get bookmark metadata");
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
@@ -438,7 +438,7 @@ produce_bookmarks_from_sql (OperationSpec *os, const gchar *sql)
 
   if (r != SQLITE_OK) {
     g_warning ("Failed to retrieve bookmarks: %s", sqlite3_errmsg (db));
-    error = g_error_new (GRL_ERROR,
+    error = g_error_new (GRL_CORE_ERROR,
 			 os->error_code,
 			 "Failed to retrieve bookmarks list");
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
@@ -457,7 +457,7 @@ produce_bookmarks_from_sql (OperationSpec *os, const gchar *sql)
 
   if (r != SQLITE_DONE) {
     g_warning ("Failed to retrieve bookmarks: %s", sqlite3_errmsg (db));
-    error = g_error_new (GRL_ERROR,
+    error = g_error_new (GRL_CORE_ERROR,
 			 os->error_code,
 			 "Failed to retrieve bookmarks list");
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
@@ -537,8 +537,8 @@ remove_bookmark (sqlite3 *db, const gchar *bookmark_id, GError **error)
 
   if (r != SQLITE_OK) {
     g_warning ("Failed to remove bookmark '%s': %s", bookmark_id, sql_error);
-    *error = g_error_new (GRL_ERROR,
-			  GRL_ERROR_REMOVE_FAILED,
+    *error = g_error_new (GRL_CORE_ERROR,
+			  GRL_CORE_ERROR_REMOVE_FAILED,
 			  "Failed to remove bookmark");
     sqlite3_free (sql_error);
   }
@@ -591,8 +591,8 @@ store_bookmark (sqlite3 *db,
 			  &sql_stmt, NULL);
   if (r != SQLITE_OK) {
     g_warning ("Failed to store bookmark '%s': %s", title, sqlite3_errmsg (db));
-    *error = g_error_new (GRL_ERROR,
-			  GRL_ERROR_STORE_FAILED,
+    *error = g_error_new (GRL_CORE_ERROR,
+			  GRL_CORE_ERROR_STORE_FAILED,
 			  "Failed to store bookmark '%s'", title);
     return;
   }
@@ -633,8 +633,8 @@ store_bookmark (sqlite3 *db,
 
   if (r != SQLITE_DONE) {
     g_warning ("Failed to store bookmark '%s': %s", title, sqlite3_errmsg (db));
-    *error = g_error_new (GRL_ERROR,
-			  GRL_ERROR_STORE_FAILED,
+    *error = g_error_new (GRL_CORE_ERROR,
+			  GRL_CORE_ERROR_STORE_FAILED,
 			  "Failed to store bookmark '%s'", title);
     sqlite3_finalize (sql_stmt);
     return;
@@ -678,8 +678,8 @@ grl_bookmarks_source_browse (GrlMediaSource *source,
   bookmarks_source = GRL_BOOKMARKS_SOURCE (source);
   if (!bookmarks_source->priv->db) {
     g_warning ("Can't execute operation: no database connection.");
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_BROWSE_FAILED,
 			 "No database connection");
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
@@ -694,7 +694,7 @@ grl_bookmarks_source_browse (GrlMediaSource *source,
   os->skip = bs->skip;
   os->callback = bs->callback;
   os->user_data = bs->user_data;
-  os->error_code = GRL_ERROR_BROWSE_FAILED;
+  os->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
 
   produce_bookmarks_from_category (os, os->media_id ? os->media_id : "0");
   g_slice_free (OperationSpec, os);
@@ -713,8 +713,8 @@ grl_bookmarks_source_search (GrlMediaSource *source,
   bookmarks_source = GRL_BOOKMARKS_SOURCE (source);
   if (!bookmarks_source->priv->db) {
     g_warning ("Can't execute operation: no database connection.");
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_QUERY_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_QUERY_FAILED,
 			 "No database connection");
     ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
@@ -727,7 +727,7 @@ grl_bookmarks_source_search (GrlMediaSource *source,
   os->skip = ss->skip;
   os->callback = ss->callback;
   os->user_data = ss->user_data;
-  os->error_code = GRL_ERROR_SEARCH_FAILED;
+  os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
   produce_bookmarks_by_text (os, ss->text);
   g_slice_free (OperationSpec, os);
 }
@@ -745,8 +745,8 @@ grl_bookmarks_source_query (GrlMediaSource *source,
   bookmarks_source = GRL_BOOKMARKS_SOURCE (source);
   if (!bookmarks_source->priv->db) {
     g_warning ("Can't execute operation: no database connection.");
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_QUERY_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_QUERY_FAILED,
 			 "No database connection");
     qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
     g_error_free (error);
@@ -759,7 +759,7 @@ grl_bookmarks_source_query (GrlMediaSource *source,
   os->skip = qs->skip;
   os->callback = qs->callback;
   os->user_data = qs->user_data;
-  os->error_code = GRL_ERROR_SEARCH_FAILED;
+  os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
   produce_bookmarks_by_query (os, qs->query);
   g_slice_free (OperationSpec, os);
 }
@@ -803,8 +803,8 @@ grl_bookmarks_source_metadata (GrlMediaSource *source,
   bookmarks_source = GRL_BOOKMARKS_SOURCE (source);
   if (!bookmarks_source->priv->db) {
     g_warning ("Can't execute operation: no database connection.");
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_METADATA_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "No database connection");
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);

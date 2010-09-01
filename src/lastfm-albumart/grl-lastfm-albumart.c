@@ -182,8 +182,8 @@ read_done_cb (GObject *source_object,
                                     NULL,
                                     NULL,
                                     &vfs_error)) {
-    error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_RESOLVE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_RESOLVE_FAILED,
                          "Failed to connect to Last.FM: '%s'",
                          vfs_error->message);
     rs->callback (rs->source, rs->media, rs->user_data, error);

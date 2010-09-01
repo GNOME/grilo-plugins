@@ -462,8 +462,8 @@ write_keys (sqlite3 *db,
   if (supported_keys == 0) {
     g_warning ("Failed to update metadata, none of the specified "
 	       "keys is writable");
-    *error = g_error_new (GRL_ERROR,
-			  GRL_ERROR_SET_METADATA_FAILED,
+    *error = g_error_new (GRL_CORE_ERROR,
+			  GRL_CORE_ERROR_SET_METADATA_FAILED,
 			  "Failed to update metadata, "
 			  "specified keys are not writable");
     goto done;
@@ -481,8 +481,8 @@ write_keys (sqlite3 *db,
 	       source_id, media_id, sqlite3_errmsg (db));
     g_list_free (failed_keys);
     failed_keys = g_list_copy (sms->keys);
-    *error = g_error_new (GRL_ERROR,
-			  GRL_ERROR_SET_METADATA_FAILED,
+    *error = g_error_new (GRL_CORE_ERROR,
+			  GRL_CORE_ERROR_SET_METADATA_FAILED,
 			  "Failed to update metadata");
     goto done;
   } 
@@ -502,8 +502,8 @@ write_keys (sqlite3 *db,
 	       source_id, media_id, sqlite3_errmsg (db));
     g_list_free (failed_keys);
     failed_keys = g_list_copy (sms->keys);
-    *error = g_error_new (GRL_ERROR,
-			  GRL_ERROR_SET_METADATA_FAILED,
+    *error = g_error_new (GRL_CORE_ERROR,
+			  GRL_CORE_ERROR_SET_METADATA_FAILED,
 			  "Failed to update metadata");
     goto done;
   } 
@@ -578,8 +578,8 @@ grl_metadata_store_source_resolve (GrlMetadataSource *source,
   /* We need the source id */
   if (!source_id) {
     g_warning ("Failed to resolve metadata: source-id not available");
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_RESOLVE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_RESOLVE_FAILED,
 			 "source-id not available, cannot resolve metadata.");
     rs->callback (rs->source, rs->media, rs->user_data, error);
     g_error_free (error);
@@ -598,8 +598,8 @@ grl_metadata_store_source_resolve (GrlMetadataSource *source,
     rs->callback (rs->source, rs->media, rs->user_data, NULL);
   } else {
     g_warning ("Failed to resolve metadata");
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_RESOLVE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_RESOLVE_FAILED,
 			 "Failed to resolve metadata.");
     rs->callback (rs->source, rs->media, rs->user_data, error);
     g_error_free (error);
@@ -622,8 +622,8 @@ grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
   /* We need the source id */
   if (!source_id) {
     g_warning ("Failed to update metadata: source-id not available");
-    error = g_error_new (GRL_ERROR,
-			 GRL_ERROR_SET_METADATA_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_SET_METADATA_FAILED,
 			 "source-id not available, cannot update metadata.");
     failed_keys = g_list_copy (sms->keys);
   } else {

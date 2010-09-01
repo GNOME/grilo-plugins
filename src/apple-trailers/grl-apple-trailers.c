@@ -330,16 +330,16 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   op_data->xml_doc = xmlReadMemory (str, xmlStrlen ((xmlChar*) str), NULL, NULL,
                                     XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!op_data->xml_doc) {
-    error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_BROWSE_FAILED,
                          "Failed to parse response");
     goto finalize;
   }
 
   node = xmlDocGetRootElement (op_data->xml_doc);
   if (!node || !node->xmlChildrenNode) {
-    error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_BROWSE_FAILED,
                          "Empty response from Apple Trailers");
     goto finalize;
   }
@@ -396,8 +396,8 @@ read_done_cb (GObject *source_object,
                                     NULL,
                                     NULL,
                                     &vfs_error)) {
-    error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_BROWSE_FAILED,
                          "Failed to connect Apple Trailers: '%s'",
                          vfs_error->message);
     op_data->bs->callback (op_data->bs->source,

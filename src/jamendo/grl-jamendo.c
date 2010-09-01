@@ -314,23 +314,23 @@ xml_parse_result (const gchar *str, GError **error, XmlParseEntries *xpe)
   doc = xmlReadMemory (str, strlen (str), NULL, NULL,
                        XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!doc) {
-    *error = g_error_new (GRL_ERROR,
-			  GRL_ERROR_BROWSE_FAILED,
+    *error = g_error_new (GRL_CORE_ERROR,
+			  GRL_CORE_ERROR_BROWSE_FAILED,
 			  "Failed to parse Jamendo's response");
     goto free_resources;
   }
 
   node = xmlDocGetRootElement (doc);
   if (!node) {
-    *error = g_error_new (GRL_ERROR,
-			  GRL_ERROR_BROWSE_FAILED,
+    *error = g_error_new (GRL_CORE_ERROR,
+			  GRL_CORE_ERROR_BROWSE_FAILED,
 			  "Empty response from Jamendo");
     goto free_resources;
   }
 
   if (xmlStrcmp (node->name, (const xmlChar *) "data")) {
-    *error = g_error_new (GRL_ERROR,
-			  GRL_ERROR_BROWSE_FAILED,
+    *error = g_error_new (GRL_CORE_ERROR,
+			  GRL_CORE_ERROR_BROWSE_FAILED,
 			  "Unexpected response from Jamendo: no data");
     goto free_resources;
   }
@@ -636,20 +636,20 @@ read_done_cb (GObject *source_object,
                                     &vfs_error)) {
     switch (xpe->type) {
     case METADATA:
-      error_code = GRL_ERROR_METADATA_FAILED;
+      error_code = GRL_CORE_ERROR_METADATA_FAILED;
       break;
     case BROWSE:
-      error_code = GRL_ERROR_BROWSE_FAILED;
+      error_code = GRL_CORE_ERROR_BROWSE_FAILED;
       break;
     case QUERY:
-      error_code = GRL_ERROR_QUERY_FAILED;
+      error_code = GRL_CORE_ERROR_QUERY_FAILED;
       break;
     case SEARCH:
-      error_code = GRL_ERROR_SEARCH_FAILED;
+      error_code = GRL_CORE_ERROR_SEARCH_FAILED;
       break;
     }
 
-    error = g_error_new (GRL_ERROR,
+    error = g_error_new (GRL_CORE_ERROR,
                          error_code,
                          "Failed to connect Jamendo: '%s'",
                          vfs_error->message);
@@ -679,8 +679,8 @@ read_done_cb (GObject *source_object,
     }
   } else {
     if (xpe->type == METADATA) {
-      error = g_error_new (GRL_ERROR,
-                           GRL_ERROR_METADATA_FAILED,
+      error = g_error_new (GRL_CORE_ERROR,
+                           GRL_CORE_ERROR_METADATA_FAILED,
                            "Unable to get information: '%s'",
                            grl_media_get_id (xpe->spec.ms->media));
     }
@@ -948,8 +948,8 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
     id_split = g_strsplit (id, JAMENDO_ID_SEP, 0);
 
     if (g_strv_length (id_split) == 0) {
-      error = g_error_new (GRL_ERROR,
-                           GRL_ERROR_METADATA_FAILED,
+      error = g_error_new (GRL_CORE_ERROR,
+                           GRL_CORE_ERROR_METADATA_FAILED,
                            "Invalid id: '%s'",
                            id);
       goto send_error;
@@ -993,8 +993,8 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
                            id_split[1]);
         g_free (jamendo_keys);
       } else {
-        error = g_error_new (GRL_ERROR,
-                             GRL_ERROR_METADATA_FAILED,
+        error = g_error_new (GRL_CORE_ERROR,
+                             GRL_CORE_ERROR_METADATA_FAILED,
                              "Invalid id: '%s'",
                              id);
         g_strfreev (id_split);
@@ -1010,8 +1010,8 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
         update_media_from_feeds (ms->media);
       }
     } else {
-      error = g_error_new (GRL_ERROR,
-                           GRL_ERROR_METADATA_FAILED,
+      error = g_error_new (GRL_CORE_ERROR,
+                           GRL_CORE_ERROR_METADATA_FAILED,
                            "Invalid id: '%s'",
                            id);
       g_strfreev (id_split);
@@ -1070,8 +1070,8 @@ grl_jamendo_source_browse (GrlMediaSource *source,
   container_split = g_strsplit (container_id, JAMENDO_ID_SEP, 0);
 
   if (g_strv_length (container_split) == 0) {
-    error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_BROWSE_FAILED,
                          "Invalid container-id: '%s'",
                          container_id);
   } else {
@@ -1139,13 +1139,13 @@ grl_jamendo_source_browse (GrlMediaSource *source,
       }
 
     } else if (category == JAMENDO_TRACK_CAT) {
-      error = g_error_new (GRL_ERROR,
-                           GRL_ERROR_BROWSE_FAILED,
+      error = g_error_new (GRL_CORE_ERROR,
+                           GRL_CORE_ERROR_BROWSE_FAILED,
                            "Cannot browse through a track: '%s'",
                            container_id);
     } else {
-      error = g_error_new (GRL_ERROR,
-                           GRL_ERROR_BROWSE_FAILED,
+      error = g_error_new (GRL_CORE_ERROR,
+                           GRL_CORE_ERROR_BROWSE_FAILED,
                            "Invalid container-id: '%s'",
                            container_id);
     }
@@ -1199,8 +1199,8 @@ grl_jamendo_source_query (GrlMediaSource *source,
   g_debug ("grl_jamendo_source_query");
 
   if (!parse_query (qs->query, &category, &term)) {
-    error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_QUERY_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_QUERY_FAILED,
                          "Query malformed: '%s'",
                          qs->query);
     goto send_error;

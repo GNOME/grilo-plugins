@@ -195,15 +195,15 @@ main (void)
 
   GRL_LOG_DOMAIN_INIT (test_main_log_domain, "test-main");
 
-  grl_log_init ("*:warning,test-main:*,"
-                "grl-youtube:*,"
-                "grl-filesystem:*,"
-                "grl-jamendo:*,"
-                "grl-shoutcast:*,"
-                "grl-apple-trailers:*,"
-                "grl-lastfm-albumart:*,"
-                "grl-flickr:*,"
-                "grl-metadata-store:*");
+  grl_log_configure ("*:warning,test-main:*,"
+                     "grl-youtube:*,"
+                     "grl-filesystem:*,"
+                     "grl-jamendo:*,"
+                     "grl-shoutcast:*,"
+                     "grl-apple-trailers:*,"
+                     "grl-lastfm-albumart:*,"
+                     "grl-flickr:*,"
+                     "grl-metadata-store:*");
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
                                     GRL_METADATA_KEY_TITLE,

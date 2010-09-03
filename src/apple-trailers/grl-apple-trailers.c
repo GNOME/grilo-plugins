@@ -203,10 +203,9 @@ runtime_to_seconds (const gchar *runtime)
 
   seconds = 0;
   items = g_strsplit (runtime, ":", -1);
-  if (items && items[0] && items[1]) {
+  if (items && items[0] && items[1])
     seconds = 3600 * atoi (items[0]) + 60 * atoi (items[1]);
-    g_strfreev (items);
-  }
+  g_strfreev (items);
 
   return seconds;
 }

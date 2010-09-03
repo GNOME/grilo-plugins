@@ -72,6 +72,7 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
 struct _GrlUpnpPrivate {
   GUPnPDeviceProxy* device;
   GUPnPServiceProxy* service;
+  GUPnPControlPoint *cp;
   gboolean search_enabled;
   gchar *upnp_name;
 };
@@ -130,6 +131,8 @@ static void device_unavailable_cb (GUPnPControlPoint *cp,
 
 static GHashTable *key_mapping = NULL;
 static GHashTable *filter_key_mapping = NULL;
+static GUPnPControlPoint *cp = NULL;
+static GUPnPContext *context = NULL;
 
 /* =================== UPnP Plugin  =============== */
 
@@ -139,8 +142,6 @@ grl_upnp_plugin_init (GrlPluginRegistry *registry,
                       GList *configs)
 {
   GError *error = NULL;
-  GUPnPContext *context;
-  GUPnPControlPoint *cp;
 
   GRL_LOG_DOMAIN_INIT (upnp_log_domain, "upnp");
 
@@ -177,8 +178,24 @@ grl_upnp_plugin_init (GrlPluginRegistry *registry,
   return TRUE;
 }
 
+static void
+grl_upnp_plugin_deinit (void)
+{
+  GRL_DEBUG ("grl_upnp_plugin_deinit");
+  if (cp != NULL) {
+    gssdp_resource_browser_set_active (GSSDP_RESOURCE_BROWSER (cp), FALSE);
+    g_object_unref (cp);
+    cp = NULL;
+  }
+
+  if (context != NULL) {
+    g_object_unref ( context);
+    context = NULL;
+  }
+}
+
 GRL_PLUGIN_REGISTER (grl_upnp_plugin_init,
-                     NULL,
+                     grl_upnp_plugin_deinit,
                      PLUGIN_ID);
 
 /* ================== UPnP GObject ================ */

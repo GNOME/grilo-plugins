@@ -414,11 +414,14 @@ read_done_cb (GObject *source_object,
     g_error_free (error);
     g_slice_free (OperationData, op_data);
 
-    return;
+    goto end_func;
   }
 
   xml_parse_result (content, op_data);
   g_free (content);
+
+end_func:
+  g_object_unref (source_object);
 }
 
 static void

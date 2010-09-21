@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include <grilo.h>
+#include <net/grl-net.h>
 
 
 #define G_FLICKR_GET_PRIVATE(object)            \
@@ -127,6 +128,8 @@ struct _GFlickrPrivate {
   gchar *auth_secret;
   gchar *auth_token;
   gint per_page;
+
+  GrlNetWc *wc;
 };
 
 static void g_flickr_finalize (GObject *object);
@@ -158,6 +161,9 @@ g_flickr_finalize (GObject *object)
   g_free (f->priv->api_key);
   g_free (f->priv->auth_token);
   g_free (f->priv->auth_secret);
+
+  if (f->priv->wc)
+    g_object_unref (f->priv->wc);
 
   G_OBJECT_CLASS (g_flickr_parent_class)->finalize (object);
 }
@@ -567,37 +573,44 @@ process_token_result (const gchar *xml_result, gpointer user_data)
   xmlFreeDoc (doc);
 }
 
+inline static GrlNetWc *
+get_wc (GFlickr *f)
+{
+  if (!f->priv->wc)
+    f->priv->wc = grl_net_wc_new ();
+
+  return f->priv->wc;
+}
+
 static void
 read_done_cb (GObject *source_object,
               GAsyncResult *res,
               gpointer user_data)
 {
   gchar *content = NULL;
+  GError *wc_error = NULL;
   GFlickrData *data = (GFlickrData *) user_data;
 
-  g_file_load_contents_finish (G_FILE (source_object),
-                               res,
-                               &content,
-                               NULL,
-                               NULL,
-                               NULL);
-
-  g_object_unref (source_object);
+  grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                         res,
+                         &content,
+                         NULL,
+                         &wc_error);
 
   data->parse_xml (content, user_data);
-  g_free (content);
 }
 
 static void
-read_url_async (const gchar *url, gpointer data)
+read_url_async (GFlickr *f,
+                const gchar *url,
+                gpointer user_data)
 {
-  GVfs *vfs;
-  GFile *uri;
-
-  vfs = g_vfs_get_default ();
   GRL_DEBUG ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, data);
+  grl_net_wc_request_async (get_wc (f),
+                        url,
+                        NULL,
+                        read_done_cb,
+                        user_data);
 }
 
 /* -------------------- PUBLIC API -------------------- */
@@ -651,7 +664,7 @@ g_flickr_photos_getInfo (GFlickr *f,
   gfd->hashtable_cb = callback;
   gfd->user_data = user_data;
 
-  read_url_async (request, gfd);
+  read_url_async (f, request, gfd);
   g_free (request);
 }
 
@@ -723,7 +736,7 @@ g_flickr_photos_search (GFlickr *f,
   gfd->list_cb = callback;
   gfd->user_data = user_data;
 
-  read_url_async (request, gfd);
+  read_url_async (f, request, gfd);
   g_free (request);
 }
 
@@ -855,7 +868,7 @@ g_flickr_tags_getHotList (GFlickr *f,
   gfd->list_cb = callback;
   gfd->user_data = user_data;
 
-  read_url_async (request, gfd);
+  read_url_async (f, request, gfd);
   g_free (request);
 }
 
@@ -906,7 +919,7 @@ g_flickr_photosets_getList (GFlickr *f,
   gfd->list_cb = callback;
   gfd->user_data = user_data;
 
-  read_url_async (request, gfd);
+  read_url_async (f, request, gfd);
   g_free (request);
 }
 
@@ -963,7 +976,7 @@ g_flickr_photosets_getPhotos (GFlickr *f,
   gfd->list_cb = callback;
   gfd->user_data = user_data;
 
-  read_url_async (request, gfd);
+  read_url_async (f, request, gfd);
   g_free (request);
 }
 
@@ -1117,6 +1130,6 @@ g_flickr_auth_checkToken (GFlickr *f,
   gfd->hashtable_cb = callback;
   gfd->user_data = user_data;
 
-  read_url_async (request, gfd);
+  read_url_async (f, request, gfd);
   g_free (request);
 }

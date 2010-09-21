@@ -362,8 +362,8 @@ AC_ARG_ENABLE(flickr,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO  not found, install it or use --disable-flickr])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-flickr])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-flickr])
@@ -372,7 +372,7 @@ AC_ARG_ENABLE(flickr,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_flickr=yes
                 else
                    enable_flickr=no

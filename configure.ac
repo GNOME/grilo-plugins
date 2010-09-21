@@ -198,8 +198,8 @@ AC_ARG_ENABLE(jamendo,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO not found, install it or use --disable-jamendo])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-jamendo])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-jamendo])
@@ -208,7 +208,7 @@ AC_ARG_ENABLE(jamendo,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_jamendo=yes
                 else
                    enable_jamendo=no

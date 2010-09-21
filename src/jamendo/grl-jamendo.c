@@ -27,11 +27,10 @@
 #endif
 
 #include <grilo.h>
-#include <gio/gio.h>
+#include <net/grl-net.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <string.h>
-#include <stdlib.h>
 
 #include "grl-jamendo.h"
 
@@ -160,6 +159,16 @@ struct Feeds {
     JAMENDO_GET_TRACKS "&order=rating_desc", },
 };
 
+struct _GrlJamendoSourcePriv {
+  GrlNetWc *wc;
+  GCancellable *cancellable;
+};
+
+#define GRL_JAMENDO_SOURCE_GET_PRIVATE(object)		\
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),                \
+                               GRL_JAMENDO_SOURCE_TYPE,	\
+                               GrlJamendoSourcePriv))
+
 static GrlJamendoSource *grl_jamendo_source_new (void);
 
 gboolean grl_jamendo_plugin_init (GrlPluginRegistry *registry,
@@ -218,29 +227,51 @@ grl_jamendo_source_new (void)
 		       NULL);
 }
 
+G_DEFINE_TYPE (GrlJamendoSource, grl_jamendo_source, GRL_TYPE_MEDIA_SOURCE);
+
+static void
+grl_jamendo_source_finalize (GObject *object)
+{
+  GrlJamendoSource *self;
+
+  self = GRL_JAMENDO_SOURCE (object);
+  if (self->priv->wc)
+    g_object_unref (self->priv->wc);
+
+  if (self->priv->cancellable
+      && G_IS_CANCELLABLE (self->priv->cancellable))
+    g_object_unref (self->priv->cancellable);
+
+  G_OBJECT_CLASS (grl_jamendo_source_parent_class)->finalize (object);
+}
+
 static void
 grl_jamendo_source_class_init (GrlJamendoSourceClass * klass)
 {
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  GObjectClass *g_class = G_OBJECT_CLASS (klass);
   source_class->metadata = grl_jamendo_source_metadata;
   source_class->browse = grl_jamendo_source_browse;
   source_class->query = grl_jamendo_source_query;
   source_class->search = grl_jamendo_source_search;
   source_class->cancel = grl_jamendo_source_cancel;
   metadata_class->supported_keys = grl_jamendo_source_supported_keys;
+  g_class->finalize = grl_jamendo_source_finalize;
+
+  g_type_class_add_private (klass, sizeof (GrlJamendoSourcePriv));
 }
 
 static void
 grl_jamendo_source_init (GrlJamendoSource *source)
 {
+  source->priv = GRL_JAMENDO_SOURCE_GET_PRIVATE (source);
+
   /* If we try to get too much elements in a single step, Jamendo might return
      nothing. So limit the maximum amount of elements in each query */
   grl_media_source_set_auto_split_threshold (GRL_MEDIA_SOURCE (source),
                                              MAX_ELEMENTS);
 }
-
-G_DEFINE_TYPE (GrlJamendoSource, grl_jamendo_source, GRL_TYPE_MEDIA_SOURCE);
 
 /* ======================= Utilities ==================== */
 
@@ -619,23 +650,21 @@ read_done_cb (GObject *source_object,
 {
   XmlParseEntries *xpe = (XmlParseEntries *) user_data;
   gint error_code = -1;
-  GError *vfs_error = NULL;
+  GError *wc_error = NULL;
   GError *error = NULL;
   gchar *content = NULL;
   Entry *entry = NULL;
 
   /* Check if operation was cancelled */
   if (xpe->cancelled) {
-    g_object_unref (source_object);
     goto invoke_cb;
   }
 
-  if (!g_file_load_contents_finish (G_FILE (source_object),
-                                    res,
-                                    &content,
-                                    NULL,
-                                    NULL,
-                                    &vfs_error)) {
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                              res,
+                              &content,
+                              NULL,
+                              &wc_error)) {
     switch (xpe->type) {
     case METADATA:
       error_code = GRL_CORE_ERROR_METADATA_FAILED;
@@ -654,16 +683,16 @@ read_done_cb (GObject *source_object,
     error = g_error_new (GRL_CORE_ERROR,
                          error_code,
                          "Failed to connect Jamendo: '%s'",
-                         vfs_error->message);
-    g_error_free (vfs_error);
-    g_object_unref (source_object);
+                         wc_error->message);
+    g_error_free (wc_error);
     goto invoke_cb;
   }
 
-  g_object_unref (source_object);
-
-  xml_parse_result (content, &error, xpe);
-  g_free (content);
+  if (content) {
+    xml_parse_result (content, &error, xpe);
+  } else {
+    goto invoke_cb;
+  }
 
   if (error) {
     goto invoke_cb;
@@ -732,16 +761,21 @@ read_done_cb (GObject *source_object,
 }
 
 static void
-read_url_async (const gchar *url, gpointer user_data)
+read_url_async (GrlJamendoSource *source,
+                const gchar *url,
+                gpointer user_data)
 {
-  GVfs *vfs;
-  GFile *uri;
+  if (!source->priv->wc)
+    source->priv->wc = g_object_new (GRL_TYPE_NET_WC, "throttling", 1, NULL);
 
-  vfs = g_vfs_get_default ();
+  source->priv->cancellable = g_cancellable_new ();
 
   GRL_DEBUG ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
+  grl_net_wc_request_async (source->priv->wc,
+                        url,
+                        source->priv->cancellable,
+                        read_done_cb,
+                        user_data);
 }
 
 static void
@@ -1029,7 +1063,7 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
     xpe = g_slice_new0 (XmlParseEntries);
     xpe->type = METADATA;
     xpe->spec.ms = ms;
-    read_url_async (url, xpe);
+    read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
     g_free (url);
   } else {
     if (ms->media) {
@@ -1166,7 +1200,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
 
   grl_media_source_set_operation_data (source, bs->browse_id, xpe);
 
-  read_url_async (url, xpe);
+  read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
   if (container_split) {
     g_strfreev (container_split);
@@ -1244,7 +1278,7 @@ grl_jamendo_source_query (GrlMediaSource *source,
 
   grl_media_source_set_operation_data (source, qs->query_id, xpe);
 
-  read_url_async (url, xpe);
+  read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
 
   return;
@@ -1290,7 +1324,7 @@ grl_jamendo_source_search (GrlMediaSource *source,
 
   grl_media_source_set_operation_data (source, ss->search_id, xpe);
 
-  read_url_async (url, xpe);
+  read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
 }
 
@@ -1298,6 +1332,18 @@ static void
 grl_jamendo_source_cancel (GrlMediaSource *source, guint operation_id)
 {
   XmlParseEntries *xpe;
+  GrlJamendoSourcePriv *priv;
+
+  g_return_if_fail (GRL_IS_JAMENDO_SOURCE (source));
+
+  priv = GRL_JAMENDO_SOURCE_GET_PRIVATE (source);
+
+  if (priv->cancellable && G_IS_CANCELLABLE (priv->cancellable))
+    g_cancellable_cancel (priv->cancellable);
+  priv->cancellable = NULL;
+
+  if (priv->wc)
+    grl_net_wc_flush_delayed_requests (priv->wc);
 
   GRL_DEBUG ("grl_jamendo_source_cancel");
 

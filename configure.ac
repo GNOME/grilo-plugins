@@ -55,6 +55,7 @@ else
 fi
 
 GRL_NAME=grilo-${GRL_VERSION}
+GRLNET_NAME=grilo-net-${GRL_VERSION}
 
 # ----------------------------------------------------------
 # DEBUG SUPPORT
@@ -96,6 +97,10 @@ AC_SUBST(GRL_PLUGINS_CONF_DIR)
 # ----------------------------------------------------------
 # EXTERNAL/OPTIONAL DEPENDENCIES
 # ----------------------------------------------------------
+
+PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} = 0.1.6],
+			    HAVE_GRLNET=yes,
+			    HAVE_GRLNET=no)
 
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 

@@ -27,12 +27,8 @@
 #endif
 
 #include <grilo.h>
-#include <libxml/parser.h>
-#include <libxml/xmlmemory.h>
 #include <net/grl-net.h>
 #include <libxml/xpath.h>
-#include <string.h>
-#include <stdlib.h>
 
 #include "grl-apple-trailers.h"
 

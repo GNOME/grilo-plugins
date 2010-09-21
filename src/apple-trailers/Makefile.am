@@ -25,7 +25,7 @@ libgrlappletrailers_la_SOURCES =	\
 	grl-apple-trailers.c		\
 	grl-apple-trailers.h
 
-libdir=$(GRL_PLUGINS_DIR)
+libdir = $(GRL_PLUGINS_DIR)
 appletrailersxmldir	= $(GRL_PLUGINS_CONF_DIR)
 appletrailersxml_DATA	= $(APPLE_TRAILERS_PLUGIN_ID).xml
 

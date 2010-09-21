@@ -27,9 +27,9 @@
 #endif
 
 #include <grilo.h>
-#include <gio/gio.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
+#include <net/grl-net.h>
 #include <libxml/xpath.h>
 #include <string.h>
 #include <stdlib.h>
@@ -75,6 +75,8 @@ enum {
 };
 
 struct _GrlAppleTrailersSourcePriv {
+  GrlNetWc *wc;
+  GCancellable *cancellable;
   gboolean hd;
   gboolean large_poster;
 };
@@ -167,6 +169,25 @@ grl_apple_trailers_source_new (gboolean high_definition,
   return source;
 }
 
+G_DEFINE_TYPE (GrlAppleTrailersSource, grl_apple_trailers_source, GRL_TYPE_MEDIA_SOURCE);
+
+static void
+grl_apple_trailers_source_finalize (GObject *object)
+{
+  GrlAppleTrailersSource *self;
+
+  self = GRL_APPLE_TRAILERS_SOURCE (object);
+
+  if (self->priv->wc)
+    g_object_unref (self->priv->wc);
+
+  if (self->priv->cancellable
+      && G_IS_CANCELLABLE (self->priv->cancellable))
+    g_object_unref (self->priv->cancellable);
+
+  G_OBJECT_CLASS (grl_apple_trailers_source_parent_class)->finalize (object);
+}
+
 static void
 grl_apple_trailers_source_set_property (GObject *object,
                                         guint propid,
@@ -197,6 +218,7 @@ grl_apple_trailers_source_class_init (GrlAppleTrailersSourceClass * klass)
   source_class->browse = grl_apple_trailers_source_browse;
   source_class->cancel = grl_apple_trailers_source_cancel;
   metadata_class->supported_keys = grl_apple_trailers_source_supported_keys;
+  g_class->finalize = grl_apple_trailers_source_finalize;
   g_class->set_property = grl_apple_trailers_source_set_property;
 
   g_object_class_install_property (g_class,
@@ -228,8 +250,6 @@ grl_apple_trailers_source_init (GrlAppleTrailersSource *source)
   source->priv = GRL_APPLE_TRAILERS_SOURCE_GET_PRIVATE (source);
   source->priv->hd = TRUE;
 }
-
-G_DEFINE_TYPE (GrlAppleTrailersSource, grl_apple_trailers_source, GRL_TYPE_MEDIA_SOURCE);
 
 /* ==================== Private ==================== */
 
@@ -472,51 +492,51 @@ read_done_cb (GObject *source_object,
               gpointer user_data)
 {
   GError *error = NULL;
-  GError *vfs_error = NULL;
+  GError *wc_error = NULL;
   OperationData *op_data = (OperationData *) user_data;
   gchar *content = NULL;
 
-  if (!g_file_load_contents_finish (G_FILE (source_object),
-                                    res,
-                                    &content,
-                                    NULL,
-                                    NULL,
-                                    &vfs_error)) {
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                              res,
+                              &content,
+                              NULL,
+                              &wc_error)) {
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_BROWSE_FAILED,
                          "Failed to connect Apple Trailers: '%s'",
-                         vfs_error->message);
+                         wc_error->message);
     op_data->bs->callback (op_data->bs->source,
                            op_data->bs->browse_id,
                            NULL,
                            0,
                            op_data->bs->user_data,
                            error);
-    g_error_free (vfs_error);
+    g_error_free (wc_error);
     g_error_free (error);
     g_slice_free (OperationData, op_data);
 
-    goto end_func;
+    return;
   }
 
   xml_parse_result (content, op_data);
-  g_free (content);
-
-end_func:
-  g_object_unref (source_object);
 }
 
 static void
-read_url_async (const gchar *url, gpointer user_data)
+read_url_async (GrlAppleTrailersSource *source,
+                const gchar *url,
+                gpointer user_data)
 {
-  GVfs *vfs;
-  GFile *uri;
+  if (!source->priv->wc)
+    source->priv->wc = grl_net_wc_new ();
 
-  vfs = g_vfs_get_default ();
+  source->priv->cancellable = g_cancellable_new ();
 
   GRL_DEBUG ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
+  grl_net_wc_request_async (source->priv->wc,
+                        url,
+                        source->priv->cancellable,
+                        read_done_cb,
+                        user_data);
 }
 
 /* ================== API Implementation ================ */
@@ -557,9 +577,9 @@ grl_apple_trailers_source_browse (GrlMediaSource *source,
   grl_media_source_set_operation_data (source, bs->browse_id, op_data);
 
   if (at_source->priv->hd) {
-    read_url_async (APPLE_TRAILERS_CURRENT_HD, op_data);
+    read_url_async (at_source, APPLE_TRAILERS_CURRENT_HD, op_data);
   } else {
-    read_url_async (APPLE_TRAILERS_CURRENT_SD, op_data);
+    read_url_async (at_source, APPLE_TRAILERS_CURRENT_SD, op_data);
   }
 }
 
@@ -567,8 +587,17 @@ static void
 grl_apple_trailers_source_cancel (GrlMediaSource *source, guint operation_id)
 {
   OperationData *op_data;
+  GrlAppleTrailersSourcePriv *priv;
 
   GRL_DEBUG ("grl_apple_trailers_source_cancel");
+
+  priv = GRL_APPLE_TRAILERS_SOURCE_GET_PRIVATE (source);
+  if (priv->cancellable && G_IS_CANCELLABLE (priv->cancellable))
+    g_cancellable_cancel (priv->cancellable);
+  priv->cancellable = NULL;
+
+  if (priv->wc)
+    grl_net_wc_flush_delayed_requests (priv->wc);
 
   op_data = (OperationData *) grl_media_source_get_operation_data (source, operation_id);
 

@@ -528,8 +528,8 @@ AC_ARG_ENABLE(apple_trailers,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO not found, install it or use --disable-apple-trailers])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-apple-trailers])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-apple-trailers])
@@ -538,7 +538,7 @@ AC_ARG_ENABLE(apple_trailers,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_apple_trailers=yes
                 else
                    enable_apple_trailers=no

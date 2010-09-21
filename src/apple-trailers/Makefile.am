@@ -9,12 +9,12 @@ lib_LTLIBRARIES		 = libgrlappletrailers.la
 
 libgrlappletrailers_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
-	$(GIO_CFLAGS)		\
+	$(GRLNET_CFLAGS)	\
 	$(XML_CFLAGS)
 
 libgrlappletrailers_la_LIBADD =	\
 	$(DEPS_LIBS)		\
-	$(GIO_LIBS)		\
+	$(GRLNET_LIBS)		\
 	$(XML_LIBS)
 
 libgrlappletrailers_la_LDFLAGS = \

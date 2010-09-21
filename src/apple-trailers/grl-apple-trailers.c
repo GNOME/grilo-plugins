@@ -68,6 +68,22 @@ typedef struct {
   gboolean cancelled;
 } OperationData;
 
+enum {
+  PROP_0,
+  PROP_HD,
+  PROP_LARGE_POSTER,
+};
+
+struct _GrlAppleTrailersSourcePriv {
+  gboolean hd;
+  gboolean large_poster;
+};
+
+#define GRL_APPLE_TRAILERS_SOURCE_GET_PRIVATE(object)		\
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),                        \
+                               GRL_APPLE_TRAILERS_SOURCE_TYPE,  \
+                               GrlAppleTrailersSourcePriv))
+
 static GrlAppleTrailersSource *grl_apple_trailers_source_new (gboolean hd,
                                                               gboolean xlarge);
 
@@ -144,12 +160,32 @@ grl_apple_trailers_source_new (gboolean high_definition,
                          "source-id", SOURCE_ID,
                          "source-name", SOURCE_NAME,
                          "source-desc", SOURCE_DESC,
+                         "high-definition", high_definition,
+			 "large-poster", xlarge,
                          NULL);
 
-  source->hd = high_definition;
-  source->xlarge = xlarge;
-
   return source;
+}
+
+static void
+grl_apple_trailers_source_set_property (GObject *object,
+                                        guint propid,
+                                        const GValue *value,
+                                        GParamSpec *pspec)
+{
+  GrlAppleTrailersSource *self;
+  self = GRL_APPLE_TRAILERS_SOURCE (object);
+
+  switch (propid) {
+    case PROP_HD:
+      self->priv->hd = g_value_get_boolean (value);
+      break;
+    case PROP_LARGE_POSTER:
+      self->priv->large_poster = g_value_get_boolean (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, propid, pspec);
+    }
 }
 
 static void
@@ -157,14 +193,40 @@ grl_apple_trailers_source_class_init (GrlAppleTrailersSourceClass * klass)
 {
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  GObjectClass *g_class = G_OBJECT_CLASS (klass);
   source_class->browse = grl_apple_trailers_source_browse;
   source_class->cancel = grl_apple_trailers_source_cancel;
   metadata_class->supported_keys = grl_apple_trailers_source_supported_keys;
+  g_class->set_property = grl_apple_trailers_source_set_property;
+
+  g_object_class_install_property (g_class,
+                                   PROP_HD,
+                                   g_param_spec_boolean ("high-definition",
+                                                         "hd",
+                                                         "Hi/Low definition videos",
+                                                         TRUE,
+                                                         G_PARAM_WRITABLE
+                                                         | G_PARAM_CONSTRUCT_ONLY
+                                                         | G_PARAM_STATIC_NAME));
+
+  g_object_class_install_property (g_class,
+                                   PROP_LARGE_POSTER,
+                                   g_param_spec_boolean ("large-poster",
+                                                         "xlarge",
+                                                         "Pick large poster",
+                                                         TRUE,
+                                                         G_PARAM_WRITABLE
+                                                         | G_PARAM_CONSTRUCT_ONLY
+                                                         | G_PARAM_STATIC_NAME));
+
+  g_type_class_add_private (klass, sizeof (GrlAppleTrailersSourcePriv));
 }
 
 static void
 grl_apple_trailers_source_init (GrlAppleTrailersSource *source)
 {
+  source->priv = GRL_APPLE_TRAILERS_SOURCE_GET_PRIVATE (source);
+  source->priv->hd = TRUE;
 }
 
 G_DEFINE_TYPE (GrlAppleTrailersSource, grl_apple_trailers_source, GRL_TYPE_MEDIA_SOURCE);
@@ -316,7 +378,8 @@ send_movie_info (OperationData *op_data)
     GrlAppleTrailersSource *source =
       GRL_APPLE_TRAILERS_SOURCE (op_data->bs->source);
 
-    media = build_media_from_movie (op_data->xml_entries, source->xlarge);
+    media = build_media_from_movie (op_data->xml_entries,
+                                    source->priv->large_poster);
     last =
       !op_data->xml_entries->next  ||
       op_data->bs->count == 1;
@@ -484,7 +547,7 @@ static void
 grl_apple_trailers_source_browse (GrlMediaSource *source,
                                   GrlMediaSourceBrowseSpec *bs)
 {
-  GrlAppleTrailersSource *at_source = (GrlAppleTrailersSource *) source;
+  GrlAppleTrailersSource *at_source = GRL_APPLE_TRAILERS_SOURCE (source);
   OperationData *op_data;
 
   GRL_DEBUG ("grl_apple_trailers_source_browse");
@@ -493,7 +556,7 @@ grl_apple_trailers_source_browse (GrlMediaSource *source,
   op_data->bs = bs;
   grl_media_source_set_operation_data (source, bs->browse_id, op_data);
 
-  if (at_source->hd) {
+  if (at_source->priv->hd) {
     read_url_async (APPLE_TRAILERS_CURRENT_HD, op_data);
   } else {
     read_url_async (APPLE_TRAILERS_CURRENT_SD, op_data);

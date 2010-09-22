@@ -664,6 +664,7 @@ build_categories_directory_read_cb (gchar *xmldata, gpointer user_data)
   parse_categories (doc, node, GDATA_SERVICE (user_data));
 
  free_resources:
+  g_free (xmldata);
   xmlFreeDoc (doc);
 }
 

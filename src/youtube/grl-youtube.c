@@ -31,6 +31,16 @@
 
 #include "grl-youtube.h"
 
+enum {
+  PROP_0,
+  PROP_SERVICE,
+};
+
+#define GRL_YOUTUBE_SOURCE_GET_PRIVATE(object)            \
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),                  \
+                               GRL_YOUTUBE_SOURCE_TYPE,   \
+                               GrlYoutubeSourcePriv))
+
 /* --------- Logging  -------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT youtube_log_domain
@@ -161,10 +171,19 @@ typedef enum {
   YOUTUBE_MEDIA_TYPE_VIDEO,
 } YoutubeMediaType;
 
+struct _GrlYoutubeSourcePriv {
+  GDataService *service;
+};
 #define YOUTUBE_CLIENT_ID "grilo"
 
 static GrlYoutubeSource *grl_youtube_source_new (const gchar *api_key,
 						 const gchar *client_id);
+
+static void grl_youtube_source_set_property (GObject *object,
+                                             guint propid,
+                                             const GValue *value,
+                                             GParamSpec *pspec);
+static void grl_youtube_source_finalize (GObject *object);
 
 gboolean grl_youtube_plugin_init (GrlPluginRegistry *registry,
                                   const GrlPluginInfo *plugin,
@@ -264,6 +283,8 @@ GRL_PLUGIN_REGISTER (grl_youtube_plugin_init,
 
 /* ================== Youtube GObject ================ */
 
+G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_MEDIA_SOURCE);
+
 static GrlYoutubeSource *
 grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
 {
@@ -286,15 +307,15 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
 					     "source-desc", SOURCE_DESC,
 					     "auto-split-threshold",
 					     YOUTUBE_MAX_CHUNK,
+                                             "yt-service", service,
 					     NULL));
-  source->service = GDATA_SERVICE (service);
 
   /* Build browse content hierarchy:
       - Query Youtube for available categories
       - Compute category childcounts
       We only need to do this once */
   if (!categories_dir) {
-    build_directories (source->service);
+    build_directories (GDATA_SERVICE (service));
   }
 
   return source;
@@ -305,19 +326,65 @@ grl_youtube_source_class_init (GrlYoutubeSourceClass * klass)
 {
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   source_class->search = grl_youtube_source_search;
   source_class->browse = grl_youtube_source_browse;
   source_class->metadata = grl_youtube_source_metadata;
   metadata_class->supported_keys = grl_youtube_source_supported_keys;
   metadata_class->slow_keys = grl_youtube_source_slow_keys;
+  gobject_class->set_property = grl_youtube_source_set_property;
+  gobject_class->finalize = grl_youtube_source_finalize;
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_SERVICE,
+                                   g_param_spec_object ("yt-service",
+                                                        "youtube-service",
+                                                        "gdata youtube service object",
+                                                        GDATA_TYPE_YOUTUBE_SERVICE,
+                                                        G_PARAM_WRITABLE
+                                                        | G_PARAM_CONSTRUCT_ONLY
+                                                        | G_PARAM_STATIC_NAME));
+
+  g_type_class_add_private (klass, sizeof (GrlYoutubeSourcePriv));
 }
 
 static void
 grl_youtube_source_init (GrlYoutubeSource *source)
 {
+  source->priv = GRL_YOUTUBE_SOURCE_GET_PRIVATE (source);
 }
 
-G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_MEDIA_SOURCE);
+static void
+grl_youtube_source_set_property (GObject *object,
+                                 guint propid,
+                                 const GValue *value,
+                                 GParamSpec *pspec)
+
+{
+  switch (propid) {
+  case PROP_SERVICE: {
+    GrlYoutubeSource *self;
+    self = GRL_YOUTUBE_SOURCE (object);
+    self->priv->service = g_value_get_object (value);
+    break;
+  }
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, propid, pspec);
+  }
+}
+
+static void
+grl_youtube_source_finalize (GObject *object)
+{
+  GrlYoutubeSource *self;
+
+  self = GRL_YOUTUBE_SOURCE (object);
+
+  if (self->priv->service)
+    g_object_unref (self->priv->service);
+
+  G_OBJECT_CLASS (grl_youtube_source_parent_class)->finalize (object);
+}
 
 /* ======================= Utilities ==================== */
 
@@ -852,7 +919,7 @@ metadata_cb (GObject *object,
   GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
 
   source = GRL_YOUTUBE_SOURCE (ms->source);
-  service = GDATA_SERVICE (source->service);
+  service = GDATA_SERVICE (source->priv->service);
 
 #ifdef GDATA_API_SUBJECT_TO_CHANGE
   video = gdata_service_query_single_entry_finish (service, result, &error);
@@ -907,7 +974,7 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
   gboolean need_extra_unref = FALSE;
   GrlYoutubeSource *source = GRL_YOUTUBE_SOURCE (os->source);
 
-  feed = gdata_service_query_finish (source->service, result, &error);
+  feed = gdata_service_query_finish (source->priv->service, result, &error);
   if (!error && feed) {
     /* If we are browsing a category, update the count for it */
     if (os->category_info) {
@@ -1079,7 +1146,7 @@ produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os)
     remaining = MIN (dir_size - os->skip, os->count);
 
     do {
-      GDataService *service = GRL_YOUTUBE_SOURCE (os->source)->service;
+      GDataService *service = GRL_YOUTUBE_SOURCE (os->source)->priv->service;
 
       GrlMedia *content =
 	produce_container_from_directory (service, NULL, dir, index);
@@ -1138,7 +1205,7 @@ produce_from_feed (OperationSpec *os)
    * is invoked last, the spec will be freed only once. */
   operation_spec_ref (os);
 
-  service = GRL_YOUTUBE_SOURCE (os->source)->service;
+  service = GRL_YOUTUBE_SOURCE (os->source)->priv->service;
   query = gdata_query_new_with_limits (NULL , os->skip, os->count);
   os->category_info = &feeds_dir[feed_type];
   gdata_youtube_service_query_standard_feed_async (GDATA_YOUTUBE_SERVICE (service),
@@ -1182,7 +1249,7 @@ produce_from_category (OperationSpec *os)
   /* Look for OPERATION_SPEC_REF_RATIONALE for details */
   operation_spec_ref (os);
 
-  service = GRL_YOUTUBE_SOURCE (os->source)->service;
+  service = GRL_YOUTUBE_SOURCE (os->source)->priv->service;
   query = gdata_query_new_with_limits (NULL , os->skip, os->count);
   os->category_info = &categories_dir[category_index];
   gdata_query_set_categories (query, category_term);
@@ -1255,7 +1322,7 @@ grl_youtube_source_search (GrlMediaSource *source,
   operation_spec_ref (os);
 
   query = gdata_query_new_with_limits (ss->text, os->skip, os->count);
-  gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (source)->service),
+  gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (source)->priv->service),
 					    query,
 					    NULL,
 					    search_progress_cb,
@@ -1327,7 +1394,7 @@ grl_youtube_source_metadata (GrlMediaSource *source,
 
   id = grl_media_get_id (ms->media);
   media_type = classify_media_id (id);
-  service = GRL_YOUTUBE_SOURCE (source)->service;
+  service = GRL_YOUTUBE_SOURCE (source)->priv->service;
 
   switch (media_type) {
   case YOUTUBE_MEDIA_TYPE_ROOT:

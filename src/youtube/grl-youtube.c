@@ -25,7 +25,7 @@
 #endif
 
 #include <grilo.h>
-#include <gio/gio.h>
+#include <net/grl-net.h>
 #include <gdata/gdata.h>
 #include <string.h>
 
@@ -173,7 +173,10 @@ typedef enum {
 
 struct _GrlYoutubeSourcePriv {
   GDataService *service;
+
+  GrlNetWc *wc;
 };
+
 #define YOUTUBE_CLIENT_ID "grilo"
 
 static GrlYoutubeSource *grl_youtube_source_new (const gchar *api_key,
@@ -230,6 +233,8 @@ CategoryInfo feeds_dir[] = {
 };
 
 CategoryInfo *categories_dir = NULL;
+
+static GrlYoutubeSource *ytsrc = NULL;
 
 /* =================== Youtube Plugin  =============== */
 
@@ -310,6 +315,8 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
                                              "yt-service", service,
 					     NULL));
 
+  ytsrc = source;
+
   /* Build browse content hierarchy:
       - Query Youtube for available categories
       - Compute category childcounts
@@ -380,6 +387,9 @@ grl_youtube_source_finalize (GObject *object)
 
   self = GRL_YOUTUBE_SOURCE (object);
 
+  if (self->priv->wc)
+    g_object_unref (self->priv->wc);
+
   if (self->priv->service)
     g_object_unref (self->priv->service);
 
@@ -414,24 +424,31 @@ operation_spec_ref (OperationSpec *os)
   os->ref_count++;
 }
 
+inline static GrlNetWc *
+get_wc ()
+{
+  if (ytsrc && !ytsrc->priv->wc)
+    ytsrc->priv->wc = grl_net_wc_new ();
+
+  return ytsrc->priv->wc;
+}
+
 static void
 read_done_cb (GObject *source_object,
               GAsyncResult *res,
               gpointer user_data)
 {
   AsyncReadCb *arc = (AsyncReadCb *) user_data;
-  GError *vfs_error = NULL;
+  GError *wc_error = NULL;
   gchar *content = NULL;
 
-  g_file_load_contents_finish (G_FILE (source_object),
-                               res,
-                               &content,
-                               NULL,
-                               NULL,
-                               &vfs_error);
-  g_object_unref (source_object);
-  if (vfs_error) {
-    GRL_WARNING ("Failed to open '%s': %s", arc->url, vfs_error->message);
+  grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                         res,
+                         &content,
+                         NULL,
+                         &wc_error);
+  if (wc_error) {
+    GRL_WARNING ("Failed to open '%s': %s", arc->url, wc_error->message);
     arc->callback (NULL, arc->user_data);
   } else {
     arc->callback (content, arc->user_data);
@@ -445,17 +462,19 @@ read_url_async (const gchar *url,
                 AsyncReadCbFunc callback,
                 gpointer user_data)
 {
-  GFile *uri;
   AsyncReadCb *arc;
-
-  GRL_DEBUG ("Opening async '%s'", url);
 
   arc = g_slice_new0 (AsyncReadCb);
   arc->url = g_strdup (url);
   arc->callback = callback;
   arc->user_data = user_data;
-  uri = g_file_new_for_uri (url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, arc);
+
+  GRL_DEBUG ("Opening async '%s'", url);
+  grl_net_wc_request_async (get_wc (),
+                        url,
+                        NULL,
+                        read_done_cb,
+                        arc);
 }
 
 static void
@@ -517,8 +536,6 @@ set_media_url_async_read_cb (gchar *data, gpointer user_data)
   }
 
  done:
-  g_free (data);
-  
   if (url) {
     grl_media_set_url (cb_data->media, url);
     g_free (url);
@@ -731,7 +748,6 @@ build_categories_directory_read_cb (gchar *xmldata, gpointer user_data)
   parse_categories (doc, node, GDATA_SERVICE (user_data));
 
  free_resources:
-  g_free (xmldata);
   xmlFreeDoc (doc);
 }
 

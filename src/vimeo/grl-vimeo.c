@@ -251,6 +251,7 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
 {
   GrlMedia *media = NULL;
   SearchData *sd = (SearchData *) user_data;
+  gint count = sd->ss->count;
   gchar *media_type;
 
   /* Go to offset element */
@@ -268,7 +269,7 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
     return;
   }
 
-  while (video_list && sd->ss->count)
+  while (video_list && count)
   {
     media_type = g_hash_table_lookup (video_list->data, "title");
     if (media_type) {
@@ -286,12 +287,15 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
 			NULL);
     }
     video_list = g_list_next (video_list);
-    sd->ss->count--;
+
+    if (--count)
+      sd->ss->count = count;
+
     media = NULL;
   }
 
   /* Get more elements */
-  if (sd->ss->count)
+  if (count)
   {
     sd->offset = 0;
     sd->page++;

@@ -68,7 +68,8 @@ typedef struct {
   gboolean cancelled;
 } OperationData;
 
-static GrlAppleTrailersSource *grl_apple_trailers_source_new (gboolean hd);
+static GrlAppleTrailersSource *grl_apple_trailers_source_new (gboolean hd,
+                                                              gboolean xlarge);
 
 gboolean grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
                                          const GrlPluginInfo *plugin,
@@ -91,6 +92,7 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
 {
   GrlAppleTrailersSource *source;
   gboolean hd = FALSE;
+  gboolean xlarge = FALSE;
 
   GRL_LOG_DOMAIN_INIT (apple_trailers_log_domain, "apple-trailers");
 
@@ -98,7 +100,7 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
 
   for (; configs; configs = g_list_next (configs)) {
     GrlConfig *config;
-    const gchar *definition;
+    const gchar *definition, *poster_size;
 
     config = GRL_CONFIG (configs->data);
     definition = grl_config_get_string (config, "definition");
@@ -107,9 +109,16 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
         hd = TRUE;
       }
     }
+
+    poster_size = grl_config_get_string (config, "poster-size");
+    if (poster_size && *poster_size != '\0') {
+      if (g_str_equal (poster_size, "xlarge")) {
+        xlarge = TRUE;
+      }
+    }
   }
 
-  source = grl_apple_trailers_source_new (hd);
+  source = grl_apple_trailers_source_new (hd, xlarge);
   grl_plugin_registry_register_source (registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source));
@@ -123,11 +132,14 @@ GRL_PLUGIN_REGISTER (grl_apple_trailers_plugin_init,
 /* ================== AppleTrailers GObject ================ */
 
 static GrlAppleTrailersSource *
-grl_apple_trailers_source_new (gboolean high_definition)
+grl_apple_trailers_source_new (gboolean high_definition,
+                               gboolean xlarge)
 {
   GrlAppleTrailersSource *source;
 
-  GRL_DEBUG ("grl_apple_trailers_source_new%s", high_definition ? " (HD)" : "");
+  GRL_DEBUG ("grl_apple_trailers_source_new%s%s",
+             high_definition ? " (HD)" : "",
+             xlarge ? " (X-large poster)" : "");
   source = g_object_new (GRL_APPLE_TRAILERS_SOURCE_TYPE,
                          "source-id", SOURCE_ID,
                          "source-name", SOURCE_NAME,
@@ -135,6 +147,7 @@ grl_apple_trailers_source_new (gboolean high_definition)
                          NULL);
 
   source->hd = high_definition;
+  source->xlarge = xlarge;
 
   return source;
 }
@@ -210,7 +223,7 @@ runtime_to_seconds (const gchar *runtime)
   return seconds;
 }
 static GrlMedia *
-build_media_from_movie (xmlNodePtr node)
+build_media_from_movie (xmlNodePtr node, gboolean xlarge)
 {
   GrlMedia * media;
   gchar *movie_author;
@@ -242,7 +255,10 @@ build_media_from_movie (xmlNodePtr node)
   movie_duration = get_node_value (node_dup, "/movieinfo/info/runtime");
   movie_title = get_node_value (node_dup, "/movieinfo/info/title");
   movie_genre = get_node_value (node_dup, "/movieinfo/genre/name");
-  movie_thumbnail = get_node_value (node_dup, "/movieinfo/poster/location");
+  if (xlarge)
+    movie_thumbnail = get_node_value (node_dup, "/movieinfo/poster/xlarge");
+  else
+    movie_thumbnail = get_node_value (node_dup, "/movieinfo/poster/location");
   movie_url = get_node_value (node_dup, "/movieinfo/preview/large");
   movie_rating = get_node_value (node_dup, "/movieinfo/info/rating");
   movie_studio = get_node_value (node_dup, "/movieinfo/info/studio");
@@ -297,7 +313,10 @@ send_movie_info (OperationData *op_data)
                            NULL);
     last = TRUE;
   } else {
-    media = build_media_from_movie (op_data->xml_entries);
+    GrlAppleTrailersSource *source =
+      GRL_APPLE_TRAILERS_SOURCE (op_data->bs->source);
+
+    media = build_media_from_movie (op_data->xml_entries, source->xlarge);
     last =
       !op_data->xml_entries->next  ||
       op_data->bs->count == 1;

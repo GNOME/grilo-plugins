@@ -27,7 +27,7 @@
 #endif
 
 #include <grilo.h>
-#include <gio/gio.h>
+#include <net/grl-net.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/xpath.h>
@@ -83,6 +83,8 @@ typedef struct {
   xmlNodePtr xml_entries;
 } OperationData;
 
+static GrlNetWc *wc = NULL;
+static GCancellable *cancellable;
 static gchar *cached_page = NULL;
 static gboolean cached_page_expired = TRUE;
 
@@ -107,6 +109,8 @@ static void grl_shoutcast_source_cancel (GrlMediaSource *source,
                                          guint operation_id);
 
 static void read_url_async (const gchar *url, OperationData *op_data);
+
+static void grl_shoutcast_source_finalize (GObject *object);
 
 /* =================== SHOUTcast Plugin  =============== */
 
@@ -148,11 +152,13 @@ grl_shoutcast_source_class_init (GrlShoutcastSourceClass * klass)
 {
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   source_class->metadata = grl_shoutcast_source_metadata;
   source_class->browse = grl_shoutcast_source_browse;
   source_class->search = grl_shoutcast_source_search;
   source_class->cancel = grl_shoutcast_source_cancel;
   metadata_class->supported_keys = grl_shoutcast_source_supported_keys;
+  gobject_class->finalize = grl_shoutcast_source_finalize;
 }
 
 static void
@@ -161,6 +167,18 @@ grl_shoutcast_source_init (GrlShoutcastSource *source)
 }
 
 G_DEFINE_TYPE (GrlShoutcastSource, grl_shoutcast_source, GRL_TYPE_MEDIA_SOURCE);
+
+static void
+grl_shoutcast_source_finalize (GObject *object)
+{
+  if (wc && GRL_IS_NET_WC (wc))
+    g_object_unref (wc);
+
+  if (cancellable && G_IS_CANCELLABLE (cancellable))
+    g_cancellable_cancel (cancellable);
+
+  G_OBJECT_CLASS (grl_shoutcast_source_parent_class)->finalize (object);
+}
 
 /* ======================= Private ==================== */
 
@@ -468,32 +486,31 @@ read_done_cb (GObject *source_object,
               gpointer user_data)
 {
   GError *error = NULL;
-  GError *vfs_error = NULL;
+  GError *wc_error = NULL;
   OperationData *op_data = (OperationData *) user_data;
   gboolean cache;
   gchar *content = NULL;
 
-  if (!g_file_load_contents_finish (G_FILE (source_object),
-                                    res,
-                                    &content,
-                                    NULL,
-                                    NULL,
-                                    &vfs_error)) {
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                            res,
+                            &content,
+                            NULL,
+                            &wc_error)) {
     error = g_error_new (GRL_CORE_ERROR,
                          op_data->error_code,
                          "Failed to connect SHOUTcast: '%s'",
-                         vfs_error->message);
+                         wc_error->message);
     op_data->result_cb (op_data->source,
                         op_data->operation_id,
                         NULL,
                         0,
                         op_data->user_data,
                         error);
-    g_error_free (vfs_error);
+    g_error_free (wc_error);
     g_error_free (error);
     g_slice_free (OperationData, op_data);
 
-    goto end_func;
+    return;
   }
 
   cache = op_data->cache;
@@ -501,15 +518,10 @@ read_done_cb (GObject *source_object,
   if (cache && cached_page_expired) {
     GRL_DEBUG ("Caching page");
     g_free (cached_page);
-    cached_page = content;
+    cached_page = g_strdup (content);
     cached_page_expired = FALSE;
     g_timeout_add_seconds (EXPIRE_CACHE_TIMEOUT, expire_cache, NULL);
-  } else {
-    g_free (content);
   }
-
-end_func:
-  g_object_unref (source_object);
 }
 
 static gboolean
@@ -522,17 +534,15 @@ read_cached_page (OperationData *op_data)
 static void
 read_url_async (const gchar *url, OperationData *op_data)
 {
-  GVfs *vfs;
-  GFile *uri;
-
   if (op_data->cache && !cached_page_expired) {
     GRL_DEBUG ("Using cached page");
     g_idle_add ((GSourceFunc) read_cached_page, op_data);
   } else {
-    vfs = g_vfs_get_default ();
-    GRL_DEBUG ("Opening '%s'", url);
-    uri = g_vfs_get_file_for_uri (vfs, url);
-    g_file_load_contents_async (uri, NULL, read_done_cb, op_data);
+    if (!wc)
+      wc = grl_net_wc_new ();
+
+    cancellable = g_cancellable_new ();
+    grl_net_wc_request_async (wc, url, cancellable, read_done_cb, op_data);
   }
 }
 
@@ -706,6 +716,10 @@ grl_shoutcast_source_cancel (GrlMediaSource *source, guint operation_id)
   OperationData *op_data;
 
   GRL_DEBUG ("grl_shoutcast_source_cancel");
+
+  if (cancellable && G_IS_CANCELLABLE (cancellable))
+    g_cancellable_cancel (cancellable);
+  cancellable = NULL;
 
   op_data = (OperationData *) grl_media_source_get_operation_data (source, operation_id);
 

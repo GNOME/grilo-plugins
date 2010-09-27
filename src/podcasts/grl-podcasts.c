@@ -25,7 +25,7 @@
 #endif
 
 #include <grilo.h>
-#include <gio/gio.h>
+#include <net/grl-net.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <sqlite3.h>
@@ -187,6 +187,7 @@ typedef struct {
 
 struct _GrlPodcastsPrivate {
   sqlite3 *db;
+  GrlNetWc *wc;
 };
 
 typedef struct {
@@ -351,6 +352,9 @@ grl_podcasts_source_finalize (GObject *object)
 
   source = GRL_PODCASTS_SOURCE (object);
 
+  if (source->priv->wc)
+    g_object_unref (source->priv->wc);
+
   sqlite3_close (source->priv->db);
 
   G_OBJECT_CLASS (grl_podcasts_source_parent_class)->finalize (object);
@@ -388,21 +392,19 @@ read_done_cb (GObject *source_object,
               gpointer user_data)
 {
   AsyncReadCb *arc = (AsyncReadCb *) user_data;
-  GError *vfs_error = NULL;
+  GError *wc_error = NULL;
   gchar *content = NULL;
 
   GRL_DEBUG ("  Done");
 
-  g_file_load_contents_finish (G_FILE (source_object),
-                               res,
-                               &content,
-                               NULL,
-                               NULL,
-                               &vfs_error);
-  g_object_unref (source_object);
-  if (vfs_error) {
-    GRL_WARNING ("Failed to open '%s': %s", arc->url, vfs_error->message);
-    g_error_free (vfs_error);
+  grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                         res,
+                         &content,
+                         NULL,
+                         &wc_error);
+  if (wc_error) {
+    GRL_WARNING ("Failed to open '%s': %s", arc->url, wc_error->message);
+    g_error_free (wc_error);
   } else {
     arc->callback (content, arc->user_data);
   }
@@ -411,15 +413,12 @@ read_done_cb (GObject *source_object,
 }
 
 static void
-read_url_async (const gchar *url,
+read_url_async (GrlPodcastsSource *source,
+                const gchar *url,
                 AsyncReadCbFunc callback,
                 gpointer user_data)
 {
-  GVfs *vfs;
-  GFile *uri;
   AsyncReadCb *arc;
-
-  vfs = g_vfs_get_default ();
 
   GRL_DEBUG ("Opening async '%s'", url);
 
@@ -427,8 +426,16 @@ read_url_async (const gchar *url,
   arc->url = g_strdup (url);
   arc->callback = callback;
   arc->user_data = user_data;
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, arc);
+
+  /* We would need a different Wc if we change of URL.
+   * In this case, as we don't know the previous URL,
+   * we ditch the Wc and create another. It's cheap.
+   */
+  if (!source->priv->wc)
+    g_object_unref (source->priv->wc);
+
+  source->priv->wc = grl_net_wc_new ();
+  grl_net_wc_request_async (source->priv->wc, url, NULL, read_done_cb, arc);
 }
 
 static gint
@@ -1074,7 +1081,6 @@ read_feed_cb (gchar *xmldata, gpointer user_data)
 			 "Failed to read data from podcast");
   } else {
     parse_feed (os, xmldata, &error);
-    g_free (xmldata);
   }
 
   if (error) {
@@ -1149,7 +1155,7 @@ produce_podcast_contents (OperationSpec *os)
       /* We have to read the podcast feed again */
       GRL_DEBUG ("Refreshing podcast '%s'...", os->media_id);
       url = g_strdup ((gchar *) sqlite3_column_text (sql_stmt, PODCAST_URL));
-      read_url_async (url, read_feed_cb, os);
+      read_url_async (GRL_PODCASTS_SOURCE (os->source), url, read_feed_cb, os);
       g_free (url);
     } else {
       /* We can read the podcast entries from the database cache */

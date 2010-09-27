@@ -9,13 +9,13 @@ lib_LTLIBRARIES = libgrlpodcasts.la
 
 libgrlpodcasts_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
-	$(GIO_CFLAGS)		\
+	$(GRLNET_CFLAGS)	\
 	$(XML_CFLAGS)		\
 	$(SQLITE_CFLAGS)
 
 libgrlpodcasts_la_LIBADD =	\
 	$(DEPS_LIBS)		\
-	$(GIO_LIBS)		\
+	$(GRLNET_LIBS)		\
 	$(XML_LIBS)		\
 	$(SQLITE_LIBS)
 
@@ -25,7 +25,7 @@ libgrlpodcasts_la_LDFLAGS = \
 
 libgrlpodcasts_la_SOURCES = grl-podcasts.c grl-podcasts.h
 
-libdir=$(GRL_PLUGINS_DIR)
+libdir = $(GRL_PLUGINS_DIR)
 podcastsxmldir		= $(GRL_PLUGINS_CONF_DIR)
 podcastsxml_DATA	= $(PODCASTS_PLUGIN_ID).xml
 

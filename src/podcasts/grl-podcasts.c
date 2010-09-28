@@ -26,11 +26,9 @@
 
 #include <grilo.h>
 #include <net/grl-net.h>
-#include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <sqlite3.h>
 #include <string.h>
-#include <stdlib.h>
 
 #include "grl-podcasts.h"
 

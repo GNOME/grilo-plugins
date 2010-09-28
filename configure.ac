@@ -236,8 +236,8 @@ AC_ARG_ENABLE(lastfm_albumart,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO not found, install it or use --disable-lastfm-albumart])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-lastfm-albumart])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-lastfm-albumart])
@@ -246,7 +246,7 @@ AC_ARG_ENABLE(lastfm_albumart,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_lastfm_albumart=yes
                 else
                    enable_lastfm_albumart=no

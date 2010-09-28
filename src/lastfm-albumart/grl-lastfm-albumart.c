@@ -26,7 +26,7 @@
 #include "config.h"
 #endif
 
-#include <gio/gio.h>
+#include <net/grl-net.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/xpath.h>
@@ -55,8 +55,11 @@ GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
 
+static GrlNetWc *wc;
 
 static GrlLastfmAlbumartSource *grl_lastfm_albumart_source_new (void);
+
+static void grl_lastfm_albumart_source_finalize (GObject *object);
 
 static void grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
                                                 GrlMetadataSourceResolveSpec *rs);
@@ -113,6 +116,9 @@ grl_lastfm_albumart_source_class_init (GrlLastfmAlbumartSourceClass * klass)
   metadata_class->supported_keys = grl_lastfm_albumart_source_supported_keys;
   metadata_class->key_depends = grl_lastfm_albumart_source_key_depends;
   metadata_class->resolve = grl_lastfm_albumart_source_resolve;
+
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  gobject_class->finalize = grl_lastfm_albumart_source_finalize;
 }
 
 static void
@@ -123,6 +129,15 @@ grl_lastfm_albumart_source_init (GrlLastfmAlbumartSource *source)
 G_DEFINE_TYPE (GrlLastfmAlbumartSource,
                grl_lastfm_albumart_source,
                GRL_TYPE_METADATA_SOURCE);
+
+static void
+grl_lastfm_albumart_source_finalize (GObject *object)
+{
+  if (wc && GRL_IS_NET_WC (wc))
+    g_object_unref (wc);
+
+  G_OBJECT_CLASS (grl_lastfm_albumart_source_parent_class)->finalize (object);
+}
 
 /* ======================= Utilities ==================== */
 
@@ -175,30 +190,27 @@ read_done_cb (GObject *source_object,
   GrlMetadataSourceResolveSpec *rs =
     (GrlMetadataSourceResolveSpec *) user_data;
   GError *error = NULL;
-  GError *vfs_error = NULL;
+  GError *wc_error = NULL;
   gchar *content = NULL;
   gchar *image = NULL;
 
-  if (!g_file_load_contents_finish (G_FILE (source_object),
-                                    res,
-                                    &content,
-                                    NULL,
-                                    NULL,
-                                    &vfs_error)) {
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                              res,
+                              &content,
+                              NULL,
+                              &wc_error)) {
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_RESOLVE_FAILED,
                          "Failed to connect to Last.FM: '%s'",
-                         vfs_error->message);
+                         wc_error->message);
     rs->callback (rs->source, rs->media, rs->user_data, error);
-    g_error_free (vfs_error);
+    g_error_free (wc_error);
     g_error_free (error);
-    g_object_unref (source_object);
+
     return;
   }
 
-  g_object_unref (source_object);
   image = xml_get_image (content);
-  g_free (content);
   if (image) {
     grl_data_set_string (GRL_DATA (rs->media),
                          GRL_METADATA_KEY_THUMBNAIL,
@@ -212,14 +224,11 @@ read_done_cb (GObject *source_object,
 static void
 read_url_async (const gchar *url, gpointer user_data)
 {
-  GVfs *vfs;
-  GFile *uri;
-
-  vfs = g_vfs_get_default ();
+  if (!wc)
+    wc = grl_net_wc_new ();
 
   GRL_DEBUG ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
+  grl_net_wc_request_async (wc, url, NULL, read_done_cb, user_data);
 }
 
 /* ================== API Implementation ================ */

@@ -17,6 +17,10 @@ libgrlshoutcast_la_LIBADD =	\
 	$(GIO_LIBS)		\
 	$(XML_LIBS)
 
+libgrlshoutcast_la_LDFLAGS = \
+	-module		     \
+	-avoid-version
+
 libgrlshoutcast_la_SOURCES	 = grl-shoutcast.c grl-shoutcast.h
 
 libdir=$(GRL_PLUGINS_DIR)

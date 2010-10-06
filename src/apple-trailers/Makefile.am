@@ -17,6 +17,10 @@ libgrlappletrailers_la_LIBADD =	\
 	$(GIO_LIBS)		\
 	$(XML_LIBS)
 
+libgrlappletrailers_la_LDFLAGS = \
+	-module			 \
+	-avoid-version
+
 libgrlappletrailers_la_SOURCES =	\
 	grl-apple-trailers.c		\
 	grl-apple-trailers.h

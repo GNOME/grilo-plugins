@@ -21,6 +21,10 @@ libgrlupnp_la_LIBADD =	\
 	$(GTHREAD_LIBS)	\
 	$(XML_LIBS)
 
+libgrlupnp_la_LDFLAGS = \
+	-module		\
+	-avoid-version
+
 if GUPNPAV_OLD_VERSION
 libgrlupnp_la_CFLAGS +=	\
 	-DGUPNPAV_OLD_VERSION

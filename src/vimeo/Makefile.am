@@ -19,6 +19,10 @@ libgrlvimeo_la_LIBADD =	\
 	$(GTHREAD_LIBS)		\
 	$(LIBSOUP_LIBS)
 
+libgrlvimeo_la_LDFLAGS = \
+	-module		 \
+	-avoid-version
+
 libgrlvimeo_la_SOURCES =	\
 	grl-vimeo.c		\
 	grl-vimeo.h		\

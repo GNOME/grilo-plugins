@@ -17,6 +17,10 @@ libgrllastfm_albumart_la_LIBADD =	\
 	$(GIO_LIBS)			\
 	$(XML_LIBS)
 
+libgrllastfm_albumart_la_LDFLAGS = \
+	-module			   \
+	-avoid-version
+
 libgrllastfm_albumart_la_SOURCES = grl-lastfm-albumart.c grl-lastfm-albumart.h
 
 libdir=$(GRL_PLUGINS_DIR)

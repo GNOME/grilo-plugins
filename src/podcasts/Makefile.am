@@ -19,6 +19,10 @@ libgrlpodcasts_la_LIBADD =	\
 	$(XML_LIBS)		\
 	$(SQLITE_LIBS)
 
+libgrlpodcasts_la_LDFLAGS = \
+	-module		    \
+	-avoid-version
+
 libgrlpodcasts_la_SOURCES = grl-podcasts.c grl-podcasts.h
 
 libdir=$(GRL_PLUGINS_DIR)

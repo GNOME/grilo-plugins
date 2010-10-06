@@ -17,6 +17,10 @@ libgrlflickr_la_LIBADD =	\
 	$(XML_LIBS)		\
 	$(GIO_LIBS)
 
+libgrlflickr_la_LDFLAGS = \
+	-module		  \
+	-avoid-version
+
 libgrlflickr_la_SOURCES =	\
 	grl-flickr.c		\
 	grl-flickr.h		\

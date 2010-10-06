@@ -17,6 +17,10 @@ libgrljamendo_la_LIBADD =	\
 	$(GIO_LIBS)		\
 	$(XML_LIBS)
 
+libgrljamendo_la_LDFLAGS = \
+	-module		   \
+	-avoid-version
+
 libgrljamendo_la_SOURCES	 = grl-jamendo.c grl-jamendo.h
 
 libdir=$(GRL_PLUGINS_DIR)

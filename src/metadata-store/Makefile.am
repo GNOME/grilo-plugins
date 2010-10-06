@@ -15,6 +15,10 @@ libgrlmetadatastore_la_LIBADD =	\
 	$(DEPS_LIBS) \
 	$(SQLITE_LIBS)
 
+libgrlmetadatastore_la_LDFLAGS = \
+	-module			 \
+	-avoid-version
+
 libgrlmetadatastore_la_SOURCES = grl-metadata-store.c grl-metadata-store.h
 
 libdir=$(GRL_PLUGINS_DIR)

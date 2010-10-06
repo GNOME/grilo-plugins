@@ -13,6 +13,10 @@ libgrlgravatar_la_CFLAGS =	\
 libgrlgravatar_la_LIBADD =	\
 	$(DEPS_LIBS)
 
+libgrlgravatar_la_LDFLAGS = \
+	-module		    \
+	-avoid-version
+
 libgrlgravatar_la_SOURCES = grl-gravatar.c grl-gravatar.h
 
 libdir=$(GRL_PLUGINS_DIR)

@@ -21,6 +21,10 @@ libgrlyoutube_la_LIBADD =	\
 	$(GTHREAD_LIBS)		\
 	$(GDATA_LIBS)
 
+libgrlyoutube_la_LDFLAGS = \
+	-module		   \
+	-avoid-version
+
 libgrlyoutube_la_SOURCES = grl-youtube.c grl-youtube.h
 
 libdir=$(GRL_PLUGINS_DIR)

@@ -13,6 +13,10 @@ libgrlfakemetadata_la_CFLAGS =	\
 libgrlfakemetadata_la_LIBADD =	\
 	$(DEPS_LIBS)
 
+libgrlfakemetadata_la_LDFLAGS = \
+	-module			\
+	-avoid-version
+
 libgrlfakemetadata_la_SOURCES = grl-fake-metadata.c grl-fake-metadata.h
 
 libdir=$(GRL_PLUGINS_DIR)

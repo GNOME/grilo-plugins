@@ -626,10 +626,17 @@ build_media_from_entry (GrlMedia *content,
     } else if (iter->data == GRL_METADATA_KEY_DATE) {
       GTimeVal date;
       gchar *date_str;
+#ifdef GDATA_API_SUBJECT_TO_CHANGE
+      gint64 published = gdata_entry_get_published (entry);
+      date.tv_sec = (glong) published;
+#else
       gdata_entry_get_published (entry, &date);
-      date_str = g_time_val_to_iso8601 (&date);
-      grl_media_set_date (media, date_str);
-      g_free (date_str);
+#endif
+      if (date.tv_sec != 0 || date.tv_usec != 0) {
+        date_str = g_time_val_to_iso8601 (&date);
+        grl_media_set_date (media, date_str);
+        g_free (date_str);
+      }
     } else if (iter->data == GRL_METADATA_KEY_DURATION) {
       grl_media_set_duration (media, gdata_youtube_video_get_duration (video));
     } else if (iter->data == GRL_METADATA_KEY_MIME) {

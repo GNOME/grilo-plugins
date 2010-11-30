@@ -1381,6 +1381,7 @@ grl_podcasts_source_browse (GrlMediaSource *source,
 			 "No database connection");
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
+    return;
   }
 
   /* Configure browse operation */
@@ -1424,6 +1425,7 @@ grl_podcasts_source_search (GrlMediaSource *source,
 			 "No database connection");
     ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
+    return;
   }
 
   os = g_slice_new0 (OperationSpec);
@@ -1456,6 +1458,7 @@ grl_podcasts_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
 			 "No database connection");
     qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
     g_error_free (error);
+    return;
   }
 
   os = g_slice_new0 (OperationSpec);
@@ -1490,6 +1493,7 @@ grl_podcasts_source_metadata (GrlMediaSource *source,
 			 "No database connection");
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
+    return;
   }
 
   media_id = grl_media_get_id (ms->media);

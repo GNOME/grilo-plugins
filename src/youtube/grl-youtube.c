@@ -206,8 +206,11 @@ static void grl_youtube_source_browse (GrlMediaSource *source,
 static void grl_youtube_source_metadata (GrlMediaSource *source,
                                          GrlMediaSourceMetadataSpec *ms);
 
-static gboolean grl_youtube_test_media_from_site (GrlMediaSource *source,
-						  const gchar *site_uri);
+static gboolean grl_youtube_test_media_from_uri (GrlMediaSource *source,
+						 const gchar *uri);
+
+static void grl_youtube_get_media_from_uri (GrlMediaSource *source,
+					    GrlMediaSourceMediaFromUriSpec *mfus);
 
 static void build_directories (GDataService *service);
 static void compute_feed_counts (GDataService *service);
@@ -341,7 +344,8 @@ grl_youtube_source_class_init (GrlYoutubeSourceClass * klass)
   source_class->search = grl_youtube_source_search;
   source_class->browse = grl_youtube_source_browse;
   source_class->metadata = grl_youtube_source_metadata;
-  source_class->test_media_from_site = grl_youtube_test_media_from_site;
+  source_class->test_media_from_uri = grl_youtube_test_media_from_uri;
+  source_class->media_from_uri = grl_youtube_get_media_from_uri;
   metadata_class->supported_keys = grl_youtube_source_supported_keys;
   metadata_class->slow_keys = grl_youtube_source_slow_keys;
   gobject_class->set_property = grl_youtube_source_set_property;
@@ -1317,6 +1321,50 @@ get_video_id_from_url (const gchar *url)
   return video_id;
 }
 
+static void
+build_media_from_entry_media_from_uri_cb (GrlMedia *media, gpointer user_data)
+{
+  GrlMediaSourceMediaFromUriSpec *mfus =
+    (GrlMediaSourceMediaFromUriSpec *) user_data;
+  mfus->callback (mfus->source, media, mfus->user_data, NULL);
+}
+
+static void
+media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
+{
+  GError *error = NULL;
+  GrlYoutubeSource *source;
+  GDataEntry *video;
+  GDataService *service;
+  GrlMediaSourceMediaFromUriSpec *mfus =
+    (GrlMediaSourceMediaFromUriSpec *) user_data;
+
+  source = GRL_YOUTUBE_SOURCE (mfus->source);
+  service = GDATA_SERVICE (source->priv->service);
+
+#ifdef GDATA_API_SUBJECT_TO_CHANGE
+  video = gdata_service_query_single_entry_finish (service, result, &error);
+#else
+  video =
+    GDATA_ENTRY (gdata_youtube_service_query_single_video_finish
+		 (GDATA_YOUTUBE_SERVICE (service), result, &error));
+#endif
+
+  if (error) {
+    error->code = GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED;
+    mfus->callback (mfus->source, NULL, mfus->user_data, error);
+    g_error_free (error);
+  } else {
+    build_media_from_entry (NULL, video, mfus->keys,
+			    build_media_from_entry_media_from_uri_cb,
+			    mfus);
+  }
+
+  if (video) {
+    g_object_unref (video);
+  }
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -1520,15 +1568,57 @@ grl_youtube_source_metadata (GrlMediaSource *source,
 }
 
 static gboolean
-grl_youtube_test_media_from_site (GrlMediaSource *source, const gchar *site_uri)
+grl_youtube_test_media_from_uri (GrlMediaSource *source, const gchar *uri)
 {
-  GRL_DEBUG ("grl_youtube_test_media_from_site");
+  GRL_DEBUG ("grl_youtube_test_media_from_uri");
 
   gchar *video_id;
   gboolean ok;
 
-  video_id = get_video_id_from_url (site_uri);
+  video_id = get_video_id_from_url (uri);
   ok = (video_id != NULL);
   g_free (video_id);
   return ok;
+}
+
+static void
+grl_youtube_get_media_from_uri (GrlMediaSource *source,
+				 GrlMediaSourceMediaFromUriSpec *mfus)
+{
+  GRL_DEBUG ("grl_youtube_get_media_from_uri");
+
+  gchar *video_id;
+  GError *error;
+  GDataService *service;
+
+  video_id = get_video_id_from_url (mfus->uri);
+  if (video_id == NULL) {
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
+			 "Cannot create media from '%s'", mfus->uri);
+    mfus->callback (source, NULL, mfus->user_data, error);
+    g_error_free (error);
+    return;
+  }
+
+  service = GRL_YOUTUBE_SOURCE (source)->priv->service;
+
+#ifdef GDATA_API_SUBJECT_TO_CHANGE
+  gchar *entry_id = g_strconcat ("tag:youtube.com,2008:video:", video_id, NULL);
+  gdata_service_query_single_entry_async (service,
+					  entry_id,
+					  NULL,
+					  GDATA_TYPE_YOUTUBE_VIDEO,
+					  NULL,
+					  media_from_uri_cb,
+					  mfus);
+  g_free (entryid);
+#else
+  gdata_youtube_service_query_single_video_async (GDATA_YOUTUBE_SERVICE (service),
+						  NULL,
+						  video_id,
+						  NULL,
+						  media_from_uri_cb,
+						  mfus);
+#endif
 }

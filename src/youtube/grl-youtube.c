@@ -99,6 +99,7 @@ GRL_LOG_DOMAIN_STATIC(youtube_log_domain);
 #define YOUTUBE_VIDEO_INFO_URL  "http://www.youtube.com/get_video_info?video_id=%s"
 #define YOUTUBE_VIDEO_URL       "http://www.youtube.com/get_video?video_id=%s&t=%s&asv="
 #define YOUTUBE_CATEGORY_URL    "http://gdata.youtube.com/feeds/api/videos/-/%s?&start-index=%s&max-results=%s"
+#define YOUTUBE_WATCH_URL       "http://www.youtube.com/watch?v="
 
 #define YOUTUBE_VIDEO_MIME      "application/x-shockwave-flash"
 #define YOUTUBE_SITE_URL        "www.youtube.com"
@@ -204,6 +205,9 @@ static void grl_youtube_source_browse (GrlMediaSource *source,
 
 static void grl_youtube_source_metadata (GrlMediaSource *source,
                                          GrlMediaSourceMetadataSpec *ms);
+
+static gboolean grl_youtube_test_media_from_site (GrlMediaSource *source,
+						  const gchar *site_uri);
 
 static void build_directories (GDataService *service);
 static void compute_feed_counts (GDataService *service);
@@ -337,6 +341,7 @@ grl_youtube_source_class_init (GrlYoutubeSourceClass * klass)
   source_class->search = grl_youtube_source_search;
   source_class->browse = grl_youtube_source_browse;
   source_class->metadata = grl_youtube_source_metadata;
+  source_class->test_media_from_site = grl_youtube_test_media_from_site;
   metadata_class->supported_keys = grl_youtube_source_supported_keys;
   metadata_class->slow_keys = grl_youtube_source_slow_keys;
   gobject_class->set_property = grl_youtube_source_set_property;
@@ -1286,6 +1291,32 @@ produce_from_category (OperationSpec *os)
   g_object_unref (query);
 }
 
+static gchar *
+get_video_id_from_url (const gchar *url)
+{
+  gchar *marker, *end, *video_id;
+
+  if (url == NULL) {
+    return NULL;
+  }
+
+  marker = strstr (url, YOUTUBE_WATCH_URL);
+  if (!marker) {
+    return NULL;
+  }
+
+  marker += strlen (YOUTUBE_WATCH_URL);
+
+  end = marker;
+  while (*end != '\0' && *end != '&') {
+    end++;
+  }
+
+  video_id = g_strndup (marker, end - marker);
+
+  return video_id;
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -1486,4 +1517,18 @@ grl_youtube_source_metadata (GrlMediaSource *source,
   } else if (media) {
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
   }
+}
+
+static gboolean
+grl_youtube_test_media_from_site (GrlMediaSource *source, const gchar *site_uri)
+{
+  GRL_DEBUG ("grl_youtube_test_media_from_site");
+
+  gchar *video_id;
+  gboolean ok;
+
+  video_id = get_video_id_from_url (site_uri);
+  ok = (video_id != NULL);
+  g_free (video_id);
+  return ok;
 }

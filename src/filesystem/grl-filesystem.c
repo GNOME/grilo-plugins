@@ -103,6 +103,12 @@ static void grl_filesystem_source_metadata (GrlMediaSource *source,
 static void grl_filesystem_source_browse (GrlMediaSource *source,
                                           GrlMediaSourceBrowseSpec *bs);
 
+static gboolean grl_filesystem_test_media_from_uri (GrlMediaSource *source,
+                                                    const gchar *uri);
+
+static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
+                                               GrlMediaSourceMediaFromUriSpec *mfus);
+
 /* =================== Filesystem Plugin  =============== */
 
 gboolean
@@ -166,6 +172,8 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_filesystem_source_browse;
   source_class->metadata = grl_filesystem_source_metadata;
+  source_class->test_media_from_uri = grl_filesystem_test_media_from_uri;
+  source_class->media_from_uri = grl_filesystem_get_media_from_uri;
   G_OBJECT_CLASS (source_class)->finalize = grl_filesystem_source_finalize;
   metadata_class->supported_keys = grl_filesystem_source_supported_keys;
   g_type_class_add_private (klass, sizeof (GrlFilesystemSourcePrivate));
@@ -631,3 +639,77 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
     g_error_free (error);
   }
 }
+
+static gboolean
+grl_filesystem_test_media_from_uri (GrlMediaSource *source,
+                                    const gchar *uri)
+{
+  gchar *path, *scheme;
+  GError *error = NULL;
+  gboolean ret = FALSE;
+
+  GRL_DEBUG ("grl_filesystem_test_media_from_uri");
+
+  scheme = g_uri_parse_scheme (uri);
+  ret = (g_strcmp0(scheme, "file") == 0);
+  g_free (scheme);
+  if (!ret)
+    return ret;
+
+  path = g_filename_from_uri (uri, NULL, &error);
+  if (error != NULL) {
+    g_error_free (error);
+    return FALSE;
+  }
+
+  ret = file_is_valid_content (path, TRUE);
+
+  g_free (path);
+  return ret;
+}
+
+static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
+                                               GrlMediaSourceMediaFromUriSpec *mfus)
+{
+  gchar *path, *scheme;
+  GError *error = NULL;
+  gboolean ret = FALSE;
+  GrlMedia *media;
+
+  GRL_DEBUG ("grl_filesystem_get_media_from_uri");
+
+  scheme = g_uri_parse_scheme (mfus->uri);
+  ret = (g_strcmp0(scheme, "file") == 0);
+  g_free (scheme);
+  if (!ret) {
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
+                         "Cannot create media from '%s'", mfus->uri);
+    mfus->callback (source, NULL, mfus->user_data, error);
+    g_clear_error (&error);
+    return;
+  }
+
+  path = g_filename_from_uri (mfus->uri, NULL, &error);
+  if (error != NULL) {
+    GError *new_error;
+    new_error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
+                         "Cannot create media from '%s', error message: %s",
+                         mfus->uri, error->message);
+    g_clear_error (&error);
+    mfus->callback (source, NULL, mfus->user_data, new_error);
+    g_clear_error (&new_error);
+    goto beach;
+  }
+
+  /* FIXME: this is a blocking call, not sure we want that in here */
+  /* Note: we assume create_content() never returns NULL, which seems to be true */
+  media = create_content (NULL, path, mfus->flags & GRL_RESOLVE_FAST_ONLY,
+                          FALSE);
+  mfus->callback (source, media, mfus->user_data, NULL);
+
+beach:
+  g_free (path);
+}
+

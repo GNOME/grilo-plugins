@@ -439,7 +439,7 @@ device_unavailable_cb (GUPnPControlPoint *cp,
   if (!source) {
     GRL_DEBUG ("No source registered with id '%s', ignoring", source_id);
   } else {
-    grl_plugin_registry_unregister_source (registry, source);
+    grl_plugin_registry_unregister_source (registry, source, NULL);
   }
 
   g_free (source_id);

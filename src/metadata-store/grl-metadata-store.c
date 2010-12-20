@@ -119,7 +119,8 @@ grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
   GrlMetadataStoreSource *source = grl_metadata_store_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
   return TRUE;
 }
 

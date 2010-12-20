@@ -285,7 +285,8 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
 
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
   return TRUE;
 }
 

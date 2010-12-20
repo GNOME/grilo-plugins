@@ -88,7 +88,8 @@ grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
   GrlLastfmAlbumartSource *source = grl_lastfm_albumart_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
   return TRUE;
 }
 

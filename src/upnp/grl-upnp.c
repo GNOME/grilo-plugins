@@ -339,7 +339,8 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
 
   grl_plugin_registry_register_source (registry,
                                        source_info->plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
 
  free_resources:
   free_source_info (source_info);
@@ -407,7 +408,8 @@ device_available_cb (GUPnPControlPoint *cp,
     registry = grl_plugin_registry_get_default ();
     grl_plugin_registry_register_source (registry,
                                          source_info->plugin,
-                                         GRL_MEDIA_PLUGIN (source));
+                                         GRL_MEDIA_PLUGIN (source),
+                                         NULL);
     free_source_info (source_info);
   }
 

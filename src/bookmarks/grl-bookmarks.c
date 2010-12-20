@@ -187,7 +187,8 @@ grl_bookmarks_plugin_init (GrlPluginRegistry *registry,
   GrlBookmarksSource *source = grl_bookmarks_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
   return TRUE;
 }
 

@@ -135,7 +135,8 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
   source = grl_apple_trailers_source_new (hd, xlarge);
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
   return TRUE;
 }
 

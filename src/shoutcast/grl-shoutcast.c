@@ -123,7 +123,8 @@ grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
   GrlShoutcastSource *source = grl_shoutcast_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
   return TRUE;
 }
 

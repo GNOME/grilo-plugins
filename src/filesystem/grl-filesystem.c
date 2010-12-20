@@ -120,7 +120,8 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
   GrlFilesystemSource *source = grl_filesystem_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
 
   for (; configs; configs = g_list_next (configs)) {
     const gchar *path;

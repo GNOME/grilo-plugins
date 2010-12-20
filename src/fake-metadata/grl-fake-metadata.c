@@ -76,7 +76,8 @@ grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
   GrlFakeMetadataSource *source = grl_fake_metadata_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
   return TRUE;
 }
 

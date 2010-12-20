@@ -153,7 +153,8 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
       public_source_created = TRUE;
       grl_plugin_registry_register_source (registry,
                                            plugin,
-                                           GRL_MEDIA_PLUGIN (source));
+                                           GRL_MEDIA_PLUGIN (source),
+                                           NULL);
     }
 
     configs = g_list_next (configs);
@@ -284,7 +285,8 @@ token_info_cb (GFlickr *f,
     source->priv->user_id = g_strdup (g_hash_table_lookup (info, "user_nsid"));
     grl_plugin_registry_register_source (registry,
                                          plugin,
-                                         GRL_MEDIA_PLUGIN (source));
+                                         GRL_MEDIA_PLUGIN (source),
+                                         NULL);
   }
 
   g_free (source_id);

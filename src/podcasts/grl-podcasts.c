@@ -245,7 +245,8 @@ grl_podcasts_plugin_init (GrlPluginRegistry *registry,
   GrlPodcastsSource *source = grl_podcasts_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
   return TRUE;
 }
 

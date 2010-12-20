@@ -232,7 +232,7 @@ main (void)
 
   GrlConfig *config = grl_config_new ("grl-youtube", NULL);
   grl_config_set_api_key (config, YOUTUBE_KEY);
-  grl_plugin_registry_add_config (registry, config);
+  grl_plugin_registry_add_config (registry, config, NULL);
 
   grl_plugin_registry_load (registry,
                             "../src/youtube/.libs/libgrlyoutube.so",

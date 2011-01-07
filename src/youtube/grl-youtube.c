@@ -1613,7 +1613,7 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
 					  NULL,
 					  media_from_uri_cb,
 					  mfus);
-  g_free (entryid);
+  g_free (entry_id);
 #else
   gdata_youtube_service_query_single_video_async (GDATA_YOUTUBE_SERVICE (service),
 						  NULL,

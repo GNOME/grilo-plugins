@@ -29,7 +29,7 @@ libdir = $(GRL_PLUGINS_DIR)
 appletrailersxmldir	= $(GRL_PLUGINS_CONF_DIR)
 appletrailersxml_DATA	= $(APPLE_TRAILERS_PLUGIN_ID).xml
 
-EXTRA_DIR = $(appletrailersxml_DATA)
+EXTRA_DIST = $(appletrailersxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

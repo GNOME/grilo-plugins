@@ -27,7 +27,7 @@ libdir = $(GRL_PLUGINS_DIR)
 lastfmalbumartxmldir	= $(GRL_PLUGINS_CONF_DIR)
 lastfmalbumartxml_DATA	= $(LASTFM_ALBUMART_PLUGIN_ID).xml
 
-EXTRA_DIR = $(lastfmalbumartxml_DATA)
+EXTRA_DIST = $(lastfmalbumartxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in	\

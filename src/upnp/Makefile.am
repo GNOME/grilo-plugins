@@ -42,7 +42,7 @@ libdir = $(GRL_PLUGINS_DIR)
 upnpxmldir	= $(GRL_PLUGINS_CONF_DIR)
 upnpxml_DATA	= $(UPNP_PLUGIN_ID).xml
 
-EXTRA_DIR = $(upnpxml_DATA)
+EXTRA_DIST = $(upnpxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

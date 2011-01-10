@@ -25,7 +25,7 @@ libdir=$(GRL_PLUGINS_DIR)
 metadatastorexmldir	= $(GRL_PLUGINS_CONF_DIR)
 metadatastorexml_DATA	= $(METADATA_STORE_PLUGIN_ID).xml
 
-EXTRA_DIR = $(metadatastorexml_DATA)
+EXTRA_DIST = $(metadatastorexml_DATA)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

@@ -25,7 +25,7 @@ libdir=$(GRL_PLUGINS_DIR)
 filesystemxmldir	= $(GRL_PLUGINS_CONF_DIR)
 filesystemxml_DATA	= $(FILESYSTEM_PLUGIN_ID).xml
 
-EXTRA_DIR = $(filesystemxml_DATA)
+EXTRA_DIST = $(filesystemxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

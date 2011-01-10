@@ -31,7 +31,7 @@ libdir = $(GRL_PLUGINS_DIR)
 youtubexmldir	= $(GRL_PLUGINS_CONF_DIR)
 youtubexml_DATA	= $(YOUTUBE_PLUGIN_ID).xml
 
-EXTRA_DIR = $(youtubexml_DATA)
+EXTRA_DIST = $(youtubexml_DATA)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

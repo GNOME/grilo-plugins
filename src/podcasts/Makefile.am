@@ -29,7 +29,7 @@ libdir = $(GRL_PLUGINS_DIR)
 podcastsxmldir		= $(GRL_PLUGINS_CONF_DIR)
 podcastsxml_DATA	= $(PODCASTS_PLUGIN_ID).xml
 
-EXTRA_DIR = $(podcastsxml_DATA)
+EXTRA_DIST = $(podcastsxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

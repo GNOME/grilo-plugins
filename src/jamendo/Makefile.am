@@ -29,7 +29,7 @@ libdir = $(GRL_PLUGINS_DIR)
 jamendoxmldir = $(GRL_PLUGINS_CONF_DIR)
 jamendoxml_DATA	= $(JAMENDO_PLUGIN_ID).xml
 
-EXTRA_DIR = $(jamendoxml_DATA)
+EXTRA_DIST = $(jamendoxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

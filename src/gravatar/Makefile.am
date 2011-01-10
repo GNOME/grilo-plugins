@@ -23,7 +23,7 @@ libdir=$(GRL_PLUGINS_DIR)
 gravatarxmldir		= $(GRL_PLUGINS_CONF_DIR)
 gravatarxml_DATA	= $(GRAVATAR_PLUGIN_ID).xml
 
-EXTRA_DIR = $(gravatarxml_DATA)
+EXTRA_DIST = $(gravatarxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in	\

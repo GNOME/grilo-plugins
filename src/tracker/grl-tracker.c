@@ -219,15 +219,7 @@ build_grilo_media (const gchar *rdf_type)
 static const GList *
 grl_tracker_source_supported_keys (GrlMetadataSource *source)
 {
-  static GList *keys = NULL;
-
-  if (!keys) {
-    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
-                                      GRL_METADATA_KEY_TITLE,
-                                      GRL_METADATA_KEY_URL,
-                                      NULL);
-  }
-  return keys;
+  return grl_plugin_registry_get_metadata_keys (grl_plugin_registry_get_default ());
 }
 
 /**

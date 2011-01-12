@@ -324,7 +324,7 @@ grl_tracker_source_query (GrlMediaSource *source,
   while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
       n_columns = tracker_sparql_cursor_get_n_columns (cursor);
       /* Search column with type */
-      for (type_column = 0; type_column < n_columns; i++) {
+      for (type_column = 0; type_column < n_columns; type_column++) {
         if (strcmp (tracker_sparql_cursor_get_variable_name (cursor,
                                                              type_column),
                     MEDIA_TYPE) == 0) {

@@ -3,7 +3,7 @@
 # 
 # Author: Iago Toral Quiroga <itoral@igalia.com>
 #
-# Copyright (C) 2010 Igalia S.L.. All rights reserved.
+# Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
 m4_define([prj_version], [0.1.7])
@@ -119,6 +119,10 @@ PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4, HAVE_LIBSOUP=yes, HAVE_LIBSOUP=no)
 AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
+
+PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
+                                  HAVE_TRACKER_SPARQL=yes,
+                                  HAVE_TRACKER_SPARQL=no)
 
 # ----------------------------------------------------------
 # GUPNP-AV VERSION
@@ -660,6 +664,41 @@ AC_SUBST(GRAVATAR_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([GRAVATAR_PLUGIN_ID], ["$GRAVATAR_PLUGIN_ID"], [Gravatar plugin ID])
 
 # ----------------------------------------------------------
+# BUILD TRACKER PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(tracker,
+        AC_HELP_STRING([--enable-tracker],
+                [enable Tracker plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
+                           AC_MSG_ERROR([tracker-sparql-0.9 not found, install it or use --disable-tracker])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_TRACKER_SPARQL" = "xyes"; then
+                   enable_tracker=yes
+                else
+                   enable_tracker=no
+                fi
+        ])
+
+AM_CONDITIONAL([TRACKER_PLUGIN], [test "x$enable_tracker" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL tracker"
+if test "x$enable_tracker" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED tracker"
+fi
+
+TRACKER_PLUGIN_ID="grl-tracker"
+AC_SUBST(TRACKER_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([TRACKER_PLUGIN_ID], ["$TRACKER_PLUGIN_ID"], [Tracker plugin ID])
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -697,6 +736,7 @@ AC_CONFIG_FILES([
   src/metadata-store/Makefile
   src/vimeo/Makefile
   src/gravatar/Makefile
+  src/tracker/Makefile
   test/Makefile
 ])
 

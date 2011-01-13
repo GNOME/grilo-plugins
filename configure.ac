@@ -1,6 +1,6 @@
 #
 # configure.ac
-# 
+#
 # Author: Iago Toral Quiroga <itoral@igalia.com>
 #
 # Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
@@ -120,9 +120,11 @@ AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
-PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
+PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
                                   HAVE_TRACKER_SPARQL=yes,
-                                  HAVE_TRACKER_SPARQL=no)
+                                  [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
+                                                                     HAVE_TRACKER_SPARQL=yes,
+                                                                     HAVE_TRACKER_SPARQL=no)])
 
 # ----------------------------------------------------------
 # GUPNP-AV VERSION

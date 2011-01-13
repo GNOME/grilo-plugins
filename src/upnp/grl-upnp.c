@@ -306,7 +306,7 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
 				    "SearchCaps", G_TYPE_STRING, &caps,
 				    NULL);
   if (!result) {
-    GRL_WARNING ("Failed to execute GetSeachCaps operation");
+    GRL_WARNING ("Failed to execute GetSearchCaps operation");
     if (error) {
       GRL_WARNING ("Reason: %s", error->message);
       g_error_free (error);
@@ -370,7 +370,7 @@ device_available_cb (GUPnPControlPoint *cp,
   service = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (device),
 					   CONTENT_DIR_SERVICE);
   if (!service) {
-    GRL_DEBUG ("Device does not provide requied service, ignoring...");
+    GRL_DEBUG ("Device does not provide required service, ignoring...");
     return;
   }
 

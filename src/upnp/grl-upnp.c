@@ -120,6 +120,9 @@ static void grl_upnp_source_metadata (GrlMediaSource *source,
 
 static GrlSupportedOps grl_upnp_source_supported_operations (GrlMetadataSource *source);
 
+static void context_available_cb (GUPnPContextManager *context_manager,
+				  GUPnPContext *context,
+				  gpointer user_data);
 static void device_available_cb (GUPnPControlPoint *cp,
 				 GUPnPDeviceProxy *device,
 				 gpointer user_data);
@@ -131,8 +134,7 @@ static void device_unavailable_cb (GUPnPControlPoint *cp,
 
 static GHashTable *key_mapping = NULL;
 static GHashTable *filter_key_mapping = NULL;
-static GUPnPControlPoint *cp = NULL;
-static GUPnPContext *context = NULL;
+static GUPnPContextManager *context_manager = NULL;
 
 /* =================== UPnP Plugin  =============== */
 
@@ -141,8 +143,6 @@ grl_upnp_plugin_init (GrlPluginRegistry *registry,
                       const GrlPluginInfo *plugin,
                       GList *configs)
 {
-  GError *error = NULL;
-
   GRL_LOG_DOMAIN_INIT (upnp_log_domain, "upnp");
 
   GRL_DEBUG ("grl_upnp_plugin_init");
@@ -152,28 +152,11 @@ grl_upnp_plugin_init (GrlPluginRegistry *registry,
     g_thread_init (NULL);
   }
 
-  context = gupnp_context_new (NULL, NULL, 0, &error);
-  if (error) {
-    g_critical ("Failed to create GUPnP context: %s", error->message);
-    g_error_free (error);
-    return FALSE;
-  }
-
-  cp = gupnp_control_point_new (context, "ssdp:all");
-  if (!cp) {
-    g_critical ("Failed to create control point");
-    return FALSE;
-  }
-  g_signal_connect (cp,
-		    "device-proxy-available",
-		    G_CALLBACK (device_available_cb),
-		    (gpointer) plugin);
-  g_signal_connect (cp,
-		    "device-proxy-unavailable",
-		    G_CALLBACK (device_unavailable_cb),
-		    NULL);
-
-  gssdp_resource_browser_set_active (GSSDP_RESOURCE_BROWSER (cp), TRUE);
+  context_manager = gupnp_context_manager_new (NULL, 0);
+  g_signal_connect (context_manager,
+                    "context-available",
+                    G_CALLBACK (context_available_cb),
+                    (gpointer)plugin);
 
   return TRUE;
 }
@@ -182,15 +165,10 @@ static void
 grl_upnp_plugin_deinit (void)
 {
   GRL_DEBUG ("grl_upnp_plugin_deinit");
-  if (cp != NULL) {
-    gssdp_resource_browser_set_active (GSSDP_RESOURCE_BROWSER (cp), FALSE);
-    g_object_unref (cp);
-    cp = NULL;
-  }
 
-  if (context != NULL) {
-    g_object_unref ( context);
-    context = NULL;
+  if (context_manager != NULL) {
+    g_object_unref (context_manager);
+    context_manager = NULL;
   }
 }
 
@@ -344,6 +322,32 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
 
  free_resources:
   free_source_info (source_info);
+}
+
+static void
+context_available_cb (GUPnPContextManager *context_manager,
+		      GUPnPContext *context,
+		      gpointer user_data)
+{
+  GUPnPControlPoint *cp;
+
+  GRL_DEBUG ("%s", __func__);
+
+  cp = gupnp_control_point_new (context, "ssdp:all");
+  g_signal_connect (cp,
+		    "device-proxy-available",
+		    G_CALLBACK (device_available_cb),
+		    user_data);
+  g_signal_connect (cp,
+		    "device-proxy-unavailable",
+		    G_CALLBACK (device_unavailable_cb),
+		    NULL);
+
+  gssdp_resource_browser_set_active (GSSDP_RESOURCE_BROWSER (cp), TRUE);
+
+  /* Let context manager take care of the control point life cycle */
+  gupnp_context_manager_manage_control_point (context_manager, cp);
+  g_object_unref (cp);
 }
 
 static void

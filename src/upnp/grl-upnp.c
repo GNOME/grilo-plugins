@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Igalia S.L.
+ * Copyright (C) 2011 Intel Corporation.
  *
  * This component is based on Maemo's mafw-upnp-source source code.
  *
@@ -115,6 +116,9 @@ static void grl_upnp_source_browse (GrlMediaSource *source,
 static void grl_upnp_source_search (GrlMediaSource *source,
                                     GrlMediaSourceSearchSpec *ss);
 
+static void grl_upnp_source_query (GrlMediaSource *source,
+                                   GrlMediaSourceQuerySpec *qs);
+
 static void grl_upnp_source_metadata (GrlMediaSource *source,
                                       GrlMediaSourceMetadataSpec *ms);
 
@@ -218,6 +222,7 @@ grl_upnp_source_class_init (GrlUpnpSourceClass * klass)
 
   source_class->browse = grl_upnp_source_browse;
   source_class->search = grl_upnp_source_search;
+  source_class->query = grl_upnp_source_query;
   source_class->metadata = grl_upnp_source_metadata;
 
   g_type_class_add_private (klass, sizeof (GrlUpnpPrivate));
@@ -896,7 +901,7 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
 				    NULL);
 
   if (!result) {
-    GRL_WARNING ("Browse operation failed");
+    GRL_WARNING ("Operation (browse, search or query) failed");
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     if (error) {
       GRL_WARNING ("  Reason: %s", error->message);
@@ -1154,6 +1159,65 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   }
 }
 
+/*
+ * Query format is the UPnP ContentDirectory SearchCriteria format, e.g.
+ * 'upnp:artist contains "Rick Astley" and
+ *  (upnp:class derivedfrom "object.item.audioItem")'
+ *
+ * Note that we don't guarantee or check that the server actually
+ * supports the given criteria. Offering the searchcaps as
+ * additional metadata to clients that _really_ are interested might
+ * be useful.
+ */
+static void
+grl_upnp_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
+{
+  GUPnPServiceProxyAction* action;
+  gchar *upnp_filter;
+  GError *error = NULL;
+  struct OperationSpec *os;
+
+  GRL_DEBUG (__func__);
+
+  upnp_filter = get_upnp_filter (qs->keys);
+  GRL_DEBUG ("filter: '%s'", upnp_filter);
+
+  GRL_DEBUG ("query: '%s'", qs->query);
+
+  os = g_slice_new0 (struct OperationSpec);
+  os->source = qs->source;
+  os->operation_id = qs->query_id;
+  os->keys = qs->keys;
+  os->skip = qs->skip;
+  os->count = qs->count;
+  os->callback = qs->callback;
+  os->user_data = qs->user_data;
+
+  action =
+    gupnp_service_proxy_begin_action (GRL_UPNP_SOURCE (source)->priv->service,
+				      "Search", gupnp_browse_cb, os,
+				      "ContainerID", G_TYPE_STRING,
+				      "0",
+				      "SearchCriteria", G_TYPE_STRING,
+				      qs->query,
+				      "Filter", G_TYPE_STRING,
+				      upnp_filter,
+				      "StartingIndex", G_TYPE_UINT,
+				      0,
+				      "RequestedCount", G_TYPE_UINT,
+				      qs->count,
+				      "SortCriteria", G_TYPE_STRING,
+				      "",
+				      NULL);
+  if (!action) {
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_QUERY_FAILED,
+			 "Failed to start query action");
+    qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
+    g_error_free (error);
+  }
+}
+
 static void
 grl_upnp_source_metadata (GrlMediaSource *source,
                           GrlMediaSourceMetadataSpec *ms)
@@ -1208,12 +1272,13 @@ grl_upnp_source_supported_operations (GrlMetadataSource *metadata_source)
   GrlUpnpSource *source;
 
   /* Some sources may support search() while other not, so we rewrite
-     supported_operations() to take that into account */
+     supported_operations() to take that into account.
+     See also note in grl_upnp_source_query() */
 
   source = GRL_UPNP_SOURCE (metadata_source);
   caps = GRL_OP_BROWSE | GRL_OP_METADATA;
   if (source->priv->search_enabled)
-    caps |= GRL_OP_SEARCH;
+    caps = caps | GRL_OP_SEARCH | GRL_OP_QUERY;
 
   return caps;
 }

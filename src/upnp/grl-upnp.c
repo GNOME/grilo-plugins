@@ -333,7 +333,7 @@ context_available_cb (GUPnPContextManager *context_manager,
 
   GRL_DEBUG ("%s", __func__);
 
-  cp = gupnp_control_point_new (context, "ssdp:all");
+  cp = gupnp_control_point_new (context, "urn:schemas-upnp-org:device:MediaServer:1");
   g_signal_connect (cp,
 		    "device-proxy-available",
 		    G_CALLBACK (device_available_cb),
@@ -366,10 +366,6 @@ device_available_cb (GUPnPControlPoint *cp,
 
   type = gupnp_device_info_get_device_type (GUPNP_DEVICE_INFO (device));
   GRL_DEBUG ("  type: %s", type);
-  if (!g_pattern_match_simple ("urn:schemas-upnp-org:device:MediaServer:*",
-			       type)) {
-    return;
-  }
 
   service = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (device),
 					   CONTENT_DIR_SERVICE);

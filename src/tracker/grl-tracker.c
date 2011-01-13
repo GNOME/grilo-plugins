@@ -82,6 +82,8 @@ gboolean grl_tracker_plugin_init (GrlPluginRegistry *registry,
                                   const GrlPluginInfo *plugin,
                                   GList *configs);
 
+static GrlSupportedOps grl_tracker_source_supported_operations (GrlMetadataSource *metadata_source);
+
 static const GList *grl_tracker_source_supported_keys (GrlMetadataSource *source);
 
 
@@ -161,7 +163,10 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   GObjectClass *g_class = G_OBJECT_CLASS (klass);
   source_class->query = grl_tracker_source_query;
+
   metadata_class->supported_keys = grl_tracker_source_supported_keys;
+  metadata_class->supported_operations = grl_tracker_source_supported_operations;
+
   g_class->finalize = grl_tracker_source_finalize;
 
   g_type_class_add_private (klass, sizeof (GrlTrackerSourcePriv));
@@ -215,6 +220,18 @@ build_grilo_media (const gchar *rdf_type)
 }
 
 /* ================== API Implementation ================ */
+
+static GrlSupportedOps
+grl_tracker_source_supported_operations (GrlMetadataSource *metadata_source)
+{
+  GrlSupportedOps   caps;
+  GrlTrackerSource *source;
+
+  source = GRL_TRACKER_SOURCE (metadata_source);
+  caps = GRL_OP_QUERY;
+
+  return caps;
+}
 
 static const GList *
 grl_tracker_source_supported_keys (GrlMetadataSource *source)

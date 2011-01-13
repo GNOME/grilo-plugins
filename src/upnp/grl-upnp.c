@@ -889,9 +889,10 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
   struct OperationSpec *os;
   GUPnPDIDLLiteParser *didl_parser;
 
-  os = (struct OperationSpec *) user_data;
-
   GRL_DEBUG ("gupnp_browse_cb");
+
+  os = (struct OperationSpec *) user_data;
+  didl_parser = gupnp_didl_lite_parser_new ();
 
   result =
     gupnp_service_proxy_end_action (service, action, &error,
@@ -908,24 +909,20 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
       g_error_free (error);
     }
 
-    g_slice_free (struct OperationSpec, os);
-    return;
+    goto free_resources;
   }
 
   if (!didl || !returned) {
     GRL_DEBUG ("Got no results");
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
 
-    g_slice_free (struct OperationSpec, os);
-    return;
+    goto free_resources;
   }
 
   /* Use os->count to emit "remaining" information */
   if (os->count > returned) {
     os->count = returned;
   }
-
-  didl_parser = gupnp_didl_lite_parser_new ();
 
 #ifdef GUPNPAV_OLD_VERSION
   gupnp_didl_lite_parser_parse_didl (didl_parser,
@@ -947,9 +944,11 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
     GRL_WARNING ("Failed to parse DIDL result: %s", error->message);
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
-    return;
+
+    goto free_resources;
   }
 
+ free_resources:
   g_slice_free (struct OperationSpec, os);
   g_free (didl);
   g_object_unref (didl_parser);
@@ -985,6 +984,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
   GRL_DEBUG ("gupnp_metadata_cb");
 
   ms = (GrlMediaSourceMetadataSpec *) user_data;
+  didl_parser = gupnp_didl_lite_parser_new ();
 
   result =
     gupnp_service_proxy_end_action (service, action, &error,
@@ -998,16 +998,16 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
       GRL_WARNING ("  Reason: %s", error->message);
       g_error_free (error);
     }
-    return;
+
+    goto free_resources;
   }
 
   if (!didl) {
     GRL_DEBUG ("Got no metadata");
     ms->callback (ms->source, ms->media,  ms->user_data, NULL);
-    return;
-  }
 
-  didl_parser = gupnp_didl_lite_parser_new ();
+    goto free_resources;
+  }
 
 #ifdef GUPNPAV_OLD_VERSION
   gupnp_didl_lite_parser_parse_didl (didl_parser,
@@ -1029,9 +1029,10 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
     GRL_WARNING ("Failed to parse DIDL result: %s", error->message);
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
-    return;
+    goto free_resources;
   }
 
+ free_resources:
   g_free (didl);
   g_object_unref (didl_parser);
 }

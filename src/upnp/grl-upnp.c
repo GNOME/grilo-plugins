@@ -1110,6 +1110,8 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
   }
+
+  g_free (upnp_filter);
 }
 
 static void
@@ -1162,6 +1164,9 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
     ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
   }
+
+  g_free (upnp_filter);
+  g_free (upnp_search);
 }
 
 /*
@@ -1221,6 +1226,8 @@ grl_upnp_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
     qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
     g_error_free (error);
   }
+
+  g_free (upnp_filter);
 }
 
 static void
@@ -1268,6 +1275,8 @@ grl_upnp_source_metadata (GrlMediaSource *source,
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   }
+
+  g_free (upnp_filter);
 }
 
 static GrlSupportedOps

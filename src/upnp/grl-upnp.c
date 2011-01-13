@@ -907,12 +907,16 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
       GRL_WARNING ("  Reason: %s", error->message);
       g_error_free (error);
     }
+
+    g_slice_free (struct OperationSpec, os);
     return;
   }
 
   if (!didl || !returned) {
     GRL_DEBUG ("Got no results");
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+
+    g_slice_free (struct OperationSpec, os);
     return;
   }
 
@@ -946,6 +950,7 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
     return;
   }
 
+  g_slice_free (struct OperationSpec, os);
   g_free (didl);
   g_object_unref (didl_parser);
 }

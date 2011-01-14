@@ -195,9 +195,9 @@ build_grilo_media (const gchar *rdf_type)
 
   /* As rdf_type can be formed by several types, split them */
   rdf_single_type = g_strsplit (rdf_type, ",", -1);
-  i = g_strv_length (rdf_single_type);
+  i = g_strv_length (rdf_single_type) - 1;
 
-  while (!media && i > 0) {
+  while (!media && i >= 0) {
     if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_AUDIO)) {
       media = grl_media_audio_new ();
     } else if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_VIDEO)) {
@@ -217,6 +217,110 @@ build_grilo_media (const gchar *rdf_type)
   g_strfreev (rdf_single_type);
 
   return media;
+}
+
+/* Execute a sparql query an sends the elements as Grilo medias.
+   Returns FALSE if the query failed.
+*/
+static gboolean
+do_tracker_query (GrlMediaSource *source,
+                  const gchar *sparql_query,
+                  GrlMediaSourceResultCb callback,
+                  guint query_id,
+                  gpointer user_data,
+                  GError **error)
+{
+  GError *tracker_error = NULL;
+  GrlKeyID key;
+  GrlMedia *media;
+  TrackerSparqlCursor *cursor;
+  const gchar *key_name = NULL;
+  int i;
+  int n_columns;
+  int type_column;
+
+  cursor =
+    tracker_sparql_connection_query (GRL_TRACKER_SOURCE (source)->priv->tracker_connection,
+                                     sparql_query,
+                                     NULL,
+                                     &tracker_error);
+  if (!cursor) {
+    if (error) {
+      *error = g_error_new (GRL_CORE_ERROR,
+                            GRL_CORE_ERROR_QUERY_FAILED,
+                            "Query failed: %s",
+                            tracker_error->message);
+    }
+    return FALSE;
+  }
+
+  while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+      n_columns = tracker_sparql_cursor_get_n_columns (cursor);
+      /* Search column with type */
+      for (type_column = 0; type_column < n_columns; type_column++) {
+        if (strcmp (tracker_sparql_cursor_get_variable_name (cursor,
+                                                             type_column),
+                    MEDIA_TYPE) == 0) {
+          break;
+        }
+      }
+
+      /* type not found */
+      if (type_column >= n_columns) {
+        continue;
+      }
+
+      media = build_grilo_media (tracker_sparql_cursor_get_string (cursor,
+                                                                   type_column,
+                                                                   NULL));
+      /* Unknown media */
+      if (!media) {
+        continue;
+      }
+
+      /* Fill data */
+      for (i = 0; i < n_columns; i++) {
+        /* Skip type */
+        if (i == type_column) {
+          continue;
+        }
+
+        /* Column has no value */
+        if (!tracker_sparql_cursor_is_bound (cursor, i)) {
+          continue;
+        }
+
+        key_name = tracker_sparql_cursor_get_variable_name (cursor, i);
+
+        /* Unnamed column */
+        if (!key_name) {
+          continue;
+        }
+
+        key = grl_plugin_registry_lookup_metadata_key (grl_plugin_registry_get_default (),
+                                                       key_name);
+        /* Unknown key */
+        if (!key) {
+          continue;
+        }
+
+        grl_data_set_string (GRL_DATA (media),
+                             key,
+                             tracker_sparql_cursor_get_string (cursor,
+                                                               i,
+                                                               NULL));
+      }
+
+      /* Send data */
+      callback (source, query_id, media, -1, user_data, NULL);
+  }
+
+  /* Notify there is no more elements */
+  callback (source, query_id, NULL, 0, user_data, NULL);
+
+  g_object_unref (cursor);
+
+  return TRUE;
 }
 
 /* ================== API Implementation ================ */
@@ -299,14 +403,6 @@ grl_tracker_source_query (GrlMediaSource *source,
                           GrlMediaSourceQuerySpec *qs)
 {
   GError *error = NULL;
-  GError *tracker_error = NULL;
-  GrlKeyID key;
-  GrlMedia *media;
-  TrackerSparqlCursor *cursor;
-  const gchar *key_name = NULL;
-  int i;
-  int n_columns;
-  int type_column;
 
   GRL_DEBUG ("grl_tracker_source_query");
 
@@ -317,84 +413,16 @@ grl_tracker_source_query (GrlMediaSource *source,
     goto send_error;
   }
 
-  cursor =
-    tracker_sparql_connection_query (GRL_TRACKER_SOURCE (source)->priv->tracker_connection,
-                                     qs->query,
-                                     NULL,
-                                     &tracker_error);
-  if (!cursor) {
-    error = g_error_new (GRL_CORE_ERROR,
-                         GRL_CORE_ERROR_QUERY_FAILED,
-                         "Query failed: %s",
-                         tracker_error->message);
+  do_tracker_query (source,
+                    qs->query,
+                    qs->callback,
+                    qs->query_id,
+                    qs->user_data,
+                    &error);
+
+  if (error) {
     goto send_error;
   }
-
-  while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-      n_columns = tracker_sparql_cursor_get_n_columns (cursor);
-      /* Search column with type */
-      for (type_column = 0; type_column < n_columns; type_column++) {
-        if (strcmp (tracker_sparql_cursor_get_variable_name (cursor,
-                                                             type_column),
-                    MEDIA_TYPE) == 0) {
-          break;
-        }
-      }
-
-      /* type not found */
-      if (type_column >= n_columns) {
-        continue;
-      }
-
-      media = build_grilo_media (tracker_sparql_cursor_get_string (cursor,
-                                                                   type_column,
-                                                                   NULL));
-      /* Unknown media */
-      if (!media) {
-        continue;
-      }
-
-      /* Fill data */
-      for (i = 0; i < n_columns; i++) {
-        /* Skip type */
-        if (i == type_column) {
-          continue;
-        }
-
-        /* Column has no value */
-        if (!tracker_sparql_cursor_is_bound (cursor, i)) {
-          continue;
-        }
-
-        key_name = tracker_sparql_cursor_get_variable_name (cursor, i);
-
-        /* Unnamed column */
-        if (!key_name) {
-          continue;
-        }
-
-        key = grl_plugin_registry_lookup_metadata_key (grl_plugin_registry_get_default (),
-                                                       key_name);
-        /* Unknown key */
-        if (!key) {
-          continue;
-        }
-
-        grl_data_set_string (GRL_DATA (media),
-                             key,
-                             tracker_sparql_cursor_get_string (cursor,
-                                                               i,
-                                                               NULL));
-      }
-
-      /* Send data */
-      qs->callback (qs->source, qs->query_id, media, -1, qs->user_data, NULL);
-  }
-
-  /* Notify there is no more elements */
-  qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, NULL);
-
-  g_object_unref (cursor);
 
   return;
 

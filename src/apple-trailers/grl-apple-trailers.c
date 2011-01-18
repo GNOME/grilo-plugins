@@ -114,21 +114,27 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
 
   for (; configs; configs = g_list_next (configs)) {
     GrlConfig *config;
-    const gchar *definition, *poster_size;
+    gchar *definition, *poster_size;
 
     config = GRL_CONFIG (configs->data);
     definition = grl_config_get_string (config, "definition");
-    if (definition && *definition != '\0') {
-      if (g_str_equal (definition, "hd")) {
-        hd = TRUE;
+    if (definition) {
+      if (*definition != '\0') {
+        if (g_str_equal (definition, "hd")) {
+          hd = TRUE;
+        }
       }
+      g_free (definition);
     }
 
     poster_size = grl_config_get_string (config, "poster-size");
-    if (poster_size && *poster_size != '\0') {
-      if (g_str_equal (poster_size, "xlarge")) {
-        xlarge = TRUE;
+    if (poster_size) {
+      if (*poster_size != '\0') {
+        if (g_str_equal (poster_size, "xlarge")) {
+          xlarge = TRUE;
+        }
       }
+      g_free (poster_size);
     }
   }
 

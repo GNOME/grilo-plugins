@@ -117,9 +117,9 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
                         const GrlPluginInfo *plugin,
                         GList *configs)
 {
-  const gchar *flickr_key;
-  const gchar *flickr_secret;
-  const gchar *flickr_token;
+  gchar *flickr_key;
+  gchar *flickr_secret;
+  gchar *flickr_token;
   GrlConfig *config;
   gboolean public_source_created = FALSE;
 
@@ -156,6 +156,13 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
                                            GRL_MEDIA_PLUGIN (source),
                                            NULL);
     }
+
+    if (flickr_key != NULL)
+      g_free (flickr_key);
+    if (flickr_token != NULL)
+      g_free (flickr_token);
+    if (flickr_secret != NULL)
+      g_free (flickr_secret);
 
     configs = g_list_next (configs);
   }

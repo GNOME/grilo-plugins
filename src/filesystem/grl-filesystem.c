@@ -152,16 +152,14 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
                                        NULL);
 
   for (; configs; configs = g_list_next (configs)) {
-    const gchar *path;
-    const GValue *value;
+    gchar *path;
     config = GRL_CONFIG (configs->data);
     path = grl_config_get_string (config, GRILO_CONF_CHOSEN_PATH);
     if (path) {
-      chosen_paths = g_list_append (chosen_paths, g_strdup (path));
+      chosen_paths = g_list_append (chosen_paths, path);
     }
-    value = grl_config_get (config, GRILO_CONF_MAX_SEARCH_DEPTH);
-    if (value && G_VALUE_HOLDS_INT (value)) {
-      max_search_depth = (guint)g_value_get_int (value);
+    if (grl_config_has_param (config, GRILO_CONF_MAX_SEARCH_DEPTH)) {
+      max_search_depth = (guint)grl_config_get_int (config, GRILO_CONF_MAX_SEARCH_DEPTH);
     }
   }
   source->priv->chosen_paths = chosen_paths;

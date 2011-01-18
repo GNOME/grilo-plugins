@@ -250,7 +250,7 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
                          const GrlPluginInfo *plugin,
                          GList *configs)
 {
-  const gchar *api_key;
+  gchar *api_key;
   GrlConfig *config;
   gint config_count;
 
@@ -287,6 +287,9 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source),
                                        NULL);
+
+  g_free (api_key);
+
   return TRUE;
 }
 
@@ -655,7 +658,7 @@ build_media_from_entry (GrlMedia *content,
     } else if (iter->data == GRL_METADATA_KEY_SITE) {
       grl_media_set_site (media, gdata_youtube_video_get_player_uri (video));
     } else if (iter->data == GRL_METADATA_KEY_EXTERNAL_URL) {
-      grl_media_set_external_url (media, 
+      grl_media_set_external_url (media,
 				  gdata_youtube_video_get_player_uri (video));
     } else if (iter->data == GRL_METADATA_KEY_RATING) {
       gdouble average;
@@ -821,7 +824,7 @@ item_count_cb (GObject *object, GAsyncResult *result, CategoryCountCb *cc)
 
   GDataFeed *feed;
   GError *error = NULL;
-  
+
   feed = gdata_service_query_finish (GDATA_SERVICE (cc->service),
 				     result, &error);
   if (error) {

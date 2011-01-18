@@ -1110,6 +1110,7 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
 			 "Failed to start browse action");
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
+    g_slice_free (struct OperationSpec, os);
   }
 
   g_free (upnp_filter);
@@ -1164,6 +1165,7 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
 			 "Failed to start browse action");
     ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
+    g_slice_free (struct OperationSpec, os);
   }
 
   g_free (upnp_filter);
@@ -1226,6 +1228,7 @@ grl_upnp_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
 			 "Failed to start query action");
     qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
     g_error_free (error);
+    g_slice_free (struct OperationSpec, os);
   }
 
   g_free (upnp_filter);

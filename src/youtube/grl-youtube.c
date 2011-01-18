@@ -460,6 +460,7 @@ read_done_cb (GObject *source_object,
   if (wc_error) {
     GRL_WARNING ("Failed to open '%s': %s", arc->url, wc_error->message);
     arc->callback (NULL, arc->user_data);
+    g_error_free (wc_error);
   } else {
     arc->callback (content, arc->user_data);
   }

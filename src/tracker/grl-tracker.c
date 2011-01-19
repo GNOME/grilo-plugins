@@ -743,9 +743,9 @@ grl_tracker_source_supported_keys (GrlMetadataSource *source)
  * Columns must be named with the Grilo key name that the column
  * represent. Unnamed or unknown columns will be ignored.
  *
- * For the case of media type, name to be used is "grilo-media-type". This is a
- * mandatory column. It must match with rdf:type() property. Types understood
- * are:
+ * First column must be the media type, and it does not need to be named.  It
+ * must match with any value supported in rdf:type() property, or
+ * grilo#Box. Types understood are:
  *
  * <itemizedlist>
  *   <listitem>
@@ -784,7 +784,7 @@ grl_tracker_source_supported_keys (GrlMetadataSource *source)
  *
  * <informalexample>
  *   <programlisting>
- *     SELECT rdf:type(?song)  AS grilo-media-type
+ *     SELECT rdf:type(?song)
  *            ?song            AS id
  *            nie:title(?song) AS title
  *            nie:url(?song)   AS url

@@ -69,6 +69,16 @@ enum {
 
 /* --- Other --- */
 
+#define TRACKER_SEARCH_REQUEST "                                    \
+  SELECT rdf:type(?urn) %s                                          \
+  WHERE {                                                           \
+    { ?urn a nfo:Media } .                                          \
+    ?urn tracker:available ?tr .                                    \
+    ?urn fts:match '%s' .                                           \
+  }                                                                 \
+  ORDER BY DESC(nfo:fileLastModified(?urn))                         \
+  OFFSET %i LIMIT %i"
+
 #define TRACKER_METADATA_REQUEST "                                  \
   SELECT %s                                                         \
   WHERE {                                                           \
@@ -131,6 +141,9 @@ static void grl_tracker_source_query (GrlMediaSource *source,
 
 static void grl_tracker_source_metadata (GrlMediaSource *source,
                                          GrlMediaSourceMetadataSpec *ms);
+
+static void grl_tracker_source_search (GrlMediaSource *source,
+                                       GrlMediaSourceSearchSpec *ss);
 
 static void setup_key_mappings (void);
 
@@ -206,6 +219,7 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
 
   source_class->query = grl_tracker_source_query;
   source_class->metadata = grl_tracker_source_metadata;
+  source_class->search   = grl_tracker_source_search;
 
   metadata_class->supported_keys = grl_tracker_source_supported_keys;
   metadata_class->supported_operations = grl_tracker_source_supported_operations;
@@ -698,7 +712,7 @@ grl_tracker_source_supported_operations (GrlMetadataSource *metadata_source)
   GrlTrackerSource *source;
 
   source = GRL_TRACKER_SOURCE (metadata_source);
-  caps = GRL_OP_METADATA | GRL_OP_QUERY;
+  caps = GRL_OP_METADATA | GRL_OP_QUERY | GRL_OP_SEARCH;
 
   return caps;
 }
@@ -831,4 +845,56 @@ grl_tracker_source_metadata (GrlMediaSource *source,
     g_free (sparql_select);
   if (sparql_final != NULL)
     g_free (sparql_final);
+}
+
+static void
+grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
+{
+  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  gchar                *sparql_select;
+  gchar                *sparql_final;
+  GError               *error = NULL;
+  struct OperationSpec *os;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  if (!ss->text || ss->text[0] == '\0') {
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_QUERY_FAILED,
+                                 "Empty search");
+    goto send_error;
+  }
+
+  sparql_select = get_select_string (source, ss->keys);
+  sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
+                                  ss->text, ss->skip, ss->count);
+
+  GRL_DEBUG ("select: '%s'", sparql_final);
+
+  os = g_slice_new0 (struct OperationSpec);
+  os->source       = ss->source;
+  os->priv         = priv;
+  os->operation_id = ss->search_id;
+  os->keys         = ss->keys;
+  os->skip         = ss->skip;
+  os->count        = ss->count;
+  os->callback     = ss->callback;
+  os->user_data    = ss->user_data;
+
+  tracker_sparql_connection_query_async (priv->tracker_connection,
+                                         sparql_final,
+                                         NULL,
+                                         (GAsyncReadyCallback) tracker_query_cb,
+                                         os);
+
+  if (sparql_select != NULL)
+    g_free (sparql_select);
+  if (sparql_final != NULL)
+    g_free (sparql_final);
+
+  return;
+
+ send_error:
+  ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
+  g_error_free (error);
 }

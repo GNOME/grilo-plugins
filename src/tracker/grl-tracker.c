@@ -67,6 +67,28 @@ enum {
   SEARCH
 };
 
+/* --- Other --- */
+
+typedef struct {
+  GrlKeyID     grl_key;
+  const gchar *sparql_key_name;
+  const gchar *sparql_key_attr;
+  const gchar *sparql_key_flavor;
+} tracker_grl_sparql_t;
+
+struct OperationSpec {
+  GrlMediaSource         *source;
+  GrlTrackerSourcePriv   *priv;
+  guint                   operation_id;
+  const GList            *keys;
+  guint                   skip;
+  guint                   count;
+  guint                   current;
+  GrlMediaSourceResultCb  callback;
+  gpointer                user_data;
+  TrackerSparqlCursor    *cursor;
+};
+
 enum {
   PROP_0,
   PROP_TRACKER_CONNECTION,
@@ -102,6 +124,12 @@ static const GList *grl_tracker_source_supported_keys (GrlMetadataSource *source
 static void grl_tracker_source_query (GrlMediaSource *source,
                                       GrlMediaSourceQuerySpec *qs);
 
+static void setup_key_mappings (void);
+
+/* ===================== Globals  ================= */
+
+static GHashTable *grl_to_sparql_mapping = NULL;
+static GHashTable *sparql_to_grl_mapping = NULL;
 
 /* =================== Tracker Plugin  =============== */
 
@@ -124,8 +152,6 @@ tracker_get_connection_cb (GObject             *object,
     g_object_unref (G_OBJECT (connection));
   }
 }
-
-
 
 gboolean
 grl_tracker_plugin_init (GrlPluginRegistry *registry,
@@ -188,8 +214,10 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
                                                         | G_PARAM_CONSTRUCT_ONLY
                                                         | G_PARAM_STATIC_NAME));
 
-
   g_type_class_add_private (klass, sizeof (GrlTrackerSourcePriv));
+
+  setup_key_mappings ();
+
 }
 
 static void
@@ -232,6 +260,140 @@ grl_tracker_source_set_property (GObject      *object,
 
 /* ======================= Utilities ==================== */
 
+static gchar *
+build_flavored_key (gchar *key, const gchar *flavor)
+{
+  gint i = 0;
+
+  while (key[i] != '\0') {
+    if (!g_ascii_isalnum (key[i])) {
+      key[i] = '_';
+    }
+    i++;
+  }
+
+  return g_strdup_printf ("%s_%s", key, flavor);
+}
+
+static void
+insert_key_mapping (GrlKeyID     grl_key,
+                    const gchar *sparql_key_attr,
+                    const gchar *sparql_key_flavor)
+{
+  tracker_grl_sparql_t *assoc = g_slice_new0 (tracker_grl_sparql_t);
+  GList *assoc_list = g_hash_table_lookup (grl_to_sparql_mapping, grl_key);
+  gchar *canon_name = g_strdup (g_param_spec_get_name (grl_key));
+
+  assoc->grl_key           = grl_key;
+  assoc->sparql_key_name   = build_flavored_key (canon_name, sparql_key_flavor);
+  assoc->sparql_key_attr   = sparql_key_attr;
+  assoc->sparql_key_flavor = sparql_key_flavor;
+
+  assoc_list = g_list_append (assoc_list, assoc);
+
+  g_hash_table_insert (grl_to_sparql_mapping, grl_key, assoc_list);
+  g_hash_table_insert (sparql_to_grl_mapping,
+                       (gpointer) assoc->sparql_key_name,
+                       assoc);
+  g_hash_table_insert (sparql_to_grl_mapping,
+                       (gpointer) g_param_spec_get_name (G_PARAM_SPEC (grl_key)),
+                       assoc);
+
+  g_free (canon_name);
+}
+
+static void
+setup_key_mappings (void)
+{
+  grl_to_sparql_mapping = g_hash_table_new (g_direct_hash, g_direct_equal);
+  sparql_to_grl_mapping = g_hash_table_new (g_str_hash, g_str_equal);
+
+  insert_key_mapping (GRL_METADATA_KEY_ALBUM,
+                      "nmm:albumTitle(nmm:musicAlbum(?urn))",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_ARTIST,
+                      "nmm:artistName(nmm:performer(?urn))",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_AUTHOR,
+                      "nmm:artistName(nmm:performer(?urn))",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_BITRATE,
+                      "nfo:averageBitrate(?urn)",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_CHILDCOUNT,
+                      "nfo:entryCounter(?urn)",
+                      "directory");
+
+  insert_key_mapping (GRL_METADATA_KEY_DATE,
+                      "nfo:fileLastModified(?urn)",
+                      "file");
+
+  insert_key_mapping (GRL_METADATA_KEY_DURATION,
+                      "nfo:duration(?urn)",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_FRAMERATE,
+                      "nfo:frameRate(?urn)",
+                      "video");
+
+  insert_key_mapping (GRL_METADATA_KEY_HEIGHT,
+                      "nfo:height(?urn)",
+                      "video");
+
+  insert_key_mapping (GRL_METADATA_KEY_ID,
+                      "nie:isStoredAs(?urn)",
+                      "file");
+
+  insert_key_mapping (GRL_METADATA_KEY_LAST_PLAYED,
+                      "nfo:fileLastAccessed(?urn)",
+                      "file");
+
+  insert_key_mapping (GRL_METADATA_KEY_MIME,
+                      "nie:mimeType(?urn)",
+                      "file");
+
+  insert_key_mapping (GRL_METADATA_KEY_SITE,
+                      "nie:url(?urn)",
+                      "file");
+
+  insert_key_mapping (GRL_METADATA_KEY_TITLE,
+                      "nie:title(?urn)",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_TITLE,
+                      "nfo:fileName(?urn)",
+                      "file");
+
+  insert_key_mapping (GRL_METADATA_KEY_URL,
+                      "nie:url(?urn)",
+                      "file");
+
+  insert_key_mapping (GRL_METADATA_KEY_WIDTH,
+                      "nfo:width(?urn)",
+                      "video");
+}
+
+static tracker_grl_sparql_t *
+get_mapping_from_sparql (const gchar *key)
+{
+  return (tracker_grl_sparql_t *) g_hash_table_lookup (sparql_to_grl_mapping,
+                                                       key);
+}
+
+static void
+tracker_operation_terminate (struct OperationSpec *operation)
+{
+  if (operation == NULL)
+    return;
+
+  g_object_unref (G_OBJECT (operation->cursor));
+  g_slice_free (struct OperationSpec, operation);
+}
+
 /* Builds an appropriate GrlMedia based on ontology type returned by tracker, or
    NULL if unknown */
 static GrlMedia *
@@ -271,108 +433,173 @@ build_grilo_media (const gchar *rdf_type)
   return media;
 }
 
-/* Execute a sparql query an sends the elements as Grilo medias.
-   Returns FALSE if the query failed.
-*/
-static gboolean
-do_tracker_query (GrlMediaSource *source,
-                  const gchar *sparql_query,
-                  GrlMediaSourceResultCb callback,
-                  guint query_id,
-                  gpointer user_data,
-                  GError **error)
+static void
+fill_grilo_media_from_sparql (GrlMedia            *media,
+                              TrackerSparqlCursor *cursor,
+                              gint                 column)
 {
-  GError *tracker_error = NULL;
-  GrlKeyID key;
-  GrlMedia *media;
-  TrackerSparqlCursor *cursor;
-  const gchar *key_name = NULL;
-  int i;
-  int n_columns;
-  int type_column;
+  const gchar *sparql_key = tracker_sparql_cursor_get_variable_name (cursor, column);
+  tracker_grl_sparql_t *assoc = get_mapping_from_sparql (sparql_key);;
+  union {
+    gint int_val;
+    gdouble double_val;
+    const gchar *str_val;
+  } val;
 
-  cursor =
-    tracker_sparql_connection_query (GRL_TRACKER_SOURCE (source)->priv->tracker_connection,
-                                     sparql_query,
-                                     NULL,
-                                     &tracker_error);
-  if (!cursor) {
-    if (error) {
-      *error = g_error_new (GRL_CORE_ERROR,
-                            GRL_CORE_ERROR_QUERY_FAILED,
-                            "Query failed: %s",
-                            tracker_error->message);
+  if (assoc == NULL)
+    return;
+
+  GRL_DEBUG ("\tSetting media prop (col=%i/var=%s/prop=%s) %s",
+             column,
+             sparql_key,
+             g_param_spec_get_name (G_PARAM_SPEC (assoc->grl_key)),
+             tracker_sparql_cursor_get_string (cursor, column, NULL));
+
+  if (tracker_sparql_cursor_is_bound (cursor, column) == FALSE) {
+    GRL_DEBUG ("\t\tDropping, no data");
+    return;
+  }
+
+  if (grl_data_has_key (GRL_DATA (media), assoc->grl_key)) {
+    GRL_DEBUG ("\t\tDropping, already here");
+    return;
+  }
+
+  switch (G_PARAM_SPEC (assoc->grl_key)->value_type) {
+  case G_TYPE_STRING:
+    val.str_val = tracker_sparql_cursor_get_string (cursor, column, NULL);
+    if (val.str_val != NULL)
+      grl_data_set_string (GRL_DATA (media), assoc->grl_key, val.str_val);
+    break;
+
+  case G_TYPE_INT:
+    val.int_val = tracker_sparql_cursor_get_integer (cursor, column);
+    grl_data_set_int (GRL_DATA (media), assoc->grl_key, val.int_val);
+    break;
+
+  case G_TYPE_FLOAT:
+    val.double_val = tracker_sparql_cursor_get_double (cursor, column);
+    grl_data_set_float (GRL_DATA (media), assoc->grl_key, (gfloat) val.double_val);
+    break;
+
+  default:
+    GRL_DEBUG ("\t\tUnexpected data type");
+    break;
+  }
+}
+
+static void
+tracker_query_result_cb (GObject              *source_object,
+                         GAsyncResult         *result,
+                         struct OperationSpec *operation)
+{
+  gint         col;
+  const gchar *sparql_type;
+  GError      *tracker_error = NULL, *error = NULL;
+  GrlMedia    *media;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  if (!tracker_sparql_cursor_next_finish (operation->cursor,
+                                          result,
+                                          &tracker_error)) {
+    if (tracker_error != NULL) {
+      GRL_DEBUG ("\terror in parsing : %s", tracker_error->message);
+
+      error = g_error_new (GRL_CORE_ERROR,
+                           GRL_CORE_ERROR_BROWSE_FAILED,
+                           "Failed to start browse action : %s",
+                           tracker_error->message);
+
+      operation->callback (operation->source,
+                           operation->operation_id,
+                           NULL, 0,
+                           operation->user_data, error);
+
+      g_error_free (error);
+      g_error_free (tracker_error);
+    } else {
+      GRL_DEBUG ("\tend of parsing :)");
+
+      /* Only emit this last one if more result than expected */
+      if (operation->count > 1)
+        operation->callback (operation->source,
+                             operation->operation_id,
+                             NULL, 0,
+                             operation->user_data, NULL);
     }
-    return FALSE;
+
+    tracker_operation_terminate (operation);
+    return;
   }
 
-  while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-      n_columns = tracker_sparql_cursor_get_n_columns (cursor);
-      /* Search column with type */
-      for (type_column = 0; type_column < n_columns; type_column++) {
-        if (strcmp (tracker_sparql_cursor_get_variable_name (cursor,
-                                                             type_column),
-                    MEDIA_TYPE) == 0) {
-          break;
-        }
-      }
+  sparql_type = tracker_sparql_cursor_get_string (operation->cursor, 0, NULL);
 
-      /* type not found */
-      if (type_column >= n_columns) {
-        continue;
-      }
+  GRL_DEBUG ("Parsing line %i of type %s", operation->current, sparql_type);
 
-      media = build_grilo_media (tracker_sparql_cursor_get_string (cursor,
-                                                                   type_column,
-                                                                   NULL));
-      /* Unknown media */
-      if (!media) {
-        continue;
-      }
+  media = build_grilo_media (sparql_type);
 
-      /* Fill data */
-      for (i = 0; i < n_columns; i++) {
-        /* Skip type */
-        if (i == type_column) {
-          continue;
-        }
+  if (media != NULL) {
+    for (col = 1 ;
+         col < tracker_sparql_cursor_get_n_columns (operation->cursor) ;
+         col++) {
+      fill_grilo_media_from_sparql (media, operation->cursor, col);
+    }
 
-        /* Column has no value */
-        if (!tracker_sparql_cursor_is_bound (cursor, i)) {
-          continue;
-        }
-
-        key_name = tracker_sparql_cursor_get_variable_name (cursor, i);
-
-        /* Unnamed column */
-        if (!key_name) {
-          continue;
-        }
-
-        key = grl_plugin_registry_lookup_metadata_key (grl_plugin_registry_get_default (),
-                                                       key_name);
-        /* Unknown key */
-        if (!key) {
-          continue;
-        }
-
-        grl_data_set_string (GRL_DATA (media),
-                             key,
-                             tracker_sparql_cursor_get_string (cursor,
-                                                               i,
-                                                               NULL));
-      }
-
-      /* Send data */
-      callback (source, query_id, media, -1, user_data, NULL);
+    operation->callback (operation->source,
+                         operation->operation_id,
+                         media,
+                         --operation->count,
+                         operation->user_data,
+                         NULL);
   }
 
-  /* Notify there is no more elements */
-  callback (source, query_id, NULL, 0, user_data, NULL);
+  /* Schedule the next line to parse */
+  operation->current++;
+  if (operation->count < 1)
+        tracker_operation_terminate (operation);
+  else
+    tracker_sparql_cursor_next_async (operation->cursor, NULL,
+                                      (GAsyncReadyCallback) tracker_query_result_cb,
+                                      (gpointer) operation);
+}
 
-  g_object_unref (cursor);
+static void
+tracker_query_cb (GObject              *source_object,
+                  GAsyncResult         *result,
+                  struct OperationSpec *operation)
+{
+  GError *tracker_error = NULL, *error = NULL;
 
-  return TRUE;
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  operation->cursor =
+    tracker_sparql_connection_query_finish (operation->priv->tracker_connection,
+                                            result, &tracker_error);
+
+  if (tracker_error) {
+    GRL_WARNING ("Could not execute sparql query: %s", tracker_error->message);
+
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_BROWSE_FAILED,
+			 "Failed to start browse action : %s",
+                         tracker_error->message);
+
+    operation->callback (operation->source, operation->operation_id, NULL, 0,
+                         operation->user_data, error);
+
+    g_error_free (tracker_error);
+    g_error_free (error);
+    g_slice_free (struct OperationSpec, operation);
+
+    return;
+  }
+
+  /* Start parsing results */
+  operation->current = 0;
+  tracker_sparql_cursor_next_async (operation->cursor, NULL,
+                                    (GAsyncReadyCallback) tracker_query_result_cb,
+                                    (gpointer) operation);
 }
 
 /* ================== API Implementation ================ */
@@ -454,7 +681,9 @@ static void
 grl_tracker_source_query (GrlMediaSource *source,
                           GrlMediaSourceQuerySpec *qs)
 {
-  GError *error = NULL;
+  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  GError               *error = NULL;
+  struct OperationSpec *os;
 
   GRL_DEBUG ("%s", __FUNCTION__);
 
@@ -467,16 +696,21 @@ grl_tracker_source_query (GrlMediaSource *source,
 
   GRL_DEBUG ("select : %s", qs->query);
 
-  do_tracker_query (source,
-                    qs->query,
-                    qs->callback,
-                    qs->query_id,
-                    qs->user_data,
-                    &error);
+  os = g_slice_new0 (struct OperationSpec);
+  os->source       = qs->source;
+  os->priv         = priv;
+  os->operation_id = qs->query_id;
+  os->keys         = qs->keys;
+  os->skip         = qs->skip;
+  os->count        = qs->count;
+  os->callback     = qs->callback;
+  os->user_data    = qs->user_data;
 
-  if (error) {
-    goto send_error;
-  }
+  tracker_sparql_connection_query_async (priv->tracker_connection,
+                                         qs->query,
+                                         NULL,
+                                         (GAsyncReadyCallback) tracker_query_cb,
+                                         os);
 
   return;
 

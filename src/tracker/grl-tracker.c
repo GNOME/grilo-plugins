@@ -134,7 +134,7 @@ grl_tracker_plugin_init (GrlPluginRegistry *registry,
 {
   GRL_LOG_DOMAIN_INIT (tracker_log_domain, "tracker");
 
-  GRL_DEBUG ("tracker_plugin_init");
+  GRL_DEBUG ("%s", __FUNCTION__);
 
   tracker_sparql_connection_get_async (NULL,
                                        (GAsyncReadyCallback) tracker_get_connection_cb,
@@ -151,7 +151,7 @@ GRL_PLUGIN_REGISTER (grl_tracker_plugin_init,
 static GrlTrackerSource *
 grl_tracker_source_new (TrackerSparqlConnection *connection)
 {
-  GRL_DEBUG ("grl_tracker_source_new");
+  GRL_DEBUG ("%s", __FUNCTION__);
 
   return g_object_new (GRL_TRACKER_SOURCE_TYPE,
                        "source-id", SOURCE_ID,
@@ -456,7 +456,7 @@ grl_tracker_source_query (GrlMediaSource *source,
 {
   GError *error = NULL;
 
-  GRL_DEBUG ("grl_tracker_source_query");
+  GRL_DEBUG ("%s", __FUNCTION__);
 
   if (!qs->query || qs->query[0] == '\0') {
     error = g_error_new_literal (GRL_CORE_ERROR,
@@ -464,6 +464,8 @@ grl_tracker_source_query (GrlMediaSource *source,
                                  "Empty query");
     goto send_error;
   }
+
+  GRL_DEBUG ("select : %s", qs->query);
 
   do_tracker_query (source,
                     qs->query,

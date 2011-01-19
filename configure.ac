@@ -20,6 +20,11 @@ AM_CONFIG_HEADER(src/config.h)
 AC_PROG_CC
 AC_PROG_INSTALL
 
+PKG_CONFIG="pkg-config"
+if test -n "$host" ; then
+	PKG_CONFIG=$host-$PKG_CONFIG
+fi
+
 LT_PREREQ([2.2.6])
 LT_INIT
 
@@ -85,7 +90,7 @@ PKG_CHECK_MODULES([DEPS], glib-2.0 \
 
 # Plugins directory
 
-GRL_PLUGINS_DIR=`pkg-config --variable=plugindir ${GRL_NAME}`
+GRL_PLUGINS_DIR=`${PKG_CONFIG} --variable=plugindir ${GRL_NAME}`
 AC_SUBST(GRL_PLUGINS_DIR)
 AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 
@@ -132,7 +137,7 @@ PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
 
 GUPNPAV_OLD_VERSION=no
 if test "x$HAVE_GUPNPAV" = "xyes"; then
-        gupnpav_version=`pkg-config --modversion gupnp-av-1.0`
+        gupnpav_version=`${PKG_CONFIG} --modversion gupnp-av-1.0`
         gupnpav_version_major=`echo $gupnpav_version | awk -F. '{ print $1 }'`
         gupnpav_version_minor=`echo $gupnpav_version | awk -F. '{ print $2 }'`
         if test $gupnpav_version_major -eq 0 -a $gupnpav_version_minor -lt 5; then
@@ -146,7 +151,7 @@ AM_CONDITIONAL(GUPNPAV_OLD_VERSION, test "x$GUPNPAV_OLD_VERSION" = "xyes")
 # ----------------------------------------------------------
 
 if test "x$HAVE_GDATA" = "xyes"; then
-   gdata_version=`pkg-config --modversion libgdata`
+   gdata_version=`${PKG_CONFIG} --modversion libgdata`
    gdata_version_major=`echo $gdata_version | awk -F. '{ print $1 }'`
    gdata_version_minor=`echo $gdata_version | awk -F. '{ print $2 }'`
    if test $gdata_version_major -eq 0 -a $gdata_version_minor -ge 7; then

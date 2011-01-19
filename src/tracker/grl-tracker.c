@@ -69,6 +69,12 @@ enum {
 
 /* --- Other --- */
 
+#define TRACKER_METADATA_REQUEST "                                  \
+  SELECT %s                                                         \
+  WHERE {                                                           \
+    ?urn nie:isStoredAs <%s>                                        \
+  }"
+
 typedef struct {
   GrlKeyID     grl_key;
   const gchar *sparql_key_name;
@@ -120,9 +126,11 @@ static GrlSupportedOps grl_tracker_source_supported_operations (GrlMetadataSourc
 
 static const GList *grl_tracker_source_supported_keys (GrlMetadataSource *source);
 
-
 static void grl_tracker_source_query (GrlMediaSource *source,
                                       GrlMediaSourceQuerySpec *qs);
+
+static void grl_tracker_source_metadata (GrlMediaSource *source,
+                                         GrlMediaSourceMetadataSpec *ms);
 
 static void setup_key_mappings (void);
 
@@ -197,6 +205,7 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
   GObjectClass           *g_class        = G_OBJECT_CLASS (klass);
 
   source_class->query = grl_tracker_source_query;
+  source_class->metadata = grl_tracker_source_metadata;
 
   metadata_class->supported_keys = grl_tracker_source_supported_keys;
   metadata_class->supported_operations = grl_tracker_source_supported_operations;
@@ -384,6 +393,12 @@ get_mapping_from_sparql (const gchar *key)
                                                        key);
 }
 
+static GList *
+get_mapping_from_grl (const GrlKeyID key)
+{
+  return (GList *) g_hash_table_lookup (grl_to_sparql_mapping, key);
+}
+
 static void
 tracker_operation_terminate (struct OperationSpec *operation)
 {
@@ -392,6 +407,32 @@ tracker_operation_terminate (struct OperationSpec *operation)
 
   g_object_unref (G_OBJECT (operation->cursor));
   g_slice_free (struct OperationSpec, operation);
+}
+
+static gchar *
+get_select_string (GrlMediaSource *source, const GList *keys)
+{
+  const GList *key = keys;
+  GString *gstr = g_string_new ("");
+  GList *assoc_list;
+  tracker_grl_sparql_t *assoc;
+
+  while (key != NULL) {
+    assoc_list = get_mapping_from_grl ((GrlKeyID) key->data);
+    while (assoc_list != NULL) {
+      assoc = (tracker_grl_sparql_t *) assoc_list->data;
+      if (assoc != NULL) {
+        g_string_append_printf (gstr, "%s AS %s",
+                                assoc->sparql_key_attr,
+                                assoc->sparql_key_name);
+        g_string_append (gstr, " ");
+      }
+      assoc_list = assoc_list->next;
+    }
+    key = key->next;
+  }
+
+  return g_string_free (gstr, FALSE);
 }
 
 /* Builds an appropriate GrlMedia based on ontology type returned by tracker, or
@@ -602,6 +643,52 @@ tracker_query_cb (GObject              *source_object,
                                     (gpointer) operation);
 }
 
+static void
+tracker_metadata_cb (GObject                    *source_object,
+                     GAsyncResult               *result,
+                     GrlMediaSourceMetadataSpec *ms)
+{
+  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (ms->source);
+  gint                  col;
+  GError               *tracker_error = NULL, *error = NULL;
+  TrackerSparqlCursor  *cursor;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  cursor = tracker_sparql_connection_query_finish (priv->tracker_connection,
+                                                   result, &tracker_error);
+
+  if (tracker_error) {
+    GRL_WARNING ("Could not execute sparql query: %s", tracker_error->message);
+
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_BROWSE_FAILED,
+			 "Failed to start browse action : %s",
+                         tracker_error->message);
+
+    ms->callback (ms->source, NULL, ms->user_data, error);
+
+    g_error_free (tracker_error);
+    g_error_free (error);
+
+    goto end_operation;
+  }
+
+
+  tracker_sparql_cursor_next (cursor, NULL, NULL);
+
+  /* Translate Sparql result into Grilo result */
+  for (col = 0 ; col < tracker_sparql_cursor_get_n_columns (cursor) ; col++) {
+    fill_grilo_media_from_sparql (ms->media, cursor, col);
+  }
+
+  ms->callback (ms->source, ms->media, ms->user_data, NULL);
+
+ end_operation:
+  if (cursor)
+    g_object_unref (G_OBJECT (cursor));
+}
+
 /* ================== API Implementation ================ */
 
 static GrlSupportedOps
@@ -611,7 +698,7 @@ grl_tracker_source_supported_operations (GrlMetadataSource *metadata_source)
   GrlTrackerSource *source;
 
   source = GRL_TRACKER_SOURCE (metadata_source);
-  caps = GRL_OP_QUERY;
+  caps = GRL_OP_METADATA | GRL_OP_QUERY;
 
   return caps;
 }
@@ -717,4 +804,31 @@ grl_tracker_source_query (GrlMediaSource *source,
  send_error:
   qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
   g_error_free (error);
+}
+
+static void
+grl_tracker_source_metadata (GrlMediaSource *source,
+                             GrlMediaSourceMetadataSpec *ms)
+{
+  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  gchar                *sparql_select, *sparql_final;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  sparql_select = get_select_string (source, ms->keys);
+  sparql_final = g_strdup_printf (TRACKER_METADATA_REQUEST, sparql_select,
+                                  grl_media_get_id (ms->media));
+
+  GRL_DEBUG ("select: '%s'", sparql_final);
+
+  tracker_sparql_connection_query_async (priv->tracker_connection,
+                                         sparql_final,
+                                         NULL,
+                                         (GAsyncReadyCallback) tracker_metadata_cb,
+                                         ms);
+
+  if (sparql_select != NULL)
+    g_free (sparql_select);
+  if (sparql_final != NULL)
+    g_free (sparql_final);
 }

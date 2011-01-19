@@ -285,7 +285,8 @@ grl_tracker_source_set_property (GObject      *object,
 
   switch (propid) {
   case PROP_TRACKER_CONNECTION:
-    g_object_unref (G_OBJECT (priv->tracker_connection));
+    if (priv->tracker_connection != NULL)
+      g_object_unref (G_OBJECT (priv->tracker_connection));
     priv->tracker_connection = g_object_ref (g_value_get_object (value));
     break;
 

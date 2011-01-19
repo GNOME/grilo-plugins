@@ -79,6 +79,15 @@ enum {
   ORDER BY DESC(nfo:fileLastModified(?urn))                         \
   OFFSET %i LIMIT %i"
 
+#define TRACKER_BROWSE_CATEGORY_REQUEST "                             \
+  SELECT rdf:type(?urn) %s                                            \
+  WHERE {                                                             \
+    ?urn a %s .                                                       \
+    ?urn tracker:available ?tr .                                      \
+  }                                                                   \
+  ORDER BY DESC(nfo:fileLastModified(?urn))                           \
+  OFFSET %i LIMIT %i"
+
 #define TRACKER_METADATA_REQUEST "                                  \
   SELECT %s                                                         \
   WHERE {                                                           \
@@ -144,6 +153,9 @@ static void grl_tracker_source_metadata (GrlMediaSource *source,
 
 static void grl_tracker_source_search (GrlMediaSource *source,
                                        GrlMediaSourceSearchSpec *ss);
+
+static void grl_tracker_source_browse (GrlMediaSource *source,
+                                       GrlMediaSourceBrowseSpec *bs);
 
 static void setup_key_mappings (void);
 
@@ -220,6 +232,7 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
   source_class->query = grl_tracker_source_query;
   source_class->metadata = grl_tracker_source_metadata;
   source_class->search   = grl_tracker_source_search;
+  source_class->browse   = grl_tracker_source_browse;
 
   metadata_class->supported_keys = grl_tracker_source_supported_keys;
   metadata_class->supported_operations = grl_tracker_source_supported_operations;
@@ -712,7 +725,7 @@ grl_tracker_source_supported_operations (GrlMetadataSource *metadata_source)
   GrlTrackerSource *source;
 
   source = GRL_TRACKER_SOURCE (metadata_source);
-  caps = GRL_OP_METADATA | GRL_OP_QUERY | GRL_OP_SEARCH;
+  caps = GRL_OP_BROWSE | GRL_OP_METADATA | GRL_OP_QUERY | GRL_OP_SEARCH;
 
   return caps;
 }
@@ -897,4 +910,63 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
  send_error:
   ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
   g_error_free (error);
+}
+
+static void
+grl_tracker_source_browse (GrlMediaSource *source,
+                           GrlMediaSourceBrowseSpec *bs)
+{
+  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  gchar                *sparql_select;
+  gchar                *sparql_final;
+  struct OperationSpec *os;
+  GrlMedia             *media;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  if ((bs->container == NULL || grl_media_get_id (bs->container) == NULL)) {
+    /* Hardcoded categories */
+    media = grl_media_box_new ();
+    grl_media_set_title (media, "Music");
+    grl_media_set_id (media, "nmm:MusicPiece");
+    bs->callback (bs->source, bs->browse_id, media, 2, bs->user_data, NULL);
+
+    media = grl_media_box_new ();
+    grl_media_set_title (media, "Photo");
+    grl_media_set_id (media, "nmm:Photo");
+    bs->callback (bs->source, bs->browse_id, media, 1, bs->user_data, NULL);
+
+    media = grl_media_box_new ();
+    grl_media_set_title (media, "Video");
+    grl_media_set_id (media, "nmm:Video");
+    bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
+    return;
+  }
+
+  sparql_select = get_select_string (bs->source, bs->keys);
+  sparql_final = g_strdup_printf (TRACKER_BROWSE_CATEGORY_REQUEST,
+                                  sparql_select,
+                                  grl_media_get_id (bs->container),
+                                  bs->skip, bs->count);
+
+  GRL_DEBUG ("select: '%s'", sparql_final);
+
+  os = g_slice_new0 (struct OperationSpec);
+  os->source       = bs->source;
+  os->priv         = priv;
+  os->operation_id = bs->browse_id;
+  os->keys         = bs->keys;
+  os->skip         = bs->skip;
+  os->count        = bs->count;
+  os->callback     = bs->callback;
+  os->user_data    = bs->user_data;
+
+  tracker_sparql_connection_query_async (priv->tracker_connection,
+                                         sparql_final,
+                                         NULL,
+                                         (GAsyncReadyCallback) tracker_query_cb,
+                                         os);
+
+  g_free (sparql_select);
+  g_free (sparql_final);
 }

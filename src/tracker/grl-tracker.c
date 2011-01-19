@@ -67,6 +67,11 @@ enum {
   SEARCH
 };
 
+enum {
+  PROP_0,
+  PROP_TRACKER_CONNECTION,
+};
+
 struct _GrlTrackerSourcePriv {
   TrackerSparqlConnection *tracker_connection;
 };
@@ -76,7 +81,14 @@ struct _GrlTrackerSourcePriv {
                                GRL_TRACKER_SOURCE_TYPE,	\
                                GrlTrackerSourcePriv))
 
-static GrlTrackerSource *grl_tracker_source_new (void);
+static GrlTrackerSource *grl_tracker_source_new (TrackerSparqlConnection *connection);
+
+static void grl_tracker_source_set_property (GObject      *object,
+                                             guint         propid,
+                                             const GValue *value,
+                                             GParamSpec   *pspec);
+
+static void grl_tracker_source_finalize (GObject *object);
 
 gboolean grl_tracker_plugin_init (GrlPluginRegistry *registry,
                                   const GrlPluginInfo *plugin,
@@ -93,6 +105,28 @@ static void grl_tracker_source_query (GrlMediaSource *source,
 
 /* =================== Tracker Plugin  =============== */
 
+static void
+tracker_get_connection_cb (GObject             *object,
+                           GAsyncResult        *res,
+                           const GrlPluginInfo *plugin)
+{
+  TrackerSparqlConnection *connection;
+  GrlTrackerSource *source;
+
+  connection = tracker_sparql_connection_get_finish (res, NULL);
+
+  if (connection != NULL) {
+    source = grl_tracker_source_new (connection);
+    grl_plugin_registry_register_source (grl_plugin_registry_get_default (),
+                                         plugin,
+                                         GRL_MEDIA_PLUGIN (source),
+                                         NULL);
+    g_object_unref (G_OBJECT (connection));
+  }
+}
+
+
+
 gboolean
 grl_tracker_plugin_init (GrlPluginRegistry *registry,
                          const GrlPluginInfo *plugin,
@@ -102,11 +136,9 @@ grl_tracker_plugin_init (GrlPluginRegistry *registry,
 
   GRL_DEBUG ("tracker_plugin_init");
 
-  GrlTrackerSource *source = grl_tracker_source_new ();
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_MEDIA_PLUGIN (source),
-                                       NULL);
+  tracker_sparql_connection_get_async (NULL,
+                                       (GAsyncReadyCallback) tracker_get_connection_cb,
+                                       (gpointer) plugin);
   return TRUE;
 }
 
@@ -117,57 +149,45 @@ GRL_PLUGIN_REGISTER (grl_tracker_plugin_init,
 /* ================== Tracker GObject ================ */
 
 static GrlTrackerSource *
-grl_tracker_source_new (void)
+grl_tracker_source_new (TrackerSparqlConnection *connection)
 {
-  GError *error = NULL;
-  GrlTrackerSource *source;
-  TrackerSparqlConnection *connection;
-
   GRL_DEBUG ("grl_tracker_source_new");
 
-  connection = tracker_sparql_connection_get_direct (NULL, &error);
-  if (!connection) {
-    GRL_WARNING ("Failed to get Tracker connection: %s", error->message);
-    return NULL;
-  }
-
-  source =  g_object_new (GRL_TRACKER_SOURCE_TYPE,
-                          "source-id", SOURCE_ID,
-                          "source-name", SOURCE_NAME,
-                          "source-desc", SOURCE_DESC,
-                          NULL);
-  source->priv->tracker_connection = connection;
-
-  return source;
+  return g_object_new (GRL_TRACKER_SOURCE_TYPE,
+                       "source-id", SOURCE_ID,
+                       "source-name", SOURCE_NAME,
+                       "source-desc", SOURCE_DESC,
+                       "tracker-connection", connection,
+                       NULL);
 }
 
 G_DEFINE_TYPE (GrlTrackerSource, grl_tracker_source, GRL_TYPE_MEDIA_SOURCE);
 
 static void
-grl_tracker_source_finalize (GObject *object)
-{
-  GrlTrackerSource *self;
-
-  self = GRL_TRACKER_SOURCE (object);
-  if (self->priv->tracker_connection) {
-    g_object_unref (self->priv->tracker_connection);
-  }
-
-  G_OBJECT_CLASS (grl_tracker_source_parent_class)->finalize (object);
-}
-
-static void
 grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
 {
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
+  GrlMediaSourceClass    *source_class   = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
-  GObjectClass *g_class = G_OBJECT_CLASS (klass);
+  GObjectClass           *g_class        = G_OBJECT_CLASS (klass);
+
   source_class->query = grl_tracker_source_query;
 
   metadata_class->supported_keys = grl_tracker_source_supported_keys;
   metadata_class->supported_operations = grl_tracker_source_supported_operations;
 
   g_class->finalize = grl_tracker_source_finalize;
+  g_class->set_property = grl_tracker_source_set_property;
+
+  g_object_class_install_property (g_class,
+                                   PROP_TRACKER_CONNECTION,
+                                   g_param_spec_object ("tracker-connection",
+                                                        "tracker-connection",
+                                                        "A Tracker connection",
+                                                        TRACKER_SPARQL_TYPE_CONNECTION,
+                                                        G_PARAM_WRITABLE
+                                                        | G_PARAM_CONSTRUCT_ONLY
+                                                        | G_PARAM_STATIC_NAME));
+
 
   g_type_class_add_private (klass, sizeof (GrlTrackerSourcePriv));
 }
@@ -176,6 +196,38 @@ static void
 grl_tracker_source_init (GrlTrackerSource *source)
 {
   source->priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+}
+
+static void
+grl_tracker_source_finalize (GObject *object)
+{
+  GrlTrackerSource *self;
+
+  self = GRL_TRACKER_SOURCE (object);
+  if (self->priv->tracker_connection)
+    g_object_unref (self->priv->tracker_connection);
+
+  G_OBJECT_CLASS (grl_tracker_source_parent_class)->finalize (object);
+}
+
+static void
+grl_tracker_source_set_property (GObject      *object,
+                                 guint         propid,
+                                 const GValue *value,
+                                 GParamSpec   *pspec)
+
+{
+  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (object);
+
+  switch (propid) {
+  case PROP_TRACKER_CONNECTION:
+    g_object_unref (G_OBJECT (priv->tracker_connection));
+    priv->tracker_connection = g_object_ref (g_value_get_object (value));
+    break;
+
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, propid, pspec);
+  }
 }
 
 /* ======================= Utilities ==================== */

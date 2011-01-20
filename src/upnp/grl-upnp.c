@@ -669,6 +669,84 @@ didl_h_mm_ss_to_int (const gchar *time)
 
 }
 
+static gboolean
+is_image (xmlNode *node)
+{
+  gchar *mime_type;
+  gboolean ret;
+
+  mime_type = didl_res_get_protocol_info (node, 2);
+  ret = g_str_has_prefix (mime_type, "image/");
+
+  g_free (mime_type);
+  return ret;
+}
+
+static gboolean
+is_http_get (xmlNode *node)
+{
+  gboolean ret;
+  gchar *protocol;
+
+  protocol = didl_res_get_protocol_info (node, 0);
+  ret = g_str_has_prefix (protocol, "http-get");
+
+  g_free (protocol);
+  return ret;
+}
+
+static gboolean
+has_thumbnail_marker (xmlNode *node)
+{
+  gchar *dlna_stuff;
+  gboolean ret;
+
+  dlna_stuff = didl_res_get_protocol_info (node, 3);
+  ret = strstr("JPEG_TN", dlna_stuff) != NULL;
+
+  g_free (dlna_stuff);
+  return ret;
+}
+
+static gchar *
+get_thumbnail (GList *nodes)
+{
+  GList *element;
+  gchar *val = NULL;
+  guint counter = 0;
+
+  /* chose, depending on availability, the first with DLNA.ORG_PN=JPEG_TN, or
+   * the last http-get with mimetype image/something if there is more than one
+   * http-get.
+   * This covers at least mediatomb and rygel.
+   * This could be improved by handling resolution and/or size */
+
+  for (element=nodes; element; element=g_list_next (element)) {
+    xmlNode *node = (xmlNode *)element->data;
+
+    if (is_http_get (node)) {
+      counter++;
+      if (is_image (node)) {
+        if (val)
+          g_free (val);
+        val = xmlNodeGetContent (node);
+
+        if (has_thumbnail_marker (node))  /* that's definitely it! */
+          return val;
+      }
+    }
+  }
+
+  if (val && counter == 1) {
+    /* There was only one element with http-get protocol: that's the uri of the
+     * media itself, not a thumbnail */
+    g_free (val);
+    val = NULL;
+  }
+
+  return val;
+}
+
 static gchar *
 get_value_for_key (GrlKeyID key_id,
 #ifdef GUPNPAV_OLD_VERSION
@@ -715,6 +793,11 @@ get_value_for_key (GrlKeyID key_id,
 #else
     val = (gchar *) xmlNodeGetContent ((xmlNode *) props->data);
 #endif
+
+  } else if (key_id == GRL_METADATA_KEY_THUMBNAIL && props) {
+    val = g_strdup (gupnp_didl_lite_object_get_album_art (didl));
+    if (!val)
+      val = get_thumbnail (props);
 
   } else if (upnp_key) {
 
@@ -769,6 +852,8 @@ set_metadata_value (GrlMedia *media,
     }
   } else if (key_id == GRL_METADATA_KEY_CHILDCOUNT && value && GRL_IS_MEDIA_BOX (media)) {
       grl_media_box_set_childcount (GRL_MEDIA_BOX (media), atoi (value));
+  } else if (key_id == GRL_METADATA_KEY_THUMBNAIL) {
+    grl_media_set_thumbnail (media, value);
   }
 }
 
@@ -1054,6 +1139,7 @@ grl_upnp_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_ALBUM,
                                       GRL_METADATA_KEY_GENRE,
                                       GRL_METADATA_KEY_CHILDCOUNT,
+                                      GRL_METADATA_KEY_THUMBNAIL,
                                       NULL);
   }
   return keys;

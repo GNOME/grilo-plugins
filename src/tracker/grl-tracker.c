@@ -826,7 +826,7 @@ grl_tracker_source_query (GrlMediaSource *source,
   GError               *error = NULL;
   struct OperationSpec *os;
 
-  GRL_DEBUG ("%s", __FUNCTION__);
+  GRL_DEBUG ("%s: id=%u", __FUNCTION__, qs->quert_id);
 
   if (!qs->query || qs->query[0] == '\0') {
     error = g_error_new_literal (GRL_CORE_ERROR,
@@ -864,7 +864,7 @@ grl_tracker_source_metadata (GrlMediaSource *source,
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
   gchar                *sparql_select, *sparql_final;
 
-  GRL_DEBUG ("%s", __FUNCTION__);
+  GRL_DEBUG ("%s: id=", __FUNCTION__, ms->metadata_id);
 
   sparql_select = get_select_string (source, ms->keys);
   sparql_final = g_strdup_printf (TRACKER_METADATA_REQUEST, sparql_select,
@@ -893,7 +893,7 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   GError               *error = NULL;
   struct OperationSpec *os;
 
-  GRL_DEBUG ("%s", __FUNCTION__);
+  GRL_DEBUG ("%s: id=%u", __FUNCTION__, ss->search_id);
 
   if (!ss->text || ss->text[0] == '\0') {
     error = g_error_new_literal (GRL_CORE_ERROR,
@@ -943,7 +943,7 @@ grl_tracker_source_browse (GrlMediaSource *source,
   struct OperationSpec *os;
   GrlMedia             *media;
 
-  GRL_DEBUG ("%s", __FUNCTION__);
+  GRL_DEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
 
   if ((bs->container == NULL || grl_media_get_id (bs->container) == NULL)) {
     /* Hardcoded categories */
@@ -995,7 +995,7 @@ grl_tracker_source_cancel (GrlMediaSource *source, guint operation_id)
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
   struct OperationSpec *os;
 
-  GRL_DEBUG ("%s", __FUNCTION__);
+  GRL_DEBUG ("%s: id=%u", __FUNCTION__, operation_id);
 
   os = g_hash_table_lookup (priv->operations, GSIZE_TO_POINTER (operation_id));
 

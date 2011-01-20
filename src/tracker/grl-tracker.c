@@ -29,6 +29,7 @@
 
 #include <grilo.h>
 #include <string.h>
+#include <gio/gio.h>
 #include <tracker-sparql.h>
 
 #include "grl-tracker.h"
@@ -106,6 +107,7 @@ struct OperationSpec {
   GrlMediaSource         *source;
   GrlTrackerSourcePriv   *priv;
   guint                   operation_id;
+  GCancellable           *cancel_op;
   const GList            *keys;
   guint                   skip;
   guint                   count;
@@ -122,6 +124,8 @@ enum {
 
 struct _GrlTrackerSourcePriv {
   TrackerSparqlConnection *tracker_connection;
+
+  GHashTable *operations;
 };
 
 #define GRL_TRACKER_SOURCE_GET_PRIVATE(object)		\
@@ -155,6 +159,9 @@ static void grl_tracker_source_search (GrlMediaSource *source,
 
 static void grl_tracker_source_browse (GrlMediaSource *source,
                                        GrlMediaSourceBrowseSpec *bs);
+
+static void grl_tracker_source_cancel (GrlMediaSource *source,
+                                       guint operation_id);
 
 static void setup_key_mappings (void);
 
@@ -228,10 +235,11 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   GObjectClass           *g_class        = G_OBJECT_CLASS (klass);
 
-  source_class->query = grl_tracker_source_query;
+  source_class->query    = grl_tracker_source_query;
   source_class->metadata = grl_tracker_source_metadata;
   source_class->search   = grl_tracker_source_search;
   source_class->browse   = grl_tracker_source_browse;
+  source_class->cancel   = grl_tracker_source_cancel;
 
   metadata_class->supported_keys = grl_tracker_source_supported_keys;
 
@@ -257,7 +265,11 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
 static void
 grl_tracker_source_init (GrlTrackerSource *source)
 {
-  source->priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+
+  source->priv = priv;
+
+  priv->operations = g_hash_table_new (g_direct_hash, g_direct_equal);
 }
 
 static void
@@ -425,14 +437,35 @@ get_mapping_from_grl (const GrlKeyID key)
   return (GList *) g_hash_table_lookup (grl_to_sparql_mapping, key);
 }
 
-static void
-tracker_operation_terminate (struct OperationSpec *operation)
+static struct OperationSpec *
+tracker_operation_initiate (GrlMediaSource *source,
+                            GrlTrackerSourcePriv *priv,
+                            guint operation_id)
 {
-  if (operation == NULL)
+  struct OperationSpec *os = g_slice_new0 (struct OperationSpec);
+
+  os->source       = source;
+  os->priv         = priv;
+  os->operation_id = operation_id;
+  os->cancel_op    = g_cancellable_new ();
+
+  g_hash_table_insert (priv->operations, GSIZE_TO_POINTER (operation_id), os);
+
+  return os;
+}
+
+static void
+tracker_operation_terminate (struct OperationSpec *os)
+{
+  if (os == NULL)
     return;
 
-  g_object_unref (G_OBJECT (operation->cursor));
-  g_slice_free (struct OperationSpec, operation);
+  g_hash_table_remove (os->priv->operations,
+                       GSIZE_TO_POINTER (os->operation_id));
+
+  g_object_unref (G_OBJECT (os->cursor));
+  g_object_unref (G_OBJECT (os->cancel_op));
+  g_slice_free (struct OperationSpec, os);
 }
 
 static gchar *
@@ -567,6 +600,13 @@ tracker_query_result_cb (GObject              *source_object,
 
   GRL_DEBUG ("%s", __FUNCTION__);
 
+  if (g_cancellable_is_cancelled (operation->cancel_op)) {
+    GRL_DEBUG ("\tOperation %u cancelled", operation->operation_id);
+    tracker_operation_terminate (operation);
+
+    return;
+  }
+
   if (!tracker_sparql_cursor_next_finish (operation->cursor,
                                           result,
                                           &tracker_error)) {
@@ -626,7 +666,7 @@ tracker_query_result_cb (GObject              *source_object,
   if (operation->count < 1)
         tracker_operation_terminate (operation);
   else
-    tracker_sparql_cursor_next_async (operation->cursor, NULL,
+    tracker_sparql_cursor_next_async (operation->cursor, operation->cancel_op,
                                       (GAsyncReadyCallback) tracker_query_result_cb,
                                       (gpointer) operation);
 }
@@ -797,10 +837,7 @@ grl_tracker_source_query (GrlMediaSource *source,
 
   GRL_DEBUG ("select : %s", qs->query);
 
-  os = g_slice_new0 (struct OperationSpec);
-  os->source       = qs->source;
-  os->priv         = priv;
-  os->operation_id = qs->query_id;
+  os = tracker_operation_initiate (source, priv, qs->query_id);
   os->keys         = qs->keys;
   os->skip         = qs->skip;
   os->count        = qs->count;
@@ -809,7 +846,7 @@ grl_tracker_source_query (GrlMediaSource *source,
 
   tracker_sparql_connection_query_async (priv->tracker_connection,
                                          qs->query,
-                                         NULL,
+                                         os->cancel_op,
                                          (GAsyncReadyCallback) tracker_query_cb,
                                          os);
 
@@ -871,10 +908,7 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
 
   GRL_DEBUG ("select: '%s'", sparql_final);
 
-  os = g_slice_new0 (struct OperationSpec);
-  os->source       = ss->source;
-  os->priv         = priv;
-  os->operation_id = ss->search_id;
+  os = tracker_operation_initiate (source, priv, ss->search_id);
   os->keys         = ss->keys;
   os->skip         = ss->skip;
   os->count        = ss->count;
@@ -883,7 +917,7 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
 
   tracker_sparql_connection_query_async (priv->tracker_connection,
                                          sparql_final,
-                                         NULL,
+                                         os->cancel_op,
                                          (GAsyncReadyCallback) tracker_query_cb,
                                          os);
 
@@ -938,10 +972,7 @@ grl_tracker_source_browse (GrlMediaSource *source,
 
   GRL_DEBUG ("select: '%s'", sparql_final);
 
-  os = g_slice_new0 (struct OperationSpec);
-  os->source       = bs->source;
-  os->priv         = priv;
-  os->operation_id = bs->browse_id;
+  os = tracker_operation_initiate (source, priv, bs->browse_id);
   os->keys         = bs->keys;
   os->skip         = bs->skip;
   os->count        = bs->count;
@@ -950,10 +981,24 @@ grl_tracker_source_browse (GrlMediaSource *source,
 
   tracker_sparql_connection_query_async (priv->tracker_connection,
                                          sparql_final,
-                                         NULL,
+                                         os->cancel_op,
                                          (GAsyncReadyCallback) tracker_query_cb,
                                          os);
 
   g_free (sparql_select);
   g_free (sparql_final);
+}
+
+static void
+grl_tracker_source_cancel (GrlMediaSource *source, guint operation_id)
+{
+  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  struct OperationSpec *os;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  os = g_hash_table_lookup (priv->operations, GSIZE_TO_POINTER (operation_id));
+
+  if (os != NULL)
+    g_cancellable_cancel (os->cancel_op);
 }

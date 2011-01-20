@@ -141,8 +141,6 @@ gboolean grl_tracker_plugin_init (GrlPluginRegistry *registry,
                                   const GrlPluginInfo *plugin,
                                   GList *configs);
 
-static GrlSupportedOps grl_tracker_source_supported_operations (GrlMetadataSource *metadata_source);
-
 static const GList *grl_tracker_source_supported_keys (GrlMetadataSource *source);
 
 static void grl_tracker_source_query (GrlMediaSource *source,
@@ -235,7 +233,6 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
   source_class->browse   = grl_tracker_source_browse;
 
   metadata_class->supported_keys = grl_tracker_source_supported_keys;
-  metadata_class->supported_operations = grl_tracker_source_supported_operations;
 
   g_class->finalize = grl_tracker_source_finalize;
   g_class->set_property = grl_tracker_source_set_property;
@@ -718,18 +715,6 @@ tracker_metadata_cb (GObject                    *source_object,
 }
 
 /* ================== API Implementation ================ */
-
-static GrlSupportedOps
-grl_tracker_source_supported_operations (GrlMetadataSource *metadata_source)
-{
-  GrlSupportedOps   caps;
-  GrlTrackerSource *source;
-
-  source = GRL_TRACKER_SOURCE (metadata_source);
-  caps = GRL_OP_BROWSE | GRL_OP_METADATA | GRL_OP_QUERY | GRL_OP_SEARCH;
-
-  return caps;
-}
 
 static const GList *
 grl_tracker_source_supported_keys (GrlMetadataSource *source)

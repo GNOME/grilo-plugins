@@ -1,3 +1,19 @@
+grilo-0.1-plugins (0.1.7-1) unstable; urgency=low
+
+  * General: fixes #627864, #628506, install plugins as loadable modules, use
+    GrlNet, adapt code to changes in GrlPluginRegistry functions
+  * Apple trailers: general fixes, including bug #630538
+  * Filesystem plugin: implement media_from_uri() and test_media_from_uri().
+  * Flickr plugin: general fixes
+  * Podcasts plugin: general fixes
+  * Shoutcast plugin: general fixes
+  * UPnP plugin: added plugin deinit function
+  * Vimeo plugin: fix for bug #630494
+  * Youtube plugin: general fixes, fix for bug #635394, handle libdata 0.7
+    and 0.8 api
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Sat, 22 Jan 2011 00:12:01 +0100
+
 grilo-0.1-plugins (0.1.6-1) unstable; urgency=low
 
   * General fixes, new metadata key system, new registering framework

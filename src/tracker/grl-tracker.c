@@ -602,6 +602,10 @@ tracker_query_result_cb (GObject              *source_object,
 
   if (g_cancellable_is_cancelled (operation->cancel_op)) {
     GRL_DEBUG ("\tOperation %u cancelled", operation->operation_id);
+    operation->callback (operation->source,
+                         operation->operation_id,
+                         NULL, 0,
+                         operation->user_data, NULL);
     tracker_operation_terminate (operation);
 
     return;

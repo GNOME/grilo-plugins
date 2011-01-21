@@ -71,6 +71,13 @@ enum {
 
 /* --- Other --- */
 
+#define TRACKER_QUERY_REQUEST                                         \
+  "SELECT rdf:type(?urn) %s "                                         \
+  "WHERE { %s } "                                                     \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "                        \
+  "OFFSET %i "                                                        \
+  "LIMIT %i"
+
 #define TRACKER_SEARCH_REQUEST                   \
   "SELECT rdf:type(?urn) %s "                    \
   "WHERE "                                       \
@@ -823,13 +830,30 @@ grl_tracker_source_supported_keys (GrlMetadataSource *source)
  *     WHERE { ?song a nmm:MusicPiece }
  *   </programlisting>
  * </informalexample>
+ *
+ * Alternatively, we can use a partial SPARQL query: just specify the sentence
+ * in the WHERE part. In this case, "?urn" is the ontology concept to be used in
+ * the clause.
+ *
+ * An example of such partial query:
+ *
+ * <informalexample>
+ *   <programlisting>
+ *     ?urn a nfo:Media
+ *   </programlisting>
+ * </informalexample>
+ *
+ * In this case, all data required to build a full SPARQL query will be get from
+ * the query spec.
  */
 static void
 grl_tracker_source_query (GrlMediaSource *source,
                           GrlMediaSourceQuerySpec *qs)
 {
-  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
   GError               *error = NULL;
+  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  gchar                *sparql_final;
+  gchar                *sparql_select;
   struct OperationSpec *os;
 
   GRL_DEBUG ("%s: id=%u", __FUNCTION__, qs->query_id);
@@ -839,6 +863,21 @@ grl_tracker_source_query (GrlMediaSource *source,
                                  GRL_CORE_ERROR_QUERY_FAILED,
                                  "Empty query");
     goto send_error;
+  }
+
+  /* Check if it is a full sparql query */
+  if (g_ascii_strncasecmp (qs->query, "select ", 7) != 0) {
+    sparql_select = get_select_string (source, qs->keys);
+    sparql_final = g_strdup_printf (TRACKER_QUERY_REQUEST,
+                                    sparql_select,
+                                    qs->query,
+                                    qs->skip,
+                                    qs->count);
+    g_free (qs->query);
+    g_free (sparql_select);
+    qs->query = sparql_final;
+    grl_tracker_source_query (source, qs);
+    return;
   }
 
   GRL_DEBUG ("select : %s", qs->query);

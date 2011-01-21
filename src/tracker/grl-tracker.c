@@ -71,30 +71,32 @@ enum {
 
 /* --- Other --- */
 
-#define TRACKER_SEARCH_REQUEST "                                    \
-  SELECT rdf:type(?urn) %s                                          \
-  WHERE {                                                           \
-    { ?urn a nfo:Media } .                                          \
-    ?urn tracker:available ?tr .                                    \
-    ?urn fts:match '%s' .                                           \
-  }                                                                 \
-  ORDER BY DESC(nfo:fileLastModified(?urn))                         \
-  OFFSET %i LIMIT %i"
+#define TRACKER_SEARCH_REQUEST                   \
+  "SELECT rdf:type(?urn) %s "                    \
+  "WHERE "                                       \
+  "{ "                                           \
+  "?urn a nfo:Media . "                          \
+  "?urn tracker:available ?tr . "                \
+  "?urn fts:match '%s' . "                       \
+  "} "                                           \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "   \
+  "OFFSET %i "                                   \
+  "LIMIT %i"
 
-#define TRACKER_BROWSE_CATEGORY_REQUEST "                             \
-  SELECT rdf:type(?urn) %s                                            \
-  WHERE {                                                             \
-    ?urn a %s .                                                       \
-    ?urn tracker:available ?tr .                                      \
-  }                                                                   \
-  ORDER BY DESC(nfo:fileLastModified(?urn))                           \
-  OFFSET %i LIMIT %i"
+#define TRACKER_BROWSE_CATEGORY_REQUEST                                 \
+  "SELECT rdf:type(?urn) %s "                                           \
+  "WHERE "                                                              \
+  "{ "                                                                  \
+  "?urn a %s . "                                                        \
+  "?urn tracker:available ?tr . "                                       \
+  "} "                                                                  \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "                          \
+  "OFFSET %i "                                                          \
+  "LIMIT %i"
 
-#define TRACKER_METADATA_REQUEST "                                  \
-  SELECT %s                                                         \
-  WHERE {                                                           \
-    ?urn nie:isStoredAs <%s>                                        \
-  }"
+#define TRACKER_METADATA_REQUEST                                    \
+  "SELECT %s "                                                      \
+  "WHERE { ?urn nie:isStoredAs <%s> }"                              \
 
 typedef struct {
   GrlKeyID     grl_key;

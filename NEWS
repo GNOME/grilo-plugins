@@ -1,3 +1,51 @@
+NEW in 0.1.7
+============
+
+  * General
+    * General fixes, including fixes for:
+      * GB#627864 - log: Revamp the log system
+      * GB#628506 - rename the GRL_ERROR quark to GRL_CORE_ERROR
+    * Install plugins as loadable modules, not libraries
+    * Use GrlNet
+    * Adapt code to changes in GrlPluginRegistry functions
+
+  * Apple trailers plugin
+    * General fixes, including fix for:
+      * GB#630538 - Apple trailers can provide a higher-resolution thumbnail
+
+  * Filesystem plugin
+    * Implemented media_from_uri() and test_media_from_uri()
+
+  * Flickr plugin
+    * General fixes
+
+  * Podcasts plugin
+    * General fixes
+
+  * Shoutcast plugin
+    * General fixes
+
+  * UPnP plugin
+    * Aded plugin deinit function
+
+  * Vimeo plugin
+    * GB#630494 - The Vimeo plugin accesses freed memory during searches
+
+  * Youtube plugin
+    * General fixes, including fix for:
+      * GB#635394 - Add ability to get video URL from page URL, or <embed> URL
+    * Handle libgdata 0.7 and 0.8 api
+
+  * Contributors to this release:
+    Chris Lord <chris@linux.intel.com>
+    Damien Lespiau <damien.lespiau@intel.com>
+    Guillaume Emont <gemont@igalia.com>
+    Iago Toral Quiroga <itoral@igalia.com>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Ross Burton <ross@linux.intel.com>
+    Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+
+
 NEW in 0.1.6
 ============
 

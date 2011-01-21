@@ -53,6 +53,9 @@
                               GRL_FLICKR_SOURCE_TYPE,   \
                               GrlFlickrSourceClass))
 
+/* plugin's log domain */
+GRL_LOG_DOMAIN_EXTERN(flickr_log_domain);
+
 typedef struct _GrlFlickrSource        GrlFlickrSource;
 typedef struct _GrlFlickrSourcePrivate GrlFlickrSourcePrivate;
 

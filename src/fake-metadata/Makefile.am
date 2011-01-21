@@ -13,13 +13,17 @@ libgrlfakemetadata_la_CFLAGS =	\
 libgrlfakemetadata_la_LIBADD =	\
 	$(DEPS_LIBS)
 
+libgrlfakemetadata_la_LDFLAGS = \
+	-module			\
+	-avoid-version
+
 libgrlfakemetadata_la_SOURCES = grl-fake-metadata.c grl-fake-metadata.h
 
 libdir=$(GRL_PLUGINS_DIR)
 fakemetadataxmldir	= $(GRL_PLUGINS_CONF_DIR)
 fakemetadataxml_DATA	= $(FAKEMETADATA_PLUGIN_ID).xml
 
-EXTRA_DIR = $(fakemetadataxml_DATA)
+EXTRA_DIST = $(fakemetadataxml_DATA)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

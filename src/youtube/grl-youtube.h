@@ -24,7 +24,6 @@
 #define _GRL_YOUTUBE_SOURCE_H_
 
 #include <grilo.h>
-#include <gdata/gdata.h>
 
 #define GRL_YOUTUBE_SOURCE_TYPE                 \
   (grl_youtube_source_get_type ())
@@ -53,11 +52,13 @@
                               GrlYoutubeSourceClass))
 
 typedef struct _GrlYoutubeSource GrlYoutubeSource;
+typedef struct _GrlYoutubeSourcePriv GrlYoutubeSourcePriv;
 
 struct _GrlYoutubeSource {
 
   GrlMediaSource parent;
-  GDataService *service;
+  GrlYoutubeSourcePriv *priv;
+
 };
 
 typedef struct _GrlYoutubeSourceClass GrlYoutubeSourceClass;

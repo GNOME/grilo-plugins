@@ -1,16 +1,5 @@
 Iago Toral Quiroga <itoral@igalia.com>
-* Fake-metadata plugin
-* Filesystem plugin
-* Podcasts plugin
-* UPnP plugin
-* Youtube plugin
-
-Juan A. Suarez Romero <jasuarez@igalia.com>
-* Flickr plugin
-* Jamendo plugin
-* LastFM-Albumart plugin
-* Gravatar plugin
-
 Joaquim Rocha <jrocha@igalia.com>
-* Vimeo plugin
-
+Juan A. Suarez Romero <jasuarez@igalia.com>
+Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+Xabier Rodriguez Calvar <xrcalvar@igalia.com>

@@ -25,44 +25,44 @@
 
 #include <grilo.h>
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "test-main"
+#define GRL_LOG_DOMAIN_DEFAULT test_main_log_domain
+GRL_LOG_DOMAIN_STATIC(test_main_log_domain);
 
 #define YOUTUBE_KEY "AI39si4EfscPllSfUy1IwexMf__kntTL_G5dfSr2iUEVN45RHGq92Aq0lX25OlnOkG6KTN-4soVAkAf67fWYXuHfVADZYr7S1A"
 
 static void
 print_supported_ops (GrlMetadataSource *source)
 {
-  g_debug ("  Operations available in '%s'",
-	   grl_metadata_source_get_name (source));
+  GRL_DEBUG ("  Operations available in '%s'",
+             grl_metadata_source_get_name (source));
 
   GrlSupportedOps caps = grl_metadata_source_supported_operations (source);
 
   if (caps & GRL_OP_METADATA) {
-    g_debug ("    + Metadata");
+    GRL_DEBUG ("    + Metadata");
   }
   if (caps & GRL_OP_RESOLVE) {
-    g_debug ("    + Resolution");
+    GRL_DEBUG ("    + Resolution");
   }
   if (caps & GRL_OP_BROWSE) {
-    g_debug ("    + Browse");
+    GRL_DEBUG ("    + Browse");
   }
   if (caps & GRL_OP_SEARCH) {
-    g_debug ("    + Search");
+    GRL_DEBUG ("    + Search");
   }
   if (caps & GRL_OP_QUERY) {
-    g_debug ("    + Query");
+    GRL_DEBUG ("    + Query");
   }
   if (caps & GRL_OP_STORE_PARENT) {
-    g_debug ("    + Store (parent)");
+    GRL_DEBUG ("    + Store (parent)");
   } else  if (caps & GRL_OP_STORE) {
-    g_debug ("    + Store");
+    GRL_DEBUG ("    + Store");
   }
   if (caps & GRL_OP_REMOVE) {
-    g_debug ("    + Remove");
+    GRL_DEBUG ("    + Remove");
   }
   if (caps & GRL_OP_SET_METADATA) {
-    g_debug ("    + Set Metadata");
+    GRL_DEBUG ("    + Set Metadata");
   }
 }
 
@@ -75,11 +75,11 @@ print_metadata (gpointer key, GrlData *content)
 
   const GValue *value = grl_data_get (content, key);
   if (value && G_VALUE_HOLDS_STRING (value)) {
-    g_debug ("\t%s: %s", GRL_METADATA_KEY_GET_NAME (key),
-	     g_value_get_string (value));
+    GRL_DEBUG ("\t%s: %s", GRL_METADATA_KEY_GET_NAME (key),
+               g_value_get_string (value));
   } else if (value && G_VALUE_HOLDS_INT (value)) {
-    g_debug ("\t%s: %d",  GRL_METADATA_KEY_GET_NAME (key),
-	     g_value_get_int (value));
+    GRL_DEBUG ("\t%s: %d",  GRL_METADATA_KEY_GET_NAME (key),
+               g_value_get_int (value));
   }
 }
 
@@ -112,20 +112,18 @@ browse_cb (GrlMediaSource *source,
   GList *keys;
   static guint index = 0;
 
-  g_debug ("  browse result (%d - %d|%d)",
-	   browse_id, index++, remaining);
+  GRL_DEBUG ("  browse result (%d - %d|%d)", browse_id, index++, remaining);
 
   if (error) {
     g_error ("Got error from browse: %s", error->message);
   }
 
   if (!media && remaining == 0) {
-    g_debug ("  No results");
+    GRL_DEBUG ("  No results");
     return;
   }
 
-  g_debug ("\tContainer: %s",
-	   GRL_IS_MEDIA_BOX(media) ? "yes" : "no");
+  GRL_DEBUG ("\tContainer: %s", GRL_IS_MEDIA_BOX(media) ? "yes" : "no");
 
   keys = grl_data_get_keys (GRL_DATA (media));
   g_list_foreach (keys, (GFunc) print_metadata, GRL_DATA (media));
@@ -133,7 +131,7 @@ browse_cb (GrlMediaSource *source,
   g_object_unref (media);
 
   if (remaining == 0) {
-    g_debug ("  Browse operation finished");
+    GRL_DEBUG ("  Browse operation finished");
   }
 }
 
@@ -145,25 +143,24 @@ metadata_cb (GrlMediaSource *source,
 {
   GList *keys;
 
-  g_debug ("  metadata_cb");
+  GRL_DEBUG ("  metadata_cb");
 
   if (error) {
-    g_debug ("Error: %s", error->message);
+    GRL_DEBUG ("Error: %s", error->message);
     return;
   }
 
-  g_debug ("    Got metadata for object '%s'",
-	   grl_media_get_id (GRL_MEDIA (media)));
+  GRL_DEBUG ("    Got metadata for object '%s'",
+             grl_media_get_id (GRL_MEDIA (media)));
 
-  g_debug ("\tContainer: %s",
-	   GRL_IS_MEDIA_BOX(media) ? "yes" : "no");
+  GRL_DEBUG ("\tContainer: %s", GRL_IS_MEDIA_BOX(media) ? "yes" : "no");
 
   keys = grl_data_get_keys (GRL_DATA (media));
   g_list_foreach (keys, (GFunc) print_metadata, GRL_DATA (media));
   g_list_free (keys);
   g_object_unref (media);
 
-  g_debug ("  Metadata operation finished");
+  GRL_DEBUG ("  Metadata operation finished");
 }
 
 static void
@@ -184,7 +181,7 @@ set_cb (GrlMetadataSource *source,
 {
   if (error) {
     g_critical ("%s: %d keys not written",
-		error->message, g_list_length (failed_keys));
+                error->message, g_list_length (failed_keys));
   }
 }
 
@@ -194,16 +191,19 @@ main (void)
   GList *keys;
 
   g_type_init ();
+  grl_init (NULL, NULL);
 
-  grl_log_init ("*:warning,test-main:*,"
-                "grl-youtube:*,"
-                "grl-filesystem:*,"
-                "grl-jamendo:*,"
-                "grl-shoutcast:*,"
-                "grl-apple-trailers:*,"
-                "grl-lastfm-albumart:*,"
-                "grl-flickr:*,"
-                "grl-metadata-store:*");
+  GRL_LOG_DOMAIN_INIT (test_main_log_domain, "test-main");
+
+  grl_log_configure ("*:warning,test-main:*,"
+                     "grl-youtube:*,"
+                     "grl-filesystem:*,"
+                     "grl-jamendo:*,"
+                     "grl-shoutcast:*,"
+                     "grl-apple-trailers:*,"
+                     "grl-lastfm-albumart:*,"
+                     "grl-flickr:*,"
+                     "grl-metadata-store:*");
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
                                     GRL_METADATA_KEY_TITLE,
@@ -224,40 +224,51 @@ main (void)
                                     GRL_METADATA_KEY_RATING,
                                     NULL);
 
-  g_debug ("start");
+  GRL_DEBUG ("start");
 
-  g_debug ("loading plugins");
+  GRL_DEBUG ("loading plugins");
 
   GrlPluginRegistry *registry = grl_plugin_registry_get_default ();
 
   GrlConfig *config = grl_config_new ("grl-youtube", NULL);
   grl_config_set_api_key (config, YOUTUBE_KEY);
-  grl_plugin_registry_add_config (registry, config);
+  grl_plugin_registry_add_config (registry, config, NULL);
 
   grl_plugin_registry_load (registry,
-                            "../src/youtube/.libs/libgrlyoutube.so");
+                            "../src/youtube/.libs/libgrlyoutube.so",
+                            NULL);
   grl_plugin_registry_load (registry,
-                            "../src/filesystem/.libs/libgrlfilesystem.so");
+                            "../src/filesystem/.libs/libgrlfilesystem.so",
+                            NULL);
   grl_plugin_registry_load (registry,
-                            "../src/jamendo/.libs/libgrljamendo.so");
+                            "../src/jamendo/.libs/libgrljamendo.so",
+                            NULL);
   grl_plugin_registry_load (registry,
-                            "../src/shoutcast/.libs/libgrlshoutcast.so");
+                            "../src/shoutcast/.libs/libgrlshoutcast.so",
+                            NULL);
   grl_plugin_registry_load (registry,
-                            "../src/apple-trailers/.libs/libgrlappletrailers.so");
+                            "../src/apple-trailers/.libs/libgrlappletrailers.so",
+                            NULL);
   grl_plugin_registry_load (registry,
-                            "../src/fake-metadata/.libs/libgrlfakemetadata.so");
+                            "../src/fake-metadata/.libs/libgrlfakemetadata.so",
+                            NULL);
   grl_plugin_registry_load (registry,
-                            "../src/lastfm-albumart/.libs/libgrllastfm-albumart.so");
+                            "../src/lastfm-albumart/.libs/libgrllastfm-albumart.so",
+                            NULL);
   grl_plugin_registry_load (registry,
-                            "../src/flickr/.libs/libgrlflickr.so");
+                            "../src/flickr/.libs/libgrlflickr.so",
+                            NULL);
   grl_plugin_registry_load (registry,
-                            "../src/metadata-store/.libs/libgrlmetadatastore.so");
+                            "../src/metadata-store/.libs/libgrlmetadatastore.so",
+                            NULL);
   grl_plugin_registry_load (registry,
-                            "../src/bookmarks/.libs/libgrlbookmarks.so");
+                            "../src/bookmarks/.libs/libgrlbookmarks.so",
+                            NULL);
   grl_plugin_registry_load (registry,
-                            "../src/podcasts/.libs/libgrlpodcasts.so");
+                            "../src/podcasts/.libs/libgrlpodcasts.so",
+                            NULL);
 
-  g_debug ("Obtaining sources");
+  GRL_DEBUG ("Obtaining sources");
 
   GrlMediaSource *youtube =
     (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
@@ -312,7 +323,7 @@ main (void)
   g_assert (metadata_store);
   g_assert (bookmarks);
   g_assert (podcasts);
-  g_debug ("Supported operations");
+  GRL_DEBUG ("Supported operations");
 
   print_supported_ops (GRL_METADATA_SOURCE (youtube));
   print_supported_ops (GRL_METADATA_SOURCE (fs));
@@ -326,7 +337,7 @@ main (void)
   print_supported_ops (lastfm);
   print_supported_ops (metadata_store);
 
-  g_debug ("testing");
+  GRL_DEBUG ("testing");
 
   if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
@@ -395,12 +406,12 @@ main (void)
 				      GRL_WRITE_FULL, set_cb, NULL);
   }
 
-  g_debug ("Running main loop");
+  GRL_DEBUG ("Running main loop");
 
   GMainLoop *loop = g_main_loop_new (NULL, FALSE);
   g_main_loop_run (loop);
 
-  g_debug ("done");
+  GRL_DEBUG ("done");
 
   return 0;
 }

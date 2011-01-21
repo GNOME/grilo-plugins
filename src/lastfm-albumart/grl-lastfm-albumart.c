@@ -26,7 +26,7 @@
 #include "config.h"
 #endif
 
-#include <gio/gio.h>
+#include <net/grl-net.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/xpath.h>
@@ -35,8 +35,8 @@
 
 /* ---------- Logging ---------- */
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-lastfm-albumart"
+#define GRL_LOG_DOMAIN_DEFAULT lastfm_albumart_log_domain
+GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 
 /* -------- Last.FM API -------- */
 
@@ -55,8 +55,11 @@
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
 
+static GrlNetWc *wc;
 
 static GrlLastfmAlbumartSource *grl_lastfm_albumart_source_new (void);
+
+static void grl_lastfm_albumart_source_finalize (GObject *object);
 
 static void grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
                                                 GrlMetadataSourceResolveSpec *rs);
@@ -78,11 +81,15 @@ grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
                                         const GrlPluginInfo *plugin,
                                         GList *configs)
 {
-  g_debug ("grl_lastfm_albumart_source_plugin_init");
+  GRL_LOG_DOMAIN_INIT (lastfm_albumart_log_domain, "lastfm-albumart");
+
+  GRL_DEBUG ("grl_lastfm_albumart_source_plugin_init");
+
   GrlLastfmAlbumartSource *source = grl_lastfm_albumart_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
   return TRUE;
 }
 
@@ -95,7 +102,7 @@ GRL_PLUGIN_REGISTER (grl_lastfm_albumart_source_plugin_init,
 static GrlLastfmAlbumartSource *
 grl_lastfm_albumart_source_new (void)
 {
-  g_debug ("grl_lastfm_albumart_source_new");
+  GRL_DEBUG ("grl_lastfm_albumart_source_new");
   return g_object_new (GRL_LASTFM_ALBUMART_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
@@ -110,6 +117,9 @@ grl_lastfm_albumart_source_class_init (GrlLastfmAlbumartSourceClass * klass)
   metadata_class->supported_keys = grl_lastfm_albumart_source_supported_keys;
   metadata_class->key_depends = grl_lastfm_albumart_source_key_depends;
   metadata_class->resolve = grl_lastfm_albumart_source_resolve;
+
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  gobject_class->finalize = grl_lastfm_albumart_source_finalize;
 }
 
 static void
@@ -120,6 +130,15 @@ grl_lastfm_albumart_source_init (GrlLastfmAlbumartSource *source)
 G_DEFINE_TYPE (GrlLastfmAlbumartSource,
                grl_lastfm_albumart_source,
                GRL_TYPE_METADATA_SOURCE);
+
+static void
+grl_lastfm_albumart_source_finalize (GObject *object)
+{
+  if (wc && GRL_IS_NET_WC (wc))
+    g_object_unref (wc);
+
+  G_OBJECT_CLASS (grl_lastfm_albumart_source_parent_class)->finalize (object);
+}
 
 /* ======================= Utilities ==================== */
 
@@ -172,30 +191,27 @@ read_done_cb (GObject *source_object,
   GrlMetadataSourceResolveSpec *rs =
     (GrlMetadataSourceResolveSpec *) user_data;
   GError *error = NULL;
-  GError *vfs_error = NULL;
+  GError *wc_error = NULL;
   gchar *content = NULL;
   gchar *image = NULL;
 
-  if (!g_file_load_contents_finish (G_FILE (source_object),
-                                    res,
-                                    &content,
-                                    NULL,
-                                    NULL,
-                                    &vfs_error)) {
-    error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_RESOLVE_FAILED,
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                              res,
+                              &content,
+                              NULL,
+                              &wc_error)) {
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_RESOLVE_FAILED,
                          "Failed to connect to Last.FM: '%s'",
-                         vfs_error->message);
+                         wc_error->message);
     rs->callback (rs->source, rs->media, rs->user_data, error);
-    g_error_free (vfs_error);
+    g_error_free (wc_error);
     g_error_free (error);
-    g_object_unref (source_object);
+
     return;
   }
 
-  g_object_unref (source_object);
   image = xml_get_image (content);
-  g_free (content);
   if (image) {
     grl_data_set_string (GRL_DATA (rs->media),
                          GRL_METADATA_KEY_THUMBNAIL,
@@ -209,14 +225,11 @@ read_done_cb (GObject *source_object,
 static void
 read_url_async (const gchar *url, gpointer user_data)
 {
-  GVfs *vfs;
-  GFile *uri;
+  if (!wc)
+    wc = grl_net_wc_new ();
 
-  vfs = g_vfs_get_default ();
-
-  g_debug ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
+  GRL_DEBUG ("Opening '%s'", url);
+  grl_net_wc_request_async (wc, url, NULL, read_done_cb, user_data);
 }
 
 /* ================== API Implementation ================ */
@@ -263,7 +276,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
   gchar *esc_album = NULL;
   gchar *url = NULL;
 
-  g_debug ("grl_lastfm_albumart_source_resolve");
+  GRL_DEBUG ("grl_lastfm_albumart_source_resolve");
 
   GList *iter;
 
@@ -278,7 +291,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
   }
 
   if (iter == NULL) {
-    g_debug ("No supported key was requested");
+    GRL_DEBUG ("No supported key was requested");
     rs->callback (source, rs->media, rs->user_data, NULL);
   } else {
     artist = grl_data_get_string (GRL_DATA (rs->media),
@@ -288,7 +301,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
                                  GRL_METADATA_KEY_ALBUM);
 
     if (!artist || !album) {
-      g_debug ("Missing dependencies");
+      GRL_DEBUG ("Missing dependencies");
       rs->callback (source, rs->media, rs->user_data, NULL);
     } else {
       esc_artist = g_uri_escape_string (artist, NULL, TRUE);

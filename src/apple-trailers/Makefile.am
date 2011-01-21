@@ -9,23 +9,27 @@ lib_LTLIBRARIES		 = libgrlappletrailers.la
 
 libgrlappletrailers_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
-	$(GIO_CFLAGS)		\
+	$(GRLNET_CFLAGS)	\
 	$(XML_CFLAGS)
 
 libgrlappletrailers_la_LIBADD =	\
 	$(DEPS_LIBS)		\
-	$(GIO_LIBS)		\
+	$(GRLNET_LIBS)		\
 	$(XML_LIBS)
+
+libgrlappletrailers_la_LDFLAGS = \
+	-module			 \
+	-avoid-version
 
 libgrlappletrailers_la_SOURCES =	\
 	grl-apple-trailers.c		\
 	grl-apple-trailers.h
 
-libdir=$(GRL_PLUGINS_DIR)
+libdir = $(GRL_PLUGINS_DIR)
 appletrailersxmldir	= $(GRL_PLUGINS_CONF_DIR)
 appletrailersxml_DATA	= $(APPLE_TRAILERS_PLUGIN_ID).xml
 
-EXTRA_DIR = $(appletrailersxml_DATA)
+EXTRA_DIST = $(appletrailersxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

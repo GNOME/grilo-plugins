@@ -9,13 +9,17 @@ lib_LTLIBRARIES		 = libgrlshoutcast.la
 
 libgrlshoutcast_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
-	$(GIO_CFLAGS)		\
+	$(GRLNET_CFLAGS)	\
 	$(XML_CFLAGS)
 
 libgrlshoutcast_la_LIBADD =	\
 	$(DEPS_LIBS)		\
-	$(GIO_LIBS)		\
+	$(GRLNET_LIBS)		\
 	$(XML_LIBS)
+
+libgrlshoutcast_la_LDFLAGS = \
+	-module		     \
+	-avoid-version
 
 libgrlshoutcast_la_SOURCES	 = grl-shoutcast.c grl-shoutcast.h
 
@@ -24,7 +28,7 @@ libdir=$(GRL_PLUGINS_DIR)
 shoutcastxmldir		= $(GRL_PLUGINS_CONF_DIR)
 shoutcastxml_DATA	= $(SHOUTCAST_PLUGIN_ID).xml
 
-EXTRA_DIR = $(shoutcastxml_DATA)
+EXTRA_DIST = $(shoutcastxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

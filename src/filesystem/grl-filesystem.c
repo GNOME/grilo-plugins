@@ -33,8 +33,8 @@
 
 /* --------- Logging  -------- */
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-filesystem"
+#define GRL_LOG_DOMAIN_DEFAULT filesystem_log_domain
+GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 
 /* -------- File info ------- */
 
@@ -103,6 +103,12 @@ static void grl_filesystem_source_metadata (GrlMediaSource *source,
 static void grl_filesystem_source_browse (GrlMediaSource *source,
                                           GrlMediaSourceBrowseSpec *bs);
 
+static gboolean grl_filesystem_test_media_from_uri (GrlMediaSource *source,
+                                                    const gchar *uri);
+
+static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
+                                               GrlMediaSourceMediaFromUriSpec *mfus);
+
 /* =================== Filesystem Plugin  =============== */
 
 gboolean
@@ -113,12 +119,15 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
   GrlConfig *config;
   GList *chosen_paths = NULL;
 
-  g_debug ("filesystem_plugin_init\n");
+  GRL_LOG_DOMAIN_INIT (filesystem_log_domain, "filesystem");
+
+  GRL_DEBUG ("filesystem_plugin_init");
 
   GrlFilesystemSource *source = grl_filesystem_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
 
   for (; configs; configs = g_list_next (configs)) {
     const gchar *path;
@@ -148,7 +157,7 @@ G_DEFINE_TYPE (GrlFilesystemSource,
 static GrlFilesystemSource *
 grl_filesystem_source_new (void)
 {
-  g_debug ("grl_filesystem_source_new");
+  GRL_DEBUG ("grl_filesystem_source_new");
   return g_object_new (GRL_FILESYSTEM_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
@@ -163,6 +172,8 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_filesystem_source_browse;
   source_class->metadata = grl_filesystem_source_metadata;
+  source_class->test_media_from_uri = grl_filesystem_test_media_from_uri;
+  source_class->media_from_uri = grl_filesystem_get_media_from_uri;
   G_OBJECT_CLASS (source_class)->finalize = grl_filesystem_source_finalize;
   metadata_class->supported_keys = grl_filesystem_source_supported_keys;
   g_type_class_add_private (klass, sizeof (GrlFilesystemSourcePrivate));
@@ -239,8 +250,8 @@ file_is_valid_content (const gchar *path, gboolean fast)
   file = g_file_new_for_path (path);
   info = g_file_query_info (file, spec, 0, NULL, &error);
   if (error) {
-    g_warning ("Failed to get attributes for file '%s': %s",
-	       path, error->message);
+    GRL_WARNING ("Failed to get attributes for file '%s': %s",
+                 path, error->message);
     g_error_free (error);
     g_object_unref (file);
     return FALSE;
@@ -279,10 +290,10 @@ set_container_childcount (const gchar *path,
   const gchar *entry_name;
 
   /* Open directory */
-  g_debug ("Opening directory '%s' for childcount", path);
+  GRL_DEBUG ("Opening directory '%s' for childcount", path);
   dir = g_dir_open (path, 0, &error);
   if (error) {
-    g_warning ("Failed to open directory '%s': %s", path, error->message);
+    GRL_WARNING ("Failed to open directory '%s': %s", path, error->message);
     g_error_free (error);
     return;
   }
@@ -339,7 +350,8 @@ create_content (GrlMedia *content,
   }
 
   if (error) {
-    g_warning ("Failed to get info for file '%s': %s", path, error->message);
+    GRL_WARNING ("Failed to get info for file '%s': %s", path,
+                 error->message);
     if (!media) {
       media = grl_media_new ();
     }
@@ -429,7 +441,7 @@ browse_emit_idle (gpointer user_data)
   BrowseIdleData *idle_data;
   guint count;
 
-  g_debug ("browse_emit_idle");
+  GRL_DEBUG ("browse_emit_idle");
 
   idle_data = (BrowseIdleData *) user_data;
 
@@ -476,10 +488,10 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
   GList *iter;
 
   /* Open directory */
-  g_debug ("Opening directory '%s'", path);
+  GRL_DEBUG ("Opening directory '%s'", path);
   dir = g_dir_open (path, 0, &error);
   if (error) {
-    g_warning ("Failed to open directory '%s': %s", path, error->message);
+    GRL_WARNING ("Failed to open directory '%s': %s", path, error->message);
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
     return;
@@ -572,7 +584,7 @@ grl_filesystem_source_browse (GrlMediaSource *source,
   const gchar *id;
   GList *chosen_paths;
 
-  g_debug ("grl_filesystem_source_browse");
+  GRL_DEBUG ("grl_filesystem_source_browse");
 
   id = grl_media_get_id (bs->container);
   chosen_paths = GRL_FILESYSTEM_SOURCE(source)->priv->chosen_paths;
@@ -608,7 +620,7 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
   const gchar *path;
   const gchar *id;
 
-  g_debug ("grl_filesystem_source_metadata");
+  GRL_DEBUG ("grl_filesystem_source_metadata");
 
   id = grl_media_get_id (ms->media);
   path = id ? id : G_DIR_SEPARATOR_S;
@@ -619,11 +631,85 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
 		    !id);
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
   } else {
-    GError *error = g_error_new (GRL_ERROR,
-				 GRL_ERROR_METADATA_FAILED,
+    GError *error = g_error_new (GRL_CORE_ERROR,
+				 GRL_CORE_ERROR_METADATA_FAILED,
 				 "File '%s' does not exist",
 				 path);
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   }
 }
+
+static gboolean
+grl_filesystem_test_media_from_uri (GrlMediaSource *source,
+                                    const gchar *uri)
+{
+  gchar *path, *scheme;
+  GError *error = NULL;
+  gboolean ret = FALSE;
+
+  GRL_DEBUG ("grl_filesystem_test_media_from_uri");
+
+  scheme = g_uri_parse_scheme (uri);
+  ret = (g_strcmp0(scheme, "file") == 0);
+  g_free (scheme);
+  if (!ret)
+    return ret;
+
+  path = g_filename_from_uri (uri, NULL, &error);
+  if (error != NULL) {
+    g_error_free (error);
+    return FALSE;
+  }
+
+  ret = file_is_valid_content (path, TRUE);
+
+  g_free (path);
+  return ret;
+}
+
+static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
+                                               GrlMediaSourceMediaFromUriSpec *mfus)
+{
+  gchar *path, *scheme;
+  GError *error = NULL;
+  gboolean ret = FALSE;
+  GrlMedia *media;
+
+  GRL_DEBUG ("grl_filesystem_get_media_from_uri");
+
+  scheme = g_uri_parse_scheme (mfus->uri);
+  ret = (g_strcmp0(scheme, "file") == 0);
+  g_free (scheme);
+  if (!ret) {
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
+                         "Cannot create media from '%s'", mfus->uri);
+    mfus->callback (source, NULL, mfus->user_data, error);
+    g_clear_error (&error);
+    return;
+  }
+
+  path = g_filename_from_uri (mfus->uri, NULL, &error);
+  if (error != NULL) {
+    GError *new_error;
+    new_error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
+                         "Cannot create media from '%s', error message: %s",
+                         mfus->uri, error->message);
+    g_clear_error (&error);
+    mfus->callback (source, NULL, mfus->user_data, new_error);
+    g_clear_error (&new_error);
+    goto beach;
+  }
+
+  /* FIXME: this is a blocking call, not sure we want that in here */
+  /* Note: we assume create_content() never returns NULL, which seems to be true */
+  media = create_content (NULL, path, mfus->flags & GRL_RESOLVE_FAST_ONLY,
+                          FALSE);
+  mfus->callback (source, media, mfus->user_data, NULL);
+
+beach:
+  g_free (path);
+}
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Igalia S.L.
+ * Copyright (C) 2010, 2011 Igalia S.L.
  * Copyright (C) 2011 Intel Corporation.
  *
  * This component is based on Maemo's mafw-upnp-source source code.

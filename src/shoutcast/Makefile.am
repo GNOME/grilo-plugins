@@ -3,7 +3,7 @@
 #
 # Author: Juan A. Suarez Romero <jasuarez@igalia.com>
 #
-# Copyright (C) 2010 Igalia S.L. All rights reserved.
+# Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
 lib_LTLIBRARIES		 = libgrlshoutcast.la
 

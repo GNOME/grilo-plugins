@@ -826,7 +826,7 @@ grl_tracker_source_query (GrlMediaSource *source,
   GError               *error = NULL;
   struct OperationSpec *os;
 
-  GRL_DEBUG ("%s: id=%u", __FUNCTION__, qs->quert_id);
+  GRL_DEBUG ("%s: id=%u", __FUNCTION__, qs->query_id);
 
   if (!qs->query || qs->query[0] == '\0') {
     error = g_error_new_literal (GRL_CORE_ERROR,
@@ -864,7 +864,7 @@ grl_tracker_source_metadata (GrlMediaSource *source,
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
   gchar                *sparql_select, *sparql_final;
 
-  GRL_DEBUG ("%s: id=", __FUNCTION__, ms->metadata_id);
+  GRL_DEBUG ("%s: id=%i", __FUNCTION__, ms->metadata_id);
 
   sparql_select = get_select_string (source, ms->keys);
   sparql_final = g_strdup_printf (TRACKER_METADATA_REQUEST, sparql_select,

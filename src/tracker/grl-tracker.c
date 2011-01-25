@@ -95,7 +95,7 @@ enum {
 
 #define TRACKER_QUERY_REQUEST                                         \
   "SELECT rdf:type(?urn) %s "                                         \
-  "WHERE { %s } "                                                     \
+  "WHERE { %s . %s } "                                                \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "                        \
   "OFFSET %i "                                                        \
   "LIMIT %i"
@@ -1294,6 +1294,7 @@ grl_tracker_source_query (GrlMediaSource *source,
 {
   GError               *error = NULL;
   GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  gchar                *constraint;
   gchar                *sparql_final;
   gchar                *sparql_select;
   struct OperationSpec *os;
@@ -1309,12 +1310,15 @@ grl_tracker_source_query (GrlMediaSource *source,
 
   /* Check if it is a full sparql query */
   if (g_ascii_strncasecmp (qs->query, "select ", 7) != 0) {
+    constraint = tracker_source_get_device_constraint (priv);
     sparql_select = get_select_string (source, qs->keys);
     sparql_final = g_strdup_printf (TRACKER_QUERY_REQUEST,
                                     sparql_select,
                                     qs->query,
+                                    constraint,
                                     qs->skip,
                                     qs->count);
+    g_free (constraint);
     g_free (qs->query);
     g_free (sparql_select);
     qs->query = sparql_final;

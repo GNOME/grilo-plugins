@@ -45,7 +45,8 @@ GRL_LOG_DOMAIN_STATIC(tracker_log_domain);
 
 #define RDF_TYPE_ALBUM  "nmm#MusicAlbum"
 #define RDF_TYPE_ARTIST "nmm#Artist"
-#define RDF_TYPE_AUDIO  "nmm#MusicPiece"
+#define RDF_TYPE_AUDIO  "nfo#Audio"
+#define RDF_TYPE_MUSIC  "nmm#MusicPiece"
 #define RDF_TYPE_IMAGE  "nmm#Photo"
 #define RDF_TYPE_VIDEO  "nmm#Video"
 #define RDF_TYPE_BOX    "grilo#Box"
@@ -71,6 +72,23 @@ enum {
 
 /* --- Other --- */
 
+#define TRACKER_MOUNTED_DATASOURCES_START                       \
+  "SELECT nie:dataSource(?urn) AS ?datasource "                 \
+  "(SELECT GROUP_CONCAT(tracker:isMounted(?ds), \",\") "        \
+  "WHERE { ?urn nie:dataSource ?ds  }) "                        \
+  "WHERE { ?urn a nfo:FileDataObject . FILTER (?urn IN ("
+
+#define TRACKER_MOUNTED_DATASOURCES_END " ))} GROUP BY (?datasource)"
+
+#define TRACKER_DATASOURCES_REQUEST                           \
+  "SELECT ?urn nie:dataSource(?urn) AS ?source "              \
+  "WHERE { "                                                  \
+  "?urn tracker:available ?tr . "                             \
+  "?source a tracker:Volume . "                               \
+  "FILTER (bound(nie:dataSource(?urn))) "                     \
+  "} "                                                        \
+  "GROUP BY (?source)"
+
 #define TRACKER_QUERY_REQUEST                                         \
   "SELECT rdf:type(?urn) %s "                                         \
   "WHERE { %s } "                                                     \
@@ -85,6 +103,7 @@ enum {
   "?urn a nfo:Media . "                          \
   "?urn tracker:available ?tr . "                \
   "?urn fts:match '%s' . "                       \
+  "%s "                                          \
   "} "                                           \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "   \
   "OFFSET %i "                                   \
@@ -96,6 +115,7 @@ enum {
   "{ "                                                                  \
   "?urn a %s . "                                                        \
   "?urn tracker:available ?tr . "                                       \
+  "%s "                                                                 \
   "} "                                                                  \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "                          \
   "OFFSET %i "                                                          \
@@ -111,6 +131,18 @@ typedef struct {
   const gchar *sparql_key_attr;
   const gchar *sparql_key_flavor;
 } tracker_grl_sparql_t;
+
+typedef struct {
+  gboolean in_use;
+
+  GHashTable *updated_items;
+  GList *updated_items_list;
+  GList *updated_items_iter;
+
+  /* GList *updated_sources; */
+
+  TrackerSparqlCursor *cursor;
+} tracker_evt_update_t;
 
 struct OperationSpec {
   GrlMediaSource         *source;
@@ -135,6 +167,8 @@ struct _GrlTrackerSourcePriv {
   TrackerSparqlConnection *tracker_connection;
 
   GHashTable *operations;
+
+  gchar *tracker_datasource;
 };
 
 #define GRL_TRACKER_SOURCE_GET_PRIVATE(object)		\
@@ -148,6 +182,8 @@ static void grl_tracker_source_set_property (GObject      *object,
                                              guint         propid,
                                              const GValue *value,
                                              GParamSpec   *pspec);
+
+static void grl_tracker_source_constructed (GObject *object);
 
 static void grl_tracker_source_finalize (GObject *object);
 
@@ -172,6 +208,8 @@ static void grl_tracker_source_browse (GrlMediaSource *source,
 static void grl_tracker_source_cancel (GrlMediaSource *source,
                                        guint operation_id);
 
+static gchar *get_tracker_source_name (const gchar *device_name);
+
 static void setup_key_mappings (void);
 
 /* ===================== Globals  ================= */
@@ -179,25 +217,343 @@ static void setup_key_mappings (void);
 static GHashTable *grl_to_sparql_mapping = NULL;
 static GHashTable *sparql_to_grl_mapping = NULL;
 
+static TrackerSparqlConnection *tracker_connection = NULL;
+static gboolean tracker_per_device_source = FALSE;
+static const GrlPluginInfo *tracker_grl_plugin;
+static guint tracker_dbus_signal_id = 0;
+
 /* =================== Tracker Plugin  =============== */
+
+static tracker_evt_update_t *
+tracker_evt_update_new (void)
+{
+  tracker_evt_update_t *evt = g_slice_new0 (tracker_evt_update_t);
+
+  evt->updated_items = g_hash_table_new (g_direct_hash, g_direct_equal);
+
+  return evt;
+}
+
+static void
+tracker_evt_update_free (tracker_evt_update_t *evt)
+{
+  if (!evt)
+    return;
+
+  g_hash_table_destroy (evt->updated_items);
+  g_list_free (evt->updated_items_list);
+
+  if (evt->cursor != NULL)
+    g_object_unref (evt->cursor);
+
+  g_slice_free (tracker_evt_update_t, evt);
+}
+
+static void
+grl_tracker_add_source (GrlTrackerSource *source)
+{
+  grl_plugin_registry_register_source (grl_plugin_registry_get_default (),
+                                       tracker_grl_plugin,
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
+}
+
+static void
+grl_tracker_del_source (GrlTrackerSource *source)
+{
+  grl_plugin_registry_unregister_source (grl_plugin_registry_get_default (),
+                                         GRL_MEDIA_PLUGIN (source),
+                                         NULL);
+}
+
+static void
+tracker_evt_update_process_item_cb (GObject              *object,
+                                    GAsyncResult         *result,
+                                    tracker_evt_update_t *evt)
+{
+  const gchar *datasource;
+  gboolean source_mounted;
+  gchar *source_name;
+  GrlMediaPlugin *plugin;
+  GError *tracker_error = NULL;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  if (!tracker_sparql_cursor_next_finish (evt->cursor,
+                                          result,
+                                          &tracker_error)) {
+    if (tracker_error != NULL) {
+      GRL_DEBUG ("\terror in parsing : %s", tracker_error->message);
+      g_error_free (tracker_error);
+    } else {
+      GRL_DEBUG ("\tend of parsing :)");
+    }
+
+    tracker_evt_update_free (evt);
+    return;
+  }
+
+  datasource = tracker_sparql_cursor_get_string (evt->cursor, 0, NULL);
+  source_mounted = tracker_sparql_cursor_get_boolean (evt->cursor, 1);
+
+  plugin = grl_plugin_registry_lookup_source (grl_plugin_registry_get_default (),
+                                              datasource);
+
+  GRL_DEBUG ("\tdatasource=%s mounted=%i plugin=%p",
+             datasource, source_mounted, plugin);
+
+  if (source_mounted) {
+    if (plugin == NULL) {
+      source_name = get_tracker_source_name (datasource); /* TODO: get a better name */
+      plugin = g_object_new (GRL_TRACKER_SOURCE_TYPE,
+                             "source-id", datasource,
+                             "source-name", source_name,
+                             "source-desc", SOURCE_DESC,
+                             "tracker-connection", tracker_connection,
+                             NULL);
+      grl_tracker_add_source (GRL_TRACKER_SOURCE (plugin));
+      g_free (source_name);
+    }
+  } else if (!source_mounted && plugin != NULL) {
+    grl_tracker_del_source (GRL_TRACKER_SOURCE (plugin));
+  }
+
+  tracker_sparql_cursor_next_async (evt->cursor, NULL,
+                                    (GAsyncReadyCallback) tracker_evt_update_process_item_cb,
+                                    (gpointer) evt);
+}
+
+static void
+tracker_evt_update_process_cb (GObject              *object,
+                               GAsyncResult         *result,
+                               tracker_evt_update_t *evt)
+{
+  GError *tracker_error = NULL;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  evt->cursor = tracker_sparql_connection_query_finish (tracker_connection,
+                                                        result, NULL);
+
+  if (tracker_error != NULL) {
+    GRL_WARNING ("Could not execute sparql query: %s", tracker_error->message);
+
+    g_error_free (tracker_error);
+    tracker_evt_update_free (evt);
+    return;
+  }
+
+  tracker_sparql_cursor_next_async (evt->cursor, NULL,
+                                    (GAsyncReadyCallback) tracker_evt_update_process_item_cb,
+                                    (gpointer) evt);
+}
+
+static void
+tracker_evt_update_process (tracker_evt_update_t *evt)
+{
+  GString *request_str = g_string_new (TRACKER_MOUNTED_DATASOURCES_START);
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  g_string_append_printf (request_str, "%i",
+                          GPOINTER_TO_INT (evt->updated_items_iter));
+  evt->updated_items_iter = evt->updated_items_iter->next;
+
+  while (evt->updated_items_iter != NULL) {
+    g_string_append_printf (request_str, ", %i",
+                            GPOINTER_TO_INT (evt->updated_items_iter->data));
+    evt->updated_items_iter = evt->updated_items_iter->next;
+  }
+
+  g_string_append (request_str, TRACKER_MOUNTED_DATASOURCES_END);
+
+  GRL_DEBUG ("\trequest : %s", request_str->str);
+
+  tracker_sparql_connection_query_async (tracker_connection,
+                                         request_str->str,
+                                         NULL,
+                                         (GAsyncReadyCallback) tracker_evt_update_process_cb,
+                                         evt);
+  g_string_free (request_str, TRUE);
+}
+
+static void
+tracker_dbus_signal_cb (GDBusConnection *connection,
+                        const gchar     *sender_name,
+                        const gchar     *object_path,
+                        const gchar     *interface_name,
+                        const gchar     *signal_name,
+                        GVariant        *parameters,
+                        gpointer         user_data)
+
+{
+  gchar *class_name;
+  gint graph = 0, subject = 0, predicate = 0, object = 0, subject_state;
+  GVariantIter *iter1, *iter2;
+  tracker_evt_update_t *evt = tracker_evt_update_new ();
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  g_variant_get (parameters, "(&sa(iiii)a(iiii))", &class_name, &iter1, &iter2);
+
+  GRL_DEBUG ("\tTracker update event for class=%s ins=%li del=%li",
+             class_name, g_variant_iter_n_children (iter1),
+             g_variant_iter_n_children (iter2));
+
+  while (g_variant_iter_loop (iter1, "(iiii)", &graph,
+                              &subject, &predicate, &object)) {
+    subject_state = GPOINTER_TO_INT (g_hash_table_lookup (evt->updated_items,
+                                                          GSIZE_TO_POINTER (subject)));
+
+    if (subject_state == 0) {
+      g_hash_table_insert (evt->updated_items,
+                           GSIZE_TO_POINTER (subject),
+                           GSIZE_TO_POINTER (1));
+      evt->updated_items_list = g_list_append (evt->updated_items_list,
+                                               GSIZE_TO_POINTER (subject));
+    } else if (subject_state == 2)
+      evt->updated_items_list = g_list_append (evt->updated_items_list,
+                                               GSIZE_TO_POINTER (subject));
+  }
+  g_variant_iter_free (iter1);
+
+  while (g_variant_iter_loop (iter2, "(iiii)", &graph,
+                              &subject, &predicate, &object)) {
+    subject_state = GPOINTER_TO_INT (g_hash_table_lookup (evt->updated_items,
+                                                          GSIZE_TO_POINTER (subject)));
+
+    if (subject_state == 0) {
+      g_hash_table_insert (evt->updated_items,
+                           GSIZE_TO_POINTER (subject),
+                           GSIZE_TO_POINTER (1));
+      evt->updated_items_list = g_list_append (evt->updated_items_list,
+                                              GSIZE_TO_POINTER (subject));
+    } else if (subject_state == 2)
+      evt->updated_items_list = g_list_append (evt->updated_items_list,
+                                              GSIZE_TO_POINTER (subject));
+  }
+  g_variant_iter_free (iter2);
+
+  evt->updated_items_iter = evt->updated_items_list;
+
+  GRL_DEBUG ("\t%u elements updated", g_hash_table_size (evt->updated_items));
+  GRL_DEBUG ("\t%u elements updated (list)",
+             g_list_length (evt->updated_items_list));
+
+  tracker_evt_update_process (evt);
+}
+
+static void
+tracker_dbus_start_watch (void)
+{
+  GDBusConnection *connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+
+  tracker_dbus_signal_id = g_dbus_connection_signal_subscribe (connection,
+                                                               TRACKER_DBUS_SERVICE,
+                                                               TRACKER_DBUS_INTERFACE_RESOURCES,
+                                                               "GraphUpdated",
+                                                               TRACKER_DBUS_OBJECT_RESOURCES,
+                                                               NULL,
+                                                               G_DBUS_SIGNAL_FLAGS_NONE,
+                                                               tracker_dbus_signal_cb,
+                                                               NULL,
+                                                               NULL);
+}
+
+static void
+tracker_get_datasource_cb (GObject             *object,
+                           GAsyncResult        *result,
+                           TrackerSparqlCursor *cursor)
+{
+  const gchar *datasource;
+  gchar *source_name;
+  GError *tracker_error = NULL;
+  GrlTrackerSource *source;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  if (!tracker_sparql_cursor_next_finish (cursor, result, &tracker_error)) {
+    if (tracker_error == NULL) {
+      GRL_DEBUG ("\tEnd of parsing of devices");
+    } else {
+      GRL_DEBUG ("\tError while parsing devices: %s", tracker_error->message);
+      g_error_free (tracker_error);
+    }
+    g_object_unref (G_OBJECT (cursor));
+    return;
+  }
+
+  datasource = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+  source = GRL_TRACKER_SOURCE (grl_plugin_registry_lookup_source (grl_plugin_registry_get_default (),
+                                                                  datasource));
+
+  if (source == NULL) {
+    source_name = get_tracker_source_name (datasource); /* TODO: get a better name */
+
+    GRL_DEBUG ("\tnew datasource: %s\n", datasource);
+
+    source = g_object_new (GRL_TRACKER_SOURCE_TYPE,
+                           "source-id", datasource,
+                           "source-name", source_name,
+                           "source-desc", SOURCE_DESC,
+                           "tracker-connection", tracker_connection,
+                           NULL);
+    grl_plugin_registry_register_source (grl_plugin_registry_get_default (),
+                                         tracker_grl_plugin,
+                                         GRL_MEDIA_PLUGIN (source),
+                                         NULL);
+    g_free (source_name);
+  }
+
+  tracker_sparql_cursor_next_async (cursor, NULL,
+                                    (GAsyncReadyCallback) tracker_get_datasource_cb,
+                                    cursor);
+}
+
+static void
+tracker_get_datasources_cb (GObject      *object,
+                            GAsyncResult *result,
+                            gpointer      data)
+{
+  TrackerSparqlCursor *cursor;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  cursor = tracker_sparql_connection_query_finish (tracker_connection,
+                                                   result, NULL);
+
+  tracker_sparql_cursor_next_async (cursor, NULL,
+                                    (GAsyncReadyCallback) tracker_get_datasource_cb,
+                                    cursor);
+}
 
 static void
 tracker_get_connection_cb (GObject             *object,
                            GAsyncResult        *res,
                            const GrlPluginInfo *plugin)
 {
-  TrackerSparqlConnection *connection;
-  GrlTrackerSource *source;
+  /* GrlTrackerSource *source; */
 
-  connection = tracker_sparql_connection_get_finish (res, NULL);
+  GRL_DEBUG ("%s", __FUNCTION__);
 
-  if (connection != NULL) {
-    source = grl_tracker_source_new (connection);
-    grl_plugin_registry_register_source (grl_plugin_registry_get_default (),
-                                         plugin,
-                                         GRL_MEDIA_PLUGIN (source),
-                                         NULL);
-    g_object_unref (G_OBJECT (connection));
+  tracker_connection = tracker_sparql_connection_get_finish (res, NULL);
+
+  if (tracker_connection != NULL) {
+    if (tracker_per_device_source == TRUE) {
+      /* Let's discover available data sources. */
+      GRL_DEBUG ("per device source mode");
+
+      tracker_dbus_start_watch ();
+
+      tracker_sparql_connection_query_async (tracker_connection,
+                                             TRACKER_DATASOURCES_REQUEST,
+                                             NULL,
+                                             (GAsyncReadyCallback) tracker_get_datasources_cb,
+                                             NULL);
+    } else {
+      /* One source to rule them all. */
+      grl_tracker_add_source (grl_tracker_source_new (tracker_connection));
+    }
   }
 }
 
@@ -206,9 +562,28 @@ grl_tracker_plugin_init (GrlPluginRegistry *registry,
                          const GrlPluginInfo *plugin,
                          GList *configs)
 {
+  GrlConfig *config;
+  gint config_count;
+
   GRL_LOG_DOMAIN_INIT (tracker_log_domain, "tracker");
 
   GRL_DEBUG ("%s", __FUNCTION__);
+
+  tracker_grl_plugin = plugin;
+
+  if (!configs) {
+    GRL_WARNING ("Configuration not provided! Using default configuration.");
+  } else {
+    config_count = g_list_length (configs);
+    if (config_count > 1) {
+      GRL_WARNING ("Provided %i configs, but will only use one", config_count);
+    }
+
+    config = GRL_CONFIG (configs->data);
+
+    tracker_per_device_source = grl_config_get_boolean (config,
+                                                        "per-device-source");
+  }
 
   tracker_sparql_connection_get_async (NULL,
                                        (GAsyncReadyCallback) tracker_get_connection_cb,
@@ -252,13 +627,14 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
 
   metadata_class->supported_keys = grl_tracker_source_supported_keys;
 
-  g_class->finalize = grl_tracker_source_finalize;
+  g_class->finalize     = grl_tracker_source_finalize;
   g_class->set_property = grl_tracker_source_set_property;
+  g_class->constructed  = grl_tracker_source_constructed;
 
   g_object_class_install_property (g_class,
                                    PROP_TRACKER_CONNECTION,
                                    g_param_spec_object ("tracker-connection",
-                                                        "tracker-connection",
+                                                        "tracker connection",
                                                         "A Tracker connection",
                                                         TRACKER_SPARQL_TYPE_CONNECTION,
                                                         G_PARAM_WRITABLE
@@ -268,7 +644,6 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
   g_type_class_add_private (klass, sizeof (GrlTrackerSourcePriv));
 
   setup_key_mappings ();
-
 }
 
 static void
@@ -279,6 +654,15 @@ grl_tracker_source_init (GrlTrackerSource *source)
   source->priv = priv;
 
   priv->operations = g_hash_table_new (g_direct_hash, g_direct_equal);
+}
+
+static void
+grl_tracker_source_constructed (GObject *object)
+{
+  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (object);
+
+  if (tracker_per_device_source)
+    g_object_get (object, "source-id", &priv->tracker_datasource, NULL);
 }
 
 static void
@@ -317,6 +701,12 @@ grl_tracker_source_set_property (GObject      *object,
 /* ======================= Utilities ==================== */
 
 static gchar *
+get_tracker_source_name (const gchar *device_name)
+{
+  return g_strdup_printf ("%s %s", SOURCE_NAME, device_name);
+}
+
+static gchar *
 build_flavored_key (gchar *key, const gchar *flavor)
 {
   gint i = 0;
@@ -324,7 +714,7 @@ build_flavored_key (gchar *key, const gchar *flavor)
   while (key[i] != '\0') {
     if (!g_ascii_isalnum (key[i])) {
       key[i] = '_';
-    }
+     }
     i++;
   }
 
@@ -521,7 +911,7 @@ build_grilo_media (const gchar *rdf_type)
   i = g_strv_length (rdf_single_type) - 1;
 
   while (!media && i >= 0) {
-    if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_AUDIO)) {
+    if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_MUSIC)) {
       media = grl_media_audio_new ();
     } else if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_VIDEO)) {
       media = grl_media_video_new ();
@@ -768,6 +1158,16 @@ tracker_metadata_cb (GObject                    *source_object,
     g_object_unref (G_OBJECT (cursor));
 }
 
+static gchar *
+tracker_source_get_device_constraint (GrlTrackerSourcePriv *priv)
+{
+  if (priv->tracker_datasource == NULL)
+    return g_strdup ("");
+
+  return g_strdup_printf ("?urn nie:dataSource <%s> .",
+                          priv->tracker_datasource);
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -933,6 +1333,7 @@ static void
 grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
 {
   GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
   GError               *error = NULL;
@@ -947,9 +1348,10 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
     goto send_error;
   }
 
+  constraint = tracker_source_get_device_constraint (priv);
   sparql_select = get_select_string (source, ss->keys);
   sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
-                                  ss->text, ss->skip, ss->count);
+                                  ss->text, constraint, ss->skip, ss->count);
 
   GRL_DEBUG ("select: '%s'", sparql_final);
 
@@ -966,10 +1368,9 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
                                          (GAsyncReadyCallback) tracker_query_cb,
                                          os);
 
-  if (sparql_select != NULL)
-    g_free (sparql_select);
-  if (sparql_final != NULL)
-    g_free (sparql_final);
+  g_free (constraint);
+  g_free (sparql_select);
+  g_free (sparql_final);
 
   return;
 
@@ -983,6 +1384,7 @@ grl_tracker_source_browse (GrlMediaSource *source,
                            GrlMediaSourceBrowseSpec *bs)
 {
   GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
   struct OperationSpec *os;
@@ -1009,10 +1411,12 @@ grl_tracker_source_browse (GrlMediaSource *source,
     return;
   }
 
+  constraint = tracker_source_get_device_constraint (priv);
   sparql_select = get_select_string (bs->source, bs->keys);
   sparql_final = g_strdup_printf (TRACKER_BROWSE_CATEGORY_REQUEST,
                                   sparql_select,
                                   grl_media_get_id (bs->container),
+                                  constraint,
                                   bs->skip, bs->count);
 
   GRL_DEBUG ("select: '%s'", sparql_final);
@@ -1030,6 +1434,7 @@ grl_tracker_source_browse (GrlMediaSource *source,
                                          (GAsyncReadyCallback) tracker_query_cb,
                                          os);
 
+  g_free (constraint);
   g_free (sparql_select);
   g_free (sparql_final);
 }

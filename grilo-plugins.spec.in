@@ -8,7 +8,7 @@ License:        LGPLv2+
 Source0:        grilo-plugins-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  grilo-devel >= 0.1.5
+BuildRequires:  grilo-devel >= 0.1.6
 BuildRequires:  gnome-common
 BuildRequires:  glib2-devel
 BuildRequires:  libxml2-devel
@@ -17,7 +17,7 @@ BuildRequires:  gupnp-av-devel
 BuildRequires:  sqlite-devel
 BuildRequires:  libgdata-devel
 
-Requires:       grilo >= 0.1.5
+Requires:       grilo >= 0.1.6
 Requires:       gupnp
 Requires:       gupnp-av
 
@@ -29,6 +29,7 @@ Apple Trailers
 Bookmarks
 Filesystem
 Flickr
+Gravatar
 Jamendo
 Last.fm (for album arts)
 Metadata Store
@@ -48,6 +49,7 @@ Youtube
 	--enable-bookmarks		\
 	--enable-filesystem		\
 	--enable-flickr			\
+        --enable-gravatar               \
 	--enable-jamendo		\
 	--enable-lastfm-albumart	\
         --enable-metadata-store         \
@@ -72,13 +74,30 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/*
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-
 %files
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING NEWS README
 %{_libdir}/grilo-0.1/*.so*
+%{_datadir}/grilo-0.1/plugins/*.xml
 
 %changelog
+* Thu Aug 26 2010 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.6-1
+- General fixes, new metadata key system, new registering framework
+- Apple trailers: general fixes, more keys, handling SD and HD videos
+- Bookmarks: general fixes
+- Fake metadata: general fixes
+- Filesystem: general fixes, restrict content to a set of directories
+- Flickr: general fixes, browse operation, handle personal content
+- Gravatar: new plugin
+- Jamendo: general fixes
+- LastFM Album Art: general fixes
+- Metadata Store: general fixes
+- Podcasts: general fixes
+- SHOUTCast: general fixes, cache root page, change ID encoding
+- UPnP: general fixes
+- Vimeo: general fixes
+- Youtube: general fixes, handle more keys
+
 * Fri May 07 2010 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.5-1
 - General: general fixes
 - Apple Trailers: general fixes

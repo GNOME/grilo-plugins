@@ -46,9 +46,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-vimeo"
-#define PLUGIN_NAME "Vimeo"
-#define PLUGIN_DESC "A plugin for browsing and searching Vimeo videos"
+#define PLUGIN_ID   VIMEO_PLUGIN_ID
 
 #define SOURCE_ID   "grl-vimeo"
 #define SOURCE_NAME "Vimeo"
@@ -91,7 +89,7 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
 {
   const gchar *vimeo_key;
   const gchar *vimeo_secret;
-  const GrlConfig *config;
+  GrlConfig *config;
   gint config_count;
   GrlVimeoSource *source;
 
@@ -132,13 +130,7 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_vimeo_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Vimeo GObject ================ */
 
@@ -241,13 +233,13 @@ update_media (GrlMedia *media, GHashTable *video)
   str = g_hash_table_lookup (video, VIMEO_VIDEO_WIDTH);
   if (str)
   {
-    grl_media_video_set_width (media, str_to_gint (str));
+    grl_media_video_set_width (GRL_MEDIA_VIDEO (media), str_to_gint (str));
   }
 
   str = g_hash_table_lookup (video, VIMEO_VIDEO_HEIGHT);
   if (str)
   {
-    grl_media_video_set_height (media, str_to_gint (str));
+    grl_media_video_set_height (GRL_MEDIA_VIDEO (media), str_to_gint (str));
   }
 }
 

@@ -6,7 +6,7 @@
 # Copyright (C) 2010 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.5])
+m4_define([prj_version], [0.1.6])
 
 AC_INIT([prj_name], [prj_version])
 
@@ -39,23 +39,63 @@ CFLAGS+=" ${WARN_CFLAGS} -Wmissing-declarations -std=c99 "
 GNOME_MAINTAINER_MODE_DEFINES
 
 # ----------------------------------------------------------
+# UNINSTALLED SUPPORT
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(uninstalled,
+        AC_HELP_STRING([--enable-uninstalled],
+                [run uninstalled (default: no)]),,
+        [enable_uninstalled=no])
+
+if test "x$enable_uninstalled" = "xyes"; then
+        AC_MSG_WARN("Configuring for running uninstalled!")
+	GRL_VERSION=uninstalled
+else
+	GRL_VERSION=0.1
+fi
+
+GRL_NAME=grilo-${GRL_VERSION}
+
+# ----------------------------------------------------------
+# DEBUG SUPPORT
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(debug,
+        AC_HELP_STRING([--enable-debug],
+                [include debug symbols (default: no)]),,
+        [enable_debug=no])
+
+if test "x$enable_debug" = "xyes"; then
+	CFLAGS="$CFLAGS -g3 -O0"
+fi
+
+# ----------------------------------------------------------
+# HARD DEPENDENCIES
+# ----------------------------------------------------------
+
+PKG_CHECK_MODULES([DEPS], glib-2.0 \
+			  gobject-2.0 \
+			  gmodule-2.0 \
+			  ${GRL_NAME} = 0.1.6)
+
+# ----------------------------------------------------------
 # DEFINITIONS
 # ----------------------------------------------------------
 
 # Plugins directory
 
-GRL_PLUGINS_DIR=`pkg-config --variable=plugindir grilo-0.1`
+GRL_PLUGINS_DIR=`pkg-config --variable=plugindir ${GRL_NAME}`
 AC_SUBST(GRL_PLUGINS_DIR)
 AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 
-# ----------------------------------------------------------
-# DEPENDENCIES
-# ----------------------------------------------------------
+# Plugins configuration directory
 
-PKG_CHECK_MODULES(DEPS, glib-2.0 \
-			gobject-2.0 \
-			gmodule-2.0 \
-			grilo-0.1 >= 0.1.5)
+GRL_PLUGINS_CONF_DIR="${datadir}/${GRL_NAME}/plugins"
+AC_SUBST(GRL_PLUGINS_CONF_DIR)
+
+# ----------------------------------------------------------
+# EXTERNAL/OPTIONAL DEPENDENCIES
+# ----------------------------------------------------------
 
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 
@@ -104,28 +144,6 @@ if test "x$HAVE_GDATA" = "xyes"; then
 fi
 
 # ----------------------------------------------------------
-# UNINSTALLED SUPPORT
-# ----------------------------------------------------------
-
-AC_ARG_ENABLE(uninstalled,
-        AC_HELP_STRING([--enable-uninstalled],
-                [run uninstalled (default: no)]),,
-        [enable_uninstalled=no])
-
-# ----------------------------------------------------------
-# DEBUG SUPPORT
-# ----------------------------------------------------------
-
-AC_ARG_ENABLE(debug,
-        AC_HELP_STRING([--enable-debug],
-                [include debug symbols (default: no)]),,
-        [enable_debug=no])
-
-if test "x$enable_debug" = "xyes"; then
-	CFLAGS="$CFLAGS -g3 -O0"
-fi
-
-# ----------------------------------------------------------
 # BUILD FAKE METADATA PLUGIN
 # ----------------------------------------------------------
 
@@ -140,6 +158,10 @@ if test "x$enable_fakemetadata" = "xyes"
 then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED fakemetadata"
 fi
+
+FAKEMETADATA_PLUGIN_ID="grl-fake-metadata"
+AC_SUBST(FAKEMETADATA_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([FAKEMETADATA_PLUGIN_ID], ["$FAKEMETADATA_PLUGIN_ID"], [Fake metadata plugin ID])
 
 # ----------------------------------------------------------
 # BUILD FILE SYSTEM PLUGIN
@@ -156,6 +178,10 @@ if test "x$enable_filesystem" = "xyes"
 then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED filesystem"
 fi
+
+FILESYSTEM_PLUGIN_ID="grl-filesystem"
+AC_SUBST(FILESYSTEM_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([FILESYSTEM_PLUGIN_ID], ["$FILESYSTEM_PLUGIN_ID"], [Filesystem plugin ID])
 
 # ----------------------------------------------------------
 # BUILD JAMENDO PLUGIN
@@ -191,6 +217,10 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED jamendo"
 fi
 
+JAMENDO_PLUGIN_ID="grl-jamendo"
+AC_SUBST(JAMENDO_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([JAMENDO_PLUGIN_ID], ["$JAMENDO_PLUGIN_ID"], [Jamendo plugin ID])
+
 # ----------------------------------------------------------
 # BUILD LASTFM ALBUM ART PLUGIN
 # ----------------------------------------------------------
@@ -224,6 +254,10 @@ if test "x$enable_lastfm_albumart" = "xyes"
 then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED lastfm-albumart"
 fi
+
+LASTFM_ALBUMART_PLUGIN_ID="grl-lastfm-albumart"
+AC_SUBST(LASTFM_ALBUMART_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([LASTFM_ALBUMART_PLUGIN_ID], ["$LASTFM_ALBUMART_PLUGIN_ID"], [Last.fm album art plugin ID])
 
 # ----------------------------------------------------------
 # BUILD UPNP PLUGIN
@@ -263,6 +297,10 @@ if test "x$enable_upnp" = "xyes"
 then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED upnp"
 fi
+
+UPNP_PLUGIN_ID="grl-upnp"
+AC_SUBST(UPNP_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([UPNP_PLUGIN_ID], ["$UPNP_PLUGIN_ID"], [UPnP plugin ID])
 
 # ----------------------------------------------------------
 # BUILD YOUTUBE PLUGIN
@@ -305,6 +343,10 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED youtube"
 fi
 
+YOUTUBE_PLUGIN_ID="grl-youtube"
+AC_SUBST(YOUTUBE_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([YOUTUBE_PLUGIN_ID], ["$YOUTUBE_PLUGIN_ID"], [YouTube plugin ID])
+
 # ----------------------------------------------------------
 # BUILD FLICKR PLUGIN
 # ----------------------------------------------------------
@@ -338,6 +380,10 @@ if test "x$enable_flickr" = "xyes"
 then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED flickr"
 fi
+
+FLICKR_PLUGIN_ID="grl-flickr"
+AC_SUBST(FLICKR_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([FLICKR_PLUGIN_ID], ["$FLICKR_PLUGIN_ID"], [Flickr plugin ID])
 
 # ----------------------------------------------------------
 # BUILD PODCASTS PLUGIN
@@ -380,6 +426,9 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED podcasts"
 fi
 
+PODCASTS_PLUGIN_ID="grl-podcasts"
+AC_SUBST(PODCASTS_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([PODCASTS_PLUGIN_ID], ["$PODCASTS_PLUGIN_ID"], [Podcasts plugin ID])
 
 # ----------------------------------------------------------
 # BUILD BOOKMARKS PLUGIN
@@ -422,6 +471,10 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED bookmarks"
 fi
 
+BOOKMARKS_PLUGIN_ID="grl-bookmarks"
+AC_SUBST(BOOKMARKS_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([BOOKMARKS_PLUGIN_ID], ["$BOOKMARKS_PLUGIN_ID"], [Bookmarks plugin ID])
+
 # ----------------------------------------------------------
 # BUILD SHOUTCAST PLUGIN
 # ----------------------------------------------------------
@@ -455,6 +508,10 @@ if test "x$enable_shoutcast" = "xyes"
 then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED shoutcast"
 fi
+
+SHOUTCAST_PLUGIN_ID="grl-shoutcast"
+AC_SUBST(SHOUTCAST_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([SHOUTCAST_PLUGIN_ID], ["$SHOUTCAST_PLUGIN_ID"], [Shoutcast plugin ID])
 
 # ----------------------------------------------------------
 # BUILD APPLE TRAILERS PLUGIN
@@ -490,6 +547,10 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED apple-trailers"
 fi
 
+APPLE_TRAILERS_PLUGIN_ID="grl-apple-trailers"
+AC_SUBST(APPLE_TRAILERS_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([APPLE_TRAILERS_PLUGIN_ID], ["$APPLE_TRAILERS_PLUGIN_ID"], [Apple Trailers plugin ID])
+
 # ----------------------------------------------------------
 # BUILD METADATA-STORE PLUGIN
 # ----------------------------------------------------------
@@ -520,6 +581,10 @@ if test "x$enable_metadata_store" = "xyes"
 then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED metadata-store"
 fi
+
+METADATA_STORE_PLUGIN_ID="grl-metadata-store"
+AC_SUBST(METADATA_STORE_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([METADATA_STORE_PLUGIN_ID], ["$METADATA_STORE_PLUGIN_ID"], [Metadata Store plugin ID])
 
 # ----------------------------------------------------------
 # BUILD VIMEO PLUGIN
@@ -561,6 +626,34 @@ then
 	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED vimeo"
 fi
 
+VIMEO_PLUGIN_ID="grl-vimeo"
+AC_SUBST(VIMEO_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([VIMEO_PLUGIN_ID], ["$VIMEO_PLUGIN_ID"], [Vimeo plugin ID])
+
+# ----------------------------------------------------------
+# BUILD GRAVATAR PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(gravatar,
+        AC_HELP_STRING([--enable-gravatar],
+                [enable Gravatar plugin (default: auto)]),
+        [
+        ],
+        [
+                enable_gravatar=yes
+        ])
+
+AM_CONDITIONAL([GRAVATAR_PLUGIN], [test "x$enable_gravatar" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL gravatar"
+if test "x$enable_gravatar" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED gravatar"
+fi
+
+GRAVATAR_PLUGIN_ID="grl-gravatar"
+AC_SUBST(GRAVATAR_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([GRAVATAR_PLUGIN_ID], ["$GRAVATAR_PLUGIN_ID"], [Gravatar plugin ID])
+
 # ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
@@ -599,6 +692,7 @@ AC_CONFIG_FILES([
   src/apple-trailers/Makefile
   src/metadata-store/Makefile
   src/vimeo/Makefile
+  src/gravatar/Makefile
   test/Makefile
 ])
 

@@ -18,6 +18,10 @@ libgrlmetadatastore_la_LIBADD =	\
 libgrlmetadatastore_la_SOURCES = grl-metadata-store.c grl-metadata-store.h
 
 libdir=$(GRL_PLUGINS_DIR)
+metadatastorexmldir	= $(GRL_PLUGINS_CONF_DIR)
+metadatastorexml_DATA	= $(METADATA_STORE_PLUGIN_ID).xml
+
+EXTRA_DIR = $(metadatastorexml_DATA)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

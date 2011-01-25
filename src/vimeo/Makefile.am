@@ -26,6 +26,10 @@ libgrlvimeo_la_SOURCES =	\
 	gvimeo.h
 
 libdir=$(GRL_PLUGINS_DIR)
+vimeoxmldir	= $(GRL_PLUGINS_CONF_DIR)
+vimeoxml_DATA	= $(VIMEO_PLUGIN_ID).xml
+
+EXTRA_DIR = $(vimeoxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

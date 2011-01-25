@@ -31,9 +31,7 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "grl-fake-metadata"
 
-#define PLUGIN_ID   "grl-fake-metadata"
-#define PLUGIN_NAME "Fake Metadata Provider"
-#define PLUGIN_DESC "A plugin for faking metadata resolution"
+#define PLUGIN_ID   FAKEMETADATA_PLUGIN_ID
 
 #define SOURCE_ID   "grl-fake-metadata"
 #define SOURCE_NAME "Fake Metadata Provider"
@@ -81,13 +79,7 @@ grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_fake_metadata_source_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== GrlFakeMetadata GObject ================ */
 
@@ -127,38 +119,27 @@ G_DEFINE_TYPE (GrlFakeMetadataSource,
 static void
 fill_metadata (GrlMedia *media, GrlKeyID key_id)
 {
-  switch (key_id) {
-  case GRL_METADATA_KEY_AUTHOR:
+  if (key_id == GRL_METADATA_KEY_AUTHOR) {
     grl_media_set_author (media, "fake author");
-    break;
-  case GRL_METADATA_KEY_ARTIST:
+  } else if (key_id == GRL_METADATA_KEY_ARTIST) {
     grl_data_set_string (GRL_DATA (media),
                          GRL_METADATA_KEY_ARTIST, "fake artist");
-    break;
-  case GRL_METADATA_KEY_ALBUM:
+  } else if (key_id == GRL_METADATA_KEY_ALBUM) {
     grl_data_set_string (GRL_DATA (media),
                          GRL_METADATA_KEY_ALBUM, "fake album");
-    break;
-  case GRL_METADATA_KEY_GENRE:
+  } else if (key_id == GRL_METADATA_KEY_GENRE) {
     grl_data_set_string (GRL_DATA (media),
                          GRL_METADATA_KEY_GENRE, "fake genre");
-    break;
-  case GRL_METADATA_KEY_DESCRIPTION:
+  } else if (key_id == GRL_METADATA_KEY_DESCRIPTION) {
     grl_media_set_description (media, "fake description");
-    break;
-  case GRL_METADATA_KEY_DURATION:
+  } else if (key_id == GRL_METADATA_KEY_DURATION) {
     grl_media_set_duration (media, 99);
-    break;
-  case GRL_METADATA_KEY_DATE:
+  } else if (key_id == GRL_METADATA_KEY_DATE) {
     grl_data_set_string (GRL_DATA (media),
                          GRL_METADATA_KEY_DATE, "01/01/1970");
-    break;
-  case GRL_METADATA_KEY_THUMBNAIL:
+  } else if (key_id == GRL_METADATA_KEY_THUMBNAIL) {
     grl_media_set_thumbnail (media,
                                   "http://fake.thumbnail.com/fake-image.jpg");
-    break;
-  default:
-    break;
   }
 }
 
@@ -192,18 +173,15 @@ grl_fake_metadata_source_key_depends (GrlMetadataSource *source,
     deps = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, NULL);
   }
 
-  switch (key_id) {
-  case GRL_METADATA_KEY_AUTHOR:
-  case GRL_METADATA_KEY_ARTIST:
-  case GRL_METADATA_KEY_ALBUM:
-  case GRL_METADATA_KEY_GENRE:
-  case GRL_METADATA_KEY_DESCRIPTION:
-  case GRL_METADATA_KEY_DURATION:
-  case GRL_METADATA_KEY_DATE:
-  case GRL_METADATA_KEY_THUMBNAIL:
+  if (key_id == GRL_METADATA_KEY_AUTHOR ||
+      key_id == GRL_METADATA_KEY_ARTIST ||
+      key_id == GRL_METADATA_KEY_ALBUM ||
+      key_id == GRL_METADATA_KEY_GENRE ||
+      key_id == GRL_METADATA_KEY_DESCRIPTION ||
+      key_id == GRL_METADATA_KEY_DURATION ||
+      key_id == GRL_METADATA_KEY_DATE ||
+      key_id == GRL_METADATA_KEY_THUMBNAIL) {
     return deps;
-  default:
-    break;
   }
 
   return  NULL;
@@ -232,8 +210,7 @@ grl_fake_metadata_source_resolve (GrlMetadataSource *source,
 
   iter = rs->keys;
   while (iter) {
-    GrlKeyID key_id = POINTER_TO_GRLKEYID (iter->data);
-    fill_metadata (GRL_MEDIA (rs->media), key_id);
+    fill_metadata (GRL_MEDIA (rs->media), iter->data);
     iter = g_list_next (iter);
   }
 

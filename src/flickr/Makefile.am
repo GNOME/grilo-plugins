@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libgrlflickr.la
+libplugin_LTLIBRARIES	= libgrlflickr.la
 
 libgrlflickr_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
@@ -23,7 +23,11 @@ libgrlflickr_la_SOURCES =	\
 	gflickr.c		\
 	gflickr.h
 
-libdir=$(GRL_PLUGINS_DIR)
+libplugindir		= $(GRL_PLUGINS_DIR)
+flickrlibxmldir		= $(GRL_PLUGINS_CONF_DIR)
+flickrlibxml_DATA	= $(FLICKR_PLUGIN_ID).xml
+
+EXTRA_DIR = $(flickrxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

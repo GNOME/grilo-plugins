@@ -1,0 +1,9 @@
+<plugin>
+  <info>
+    <name>Metadata Store</name>
+    <description>A plugin for storing extra metadata information</description>
+    <author>Igalia S.L.</author>
+    <license>LGPL</license>
+    <site>http://www.igalia.com</site>
+  </info>
+</plugin>

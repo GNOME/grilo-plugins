@@ -21,6 +21,11 @@ libgrlshoutcast_la_SOURCES	 = grl-shoutcast.c grl-shoutcast.h
 
 libdir=$(GRL_PLUGINS_DIR)
 
+shoutcastxmldir		= $(GRL_PLUGINS_CONF_DIR)
+shoutcastxml_DATA	= $(SHOUTCAST_PLUGIN_ID).xml
+
+EXTRA_DIR = $(shoutcastxml_DATA)
+
 MAINTAINERCLEANFILES =	\
 	*.in		\
 	*~

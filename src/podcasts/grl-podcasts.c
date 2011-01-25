@@ -138,9 +138,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-podcasts"
-#define PLUGIN_NAME "Podcasts"
-#define PLUGIN_DESC "A plugin for browsing podcasts"
+#define PLUGIN_ID   PODCASTS_PLUGIN_ID
 
 #define SOURCE_ID   "grl-podcasts"
 #define SOURCE_NAME "Podcasts"
@@ -252,13 +250,7 @@ grl_podcasts_plugin_init (GrlPluginRegistry *registry,
 
 GRL_PLUGIN_REGISTER (grl_podcasts_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Podcasts GObject ================ */
 
@@ -408,6 +400,7 @@ read_done_cb (GObject *source_object,
   g_object_unref (source_object);
   if (vfs_error) {
     g_warning ("Failed to open '%s': %s", arc->url, vfs_error->message);
+    g_error_free (vfs_error);
   } else {
     arc->callback (content, arc->user_data);
   }
@@ -922,7 +915,9 @@ parse_entry_idle (gpointer user_data)
 
   /* Parse entry */
   Entry *entry = g_slice_new0 (Entry);
-  parse_entry (osp->doc, nodes->nodeTab[osp->parse_index], entry);
+  if (nodes->nodeTab) {
+    parse_entry (osp->doc, nodes->nodeTab[osp->parse_index], entry);
+  }
   if (0) print_entry (entry);
 
   /* Check if entry is valid */

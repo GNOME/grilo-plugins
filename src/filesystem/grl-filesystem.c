@@ -43,7 +43,9 @@
   G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","    \
   G_FILE_ATTRIBUTE_STANDARD_TYPE ","            \
   G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN ","       \
-  G_FILE_ATTRIBUTE_TIME_MODIFIED
+  G_FILE_ATTRIBUTE_TIME_MODIFIED ","            \
+  G_FILE_ATTRIBUTE_THUMBNAIL_PATH ","           \
+  G_FILE_ATTRIBUTE_THUMBNAILING_FAILED
 
 #define FILE_ATTRIBUTES_FAST                    \
   G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN
@@ -54,9 +56,7 @@
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   "grl-filesystem"
-#define PLUGIN_NAME "Filesystem"
-#define PLUGIN_DESC "A plugin for browsing the filesystem"
+#define PLUGIN_ID   FILESYSTEM_PLUGIN_ID
 
 #define SOURCE_ID   "grl-filesystem"
 #define SOURCE_NAME "Filesystem"
@@ -65,6 +65,17 @@
 #define AUTHOR      "Igalia S.L."
 #define LICENSE     "LGPL"
 #define SITE        "http://www.igalia.com"
+
+/* --- Grilo Filesystem Private --- */
+
+#define GRL_FILESYSTEM_SOURCE_GET_PRIVATE(object)         \
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),                  \
+			     GRL_FILESYSTEM_SOURCE_TYPE,  \
+			     GrlFilesystemSourcePrivate))
+
+struct _GrlFilesystemSourcePrivate {
+  GList *chosen_paths;
+};
 
 /* --- Data types --- */
 
@@ -78,6 +89,8 @@ typedef struct {
 
 static GrlFilesystemSource *grl_filesystem_source_new (void);
 
+static void grl_filesystem_source_finalize (GObject *object);
+
 gboolean grl_filesystem_plugin_init (GrlPluginRegistry *registry,
                                      const GrlPluginInfo *plugin,
                                      GList *configs);
@@ -90,7 +103,6 @@ static void grl_filesystem_source_metadata (GrlMediaSource *source,
 static void grl_filesystem_source_browse (GrlMediaSource *source,
                                           GrlMediaSourceBrowseSpec *bs);
 
-
 /* =================== Filesystem Plugin  =============== */
 
 gboolean
@@ -98,26 +110,40 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
                             const GrlPluginInfo *plugin,
                             GList *configs)
 {
+  GrlConfig *config;
+  GList *chosen_paths = NULL;
+
   g_debug ("filesystem_plugin_init\n");
 
   GrlFilesystemSource *source = grl_filesystem_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source));
+
+  for (; configs; configs = g_list_next (configs)) {
+    const gchar *path;
+    config = GRL_CONFIG (configs->data);
+    path = grl_config_get_string (config, GRILO_CONF_CHOSEN_PATH);
+    if (!path) {
+      continue;
+    }
+    chosen_paths = g_list_append (chosen_paths, g_strdup (path));
+  }
+  source->priv->chosen_paths = chosen_paths;
+
   return TRUE;
 }
 
 GRL_PLUGIN_REGISTER (grl_filesystem_plugin_init,
                      NULL,
-                     PLUGIN_ID,
-                     PLUGIN_NAME,
-                     PLUGIN_DESC,
-                     PACKAGE_VERSION,
-                     AUTHOR,
-                     LICENSE,
-                     SITE);
+                     PLUGIN_ID);
 
 /* ================== Filesystem GObject ================ */
+
+
+G_DEFINE_TYPE (GrlFilesystemSource,
+               grl_filesystem_source,
+               GRL_TYPE_MEDIA_SOURCE);
 
 static GrlFilesystemSource *
 grl_filesystem_source_new (void)
@@ -137,17 +163,25 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_filesystem_source_browse;
   source_class->metadata = grl_filesystem_source_metadata;
+  G_OBJECT_CLASS (source_class)->finalize = grl_filesystem_source_finalize;
   metadata_class->supported_keys = grl_filesystem_source_supported_keys;
+  g_type_class_add_private (klass, sizeof (GrlFilesystemSourcePrivate));
 }
 
 static void
 grl_filesystem_source_init (GrlFilesystemSource *source)
 {
+  source->priv = GRL_FILESYSTEM_SOURCE_GET_PRIVATE (source);
 }
 
-G_DEFINE_TYPE (GrlFilesystemSource,
-               grl_filesystem_source,
-               GRL_TYPE_MEDIA_SOURCE);
+static void
+grl_filesystem_source_finalize (GObject *object)
+{
+  GrlFilesystemSource *filesystem_source = GRL_FILESYSTEM_SOURCE (object);
+  g_list_foreach (filesystem_source->priv->chosen_paths, (GFunc) g_free, NULL);
+  g_list_free (filesystem_source->priv->chosen_paths);
+  G_OBJECT_CLASS (grl_filesystem_source_parent_class)->finalize (object);
+}
 
 /* ======================= Utilities ==================== */
 
@@ -284,7 +318,8 @@ set_container_childcount (const gchar *path,
 static GrlMedia *
 create_content (GrlMedia *content,
                 const gchar *path,
-                gboolean only_fast)
+                gboolean only_fast,
+		gboolean root_dir)
 {
   GrlMedia *media = NULL;
   gchar *str;
@@ -336,7 +371,7 @@ create_content (GrlMedia *content,
     }
 
     if (!GRL_IS_MEDIA_BOX (media)) {
-      grl_media_set_mime (GRL_DATA (media), mime);
+      grl_media_set_mime (media, mime);
     }
 
     /* Title */
@@ -348,14 +383,30 @@ create_content (GrlMedia *content,
     gchar *time_str;
     g_file_info_get_modification_time (info, &time);
     time_str = g_time_val_to_iso8601 (&time);
-    grl_media_set_date (GRL_DATA (media), time_str);
+    grl_media_set_date (media, time_str);
     g_free (time_str);
+
+    /* Thumbnail */
+    gboolean thumb_failed =
+      g_file_info_get_attribute_boolean (info,
+                                         G_FILE_ATTRIBUTE_THUMBNAILING_FAILED);
+    if (!thumb_failed) {
+      const gchar *thumb =
+        g_file_info_get_attribute_byte_string (info,
+                                               G_FILE_ATTRIBUTE_THUMBNAIL_PATH);
+      if (thumb) {
+	gchar *thumb_uri = g_filename_to_uri (thumb, NULL, NULL);
+	if (thumb_uri) {
+	  grl_media_set_thumbnail (media, thumb_uri);
+	  g_free (thumb_uri);
+	}
+      }
+    }
 
     g_object_unref (info);
   }
 
-  /* ID */
-  grl_media_set_id (media, path);
+  grl_media_set_id (media,  root_dir ? NULL : path);
 
   /* URL */
   str = g_strconcat ("file://", path, NULL);
@@ -390,7 +441,8 @@ browse_emit_idle (gpointer user_data)
     entry_path = (gchar *) idle_data->current->data;
     content = create_content (NULL,
 			      entry_path,
-			      idle_data->spec->flags & GRL_RESOLVE_FAST_ONLY);
+			      idle_data->spec->flags & GRL_RESOLVE_FAST_ONLY,
+			      FALSE);
     g_free (idle_data->current->data);
 
     idle_data->spec->callback (idle_data->spec->source,
@@ -517,14 +569,36 @@ static void
 grl_filesystem_source_browse (GrlMediaSource *source,
                               GrlMediaSourceBrowseSpec *bs)
 {
-  const gchar *path;
   const gchar *id;
+  GList *chosen_paths;
 
   g_debug ("grl_filesystem_source_browse");
 
   id = grl_media_get_id (bs->container);
-  path = id ? id : G_DIR_SEPARATOR_S;
-  produce_from_path (bs, path);
+  chosen_paths = GRL_FILESYSTEM_SOURCE(source)->priv->chosen_paths;
+  if (!id && chosen_paths) {
+    guint remaining = g_list_length (chosen_paths);
+
+    if (remaining == 1) {
+        produce_from_path (bs, chosen_paths->data);
+    } else {
+      for (; chosen_paths; chosen_paths = g_list_next (chosen_paths)) {
+        GrlMedia *content = create_content (NULL,
+                                            (gchar *) chosen_paths->data,
+                                            GRL_RESOLVE_FAST_ONLY,
+                                            FALSE);
+
+        bs->callback (source,
+                      bs->browse_id,
+                      content,
+                      --remaining,
+                      bs->user_data,
+                      NULL);
+      }
+    }
+  } else {
+    produce_from_path (bs, id ? id : G_DIR_SEPARATOR_S);
+  }
 }
 
 static void
@@ -541,7 +615,8 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
 
   if (g_file_test (path, G_FILE_TEST_EXISTS)) {
     create_content (ms->media, path,
-		    ms->flags & GRL_RESOLVE_FAST_ONLY);
+		    ms->flags & GRL_RESOLVE_FAST_ONLY,
+		    !id);
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
   } else {
     GError *error = g_error_new (GRL_ERROR,

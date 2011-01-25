@@ -72,21 +72,25 @@ enum {
 
 /* --- Other --- */
 
-#define TRACKER_MOUNTED_DATASOURCES_START                       \
-  "SELECT nie:dataSource(?urn) AS ?datasource "                 \
-  "(SELECT GROUP_CONCAT(tracker:isMounted(?ds), \",\") "        \
-  "WHERE { ?urn nie:dataSource ?ds  }) "                        \
+#define TRACKER_MOUNTED_DATASOURCES_START                    \
+  "SELECT nie:dataSource(?urn) AS ?datasource "              \
+  "(SELECT nie:url(tracker:mountPoint(?ds)) "                \
+  "WHERE { ?urn nie:dataSource ?ds  }) "                     \
+  "(SELECT GROUP_CONCAT(tracker:isMounted(?ds), \",\") "     \
+  "WHERE { ?urn nie:dataSource ?ds  }) "                     \
   "WHERE { ?urn a nfo:FileDataObject . FILTER (?urn IN ("
 
 #define TRACKER_MOUNTED_DATASOURCES_END " ))} GROUP BY (?datasource)"
 
-#define TRACKER_DATASOURCES_REQUEST                           \
-  "SELECT ?urn nie:dataSource(?urn) AS ?source "              \
-  "WHERE { "                                                  \
-  "?urn tracker:available ?tr . "                             \
-  "?source a tracker:Volume . "                               \
-  "FILTER (bound(nie:dataSource(?urn))) "                     \
-  "} "                                                        \
+#define TRACKER_DATASOURCES_REQUEST                                     \
+  "SELECT ?urn nie:dataSource(?urn) AS ?source "                        \
+  "(SELECT GROUP_CONCAT(nie:url(tracker:mountPoint(?ds)), \",\") "      \
+  "WHERE { ?urn nie:dataSource ?ds  }) "                                \
+  "WHERE { "                                                            \
+  "?urn tracker:available ?tr . "                                       \
+  "?source a tracker:Volume . "                                         \
+  "FILTER (bound(nie:dataSource(?urn))) "                               \
+  "} "                                                                  \
   "GROUP BY (?source)"
 
 #define TRACKER_QUERY_REQUEST                                         \
@@ -208,7 +212,8 @@ static void grl_tracker_source_browse (GrlMediaSource *source,
 static void grl_tracker_source_cancel (GrlMediaSource *source,
                                        guint operation_id);
 
-static gchar *get_tracker_source_name (const gchar *device_name);
+static gchar *get_tracker_source_name (const gchar *uri,
+                                       const gchar *datasource);
 
 static void setup_key_mappings (void);
 
@@ -217,6 +222,7 @@ static void setup_key_mappings (void);
 static GHashTable *grl_to_sparql_mapping = NULL;
 static GHashTable *sparql_to_grl_mapping = NULL;
 
+static GVolumeMonitor *volume_monitor = NULL;
 static TrackerSparqlConnection *tracker_connection = NULL;
 static gboolean tracker_per_device_source = FALSE;
 static const GrlPluginInfo *tracker_grl_plugin;
@@ -271,9 +277,9 @@ tracker_evt_update_process_item_cb (GObject              *object,
                                     GAsyncResult         *result,
                                     tracker_evt_update_t *evt)
 {
-  const gchar *datasource;
+  const gchar *datasource, *uri;
   gboolean source_mounted;
-  gchar *source_name;
+  gchar *source_name = NULL;
   GrlMediaPlugin *plugin;
   GError *tracker_error = NULL;
 
@@ -294,17 +300,19 @@ tracker_evt_update_process_item_cb (GObject              *object,
   }
 
   datasource = tracker_sparql_cursor_get_string (evt->cursor, 0, NULL);
-  source_mounted = tracker_sparql_cursor_get_boolean (evt->cursor, 1);
+  uri = tracker_sparql_cursor_get_string (evt->cursor, 1, NULL);
+  source_mounted = tracker_sparql_cursor_get_boolean (evt->cursor, 2);
 
   plugin = grl_plugin_registry_lookup_source (grl_plugin_registry_get_default (),
                                               datasource);
 
-  GRL_DEBUG ("\tdatasource=%s mounted=%i plugin=%p",
-             datasource, source_mounted, plugin);
+  GRL_DEBUG ("\tdatasource=%s uri=%s mounted=%i plugin=%p",
+             datasource, uri, source_mounted, plugin);
 
   if (source_mounted) {
     if (plugin == NULL) {
-      source_name = get_tracker_source_name (datasource); /* TODO: get a better name */
+      source_name = get_tracker_source_name (uri, datasource);
+
       plugin = g_object_new (GRL_TRACKER_SOURCE_TYPE,
                              "source-id", datasource,
                              "source-name", source_name,
@@ -465,7 +473,7 @@ tracker_get_datasource_cb (GObject             *object,
                            GAsyncResult        *result,
                            TrackerSparqlCursor *cursor)
 {
-  const gchar *datasource;
+  const gchar *datasource, *uri;
   gchar *source_name;
   GError *tracker_error = NULL;
   GrlTrackerSource *source;
@@ -484,13 +492,14 @@ tracker_get_datasource_cb (GObject             *object,
   }
 
   datasource = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+  uri = tracker_sparql_cursor_get_string (cursor, 2, NULL);
   source = GRL_TRACKER_SOURCE (grl_plugin_registry_lookup_source (grl_plugin_registry_get_default (),
                                                                   datasource));
 
   if (source == NULL) {
-    source_name = get_tracker_source_name (datasource); /* TODO: get a better name */
+    source_name = get_tracker_source_name (uri, datasource); /* TODO: get a better name */
 
-    GRL_DEBUG ("\tnew datasource: %s\n", datasource);
+    GRL_DEBUG ("\tnew datasource: urn=%s uri=%s\n", datasource, uri);
 
     source = g_object_new (GRL_TRACKER_SOURCE_TYPE,
                            "source-id", datasource,
@@ -544,6 +553,8 @@ tracker_get_connection_cb (GObject             *object,
       GRL_DEBUG ("per device source mode");
 
       tracker_dbus_start_watch ();
+
+      volume_monitor = g_volume_monitor_get ();
 
       tracker_sparql_connection_query_async (tracker_connection,
                                              TRACKER_DATASOURCES_REQUEST,
@@ -701,9 +712,40 @@ grl_tracker_source_set_property (GObject      *object,
 /* ======================= Utilities ==================== */
 
 static gchar *
-get_tracker_source_name (const gchar *device_name)
+get_tracker_source_name (const gchar *uri, const gchar *datasource)
 {
-  return g_strdup_printf ("%s %s", SOURCE_NAME, device_name);
+  gchar *source_name = NULL;
+  GList *mounts, *mount;
+  GFile *file;
+
+  if (uri != NULL) {
+    mounts = g_volume_monitor_get_mounts (volume_monitor);
+    file = g_file_new_for_uri (uri);
+
+    mount = mounts;
+    while (mount != NULL) {
+      GFile *m_file = g_mount_get_root (G_MOUNT (mount->data));
+
+      if (g_file_equal (m_file, file)) {
+        gchar *m_name = g_mount_get_name (G_MOUNT (mount->data));
+        g_object_unref (G_OBJECT (m_file));
+        source_name = g_strdup_printf ("%s %s", SOURCE_NAME, m_name);
+        g_free (m_name);
+        break;
+      }
+      g_object_unref (G_OBJECT (m_file));
+
+      mount = mount->next;
+    }
+    g_list_foreach (mounts, (GFunc) g_object_unref, NULL);
+    g_list_free (mounts);
+    g_object_unref (G_OBJECT (file));
+  }
+
+  if (source_name == NULL)
+    source_name = g_strdup_printf  ("%s %s", SOURCE_NAME, datasource);
+
+  return source_name;
 }
 
 static gchar *

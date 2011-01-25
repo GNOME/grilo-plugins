@@ -162,17 +162,6 @@ G_DEFINE_TYPE (GrlShoutcastSource, grl_shoutcast_source, GRL_TYPE_MEDIA_SOURCE);
 
 /* ======================= Private ==================== */
 
-static void
-skip_garbage_nodes (xmlNodePtr *node)
-{
-  /* Result contains "\n" and "\t" to pretty align XML. Unfortunately, libxml
-     doesn't cope very fine with them, and it creates "fakes" nodes with name
-     "text" and value those characters. So we need to skip them */
-  while ((*node) && xmlStrcmp ((*node)->name, (const xmlChar *) "text") == 0) {
-    (*node) = (*node)->next;
-  }
-}
-
 static gint
 xml_count_nodes (xmlNodePtr node)
 {
@@ -181,7 +170,6 @@ xml_count_nodes (xmlNodePtr node)
   while (node) {
     count++;
     node = node->next;
-    skip_garbage_nodes (&node);
   }
 
   return count;
@@ -274,12 +262,11 @@ send_media (OperationData *op_data, GrlMedia *media)
                         NULL);
 
     op_data->xml_entries = op_data->xml_entries->next;
-    skip_garbage_nodes (&op_data->xml_entries);
   }
 
   if (op_data->to_send == 0 || op_data->cancelled) {
     xmlFreeDoc (op_data->xml_doc);
-    g_free (op_data);
+    g_slice_free (OperationData, op_data);
     return FALSE;
   } else {
     return TRUE;
@@ -311,11 +298,12 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   xmlXPathObjectPtr xpath_res;
 
   if (op_data->cancelled) {
-    g_free (op_data);
+    g_slice_free (OperationData, op_data);
     return;
   }
 
-  op_data->xml_doc = xmlRecoverDoc ((xmlChar *) str);
+  op_data->xml_doc = xmlReadMemory (str, xmlStrlen ((xmlChar*) str), NULL, NULL,
+                                    XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!op_data->xml_doc) {
     error = g_error_new (GRL_ERROR,
                          op_data->error_code,
@@ -335,7 +323,6 @@ xml_parse_result (const gchar *str, OperationData *op_data)
                                    (const xmlChar *) "stationlist") == 0);
 
   op_data->xml_entries = node->xmlChildrenNode;
-  skip_garbage_nodes (&op_data->xml_entries);
 
   /* Check if we are interesting only in updating a media (that is, a metadata()
      operation) or just browsing/searching */
@@ -389,13 +376,11 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   if (stationlist_result) {
     /* First node is "tunein"; skip it */
     op_data->xml_entries = op_data->xml_entries->next;
-    skip_garbage_nodes (&op_data->xml_entries);
   }
 
   /* Skip elements */
   while (op_data->xml_entries && op_data->skip > 0) {
     op_data->xml_entries = op_data->xml_entries->next;
-    skip_garbage_nodes (&op_data->xml_entries);
     op_data->skip--;
   }
 
@@ -438,7 +423,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   if (error) {
     g_error_free (error);
   }
-  g_free (op_data);
+  g_slice_free (OperationData, op_data);
 }
 
 static void
@@ -468,7 +453,7 @@ read_done_cb (GObject *source_object,
                         op_data->user_data,
                         error);
     g_error_free (error);
-    g_free (op_data);
+    g_slice_free (OperationData, op_data);
 
     return;
   }
@@ -530,7 +515,7 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
   if (!media_id) {
     grl_media_set_title (ms->media, "SHOUTcast");
   } else {
-    data = g_new0 (OperationData, 1);
+    data = g_slice_new0 (OperationData);
     data->source = source;
     data->count = 1;
     data->metadata_cb = ms->callback;
@@ -580,7 +565,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
 
   g_debug ("grl_shoutcast_source_browse");
 
-  data = g_new0 (OperationData, 1);
+  data = g_slice_new0 (OperationData);
   data->source = source;
   data->operation_id = bs->browse_id;
   data->result_cb = bs->callback;
@@ -632,7 +617,7 @@ grl_shoutcast_source_search (GrlMediaSource *source,
     return;
   }
 
-  data = g_new0 (OperationData, 1);
+  data = g_slice_new0 (OperationData);
   data->source = source;
   data->operation_id = ss->search_id;
   data->result_cb = ss->callback;

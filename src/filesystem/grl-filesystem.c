@@ -406,7 +406,7 @@ browse_emit_idle (gpointer user_data)
 
   if (!idle_data->current) {
     g_list_free (idle_data->entries);
-    g_free (idle_data);
+    g_slice_free (BrowseIdleData, idle_data);
     return FALSE;
   } else {
     return TRUE;
@@ -475,7 +475,7 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
   /* Emit results */
   if (entries) {
     /* Use the idle loop to avoid blocking for too long */
-    BrowseIdleData *idle_data = g_new (BrowseIdleData, 1);
+    BrowseIdleData *idle_data = g_slice_new (BrowseIdleData);
     idle_data->spec = bs;
     idle_data->remaining = bs->count - count - 1;
     idle_data->path = path;

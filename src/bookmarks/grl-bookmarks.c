@@ -36,6 +36,8 @@
                                GRL_BOOKMARKS_SOURCE_TYPE,        \
                                GrlBookmarksPrivate))
 
+#define GRL_ROOT_TITLE "Bookmarks"
+
 /* --------- Logging  -------- */
 
 #undef G_LOG_DOMAIN
@@ -245,7 +247,6 @@ grl_bookmarks_source_init (GrlBookmarksSource *source)
   gchar *sql_error = NULL;
 
   source->priv = GRL_BOOKMARKS_GET_PRIVATE (source);
-  memset (source->priv, 0, sizeof (GrlBookmarksPrivate));
 
   home = g_getenv ("HOME");
   if (!home) {
@@ -388,7 +389,7 @@ bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
   id = grl_media_get_id (ms->media);
   if (!id) {
     /* Root category: special case */
-    grl_media_set_title (ms->media, "");
+    grl_media_set_title (ms->media, GRL_ROOT_TITLE);
     ms->callback (ms->source, ms->media, ms->user_data, NULL);
     return;
   }
@@ -693,7 +694,7 @@ grl_bookmarks_source_browse (GrlMediaSource *source,
   }
 
   /* Configure browse operation */
-  os = g_new0 (OperationSpec, 1);
+  os = g_slice_new0 (OperationSpec);
   os->source = bs->source;
   os->operation_id = bs->browse_id;
   os->media_id = grl_media_get_id (bs->container);
@@ -704,7 +705,7 @@ grl_bookmarks_source_browse (GrlMediaSource *source,
   os->error_code = GRL_ERROR_BROWSE_FAILED;
 
   produce_bookmarks_from_category (os, os->media_id ? os->media_id : "0");
-  g_free (os);
+  g_slice_free (OperationSpec, os);
 }
 
 static void
@@ -727,7 +728,7 @@ grl_bookmarks_source_search (GrlMediaSource *source,
     g_error_free (error);
   }
 
-  os = g_new0 (OperationSpec, 1);
+  os = g_slice_new0 (OperationSpec);
   os->source = ss->source;
   os->operation_id = ss->search_id;
   os->count = ss->count;
@@ -736,7 +737,7 @@ grl_bookmarks_source_search (GrlMediaSource *source,
   os->user_data = ss->user_data;
   os->error_code = GRL_ERROR_SEARCH_FAILED;
   produce_bookmarks_by_text (os, ss->text);
-  g_free (os);
+  g_slice_free (OperationSpec, os);
 }
 
 static void
@@ -759,7 +760,7 @@ grl_bookmarks_source_query (GrlMediaSource *source,
     g_error_free (error);
   }
 
-  os = g_new0 (OperationSpec, 1);
+  os = g_slice_new0 (OperationSpec);
   os->source = qs->source;
   os->operation_id = qs->query_id;
   os->count = qs->count;
@@ -768,7 +769,7 @@ grl_bookmarks_source_query (GrlMediaSource *source,
   os->user_data = qs->user_data;
   os->error_code = GRL_ERROR_SEARCH_FAILED;
   produce_bookmarks_by_query (os, qs->query);
-  g_free (os);
+  g_slice_free (OperationSpec, os);
 }
 
 static void

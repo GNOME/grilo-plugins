@@ -139,7 +139,8 @@ xml_get_image (const gchar *xmldata)
   xmlXPathObjectPtr xpath_res;
   gchar *image;
 
-  doc = xmlRecoverDoc ((xmlChar *) xmldata);
+  doc = xmlReadMemory (xmldata, xmlStrlen ((xmlChar*) xmldata), NULL, NULL,
+                       XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!doc) {
     return NULL;
   }

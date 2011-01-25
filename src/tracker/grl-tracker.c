@@ -740,10 +740,12 @@ get_tracker_source_name (const gchar *uri, const gchar *datasource)
     g_list_foreach (mounts, (GFunc) g_object_unref, NULL);
     g_list_free (mounts);
     g_object_unref (G_OBJECT (file));
-  }
 
-  if (source_name == NULL)
-    source_name = g_strdup_printf  ("%s %s", SOURCE_NAME, datasource);
+    if (source_name == NULL)
+      source_name = g_strdup_printf  ("%s %s", SOURCE_NAME, datasource);
+  } else {
+    source_name = g_strdup (SOURCE_NAME " Local");
+  }
 
   return source_name;
 }

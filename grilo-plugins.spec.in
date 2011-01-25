@@ -8,15 +8,16 @@ License:        LGPLv2+
 Source0:        grilo-plugins-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  grilo-devel >= 0.1.3
+BuildRequires:  grilo-devel >= 0.1.5
 BuildRequires:  gnome-common
 BuildRequires:  glib2-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  gupnp-devel
 BuildRequires:  gupnp-av-devel
-BuildRequires:  libsqlite3x-devel
+BuildRequires:  sqlite-devel
+BuildRequires:  libgdata-devel
 
-Requires:       grilo >= 0.1.3
+Requires:       grilo >= 0.1.5
 Requires:       gupnp
 Requires:       gupnp-av
 
@@ -34,6 +35,7 @@ Metadata Store
 Podcasts
 Shoutcast
 UPnP
+Vimeo
 Youtube
 
 %prep
@@ -52,6 +54,7 @@ Youtube
 	--enable-podcasts		\
 	--enable-shoutcast		\
 	--enable-upnp			\
+        --enable-vimeo                  \
 	--enable-youtube
 
 make %{?_smp_mflags}
@@ -62,8 +65,8 @@ rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 
 # Remove files that will not be packaged
-rm -f $RPM_BUILD_ROOT%{_libdir}/grilo-@GRL_MAJORMINOR@/*.la
-rm -f $RPM_BUILD_ROOT%{_libdir}/grilo-@GRL_MAJORMINOR@/*.a
+rm -f $RPM_BUILD_ROOT%{_libdir}/grilo-0.1/*.la
+rm -f $RPM_BUILD_ROOT%{_libdir}/grilo-0.1/*.a
 rm -f $RPM_BUILD_ROOT%{_bindir}/*
 
 %clean
@@ -73,10 +76,23 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING NEWS README
-%{_libdir}/grilo-@GRL_MAJORMINOR@/*.so*
+%{_libdir}/grilo-0.1/*.so*
 
 %changelog
-* Fri Mar 12 2010 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.4-1+ç
+* Fri May 07 2010 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.5-1
+- General: general fixes
+- Apple Trailers: general fixes
+- Bookmarks: set root category title
+- Flickr: general fixes
+- Jamendo: general fixes
+- LastFM Album Art: general fixes
+- Podcasts: set root category title
+- Shoutcast: general fixes
+- UPnP: use source name as root category title
+- Vimeo: new plugin
+- Youtube: use libgdata
+
+* Fri Mar 12 2010 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.4-1
 - General: changes in Grilo API
 - Bookmarks: some fixes
 - Flickr: use the Grilo configuration system

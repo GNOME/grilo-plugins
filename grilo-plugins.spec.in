@@ -8,7 +8,7 @@ License:        LGPLv2+
 Source0:        grilo-plugins-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  grilo-devel >= 0.1.6
+BuildRequires:  grilo-devel >= 0.1.7
 BuildRequires:  gnome-common
 BuildRequires:  glib2-devel
 BuildRequires:  libxml2-devel
@@ -17,7 +17,7 @@ BuildRequires:  gupnp-av-devel
 BuildRequires:  sqlite-devel
 BuildRequires:  libgdata-devel
 
-Requires:       grilo >= 0.1.6
+Requires:       grilo >= 0.1.7
 Requires:       gupnp
 Requires:       gupnp-av
 
@@ -81,6 +81,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/grilo-0.1/plugins/*.xml
 
 %changelog
+* Sat Jan 22 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.7-1
+- General: fixes #627864, #628506, install plugins as loadable modules, use GrlNet, adapt code to changes in GrlPluginRegistry functions
+- Apple trailers: general fixes, including bug #630538
+- Filesystem plugin: implement media_from_uri() and test_media_from_uri()
+- Flickr plugin: general fixes
+- Podcasts plugin: general fixes
+- Shoutcast plugin: general fixes
+- UPnP plugin: added plugin deinit function
+- Vimeo plugin: fix for bug #630494
+- Youtube plugin: general fixes, fix for bug #636394, handle libdata 0.7 and 0.8 api
+
 * Thu Aug 26 2010 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.6-1
 - General fixes, new metadata key system, new registering framework
 - Apple trailers: general fixes, more keys, handling SD and HD videos

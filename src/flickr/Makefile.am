@@ -10,12 +10,16 @@ libplugin_LTLIBRARIES	= libgrlflickr.la
 libgrlflickr_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
 	$(XML_CFLAGS)		\
-	$(GIO_CFLAGS)
+	$(GRLNET_CFLAGS)
 
 libgrlflickr_la_LIBADD =	\
 	$(DEPS_LIBS)		\
 	$(XML_LIBS)		\
-	$(GIO_LIBS)
+	$(GRLNET_LIBS)
+
+libgrlflickr_la_LDFLAGS = \
+	-module		  \
+	-avoid-version
 
 libgrlflickr_la_SOURCES =	\
 	grl-flickr.c		\
@@ -23,11 +27,11 @@ libgrlflickr_la_SOURCES =	\
 	gflickr.c		\
 	gflickr.h
 
-libplugindir		= $(GRL_PLUGINS_DIR)
-flickrlibxmldir		= $(GRL_PLUGINS_CONF_DIR)
-flickrlibxml_DATA	= $(FLICKR_PLUGIN_ID).xml
+libplugindir = $(GRL_PLUGINS_DIR)
+flickrlibxmldir = $(GRL_PLUGINS_CONF_DIR)
+flickrlibxml_DATA = $(FLICKR_PLUGIN_ID).xml
 
-EXTRA_DIR = $(flickrxml_DATA)
+EXTRA_DIST = $(flickrlibxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

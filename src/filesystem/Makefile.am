@@ -15,13 +15,17 @@ libgrlfilesystem_la_LIBADD =	\
 	$(DEPS_LIBS)		\
 	$(GIO_LIBS)
 
+libgrlfilesystem_la_LDFLAGS = \
+	-module		      \
+	-avoid-version
+
 libgrlfilesystem_la_SOURCES = grl-filesystem.c grl-filesystem.h
 
 libdir=$(GRL_PLUGINS_DIR)
 filesystemxmldir	= $(GRL_PLUGINS_CONF_DIR)
 filesystemxml_DATA	= $(FILESYSTEM_PLUGIN_ID).xml
 
-EXTRA_DIR = $(filesystemxml_DATA)
+EXTRA_DIST = $(filesystemxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

@@ -15,13 +15,17 @@ libgrlbookmarks_la_LIBADD =	\
 	$(DEPS_LIBS)		\
 	$(SQLITE_LIBS)
 
+libgrlbookmarks_la_LDFLAGS = \
+	-module		     \
+	-avoid-version
+
 libgrlbookmarks_la_SOURCES = grl-bookmarks.c grl-bookmarks.h
 
 libdir=$(GRL_PLUGINS_DIR)
 bookmarksxmldir		= $(GRL_PLUGINS_CONF_DIR)
 bookmarksxml_DATA	= $(BOOKMARKS_PLUGIN_ID).xml
 
-EXTRA_DIR = $(bookmarksxml_DATA)
+EXTRA_DIST = $(bookmarksxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

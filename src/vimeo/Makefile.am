@@ -19,6 +19,10 @@ libgrlvimeo_la_LIBADD =	\
 	$(GTHREAD_LIBS)		\
 	$(LIBSOUP_LIBS)
 
+libgrlvimeo_la_LDFLAGS = \
+	-module		 \
+	-avoid-version
+
 libgrlvimeo_la_SOURCES =	\
 	grl-vimeo.c		\
 	grl-vimeo.h		\
@@ -29,7 +33,7 @@ libdir=$(GRL_PLUGINS_DIR)
 vimeoxmldir	= $(GRL_PLUGINS_CONF_DIR)
 vimeoxml_DATA	= $(VIMEO_PLUGIN_ID).xml
 
-EXTRA_DIR = $(vimeoxml_DATA)
+EXTRA_DIST = $(vimeoxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

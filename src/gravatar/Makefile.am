@@ -13,13 +13,17 @@ libgrlgravatar_la_CFLAGS =	\
 libgrlgravatar_la_LIBADD =	\
 	$(DEPS_LIBS)
 
+libgrlgravatar_la_LDFLAGS = \
+	-module		    \
+	-avoid-version
+
 libgrlgravatar_la_SOURCES = grl-gravatar.c grl-gravatar.h
 
 libdir=$(GRL_PLUGINS_DIR)
 gravatarxmldir		= $(GRL_PLUGINS_CONF_DIR)
 gravatarxml_DATA	= $(GRAVATAR_PLUGIN_ID).xml
 
-EXTRA_DIR = $(gravatarxml_DATA)
+EXTRA_DIST = $(gravatarxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in	\

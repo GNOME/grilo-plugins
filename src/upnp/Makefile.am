@@ -21,6 +21,10 @@ libgrlupnp_la_LIBADD =	\
 	$(GTHREAD_LIBS)	\
 	$(XML_LIBS)
 
+libgrlupnp_la_LDFLAGS = \
+	-module		\
+	-avoid-version
+
 if GUPNPAV_OLD_VERSION
 libgrlupnp_la_CFLAGS +=	\
 	-DGUPNPAV_OLD_VERSION
@@ -38,7 +42,7 @@ libdir = $(GRL_PLUGINS_DIR)
 upnpxmldir	= $(GRL_PLUGINS_CONF_DIR)
 upnpxml_DATA	= $(UPNP_PLUGIN_ID).xml
 
-EXTRA_DIR = $(upnpxml_DATA)
+EXTRA_DIST = $(upnpxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

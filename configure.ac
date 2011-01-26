@@ -6,7 +6,7 @@
 # Copyright (C) 2010 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.6])
+m4_define([prj_version], [0.1.7])
 
 AC_INIT([prj_name], [prj_version])
 
@@ -55,6 +55,7 @@ else
 fi
 
 GRL_NAME=grilo-${GRL_VERSION}
+GRLNET_NAME=grilo-net-${GRL_VERSION}
 
 # ----------------------------------------------------------
 # DEBUG SUPPORT
@@ -76,7 +77,7 @@ fi
 PKG_CHECK_MODULES([DEPS], glib-2.0 \
 			  gobject-2.0 \
 			  gmodule-2.0 \
-			  ${GRL_NAME} = 0.1.6)
+			  ${GRL_NAME} = 0.1.7)
 
 # ----------------------------------------------------------
 # DEFINITIONS
@@ -96,6 +97,10 @@ AC_SUBST(GRL_PLUGINS_CONF_DIR)
 # ----------------------------------------------------------
 # EXTERNAL/OPTIONAL DEPENDENCIES
 # ----------------------------------------------------------
+
+PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} = 0.1.7],
+			    HAVE_GRLNET=yes,
+			    HAVE_GRLNET=no)
 
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 
@@ -193,8 +198,8 @@ AC_ARG_ENABLE(jamendo,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO not found, install it or use --disable-jamendo])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-jamendo])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-jamendo])
@@ -203,7 +208,7 @@ AC_ARG_ENABLE(jamendo,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_jamendo=yes
                 else
                    enable_jamendo=no
@@ -231,8 +236,8 @@ AC_ARG_ENABLE(lastfm_albumart,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO not found, install it or use --disable-lastfm-albumart])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-lastfm-albumart])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-lastfm-albumart])
@@ -241,7 +246,7 @@ AC_ARG_ENABLE(lastfm_albumart,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_lastfm_albumart=yes
                 else
                    enable_lastfm_albumart=no
@@ -312,8 +317,8 @@ AC_ARG_ENABLE(youtube,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO not found, install it or use --disable-youtube])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-youtube])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-youtube])
@@ -325,7 +330,7 @@ AC_ARG_ENABLE(youtube,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    if test "x$HAVE_GDATA" = "xyes"; then
                      enable_youtube=yes
                    else
@@ -357,8 +362,8 @@ AC_ARG_ENABLE(flickr,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO  not found, install it or use --disable-flickr])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-flickr])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-flickr])
@@ -367,7 +372,7 @@ AC_ARG_ENABLE(flickr,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_flickr=yes
                 else
                    enable_flickr=no
@@ -395,8 +400,8 @@ AC_ARG_ENABLE(podcasts,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO not found, install it or use --disable-podcasts])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-podcasts])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-podcasts])
@@ -408,7 +413,7 @@ AC_ARG_ENABLE(podcasts,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    if test "x$HAVE_SQLITE" = "xyes"; then
                      enable_podcasts=yes
                    else
@@ -485,8 +490,8 @@ AC_ARG_ENABLE(shoutcast,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO not found, install it or use --disable-shoutcast])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-shoutcast])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-shoutcast])
@@ -495,7 +500,7 @@ AC_ARG_ENABLE(shoutcast,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_shoutcast=yes
                 else
                    enable_shoutcast=no
@@ -523,8 +528,8 @@ AC_ARG_ENABLE(apple_trailers,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO not found, install it or use --disable-apple-trailers])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-apple-trailers])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-apple-trailers])
@@ -533,7 +538,7 @@ AC_ARG_ENABLE(apple_trailers,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_apple_trailers=yes
                 else
                    enable_apple_trailers=no

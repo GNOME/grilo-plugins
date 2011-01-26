@@ -28,8 +28,8 @@
 
 #include "grl-fake-metadata.h"
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-fake-metadata"
+#define GRL_LOG_DOMAIN_DEFAULT fake_metadata_log_domain
+GRL_LOG_DOMAIN_STATIC(fake_metadata_log_domain);
 
 #define PLUGIN_ID   FAKEMETADATA_PLUGIN_ID
 
@@ -69,11 +69,15 @@ grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
                                       const GrlPluginInfo *plugin,
                                       GList *configs)
 {
-  g_debug ("grl_fake_metadata_source_plugin_init");
+  GRL_LOG_DOMAIN_INIT (fake_metadata_log_domain, "fake-metadata");
+
+  GRL_DEBUG ("grl_fake_metadata_source_plugin_init");
+
   GrlFakeMetadataSource *source = grl_fake_metadata_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
   return TRUE;
 }
 
@@ -86,7 +90,7 @@ GRL_PLUGIN_REGISTER (grl_fake_metadata_source_plugin_init,
 static GrlFakeMetadataSource *
 grl_fake_metadata_source_new (void)
 {
-  g_debug ("grl_fake_metadata_source_new");
+  GRL_DEBUG ("grl_fake_metadata_source_new");
   return g_object_new (GRL_FAKE_METADATA_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
@@ -204,7 +208,7 @@ static void
 grl_fake_metadata_source_resolve (GrlMetadataSource *source,
                                   GrlMetadataSourceResolveSpec *rs)
 {
-  g_debug ("grl_fake_metadata_source_resolve");
+  GRL_DEBUG ("grl_fake_metadata_source_resolve");
 
   GList *iter;
 
@@ -221,7 +225,7 @@ static void
 grl_fake_metadata_source_set_metadata (GrlMetadataSource *source,
 				       GrlMetadataSourceSetMetadataSpec *sms)
 {
-  g_debug ("grl_fake_metadata_source_set_metadata");
-  g_debug ("  Faking set metadata for %d keys!", g_list_length (sms->keys));
+  GRL_DEBUG ("grl_fake_metadata_source_set_metadata");
+  GRL_DEBUG ("  Faking set metadata for %d keys!", g_list_length (sms->keys));
   sms->callback (sms->source, sms->media, NULL, sms->user_data, NULL);
 }

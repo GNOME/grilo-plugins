@@ -27,19 +27,15 @@
 #endif
 
 #include <grilo.h>
-#include <gio/gio.h>
-#include <libxml/parser.h>
-#include <libxml/xmlmemory.h>
+#include <net/grl-net.h>
 #include <libxml/xpath.h>
-#include <string.h>
-#include <stdlib.h>
 
 #include "grl-apple-trailers.h"
 
 /* --------- Logging  -------- */
 
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "grl-apple-trailers"
+#define GRL_LOG_DOMAIN_DEFAULT apple_trailers_log_domain
+GRL_LOG_DOMAIN_STATIC(apple_trailers_log_domain);
 
 /* ---- Apple Trailers Service ---- */
 
@@ -68,7 +64,26 @@ typedef struct {
   gboolean cancelled;
 } OperationData;
 
-static GrlAppleTrailersSource *grl_apple_trailers_source_new (gboolean hd);
+enum {
+  PROP_0,
+  PROP_HD,
+  PROP_LARGE_POSTER,
+};
+
+struct _GrlAppleTrailersSourcePriv {
+  GrlNetWc *wc;
+  GCancellable *cancellable;
+  gboolean hd;
+  gboolean large_poster;
+};
+
+#define GRL_APPLE_TRAILERS_SOURCE_GET_PRIVATE(object)		\
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),                        \
+                               GRL_APPLE_TRAILERS_SOURCE_TYPE,  \
+                               GrlAppleTrailersSourcePriv))
+
+static GrlAppleTrailersSource *grl_apple_trailers_source_new (gboolean hd,
+                                                              gboolean xlarge);
 
 gboolean grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
                                          const GrlPluginInfo *plugin,
@@ -91,12 +106,15 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
 {
   GrlAppleTrailersSource *source;
   gboolean hd = FALSE;
+  gboolean xlarge = FALSE;
 
-  g_debug ("apple_trailers_plugin_init\n");
+  GRL_LOG_DOMAIN_INIT (apple_trailers_log_domain, "apple-trailers");
+
+  GRL_DEBUG ("apple_trailers_plugin_init");
 
   for (; configs; configs = g_list_next (configs)) {
     GrlConfig *config;
-    const gchar *definition;
+    const gchar *definition, *poster_size;
 
     config = GRL_CONFIG (configs->data);
     definition = grl_config_get_string (config, "definition");
@@ -105,12 +123,20 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
         hd = TRUE;
       }
     }
+
+    poster_size = grl_config_get_string (config, "poster-size");
+    if (poster_size && *poster_size != '\0') {
+      if (g_str_equal (poster_size, "xlarge")) {
+        xlarge = TRUE;
+      }
+    }
   }
 
-  source = grl_apple_trailers_source_new (hd);
+  source = grl_apple_trailers_source_new (hd, xlarge);
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source));
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
   return TRUE;
 }
 
@@ -121,20 +147,63 @@ GRL_PLUGIN_REGISTER (grl_apple_trailers_plugin_init,
 /* ================== AppleTrailers GObject ================ */
 
 static GrlAppleTrailersSource *
-grl_apple_trailers_source_new (gboolean high_definition)
+grl_apple_trailers_source_new (gboolean high_definition,
+                               gboolean xlarge)
 {
   GrlAppleTrailersSource *source;
 
-  g_debug ("grl_apple_trailers_source_new%s", high_definition ? " (HD)" : "");
+  GRL_DEBUG ("grl_apple_trailers_source_new%s%s",
+             high_definition ? " (HD)" : "",
+             xlarge ? " (X-large poster)" : "");
   source = g_object_new (GRL_APPLE_TRAILERS_SOURCE_TYPE,
                          "source-id", SOURCE_ID,
                          "source-name", SOURCE_NAME,
                          "source-desc", SOURCE_DESC,
+                         "high-definition", high_definition,
+			 "large-poster", xlarge,
                          NULL);
 
-  source->hd = high_definition;
-
   return source;
+}
+
+G_DEFINE_TYPE (GrlAppleTrailersSource, grl_apple_trailers_source, GRL_TYPE_MEDIA_SOURCE);
+
+static void
+grl_apple_trailers_source_finalize (GObject *object)
+{
+  GrlAppleTrailersSource *self;
+
+  self = GRL_APPLE_TRAILERS_SOURCE (object);
+
+  if (self->priv->wc)
+    g_object_unref (self->priv->wc);
+
+  if (self->priv->cancellable
+      && G_IS_CANCELLABLE (self->priv->cancellable))
+    g_object_unref (self->priv->cancellable);
+
+  G_OBJECT_CLASS (grl_apple_trailers_source_parent_class)->finalize (object);
+}
+
+static void
+grl_apple_trailers_source_set_property (GObject *object,
+                                        guint propid,
+                                        const GValue *value,
+                                        GParamSpec *pspec)
+{
+  GrlAppleTrailersSource *self;
+  self = GRL_APPLE_TRAILERS_SOURCE (object);
+
+  switch (propid) {
+    case PROP_HD:
+      self->priv->hd = g_value_get_boolean (value);
+      break;
+    case PROP_LARGE_POSTER:
+      self->priv->large_poster = g_value_get_boolean (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, propid, pspec);
+    }
 }
 
 static void
@@ -142,17 +211,42 @@ grl_apple_trailers_source_class_init (GrlAppleTrailersSourceClass * klass)
 {
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  GObjectClass *g_class = G_OBJECT_CLASS (klass);
   source_class->browse = grl_apple_trailers_source_browse;
   source_class->cancel = grl_apple_trailers_source_cancel;
   metadata_class->supported_keys = grl_apple_trailers_source_supported_keys;
+  g_class->finalize = grl_apple_trailers_source_finalize;
+  g_class->set_property = grl_apple_trailers_source_set_property;
+
+  g_object_class_install_property (g_class,
+                                   PROP_HD,
+                                   g_param_spec_boolean ("high-definition",
+                                                         "hd",
+                                                         "Hi/Low definition videos",
+                                                         TRUE,
+                                                         G_PARAM_WRITABLE
+                                                         | G_PARAM_CONSTRUCT_ONLY
+                                                         | G_PARAM_STATIC_NAME));
+
+  g_object_class_install_property (g_class,
+                                   PROP_LARGE_POSTER,
+                                   g_param_spec_boolean ("large-poster",
+                                                         "xlarge",
+                                                         "Pick large poster",
+                                                         TRUE,
+                                                         G_PARAM_WRITABLE
+                                                         | G_PARAM_CONSTRUCT_ONLY
+                                                         | G_PARAM_STATIC_NAME));
+
+  g_type_class_add_private (klass, sizeof (GrlAppleTrailersSourcePriv));
 }
 
 static void
 grl_apple_trailers_source_init (GrlAppleTrailersSource *source)
 {
+  source->priv = GRL_APPLE_TRAILERS_SOURCE_GET_PRIVATE (source);
+  source->priv->hd = TRUE;
 }
-
-G_DEFINE_TYPE (GrlAppleTrailersSource, grl_apple_trailers_source, GRL_TYPE_MEDIA_SOURCE);
 
 /* ==================== Private ==================== */
 
@@ -199,14 +293,16 @@ runtime_to_seconds (const gchar *runtime)
     return 0;
   }
 
+  seconds = 0;
   items = g_strsplit (runtime, ":", -1);
-  seconds = 3600 * atoi (items[0]) + 60 * atoi (items[1]);
+  if (items && items[0] && items[1])
+    seconds = 3600 * atoi (items[0]) + 60 * atoi (items[1]);
   g_strfreev (items);
 
   return seconds;
 }
 static GrlMedia *
-build_media_from_movie (xmlNodePtr node)
+build_media_from_movie (xmlNodePtr node, gboolean xlarge)
 {
   GrlMedia * media;
   gchar *movie_author;
@@ -238,7 +334,10 @@ build_media_from_movie (xmlNodePtr node)
   movie_duration = get_node_value (node_dup, "/movieinfo/info/runtime");
   movie_title = get_node_value (node_dup, "/movieinfo/info/title");
   movie_genre = get_node_value (node_dup, "/movieinfo/genre/name");
-  movie_thumbnail = get_node_value (node_dup, "/movieinfo/poster/location");
+  if (xlarge)
+    movie_thumbnail = get_node_value (node_dup, "/movieinfo/poster/xlarge");
+  else
+    movie_thumbnail = get_node_value (node_dup, "/movieinfo/poster/location");
   movie_url = get_node_value (node_dup, "/movieinfo/preview/large");
   movie_rating = get_node_value (node_dup, "/movieinfo/info/rating");
   movie_studio = get_node_value (node_dup, "/movieinfo/info/studio");
@@ -293,7 +392,11 @@ send_movie_info (OperationData *op_data)
                            NULL);
     last = TRUE;
   } else {
-    media = build_media_from_movie (op_data->xml_entries);
+    GrlAppleTrailersSource *source =
+      GRL_APPLE_TRAILERS_SOURCE (op_data->bs->source);
+
+    media = build_media_from_movie (op_data->xml_entries,
+                                    source->priv->large_poster);
     last =
       !op_data->xml_entries->next  ||
       op_data->bs->count == 1;
@@ -330,16 +433,16 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   op_data->xml_doc = xmlReadMemory (str, xmlStrlen ((xmlChar*) str), NULL, NULL,
                                     XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!op_data->xml_doc) {
-    error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_BROWSE_FAILED,
                          "Failed to parse response");
     goto finalize;
   }
 
   node = xmlDocGetRootElement (op_data->xml_doc);
   if (!node || !node->xmlChildrenNode) {
-    error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_BROWSE_FAILED,
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_BROWSE_FAILED,
                          "Empty response from Apple Trailers");
     goto finalize;
   }
@@ -386,27 +489,26 @@ read_done_cb (GObject *source_object,
               gpointer user_data)
 {
   GError *error = NULL;
-  GError *vfs_error = NULL;
+  GError *wc_error = NULL;
   OperationData *op_data = (OperationData *) user_data;
   gchar *content = NULL;
 
-  if (!g_file_load_contents_finish (G_FILE (source_object),
-                                    res,
-                                    &content,
-                                    NULL,
-                                    NULL,
-                                    &vfs_error)) {
-    error = g_error_new (GRL_ERROR,
-                         GRL_ERROR_BROWSE_FAILED,
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                              res,
+                              &content,
+                              NULL,
+                              &wc_error)) {
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_BROWSE_FAILED,
                          "Failed to connect Apple Trailers: '%s'",
-                         vfs_error->message);
+                         wc_error->message);
     op_data->bs->callback (op_data->bs->source,
                            op_data->bs->browse_id,
                            NULL,
                            0,
                            op_data->bs->user_data,
                            error);
-    g_error_free (vfs_error);
+    g_error_free (wc_error);
     g_error_free (error);
     g_slice_free (OperationData, op_data);
 
@@ -414,20 +516,24 @@ read_done_cb (GObject *source_object,
   }
 
   xml_parse_result (content, op_data);
-  g_free (content);
 }
 
 static void
-read_url_async (const gchar *url, gpointer user_data)
+read_url_async (GrlAppleTrailersSource *source,
+                const gchar *url,
+                gpointer user_data)
 {
-  GVfs *vfs;
-  GFile *uri;
+  if (!source->priv->wc)
+    source->priv->wc = grl_net_wc_new ();
 
-  vfs = g_vfs_get_default ();
+  source->priv->cancellable = g_cancellable_new ();
 
-  g_debug ("Opening '%s'", url);
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_file_load_contents_async (uri, NULL, read_done_cb, user_data);
+  GRL_DEBUG ("Opening '%s'", url);
+  grl_net_wc_request_async (source->priv->wc,
+                        url,
+                        source->priv->cancellable,
+                        read_done_cb,
+                        user_data);
 }
 
 /* ================== API Implementation ================ */
@@ -458,19 +564,19 @@ static void
 grl_apple_trailers_source_browse (GrlMediaSource *source,
                                   GrlMediaSourceBrowseSpec *bs)
 {
-  GrlAppleTrailersSource *at_source = (GrlAppleTrailersSource *) source;
+  GrlAppleTrailersSource *at_source = GRL_APPLE_TRAILERS_SOURCE (source);
   OperationData *op_data;
 
-  g_debug ("grl_apple_trailers_source_browse");
+  GRL_DEBUG ("grl_apple_trailers_source_browse");
 
   op_data = g_slice_new0 (OperationData);
   op_data->bs = bs;
   grl_media_source_set_operation_data (source, bs->browse_id, op_data);
 
-  if (at_source->hd) {
-    read_url_async (APPLE_TRAILERS_CURRENT_HD, op_data);
+  if (at_source->priv->hd) {
+    read_url_async (at_source, APPLE_TRAILERS_CURRENT_HD, op_data);
   } else {
-    read_url_async (APPLE_TRAILERS_CURRENT_SD, op_data);
+    read_url_async (at_source, APPLE_TRAILERS_CURRENT_SD, op_data);
   }
 }
 
@@ -478,8 +584,17 @@ static void
 grl_apple_trailers_source_cancel (GrlMediaSource *source, guint operation_id)
 {
   OperationData *op_data;
+  GrlAppleTrailersSourcePriv *priv;
 
-  g_debug ("grl_apple_trailers_source_cancel");
+  GRL_DEBUG ("grl_apple_trailers_source_cancel");
+
+  priv = GRL_APPLE_TRAILERS_SOURCE_GET_PRIVATE (source);
+  if (priv->cancellable && G_IS_CANCELLABLE (priv->cancellable))
+    g_cancellable_cancel (priv->cancellable);
+  priv->cancellable = NULL;
+
+  if (priv->wc)
+    grl_net_wc_flush_delayed_requests (priv->wc);
 
   op_data = (OperationData *) grl_media_source_get_operation_data (source, operation_id);
 

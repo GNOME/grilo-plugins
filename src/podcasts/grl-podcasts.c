@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Igalia S.L.
+ * Copyright (C) 2010, 2011 Igalia S.L.
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
@@ -238,7 +238,7 @@ grl_podcasts_plugin_init (GrlPluginRegistry *registry,
                           const GrlPluginInfo *plugin,
                           GList *configs)
 {
-  GRL_LOG_DOMAIN_INIT (podcasts_log_domain, "pocasts");
+  GRL_LOG_DOMAIN_INIT (podcasts_log_domain, "podcasts");
 
   GRL_DEBUG ("podcasts_plugin_init");
 

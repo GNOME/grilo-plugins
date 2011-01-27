@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2010 Igalia S.L.
+ * Copyright (C) 2010, 2011 Igalia S.L.
+ * Copyright (C) 2011 Intel Corporation.
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
@@ -75,6 +76,7 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 
 struct _GrlFilesystemSourcePrivate {
   GList *chosen_paths;
+  guint max_search_depth;
 };
 
 /* --- Data types --- */
@@ -86,6 +88,22 @@ typedef struct {
   const gchar *path;
   guint remaining;
 }  BrowseIdleData;
+
+/* probably not thread-safe */
+typedef struct {
+  GrlMediaSource *source;
+  GrlMediaSourceSearchSpec *ss;
+  guint found_count;
+  guint skipped;
+  guint max_depth;
+  GQueue *trees;
+} SearchOperation;
+
+typedef struct {
+  SearchOperation *operation;
+  guint depth;
+  GFile *directory;
+} SearchTree;
 
 static GrlFilesystemSource *grl_filesystem_source_new (void);
 
@@ -103,6 +121,10 @@ static void grl_filesystem_source_metadata (GrlMediaSource *source,
 static void grl_filesystem_source_browse (GrlMediaSource *source,
                                           GrlMediaSourceBrowseSpec *bs);
 
+static void grl_filesystem_source_search (GrlMediaSource *source,
+                                          GrlMediaSourceSearchSpec *ss);
+
+
 static gboolean grl_filesystem_test_media_from_uri (GrlMediaSource *source,
                                                     const gchar *uri);
 
@@ -118,6 +140,7 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
 {
   GrlConfig *config;
   GList *chosen_paths = NULL;
+  guint max_search_depth = GRILO_CONF_MAX_SEARCH_DEPTH_DEFAULT;
 
   GRL_LOG_DOMAIN_INIT (filesystem_log_domain, "filesystem");
 
@@ -130,15 +153,18 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
                                        NULL);
 
   for (; configs; configs = g_list_next (configs)) {
-    const gchar *path;
+    gchar *path;
     config = GRL_CONFIG (configs->data);
     path = grl_config_get_string (config, GRILO_CONF_CHOSEN_PATH);
-    if (!path) {
-      continue;
+    if (path) {
+      chosen_paths = g_list_append (chosen_paths, path);
     }
-    chosen_paths = g_list_append (chosen_paths, g_strdup (path));
+    if (grl_config_has_param (config, GRILO_CONF_MAX_SEARCH_DEPTH)) {
+      max_search_depth = (guint)grl_config_get_int (config, GRILO_CONF_MAX_SEARCH_DEPTH);
+    }
   }
   source->priv->chosen_paths = chosen_paths;
+  source->priv->max_search_depth = max_search_depth;
 
   return TRUE;
 }
@@ -171,6 +197,7 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_filesystem_source_browse;
+  source_class->search = grl_filesystem_source_search;
   source_class->metadata = grl_filesystem_source_metadata;
   source_class->test_media_from_uri = grl_filesystem_test_media_from_uri;
   source_class->media_from_uri = grl_filesystem_get_media_from_uri;
@@ -559,6 +586,237 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
   g_dir_close (dir);
 }
 
+/*** search stuff ***/
+
+static void search_next_directory (SearchOperation *operation);
+
+static SearchTree *
+search_tree_new (SearchOperation *operation, guint depth, GFile *directory)
+{
+  SearchTree *tree = g_new (SearchTree, 1);
+  tree->operation = operation;
+  tree->depth = depth;
+  tree->directory = g_object_ref (directory);
+
+  return tree;
+}
+
+static void
+search_tree_free (SearchTree *tree)
+{
+  g_object_unref (tree->directory);
+  g_free (tree);
+}
+
+static SearchOperation *
+search_operation_new (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss, guint max_depth)
+{
+  SearchOperation *operation;
+
+  operation = g_new (SearchOperation, 1);
+  operation->source = source;
+  operation->ss = ss;
+  operation->found_count = 0;
+  operation->skipped = 0;
+  operation->max_depth = max_depth;
+  operation->trees = g_queue_new ();
+
+  return operation;
+}
+
+static void
+search_operation_free (SearchOperation *operation)
+{
+  g_queue_foreach (operation->trees, (GFunc)search_tree_free, NULL);
+  g_queue_free (operation->trees);
+  g_free (operation);
+}
+
+/* return TRUE if more files need to be returned, FALSE if we sent the count */
+static gboolean
+compare_and_return_file (SearchOperation *operation,
+                         GFileEnumerator *enumerator,
+                         GFileInfo *file_info)
+{
+  gchar *needle, *haystack, *normalized_needle, *normalized_haystack;
+  GrlMediaSourceSearchSpec *ss = operation->ss;
+
+  GRL_DEBUG ("compare_and_return_file");
+
+  if (ss == NULL)
+    return FALSE;
+
+  haystack = g_utf8_casefold (g_file_info_get_display_name (file_info), -1);
+  normalized_haystack = g_utf8_normalize (haystack, -1, G_NORMALIZE_ALL);
+
+  needle = g_utf8_casefold (ss->text, -1);
+  normalized_needle = g_utf8_normalize (needle, -1, G_NORMALIZE_ALL);
+
+  if (strstr (normalized_haystack, normalized_needle)) {
+    GrlMedia *media = NULL;
+    GFile *dir, *file;
+    gchar *path;
+    gint remaining = -1;
+
+    dir = g_file_enumerator_get_container (enumerator);
+    file = g_file_get_child (dir, g_file_info_get_name (file_info));
+    path = g_file_get_path (file);
+
+    /* FIXME: both file_is_valid_content() and create_content() are likely to block */
+    if (file_is_valid_content (path, FALSE)) {
+      if (operation->skipped < ss->skip)
+        operation->skipped++;
+      else
+        media = create_content (NULL, path, ss->flags & GRL_RESOLVE_FAST_ONLY, FALSE);
+    }
+
+    g_free (path);
+    g_object_unref (file);
+
+    if (media) {
+      operation->found_count++;
+      if (operation->found_count == ss->count)
+        remaining = 0;
+      ss->callback (ss->source, ss->search_id, media, remaining, ss->user_data, NULL);
+      if (!remaining)
+        /* after a call to the callback with remaining=0, the core will free
+         * the search spec */
+        operation->ss = NULL;
+    }
+  }
+
+  g_free (haystack);
+  g_free (normalized_haystack);
+  g_free (needle);
+  g_free (normalized_needle);
+  return operation->ss != NULL;
+}
+
+static void
+got_file (GFileEnumerator *enumerator, GAsyncResult *res, SearchTree *tree)
+{
+  GList *files;
+  GError *error = NULL;
+
+  GRL_DEBUG ("got_file");
+
+  files = g_file_enumerator_next_files_finish (enumerator, res, &error);
+  if (error) {
+    GRL_WARNING ("Got error while searching: %s", error->message);
+    g_error_free (error);
+    goto finished;
+  }
+
+  if (files) {
+    GFileInfo *file_info;
+    /* we assume there is only one GFileInfo in the list since that's what we ask
+     * for when calling g_file_enumerator_next_files_async() */
+    file_info = (GFileInfo *)files->data;
+    g_list_free (files);
+    switch (g_file_info_get_file_type (file_info)) {
+    case G_FILE_TYPE_SYMBOLIC_LINK:
+      /* we're too afraid of infinite recursion to touch this for now */
+      break;
+    case G_FILE_TYPE_DIRECTORY:
+        {
+          if (tree->depth < tree->operation->max_depth) {
+            GFile *subdir;
+            SearchTree *subtree;
+
+            subdir = g_file_get_child (tree->directory,
+                                       g_file_info_get_name (file_info));
+            subtree = search_tree_new (tree->operation, tree->depth + 1, subdir);
+            g_queue_push_tail (tree->operation->trees, subtree);
+            g_object_unref (subdir);
+          }
+        }
+      break;
+    case G_FILE_TYPE_REGULAR:
+      if (!compare_and_return_file (tree->operation, enumerator, file_info)){
+        g_object_unref (file_info);
+        goto finished;
+      }
+      break;
+    default:
+      /* this file is a weirdo, we ignore it */
+      break;
+    }
+    g_object_unref (file_info);
+  } else {    /* end of enumerator */
+    goto finished;
+  }
+
+  g_file_enumerator_next_files_async (enumerator, 1, G_PRIORITY_DEFAULT, NULL,
+                                     (GAsyncReadyCallback)got_file, tree);
+
+  return;
+
+finished:
+  /* we're done with this dir/enumerator, let's treat the next one */
+  g_object_unref (enumerator);
+  search_next_directory (tree->operation);
+  search_tree_free (tree);
+}
+
+static void
+got_children (GFile *directory, GAsyncResult *res, SearchTree *tree)
+{
+  GError *error = NULL;
+  GFileEnumerator *enumerator;
+
+  GRL_DEBUG ("got_children");
+
+  enumerator = g_file_enumerate_children_finish (directory, res, &error);
+  if (error) {
+    GRL_WARNING ("Got error while searching: %s", error->message);
+    g_error_free (error);
+    g_object_unref (enumerator);
+    /* we couldn't get the children of this directory, but we probably have
+     * other directories to try */
+    search_next_directory (tree->operation);
+    search_tree_free (tree);
+    return;
+  }
+
+  g_file_enumerator_next_files_async (enumerator, 1, G_PRIORITY_DEFAULT, NULL,
+                                     (GAsyncReadyCallback)got_file, tree);
+}
+
+static void
+search_next_directory (SearchOperation *operation)
+{
+  SearchTree *tree;
+  GrlMediaSourceSearchSpec *ss = operation->ss;
+
+  GRL_DEBUG ("search_next_directory");
+
+  if (!ss) {  /* count reached, last callback call done */
+    goto finished;
+  }
+
+  tree = g_queue_pop_head (operation->trees);
+  if (!tree) { /* We've crawled everything, before reaching count */
+    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
+    operation->ss = NULL;
+    goto finished;
+  }
+
+  g_file_enumerate_children_async (tree->directory, G_FILE_ATTRIBUTE_STANDARD_TYPE ","
+                                   G_FILE_ATTRIBUTE_STANDARD_NAME ","
+                                   G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
+                                   G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                   G_PRIORITY_DEFAULT,
+                                   NULL,
+                                   (GAsyncReadyCallback)got_children,
+                                   tree);
+
+  return;
+
+finished:
+  search_operation_free (operation);
+}
+
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -611,6 +869,43 @@ grl_filesystem_source_browse (GrlMediaSource *source,
   } else {
     produce_from_path (bs, id ? id : G_DIR_SEPARATOR_S);
   }
+}
+
+static void grl_filesystem_source_search (GrlMediaSource *source,
+                                          GrlMediaSourceSearchSpec *ss)
+{
+  SearchOperation *operation;
+  GList *chosen_paths, *path;
+  guint max_search_depth;
+  GrlFilesystemSource *fs_source;
+
+  GRL_DEBUG ("grl_filesystem_source_search");
+
+  fs_source = GRL_FILESYSTEM_SOURCE (source);
+
+  max_search_depth = fs_source->priv->max_search_depth;
+  operation = search_operation_new (source, ss, max_search_depth);
+
+  chosen_paths = fs_source->priv->chosen_paths;
+  if (chosen_paths) {
+    for (path = chosen_paths; path; path = g_list_next (path)) {
+      GFile *directory = g_file_new_for_path (path->data);
+      g_queue_push_tail (operation->trees,
+                         search_tree_new (operation, 0, directory));
+      g_object_unref (directory);
+    }
+  } else {
+    const gchar *home;
+    GFile *directory;
+
+    home = g_getenv ("HOME");
+    directory = g_file_new_for_path (home);
+    g_queue_push_tail (operation->trees,
+                       search_tree_new (operation, 0, directory));
+    g_object_unref (directory);
+  }
+
+  search_next_directory (operation);
 }
 
 static void

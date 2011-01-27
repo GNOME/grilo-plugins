@@ -1,12 +1,12 @@
 #
 # configure.ac
-# 
+#
 # Author: Iago Toral Quiroga <itoral@igalia.com>
 #
-# Copyright (C) 2010 Igalia S.L.. All rights reserved.
+# Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.7])
+m4_define([prj_version], [0.1.8])
 
 AC_INIT([prj_name], [prj_version])
 
@@ -19,6 +19,11 @@ AM_CONFIG_HEADER(src/config.h)
 
 AC_PROG_CC
 AC_PROG_INSTALL
+
+PKG_CONFIG="pkg-config"
+if test -n "$host" ; then
+	PKG_CONFIG=$host-$PKG_CONFIG
+fi
 
 LT_PREREQ([2.2.6])
 LT_INIT
@@ -74,10 +79,10 @@ fi
 # HARD DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([DEPS], glib-2.0 \
-			  gobject-2.0 \
-			  gmodule-2.0 \
-			  ${GRL_NAME} = 0.1.7)
+PKG_CHECK_MODULES([DEPS], glib-2.0      \
+			  gobject-2.0   \
+			  gmodule-2.0   \
+			  ${GRL_NAME} = 0.1.8)
 
 # ----------------------------------------------------------
 # DEFINITIONS
@@ -85,7 +90,7 @@ PKG_CHECK_MODULES([DEPS], glib-2.0 \
 
 # Plugins directory
 
-GRL_PLUGINS_DIR=`pkg-config --variable=plugindir ${GRL_NAME}`
+GRL_PLUGINS_DIR=`${PKG_CONFIG} --variable=plugindir ${GRL_NAME}`
 AC_SUBST(GRL_PLUGINS_DIR)
 AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 
@@ -98,7 +103,7 @@ AC_SUBST(GRL_PLUGINS_CONF_DIR)
 # EXTERNAL/OPTIONAL DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} = 0.1.7],
+PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} = 0.1.8],
 			    HAVE_GRLNET=yes,
 			    HAVE_GRLNET=no)
 
@@ -106,9 +111,9 @@ PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 
 PKG_CHECK_MODULES(GIO, gio-2.0, HAVE_GIO=yes, HAVE_GIO=no)
 
-PKG_CHECK_MODULES(GUPNP, gupnp-1.0, HAVE_GUPNP=yes, HAVE_GUPNP=no)
+PKG_CHECK_MODULES(GUPNP, gupnp-1.0 >= 0.13, HAVE_GUPNP=yes, HAVE_GUPNP=no)
 
-PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=no)
+PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0 >= 0.5, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=no)
 
 PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
 
@@ -120,27 +125,22 @@ AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
-# ----------------------------------------------------------
-# GUPNP-AV VERSION
-# ----------------------------------------------------------
+PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
+                                  HAVE_TRACKER_SPARQL=yes,
+                                  [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
+                                                                     HAVE_TRACKER_SPARQL=yes,
+                                                                     HAVE_TRACKER_SPARQL=no)])
 
-GUPNPAV_OLD_VERSION=no
-if test "x$HAVE_GUPNPAV" = "xyes"; then
-        gupnpav_version=`pkg-config --modversion gupnp-av-1.0`
-        gupnpav_version_major=`echo $gupnpav_version | awk -F. '{ print $1 }'`
-        gupnpav_version_minor=`echo $gupnpav_version | awk -F. '{ print $2 }'`
-        if test $gupnpav_version_major -eq 0 -a $gupnpav_version_minor -lt 5; then
-           GUPNPAV_OLD_VERSION=yes
-        fi
-fi
-AM_CONDITIONAL(GUPNPAV_OLD_VERSION, test "x$GUPNPAV_OLD_VERSION" = "xyes")
+PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
+                             HAVE_GLIB_2_26=yes,
+                             HAVE_GLIB_2_26=no)
 
 # ----------------------------------------------------------
 # GDATA VERSION
 # ----------------------------------------------------------
 
 if test "x$HAVE_GDATA" = "xyes"; then
-   gdata_version=`pkg-config --modversion libgdata`
+   gdata_version=`${PKG_CONFIG} --modversion libgdata`
    gdata_version_major=`echo $gdata_version | awk -F. '{ print $1 }'`
    gdata_version_minor=`echo $gdata_version | awk -F. '{ print $2 }'`
    if test $gdata_version_major -eq 0 -a $gdata_version_minor -ge 7; then
@@ -279,20 +279,17 @@ AC_ARG_ENABLE(upnp,
                         fi
                         if test "x$HAVE_GUPNPAV" = "xno"; then
                            AC_MSG_ERROR([gupnp-av not found, install it or use --disable-upnp])
-                        elif test "x$GUPNPAV_OLD_VERSION" = "xno" -a "$xHAVE_XML" = "xno"; then
+                        fi
+                        if test "$xHAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-upnp])
                         fi
                 esac
         ],
         [
-                if test "x$HAVE_GUPNP" = "xyes" -a "x$HAVE_GUPNPAV" = "xyes"; then
-                   if test "x$GUPNPAV_OLD_VERSION" = "xyes" -o "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GUPNP" = "xyes" -a "x$HAVE_GUPNPAV" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                         enable_upnp=yes
-                   else
-                        enable_upnp=no
-                   fi
                 else
-                   enable_upnp=no
+                        enable_upnp=no
                 fi
         ])
 
@@ -660,6 +657,44 @@ AC_SUBST(GRAVATAR_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([GRAVATAR_PLUGIN_ID], ["$GRAVATAR_PLUGIN_ID"], [Gravatar plugin ID])
 
 # ----------------------------------------------------------
+# BUILD TRACKER PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(tracker,
+        AC_HELP_STRING([--enable-tracker],
+                [enable Tracker plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
+                           AC_MSG_ERROR([tracker-sparql-0.9 not found, install it or use --disable-tracker])
+                        fi
+                        if test "x$HAVE_GLIB_2_26" = "xno"; then
+                           AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-tracker])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_TRACKER_SPARQL" = "xyes" -a "x$HAVE_GLIB_2_26" = "xyes"; then
+                   enable_tracker=yes
+                else
+                   enable_tracker=no
+                fi
+        ])
+
+AM_CONDITIONAL([TRACKER_PLUGIN], [test "x$enable_tracker" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL tracker"
+if test "x$enable_tracker" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED tracker"
+fi
+
+TRACKER_PLUGIN_ID="grl-tracker"
+AC_SUBST(TRACKER_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([TRACKER_PLUGIN_ID], ["$TRACKER_PLUGIN_ID"], [Tracker plugin ID])
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -697,6 +732,7 @@ AC_CONFIG_FILES([
   src/metadata-store/Makefile
   src/vimeo/Makefile
   src/gravatar/Makefile
+  src/tracker/Makefile
   test/Makefile
   debian/grilo-0.1-plugins.install
 ])

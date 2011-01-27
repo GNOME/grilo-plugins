@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2010 Igalia S.L.
+ * Copyright (C) 2010, 2011 Igalia S.L.
+ * Copyright (C) 2011 Intel Corporation.
  *
  * This component is based on Maemo's mafw-upnp-source source code.
  *
@@ -31,10 +32,7 @@
 #include <libgupnp-av/gupnp-av.h>
 #include <string.h>
 #include <stdlib.h>
-
-#ifndef GUPNPAV_OLD_VERSION
 #include <libxml/tree.h>
-#endif
 
 #include "grl-upnp.h"
 
@@ -115,11 +113,17 @@ static void grl_upnp_source_browse (GrlMediaSource *source,
 static void grl_upnp_source_search (GrlMediaSource *source,
                                     GrlMediaSourceSearchSpec *ss);
 
+static void grl_upnp_source_query (GrlMediaSource *source,
+                                   GrlMediaSourceQuerySpec *qs);
+
 static void grl_upnp_source_metadata (GrlMediaSource *source,
                                       GrlMediaSourceMetadataSpec *ms);
 
 static GrlSupportedOps grl_upnp_source_supported_operations (GrlMetadataSource *source);
 
+static void context_available_cb (GUPnPContextManager *context_manager,
+				  GUPnPContext *context,
+				  gpointer user_data);
 static void device_available_cb (GUPnPControlPoint *cp,
 				 GUPnPDeviceProxy *device,
 				 gpointer user_data);
@@ -131,8 +135,7 @@ static void device_unavailable_cb (GUPnPControlPoint *cp,
 
 static GHashTable *key_mapping = NULL;
 static GHashTable *filter_key_mapping = NULL;
-static GUPnPControlPoint *cp = NULL;
-static GUPnPContext *context = NULL;
+static GUPnPContextManager *context_manager = NULL;
 
 /* =================== UPnP Plugin  =============== */
 
@@ -141,8 +144,6 @@ grl_upnp_plugin_init (GrlPluginRegistry *registry,
                       const GrlPluginInfo *plugin,
                       GList *configs)
 {
-  GError *error = NULL;
-
   GRL_LOG_DOMAIN_INIT (upnp_log_domain, "upnp");
 
   GRL_DEBUG ("grl_upnp_plugin_init");
@@ -152,28 +153,11 @@ grl_upnp_plugin_init (GrlPluginRegistry *registry,
     g_thread_init (NULL);
   }
 
-  context = gupnp_context_new (NULL, NULL, 0, &error);
-  if (error) {
-    g_critical ("Failed to create GUPnP context: %s", error->message);
-    g_error_free (error);
-    return FALSE;
-  }
-
-  cp = gupnp_control_point_new (context, "ssdp:all");
-  if (!cp) {
-    g_critical ("Failed to create control point");
-    return FALSE;
-  }
-  g_signal_connect (cp,
-		    "device-proxy-available",
-		    G_CALLBACK (device_available_cb),
-		    (gpointer) plugin);
-  g_signal_connect (cp,
-		    "device-proxy-unavailable",
-		    G_CALLBACK (device_unavailable_cb),
-		    NULL);
-
-  gssdp_resource_browser_set_active (GSSDP_RESOURCE_BROWSER (cp), TRUE);
+  context_manager = gupnp_context_manager_new (NULL, 0);
+  g_signal_connect (context_manager,
+                    "context-available",
+                    G_CALLBACK (context_available_cb),
+                    (gpointer)plugin);
 
   return TRUE;
 }
@@ -182,15 +166,10 @@ static void
 grl_upnp_plugin_deinit (void)
 {
   GRL_DEBUG ("grl_upnp_plugin_deinit");
-  if (cp != NULL) {
-    gssdp_resource_browser_set_active (GSSDP_RESOURCE_BROWSER (cp), FALSE);
-    g_object_unref (cp);
-    cp = NULL;
-  }
 
-  if (context != NULL) {
-    g_object_unref ( context);
-    context = NULL;
+  if (context_manager != NULL) {
+    g_object_unref (context_manager);
+    context_manager = NULL;
   }
 }
 
@@ -240,6 +219,7 @@ grl_upnp_source_class_init (GrlUpnpSourceClass * klass)
 
   source_class->browse = grl_upnp_source_browse;
   source_class->search = grl_upnp_source_search;
+  source_class->query = grl_upnp_source_query;
   source_class->metadata = grl_upnp_source_metadata;
 
   g_type_class_add_private (klass, sizeof (GrlUpnpPrivate));
@@ -306,7 +286,7 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
 				    "SearchCaps", G_TYPE_STRING, &caps,
 				    NULL);
   if (!result) {
-    GRL_WARNING ("Failed to execute GetSeachCaps operation");
+    GRL_WARNING ("Failed to execute GetSearchCaps operation");
     if (error) {
       GRL_WARNING ("Reason: %s", error->message);
       g_error_free (error);
@@ -347,6 +327,32 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
 }
 
 static void
+context_available_cb (GUPnPContextManager *context_manager,
+		      GUPnPContext *context,
+		      gpointer user_data)
+{
+  GUPnPControlPoint *cp;
+
+  GRL_DEBUG ("%s", __func__);
+
+  cp = gupnp_control_point_new (context, "urn:schemas-upnp-org:device:MediaServer:1");
+  g_signal_connect (cp,
+		    "device-proxy-available",
+		    G_CALLBACK (device_available_cb),
+		    user_data);
+  g_signal_connect (cp,
+		    "device-proxy-unavailable",
+		    G_CALLBACK (device_unavailable_cb),
+		    NULL);
+
+  gssdp_resource_browser_set_active (GSSDP_RESOURCE_BROWSER (cp), TRUE);
+
+  /* Let context manager take care of the control point life cycle */
+  gupnp_context_manager_manage_control_point (context_manager, cp);
+  g_object_unref (cp);
+}
+
+static void
 device_available_cb (GUPnPControlPoint *cp,
 		     GUPnPDeviceProxy *device,
 		     gpointer user_data)
@@ -362,15 +368,11 @@ device_available_cb (GUPnPControlPoint *cp,
 
   type = gupnp_device_info_get_device_type (GUPNP_DEVICE_INFO (device));
   GRL_DEBUG ("  type: %s", type);
-  if (!g_pattern_match_simple ("urn:schemas-upnp-org:device:MediaServer:*",
-			       type)) {
-    return;
-  }
 
   service = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (device),
 					   CONTENT_DIR_SERVICE);
   if (!service) {
-    GRL_DEBUG ("Device does not provide requied service, ignoring...");
+    GRL_DEBUG ("Device does not provide required service, ignoring...");
     return;
   }
 
@@ -521,12 +523,7 @@ didl_res_get_protocol_info (xmlNode* res_node, gint field)
   gchar* value;
   gchar** array;
 
-#ifdef GUPNPAV_OLD_VERSION
-  pinfo = gupnp_didl_lite_property_get_attribute (res_node, "protocolInfo");
-#else
   pinfo = (gchar *) xmlGetProp (res_node, (const xmlChar *) "protocolInfo");
-#endif
-
   if (pinfo == NULL) {
     return NULL;
   }
@@ -546,22 +543,13 @@ didl_res_get_protocol_info (xmlNode* res_node, gint field)
 }
 
 static GList *
-didl_get_supported_resources (
-#ifdef GUPNPAV_OLD_VERSION
-                              xmlNode *didl_node)
-#else
-                              GUPnPDIDLLiteObject *didl)
-#endif
+didl_get_supported_resources (GUPnPDIDLLiteObject *didl)
 {
   GList *properties, *node;
   xmlNode *xml_node;
   gchar *protocol;
 
-#ifdef GUPNPAV_OLD_VERSION
-  properties = gupnp_didl_lite_object_get_property (didl_node, "res");
-#else
   properties = gupnp_didl_lite_object_get_properties (didl, "res");
-#endif
 
   node = properties;
   while (node) {
@@ -664,65 +652,111 @@ didl_h_mm_ss_to_int (const gchar *time)
 
 }
 
+static gboolean
+is_image (xmlNode *node)
+{
+  gchar *mime_type;
+  gboolean ret;
+
+  mime_type = didl_res_get_protocol_info (node, 2);
+  ret = g_str_has_prefix (mime_type, "image/");
+
+  g_free (mime_type);
+  return ret;
+}
+
+static gboolean
+is_http_get (xmlNode *node)
+{
+  gboolean ret;
+  gchar *protocol;
+
+  protocol = didl_res_get_protocol_info (node, 0);
+  ret = g_str_has_prefix (protocol, "http-get");
+
+  g_free (protocol);
+  return ret;
+}
+
+static gboolean
+has_thumbnail_marker (xmlNode *node)
+{
+  gchar *dlna_stuff;
+  gboolean ret;
+
+  dlna_stuff = didl_res_get_protocol_info (node, 3);
+  ret = strstr("JPEG_TN", dlna_stuff) != NULL;
+
+  g_free (dlna_stuff);
+  return ret;
+}
+
+static gchar *
+get_thumbnail (GList *nodes)
+{
+  GList *element;
+  gchar *val = NULL;
+  guint counter = 0;
+
+  /* chose, depending on availability, the first with DLNA.ORG_PN=JPEG_TN, or
+   * the last http-get with mimetype image/something if there is more than one
+   * http-get.
+   * This covers at least mediatomb and rygel.
+   * This could be improved by handling resolution and/or size */
+
+  for (element=nodes; element; element=g_list_next (element)) {
+    xmlNode *node = (xmlNode *)element->data;
+
+    if (is_http_get (node)) {
+      counter++;
+      if (is_image (node)) {
+        if (val)
+          g_free (val);
+        val = xmlNodeGetContent (node);
+
+        if (has_thumbnail_marker (node))  /* that's definitely it! */
+          return val;
+      }
+    }
+  }
+
+  if (val && counter == 1) {
+    /* There was only one element with http-get protocol: that's the uri of the
+     * media itself, not a thumbnail */
+    g_free (val);
+    val = NULL;
+  }
+
+  return val;
+}
+
 static gchar *
 get_value_for_key (GrlKeyID key_id,
-#ifdef GUPNPAV_OLD_VERSION
-                   xmlNode *didl_node,
-#else
                    GUPnPDIDLLiteObject *didl,
-#endif
                    GList *props)
 {
   GList* list;
   gchar* val = NULL;
   const gchar* upnp_key;
 
-#ifndef GUPNPAV_OLD_VERSION
   xmlNode *didl_node = gupnp_didl_lite_object_get_xml_node (didl);
-#endif
-
   upnp_key = get_upnp_key (key_id);
 
   if (key_id == GRL_METADATA_KEY_CHILDCOUNT) {
-
-#ifdef GUPNPAV_OLD_VERSION
-    val = gupnp_didl_lite_property_get_attribute (didl_node, "childCount");
-#else
-    val = (gchar *) xmlGetProp (didl_node, (const xmlChar *) "childCount");
-#endif
-
+    val = (gchar *) xmlGetProp (didl_node,
+                                (const xmlChar *) "childCount");
   } else if (key_id == GRL_METADATA_KEY_MIME && props) {
     val = didl_res_get_protocol_info ((xmlNode *) props->data, 2);
   } else if (key_id == GRL_METADATA_KEY_DURATION && props) {
-
-#ifdef GUPNPAV_OLD_VERSION
-    val = gupnp_didl_lite_property_get_attribute ((xmlNode *) props->data,
-                                                  "duration");
-#else
     val = (gchar *) xmlGetProp ((xmlNodePtr) props->data,
                                 (const xmlChar *) "duration");
-#endif
-
   } else if (key_id == GRL_METADATA_KEY_URL && props) {
-
-#ifdef GUPNPAV_OLD_VERSION
-    val = gupnp_didl_lite_property_get_value ((xmlNode *) props->data);
-#else
     val = (gchar *) xmlNodeGetContent ((xmlNode *) props->data);
-#endif
-
+  } else if (key_id == GRL_METADATA_KEY_THUMBNAIL && props) {
+    val = g_strdup (gupnp_didl_lite_object_get_album_art (didl));
+    if (!val)
+      val = get_thumbnail (props);
   } else if (upnp_key) {
-
-#ifdef GUPNPAV_OLD_VERSION
-    list = gupnp_didl_lite_object_get_property (didl_node, upnp_key);
-    if (list) {
-      val = gupnp_didl_lite_property_get_value ((xmlNode*) list->data);
-      g_list_free (list);
-    } else if (props && props->data) {
-      val = gupnp_didl_lite_property_get_attribute ((xmlNode *) props->data,
-                                                    upnp_key);
-    }
-#else
     list = gupnp_didl_lite_object_get_properties (didl, upnp_key);
     if (list) {
       val = (gchar *) xmlNodeGetContent ((xmlNode*) list->data);
@@ -731,8 +765,6 @@ get_value_for_key (GrlKeyID key_id,
       val = (gchar *) xmlGetProp ((xmlNodePtr) props->data,
                                   (const xmlChar *) upnp_key);
     }
-#endif
-
   }
 
   return val;
@@ -764,25 +796,18 @@ set_metadata_value (GrlMedia *media,
     }
   } else if (key_id == GRL_METADATA_KEY_CHILDCOUNT && value && GRL_IS_MEDIA_BOX (media)) {
       grl_media_box_set_childcount (GRL_MEDIA_BOX (media), atoi (value));
+  } else if (key_id == GRL_METADATA_KEY_THUMBNAIL) {
+    grl_media_set_thumbnail (media, value);
   }
 }
 
 static GrlMedia *
 build_media_from_didl (GrlMedia *content,
-#ifdef GUPNPAV_OLD_VERSION
-                       xmlNode *didl_node,
-#else
                        GUPnPDIDLLiteObject *didl_node,
-#endif
                        GList *keys)
 {
-#ifdef GUPNPAV_OLD_VERSION
-  gchar *id;
-  gchar *class;
-#else
   const gchar *id;
   const gchar *class;
-#endif
 
   GrlMedia *media = NULL;
   GList *didl_props;
@@ -794,12 +819,7 @@ build_media_from_didl (GrlMedia *content,
     media = content;
   } else {
 
-#ifdef GUPNPAV_OLD_VERSION
-    if (gupnp_didl_lite_object_is_container (didl_node)) {
-#else
     if (GUPNP_IS_DIDL_LITE_CONTAINER (didl_node)) {
-#endif
-
       media = grl_media_box_new ();
     } else {
       if (!media) {
@@ -840,10 +860,6 @@ build_media_from_didl (GrlMedia *content,
     iter = g_list_next (iter);
   }
 
-#ifdef GUPNPAV_OLD_VERSION
-  g_free (id);
-#endif
-
   g_list_free (didl_props);
 
   return media;
@@ -851,11 +867,7 @@ build_media_from_didl (GrlMedia *content,
 
 static void
 gupnp_browse_result_cb (GUPnPDIDLLiteParser *parser,
-#ifdef GUPNPAV_OLD_VERSION
-			xmlNode *didl,
-#else
-                        GUPnPDIDLLiteObject *didl,
-#endif
+			GUPnPDIDLLiteObject *didl,
 			gpointer user_data)
 {
   GrlMedia *media;
@@ -884,9 +896,10 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
   struct OperationSpec *os;
   GUPnPDIDLLiteParser *didl_parser;
 
-  os = (struct OperationSpec *) user_data;
-
   GRL_DEBUG ("gupnp_browse_cb");
+
+  os = (struct OperationSpec *) user_data;
+  didl_parser = gupnp_didl_lite_parser_new ();
 
   result =
     gupnp_service_proxy_end_action (service, action, &error,
@@ -896,19 +909,21 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
 				    NULL);
 
   if (!result) {
-    GRL_WARNING ("Browse operation failed");
+    GRL_WARNING ("Operation (browse, search or query) failed");
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     if (error) {
       GRL_WARNING ("  Reason: %s", error->message);
       g_error_free (error);
     }
-    return;
+
+    goto free_resources;
   }
 
   if (!didl || !returned) {
     GRL_DEBUG ("Got no results");
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
-    return;
+
+    goto free_resources;
   }
 
   /* Use os->count to emit "remaining" information */
@@ -916,15 +931,6 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
     os->count = returned;
   }
 
-  didl_parser = gupnp_didl_lite_parser_new ();
-
-#ifdef GUPNPAV_OLD_VERSION
-  gupnp_didl_lite_parser_parse_didl (didl_parser,
-				     didl,
-				     gupnp_browse_result_cb,
-				     os,
-				     &error);
-#else
   g_signal_connect (G_OBJECT (didl_parser),
                     "object-available",
                     G_CALLBACK (gupnp_browse_result_cb),
@@ -932,26 +938,23 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
   gupnp_didl_lite_parser_parse_didl (didl_parser,
                                      didl,
                                      &error);
-#endif
-
   if (error) {
     GRL_WARNING ("Failed to parse DIDL result: %s", error->message);
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
-    return;
+
+    goto free_resources;
   }
 
+ free_resources:
+  g_slice_free (struct OperationSpec, os);
   g_free (didl);
   g_object_unref (didl_parser);
 }
 
 static void
 gupnp_metadata_result_cb (GUPnPDIDLLiteParser *parser,
-#ifdef GUPNPAV_OLD_VERSION
-			  xmlNode *didl,
-#else
-                          GUPnPDIDLLiteObject *didl,
-#endif
+			  GUPnPDIDLLiteObject *didl,
 			  gpointer user_data)
 {
   GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
@@ -975,6 +978,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
   GRL_DEBUG ("gupnp_metadata_cb");
 
   ms = (GrlMediaSourceMetadataSpec *) user_data;
+  didl_parser = gupnp_didl_lite_parser_new ();
 
   result =
     gupnp_service_proxy_end_action (service, action, &error,
@@ -988,24 +992,17 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
       GRL_WARNING ("  Reason: %s", error->message);
       g_error_free (error);
     }
-    return;
+
+    goto free_resources;
   }
 
   if (!didl) {
     GRL_DEBUG ("Got no metadata");
     ms->callback (ms->source, ms->media,  ms->user_data, NULL);
-    return;
+
+    goto free_resources;
   }
 
-  didl_parser = gupnp_didl_lite_parser_new ();
-
-#ifdef GUPNPAV_OLD_VERSION
-  gupnp_didl_lite_parser_parse_didl (didl_parser,
-				     didl,
-				     gupnp_metadata_result_cb,
-				     ms,
-				     &error);
-#else
   g_signal_connect (G_OBJECT (didl_parser),
                     "object-available",
                     G_CALLBACK (gupnp_metadata_result_cb),
@@ -1013,15 +1010,14 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
   gupnp_didl_lite_parser_parse_didl (didl_parser,
                                      didl,
                                      &error);
-#endif
-
   if (error) {
     GRL_WARNING ("Failed to parse DIDL result: %s", error->message);
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
-    return;
+    goto free_resources;
   }
 
+ free_resources:
   g_free (didl);
   g_object_unref (didl_parser);
 }
@@ -1043,6 +1039,7 @@ grl_upnp_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_ALBUM,
                                       GRL_METADATA_KEY_GENRE,
                                       GRL_METADATA_KEY_CHILDCOUNT,
+                                      GRL_METADATA_KEY_THUMBNAIL,
                                       NULL);
   }
   return keys;
@@ -1087,7 +1084,7 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
 				      "Filter", G_TYPE_STRING,
                                       upnp_filter,
 				      "StartingIndex", G_TYPE_UINT,
-                                      0,
+                                      bs->skip,
 				      "RequestedCount", G_TYPE_UINT,
                                       bs->count,
 				      "SortCriteria", G_TYPE_STRING,
@@ -1099,7 +1096,10 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
 			 "Failed to start browse action");
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
+    g_slice_free (struct OperationSpec, os);
   }
+
+  g_free (upnp_filter);
 }
 
 static void
@@ -1139,7 +1139,7 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
 				      "Filter", G_TYPE_STRING,
                                       upnp_filter,
 				      "StartingIndex", G_TYPE_UINT,
-                                      0,
+                                      ss->skip,
 				      "RequestedCount", G_TYPE_UINT,
                                       ss->count,
 				      "SortCriteria", G_TYPE_STRING,
@@ -1151,7 +1151,73 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
 			 "Failed to start browse action");
     ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
+    g_slice_free (struct OperationSpec, os);
   }
+
+  g_free (upnp_filter);
+  g_free (upnp_search);
+}
+
+/*
+ * Query format is the UPnP ContentDirectory SearchCriteria format, e.g.
+ * 'upnp:artist contains "Rick Astley" and
+ *  (upnp:class derivedfrom "object.item.audioItem")'
+ *
+ * Note that we don't guarantee or check that the server actually
+ * supports the given criteria. Offering the searchcaps as
+ * additional metadata to clients that _really_ are interested might
+ * be useful.
+ */
+static void
+grl_upnp_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
+{
+  GUPnPServiceProxyAction* action;
+  gchar *upnp_filter;
+  GError *error = NULL;
+  struct OperationSpec *os;
+
+  GRL_DEBUG (__func__);
+
+  upnp_filter = get_upnp_filter (qs->keys);
+  GRL_DEBUG ("filter: '%s'", upnp_filter);
+
+  GRL_DEBUG ("query: '%s'", qs->query);
+
+  os = g_slice_new0 (struct OperationSpec);
+  os->source = qs->source;
+  os->operation_id = qs->query_id;
+  os->keys = qs->keys;
+  os->skip = qs->skip;
+  os->count = qs->count;
+  os->callback = qs->callback;
+  os->user_data = qs->user_data;
+
+  action =
+    gupnp_service_proxy_begin_action (GRL_UPNP_SOURCE (source)->priv->service,
+				      "Search", gupnp_browse_cb, os,
+				      "ContainerID", G_TYPE_STRING,
+				      "0",
+				      "SearchCriteria", G_TYPE_STRING,
+				      qs->query,
+				      "Filter", G_TYPE_STRING,
+				      upnp_filter,
+				      "StartingIndex", G_TYPE_UINT,
+				      qs->skip,
+				      "RequestedCount", G_TYPE_UINT,
+				      qs->count,
+				      "SortCriteria", G_TYPE_STRING,
+				      "",
+				      NULL);
+  if (!action) {
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_QUERY_FAILED,
+			 "Failed to start query action");
+    qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
+    g_error_free (error);
+    g_slice_free (struct OperationSpec, os);
+  }
+
+  g_free (upnp_filter);
 }
 
 static void
@@ -1199,6 +1265,8 @@ grl_upnp_source_metadata (GrlMediaSource *source,
     ms->callback (ms->source, ms->media, ms->user_data, error);
     g_error_free (error);
   }
+
+  g_free (upnp_filter);
 }
 
 static GrlSupportedOps
@@ -1208,12 +1276,13 @@ grl_upnp_source_supported_operations (GrlMetadataSource *metadata_source)
   GrlUpnpSource *source;
 
   /* Some sources may support search() while other not, so we rewrite
-     supported_operations() to take that into account */
+     supported_operations() to take that into account.
+     See also note in grl_upnp_source_query() */
 
   source = GRL_UPNP_SOURCE (metadata_source);
   caps = GRL_OP_BROWSE | GRL_OP_METADATA;
   if (source->priv->search_enabled)
-    caps |= GRL_OP_SEARCH;
+    caps = caps | GRL_OP_SEARCH | GRL_OP_QUERY;
 
   return caps;
 }

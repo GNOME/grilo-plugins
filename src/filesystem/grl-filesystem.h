@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Igalia S.L.
+ * Copyright (C) 2010, 2011 Igalia S.L.
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
@@ -53,6 +53,8 @@
 
 /* --- Grilo Configuration --- */
 #define GRILO_CONF_CHOSEN_PATH "base-path"
+#define GRILO_CONF_MAX_SEARCH_DEPTH "maximum-search-depth"
+#define GRILO_CONF_MAX_SEARCH_DEPTH_DEFAULT 6
 
 
 typedef struct _GrlFilesystemSource GrlFilesystemSource;

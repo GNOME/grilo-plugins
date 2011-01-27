@@ -3,7 +3,7 @@
 #
 # Author: Iago Toral Quiroga <itoral@igalia.com>
 #
-# Copyright (C) 2010 Igalia S.L. All rights reserved.
+# Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
 SUBDIRS =
 
@@ -63,11 +63,17 @@ if GRAVATAR_PLUGIN
 SUBDIRS += gravatar
 endif
 
-DIST_SUBDIRS = youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr podcasts bookmarks shoutcast apple-trailers metadata-store vimeo gravatar
+if TRACKER_PLUGIN
+SUBDIRS += tracker
+endif
 
-MAINTAINERCLEANFILES = \
-        *.in \
+DIST_SUBDIRS =									\
+	youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr	\
+	podcasts bookmarks shoutcast apple-trailers metadata-store vimeo	\
+	gravatar tracker
+
+MAINTAINERCLEANFILES =	\
+        *.in		\
         *~
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-

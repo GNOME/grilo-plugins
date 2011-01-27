@@ -25,16 +25,11 @@ libgrlupnp_la_LDFLAGS = \
 	-module		\
 	-avoid-version
 
-if GUPNPAV_OLD_VERSION
-libgrlupnp_la_CFLAGS +=	\
-	-DGUPNPAV_OLD_VERSION
-else
 libgrlupnp_la_CFLAGS +=	\
 	$(XML_CFLAGS)
 
 libgrlupnp_la_LIBADD +=	\
 	$(XML_LIBS)
-endif
 
 libgrlupnp_la_SOURCES = grl-upnp.c grl-upnp.h
 

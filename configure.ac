@@ -113,7 +113,7 @@ PKG_CHECK_MODULES(GIO, gio-2.0, HAVE_GIO=yes, HAVE_GIO=no)
 
 PKG_CHECK_MODULES(GUPNP, gupnp-1.0 >= 0.13, HAVE_GUPNP=yes, HAVE_GUPNP=no)
 
-PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=no)
+PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0 >= 0.5, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=no)
 
 PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
 
@@ -130,21 +130,6 @@ PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
                                   [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
                                                                      HAVE_TRACKER_SPARQL=yes,
                                                                      HAVE_TRACKER_SPARQL=no)])
-
-# ----------------------------------------------------------
-# GUPNP-AV VERSION
-# ----------------------------------------------------------
-
-GUPNPAV_OLD_VERSION=no
-if test "x$HAVE_GUPNPAV" = "xyes"; then
-        gupnpav_version=`${PKG_CONFIG} --modversion gupnp-av-1.0`
-        gupnpav_version_major=`echo $gupnpav_version | awk -F. '{ print $1 }'`
-        gupnpav_version_minor=`echo $gupnpav_version | awk -F. '{ print $2 }'`
-        if test $gupnpav_version_major -eq 0 -a $gupnpav_version_minor -lt 5; then
-           GUPNPAV_OLD_VERSION=yes
-        fi
-fi
-AM_CONDITIONAL(GUPNPAV_OLD_VERSION, test "x$GUPNPAV_OLD_VERSION" = "xyes")
 
 # ----------------------------------------------------------
 # GDATA VERSION
@@ -290,20 +275,17 @@ AC_ARG_ENABLE(upnp,
                         fi
                         if test "x$HAVE_GUPNPAV" = "xno"; then
                            AC_MSG_ERROR([gupnp-av not found, install it or use --disable-upnp])
-                        elif test "x$GUPNPAV_OLD_VERSION" = "xno" -a "$xHAVE_XML" = "xno"; then
+                        fi
+                        if test "$xHAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-upnp])
                         fi
                 esac
         ],
         [
-                if test "x$HAVE_GUPNP" = "xyes" -a "x$HAVE_GUPNPAV" = "xyes"; then
-                   if test "x$GUPNPAV_OLD_VERSION" = "xyes" -o "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GUPNP" = "xyes" -a "x$HAVE_GUPNPAV" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                         enable_upnp=yes
-                   else
-                        enable_upnp=no
-                   fi
                 else
-                   enable_upnp=no
+                        enable_upnp=no
                 fi
         ])
 

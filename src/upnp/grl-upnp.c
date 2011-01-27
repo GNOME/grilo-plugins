@@ -32,10 +32,7 @@
 #include <libgupnp-av/gupnp-av.h>
 #include <string.h>
 #include <stdlib.h>
-
-#ifndef GUPNPAV_OLD_VERSION
 #include <libxml/tree.h>
-#endif
 
 #include "grl-upnp.h"
 
@@ -526,12 +523,7 @@ didl_res_get_protocol_info (xmlNode* res_node, gint field)
   gchar* value;
   gchar** array;
 
-#ifdef GUPNPAV_OLD_VERSION
-  pinfo = gupnp_didl_lite_property_get_attribute (res_node, "protocolInfo");
-#else
   pinfo = (gchar *) xmlGetProp (res_node, (const xmlChar *) "protocolInfo");
-#endif
-
   if (pinfo == NULL) {
     return NULL;
   }
@@ -551,22 +543,13 @@ didl_res_get_protocol_info (xmlNode* res_node, gint field)
 }
 
 static GList *
-didl_get_supported_resources (
-#ifdef GUPNPAV_OLD_VERSION
-                              xmlNode *didl_node)
-#else
-                              GUPnPDIDLLiteObject *didl)
-#endif
+didl_get_supported_resources (GUPnPDIDLLiteObject *didl)
 {
   GList *properties, *node;
   xmlNode *xml_node;
   gchar *protocol;
 
-#ifdef GUPNPAV_OLD_VERSION
-  properties = gupnp_didl_lite_object_get_property (didl_node, "res");
-#else
   properties = gupnp_didl_lite_object_get_properties (didl, "res");
-#endif
 
   node = properties;
   while (node) {
@@ -749,68 +732,31 @@ get_thumbnail (GList *nodes)
 
 static gchar *
 get_value_for_key (GrlKeyID key_id,
-#ifdef GUPNPAV_OLD_VERSION
-                   xmlNode *didl_node,
-#else
                    GUPnPDIDLLiteObject *didl,
-#endif
                    GList *props)
 {
   GList* list;
   gchar* val = NULL;
   const gchar* upnp_key;
 
-#ifndef GUPNPAV_OLD_VERSION
   xmlNode *didl_node = gupnp_didl_lite_object_get_xml_node (didl);
-#endif
-
   upnp_key = get_upnp_key (key_id);
 
   if (key_id == GRL_METADATA_KEY_CHILDCOUNT) {
-
-#ifdef GUPNPAV_OLD_VERSION
-    val = gupnp_didl_lite_property_get_attribute (didl_node, "childCount");
-#else
-    val = (gchar *) xmlGetProp (didl_node, (const xmlChar *) "childCount");
-#endif
-
+    val = (gchar *) xmlGetProp (didl_node,
+                                (const xmlChar *) "childCount");
   } else if (key_id == GRL_METADATA_KEY_MIME && props) {
     val = didl_res_get_protocol_info ((xmlNode *) props->data, 2);
   } else if (key_id == GRL_METADATA_KEY_DURATION && props) {
-
-#ifdef GUPNPAV_OLD_VERSION
-    val = gupnp_didl_lite_property_get_attribute ((xmlNode *) props->data,
-                                                  "duration");
-#else
     val = (gchar *) xmlGetProp ((xmlNodePtr) props->data,
                                 (const xmlChar *) "duration");
-#endif
-
   } else if (key_id == GRL_METADATA_KEY_URL && props) {
-
-#ifdef GUPNPAV_OLD_VERSION
-    val = gupnp_didl_lite_property_get_value ((xmlNode *) props->data);
-#else
     val = (gchar *) xmlNodeGetContent ((xmlNode *) props->data);
-#endif
-
   } else if (key_id == GRL_METADATA_KEY_THUMBNAIL && props) {
     val = g_strdup (gupnp_didl_lite_object_get_album_art (didl));
     if (!val)
       val = get_thumbnail (props);
-
   } else if (upnp_key) {
-
-#ifdef GUPNPAV_OLD_VERSION
-    list = gupnp_didl_lite_object_get_property (didl_node, upnp_key);
-    if (list) {
-      val = gupnp_didl_lite_property_get_value ((xmlNode*) list->data);
-      g_list_free (list);
-    } else if (props && props->data) {
-      val = gupnp_didl_lite_property_get_attribute ((xmlNode *) props->data,
-                                                    upnp_key);
-    }
-#else
     list = gupnp_didl_lite_object_get_properties (didl, upnp_key);
     if (list) {
       val = (gchar *) xmlNodeGetContent ((xmlNode*) list->data);
@@ -819,8 +765,6 @@ get_value_for_key (GrlKeyID key_id,
       val = (gchar *) xmlGetProp ((xmlNodePtr) props->data,
                                   (const xmlChar *) upnp_key);
     }
-#endif
-
   }
 
   return val;
@@ -859,20 +803,11 @@ set_metadata_value (GrlMedia *media,
 
 static GrlMedia *
 build_media_from_didl (GrlMedia *content,
-#ifdef GUPNPAV_OLD_VERSION
-                       xmlNode *didl_node,
-#else
                        GUPnPDIDLLiteObject *didl_node,
-#endif
                        GList *keys)
 {
-#ifdef GUPNPAV_OLD_VERSION
-  gchar *id;
-  gchar *class;
-#else
   const gchar *id;
   const gchar *class;
-#endif
 
   GrlMedia *media = NULL;
   GList *didl_props;
@@ -884,12 +819,7 @@ build_media_from_didl (GrlMedia *content,
     media = content;
   } else {
 
-#ifdef GUPNPAV_OLD_VERSION
-    if (gupnp_didl_lite_object_is_container (didl_node)) {
-#else
     if (GUPNP_IS_DIDL_LITE_CONTAINER (didl_node)) {
-#endif
-
       media = grl_media_box_new ();
     } else {
       if (!media) {
@@ -930,10 +860,6 @@ build_media_from_didl (GrlMedia *content,
     iter = g_list_next (iter);
   }
 
-#ifdef GUPNPAV_OLD_VERSION
-  g_free (id);
-#endif
-
   g_list_free (didl_props);
 
   return media;
@@ -941,11 +867,7 @@ build_media_from_didl (GrlMedia *content,
 
 static void
 gupnp_browse_result_cb (GUPnPDIDLLiteParser *parser,
-#ifdef GUPNPAV_OLD_VERSION
-			xmlNode *didl,
-#else
-                        GUPnPDIDLLiteObject *didl,
-#endif
+			GUPnPDIDLLiteObject *didl,
 			gpointer user_data)
 {
   GrlMedia *media;
@@ -1009,13 +931,6 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
     os->count = returned;
   }
 
-#ifdef GUPNPAV_OLD_VERSION
-  gupnp_didl_lite_parser_parse_didl (didl_parser,
-				     didl,
-				     gupnp_browse_result_cb,
-				     os,
-				     &error);
-#else
   g_signal_connect (G_OBJECT (didl_parser),
                     "object-available",
                     G_CALLBACK (gupnp_browse_result_cb),
@@ -1023,8 +938,6 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
   gupnp_didl_lite_parser_parse_didl (didl_parser,
                                      didl,
                                      &error);
-#endif
-
   if (error) {
     GRL_WARNING ("Failed to parse DIDL result: %s", error->message);
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
@@ -1041,11 +954,7 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
 
 static void
 gupnp_metadata_result_cb (GUPnPDIDLLiteParser *parser,
-#ifdef GUPNPAV_OLD_VERSION
-			  xmlNode *didl,
-#else
-                          GUPnPDIDLLiteObject *didl,
-#endif
+			  GUPnPDIDLLiteObject *didl,
 			  gpointer user_data)
 {
   GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
@@ -1094,13 +1003,6 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
     goto free_resources;
   }
 
-#ifdef GUPNPAV_OLD_VERSION
-  gupnp_didl_lite_parser_parse_didl (didl_parser,
-				     didl,
-				     gupnp_metadata_result_cb,
-				     ms,
-				     &error);
-#else
   g_signal_connect (G_OBJECT (didl_parser),
                     "object-available",
                     G_CALLBACK (gupnp_metadata_result_cb),
@@ -1108,8 +1010,6 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
   gupnp_didl_lite_parser_parse_didl (didl_parser,
                                      didl,
                                      &error);
-#endif
-
   if (error) {
     GRL_WARNING ("Failed to parse DIDL result: %s", error->message);
     ms->callback (ms->source, ms->media, ms->user_data, error);

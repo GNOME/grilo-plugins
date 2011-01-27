@@ -2,9 +2,9 @@ Source: @GRL_NAME@
 Section: libs
 Priority: extra
 Maintainer: Juan A. Suarez Romero <jasuarez@igalia.com>
-Build-Depends: cdbs, debhelper (>= 5), libgrilo-0.1-dev (>= 0.1.7),
- gnome-common, libglib2.0-dev, libxml2-dev, libgupnp-1.0-dev,
- libgupnp-av-1.0-dev, libsqlite3-dev, libgdata-dev
+Build-Depends: cdbs, debhelper (>= 5), libgrilo-0.1-dev (>= 0.1.9),
+ gnome-common, libglib2.0-dev, libxml2-dev, libgupnp-1.0-dev (>=0.13.0),
+ libgupnp-av-1.0-dev (>= 0.5.0), libsqlite3-dev, libgdata-dev
 Standards-Version: 3.7.2
 Homepage: http://gitorious.org/grilo
 
@@ -26,6 +26,7 @@ Description: Grilo framework plugins
   - Metadata Store
   - Podcasts
   - SHOUTcast
+  - Tracker
   - UPnP
   - Vimeo
   - Youtube

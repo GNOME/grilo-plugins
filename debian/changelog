@@ -1,3 +1,15 @@
+grilo-0.1-plugins (0.1.8-1) unstable; urgency=low
+
+  * General: use the new GrlConfig rework
+  * Filesystem plugin: implemented search() function
+  * Podcasts plugin: small fix in log domain
+  * Tracker plugin: new plugin that gets its content from Tracker
+  * UPnP plugin: several improvements and fixes, add support for
+    thumbnails, implemented query() function
+  * Youtube plugin: plug leak
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Thu, 27 Jan 2011 20:32:21 +0100
+
 grilo-0.1-plugins (0.1.7-1) unstable; urgency=low
 
   * General: fixes #627864, #628506, install plugins as loadable modules, use

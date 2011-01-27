@@ -1,3 +1,35 @@
+NEW in 0.1.8
+============
+
+  * General
+    * Use the new GrlConfig rework
+
+  * Filesystem plugin
+    * Implemented search() function
+
+  * Podcasts plugin
+    * Small fix in log domain
+
+  * Tracker plugin
+    * New plugin that gets its content from Tracker
+
+  * UPnP plugin
+    * Several improvements and fixes
+    * Add support for thumbnails
+    * Implemented query() function
+
+  * Youtube plugin
+    * Plug leak
+
+  * Contributors to this release:
+    Fabien Lebaillif - Delamare <fabien@developers.arq-media.com>
+    Guillaume Emont <gemont@igalia.com>
+    Iago Toral Quiroga <itoral@igalia.com>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Jussi Kukkonen <jku@linux.intel.com>
+    Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+
+
 NEW in 0.1.7
 ============
 

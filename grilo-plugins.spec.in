@@ -8,18 +8,21 @@ License:        LGPLv2+
 Source0:        grilo-plugins-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  grilo-devel >= 0.1.7
+BuildRequires:  grilo-devel >= 0.1.8
 BuildRequires:  gnome-common
 BuildRequires:  glib2-devel
 BuildRequires:  libxml2-devel
-BuildRequires:  gupnp-devel
-BuildRequires:  gupnp-av-devel
+BuildRequires:  gupnp-devel >= 0.13.0
+BuildRequires:  gupnp-av-devel >= 0.5.0
 BuildRequires:  sqlite-devel
 BuildRequires:  libgdata-devel
+BuildRequires:  tracker-devel >= 0.9.0
 
-Requires:       grilo >= 0.1.7
-Requires:       gupnp
-Requires:       gupnp-av
+Requires:       grilo >= 0.1.8
+Requires:       gupnp >= 0.13.0
+Requires:       gupnp-av >= 0.5.0
+Requires:       tracker >= 0.9.0
+
 
 %description
 Grilo is a framework that provides access to different sources of
@@ -35,6 +38,7 @@ Last.fm (for album arts)
 Metadata Store
 Podcasts
 Shoutcast
+Tracker
 UPnP
 Vimeo
 Youtube
@@ -55,6 +59,7 @@ Youtube
         --enable-metadata-store         \
 	--enable-podcasts		\
 	--enable-shoutcast		\
+	--enable-tracker		\
 	--enable-upnp			\
         --enable-vimeo                  \
 	--enable-youtube
@@ -81,6 +86,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/grilo-0.1/plugins/*.xml
 
 %changelog
+* Thu Jan 27 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.8-1
+- General: use the new GrlConfig rework
+- Filesystem plugin: implemented search() function
+- Podcasts plugin: small fix in log domain
+- Tracker plugin: new plugin that gets its content from Tracker
+- UPnP plugin: several improvements and fixes, add support for thumbnails, implemented query() function
+- Youtube plugin: plug leak
+
 * Sat Jan 22 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.7-1
 - General: fixes #627864, #628506, install plugins as loadable modules, use GrlNet, adapt code to changes in GrlPluginRegistry functions
 - Apple trailers: general fixes, including bug #630538

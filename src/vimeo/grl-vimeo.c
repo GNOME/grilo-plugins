@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Igalia S.L.
+ * Copyright (C) 2011 Intel Corporation.
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
@@ -87,10 +88,11 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
                         const GrlPluginInfo *plugin,
                         GList *configs)
 {
-  const gchar *vimeo_key;
-  const gchar *vimeo_secret;
+  gchar *vimeo_key;
+  gchar *vimeo_secret;
   GrlConfig *config;
   gint config_count;
+  gboolean init_result = FALSE;
   GrlVimeoSource *source;
 
   GRL_LOG_DOMAIN_INIT (vimeo_log_domain, "vimeo");
@@ -118,7 +120,7 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
 
   if (!vimeo_key || !vimeo_secret) {
     GRL_WARNING ("Required configuration keys not set up");
-    return FALSE;
+    goto go_out;
   }
 
   source = grl_vimeo_source_new ();
@@ -128,7 +130,16 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source),
                                        NULL);
-  return TRUE;
+  init_result = TRUE;
+
+ go_out:
+
+  if (vimeo_key != NULL)
+    g_free (vimeo_key);
+  if (vimeo_secret != NULL)
+    g_free (vimeo_secret);
+
+  return init_result;
 }
 
 GRL_PLUGIN_REGISTER (grl_vimeo_plugin_init,

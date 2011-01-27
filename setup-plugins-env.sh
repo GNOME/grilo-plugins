@@ -9,7 +9,7 @@ PLUGINS=`find $plugin_dir -type d | grep .libs | sort -r`
 for p in $PLUGINS; do
   pname=`expr $p : '.*/\(.*\)/.*'`
   echo "  Found plugin:" $pname
-  GRL_PLUGIN_PATH=$GRL_PLUGIN_PATH:$PWD/$p
+  GRL_PLUGIN_PATH=$GRL_PLUGIN_PATH${GRL_PLUGIN_PATH:+:}$PWD/$p
 done
 
 export GRL_PLUGIN_PATH

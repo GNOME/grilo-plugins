@@ -3,7 +3,7 @@
 #
 # Author: Iago Toral Quiroga <itoral@igalia.com>
 #
-# Copyright (C) 2010 Igalia S.L. All rights reserved.
+# Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
 lib_LTLIBRARIES	= libgrlupnp.la
 
@@ -25,16 +25,11 @@ libgrlupnp_la_LDFLAGS = \
 	-module		\
 	-avoid-version
 
-if GUPNPAV_OLD_VERSION
-libgrlupnp_la_CFLAGS +=	\
-	-DGUPNPAV_OLD_VERSION
-else
 libgrlupnp_la_CFLAGS +=	\
 	$(XML_CFLAGS)
 
 libgrlupnp_la_LIBADD +=	\
 	$(XML_LIBS)
-endif
 
 libgrlupnp_la_SOURCES = grl-upnp.c grl-upnp.h
 

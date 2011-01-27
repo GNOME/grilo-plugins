@@ -79,9 +79,9 @@ fi
 # HARD DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.26.0 \
-			  gobject-2.0 \
-			  gmodule-2.0 \
+PKG_CHECK_MODULES([DEPS], glib-2.0      \
+			  gobject-2.0   \
+			  gmodule-2.0   \
 			  ${GRL_NAME} = 0.1.7)
 
 # ----------------------------------------------------------
@@ -130,6 +130,10 @@ PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
                                   [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
                                                                      HAVE_TRACKER_SPARQL=yes,
                                                                      HAVE_TRACKER_SPARQL=no)])
+
+PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
+                             HAVE_GLIB_2_26=yes,
+                             HAVE_GLIB_2_26=no)
 
 # ----------------------------------------------------------
 # GDATA VERSION
@@ -665,11 +669,14 @@ AC_ARG_ENABLE(tracker,
                         if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
                            AC_MSG_ERROR([tracker-sparql-0.9 not found, install it or use --disable-tracker])
                         fi
+                        if test "x$HAVE_GLIB_2_26" = "xno"; then
+                           AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-tracker])
+                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_TRACKER_SPARQL" = "xyes"; then
+                if test "x$HAVE_TRACKER_SPARQL" = "xyes" -a "x$HAVE_GLIB_2_26" = "xyes"; then
                    enable_tracker=yes
                 else
                    enable_tracker=no

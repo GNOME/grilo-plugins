@@ -77,6 +77,8 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 struct _GrlFilesystemSourcePrivate {
   GList *chosen_paths;
   guint max_search_depth;
+  /* a mapping operation_id -> GCancellable to cancel this operation */
+  GHashTable *cancellables;
 };
 
 /* --- Data types --- */
@@ -87,6 +89,8 @@ typedef struct {
   GList *current;
   const gchar *path;
   guint remaining;
+  GCancellable *cancellable;
+  guint id;
 }  BrowseIdleData;
 
 /* probably not thread-safe */
@@ -97,6 +101,8 @@ typedef struct {
   guint skipped;
   guint max_depth;
   GQueue *trees;
+  GCancellable *cancellable;
+  guint id;
 } SearchOperation;
 
 typedef struct {
@@ -130,6 +136,9 @@ static gboolean grl_filesystem_test_media_from_uri (GrlMediaSource *source,
 
 static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
                                                GrlMediaSourceMediaFromUriSpec *mfus);
+
+static void grl_filesystem_source_cancel (GrlMediaSource *source,
+                                          guint operation_id);
 
 /* =================== Filesystem Plugin  =============== */
 
@@ -198,6 +207,7 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_filesystem_source_browse;
   source_class->search = grl_filesystem_source_search;
+  source_class->cancel = grl_filesystem_source_cancel;
   source_class->metadata = grl_filesystem_source_metadata;
   source_class->test_media_from_uri = grl_filesystem_test_media_from_uri;
   source_class->media_from_uri = grl_filesystem_get_media_from_uri;
@@ -210,6 +220,7 @@ static void
 grl_filesystem_source_init (GrlFilesystemSource *source)
 {
   source->priv = GRL_FILESYSTEM_SOURCE_GET_PRIVATE (source);
+  source->priv->cancellables = g_hash_table_new (NULL, NULL);
 }
 
 static void
@@ -218,6 +229,7 @@ grl_filesystem_source_finalize (GObject *object)
   GrlFilesystemSource *filesystem_source = GRL_FILESYSTEM_SOURCE (object);
   g_list_foreach (filesystem_source->priv->chosen_paths, (GFunc) g_free, NULL);
   g_list_free (filesystem_source->priv->chosen_paths);
+  g_hash_table_unref (filesystem_source->priv->cancellables);
   G_OBJECT_CLASS (grl_filesystem_source_parent_class)->finalize (object);
 }
 
@@ -467,10 +479,21 @@ browse_emit_idle (gpointer user_data)
 {
   BrowseIdleData *idle_data;
   guint count;
+  GrlFilesystemSource *fs_source;
 
   GRL_DEBUG ("browse_emit_idle");
 
   idle_data = (BrowseIdleData *) user_data;
+  fs_source = GRL_FILESYSTEM_SOURCE (idle_data->spec->source);
+
+  if (g_cancellable_is_cancelled (idle_data->cancellable)) {
+    GRL_DEBUG ("Browse operation %d (\"%s\") has been cancelled",
+               idle_data->id, idle_data->path);
+    idle_data->spec->callback(idle_data->spec->source,
+                              idle_data->id, NULL, 0,
+                              idle_data->spec->user_data, NULL);
+    goto finish;
+  }
 
   count = 0;
   do {
@@ -495,13 +518,18 @@ browse_emit_idle (gpointer user_data)
     count++;
   } while (count < BROWSE_IDLE_CHUNK_SIZE && idle_data->current);
 
-  if (!idle_data->current) {
+  if (!idle_data->current)
+    goto finish;
+
+  return TRUE;
+
+finish:
     g_list_free (idle_data->entries);
+    g_hash_table_remove (fs_source->priv->cancellables,
+                         GUINT_TO_POINTER (idle_data->id));
+    g_object_unref (idle_data->cancellable);
     g_slice_free (BrowseIdleData, idle_data);
     return FALSE;
-  } else {
-    return TRUE;
-  }
 }
 
 static void
@@ -572,6 +600,12 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
     idle_data->path = path;
     idle_data->entries = entries;
     idle_data->current = entries;
+    idle_data->cancellable = g_cancellable_new ();
+    idle_data->id = bs->browse_id;
+    g_hash_table_insert (GRL_FILESYSTEM_SOURCE (bs->source)->priv->cancellables,
+                         GUINT_TO_POINTER (bs->browse_id),
+                         idle_data->cancellable);
+
     g_idle_add (browse_emit_idle, idle_data);
   } else {
     /* No results */
@@ -615,11 +649,17 @@ search_operation_new (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss, guin
 
   operation = g_new (SearchOperation, 1);
   operation->source = source;
+  operation->id = ss->search_id;
   operation->ss = ss;
   operation->found_count = 0;
   operation->skipped = 0;
   operation->max_depth = max_depth;
   operation->trees = g_queue_new ();
+  operation->cancellable = g_cancellable_new ();
+
+  g_hash_table_insert (GRL_FILESYSTEM_SOURCE (source)->priv->cancellables,
+                       GUINT_TO_POINTER (operation->id),
+                       operation->cancellable);
 
   return operation;
 }
@@ -627,8 +667,14 @@ search_operation_new (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss, guin
 static void
 search_operation_free (SearchOperation *operation)
 {
+  GrlFilesystemSource *source;
+  source = GRL_FILESYSTEM_SOURCE (operation->source);
+
   g_queue_foreach (operation->trees, (GFunc)search_tree_free, NULL);
   g_queue_free (operation->trees);
+  g_hash_table_remove (source->priv->cancellables,
+                       GUINT_TO_POINTER (operation->id));
+  g_object_unref (operation->cancellable);
   g_free (operation);
 }
 
@@ -702,7 +748,8 @@ got_file (GFileEnumerator *enumerator, GAsyncResult *res, SearchTree *tree)
 
   files = g_file_enumerator_next_files_finish (enumerator, res, &error);
   if (error) {
-    GRL_WARNING ("Got error while searching: %s", error->message);
+    if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+      GRL_WARNING ("Got error while searching: %s", error->message);
     g_error_free (error);
     goto finished;
   }
@@ -746,7 +793,8 @@ got_file (GFileEnumerator *enumerator, GAsyncResult *res, SearchTree *tree)
     goto finished;
   }
 
-  g_file_enumerator_next_files_async (enumerator, 1, G_PRIORITY_DEFAULT, NULL,
+  g_file_enumerator_next_files_async (enumerator, 1, G_PRIORITY_DEFAULT,
+                                      tree->operation->cancellable,
                                      (GAsyncReadyCallback)got_file, tree);
 
   return;
@@ -778,7 +826,8 @@ got_children (GFile *directory, GAsyncResult *res, SearchTree *tree)
     return;
   }
 
-  g_file_enumerator_next_files_async (enumerator, 1, G_PRIORITY_DEFAULT, NULL,
+  g_file_enumerator_next_files_async (enumerator, 1, G_PRIORITY_DEFAULT,
+                                      tree->operation->cancellable,
                                      (GAsyncReadyCallback)got_file, tree);
 }
 
@@ -794,6 +843,16 @@ search_next_directory (SearchOperation *operation)
     goto finished;
   }
 
+  if (g_cancellable_is_cancelled (operation->cancellable)) {
+    /* We've been cancelled! */
+    /* FIXME: set here a cancelled error when we have one */
+    GRL_DEBUG ("Search operation %d (\"%s\") has been cancelled",
+               operation->id, ss->text);
+    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
+    operation->ss = NULL;
+    goto finished;
+  }
+
   tree = g_queue_pop_head (operation->trees);
   if (!tree) { /* We've crawled everything, before reaching count */
     ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
@@ -806,7 +865,7 @@ search_next_directory (SearchOperation *operation)
                                    G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
                                    G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                    G_PRIORITY_DEFAULT,
-                                   NULL,
+                                   operation->cancellable,
                                    (GAsyncReadyCallback)got_children,
                                    tree);
 
@@ -1008,3 +1067,18 @@ beach:
   g_free (path);
 }
 
+static void
+grl_filesystem_source_cancel (GrlMediaSource *source, guint operation_id)
+{
+  GCancellable *cancellable;
+  GrlFilesystemSourcePrivate *priv;
+
+  priv = GRL_FILESYSTEM_SOURCE (source)->priv;
+
+  /* TODO ensure we add/remove stuff to priv->cancellables at the right places */
+  cancellable =
+      G_CANCELLABLE (g_hash_table_lookup (priv->cancellables,
+                                          GUINT_TO_POINTER (operation_id)));
+  if (cancellable)
+    g_cancellable_cancel (cancellable);
+}

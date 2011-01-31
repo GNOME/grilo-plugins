@@ -1075,7 +1075,6 @@ grl_filesystem_source_cancel (GrlMediaSource *source, guint operation_id)
 
   priv = GRL_FILESYSTEM_SOURCE (source)->priv;
 
-  /* TODO ensure we add/remove stuff to priv->cancellables at the right places */
   cancellable =
       G_CANCELLABLE (g_hash_table_lookup (priv->cancellables,
                                           GUINT_TO_POINTER (operation_id)));

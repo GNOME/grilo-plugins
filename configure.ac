@@ -695,6 +695,41 @@ AC_SUBST(TRACKER_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([TRACKER_PLUGIN_ID], ["$TRACKER_PLUGIN_ID"], [Tracker plugin ID])
 
 # ----------------------------------------------------------
+# BUILD LOCAL METADATA PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(localmetadata,
+        AC_HELP_STRING([--enable-localmetadata],
+                [enable local-metadata plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([gio-2.0 not found, install it or use --disable-localmetadata])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GIO" = "xyes"; then
+                   enable_localmetadata=yes
+                else
+                   enable_localmetadata=no
+                fi
+        ])
+
+AM_CONDITIONAL([LOCALMETADATA_PLUGIN], [test "x$enable_localmetadata" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL localmetadata"
+if test "x$enable_localmetadata" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED localmetadata"
+fi
+
+LOCALMETADATA_PLUGIN_ID="grl-local-metadata"
+AC_SUBST(LOCALMETADATA_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([LOCALMETADATA_PLUGIN_ID], ["$LOCALMETADATA_PLUGIN_ID"], [Local metadata plugin ID])
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -733,6 +768,7 @@ AC_CONFIG_FILES([
   src/vimeo/Makefile
   src/gravatar/Makefile
   src/tracker/Makefile
+  src/local-metadata/Makefile
   test/Makefile
 ])
 

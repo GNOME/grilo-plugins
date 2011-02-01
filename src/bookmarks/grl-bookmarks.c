@@ -76,7 +76,7 @@ GRL_LOG_DOMAIN_STATIC(bookmarks_log_domain);
 
 #define GRL_SQL_STORE_BOOKMARK				  \
   "INSERT INTO bookmarks "				  \
-  "(parent, type, title, url, date, desc, mime) "	  \
+  "(parent, type, url, title, date, mime, desc) "	  \
   "VALUES (?, ?, ?, ?, ?, ?, ?)"
 
 #define GRL_SQL_REMOVE_BOOKMARK			\
@@ -134,7 +134,7 @@ enum {
   BOOKMARK_DATE,
   BOOKMARK_MIME,
   BOOKMARK_DESC,
-  BOOKMARK_LAST
+  BOOKMARK_CHILDCOUNT
 };
 
 struct _GrlBookmarksPrivate {
@@ -334,7 +334,7 @@ build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
   date = (gchar *) sqlite3_column_text (sql_stmt, BOOKMARK_DATE);
   mime = (gchar *) sqlite3_column_text (sql_stmt, BOOKMARK_MIME);
   type = (guint) sqlite3_column_int (sql_stmt, BOOKMARK_TYPE);
-  childcount = (guint) sqlite3_column_int (sql_stmt, BOOKMARK_LAST);
+  childcount = (guint) sqlite3_column_int (sql_stmt, BOOKMARK_CHILDCOUNT);
 
   if (!media) {
     if (type == BOOKMARK_TYPE_CATEGORY) {
@@ -609,28 +609,28 @@ store_bookmark (sqlite3 *db,
     type = BOOKMARK_TYPE_STREAM;
   }
 
-  sqlite3_bind_text (sql_stmt, 1, parent_id, -1, SQLITE_STATIC);
-  sqlite3_bind_int (sql_stmt, 2, type);
-  sqlite3_bind_text (sql_stmt, 3, title, -1, SQLITE_STATIC);
+  sqlite3_bind_text (sql_stmt, BOOKMARK_PARENT, parent_id, -1, SQLITE_STATIC);
+  sqlite3_bind_int (sql_stmt, BOOKMARK_TYPE, type);
   if (type == BOOKMARK_TYPE_STREAM) {
-    sqlite3_bind_text (sql_stmt, 4, url, -1, SQLITE_STATIC);
+    sqlite3_bind_text (sql_stmt, BOOKMARK_URL, url, -1, SQLITE_STATIC);
   } else {
-    sqlite3_bind_null (sql_stmt, 4);
+    sqlite3_bind_null (sql_stmt, BOOKMARK_URL);
   }
+  sqlite3_bind_text (sql_stmt, BOOKMARK_TITLE, title, -1, SQLITE_STATIC);
   if (date) {
-    sqlite3_bind_text (sql_stmt, 5, date, -1, SQLITE_STATIC);
+    sqlite3_bind_text (sql_stmt, BOOKMARK_DATE, date, -1, SQLITE_STATIC);
   } else {
-    sqlite3_bind_null (sql_stmt, 5);
+    sqlite3_bind_null (sql_stmt, BOOKMARK_DATE);
   }
   if (mime) {
-    sqlite3_bind_text (sql_stmt, 6, mime, -1, SQLITE_STATIC);
+    sqlite3_bind_text (sql_stmt, BOOKMARK_MIME, mime, -1, SQLITE_STATIC);
   } else {
-    sqlite3_bind_null (sql_stmt, 6);
+    sqlite3_bind_null (sql_stmt, BOOKMARK_MIME);
   }
   if (desc) {
-    sqlite3_bind_text (sql_stmt, 7, desc, -1, SQLITE_STATIC);
+    sqlite3_bind_text (sql_stmt, BOOKMARK_DESC, desc, -1, SQLITE_STATIC);
   } else {
-    sqlite3_bind_null (sql_stmt, 7);
+    sqlite3_bind_null (sql_stmt, BOOKMARK_DESC);
   }
 
   while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);

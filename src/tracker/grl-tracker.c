@@ -321,6 +321,8 @@ tracker_evt_update_process_item_cb (GObject              *object,
                              NULL);
       grl_tracker_add_source (GRL_TRACKER_SOURCE (plugin));
       g_free (source_name);
+    } else {
+      GRL_DEBUG ("\tChanges on source %p / %s", plugin, datasource);
     }
   } else if (!source_mounted && plugin != NULL) {
     grl_tracker_del_source (GRL_TRACKER_SOURCE (plugin));
@@ -363,8 +365,9 @@ tracker_evt_update_process (tracker_evt_update_t *evt)
 
   GRL_DEBUG ("%s", __FUNCTION__);
 
+  evt->updated_items_iter = evt->updated_items_list;
   g_string_append_printf (request_str, "%i",
-                          GPOINTER_TO_INT (evt->updated_items_iter));
+                          GPOINTER_TO_INT (evt->updated_items_iter->data));
   evt->updated_items_iter = evt->updated_items_iter->next;
 
   while (evt->updated_items_iter != NULL) {
@@ -424,6 +427,7 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
                                                GSIZE_TO_POINTER (subject));
   }
   g_variant_iter_free (iter1);
+
 
   while (g_variant_iter_loop (iter2, "(iiii)", &graph,
                               &subject, &predicate, &object)) {

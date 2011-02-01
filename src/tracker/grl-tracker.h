@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef _GRL_TRACKER_SOURCE_H_
-#define _GRL_TRACKER_SOURCE_H_
+#ifndef _GRL_TRACKER_H_
+#define _GRL_TRACKER_H_
 
 #include <grilo.h>
 
@@ -75,4 +75,4 @@ struct _GrlTrackerSourceClass {
 
 GType grl_tracker_source_get_type (void);
 
-#endif /* _GRL_TRACKER_SOURCE_H_ */
+#endif /* _GRL_TRACKER_H_ */

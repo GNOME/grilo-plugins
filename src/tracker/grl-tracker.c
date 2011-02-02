@@ -113,6 +113,18 @@ enum {
   "OFFSET %i "                                   \
   "LIMIT %i"
 
+#define TRACKER_SEARCH_ALL_REQUEST               \
+  "SELECT rdf:type(?urn) %s "                    \
+  "WHERE "                                       \
+  "{ "                                           \
+  "?urn a nfo:Media . "                          \
+  "?urn tracker:available ?tr . "                \
+  "%s "                                          \
+  "} "                                           \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "   \
+  "OFFSET %i "                                   \
+  "LIMIT %i"
+
 #define TRACKER_BROWSE_CATEGORY_REQUEST                                 \
   "SELECT rdf:type(?urn) %s "                                           \
   "WHERE "                                                              \
@@ -1389,22 +1401,20 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
-  GError               *error = NULL;
   struct OperationSpec *os;
 
   GRL_DEBUG ("%s: id=%u", __FUNCTION__, ss->search_id);
 
-  if (!ss->text || ss->text[0] == '\0') {
-    error = g_error_new_literal (GRL_CORE_ERROR,
-                                 GRL_CORE_ERROR_QUERY_FAILED,
-                                 "Empty search");
-    goto send_error;
-  }
-
   constraint = tracker_source_get_device_constraint (priv);
   sparql_select = get_select_string (source, ss->keys);
-  sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
-                                  ss->text, constraint, ss->skip, ss->count);
+  if (!ss->text || ss->text[0] == '\0') {
+    /* Search all */
+    sparql_final = g_strdup_printf (TRACKER_SEARCH_ALL_REQUEST, sparql_select,
+                                    constraint, ss->skip, ss->count);
+  } else {
+    sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
+                                    ss->text, constraint, ss->skip, ss->count);
+  }
 
   GRL_DEBUG ("select: '%s'", sparql_final);
 
@@ -1424,12 +1434,6 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   g_free (constraint);
   g_free (sparql_select);
   g_free (sparql_final);
-
-  return;
-
- send_error:
-  ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
-  g_error_free (error);
 }
 
 static void

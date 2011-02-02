@@ -95,7 +95,8 @@ GRL_LOG_DOMAIN_STATIC(bookmarks_log_domain);
   "SELECT b1.*, count(b2.parent <> '') "			\
   "FROM bookmarks b1 LEFT OUTER JOIN bookmarks b2 "		\
   "  ON b1.id = b2.parent "					\
-  "WHERE b1.title LIKE '%%%s%%' OR b1.desc LIKE '%%%s%%' "	\
+  "WHERE (b1.title LIKE '%%%s%%' OR b1.desc LIKE '%%%s%%') "	\
+  "  AND b1.type = 1 "                                          \
   "GROUP BY b1.id "						\
   "LIMIT %u OFFSET %u"
 
@@ -508,7 +509,10 @@ produce_bookmarks_by_text (OperationSpec *os, const gchar *text)
   gchar *sql;
   GRL_DEBUG ("produce_bookmarks_by_text");
   sql = g_strdup_printf (GRL_SQL_GET_BOOKMARKS_BY_TEXT,
-			 text, text, os->count, os->skip);    
+			 text? text: "",
+                         text? text: "",
+                         os->count,
+                         os->skip);
   produce_bookmarks_from_sql (os, sql);
   g_free (sql);
 }

@@ -126,8 +126,8 @@ enum {
   "LIMIT %i"
 
 #define TRACKER_METADATA_REQUEST                                    \
-  "SELECT %s "                                                      \
-  "WHERE { ?urn nie:isStoredAs <%s> }"                              \
+  "SELECT %s "							    \
+  "WHERE { ?urn a nie:DataObject . FILTER (?urn = <%s>) }"
 
 typedef struct {
   GrlKeyID     grl_key;

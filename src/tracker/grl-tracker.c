@@ -839,7 +839,7 @@ setup_key_mappings (void)
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_ID,
-                      "nie:isStoredAs(?urn)",
+                      "?urn",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_LAST_PLAYED,

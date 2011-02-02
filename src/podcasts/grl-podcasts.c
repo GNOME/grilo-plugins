@@ -73,14 +73,6 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
   "GROUP BY p.id "					\
   "LIMIT %u OFFSET %u"
 
-#define GRL_SQL_GET_PODCASTS_BY_TEXT				\
-  "SELECT p.*, count(s.podcast <> '') "				\
-  "FROM podcasts p LEFT OUTER JOIN streams s "			\
-  "  ON p.id = s.podcast "					\
-  "WHERE p.title LIKE '%%%s%%' OR p.desc LIKE '%%%s%%' "	\
-  "GROUP BY p.id "						\
-  "LIMIT %u OFFSET %u"
-
 #define GRL_SQL_GET_PODCASTS_BY_QUERY				\
   "SELECT p.*, count(s.podcast <> '') "				\
   "FROM podcasts p LEFT OUTER JOIN streams s "			\
@@ -119,6 +111,14 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
   "SELECT * FROM streams "                      \
   "WHERE podcast='%s' "                         \
   "LIMIT %u  OFFSET %u"
+
+#define GRL_SQL_GET_PODCAST_STREAMS_BY_TEXT                     \
+  "SELECT s.* "                                                 \
+  "FROM streams s LEFT OUTER JOIN podcasts p "			\
+  "  ON s.podcast = p.id "					\
+  "WHERE s.title LIKE '%%%s%%' OR s.desc LIKE '%%%s%%' "	\
+  "  OR p.title LIKE '%%%s%%' OR p.desc LIKE '%%%s%%' "         \
+  "LIMIT %u OFFSET %u"
 
 #define GRL_SQL_GET_PODCAST_STREAM              \
   "SELECT * FROM streams "                      \
@@ -634,8 +634,15 @@ produce_podcast_contents_from_db (OperationSpec *os)
   GRL_DEBUG ("produce_podcast_contents_from_db");
 
   db = GRL_PODCASTS_SOURCE (os->source)->priv->db;
-  sql = g_strdup_printf (GRL_SQL_GET_PODCAST_STREAMS,
-			 os->media_id, os->count, os->skip);
+  /* Check if searching or browsing */
+  if (os->is_query) {
+    sql = g_strdup_printf (GRL_SQL_GET_PODCAST_STREAMS_BY_TEXT,
+                           os->text, os->text, os->text, os->text,
+                           os->count, os->skip);
+  } else {
+    sql = g_strdup_printf (GRL_SQL_GET_PODCAST_STREAMS,
+                           os->media_id, os->count, os->skip);
+  }
   GRL_DEBUG ("%s", sql);
   r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
   g_free (sql);
@@ -1190,17 +1197,13 @@ produce_podcasts (OperationSpec *os)
 
   db = GRL_PODCASTS_SOURCE (os->source)->priv->db;
 
-  if (!os->text) {
-    /* Browse */
-    sql = g_strdup_printf (GRL_SQL_GET_PODCASTS, os->count, os->skip);
-  } else if (os->is_query) {
+  if (os->is_query) {
     /* Query */
     sql = g_strdup_printf (GRL_SQL_GET_PODCASTS_BY_QUERY,
 			   os->text, os->count, os->skip);
   } else {
-    /* Search */
-    sql = g_strdup_printf (GRL_SQL_GET_PODCASTS_BY_TEXT,
-			   os->text, os->text, os->count, os->skip);
+    /* Browse */
+    sql = g_strdup_printf (GRL_SQL_GET_PODCASTS, os->count, os->skip);
   }
   GRL_DEBUG ("%s", sql);
   r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
@@ -1437,8 +1440,9 @@ grl_podcasts_source_search (GrlMediaSource *source,
   os->skip = ss->skip;
   os->callback = ss->callback;
   os->user_data = ss->user_data;
+  os->is_query = TRUE;
   os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
-  produce_podcasts (os);
+  produce_podcast_contents_from_db (os);
   g_slice_free (OperationSpec, os);
 }
 

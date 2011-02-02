@@ -120,6 +120,10 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
   "  OR p.title LIKE '%%%s%%' OR p.desc LIKE '%%%s%%' "         \
   "LIMIT %u OFFSET %u"
 
+#define GRL_SQL_GET_PODCAST_STREAMS_ALL         \
+  "SELECT * FROM streams "                      \
+  "LIMIT %u OFFSET %u"
+
 #define GRL_SQL_GET_PODCAST_STREAM              \
   "SELECT * FROM streams "                      \
   "WHERE url='%s' "                             \
@@ -636,9 +640,16 @@ produce_podcast_contents_from_db (OperationSpec *os)
   db = GRL_PODCASTS_SOURCE (os->source)->priv->db;
   /* Check if searching or browsing */
   if (os->is_query) {
-    sql = g_strdup_printf (GRL_SQL_GET_PODCAST_STREAMS_BY_TEXT,
-                           os->text, os->text, os->text, os->text,
-                           os->count, os->skip);
+    if (os->text) {
+      /* Search text */
+      sql = g_strdup_printf (GRL_SQL_GET_PODCAST_STREAMS_BY_TEXT,
+                             os->text, os->text, os->text, os->text,
+                             os->count, os->skip);
+    } else {
+      /* Return all */
+      sql = g_strdup_printf (GRL_SQL_GET_PODCAST_STREAMS_ALL,
+                             os->count, os->skip);
+    }
   } else {
     sql = g_strdup_printf (GRL_SQL_GET_PODCAST_STREAMS,
                            os->media_id, os->count, os->skip);

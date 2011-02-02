@@ -385,8 +385,20 @@ grl_vimeo_source_search (GrlMediaSource *source,
 			 GrlMediaSourceSearchSpec *ss)
 {
   SearchData *sd;
+  GError *error;
   gint per_page;
   GVimeo *vimeo = GRL_VIMEO_SOURCE (source)->priv->vimeo;
+
+  if (!ss->text) {
+    /* Vimeo does not support searching all */
+    error =
+      g_error_new_literal (GRL_CORE_ERROR,
+                           GRL_CORE_ERROR_SEARCH_NULL_UNSUPPORTED,
+                           "Unable to execute search: non NULL search text is required");
+    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
+    g_error_free (error);
+    return;
+  }
 
   /* Compute items per page and page offset */
   per_page = CLAMP (1 + ss->skip + ss->count, 0, 100);

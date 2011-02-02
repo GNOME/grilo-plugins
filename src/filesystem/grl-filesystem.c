@@ -684,7 +684,10 @@ compare_and_return_file (SearchOperation *operation,
                          GFileEnumerator *enumerator,
                          GFileInfo *file_info)
 {
-  gchar *needle, *haystack, *normalized_needle, *normalized_haystack;
+  gchar *needle = NULL;
+  gchar *haystack = NULL;
+  gchar *normalized_needle = NULL;
+  gchar *normalized_haystack = NULL;
   GrlMediaSourceSearchSpec *ss = operation->ss;
 
   GRL_DEBUG ("compare_and_return_file");
@@ -692,13 +695,16 @@ compare_and_return_file (SearchOperation *operation,
   if (ss == NULL)
     return FALSE;
 
-  haystack = g_utf8_casefold (g_file_info_get_display_name (file_info), -1);
-  normalized_haystack = g_utf8_normalize (haystack, -1, G_NORMALIZE_ALL);
+  if (ss->text) {
+    haystack = g_utf8_casefold (g_file_info_get_display_name (file_info), -1);
+    normalized_haystack = g_utf8_normalize (haystack, -1, G_NORMALIZE_ALL);
 
-  needle = g_utf8_casefold (ss->text, -1);
-  normalized_needle = g_utf8_normalize (needle, -1, G_NORMALIZE_ALL);
+    needle = g_utf8_casefold (ss->text, -1);
+    normalized_needle = g_utf8_normalize (needle, -1, G_NORMALIZE_ALL);
+  }
 
-  if (strstr (normalized_haystack, normalized_needle)) {
+  if (!ss->text ||
+      strstr (normalized_haystack, normalized_needle)) {
     GrlMedia *media = NULL;
     GFile *dir, *file;
     gchar *path;

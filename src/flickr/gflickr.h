@@ -100,6 +100,12 @@ g_flickr_photos_search (GFlickr *f,
                         GFlickrListCb callback,
                         gpointer user_data);
 
+void
+g_flickr_photos_getRecent (GFlickr *f,
+                           gint page,
+                           GFlickrListCb callback,
+                           gpointer user_data);
+
 gchar *
 g_flickr_photo_url_original (GFlickr *f, GHashTable *photo);
 

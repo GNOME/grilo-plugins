@@ -25,17 +25,18 @@
 #define FLICKR_PHOTO_LARGEST_URL                        \
   "http://farm%s.static.flickr.com/%s/%s_%s_b.jpg"
 
-#define FLICKR_ENDPOINT "http://api.flickr.com/services/rest/?"
+#define FLICKR_ENDPOINT  "http://api.flickr.com/services/rest/?"
 #define FLICKR_AUTHPOINT "http://flickr.com/services/auth/?"
 
-#define FLICKR_PHOTOS_SEARCH_METHOD "flickr.photos.search"
-#define FLICKR_PHOTOS_GETINFO_METHOD "flickr.photos.getInfo"
-#define FLICKR_PHOTOSETS_GETLIST_METHOD "flickr.photosets.getList"
+#define FLICKR_PHOTOS_SEARCH_METHOD       "flickr.photos.search"
+#define FLICKR_PHOTOS_GETINFO_METHOD      "flickr.photos.getInfo"
+#define FLICKR_PHOTOS_GETRECENT_METHOD    "flickr.photos.getRecent"
+#define FLICKR_PHOTOSETS_GETLIST_METHOD   "flickr.photosets.getList"
 #define FLICKR_PHOTOSETS_GETPHOTOS_METHOD "flickr.photosets.getPhotos"
-#define FLICKR_TAGS_GETHOTLIST_METHOD "flickr.tags.getHotList"
-#define FLICKR_AUTH_GETFROB_METHOD "flickr.auth.getFrob"
-#define FLICKR_AUTH_GETTOKEN_METHOD "flickr.auth.getToken"
-#define FLICKR_AUTH_CHECKTOKEN_METHOD "flickr.auth.checkToken"
+#define FLICKR_TAGS_GETHOTLIST_METHOD     "flickr.tags.getHotList"
+#define FLICKR_AUTH_GETFROB_METHOD        "flickr.auth.getFrob"
+#define FLICKR_AUTH_GETTOKEN_METHOD       "flickr.auth.getToken"
+#define FLICKR_AUTH_CHECKTOKEN_METHOD     "flickr.auth.checkToken"
 
 #define FLICKR_PHOTOS_SEARCH                            \
   FLICKR_ENDPOINT                                       \
@@ -48,6 +49,16 @@
   "&page=%d"                                            \
   "&tags=%s"                                            \
   "&text=%s"                                            \
+  "%s"
+
+#define FLICKR_PHOTOS_GETRECENT                         \
+  FLICKR_ENDPOINT                                       \
+  "api_key=%s"                                          \
+  "&api_sig=%s"                                         \
+  "&method=" FLICKR_PHOTOS_GETRECENT_METHOD             \
+  "&extras=media,date_taken,owner_name,url_o,url_t"     \
+  "&per_page=%d"                                        \
+  "&page=%d"                                            \
   "%s"
 
 #define FLICKR_PHOTOSETS_GETLIST                \
@@ -725,6 +736,57 @@ g_flickr_photos_search (GFlickr *f,
                                     page,
                                     tags,
                                     text,
+                                    auth);
+  g_free (api_sig);
+  g_free (auth);
+
+  GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd->flickr = g_object_ref (f);
+  gfd->parse_xml = process_photolist_result;
+  gfd->list_cb = callback;
+  gfd->user_data = user_data;
+
+  read_url_async (f, request, gfd);
+  g_free (request);
+}
+
+void
+g_flickr_photos_getRecent (GFlickr *f,
+                           gint page,
+                           GFlickrListCb callback,
+                           gpointer user_data)
+{
+  gchar *auth;
+  g_return_if_fail (G_IS_FLICKR (f));
+
+  gchar *strpage = g_strdup_printf ("%d", page);
+  gchar *strperpage = g_strdup_printf ("%d", f->priv->per_page);
+
+  gchar *api_sig =
+    get_api_sig (f->priv->auth_secret,
+                 "api_key", f->priv->api_key,
+                 "extras", "media,date_taken,owner_name,url_o,url_t",
+                 "method", FLICKR_PHOTOS_GETRECENT_METHOD,
+                 "page", strpage,
+                 "per_page", strperpage,
+                 f->priv->auth_token? "auth_token": "",
+                 f->priv->auth_token? f->priv->auth_token: "",
+                 NULL);
+  g_free (strpage);
+  g_free (strperpage);
+
+  /* Build the request */
+  if (f->priv->auth_token) {
+    auth = g_strdup_printf ("&auth_token=%s", f->priv->auth_token);
+  } else {
+    auth = g_strdup ("");
+  }
+
+  gchar *request = g_strdup_printf (FLICKR_PHOTOS_GETRECENT,
+                                    f->priv->api_key,
+                                    api_sig,
+                                    f->priv->per_page,
+                                    page,
                                     auth);
   g_free (api_sig);
   g_free (auth);

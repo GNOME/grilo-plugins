@@ -712,7 +712,7 @@ get_thumbnail (GList *nodes)
       if (is_image (node)) {
         if (val)
           g_free (val);
-        val = xmlNodeGetContent (node);
+        val = (gchar *) xmlNodeGetContent (node);
 
         if (has_thumbnail_marker (node))  /* that's definitely it! */
           return val;

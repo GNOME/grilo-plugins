@@ -67,6 +67,9 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
   "upnp:album contains \"%s\" or "			\
   "upnp:artist contains \"%s\""
 
+#define UPNP_SEARCH_ALL                         \
+  "upnp:class derivedfrom \"object.item\""
+
 struct _GrlUpnpPrivate {
   GUPnPDeviceProxy* device;
   GUPnPServiceProxy* service;
@@ -488,7 +491,11 @@ get_upnp_filter (const GList *keys)
 static gchar *
 get_upnp_search (const gchar *text)
 {
-  return g_strdup_printf (UPNP_SEARCH_SPEC, text, text, text);
+  if (text) {
+    return g_strdup_printf (UPNP_SEARCH_SPEC, text, text, text);
+  } else {
+    return g_strdup (UPNP_SEARCH_ALL);
+  }
 }
 
 static void

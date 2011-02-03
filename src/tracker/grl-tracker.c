@@ -407,9 +407,10 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
 
   g_variant_get (parameters, "(&sa(iiii)a(iiii))", &class_name, &iter1, &iter2);
 
-  GRL_DEBUG ("\tTracker update event for class=%s ins=%li del=%li",
-             class_name, g_variant_iter_n_children (iter1),
-             g_variant_iter_n_children (iter2));
+  GRL_DEBUG ("\tTracker update event for class=%s ins=%lu del=%lu",
+             class_name,
+             (unsigned long) g_variant_iter_n_children (iter1),
+             (unsigned long) g_variant_iter_n_children (iter2));
 
   while (g_variant_iter_loop (iter1, "(iiii)", &graph,
                               &subject, &predicate, &object)) {

@@ -137,9 +137,9 @@ enum {
   "OFFSET %i "                                                          \
   "LIMIT %i"
 
-#define TRACKER_METADATA_REQUEST                                    \
-  "SELECT %s "							    \
-  "WHERE { ?urn a nie:DataObject . FILTER (?urn = <%s>) }"
+#define TRACKER_METADATA_REQUEST					\
+  "SELECT %s "								\
+  "WHERE { ?urn a nie:DataObject . FILTER (tracker:id(?urn) = %s) }"
 
 typedef struct {
   GrlKeyID     grl_key;
@@ -852,7 +852,7 @@ setup_key_mappings (void)
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_ID,
-                      "?urn",
+                      "tracker:id(?urn)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_LAST_PLAYED,

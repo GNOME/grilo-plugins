@@ -79,6 +79,9 @@ struct _GrlFilesystemSourcePrivate {
   guint max_search_depth;
   /* a mapping operation_id -> GCancellable to cancel this operation */
   GHashTable *cancellables;
+  /* Monitors for changes in directories */
+  GList *monitors;
+  GCancellable *cancellable_monitors;
 };
 
 /* --- Data types --- */
@@ -145,6 +148,12 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
 static void grl_filesystem_source_cancel (GrlMediaSource *source,
                                           guint operation_id);
 
+static gboolean grl_filesystem_source_notify_change_start (GrlMediaSource *source,
+                                                           GError **error);
+
+static gboolean grl_filesystem_source_notify_change_stop (GrlMediaSource *source,
+                                                          GError **error);
+
 /* =================== Filesystem Plugin  =============== */
 
 gboolean
@@ -161,10 +170,6 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
   GRL_DEBUG ("filesystem_plugin_init");
 
   GrlFilesystemSource *source = grl_filesystem_source_new ();
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_MEDIA_PLUGIN (source),
-                                       NULL);
 
   for (; configs; configs = g_list_next (configs)) {
     gchar *path;
@@ -179,6 +184,11 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
   }
   source->priv->chosen_paths = chosen_paths;
   source->priv->max_search_depth = max_search_depth;
+
+  grl_plugin_registry_register_source (registry,
+                                       plugin,
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
 
   return TRUE;
 }
@@ -213,6 +223,8 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   source_class->browse = grl_filesystem_source_browse;
   source_class->search = grl_filesystem_source_search;
   source_class->cancel = grl_filesystem_source_cancel;
+  source_class->notify_change_start = grl_filesystem_source_notify_change_start;
+  source_class->notify_change_stop = grl_filesystem_source_notify_change_stop;
   source_class->metadata = grl_filesystem_source_metadata;
   source_class->test_media_from_uri = grl_filesystem_test_media_from_uri;
   source_class->media_from_uri = grl_filesystem_get_media_from_uri;
@@ -241,6 +253,8 @@ grl_filesystem_source_finalize (GObject *object)
 /* ======================= Utilities ==================== */
 
 static void recursive_operation_next_entry (RecursiveOperation *operation);
+static void add_monitor (GrlFilesystemSource *fs_source, GFile *dir);
+static void cancel_monitors (GrlFilesystemSource *fs_source);
 
 static gboolean
 mime_is_video (const gchar *mime)
@@ -312,11 +326,11 @@ file_is_valid_content (const gchar *path, gboolean fast)
       } else {
 	type = g_file_info_get_file_type (info);
 	mime = g_file_info_get_content_type (info);
-	if (type == G_FILE_TYPE_DIRECTORY || mime_is_media (mime)) {
-	  is_media = TRUE;
-	} else {
-	  is_media = FALSE;
-	}
+        if (type == G_FILE_TYPE_DIRECTORY || mime_is_media (mime)) {
+          is_media = TRUE;
+        } else {
+          is_media = FALSE;
+        }
       }
     }
     g_object_unref (info);
@@ -822,17 +836,50 @@ finished:
   recursive_operation_free (operation);
 }
 
+static void
+recursive_operation_initialize (RecursiveOperation *operation, GrlFilesystemSource *source)
+{
+  GList *chosen_paths, *path;
+
+  chosen_paths = source->priv->chosen_paths;
+  if (chosen_paths) {
+    for (path = chosen_paths; path; path = g_list_next (path)) {
+      GFile *directory = g_file_new_for_path (path->data);
+      g_queue_push_tail (operation->directories,
+                         recursive_entry_new (0, directory));
+      g_object_unref (directory);
+    }
+  } else {
+    const gchar *home;
+    GFile *directory;
+
+    home = g_getenv ("HOME");
+    directory = g_file_new_for_path (home);
+    g_queue_push_tail (operation->directories,
+                       recursive_entry_new (0, directory));
+    g_object_unref (directory);
+  }
+}
+
 static gboolean
 cancel_cb (GFileInfo *file_info, RecursiveOperation *operation)
 {
+  GrlFilesystemSource *fs_source;
+
   if (operation->on_file_data) {
     GrlMediaSourceSearchSpec *ss =
       (GrlMediaSourceSearchSpec *) operation->on_file_data;
-    g_hash_table_remove (GRL_FILESYSTEM_SOURCE (ss->source)->priv->cancellables,
+    fs_source = GRL_FILESYSTEM_SOURCE (ss->source);
+    g_hash_table_remove (fs_source->priv->cancellables,
                          GUINT_TO_POINTER (ss->search_id));
     ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
   }
 
+  if (operation->on_dir_data) {
+    /* Remove all monitors */
+    fs_source = GRL_FILESYSTEM_SOURCE (operation->on_dir_data);
+    cancel_monitors (fs_source);
+  }
   return FALSE;
 }
 
@@ -845,6 +892,10 @@ finish_cb (GFileInfo *file_info, RecursiveOperation *operation)
     g_hash_table_remove (GRL_FILESYSTEM_SOURCE (ss->source)->priv->cancellables,
                          GUINT_TO_POINTER (ss->search_id));
     ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
+  }
+
+  if (operation->on_dir_data) {
+    GRL_FILESYSTEM_SOURCE (operation->on_dir_data)->priv->cancellable_monitors = NULL;
   }
 
   return FALSE;
@@ -911,6 +962,146 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
   return remaining == -1;
 }
 
+static void
+notify_parent_change (GrlMediaSource *source, GFile *child, GrlMediaSourceChangeType change)
+{
+  GFile *parent;
+  GrlMedia *media;
+  gchar *parent_path;
+
+  parent = g_file_get_parent (child);
+  if (parent) {
+    parent_path = g_file_get_path (parent);
+  } else {
+    parent_path = g_strdup ("/");
+  }
+
+  media = create_content (NULL, parent_path, GRL_RESOLVE_FAST_ONLY, parent == NULL);
+  grl_media_source_notify_change (source, media, change, FALSE);
+  g_object_unref (media);
+
+  if (parent) {
+    g_object_unref (parent);
+  }
+  g_free (parent_path);
+}
+
+static void
+directory_changed (GFileMonitor *monitor,
+                   GFile *file,
+                   GFile *other_file,
+                   GFileMonitorEvent event,
+                   gpointer data)
+{
+  GrlMediaSource *source = GRL_MEDIA_SOURCE (data);
+  gchar *file_path, *other_file_path;
+  gchar *file_parent_path, *other_file_parent_path;
+  GFile *file_parent, *other_file_parent;
+  GFileInfo *file_info;
+
+  if (event == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT ||
+      event == G_FILE_MONITOR_EVENT_CREATED) {
+    file_path = g_file_get_path (file);
+    if (file_is_valid_content (file_path, TRUE)) {
+      notify_parent_change (source,
+                            file,
+                            (event == G_FILE_MONITOR_EVENT_CREATED)? GRL_CONTENT_ADDED: GRL_CONTENT_CHANGED);
+      if (event == G_FILE_MONITOR_EVENT_CREATED) {
+        file_info = g_file_query_info (file,
+                                       G_FILE_ATTRIBUTE_STANDARD_TYPE,
+                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                       NULL,
+                                       NULL);
+        if (file_info) {
+          if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+            add_monitor (GRL_FILESYSTEM_SOURCE (source), file);
+          }
+          g_object_unref (file_info);
+        }
+      }
+    }
+    g_free (file_path);
+  } else if (event == G_FILE_MONITOR_EVENT_DELETED) {
+    notify_parent_change (source, file, GRL_CONTENT_REMOVED);
+  } else if (event == G_FILE_MONITOR_EVENT_MOVED) {
+    other_file_path = g_file_get_path (other_file);
+    if (file_is_valid_content (other_file_path, TRUE)) {
+      file_parent = g_file_get_parent (file);
+      if (file_parent) {
+        file_parent_path = g_file_get_path (file_parent);
+        g_object_unref (file_parent);
+      } else {
+        file_parent_path = NULL;
+      }
+      other_file_parent = g_file_get_parent (other_file);
+      if (other_file_parent) {
+        other_file_parent_path = g_file_get_path (other_file_parent);
+        g_object_unref (other_file_parent);
+      } else {
+        other_file_parent_path = NULL;
+      }
+
+      if (g_strcmp0 (file_parent_path, other_file_parent_path) == 0) {
+        notify_parent_change (source, file, GRL_CONTENT_CHANGED);
+      } else {
+        notify_parent_change (source, file, GRL_CONTENT_REMOVED);
+        notify_parent_change (source, other_file, GRL_CONTENT_ADDED);
+      }
+    }
+    g_free (file_parent_path);
+    g_free (other_file_parent_path);
+  }
+}
+
+static void
+cancel_monitors (GrlFilesystemSource *fs_source)
+{
+  g_list_foreach (fs_source->priv->monitors,
+                  (GFunc) g_file_monitor_cancel,
+                  NULL);
+  g_list_foreach (fs_source->priv->monitors,
+                  (GFunc) g_object_unref,
+                  NULL);
+  g_list_free (fs_source->priv->monitors);
+  fs_source->priv->monitors = NULL;
+}
+
+static void
+add_monitor (GrlFilesystemSource *fs_source, GFile *dir)
+{
+  GFileMonitor *monitor;
+
+  monitor = g_file_monitor_directory (dir, G_FILE_MONITOR_SEND_MOVED, NULL, NULL);
+  if (monitor) {
+    fs_source->priv->monitors = g_list_prepend (fs_source->priv->monitors,
+                                                monitor);
+    g_signal_connect (monitor,
+                      "changed",
+                      G_CALLBACK (directory_changed),
+                      fs_source);
+  } else {
+    GRL_DEBUG ("Unable to set up monitor in %s\n", g_file_get_path (dir));
+  }
+}
+
+static gboolean
+directory_cb (GFileInfo *dir_info, RecursiveOperation *operation)
+{
+  RecursiveEntry *entry;
+  GFile *dir;
+  GrlFilesystemSource *fs_source;
+
+  fs_source = GRL_FILESYSTEM_SOURCE (operation->on_dir_data);
+  entry = g_queue_peek_head (operation->directories);
+  dir = g_file_get_child (entry->directory,
+                          g_file_info_get_name (dir_info));
+
+  add_monitor (fs_source, dir);
+  g_object_unref (dir);
+
+  return TRUE;
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -969,7 +1160,6 @@ static void grl_filesystem_source_search (GrlMediaSource *source,
                                           GrlMediaSourceSearchSpec *ss)
 {
   RecursiveOperation *operation;
-  GList *chosen_paths, *path;
   GrlFilesystemSource *fs_source;
 
   GRL_DEBUG ("grl_filesystem_source_search");
@@ -986,25 +1176,7 @@ static void grl_filesystem_source_search (GrlMediaSource *source,
                        GUINT_TO_POINTER (ss->search_id),
                        operation->cancellable);
 
-  chosen_paths = fs_source->priv->chosen_paths;
-  if (chosen_paths) {
-    for (path = chosen_paths; path; path = g_list_next (path)) {
-      GFile *directory = g_file_new_for_path (path->data);
-      g_queue_push_tail (operation->directories,
-                         recursive_entry_new (0, directory));
-      g_object_unref (directory);
-    }
-  } else {
-    const gchar *home;
-    GFile *directory;
-
-    home = g_getenv ("HOME");
-    directory = g_file_new_for_path (home);
-    g_queue_push_tail (operation->directories,
-                       recursive_entry_new (0, directory));
-    g_object_unref (directory);
-  }
-
+  recursive_operation_initialize (operation, fs_source);
   recursive_operation_next_entry (operation);
 }
 
@@ -1121,4 +1293,47 @@ grl_filesystem_source_cancel (GrlMediaSource *source, guint operation_id)
                                           GUINT_TO_POINTER (operation_id)));
   if (cancellable)
     g_cancellable_cancel (cancellable);
+}
+
+static gboolean
+grl_filesystem_source_notify_change_start (GrlMediaSource *source,
+                                           GError **error)
+{
+  GrlFilesystemSource *fs_source;
+  RecursiveOperation *operation;
+
+  GRL_DEBUG (__func__);
+
+  fs_source = GRL_FILESYSTEM_SOURCE (source);
+  operation = recursive_operation_new ();
+  operation->on_cancel = cancel_cb;
+  operation->on_finish = finish_cb;
+  operation->on_dir = directory_cb;
+  operation->on_dir_data = fs_source;
+  operation->max_depth = fs_source->priv->max_search_depth;
+
+  fs_source->priv->cancellable_monitors = operation->cancellable;
+
+  recursive_operation_initialize (operation, fs_source);
+  recursive_operation_next_entry (operation);
+
+  return TRUE;
+}
+
+static gboolean
+grl_filesystem_source_notify_change_stop (GrlMediaSource *source,
+                                          GError **error)
+{
+  GrlFilesystemSource *fs_source = GRL_FILESYSTEM_SOURCE (source);
+
+  /* Check if notifying is being initialized */
+  if (fs_source->priv->cancellable_monitors) {
+    g_cancellable_cancel (fs_source->priv->cancellable_monitors);
+    fs_source->priv->cancellable_monitors = NULL;
+  } else {
+    /* Cancel and remove all monitors */
+    cancel_monitors (fs_source);
+  }
+
+  return TRUE;
 }

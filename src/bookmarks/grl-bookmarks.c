@@ -140,6 +140,7 @@ enum {
 
 struct _GrlBookmarksPrivate {
   sqlite3 *db;
+  gboolean notify_changes;
 };
 
 typedef struct {
@@ -174,60 +175,68 @@ static void grl_bookmarks_source_store (GrlMediaSource *source,
 static void grl_bookmarks_source_remove (GrlMediaSource *source,
 					 GrlMediaSourceRemoveSpec *rs);
 
-/* =================== Bookmarks Plugin  =============== */
+static gboolean grl_bookmarks_source_notify_change_start (GrlMediaSource *source,
+                                                          GError **error);
 
-static gboolean
-grl_bookmarks_plugin_init (GrlPluginRegistry *registry,
-                           const GrlPluginInfo *plugin,
-                           GList *configs)
-{
-  GRL_LOG_DOMAIN_INIT (bookmarks_log_domain, "bookmarks");
+static gboolean grl_bookmarks_source_notify_change_stop (GrlMediaSource *source,
+                                                         GError **error);
 
-  GRL_DEBUG ("grl_bookmarks_plugin_init");
+ /* =================== Bookmarks Plugin  =============== */
 
-  GrlBookmarksSource *source = grl_bookmarks_source_new ();
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_MEDIA_PLUGIN (source),
-                                       NULL);
-  return TRUE;
-}
+ static gboolean
+ grl_bookmarks_plugin_init (GrlPluginRegistry *registry,
+                            const GrlPluginInfo *plugin,
+                            GList *configs)
+ {
+   GRL_LOG_DOMAIN_INIT (bookmarks_log_domain, "bookmarks");
 
-GRL_PLUGIN_REGISTER (grl_bookmarks_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+   GRL_DEBUG ("grl_bookmarks_plugin_init");
 
-/* ================== Bookmarks GObject ================ */
+   GrlBookmarksSource *source = grl_bookmarks_source_new ();
+   grl_plugin_registry_register_source (registry,
+                                        plugin,
+                                        GRL_MEDIA_PLUGIN (source),
+                                        NULL);
+   return TRUE;
+ }
 
-static GrlBookmarksSource *
-grl_bookmarks_source_new (void)
-{
-  GRL_DEBUG ("grl_bookmarks_source_new");
-  return g_object_new (GRL_BOOKMARKS_SOURCE_TYPE,
-		       "source-id", SOURCE_ID,
-		       "source-name", SOURCE_NAME,
-		       "source-desc", SOURCE_DESC,
-		       NULL);
-}
+ GRL_PLUGIN_REGISTER (grl_bookmarks_plugin_init,
+                      NULL,
+                      PLUGIN_ID);
 
-static void
-grl_bookmarks_source_class_init (GrlBookmarksSourceClass * klass)
-{
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+ /* ================== Bookmarks GObject ================ */
 
-  gobject_class->finalize = grl_bookmarks_source_finalize;
+ static GrlBookmarksSource *
+ grl_bookmarks_source_new (void)
+ {
+   GRL_DEBUG ("grl_bookmarks_source_new");
+   return g_object_new (GRL_BOOKMARKS_SOURCE_TYPE,
+                        "source-id", SOURCE_ID,
+                        "source-name", SOURCE_NAME,
+                        "source-desc", SOURCE_DESC,
+                        NULL);
+ }
 
-  metadata_class->supported_operations =
-    grl_bookmarks_source_supported_operations;
+ static void
+ grl_bookmarks_source_class_init (GrlBookmarksSourceClass * klass)
+ {
+   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
+   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
 
-  source_class->browse = grl_bookmarks_source_browse;
-  source_class->search = grl_bookmarks_source_search;
-  source_class->query = grl_bookmarks_source_query;
-  source_class->store = grl_bookmarks_source_store;
-  source_class->remove = grl_bookmarks_source_remove;
-  source_class->metadata = grl_bookmarks_source_metadata;
+   gobject_class->finalize = grl_bookmarks_source_finalize;
+
+   metadata_class->supported_operations =
+     grl_bookmarks_source_supported_operations;
+
+   source_class->browse = grl_bookmarks_source_browse;
+   source_class->search = grl_bookmarks_source_search;
+   source_class->query = grl_bookmarks_source_query;
+   source_class->store = grl_bookmarks_source_store;
+   source_class->remove = grl_bookmarks_source_remove;
+   source_class->metadata = grl_bookmarks_source_metadata;
+   source_class->notify_change_start = grl_bookmarks_source_notify_change_start;
+   source_class->notify_change_stop = grl_bookmarks_source_notify_change_stop;
 
   metadata_class->supported_keys = grl_bookmarks_source_supported_keys;
 
@@ -529,7 +538,9 @@ produce_bookmarks_from_category (OperationSpec *os, const gchar *category_id)
 }
 
 static void
-remove_bookmark (sqlite3 *db, const gchar *bookmark_id, GError **error)
+remove_bookmark (GrlBookmarksSource *bookmarks_source,
+                 const gchar *bookmark_id,
+                 GError **error)
 {
   gint r;
   gchar *sql_error;
@@ -539,7 +550,7 @@ remove_bookmark (sqlite3 *db, const gchar *bookmark_id, GError **error)
 
   sql = g_strdup_printf (GRL_SQL_REMOVE_BOOKMARK, bookmark_id, bookmark_id);
   GRL_DEBUG ("%s", sql);
-  r = sqlite3_exec (db, sql, NULL, NULL, &sql_error);
+  r = sqlite3_exec (bookmarks_source->priv->db, sql, NULL, NULL, &sql_error);
   g_free (sql);
 
   if (r != SQLITE_OK) {
@@ -552,11 +563,22 @@ remove_bookmark (sqlite3 *db, const gchar *bookmark_id, GError **error)
 
   /* Remove orphan nodes from database */
   GRL_DEBUG ("%s", GRL_SQL_REMOVE_ORPHAN);
-  r = sqlite3_exec (db, GRL_SQL_REMOVE_ORPHAN, NULL, NULL, NULL);
+  r = sqlite3_exec (bookmarks_source->priv->db,
+                    GRL_SQL_REMOVE_ORPHAN,
+                    NULL, NULL, NULL);
+
+  if (bookmarks_source->priv->notify_changes) {
+    /* We can improve accuracy computing the parent container of removed
+       element */
+    grl_media_source_notify_change (GRL_MEDIA_SOURCE (bookmarks_source),
+                                    NULL,
+                                    GRL_CONTENT_REMOVED,
+                                    TRUE);
+  }
 }
 
 static void
-store_bookmark (sqlite3 *db,
+store_bookmark (GrlBookmarksSource *bookmarks_source,
 		GrlMediaBox *parent,
 		GrlMedia *bookmark,
 		GError **error)
@@ -592,13 +614,13 @@ store_bookmark (sqlite3 *db,
   }
 
   GRL_DEBUG ("%s", GRL_SQL_STORE_BOOKMARK);
-  r = sqlite3_prepare_v2 (db,
+  r = sqlite3_prepare_v2 (bookmarks_source->priv->db,
 			  GRL_SQL_STORE_BOOKMARK,
 			  strlen (GRL_SQL_STORE_BOOKMARK),
 			  &sql_stmt, NULL);
   if (r != SQLITE_OK) {
     GRL_WARNING ("Failed to store bookmark '%s': %s", title,
-                 sqlite3_errmsg (db));
+                 sqlite3_errmsg (bookmarks_source->priv->db));
     *error = g_error_new (GRL_CORE_ERROR,
 			  GRL_CORE_ERROR_STORE_FAILED,
 			  "Failed to store bookmark '%s'", title);
@@ -641,7 +663,7 @@ store_bookmark (sqlite3 *db,
 
   if (r != SQLITE_DONE) {
     GRL_WARNING ("Failed to store bookmark '%s': %s", title,
-                 sqlite3_errmsg (db));
+                 sqlite3_errmsg (bookmarks_source->priv->db));
     *error = g_error_new (GRL_CORE_ERROR,
 			  GRL_CORE_ERROR_STORE_FAILED,
 			  "Failed to store bookmark '%s'", title);
@@ -651,9 +673,17 @@ store_bookmark (sqlite3 *db,
 
   sqlite3_finalize (sql_stmt);
 
-  id = g_strdup_printf ("%llu", sqlite3_last_insert_rowid (db));
+  id = g_strdup_printf ("%llu",
+                        sqlite3_last_insert_rowid (bookmarks_source->priv->db));
   grl_media_set_id (bookmark, id);
   g_free (id);
+
+  if (bookmarks_source->priv->notify_changes) {
+    grl_media_source_notify_change (GRL_MEDIA_SOURCE (bookmarks_source),
+                                    GRL_MEDIA (parent),
+                                    GRL_CONTENT_ADDED,
+                                    FALSE);
+  }
 }
 
 /* ================== API Implementation ================ */
@@ -779,7 +809,7 @@ grl_bookmarks_source_store (GrlMediaSource *source, GrlMediaSourceStoreSpec *ss)
   GRL_DEBUG ("grl_bookmarks_source_store");
   /* FIXME: Try to guess bookmark mime somehow */
   GError *error = NULL;
-  store_bookmark (GRL_BOOKMARKS_SOURCE (ss->source)->priv->db,
+  store_bookmark (GRL_BOOKMARKS_SOURCE (ss->source),
 		  ss->parent, ss->media, &error);
   ss->callback (ss->source, ss->parent, ss->media, ss->user_data, error);
   if (error) {
@@ -792,7 +822,7 @@ static void grl_bookmarks_source_remove (GrlMediaSource *source,
 {
   GRL_DEBUG ("grl_bookmarks_source_remove");
   GError *error = NULL;
-  remove_bookmark (GRL_BOOKMARKS_SOURCE (rs->source)->priv->db,
+  remove_bookmark (GRL_BOOKMARKS_SOURCE (rs->source),
 		   rs->media_id, &error);
   rs->callback (rs->source, rs->media, rs->user_data, error);
   if (error) {
@@ -830,7 +860,29 @@ grl_bookmarks_source_supported_operations (GrlMetadataSource *metadata_source)
 
   source = GRL_BOOKMARKS_SOURCE (metadata_source);
   caps = GRL_OP_BROWSE | GRL_OP_METADATA | GRL_OP_SEARCH | GRL_OP_QUERY |
-    GRL_OP_STORE | GRL_OP_STORE_PARENT | GRL_OP_REMOVE;
+    GRL_OP_STORE | GRL_OP_STORE_PARENT | GRL_OP_REMOVE | GRL_OP_NOTIFY_CHANGE;
 
   return caps;
+}
+
+static gboolean
+grl_bookmarks_source_notify_change_start (GrlMediaSource *source,
+                                          GError **error)
+{
+  GrlBookmarksSource *bookmarks_source = GRL_BOOKMARKS_SOURCE (source);
+
+  bookmarks_source->priv->notify_changes = TRUE;
+
+  return TRUE;
+}
+
+static gboolean
+grl_bookmarks_source_notify_change_stop (GrlMediaSource *source,
+                                         GError **error)
+{
+  GrlBookmarksSource *bookmarks_source = GRL_BOOKMARKS_SOURCE (source);
+
+  bookmarks_source->priv->notify_changes = FALSE;
+
+  return TRUE;
 }

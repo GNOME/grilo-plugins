@@ -190,6 +190,7 @@ typedef struct {
 struct _GrlPodcastsPrivate {
   sqlite3 *db;
   GrlNetWc *wc;
+  gboolean notify_changes;
 };
 
 typedef struct {
@@ -234,6 +235,10 @@ static void grl_podcasts_source_store (GrlMediaSource *source,
                                        GrlMediaSourceStoreSpec *ss);
 static void grl_podcasts_source_remove (GrlMediaSource *source,
                                         GrlMediaSourceRemoveSpec *rs);
+static gboolean grl_podcasts_source_notify_change_start (GrlMediaSource *source,
+                                                         GError **error);
+static gboolean grl_podcasts_source_notify_change_stop (GrlMediaSource *source,
+                                                        GError **error);
 
 /* =================== Podcasts Plugin  =============== */
 
@@ -286,6 +291,8 @@ grl_podcasts_source_class_init (GrlPodcastsSourceClass * klass)
   source_class->metadata = grl_podcasts_source_metadata;
   source_class->store = grl_podcasts_source_store;
   source_class->remove = grl_podcasts_source_remove;
+  source_class->notify_change_start = grl_podcasts_source_notify_change_start;
+  source_class->notify_change_stop = grl_podcasts_source_notify_change_stop;
 
   metadata_class->supported_keys = grl_podcasts_source_supported_keys;
 
@@ -730,7 +737,9 @@ remove_podcast_streams (sqlite3 *db, const gchar *podcast_id, GError **error)
 }
 
 static void
-remove_podcast (sqlite3 *db, const gchar *podcast_id, GError **error)
+remove_podcast (GrlPodcastsSource *podcasts_source,
+                const gchar *podcast_id,
+                GError **error)
 {
   gint r;
   gchar *sql_error;
@@ -738,27 +747,35 @@ remove_podcast (sqlite3 *db, const gchar *podcast_id, GError **error)
 
   GRL_DEBUG ("remove_podcast");
 
-  remove_podcast_streams (db, podcast_id, error);
+  remove_podcast_streams (podcasts_source->priv->db, podcast_id, error);
   if (*error) {
     return;
   }
 
   sql = g_strdup_printf (GRL_SQL_REMOVE_PODCAST, podcast_id);
   GRL_DEBUG ("%s", sql);
-  r = sqlite3_exec (db, sql, NULL, NULL, &sql_error);
+  r = sqlite3_exec (podcasts_source->priv->db, sql, NULL, NULL, &sql_error);
   g_free (sql);
 
   if (r != SQLITE_OK) {
     GRL_WARNING ("Failed to remove podcast '%s': %s", podcast_id, sql_error);
-    *error = g_error_new (GRL_CORE_ERROR,
-			  GRL_CORE_ERROR_REMOVE_FAILED,
-			  "Failed to remove podcast");
+    g_set_error_literal (error,
+                         GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_REMOVE_FAILED,
+                         "Failed to remove podcast");
     sqlite3_free (sql_error);
+  } else if (podcasts_source->priv->notify_changes) {
+    grl_media_source_notify_change (GRL_MEDIA_SOURCE (podcasts_source),
+                                    NULL,
+                                    GRL_CONTENT_REMOVED,
+                                    TRUE);
   }
 }
 
 static void
-remove_stream (sqlite3 *db, const gchar *url, GError **error)
+remove_stream (GrlPodcastsSource *podcasts_source,
+               const gchar *url,
+               GError **error)
 {
   gint r;
   gchar *sql_error;
@@ -768,20 +785,28 @@ remove_stream (sqlite3 *db, const gchar *url, GError **error)
 
   sql = g_strdup_printf (GRL_SQL_REMOVE_STREAM, url);
   GRL_DEBUG ("%s", sql);
-  r = sqlite3_exec (db, sql, NULL, NULL, &sql_error);
+  r = sqlite3_exec (podcasts_source->priv->db, sql, NULL, NULL, &sql_error);
   g_free (sql);
 
   if (r != SQLITE_OK) {
     GRL_WARNING ("Failed to remove podcast stream '%s': %s", url, sql_error);
-    *error = g_error_new (GRL_CORE_ERROR,
-			  GRL_CORE_ERROR_REMOVE_FAILED,
-			  "Failed to remove podcast stream");
+    g_set_error_literal (error,
+                         GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_REMOVE_FAILED,
+                         "Failed to remove podcast stream");
     sqlite3_free (sql_error);
+  } else if (podcasts_source->priv->notify_changes) {
+    grl_media_source_notify_change (GRL_MEDIA_SOURCE (podcasts_source),
+                                    NULL,
+                                    GRL_CONTENT_REMOVED,
+                                    TRUE);
   }
 }
 
 static void
-store_podcast (sqlite3 *db, GrlMedia *podcast, GError **error)
+store_podcast (GrlPodcastsSource *podcasts_source,
+               GrlMedia *podcast,
+               GError **error)
 {
   gint r;
   sqlite3_stmt *sql_stmt = NULL;
@@ -797,16 +822,17 @@ store_podcast (sqlite3 *db, GrlMedia *podcast, GError **error)
   desc = grl_media_get_description (podcast);
 
   GRL_DEBUG ("%s", GRL_SQL_STORE_PODCAST);
-  r = sqlite3_prepare_v2 (db,
+  r = sqlite3_prepare_v2 (podcasts_source->priv->db,
 			  GRL_SQL_STORE_PODCAST,
 			  strlen (GRL_SQL_STORE_PODCAST),
 			  &sql_stmt, NULL);
   if (r != SQLITE_OK) {
     GRL_WARNING ("Failed to store podcast '%s': %s", title,
-                 sqlite3_errmsg (db));
-    *error = g_error_new (GRL_CORE_ERROR,
-			  GRL_CORE_ERROR_STORE_FAILED,
-			  "Failed to store podcast '%s'", title);
+                 sqlite3_errmsg (podcasts_source->priv->db));
+    g_set_error (error,
+                 GRL_CORE_ERROR,
+                 GRL_CORE_ERROR_STORE_FAILED,
+                 "Failed to store podcast '%s'", title);
     return;
   }
 
@@ -822,19 +848,28 @@ store_podcast (sqlite3 *db, GrlMedia *podcast, GError **error)
 
   if (r != SQLITE_DONE) {
     GRL_WARNING ("Failed to store podcast '%s': %s", title,
-                 sqlite3_errmsg (db));
-    *error = g_error_new (GRL_CORE_ERROR,
-			  GRL_CORE_ERROR_STORE_FAILED,
-			  "Failed to store podcast '%s'", title);
+                 sqlite3_errmsg (podcasts_source->priv->db));
+    g_set_error (error,
+                 GRL_CORE_ERROR,
+                 GRL_CORE_ERROR_STORE_FAILED,
+                 "Failed to store podcast '%s'", title);
     sqlite3_finalize (sql_stmt);
     return;
   }
 
   sqlite3_finalize (sql_stmt);
 
-  id = g_strdup_printf ("%llu", sqlite3_last_insert_rowid (db));
+  id = g_strdup_printf ("%llu",
+                        sqlite3_last_insert_rowid (podcasts_source->priv->db));
   grl_media_set_id (podcast, id);
   g_free (id);
+
+  if (podcasts_source->priv->notify_changes) {
+    grl_media_source_notify_change (GRL_MEDIA_SOURCE (podcasts_source),
+                                    NULL,
+                                    GRL_CONTENT_ADDED,
+                                    FALSE);
+  }
 }
 
 static void
@@ -961,7 +996,7 @@ parse_entry_idle (gpointer user_data)
       /* Hack: if we emit the last result now the UI may request more results
 	 right away while we are still parsing the XML, so we keep the last
 	 result until we are done processing the whole feed, this way when
-	 the next query arrives all the stuff is stored in the database 
+	 the next query arrives all the stuff is stored in the database
 	 and the query can be resolved normally */
       if (remaining > 0) {
 	osp->os->callback (osp->os->source,
@@ -993,20 +1028,30 @@ parse_entry_idle (gpointer user_data)
 		       0,
 		       osp->os->user_data,
 		       NULL);
-    
+    /* Notify about changes */
+    if (GRL_PODCASTS_SOURCE (osp->os->source)->priv->notify_changes) {
+      media = grl_media_box_new ();
+      grl_media_set_id (media, osp->os->media_id);
+      grl_media_source_notify_change (osp->os->source,
+                                      media,
+                                      GRL_CONTENT_CHANGED,
+                                      FALSE);
+      g_object_unref (media);
+    }
     g_slice_free (OperationSpec, osp->os);
     xmlXPathFreeObject (osp->xpathObj);
     xmlXPathFreeContext (osp->xpathCtx);
     xmlFreeDoc (osp->doc);
     g_slice_free (OperationSpecParse, osp);
   }
-  
+
   return osp->parse_index < osp->parse_count;
 }
 
 static void
 parse_feed (OperationSpec *os, const gchar *str, GError **error)
 {
+  GrlMedia *podcast = NULL;
   xmlDocPtr doc = NULL;
   xmlXPathContextPtr xpathCtx = NULL;
   xmlXPathObjectPtr xpathObj = NULL;
@@ -1058,6 +1103,15 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   GRL_DEBUG ("Got %d streams", stream_count);
   
   if (stream_count <= 0) {
+    if (GRL_PODCASTS_SOURCE (os->source)->priv->notify_changes) {
+      podcast = grl_media_box_new ();
+      grl_media_set_id (podcast, os->media_id);
+      grl_media_source_notify_change (os->source,
+                                      podcast,
+                                      GRL_CONTENT_CHANGED,
+                                      FALSE);
+      g_object_unref (podcast);
+    }
     os->callback (os->source,
 		  os->operation_id,
 		  NULL,
@@ -1530,7 +1584,7 @@ grl_podcasts_source_store (GrlMediaSource *source, GrlMediaSourceStoreSpec *ss)
 			 GRL_CORE_ERROR_STORE_FAILED,
 			 "Cannot create containers. Only feeds are accepted.");
   } else {
-    store_podcast (GRL_PODCASTS_SOURCE (ss->source)->priv->db,
+    store_podcast (GRL_PODCASTS_SOURCE (ss->source),
 		   ss->media,
 		   &error);
   }
@@ -1547,14 +1601,36 @@ grl_podcasts_source_remove (GrlMediaSource *source,
   GRL_DEBUG ("grl_podcasts_source_remove");
   GError *error = NULL;
   if (media_id_is_podcast (rs->media_id)) {
-    remove_podcast (GRL_PODCASTS_SOURCE (rs->source)->priv->db,
+    remove_podcast (GRL_PODCASTS_SOURCE (rs->source),
 		    rs->media_id, &error);
   } else {
-    remove_stream (GRL_PODCASTS_SOURCE (rs->source)->priv->db,
+    remove_stream (GRL_PODCASTS_SOURCE (rs->source),
 		   rs->media_id, &error);
   }
   rs->callback (rs->source, rs->media, rs->user_data, error);
   if (error) {
     g_error_free (error);
   }
+}
+
+static gboolean
+grl_podcasts_source_notify_change_start (GrlMediaSource *source,
+                                         GError **error)
+{
+  GrlPodcastsSource *podcasts_source = GRL_PODCASTS_SOURCE (source);
+
+  podcasts_source->priv->notify_changes = TRUE;
+
+  return TRUE;
+}
+
+static gboolean
+grl_podcasts_source_notify_change_stop (GrlMediaSource *source,
+                                        GError **error)
+{
+  GrlPodcastsSource *podcasts_source = GRL_PODCASTS_SOURCE (source);
+
+  podcasts_source->priv->notify_changes = FALSE;
+
+  return TRUE;
 }

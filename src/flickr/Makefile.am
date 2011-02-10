@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES	= libgrlflickr.la
+libplugin_LTLIBRARIES	= libgrlflickr.la
 
 libgrlflickr_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\

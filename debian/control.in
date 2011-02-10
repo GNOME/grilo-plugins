@@ -23,6 +23,7 @@ Description: Grilo framework plugins
   - Flickr
   - Jamendo
   - Last.fm (for album arts)
+  - Local metadata (album arts and thumbnails)
   - Metadata Store
   - Podcasts
   - SHOUTcast

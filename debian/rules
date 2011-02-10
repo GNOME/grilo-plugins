@@ -16,6 +16,7 @@ DEB_CONFIGURE_EXTRA_FLAGS :=		\
 	--enable-gravatar		\
 	--enable-jamendo		\
 	--enable-lastfm-albumart	\
+	--enable-localmetadata		\
 	--enable-metadata-store		\
 	--enable-podcasts		\
 	--enable-shoutcast		\

@@ -1,3 +1,19 @@
+grilo-0.1-plugins (0.1.9-1) unstable; urgency=low
+
+  * General: implemented NULL-text search (search all)
+  * Bookmarks plugin: fixed saving/loading content from database, added
+    content-changed notification
+  * Filesystem plugin: added cancellation support, added content-changed
+    notification
+  * Flickr plugin: fixed Makefile.am
+  * Local metadata plugin: new plugin that provides covers and thumbnails from
+    local filesystem
+  * Podcasts plugin: fixed search, added content-changed notification
+  * Tracker plugin: several fixes and improvements
+  * UPnP plugin: fixed warning, added content-changed notification
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Thu, 10 Feb 2011 19:14:14 +0100
+
 grilo-0.1-plugins (0.1.8-1) unstable; urgency=low
 
   * General: use the new GrlConfig rework

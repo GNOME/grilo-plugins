@@ -67,10 +67,14 @@ if TRACKER_PLUGIN
 SUBDIRS += tracker
 endif
 
+if LOCALMETADATA_PLUGIN
+SUBDIRS += local-metadata
+endif
+
 DIST_SUBDIRS =									\
 	youtube fake-metadata filesystem jamendo lastfm-albumart upnp flickr	\
 	podcasts bookmarks shoutcast apple-trailers metadata-store vimeo	\
-	gravatar tracker
+	gravatar tracker local-metadata
 
 MAINTAINERCLEANFILES =	\
         *.in		\

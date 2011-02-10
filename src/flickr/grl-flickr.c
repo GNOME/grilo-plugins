@@ -737,11 +737,19 @@ grl_flickr_source_search (GrlMediaSource *source,
   od->user_data = ss->user_data;
   od->count = ss->count;
   od->operation_id = ss->search_id;
-  g_flickr_photos_search (f,
-                          od->user_id,
-                          ss->text,
-                          NULL,
-                          od->page,
-                          search_cb,
-                          od);
+
+  if (od->user_id || od->text) {
+    g_flickr_photos_search (f,
+                            od->user_id,
+                            ss->text,
+                            NULL,
+                            od->page,
+                            search_cb,
+                            od);
+  } else {
+    g_flickr_photos_getRecent (f,
+                               od->page,
+                               search_cb,
+                               od);
+  }
 }

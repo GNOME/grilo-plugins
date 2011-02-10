@@ -67,6 +67,9 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
   "upnp:album contains \"%s\" or "			\
   "upnp:artist contains \"%s\""
 
+#define UPNP_SEARCH_ALL                         \
+  "upnp:class derivedfrom \"object.item\""
+
 struct _GrlUpnpPrivate {
   GUPnPDeviceProxy* device;
   GUPnPServiceProxy* service;
@@ -120,6 +123,12 @@ static void grl_upnp_source_metadata (GrlMediaSource *source,
                                       GrlMediaSourceMetadataSpec *ms);
 
 static GrlSupportedOps grl_upnp_source_supported_operations (GrlMetadataSource *source);
+
+static gboolean grl_upnp_source_notify_change_start (GrlMediaSource *source,
+                                                     GError **error);
+
+static gboolean grl_upnp_source_notify_change_stop (GrlMediaSource *source,
+                                                    GError **error);
 
 static void context_available_cb (GUPnPContextManager *context_manager,
 				  GUPnPContext *context,
@@ -221,6 +230,8 @@ grl_upnp_source_class_init (GrlUpnpSourceClass * klass)
   source_class->search = grl_upnp_source_search;
   source_class->query = grl_upnp_source_query;
   source_class->metadata = grl_upnp_source_metadata;
+  source_class->notify_change_start = grl_upnp_source_notify_change_start;
+  source_class->notify_change_stop = grl_upnp_source_notify_change_stop;
 
   g_type_class_add_private (klass, sizeof (GrlUpnpPrivate));
 
@@ -265,6 +276,34 @@ free_source_info (struct SourceInfo *info)
   g_object_unref (info->device);
   g_object_unref (info->service);
   g_slice_free (struct SourceInfo, info);
+}
+
+static void
+container_changed_cb (GUPnPServiceProxy *proxy,
+                      const char *variable,
+                      GValue *value,
+                      gpointer user_data)
+{
+  GrlMedia *container;
+  GrlMediaSource *source = GRL_MEDIA_SOURCE (user_data);
+  gchar **tokens;
+  gint i = 0;
+
+  GRL_DEBUG (__func__);
+
+  /* Value is a list of pairs (id, number), where "id" is the container id */
+  tokens = g_strsplit (g_value_get_string (value), ",", -1);
+  while (tokens[i]) {
+    container = grl_media_box_new ();
+    grl_media_set_id (container, tokens[i]);
+    grl_media_source_notify_change (source,
+                                    container,
+                                    GRL_CONTENT_CHANGED,
+                                    FALSE);
+    g_object_unref (container);
+    i += 2;
+  }
+  g_strfreev (tokens);
 }
 
 static void
@@ -488,7 +527,11 @@ get_upnp_filter (const GList *keys)
 static gchar *
 get_upnp_search (const gchar *text)
 {
-  return g_strdup_printf (UPNP_SEARCH_SPEC, text, text, text);
+  if (text) {
+    return g_strdup_printf (UPNP_SEARCH_SPEC, text, text, text);
+  } else {
+    return g_strdup (UPNP_SEARCH_ALL);
+  }
 }
 
 static void
@@ -712,7 +755,7 @@ get_thumbnail (GList *nodes)
       if (is_image (node)) {
         if (val)
           g_free (val);
-        val = xmlNodeGetContent (node);
+        val = (gchar *) xmlNodeGetContent (node);
 
         if (has_thumbnail_marker (node))  /* that's definitely it! */
           return val;
@@ -1280,9 +1323,48 @@ grl_upnp_source_supported_operations (GrlMetadataSource *metadata_source)
      See also note in grl_upnp_source_query() */
 
   source = GRL_UPNP_SOURCE (metadata_source);
-  caps = GRL_OP_BROWSE | GRL_OP_METADATA;
+  caps = GRL_OP_BROWSE | GRL_OP_METADATA | GRL_OP_NOTIFY_CHANGE;
   if (source->priv->search_enabled)
     caps = caps | GRL_OP_SEARCH | GRL_OP_QUERY;
 
   return caps;
+}
+
+static gboolean
+grl_upnp_source_notify_change_start (GrlMediaSource *source,
+                                     GError **error)
+{
+  GrlUpnpSource *upnp_source = GRL_UPNP_SOURCE (source);
+
+  if (!gupnp_service_proxy_add_notify (upnp_source->priv->service,
+                                       "ContainerUpdateIDs",
+                                       G_TYPE_STRING,
+                                       container_changed_cb,
+                                       source)) {
+    g_set_error (error,
+                 GRL_CORE_ERROR,
+                 GRL_CORE_ERROR_NOTIFY_CHANGED_FAILED,
+                 "Unable to listen for changes in %s",
+                 grl_metadata_source_get_id (GRL_METADATA_SOURCE (source)));
+    return FALSE;
+  }
+  gupnp_service_proxy_set_subscribed (upnp_source->priv->service, TRUE);
+
+  return TRUE;
+}
+
+
+static gboolean
+grl_upnp_source_notify_change_stop (GrlMediaSource *source,
+                                    GError **error)
+{
+  GrlUpnpSource *upnp_source = GRL_UPNP_SOURCE (source);
+
+  gupnp_service_proxy_set_subscribed (upnp_source->priv->service, FALSE);
+  gupnp_service_proxy_remove_notify (upnp_source->priv->service,
+                                     "ContainerUpdateIDs",
+                                     container_changed_cb,
+                                     source);
+
+  return TRUE;
 }

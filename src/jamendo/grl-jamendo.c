@@ -78,6 +78,7 @@ GRL_LOG_DOMAIN_STATIC(jamendo_log_domain);
 #define JAMENDO_SEARCH_ARTIST JAMENDO_ARTIST_ENTRY "/?" JAMENDO_RANGE "&searchquery=%s"
 #define JAMENDO_SEARCH_ALBUM  JAMENDO_ALBUM_ENTRY  "/?" JAMENDO_RANGE "&searchquery=%s"
 #define JAMENDO_SEARCH_TRACK  JAMENDO_TRACK_ENTRY  "/?" JAMENDO_RANGE "&searchquery=%s"
+#define JAMENDO_SEARCH_ALL    JAMENDO_TRACK_ENTRY  "/?" JAMENDO_RANGE
 
 /* --- Plugin information --- */
 
@@ -1312,11 +1313,18 @@ grl_jamendo_source_search (GrlMediaSource *source,
                         &page_number,
                         &page_offset);
 
-  url = g_strdup_printf (JAMENDO_SEARCH_TRACK,
-                         jamendo_keys,
-                         page_size,
-                         page_number,
-                         ss->text);
+  if (ss->text) {
+    url = g_strdup_printf (JAMENDO_SEARCH_TRACK,
+                           jamendo_keys,
+                           page_size,
+                           page_number,
+                           ss->text);
+  } else {
+    url = g_strdup_printf (JAMENDO_SEARCH_ALL,
+                           jamendo_keys,
+                           page_size,
+                           page_number);
+  }
 
   xpe = g_slice_new0 (XmlParseEntries);
   xpe->type = SEARCH;

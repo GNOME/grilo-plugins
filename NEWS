@@ -1,3 +1,41 @@
+NEW in 0.1.9
+============
+
+  * General
+    * Implemented NULL-text search (search all)
+
+  * Bookmarks plugin
+    * Fixed saving/loading content from database
+    * Addec content-changed notification
+
+  * Filesystem plugin
+    * Added cancellation support
+    * Added content-changed notification
+
+  * Flickr plugin
+    * Fixed Makefile.am
+
+  * Local metadata plugin
+    * New plugin that provides covers and thumbnails from local filesystem
+
+  * Podcasts plugin
+    * Fixed search
+    * Added content-changed notification
+
+  * Tracker plugin
+    * Several fixes and improvements
+
+  * UPnP plugin
+    * Fixed warning
+    * Added content-changed notification
+
+  * Contributors to this release:
+    Fabien Lebaillif - Delamare <fabien@developers.arq-media.com>
+    Guillaume Emont <gemont@igalia.com>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+
+
 NEW in 0.1.8
 ============
 

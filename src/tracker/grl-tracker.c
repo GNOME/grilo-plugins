@@ -113,6 +113,18 @@ enum {
   "OFFSET %i "                                   \
   "LIMIT %i"
 
+#define TRACKER_SEARCH_ALL_REQUEST               \
+  "SELECT rdf:type(?urn) %s "                    \
+  "WHERE "                                       \
+  "{ "                                           \
+  "?urn a nfo:Media . "                          \
+  "?urn tracker:available ?tr . "                \
+  "%s "                                          \
+  "} "                                           \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "   \
+  "OFFSET %i "                                   \
+  "LIMIT %i"
+
 #define TRACKER_BROWSE_CATEGORY_REQUEST                                 \
   "SELECT rdf:type(?urn) %s "                                           \
   "WHERE "                                                              \
@@ -126,8 +138,8 @@ enum {
   "LIMIT %i"
 
 #define TRACKER_METADATA_REQUEST                                    \
-  "SELECT %s "                                                      \
-  "WHERE { ?urn nie:isStoredAs <%s> }"                              \
+  "SELECT %s "							    \
+  "WHERE { ?urn a nie:DataObject . FILTER (?urn = <%s>) }"
 
 typedef struct {
   GrlKeyID     grl_key;
@@ -321,6 +333,8 @@ tracker_evt_update_process_item_cb (GObject              *object,
                              NULL);
       grl_tracker_add_source (GRL_TRACKER_SOURCE (plugin));
       g_free (source_name);
+    } else {
+      GRL_DEBUG ("\tChanges on source %p / %s", plugin, datasource);
     }
   } else if (!source_mounted && plugin != NULL) {
     grl_tracker_del_source (GRL_TRACKER_SOURCE (plugin));
@@ -363,8 +377,9 @@ tracker_evt_update_process (tracker_evt_update_t *evt)
 
   GRL_DEBUG ("%s", __FUNCTION__);
 
+  evt->updated_items_iter = evt->updated_items_list;
   g_string_append_printf (request_str, "%i",
-                          GPOINTER_TO_INT (evt->updated_items_iter));
+                          GPOINTER_TO_INT (evt->updated_items_iter->data));
   evt->updated_items_iter = evt->updated_items_iter->next;
 
   while (evt->updated_items_iter != NULL) {
@@ -404,9 +419,10 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
 
   g_variant_get (parameters, "(&sa(iiii)a(iiii))", &class_name, &iter1, &iter2);
 
-  GRL_DEBUG ("\tTracker update event for class=%s ins=%li del=%li",
-             class_name, g_variant_iter_n_children (iter1),
-             g_variant_iter_n_children (iter2));
+  GRL_DEBUG ("\tTracker update event for class=%s ins=%lu del=%lu",
+             class_name,
+             (unsigned long) g_variant_iter_n_children (iter1),
+             (unsigned long) g_variant_iter_n_children (iter2));
 
   while (g_variant_iter_loop (iter1, "(iiii)", &graph,
                               &subject, &predicate, &object)) {
@@ -424,6 +440,7 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
                                                GSIZE_TO_POINTER (subject));
   }
   g_variant_iter_free (iter1);
+
 
   while (g_variant_iter_loop (iter2, "(iiii)", &graph,
                               &subject, &predicate, &object)) {
@@ -835,7 +852,7 @@ setup_key_mappings (void)
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_ID,
-                      "nie:isStoredAs(?urn)",
+                      "?urn",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_LAST_PLAYED,
@@ -1384,22 +1401,20 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
-  GError               *error = NULL;
   struct OperationSpec *os;
 
   GRL_DEBUG ("%s: id=%u", __FUNCTION__, ss->search_id);
 
-  if (!ss->text || ss->text[0] == '\0') {
-    error = g_error_new_literal (GRL_CORE_ERROR,
-                                 GRL_CORE_ERROR_QUERY_FAILED,
-                                 "Empty search");
-    goto send_error;
-  }
-
   constraint = tracker_source_get_device_constraint (priv);
   sparql_select = get_select_string (source, ss->keys);
-  sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
-                                  ss->text, constraint, ss->skip, ss->count);
+  if (!ss->text || ss->text[0] == '\0') {
+    /* Search all */
+    sparql_final = g_strdup_printf (TRACKER_SEARCH_ALL_REQUEST, sparql_select,
+                                    constraint, ss->skip, ss->count);
+  } else {
+    sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
+                                    ss->text, constraint, ss->skip, ss->count);
+  }
 
   GRL_DEBUG ("select: '%s'", sparql_final);
 
@@ -1419,12 +1434,6 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   g_free (constraint);
   g_free (sparql_select);
   g_free (sparql_final);
-
-  return;
-
- send_error:
-  ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
-  g_error_free (error);
 }
 
 static void

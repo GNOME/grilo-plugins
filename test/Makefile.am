@@ -7,7 +7,7 @@
 
 INCLUDES = @DEPS_CFLAGS@
 
-bin_PROGRAMS = test
+bin_PROGRAMS = test test_local_metadata
 
 test_SOURCES =	\
 	main.c
@@ -18,6 +18,20 @@ test_CFLAGS =	\
 test_LDADD =		\
 	-ldl -lpthread	\
 	@DEPS_LIBS@
+
+test_local_metadata_SOURCES =  \
+	test_local_metadata.c
+
+test_local_metadata_LDADD = \
+	-ldl -lpthread	\
+	@DEPS_LIBS@ \
+	@GTHREAD_LIBS@ \
+	@GIO_LIBS@
+
+test_local_metadata_CFLAGS = \
+	-DPREFIX=$(prefix) \
+	@GTHREAD_CFLAGS@ \
+	@GIO_CFLAGS@
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

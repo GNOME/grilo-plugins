@@ -77,9 +77,19 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 struct _GrlFilesystemSourcePrivate {
   GList *chosen_paths;
   guint max_search_depth;
+  /* a mapping operation_id -> GCancellable to cancel this operation */
+  GHashTable *cancellables;
+  /* Monitors for changes in directories */
+  GList *monitors;
+  GCancellable *cancellable_monitors;
 };
 
 /* --- Data types --- */
+
+typedef struct _RecursiveOperation RecursiveOperation;
+
+typedef gboolean (*RecursiveOperationCb) (GFileInfo *file_info,
+                                          RecursiveOperation *operation);
 
 typedef struct {
   GrlMediaSourceBrowseSpec *spec;
@@ -87,23 +97,27 @@ typedef struct {
   GList *current;
   const gchar *path;
   guint remaining;
+  GCancellable *cancellable;
+  guint id;
 }  BrowseIdleData;
 
-/* probably not thread-safe */
-typedef struct {
-  GrlMediaSource *source;
-  GrlMediaSourceSearchSpec *ss;
-  guint found_count;
-  guint skipped;
+struct _RecursiveOperation {
+  RecursiveOperationCb on_cancel;
+  RecursiveOperationCb on_finish;
+  RecursiveOperationCb on_dir;
+  RecursiveOperationCb on_file;
+  gpointer on_dir_data;
+  gpointer on_file_data;
+  GCancellable *cancellable;
+  GQueue *directories;
   guint max_depth;
-  GQueue *trees;
-} SearchOperation;
+};
 
 typedef struct {
-  SearchOperation *operation;
   guint depth;
   GFile *directory;
-} SearchTree;
+} RecursiveEntry;
+
 
 static GrlFilesystemSource *grl_filesystem_source_new (void);
 
@@ -131,6 +145,15 @@ static gboolean grl_filesystem_test_media_from_uri (GrlMediaSource *source,
 static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
                                                GrlMediaSourceMediaFromUriSpec *mfus);
 
+static void grl_filesystem_source_cancel (GrlMediaSource *source,
+                                          guint operation_id);
+
+static gboolean grl_filesystem_source_notify_change_start (GrlMediaSource *source,
+                                                           GError **error);
+
+static gboolean grl_filesystem_source_notify_change_stop (GrlMediaSource *source,
+                                                          GError **error);
+
 /* =================== Filesystem Plugin  =============== */
 
 gboolean
@@ -147,10 +170,6 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
   GRL_DEBUG ("filesystem_plugin_init");
 
   GrlFilesystemSource *source = grl_filesystem_source_new ();
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_MEDIA_PLUGIN (source),
-                                       NULL);
 
   for (; configs; configs = g_list_next (configs)) {
     gchar *path;
@@ -165,6 +184,11 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
   }
   source->priv->chosen_paths = chosen_paths;
   source->priv->max_search_depth = max_search_depth;
+
+  grl_plugin_registry_register_source (registry,
+                                       plugin,
+                                       GRL_MEDIA_PLUGIN (source),
+                                       NULL);
 
   return TRUE;
 }
@@ -198,6 +222,9 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_filesystem_source_browse;
   source_class->search = grl_filesystem_source_search;
+  source_class->cancel = grl_filesystem_source_cancel;
+  source_class->notify_change_start = grl_filesystem_source_notify_change_start;
+  source_class->notify_change_stop = grl_filesystem_source_notify_change_stop;
   source_class->metadata = grl_filesystem_source_metadata;
   source_class->test_media_from_uri = grl_filesystem_test_media_from_uri;
   source_class->media_from_uri = grl_filesystem_get_media_from_uri;
@@ -210,6 +237,7 @@ static void
 grl_filesystem_source_init (GrlFilesystemSource *source)
 {
   source->priv = GRL_FILESYSTEM_SOURCE_GET_PRIVATE (source);
+  source->priv->cancellables = g_hash_table_new (NULL, NULL);
 }
 
 static void
@@ -218,10 +246,15 @@ grl_filesystem_source_finalize (GObject *object)
   GrlFilesystemSource *filesystem_source = GRL_FILESYSTEM_SOURCE (object);
   g_list_foreach (filesystem_source->priv->chosen_paths, (GFunc) g_free, NULL);
   g_list_free (filesystem_source->priv->chosen_paths);
+  g_hash_table_unref (filesystem_source->priv->cancellables);
   G_OBJECT_CLASS (grl_filesystem_source_parent_class)->finalize (object);
 }
 
 /* ======================= Utilities ==================== */
+
+static void recursive_operation_next_entry (RecursiveOperation *operation);
+static void add_monitor (GrlFilesystemSource *fs_source, GFile *dir);
+static void cancel_monitors (GrlFilesystemSource *fs_source);
 
 static gboolean
 mime_is_video (const gchar *mime)
@@ -293,11 +326,11 @@ file_is_valid_content (const gchar *path, gboolean fast)
       } else {
 	type = g_file_info_get_file_type (info);
 	mime = g_file_info_get_content_type (info);
-	if (type == G_FILE_TYPE_DIRECTORY || mime_is_media (mime)) {
-	  is_media = TRUE;
-	} else {
-	  is_media = FALSE;
-	}
+        if (type == G_FILE_TYPE_DIRECTORY || mime_is_media (mime)) {
+          is_media = TRUE;
+        } else {
+          is_media = FALSE;
+        }
       }
     }
     g_object_unref (info);
@@ -467,10 +500,21 @@ browse_emit_idle (gpointer user_data)
 {
   BrowseIdleData *idle_data;
   guint count;
+  GrlFilesystemSource *fs_source;
 
   GRL_DEBUG ("browse_emit_idle");
 
   idle_data = (BrowseIdleData *) user_data;
+  fs_source = GRL_FILESYSTEM_SOURCE (idle_data->spec->source);
+
+  if (g_cancellable_is_cancelled (idle_data->cancellable)) {
+    GRL_DEBUG ("Browse operation %d (\"%s\") has been cancelled",
+               idle_data->id, idle_data->path);
+    idle_data->spec->callback(idle_data->spec->source,
+                              idle_data->id, NULL, 0,
+                              idle_data->spec->user_data, NULL);
+    goto finish;
+  }
 
   count = 0;
   do {
@@ -495,13 +539,18 @@ browse_emit_idle (gpointer user_data)
     count++;
   } while (count < BROWSE_IDLE_CHUNK_SIZE && idle_data->current);
 
-  if (!idle_data->current) {
+  if (!idle_data->current)
+    goto finish;
+
+  return TRUE;
+
+finish:
     g_list_free (idle_data->entries);
+    g_hash_table_remove (fs_source->priv->cancellables,
+                         GUINT_TO_POINTER (idle_data->id));
+    g_object_unref (idle_data->cancellable);
     g_slice_free (BrowseIdleData, idle_data);
     return FALSE;
-  } else {
-    return TRUE;
-  }
 }
 
 static void
@@ -572,6 +621,12 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
     idle_data->path = path;
     idle_data->entries = entries;
     idle_data->current = entries;
+    idle_data->cancellable = g_cancellable_new ();
+    idle_data->id = bs->browse_id;
+    g_hash_table_insert (GRL_FILESYSTEM_SOURCE (bs->source)->priv->cancellables,
+                         GUINT_TO_POINTER (bs->browse_id),
+                         idle_data->cancellable);
+
     g_idle_add (browse_emit_idle, idle_data);
   } else {
     /* No results */
@@ -586,155 +641,107 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
   g_dir_close (dir);
 }
 
-/*** search stuff ***/
-
-static void search_next_directory (SearchOperation *operation);
-
-static SearchTree *
-search_tree_new (SearchOperation *operation, guint depth, GFile *directory)
+static RecursiveEntry *
+recursive_entry_new (guint depth, GFile *directory)
 {
-  SearchTree *tree = g_new (SearchTree, 1);
-  tree->operation = operation;
-  tree->depth = depth;
-  tree->directory = g_object_ref (directory);
+  RecursiveEntry *entry;
 
-  return tree;
+  entry = g_slice_new(RecursiveEntry);
+  entry->depth = depth;
+  entry->directory = g_object_ref (directory);
+
+  return entry;
 }
 
 static void
-search_tree_free (SearchTree *tree)
+recursive_entry_free (RecursiveEntry *entry)
 {
-  g_object_unref (tree->directory);
-  g_free (tree);
+  g_object_unref (entry->directory);
+  g_slice_free (RecursiveEntry, entry);
 }
 
-static SearchOperation *
-search_operation_new (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss, guint max_depth)
+static RecursiveOperation *
+recursive_operation_new ()
 {
-  SearchOperation *operation;
+  RecursiveOperation *operation;
 
-  operation = g_new (SearchOperation, 1);
-  operation->source = source;
-  operation->ss = ss;
-  operation->found_count = 0;
-  operation->skipped = 0;
-  operation->max_depth = max_depth;
-  operation->trees = g_queue_new ();
+  operation = g_slice_new0 (RecursiveOperation);
+  operation->directories = g_queue_new ();
+  operation->cancellable = g_cancellable_new ();
 
   return operation;
 }
 
 static void
-search_operation_free (SearchOperation *operation)
+recursive_operation_free (RecursiveOperation *operation)
 {
-  g_queue_foreach (operation->trees, (GFunc)search_tree_free, NULL);
-  g_queue_free (operation->trees);
-  g_free (operation);
-}
-
-/* return TRUE if more files need to be returned, FALSE if we sent the count */
-static gboolean
-compare_and_return_file (SearchOperation *operation,
-                         GFileEnumerator *enumerator,
-                         GFileInfo *file_info)
-{
-  gchar *needle, *haystack, *normalized_needle, *normalized_haystack;
-  GrlMediaSourceSearchSpec *ss = operation->ss;
-
-  GRL_DEBUG ("compare_and_return_file");
-
-  if (ss == NULL)
-    return FALSE;
-
-  haystack = g_utf8_casefold (g_file_info_get_display_name (file_info), -1);
-  normalized_haystack = g_utf8_normalize (haystack, -1, G_NORMALIZE_ALL);
-
-  needle = g_utf8_casefold (ss->text, -1);
-  normalized_needle = g_utf8_normalize (needle, -1, G_NORMALIZE_ALL);
-
-  if (strstr (normalized_haystack, normalized_needle)) {
-    GrlMedia *media = NULL;
-    GFile *dir, *file;
-    gchar *path;
-    gint remaining = -1;
-
-    dir = g_file_enumerator_get_container (enumerator);
-    file = g_file_get_child (dir, g_file_info_get_name (file_info));
-    path = g_file_get_path (file);
-
-    /* FIXME: both file_is_valid_content() and create_content() are likely to block */
-    if (file_is_valid_content (path, FALSE)) {
-      if (operation->skipped < ss->skip)
-        operation->skipped++;
-      else
-        media = create_content (NULL, path, ss->flags & GRL_RESOLVE_FAST_ONLY, FALSE);
-    }
-
-    g_free (path);
-    g_object_unref (file);
-
-    if (media) {
-      operation->found_count++;
-      if (operation->found_count == ss->count)
-        remaining = 0;
-      ss->callback (ss->source, ss->search_id, media, remaining, ss->user_data, NULL);
-      if (!remaining)
-        /* after a call to the callback with remaining=0, the core will free
-         * the search spec */
-        operation->ss = NULL;
-    }
-  }
-
-  g_free (haystack);
-  g_free (normalized_haystack);
-  g_free (needle);
-  g_free (normalized_needle);
-  return operation->ss != NULL;
+  g_queue_foreach (operation->directories, (GFunc) recursive_entry_free, NULL);
+  g_queue_free (operation->directories);
+  g_object_unref (operation->cancellable);
+  g_slice_free (RecursiveOperation, operation);
 }
 
 static void
-got_file (GFileEnumerator *enumerator, GAsyncResult *res, SearchTree *tree)
+recursive_operation_got_file (GFileEnumerator *enumerator, GAsyncResult *res, RecursiveOperation *operation)
 {
   GList *files;
   GError *error = NULL;
+  gboolean continue_operation = TRUE;
 
-  GRL_DEBUG ("got_file");
+  GRL_DEBUG (__func__);
 
   files = g_file_enumerator_next_files_finish (enumerator, res, &error);
   if (error) {
-    GRL_WARNING ("Got error while searching: %s", error->message);
+    if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+      GRL_WARNING ("Got error: %s", error->message);
     g_error_free (error);
     goto finished;
   }
 
   if (files) {
     GFileInfo *file_info;
+    RecursiveEntry *entry;
+
     /* we assume there is only one GFileInfo in the list since that's what we ask
      * for when calling g_file_enumerator_next_files_async() */
     file_info = (GFileInfo *)files->data;
     g_list_free (files);
+    /* Get the entry we are running now */
+    entry = g_queue_peek_head (operation->directories);
     switch (g_file_info_get_file_type (file_info)) {
     case G_FILE_TYPE_SYMBOLIC_LINK:
       /* we're too afraid of infinite recursion to touch this for now */
       break;
     case G_FILE_TYPE_DIRECTORY:
         {
-          if (tree->depth < tree->operation->max_depth) {
+          if (entry->depth < operation->max_depth) {
             GFile *subdir;
-            SearchTree *subtree;
+            RecursiveEntry *subentry;
 
-            subdir = g_file_get_child (tree->directory,
-                                       g_file_info_get_name (file_info));
-            subtree = search_tree_new (tree->operation, tree->depth + 1, subdir);
-            g_queue_push_tail (tree->operation->trees, subtree);
-            g_object_unref (subdir);
+            if (operation->on_dir) {
+              continue_operation = operation->on_dir(file_info, operation);
+            }
+
+            if (continue_operation) {
+              subdir = g_file_get_child (entry->directory,
+                                         g_file_info_get_name (file_info));
+              subentry = recursive_entry_new (entry->depth + 1, subdir);
+              g_queue_push_tail (operation->directories, subentry);
+              g_object_unref (subdir);
+            } else {
+              g_object_unref (file_info);
+              goto finished;
+            }
           }
         }
       break;
     case G_FILE_TYPE_REGULAR:
-      if (!compare_and_return_file (tree->operation, enumerator, file_info)){
-        g_object_unref (file_info);
-        goto finished;
+      if (operation->on_file) {
+        continue_operation = operation->on_file(file_info, operation);
+        if (!continue_operation) {
+          g_object_unref (file_info);
+          goto finished;
+        }
       }
       break;
     default:
@@ -746,76 +753,358 @@ got_file (GFileEnumerator *enumerator, GAsyncResult *res, SearchTree *tree)
     goto finished;
   }
 
-  g_file_enumerator_next_files_async (enumerator, 1, G_PRIORITY_DEFAULT, NULL,
-                                     (GAsyncReadyCallback)got_file, tree);
+  g_file_enumerator_next_files_async (enumerator, 1, G_PRIORITY_DEFAULT,
+                                      operation->cancellable,
+                                      (GAsyncReadyCallback)recursive_operation_got_file,
+                                      operation);
 
   return;
 
 finished:
   /* we're done with this dir/enumerator, let's treat the next one */
   g_object_unref (enumerator);
-  search_next_directory (tree->operation);
-  search_tree_free (tree);
+  recursive_entry_free (g_queue_pop_head (operation->directories));
+  if (continue_operation) {
+    recursive_operation_next_entry (operation);
+  } else {
+    recursive_operation_free (operation);
+  }
 }
 
 static void
-got_children (GFile *directory, GAsyncResult *res, SearchTree *tree)
+recursive_operation_got_entry (GFile *directory, GAsyncResult *res, RecursiveOperation *operation)
 {
   GError *error = NULL;
   GFileEnumerator *enumerator;
 
-  GRL_DEBUG ("got_children");
+  GRL_DEBUG (__func__);
 
   enumerator = g_file_enumerate_children_finish (directory, res, &error);
   if (error) {
-    GRL_WARNING ("Got error while searching: %s", error->message);
+    GRL_WARNING ("Got error: %s", error->message);
     g_error_free (error);
     g_object_unref (enumerator);
     /* we couldn't get the children of this directory, but we probably have
      * other directories to try */
-    search_next_directory (tree->operation);
-    search_tree_free (tree);
+    recursive_entry_free (g_queue_pop_head (operation->directories));
+    recursive_operation_next_entry (operation);
     return;
   }
 
-  g_file_enumerator_next_files_async (enumerator, 1, G_PRIORITY_DEFAULT, NULL,
-                                     (GAsyncReadyCallback)got_file, tree);
+  g_file_enumerator_next_files_async (enumerator, 1, G_PRIORITY_DEFAULT,
+                                      operation->cancellable,
+                                      (GAsyncReadyCallback)recursive_operation_got_file,
+                                      operation);
 }
 
 static void
-search_next_directory (SearchOperation *operation)
+recursive_operation_next_entry (RecursiveOperation *operation)
 {
-  SearchTree *tree;
-  GrlMediaSourceSearchSpec *ss = operation->ss;
+  RecursiveEntry *entry;
 
-  GRL_DEBUG ("search_next_directory");
+  GRL_DEBUG (__func__);
 
-  if (!ss) {  /* count reached, last callback call done */
+  if (g_cancellable_is_cancelled (operation->cancellable)) {
+    /* We've been cancelled! */
+    GRL_DEBUG ("Operation has been cancelled");
+    if (operation->on_cancel) {
+      operation->on_cancel(NULL, operation);
+    }
     goto finished;
   }
 
-  tree = g_queue_pop_head (operation->trees);
-  if (!tree) { /* We've crawled everything, before reaching count */
-    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
-    operation->ss = NULL;
+  entry = g_queue_peek_head (operation->directories);
+  if (!entry) { /* We've crawled everything, before reaching count */
+    if (operation->on_finish) {
+      operation->on_finish (NULL, operation);
+    }
     goto finished;
   }
 
-  g_file_enumerate_children_async (tree->directory, G_FILE_ATTRIBUTE_STANDARD_TYPE ","
+  g_file_enumerate_children_async (entry->directory, G_FILE_ATTRIBUTE_STANDARD_TYPE ","
                                    G_FILE_ATTRIBUTE_STANDARD_NAME ","
                                    G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
                                    G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                    G_PRIORITY_DEFAULT,
-                                   NULL,
-                                   (GAsyncReadyCallback)got_children,
-                                   tree);
+                                   operation->cancellable,
+                                   (GAsyncReadyCallback)recursive_operation_got_entry,
+                                   operation);
 
   return;
 
 finished:
-  search_operation_free (operation);
+  recursive_operation_free (operation);
 }
 
+static void
+recursive_operation_initialize (RecursiveOperation *operation, GrlFilesystemSource *source)
+{
+  GList *chosen_paths, *path;
+
+  chosen_paths = source->priv->chosen_paths;
+  if (chosen_paths) {
+    for (path = chosen_paths; path; path = g_list_next (path)) {
+      GFile *directory = g_file_new_for_path (path->data);
+      g_queue_push_tail (operation->directories,
+                         recursive_entry_new (0, directory));
+      g_object_unref (directory);
+    }
+  } else {
+    const gchar *home;
+    GFile *directory;
+
+    home = g_getenv ("HOME");
+    directory = g_file_new_for_path (home);
+    g_queue_push_tail (operation->directories,
+                       recursive_entry_new (0, directory));
+    g_object_unref (directory);
+  }
+}
+
+static gboolean
+cancel_cb (GFileInfo *file_info, RecursiveOperation *operation)
+{
+  GrlFilesystemSource *fs_source;
+
+  if (operation->on_file_data) {
+    GrlMediaSourceSearchSpec *ss =
+      (GrlMediaSourceSearchSpec *) operation->on_file_data;
+    fs_source = GRL_FILESYSTEM_SOURCE (ss->source);
+    g_hash_table_remove (fs_source->priv->cancellables,
+                         GUINT_TO_POINTER (ss->search_id));
+    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
+  }
+
+  if (operation->on_dir_data) {
+    /* Remove all monitors */
+    fs_source = GRL_FILESYSTEM_SOURCE (operation->on_dir_data);
+    cancel_monitors (fs_source);
+  }
+  return FALSE;
+}
+
+static gboolean
+finish_cb (GFileInfo *file_info, RecursiveOperation *operation)
+{
+  if (operation->on_file_data) {
+    GrlMediaSourceSearchSpec *ss =
+      (GrlMediaSourceSearchSpec *) operation->on_file_data;
+    g_hash_table_remove (GRL_FILESYSTEM_SOURCE (ss->source)->priv->cancellables,
+                         GUINT_TO_POINTER (ss->search_id));
+    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
+  }
+
+  if (operation->on_dir_data) {
+    GRL_FILESYSTEM_SOURCE (operation->on_dir_data)->priv->cancellable_monitors = NULL;
+  }
+
+  return FALSE;
+}
+
+/* return TRUE if more files need to be returned, FALSE if we sent the count */
+static gboolean
+file_cb (GFileInfo *file_info, RecursiveOperation *operation)
+{
+  gchar *needle = NULL;
+  gchar *haystack = NULL;
+  gchar *normalized_needle = NULL;
+  gchar *normalized_haystack = NULL;
+  GrlMediaSourceSearchSpec *ss = operation->on_file_data;
+  gint remaining = -1;
+
+  GRL_DEBUG (__func__);
+
+  if (ss == NULL)
+    return FALSE;
+
+  if (ss->text) {
+    haystack = g_utf8_casefold (g_file_info_get_display_name (file_info), -1);
+    normalized_haystack = g_utf8_normalize (haystack, -1, G_NORMALIZE_ALL);
+
+    needle = g_utf8_casefold (ss->text, -1);
+    normalized_needle = g_utf8_normalize (needle, -1, G_NORMALIZE_ALL);
+  }
+
+  if (!ss->text ||
+      strstr (normalized_haystack, normalized_needle)) {
+    GrlMedia *media = NULL;
+    RecursiveEntry *entry;
+    GFile *file;
+    gchar *path;
+
+    entry = g_queue_peek_head (operation->directories);
+    file = g_file_get_child (entry->directory,
+                             g_file_info_get_name (file_info));
+    path = g_file_get_path (file);
+
+    /* FIXME: both file_is_valid_content() and create_content() are likely to block */
+    if (file_is_valid_content (path, FALSE)) {
+      if (ss->skip) {
+        ss->skip--;
+      } else {
+        media = create_content (NULL, path, ss->flags & GRL_RESOLVE_FAST_ONLY, FALSE);
+      }
+    }
+
+    g_free (path);
+    g_object_unref (file);
+
+    if (media) {
+      ss->count--;
+      if (ss->count == 0) {
+        remaining = 0;
+      }
+      ss->callback (ss->source, ss->search_id, media, remaining, ss->user_data, NULL);
+    }
+  }
+
+  g_free (haystack);
+  g_free (normalized_haystack);
+  g_free (needle);
+  g_free (normalized_needle);
+  return remaining == -1;
+}
+
+static void
+notify_parent_change (GrlMediaSource *source, GFile *child, GrlMediaSourceChangeType change)
+{
+  GFile *parent;
+  GrlMedia *media;
+  gchar *parent_path;
+
+  parent = g_file_get_parent (child);
+  if (parent) {
+    parent_path = g_file_get_path (parent);
+  } else {
+    parent_path = g_strdup ("/");
+  }
+
+  media = create_content (NULL, parent_path, GRL_RESOLVE_FAST_ONLY, parent == NULL);
+  grl_media_source_notify_change (source, media, change, FALSE);
+  g_object_unref (media);
+
+  if (parent) {
+    g_object_unref (parent);
+  }
+  g_free (parent_path);
+}
+
+static void
+directory_changed (GFileMonitor *monitor,
+                   GFile *file,
+                   GFile *other_file,
+                   GFileMonitorEvent event,
+                   gpointer data)
+{
+  GrlMediaSource *source = GRL_MEDIA_SOURCE (data);
+  gchar *file_path, *other_file_path;
+  gchar *file_parent_path = NULL;
+  gchar *other_file_parent_path = NULL;
+  GFile *file_parent, *other_file_parent;
+  GFileInfo *file_info;
+
+  if (event == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT ||
+      event == G_FILE_MONITOR_EVENT_CREATED) {
+    file_path = g_file_get_path (file);
+    if (file_is_valid_content (file_path, TRUE)) {
+      notify_parent_change (source,
+                            file,
+                            (event == G_FILE_MONITOR_EVENT_CREATED)? GRL_CONTENT_ADDED: GRL_CONTENT_CHANGED);
+      if (event == G_FILE_MONITOR_EVENT_CREATED) {
+        file_info = g_file_query_info (file,
+                                       G_FILE_ATTRIBUTE_STANDARD_TYPE,
+                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                       NULL,
+                                       NULL);
+        if (file_info) {
+          if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+            add_monitor (GRL_FILESYSTEM_SOURCE (source), file);
+          }
+          g_object_unref (file_info);
+        }
+      }
+    }
+    g_free (file_path);
+  } else if (event == G_FILE_MONITOR_EVENT_DELETED) {
+    notify_parent_change (source, file, GRL_CONTENT_REMOVED);
+  } else if (event == G_FILE_MONITOR_EVENT_MOVED) {
+    other_file_path = g_file_get_path (other_file);
+    if (file_is_valid_content (other_file_path, TRUE)) {
+      file_parent = g_file_get_parent (file);
+      if (file_parent) {
+        file_parent_path = g_file_get_path (file_parent);
+        g_object_unref (file_parent);
+      } else {
+        file_parent_path = NULL;
+      }
+      other_file_parent = g_file_get_parent (other_file);
+      if (other_file_parent) {
+        other_file_parent_path = g_file_get_path (other_file_parent);
+        g_object_unref (other_file_parent);
+      } else {
+        other_file_parent_path = NULL;
+      }
+
+      if (g_strcmp0 (file_parent_path, other_file_parent_path) == 0) {
+        notify_parent_change (source, file, GRL_CONTENT_CHANGED);
+      } else {
+        notify_parent_change (source, file, GRL_CONTENT_REMOVED);
+        notify_parent_change (source, other_file, GRL_CONTENT_ADDED);
+      }
+    }
+    g_free (file_parent_path);
+    g_free (other_file_parent_path);
+  }
+}
+
+static void
+cancel_monitors (GrlFilesystemSource *fs_source)
+{
+  g_list_foreach (fs_source->priv->monitors,
+                  (GFunc) g_file_monitor_cancel,
+                  NULL);
+  g_list_foreach (fs_source->priv->monitors,
+                  (GFunc) g_object_unref,
+                  NULL);
+  g_list_free (fs_source->priv->monitors);
+  fs_source->priv->monitors = NULL;
+}
+
+static void
+add_monitor (GrlFilesystemSource *fs_source, GFile *dir)
+{
+  GFileMonitor *monitor;
+
+  monitor = g_file_monitor_directory (dir, G_FILE_MONITOR_SEND_MOVED, NULL, NULL);
+  if (monitor) {
+    fs_source->priv->monitors = g_list_prepend (fs_source->priv->monitors,
+                                                monitor);
+    g_signal_connect (monitor,
+                      "changed",
+                      G_CALLBACK (directory_changed),
+                      fs_source);
+  } else {
+    GRL_DEBUG ("Unable to set up monitor in %s\n", g_file_get_path (dir));
+  }
+}
+
+static gboolean
+directory_cb (GFileInfo *dir_info, RecursiveOperation *operation)
+{
+  RecursiveEntry *entry;
+  GFile *dir;
+  GrlFilesystemSource *fs_source;
+
+  fs_source = GRL_FILESYSTEM_SOURCE (operation->on_dir_data);
+  entry = g_queue_peek_head (operation->directories);
+  dir = g_file_get_child (entry->directory,
+                          g_file_info_get_name (dir_info));
+
+  add_monitor (fs_source, dir);
+  g_object_unref (dir);
+
+  return TRUE;
+}
 
 /* ================== API Implementation ================ */
 
@@ -874,38 +1163,25 @@ grl_filesystem_source_browse (GrlMediaSource *source,
 static void grl_filesystem_source_search (GrlMediaSource *source,
                                           GrlMediaSourceSearchSpec *ss)
 {
-  SearchOperation *operation;
-  GList *chosen_paths, *path;
-  guint max_search_depth;
+  RecursiveOperation *operation;
   GrlFilesystemSource *fs_source;
 
   GRL_DEBUG ("grl_filesystem_source_search");
 
   fs_source = GRL_FILESYSTEM_SOURCE (source);
 
-  max_search_depth = fs_source->priv->max_search_depth;
-  operation = search_operation_new (source, ss, max_search_depth);
+  operation = recursive_operation_new ();
+  operation->on_cancel = cancel_cb;
+  operation->on_finish = finish_cb;
+  operation->on_file = file_cb;
+  operation->on_file_data = ss;
+  operation->max_depth = fs_source->priv->max_search_depth;
+  g_hash_table_insert (GRL_FILESYSTEM_SOURCE (source)->priv->cancellables,
+                       GUINT_TO_POINTER (ss->search_id),
+                       operation->cancellable);
 
-  chosen_paths = fs_source->priv->chosen_paths;
-  if (chosen_paths) {
-    for (path = chosen_paths; path; path = g_list_next (path)) {
-      GFile *directory = g_file_new_for_path (path->data);
-      g_queue_push_tail (operation->trees,
-                         search_tree_new (operation, 0, directory));
-      g_object_unref (directory);
-    }
-  } else {
-    const gchar *home;
-    GFile *directory;
-
-    home = g_getenv ("HOME");
-    directory = g_file_new_for_path (home);
-    g_queue_push_tail (operation->trees,
-                       search_tree_new (operation, 0, directory));
-    g_object_unref (directory);
-  }
-
-  search_next_directory (operation);
+  recursive_operation_initialize (operation, fs_source);
+  recursive_operation_next_entry (operation);
 }
 
 static void
@@ -1008,3 +1284,60 @@ beach:
   g_free (path);
 }
 
+static void
+grl_filesystem_source_cancel (GrlMediaSource *source, guint operation_id)
+{
+  GCancellable *cancellable;
+  GrlFilesystemSourcePrivate *priv;
+
+  priv = GRL_FILESYSTEM_SOURCE (source)->priv;
+
+  cancellable =
+      G_CANCELLABLE (g_hash_table_lookup (priv->cancellables,
+                                          GUINT_TO_POINTER (operation_id)));
+  if (cancellable)
+    g_cancellable_cancel (cancellable);
+}
+
+static gboolean
+grl_filesystem_source_notify_change_start (GrlMediaSource *source,
+                                           GError **error)
+{
+  GrlFilesystemSource *fs_source;
+  RecursiveOperation *operation;
+
+  GRL_DEBUG (__func__);
+
+  fs_source = GRL_FILESYSTEM_SOURCE (source);
+  operation = recursive_operation_new ();
+  operation->on_cancel = cancel_cb;
+  operation->on_finish = finish_cb;
+  operation->on_dir = directory_cb;
+  operation->on_dir_data = fs_source;
+  operation->max_depth = fs_source->priv->max_search_depth;
+
+  fs_source->priv->cancellable_monitors = operation->cancellable;
+
+  recursive_operation_initialize (operation, fs_source);
+  recursive_operation_next_entry (operation);
+
+  return TRUE;
+}
+
+static gboolean
+grl_filesystem_source_notify_change_stop (GrlMediaSource *source,
+                                          GError **error)
+{
+  GrlFilesystemSource *fs_source = GRL_FILESYSTEM_SOURCE (source);
+
+  /* Check if notifying is being initialized */
+  if (fs_source->priv->cancellable_monitors) {
+    g_cancellable_cancel (fs_source->priv->cancellable_monitors);
+    fs_source->priv->cancellable_monitors = NULL;
+  } else {
+    /* Cancel and remove all monitors */
+    cancel_monitors (fs_source);
+  }
+
+  return TRUE;
+}

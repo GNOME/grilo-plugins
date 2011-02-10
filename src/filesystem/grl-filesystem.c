@@ -905,7 +905,10 @@ finish_cb (GFileInfo *file_info, RecursiveOperation *operation)
 static gboolean
 file_cb (GFileInfo *file_info, RecursiveOperation *operation)
 {
-  gchar *needle, *haystack, *normalized_needle, *normalized_haystack;
+  gchar *needle = NULL;
+  gchar *haystack = NULL;
+  gchar *normalized_needle = NULL;
+  gchar *normalized_haystack = NULL;
   GrlMediaSourceSearchSpec *ss = operation->on_file_data;
   gint remaining = -1;
 
@@ -995,7 +998,8 @@ directory_changed (GFileMonitor *monitor,
 {
   GrlMediaSource *source = GRL_MEDIA_SOURCE (data);
   gchar *file_path, *other_file_path;
-  gchar *file_parent_path, *other_file_parent_path;
+  gchar *file_parent_path = NULL;
+  gchar *other_file_parent_path = NULL;
   GFile *file_parent, *other_file_parent;
   GFileInfo *file_info;
 

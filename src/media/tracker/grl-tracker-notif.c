@@ -263,8 +263,7 @@ tracker_evt_update_orphans_cb (GObject              *object,
     GRL_WARNING ("Could not execute sparql query: %s", tracker_error->message);
 
     g_error_free (tracker_error);
-    tracker_evt_update_free (evt); /* TODO: change order with
-                                      sources/items parsing */
+    tracker_evt_postupdate_sources (evt);
     return;
   }
 
@@ -550,55 +549,63 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
              (unsigned long) g_variant_iter_n_children (iter2),
 	     evt);
 
-  /* Process deleted items */
-  while (g_variant_iter_loop (iter1, "(iiii)", &graph,
-                              &subject, &predicate, &object)) {
-    gpointer psubject = GSIZE_TO_POINTER (subject);
-    GrlTrackerSource *source =
-      grl_tracker_item_cache_get_source (grl_tracker_item_cache, subject);
+  /* Avoid processing item from uninteresting classes */
+  if (g_str_has_suffix (class_name, RDF_TYPE_MUSIC) ||
+      g_str_has_suffix (class_name, RDF_TYPE_AUDIO) ||
+      g_str_has_suffix (class_name, RDF_TYPE_VIDEO) ||
+      g_str_has_suffix (class_name, RDF_TYPE_IMAGE)) {
 
-    /* GRL_DEBUG ("\tdelete=> subject=%i", subject); */
+    /* Process deleted items */
+    while (g_variant_iter_loop (iter1, "(iiii)", &graph,
+                                &subject, &predicate, &object)) {
+      gpointer psubject = GSIZE_TO_POINTER (subject);
+      GrlTrackerSource *source =
+        grl_tracker_item_cache_get_source (grl_tracker_item_cache, subject);
 
-    if (source) {
-      g_hash_table_insert (evt->deleted_items, psubject, source);
-    } else {
-      g_hash_table_insert (evt->orphan_items, psubject,
-                           GSIZE_TO_POINTER (GRL_CONTENT_REMOVED));
-    }
-  }
-  g_variant_iter_free (iter1);
+      /* GRL_DEBUG ("\tdelete=> subject=%i", subject); */
 
-  /* Process inserted items */
-  while (g_variant_iter_loop (iter2, "(iiii)", &graph,
-                              &subject, &predicate, &object)) {
-    gpointer psubject = GSIZE_TO_POINTER (subject);
-    GrlTrackerSource *source =
-      grl_tracker_item_cache_get_source (grl_tracker_item_cache, subject);
-
-    /* GRL_DEBUG ("\tinsert=> subject=%i", subject); */
-
-    if (source) {
-      /* Removed & inserted items are probably just renamed items... */
-      if (g_hash_table_lookup (evt->deleted_items, psubject)) {
-        g_hash_table_remove (evt->deleted_items, psubject);
-        g_hash_table_insert (evt->updated_items, psubject, source);
-      } else if (!g_hash_table_lookup (evt->updated_items, psubject)) {
-        g_hash_table_insert (evt->inserted_items, psubject, source);
-      }
-    } else {
-      gpointer state;
-
-      if (g_hash_table_lookup_extended (evt->orphan_items, psubject,
-                                        NULL, &state) &&
-	  (GPOINTER_TO_INT (state) == GRL_CONTENT_REMOVED)) {
-        g_hash_table_insert (evt->orphan_items, psubject,
-                             GSIZE_TO_POINTER (GRL_CONTENT_CHANGED));
+      if (source) {
+        g_hash_table_insert (evt->deleted_items, psubject, source);
       } else {
         g_hash_table_insert (evt->orphan_items, psubject,
-                             GSIZE_TO_POINTER (GRL_CONTENT_ADDED));
+                             GSIZE_TO_POINTER (GRL_CONTENT_REMOVED));
+      }
+    }
+
+    /* Process inserted items */
+    while (g_variant_iter_loop (iter2, "(iiii)", &graph,
+                              &subject, &predicate, &object)) {
+      gpointer psubject = GSIZE_TO_POINTER (subject);
+      GrlTrackerSource *source =
+        grl_tracker_item_cache_get_source (grl_tracker_item_cache, subject);
+
+      /* GRL_DEBUG ("\tinsert=> subject=%i", subject); */
+
+      if (source) {
+        /* Removed & inserted items are probably just renamed items... */
+        if (g_hash_table_lookup (evt->deleted_items, psubject)) {
+          g_hash_table_remove (evt->deleted_items, psubject);
+          g_hash_table_insert (evt->updated_items, psubject, source);
+        } else if (!g_hash_table_lookup (evt->updated_items, psubject)) {
+          g_hash_table_insert (evt->inserted_items, psubject, source);
+        }
+      } else {
+        gpointer state;
+
+        if (g_hash_table_lookup_extended (evt->orphan_items, psubject,
+                                          NULL, &state) &&
+            (GPOINTER_TO_INT (state) == GRL_CONTENT_REMOVED)) {
+          g_hash_table_insert (evt->orphan_items, psubject,
+                               GSIZE_TO_POINTER (GRL_CONTENT_CHANGED));
+        } else {
+          g_hash_table_insert (evt->orphan_items, psubject,
+                               GSIZE_TO_POINTER (GRL_CONTENT_ADDED));
+        }
       }
     }
   }
+
+  g_variant_iter_free (iter1);
   g_variant_iter_free (iter2);
 
   GRL_DEBUG ("\tinserted=%i deleted=%i updated=%i orphan=%i",

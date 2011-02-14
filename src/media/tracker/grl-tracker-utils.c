@@ -25,19 +25,6 @@
 #include "grl-tracker-utils.h"
 #include "grl-tracker-priv.h"
 
-/* ------- Definitions ------- */
-
-#define RDF_TYPE_ALBUM  "nmm#MusicAlbum"
-#define RDF_TYPE_ARTIST "nmm#Artist"
-#define RDF_TYPE_AUDIO  "nfo#Audio"
-#define RDF_TYPE_MUSIC  "nmm#MusicPiece"
-#define RDF_TYPE_IMAGE  "nmm#Photo"
-#define RDF_TYPE_VIDEO  "nmm#Video"
-#define RDF_TYPE_BOX    "grilo#Box"
-
-#define RDF_TYPE_VOLUME "tracker#Volume"
-#define RDF_TYPE_UPNP   "upnp#ContentDirectory"
-
 /**/
 
 static GHashTable *grl_to_sparql_mapping = NULL;

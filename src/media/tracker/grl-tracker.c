@@ -51,20 +51,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_general_log_domain);
 
 /* --- Other --- */
 
-/* #define TRACKER_MOUNTED_DATASOURCES_START                    \ */
-/*   "SELECT rdf:type(?urn) "				     \ */
-/*   "nie:dataSource(?urn) AS ?datasource "		     \ */
-/*   "nie:title(nie:dataSource(?urn)) "			     \ */
-/*   "(SELECT nie:url(tracker:mountPoint(?ds)) "                \ */
-/*   "WHERE { ?urn nie:dataSource ?ds  }) "                     \ */
-/*   "(SELECT GROUP_CONCAT(tracker:isMounted(?ds), \",\") "     \ */
-/*   "WHERE { ?urn nie:dataSource ?ds  }) "                     \ */
-/*   "(SELECT GROUP_CONCAT(upnp:available(?ds), \",\") "	     \ */
-/*   "WHERE { ?urn nie:dataSource ?ds  }) "                     \ */
-/*   "WHERE { ?urn a nfo:FileDataObject . FILTER (?urn IN (" */
-
-/* #define TRACKER_MOUNTED_DATASOURCES_END " ))} GROUP BY (?datasource)" */
-
 enum {
   PROP_0,
   PROP_TRACKER_CONNECTION,

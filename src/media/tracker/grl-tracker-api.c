@@ -50,7 +50,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_request_log_domain);
   "{ "                                           \
   "?urn a nfo:Media . "                          \
   "?urn tracker:available ?tr . "                \
-  "?urn fts:match '%s' . "                       \
+  "?urn fts:match '*%s*' . "                     \
   "%s "                                          \
   "} "                                           \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "   \

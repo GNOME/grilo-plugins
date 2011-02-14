@@ -289,7 +289,6 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
     return;
   }
 
-  media = grl_media_new ();
   sources = grl_plugin_registry_get_sources (grl_plugin_registry_get_default (),
 					     FALSE);
 
@@ -305,6 +304,7 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
       break;
     } else {
       /* Notify all sources that a been removed */
+      media = grl_media_new ();
       str_id = g_strdup_printf ("%u", id);
       grl_media_set_id (media, str_id);
       g_free (str_id);
@@ -321,6 +321,7 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
 	}
 	source = source->next;
       }
+      g_object_unref (media);
     }
     subject = subject->next;
   }
@@ -334,6 +335,7 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
 	g_string_append_printf (request_str, ", %u", id);
       } else {
 	/* Notify all sources that a been removed */
+        media = grl_media_new ();
 	str_id = g_strdup_printf ("%u", id);
 	grl_media_set_id (media, str_id);
 	g_free (str_id);
@@ -350,6 +352,7 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
 	  }
 	  source = source->next;
 	}
+        g_object_unref (media);
       }
       subject = subject->next;
     }
@@ -368,7 +371,6 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
     tracker_evt_postupdate_sources (evt);
   }
 
-  g_object_unref (media);
   g_string_free (request_str, TRUE);
 }
 

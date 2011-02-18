@@ -181,16 +181,14 @@ tracker_evt_update_orphan_item_cb (GObject              *object,
   guint id;
   const gchar *type, *datasource;
   GrlTrackerSource *source;
-  GError *tracker_error = NULL;
+  GError *error = NULL;
 
   GRL_DEBUG ("%s: evt=%p", __FUNCTION__, evt);
 
-  if (!tracker_sparql_cursor_next_finish (evt->cursor,
-                                          result,
-                                          &tracker_error)) {
-    if (tracker_error != NULL) {
-      GRL_DEBUG ("\terror in parsing : %s", tracker_error->message);
-      g_error_free (tracker_error);
+  if (!tracker_sparql_cursor_next_finish (evt->cursor, result, &error)) {
+    if (error != NULL) {
+      GRL_DEBUG ("\terror in parsing : %s", error->message);
+      g_error_free (error);
     } else {
       GRL_DEBUG ("\tend of parsing...");
     }
@@ -250,19 +248,19 @@ tracker_evt_update_orphans_cb (GObject              *object,
                                GAsyncResult         *result,
                                tracker_evt_update_t *evt)
 {
-  GError *tracker_error = NULL;
+  GError *error = NULL;
 
   GRL_DEBUG ("%s: evt=%p", __FUNCTION__, evt);
 
   if (evt->cursor != NULL)
     g_object_unref (evt->cursor);
   evt->cursor = tracker_sparql_connection_query_finish (grl_tracker_connection,
-                                                        result, NULL);
+                                                        result, &error);
 
-  if (tracker_error != NULL) {
-    GRL_WARNING ("Could not execute sparql query: %s", tracker_error->message);
+  if (error != NULL) {
+    GRL_WARNING ("Could not execute sparql query: %s", error->message);
 
-    g_error_free (tracker_error);
+    g_error_free (error);
     tracker_evt_postupdate_sources (evt);
     return;
   }
@@ -432,16 +430,14 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
   const gchar *type, *datasource, *uri, *datasource_name;
   gboolean volume_mounted, upnp_available, source_available;
   GrlTrackerSource *source;
-  GError *tracker_error = NULL;
+  GError *error = NULL;
 
   GRL_DEBUG ("%s: evt=%p", __FUNCTION__, evt);
 
-  if (!tracker_sparql_cursor_next_finish (evt->cursor,
-                                          result,
-                                          &tracker_error)) {
-    if (tracker_error != NULL) {
-      GRL_DEBUG ("\terror in parsing : %s", tracker_error->message);
-      g_error_free (tracker_error);
+  if (!tracker_sparql_cursor_next_finish (evt->cursor, result, &error)) {
+    if (error != NULL) {
+      GRL_DEBUG ("\terror in parsing : %s", error->message);
+      g_error_free (error);
     } else {
       GRL_DEBUG ("\tend of parsing... start notifying sources");
     }
@@ -493,20 +489,19 @@ tracker_evt_preupdate_sources_cb (GObject              *object,
                                   GAsyncResult         *result,
                                   tracker_evt_update_t *evt)
 {
-  GError *tracker_error = NULL;
+  GError *error = NULL;
 
   GRL_DEBUG ("%s: evt=%p", __FUNCTION__, evt);
 
   if (evt->cursor != NULL)
     g_object_unref (evt->cursor);
   evt->cursor = tracker_sparql_connection_query_finish (grl_tracker_connection,
-                                                        result, NULL);
+                                                        result, &error);
 
-  if (tracker_error != NULL) {
-    GRL_WARNING ("\tCould not execute sparql query: %s",
-                 tracker_error->message);
+  if (error != NULL) {
+    GRL_WARNING ("\tCannot handle datasource request : %s", error->message);
 
-    g_error_free (tracker_error);
+    g_error_free (error);
     tracker_evt_update_free (evt);
     return;
   }

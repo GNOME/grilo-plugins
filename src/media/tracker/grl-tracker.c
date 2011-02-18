@@ -163,17 +163,17 @@ tracker_get_datasource_cb (GObject             *object,
 {
   const gchar *type, *datasource, *datasource_name, *uri;
   gboolean volume_mounted, upnp_available, source_available;
-  GError *tracker_error = NULL;
+  GError *error = NULL;
   GrlTrackerSource *source;
 
   GRL_DEBUG ("%s", __FUNCTION__);
 
-  if (!tracker_sparql_cursor_next_finish (cursor, result, &tracker_error)) {
-    if (tracker_error == NULL) {
+  if (!tracker_sparql_cursor_next_finish (cursor, result, &error)) {
+    if (error == NULL) {
       GRL_DEBUG ("\tEnd of parsing of devices");
     } else {
-      GRL_DEBUG ("\tError while parsing devices: %s", tracker_error->message);
-      g_error_free (tracker_error);
+      GRL_WARNING ("\tError while parsing devices: %s", error->message);
+      g_error_free (error);
     }
     g_object_unref (G_OBJECT (cursor));
     return;
@@ -215,12 +215,19 @@ tracker_get_datasources_cb (GObject      *object,
                             GAsyncResult *result,
                             gpointer      data)
 {
+  GError *error = NULL;
   TrackerSparqlCursor *cursor;
 
   GRL_DEBUG ("%s", __FUNCTION__);
 
   cursor = tracker_sparql_connection_query_finish (grl_tracker_connection,
-                                                   result, NULL);
+                                                   result, &error);
+
+  if (error) {
+    GRL_WARNING ("Cannot handle datasource request : %s", error->message);
+    g_error_free (error);
+    return;
+  }
 
   tracker_sparql_cursor_next_async (cursor, NULL,
                                     (GAsyncReadyCallback) tracker_get_datasource_cb,

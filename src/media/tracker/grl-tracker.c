@@ -77,7 +77,7 @@ TrackerSparqlConnection *grl_tracker_connection = NULL;
 const GrlPluginInfo *grl_tracker_plugin;
 
 /* shared data across  */
-GrlTrackerItemCache *grl_tracker_item_cache;
+GrlTrackerCache *grl_tracker_item_cache;
 GHashTable *grl_tracker_modified_sources;
 
 /* tracker plugin config */
@@ -100,12 +100,12 @@ grl_tracker_add_source (GrlTrackerSource *source)
   }
   if (priv->notification_ref == 0) {
     g_hash_table_remove (grl_tracker_modified_sources,
-			 grl_metadata_source_get_id (GRL_METADATA_SOURCE (source)));
+                         grl_metadata_source_get_id (GRL_METADATA_SOURCE (source)));
     priv->state = GRL_TRACKER_SOURCE_STATE_RUNNING;
     grl_plugin_registry_register_source (grl_plugin_registry_get_default (),
-					 grl_tracker_plugin,
-					 GRL_MEDIA_PLUGIN (source),
-					 NULL);
+                                         grl_tracker_plugin,
+                                         GRL_MEDIA_PLUGIN (source),
+                                         NULL);
   }
 }
 
@@ -122,11 +122,12 @@ grl_tracker_del_source (GrlTrackerSource *source)
   }
   if (priv->notification_ref == 0) {
     g_hash_table_remove (grl_tracker_modified_sources,
-			 grl_metadata_source_get_id (GRL_METADATA_SOURCE (source)));
+                         grl_metadata_source_get_id (GRL_METADATA_SOURCE (source)));
+    grl_tracker_cache_del_source (grl_tracker_item_cache, source);
     priv->state = GRL_TRACKER_SOURCE_STATE_DELETED;
     grl_plugin_registry_unregister_source (grl_plugin_registry_get_default (),
-					   GRL_MEDIA_PLUGIN (source),
-					   NULL);
+                                           GRL_MEDIA_PLUGIN (source),
+                                           NULL);
   }
 }
 
@@ -153,7 +154,7 @@ grl_tracker_source_find (const gchar *id)
     return (GrlTrackerSource *) source;
 
   return (GrlTrackerSource *) g_hash_table_lookup (grl_tracker_modified_sources,
-						   id);
+                                                   id);
 }
 
 static void
@@ -280,7 +281,7 @@ grl_tracker_plugin_init (GrlPluginRegistry *registry,
   grl_tracker_init_requests ();
 
   grl_tracker_plugin = plugin;
-  grl_tracker_item_cache = grl_tracker_item_cache_new (TRACKER_ITEM_CACHE_SIZE);
+  grl_tracker_item_cache = grl_tracker_cache_new (TRACKER_ITEM_CACHE_SIZE);
   grl_tracker_modified_sources = g_hash_table_new (g_str_hash, g_str_equal);
 
   if (!configs) {

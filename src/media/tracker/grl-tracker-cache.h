@@ -27,17 +27,19 @@
 
 #include "grl-tracker.h"
 
-typedef struct _GrlTrackerItemCache GrlTrackerItemCache;
+typedef struct _GrlTrackerCache GrlTrackerCache;
 
-GrlTrackerItemCache *grl_tracker_item_cache_new (gsize size);
+GrlTrackerCache *grl_tracker_cache_new (gsize size);
 
-void grl_tracker_item_cache_free (GrlTrackerItemCache *cache);
+void grl_tracker_cache_free (GrlTrackerCache *cache);
 
-void grl_tracker_item_cache_add_item (GrlTrackerItemCache *cache,
-				      guint id,
-				      GrlTrackerSource *source);
+void grl_tracker_cache_add_item (GrlTrackerCache *cache,
+                                 guint id,
+                                 GrlTrackerSource *source);
+void grl_tracker_cache_del_source (GrlTrackerCache *cache,
+                                   GrlTrackerSource *source);
 
-GrlTrackerSource *grl_tracker_item_cache_get_source (GrlTrackerItemCache *cache,
-						     guint id);
+GrlTrackerSource *grl_tracker_cache_get_source (GrlTrackerCache *cache,
+                                                guint id);
 
 #endif /* _GRL_TRACKER_CACHE_H_ */

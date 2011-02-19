@@ -76,7 +76,7 @@ extern TrackerSparqlConnection *grl_tracker_connection;
 extern const GrlPluginInfo *grl_tracker_plugin;
 
 /* shared data across  */
-extern GrlTrackerItemCache *grl_tracker_item_cache;
+extern GrlTrackerCache *grl_tracker_item_cache;
 extern GHashTable *grl_tracker_modified_sources;
 
 /* tracker plugin config */

@@ -139,13 +139,13 @@ tracker_evt_update_source_del (tracker_evt_update_t *evt,
 			       GrlTrackerSource *source)
 {
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+
   priv->notification_ref++;
   priv->state = GRL_TRACKER_SOURCE_STATE_DELETING;
 
   evt->old_sources = g_list_append (evt->old_sources, source);
 
-  GRL_DEBUG ("Predel source p=%p name=%s id=%s count=%u",
-             source,
+  GRL_DEBUG ("Predel source p=%p name=%s id=%s count=%u", source,
              grl_metadata_source_get_name (GRL_METADATA_SOURCE (source)),
              grl_metadata_source_get_id (GRL_METADATA_SOURCE (source)),
              priv->notification_ref);
@@ -214,7 +214,7 @@ tracker_evt_update_orphan_item_cb (GObject              *object,
     GrlMedia *media;
 
     GRL_DEBUG (" \tAdding to cache id=%u", id);
-    grl_tracker_item_cache_add_item (grl_tracker_item_cache, id, source);
+    grl_tracker_cache_add_item (grl_tracker_item_cache, id, source);
 
     if (grl_tracker_source_can_notify (source)) {
       media = grl_tracker_build_grilo_media (type);
@@ -557,7 +557,7 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
                                 &subject, &predicate, &object)) {
       gpointer psubject = GSIZE_TO_POINTER (subject);
       GrlTrackerSource *source =
-        grl_tracker_item_cache_get_source (grl_tracker_item_cache, subject);
+        grl_tracker_cache_get_source (grl_tracker_item_cache, subject);
 
       /* GRL_DEBUG ("\tdelete=> subject=%i", subject); */
 
@@ -574,7 +574,7 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
                               &subject, &predicate, &object)) {
       gpointer psubject = GSIZE_TO_POINTER (subject);
       GrlTrackerSource *source =
-        grl_tracker_item_cache_get_source (grl_tracker_item_cache, subject);
+        grl_tracker_cache_get_source (grl_tracker_item_cache, subject);
 
       /* GRL_DEBUG ("\tinsert=> subject=%i", subject); */
 

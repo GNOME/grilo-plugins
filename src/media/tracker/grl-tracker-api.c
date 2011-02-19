@@ -107,6 +107,10 @@ struct OperationSpec {
 
 /**/
 
+static GrlKeyID grl_metadata_key_tracker_category;
+
+/**/
+
 static struct OperationSpec *
 tracker_operation_initiate (GrlMediaSource *source,
                             GrlTrackerSourcePriv *priv,
@@ -523,6 +527,11 @@ grl_tracker_source_metadata (GrlMediaSource *source,
 
   GRL_DEBUG ("%s: id=%i", __FUNCTION__, ms->metadata_id);
 
+  if (grl_media_get_id (ms->media) == NULL) {
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    return;
+  }
+
   sparql_select = grl_tracker_source_get_select_string (source, ms->keys);
   sparql_final = g_strdup_printf (TRACKER_METADATA_REQUEST, sparql_select,
                                   grl_media_get_id (ms->media));
@@ -593,33 +602,45 @@ grl_tracker_source_browse (GrlMediaSource *source,
   gchar                *sparql_final;
   struct OperationSpec *os;
   GrlMedia             *media;
+  const gchar          *category;
 
   GRL_DEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
 
-  if ((bs->container == NULL || grl_media_get_id (bs->container) == NULL)) {
+  if (bs->container == NULL ||
+      !grl_data_has_key (GRL_DATA (bs->container),
+                         grl_metadata_key_tracker_category)) {
     /* Hardcoded categories */
     media = grl_media_box_new ();
     grl_media_set_title (media, "Music");
-    grl_media_set_id (media, "nmm:MusicPiece");
+    grl_data_set_string (GRL_DATA (media),
+                         grl_metadata_key_tracker_category,
+                         "nmm:MusicPiece");
     bs->callback (bs->source, bs->browse_id, media, 2, bs->user_data, NULL);
 
     media = grl_media_box_new ();
     grl_media_set_title (media, "Photo");
-    grl_media_set_id (media, "nmm:Photo");
+    grl_data_set_string (GRL_DATA (media),
+                         grl_metadata_key_tracker_category,
+                         "nmm:Photo");
     bs->callback (bs->source, bs->browse_id, media, 1, bs->user_data, NULL);
 
     media = grl_media_box_new ();
     grl_media_set_title (media, "Video");
-    grl_media_set_id (media, "nmm:Video");
+    grl_data_set_string (GRL_DATA (media),
+                         grl_metadata_key_tracker_category,
+                         "nmm:Video");
     bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
     return;
   }
+
+  category = grl_data_get_string (GRL_DATA (bs->container),
+                                  grl_metadata_key_tracker_category);
 
   constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_select = grl_tracker_source_get_select_string (bs->source, bs->keys);
   sparql_final = g_strdup_printf (TRACKER_BROWSE_CATEGORY_REQUEST,
                                   sparql_select,
-                                  grl_media_get_id (bs->container),
+                                  category,
                                   constraint,
                                   bs->skip, bs->count);
 
@@ -680,5 +701,16 @@ grl_tracker_source_change_stop (GrlMediaSource *source, GError **error)
 void
 grl_tracker_init_requests (void)
 {
+  grl_metadata_key_tracker_category =
+    grl_plugin_registry_register_metadata_key (grl_plugin_registry_get_default (),
+                                               g_param_spec_string ("tracker-category",
+                                                                    "Tracker category",
+                                                                    "Category a media belongs to",
+                                                                    NULL,
+                                                                    G_PARAM_STATIC_STRINGS |
+                                                                    G_PARAM_READWRITE),
+                                               NULL);
+
+
   GRL_LOG_DOMAIN_INIT (tracker_request_log_domain, "tracker-request");
 }

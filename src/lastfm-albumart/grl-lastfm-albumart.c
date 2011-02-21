@@ -66,8 +66,10 @@ static void grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
 
 static const GList *grl_lastfm_albumart_source_supported_keys (GrlMetadataSource *source);
 
-static const GList *grl_lastfm_albumart_source_key_depends (GrlMetadataSource *source,
-                                                            GrlKeyID key_id);
+static gboolean grl_lastfm_albumart_source_may_resolve (GrlMetadataSource *source,
+                                                        GrlMedia *media,
+                                                        GrlKeyID key_id,
+                                                        GList **missing_keys);
 
 gboolean grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
                                                  const GrlPluginInfo *plugin,
@@ -115,7 +117,7 @@ grl_lastfm_albumart_source_class_init (GrlLastfmAlbumartSourceClass * klass)
 {
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   metadata_class->supported_keys = grl_lastfm_albumart_source_supported_keys;
-  metadata_class->key_depends = grl_lastfm_albumart_source_key_depends;
+  metadata_class->may_resolve = grl_lastfm_albumart_source_may_resolve;
   metadata_class->resolve = grl_lastfm_albumart_source_resolve;
 
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -247,23 +249,39 @@ grl_lastfm_albumart_source_supported_keys (GrlMetadataSource *source)
   return keys;
 }
 
-static const GList *
-grl_lastfm_albumart_source_key_depends (GrlMetadataSource *source,
-                                        GrlKeyID key_id)
+static gboolean
+grl_lastfm_albumart_source_may_resolve (GrlMetadataSource *source,
+                                        GrlMedia *media,
+                                        GrlKeyID key_id,
+                                        GList **missing_keys)
 {
-  static GList *deps = NULL;
+  gboolean have_artist = FALSE, have_album = FALSE;
 
-  if (!deps) {
-    deps = grl_metadata_key_list_new (GRL_METADATA_KEY_ARTIST,
-                                      GRL_METADATA_KEY_ALBUM,
-                                      NULL);
+  if (key_id != GRL_METADATA_KEY_THUMBNAIL)
+    return FALSE;
+
+  if (media) {
+    if (grl_data_key_is_known (GRL_DATA (media), GRL_METADATA_KEY_ARTIST))
+      have_artist = TRUE;
+    if (grl_data_key_is_known (GRL_DATA (media), GRL_METADATA_KEY_ALBUM))
+      have_album = TRUE;
   }
 
-  if (key_id == GRL_METADATA_KEY_THUMBNAIL) {
-    return deps;
+  if (have_artist && have_album)
+    return TRUE;
+
+  if (missing_keys) {
+    GList *result = NULL;
+    if (!have_artist)
+      result = g_list_append (result, GRL_METADATA_KEY_ARTIST);
+    if (!have_album)
+      result = g_list_append (result, GRL_METADATA_KEY_ALBUM);
+
+    if (result)
+      *missing_keys = result;
   }
 
-  return  NULL;
+  return FALSE;
 }
 
 static void

@@ -180,7 +180,7 @@ tracker_evt_update_orphan_item_cb (GObject              *object,
 {
   guint id;
   const gchar *type, *datasource;
-  GrlTrackerSource *source;
+  GrlTrackerSource *source = NULL;
   GError *error = NULL;
 
   GRL_DEBUG ("%s: evt=%p", __FUNCTION__, evt);
@@ -208,7 +208,8 @@ tracker_evt_update_orphan_item_cb (GObject              *object,
 
   GRL_DEBUG ("\tOrphan item: id=%u datasource=%s", id, datasource);
 
-  source = grl_tracker_source_find (datasource);
+  if (datasource)
+    source = grl_tracker_source_find (datasource);
 
   if (source && GRL_IS_TRACKER_SOURCE (source)) {
     GrlMedia *media;

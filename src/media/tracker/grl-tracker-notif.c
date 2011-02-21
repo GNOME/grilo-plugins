@@ -428,7 +428,7 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
                                        tracker_evt_update_t *evt)
 {
   const gchar *type, *datasource, *uri, *datasource_name;
-  gboolean volume_mounted, upnp_available, source_available;
+  gboolean source_available;
   GrlTrackerSource *source;
   GError *error = NULL;
 
@@ -454,16 +454,12 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
   datasource = tracker_sparql_cursor_get_string (evt->cursor, 1, NULL);
   datasource_name = tracker_sparql_cursor_get_string (evt->cursor, 2, NULL);
   uri = tracker_sparql_cursor_get_string (evt->cursor, 3, NULL);
-  volume_mounted = tracker_sparql_cursor_get_boolean (evt->cursor, 4);
-  upnp_available = tracker_sparql_cursor_get_boolean (evt->cursor, 5);
-
-  source_available = volume_mounted | upnp_available;
+  source_available = tracker_sparql_cursor_get_boolean (evt->cursor, 4);
 
   source = grl_tracker_source_find (datasource);
 
-  GRL_DEBUG ("\tdatasource=%s uri=%s volume/mounted=%i "
-             "upnp/available=%i source=%p",
-             datasource, uri, volume_mounted, upnp_available, source);
+  GRL_DEBUG ("\tdatasource=%s uri=%s available=%i source=%p",
+             datasource, uri, source_available, source);
 
   if (source_available) {
     if (source == NULL) {
@@ -536,8 +532,6 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
   GVariantIter *iter1, *iter2;
   tracker_evt_update_t *evt = tracker_evt_update_new ();
 
-  GRL_DEBUG ("%s: evt=%p", __FUNCTION__, evt);
-
   g_variant_get (parameters, "(&sa(iiii)a(iiii))", &class_name, &iter1, &iter2);
 
   GRL_DEBUG ("\tTracker update event for class=%s ins=%lu del=%lu evt=%p",
@@ -562,7 +556,8 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
       /* GRL_DEBUG ("\tdelete=> subject=%i", subject); */
 
       if (source) {
-        g_hash_table_insert (evt->deleted_items, psubject, source);
+        g_hash_table_insert (evt->deleted_items, psubject,
+                             g_object_ref (source));
       } else {
         g_hash_table_insert (evt->orphan_items, psubject,
                              GSIZE_TO_POINTER (GRL_CONTENT_REMOVED));
@@ -582,9 +577,11 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
         /* Removed & inserted items are probably just renamed items... */
         if (g_hash_table_lookup (evt->deleted_items, psubject)) {
           g_hash_table_remove (evt->deleted_items, psubject);
-          g_hash_table_insert (evt->updated_items, psubject, source);
+          g_hash_table_insert (evt->updated_items, psubject,
+                               g_object_ref (source));
         } else if (!g_hash_table_lookup (evt->updated_items, psubject)) {
-          g_hash_table_insert (evt->inserted_items, psubject, source);
+          g_hash_table_insert (evt->inserted_items, psubject,
+                               g_object_ref (source));
         }
       } else {
         gpointer state;

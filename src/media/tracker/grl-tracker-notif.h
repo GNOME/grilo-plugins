@@ -30,10 +30,20 @@
 /* ------- Definitions ------- */
 
 #define TRACKER_DATASOURCES_REQUEST                                     \
-  "SELECT rdf:type(?urn) ?urn nie:title(?urn) "				\
-  "nie:url(tracker:mountPoint(?urn)) "					\
-  "tracker:isMounted(?urn) upnp:available(?urn) "			\
-  "WHERE { ?urn a nie:DataSource . }"
+  "SELECT "                                                             \
+  "(SELECT GROUP_CONCAT(rdf:type(?source), \":\") "                     \
+  " WHERE { ?urn nie:dataSource ?source }) "                            \
+  "nie:dataSource(?urn) "                                               \
+  "(SELECT GROUP_CONCAT(nie:title(?source), \":\") "                    \
+  " WHERE { ?urn nie:dataSource ?source }) "                            \
+  "(SELECT GROUP_CONCAT(nie:url(tracker:mountPoint(?source)), \":\") "  \
+  " WHERE { ?urn nie:dataSource ?source }) "                            \
+  "tracker:available(?urn) "                                            \
+  "WHERE "                                                              \
+  "{ "                                                                  \
+  "?urn a nfo:FileDataObject . FILTER (bound(nie:dataSource(?urn)))"    \
+  "} "                                                                  \
+  "GROUP BY (nie:dataSource(?urn))"
 
 /**/
 

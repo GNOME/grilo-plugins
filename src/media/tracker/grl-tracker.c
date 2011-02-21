@@ -150,11 +150,13 @@ grl_tracker_source_find (const gchar *id)
   source = grl_plugin_registry_lookup_source (grl_plugin_registry_get_default (),
 					      id);
 
-  if (source && GRL_IS_TRACKER_SOURCE (source))
+  if (source && GRL_IS_TRACKER_SOURCE (source)) {
     return (GrlTrackerSource *) source;
+  }
 
-  return (GrlTrackerSource *) g_hash_table_lookup (grl_tracker_modified_sources,
-                                                   id);
+  return
+    (GrlTrackerSource *) g_hash_table_lookup (grl_tracker_modified_sources,
+                                              id);
 }
 
 static void
@@ -163,7 +165,7 @@ tracker_get_datasource_cb (GObject             *object,
                            TrackerSparqlCursor *cursor)
 {
   const gchar *type, *datasource, *datasource_name, *uri;
-  gboolean volume_mounted, upnp_available, source_available;
+  gboolean source_available;
   GError *error = NULL;
   GrlTrackerSource *source;
 
@@ -184,10 +186,7 @@ tracker_get_datasource_cb (GObject             *object,
   datasource = tracker_sparql_cursor_get_string (cursor, 1, NULL);
   datasource_name = tracker_sparql_cursor_get_string (cursor, 2, NULL);
   uri = tracker_sparql_cursor_get_string (cursor, 3, NULL);
-  volume_mounted = tracker_sparql_cursor_get_boolean (cursor, 4);
-  upnp_available = tracker_sparql_cursor_get_boolean (cursor, 5);
-
-  source_available = volume_mounted | upnp_available;
+  source_available = tracker_sparql_cursor_get_boolean (cursor, 4);
 
   source = grl_tracker_source_find (datasource);
 

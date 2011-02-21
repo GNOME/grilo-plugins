@@ -814,33 +814,19 @@ get_value_for_key (GrlKeyID key_id,
 }
 
 static void
-set_metadata_value (GrlMedia *media,
+set_metadata_value (GrlData *data,
                     GrlKeyID key_id,
                     const gchar *value)
 {
-  if (key_id == GRL_METADATA_KEY_TITLE) {
-    grl_media_set_title (media, value);
-  } else if (key_id == GRL_METADATA_KEY_ARTIST) {
-    grl_media_audio_set_artist (GRL_MEDIA_AUDIO(media), value);
-  } else if (key_id == GRL_METADATA_KEY_ALBUM) {
-    grl_media_audio_set_album (GRL_MEDIA_AUDIO(media), value);
-  } else if (key_id == GRL_METADATA_KEY_GENRE) {
-    grl_media_audio_set_genre (GRL_MEDIA_AUDIO(media), value);
-  } else if (key_id == GRL_METADATA_KEY_URL) {
-    grl_media_set_url (media, value);
-  } else if (key_id == GRL_METADATA_KEY_MIME) {
-    grl_media_set_mime (media, value);
-  } else if (key_id == GRL_METADATA_KEY_DATE) {
-    grl_media_set_date (media, value);
-  } else if (key_id == GRL_METADATA_KEY_DURATION) {
+  if (key_id == GRL_METADATA_KEY_DURATION) {
     gint duration = didl_h_mm_ss_to_int (value);
     if (duration >= 0) {
-      grl_media_set_duration (media, duration);
+      grl_data_set_int (data, GRL_METADATA_KEY_DURATION, duration);
     }
-  } else if (key_id == GRL_METADATA_KEY_CHILDCOUNT && value && GRL_IS_MEDIA_BOX (media)) {
-      grl_media_box_set_childcount (GRL_MEDIA_BOX (media), atoi (value));
-  } else if (key_id == GRL_METADATA_KEY_THUMBNAIL) {
-    grl_media_set_thumbnail (media, value);
+  } else if (key_id == GRL_METADATA_KEY_CHILDCOUNT && value) {
+    grl_data_set_int (data, GRL_METADATA_KEY_CHILDCOUNT, atoi (value));
+  } else {
+    grl_data_set_string (data, key_id, value);
   }
 }
 
@@ -898,7 +884,7 @@ build_media_from_didl (GrlMedia *content,
   while (iter) {
     gchar *value = get_value_for_key (iter->data, didl_node, didl_props);
     if (value) {
-      set_metadata_value (media, iter->data, value);
+      set_metadata_value (GRL_DATA (media), iter->data, value);
     }
     iter = g_list_next (iter);
   }

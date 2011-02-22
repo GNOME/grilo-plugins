@@ -57,8 +57,10 @@ static void grl_gravatar_source_resolve (GrlMetadataSource *source,
 
 static const GList *grl_gravatar_source_supported_keys (GrlMetadataSource *source);
 
-static const GList *grl_gravatar_source_key_depends (GrlMetadataSource *source,
-                                                     GrlKeyID key_id);
+static gboolean grl_gravatar_source_may_resolve (GrlMetadataSource *source,
+                                                 GrlMedia *media,
+                                                 GrlKeyID key_id,
+                                                 GList **missing_keys);
 
 static GrlKeyID register_gravatar_key (GrlPluginRegistry *registry,
                                        const gchar *name,
@@ -131,7 +133,7 @@ grl_gravatar_source_class_init (GrlGravatarSourceClass * klass)
 {
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   metadata_class->supported_keys = grl_gravatar_source_supported_keys;
-  metadata_class->key_depends = grl_gravatar_source_key_depends;
+  metadata_class->may_resolve = grl_gravatar_source_may_resolve;
   metadata_class->resolve = grl_gravatar_source_resolve;
 }
 
@@ -207,6 +209,23 @@ get_avatar (const gchar *field) {
   return avatar;
 }
 
+/**
+ * Returns: TRUE if @dependency is in @media, FALSE else.
+ * When returning FALSE, if @missing_keys is not NULL it is populated with a
+ * list containing @dependency as only element.
+ */
+static gboolean
+has_dependency (GrlMedia *media, GrlKeyID dependency, GList **missing_keys)
+{
+  if (media && grl_data_key_is_known (GRL_DATA (media), dependency))
+    return TRUE;
+
+  if (missing_keys)
+    *missing_keys = grl_metadata_key_list_new (dependency,
+                                               NULL);
+  return FALSE;
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -226,30 +245,21 @@ grl_gravatar_source_supported_keys (GrlMetadataSource *source)
  return keys;
 }
 
-static const GList *
-grl_gravatar_source_key_depends (GrlMetadataSource *source,
-                                 GrlKeyID key_id)
+static gboolean
+grl_gravatar_source_may_resolve (GrlMetadataSource *source,
+                                 GrlMedia *media,
+                                 GrlKeyID key_id,
+                                 GList **missing_keys)
 {
-  static GList *artist_avatar_deps = NULL;
-  static GList *author_avatar_deps = NULL;
+  /* FIXME: we should check whether the artist/author in @media is in an email
+   * format */
 
-  if (!artist_avatar_deps) {
-    artist_avatar_deps = grl_metadata_key_list_new (GRL_METADATA_KEY_ARTIST,
-                                                    NULL);
-  }
+  if (key_id == GRL_METADATA_KEY_ARTIST_AVATAR)
+    return has_dependency (media, GRL_METADATA_KEY_ARTIST, missing_keys);
+  else if (key_id == GRL_METADATA_KEY_AUTHOR_AVATAR)
+    return has_dependency (media, GRL_METADATA_KEY_AUTHOR, missing_keys);
 
-  if (!author_avatar_deps) {
-    author_avatar_deps = grl_metadata_key_list_new (GRL_METADATA_KEY_AUTHOR,
-                                                    NULL);
-  }
-
-  if (key_id == GRL_METADATA_KEY_ARTIST_AVATAR) {
-    return artist_avatar_deps;
-  } else if (key_id == GRL_METADATA_KEY_AUTHOR_AVATAR) {
-    return author_avatar_deps;
-  } else {
-    return  NULL;
-  }
+  return FALSE;
 }
 
 static void

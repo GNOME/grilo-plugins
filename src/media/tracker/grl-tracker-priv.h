@@ -81,5 +81,6 @@ extern GHashTable *grl_tracker_modified_sources;
 
 /* tracker plugin config */
 extern gboolean grl_tracker_per_device_source;
+extern gboolean grl_tracker_browse_filesystem;
 
 #endif /* _GRL_TRACKER_PRIV_H_ */

@@ -81,6 +81,36 @@ GRL_LOG_DOMAIN_STATIC(tracker_request_log_domain);
   "OFFSET %i "                                 \
   "LIMIT %i"
 
+#define TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST                  \
+  "SELECT rdf:type(?urn) %s "                                   \
+  "WHERE "                                                      \
+  "{ "                                                          \
+  "{ ?urn a nfo:Folder } UNION "                                \
+  "{ ?urn a nfo:Audio } UNION "                                 \
+  "{ ?urn a nmm:Photo } UNION "                                 \
+  "{ ?urn a nmm:Video } . "                                     \
+  "%s "                                                         \
+  "FILTER (!bound(nfo:belongsToContainer(?urn))) "              \
+  "} "                                                          \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "                  \
+  "OFFSET %i "                                                  \
+  "LIMIT %i"
+
+#define TRACKER_BROWSE_FILESYSTEM_REQUEST                       \
+  "SELECT rdf:type(?urn) %s "                                   \
+  "WHERE "                                                      \
+  "{ "                                                          \
+  "{ ?urn a nfo:Folder } UNION "                                \
+  "{ ?urn a nfo:Audio } UNION "                                 \
+  "{ ?urn a nmm:Photo } UNION "                                 \
+  "{ ?urn a nmm:Video } . "                                     \
+  "%s "                                                         \
+  "FILTER(tracker:id(nfo:belongsToContainer(?urn)) = %s) "      \
+  "} "                                                          \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "                  \
+  "OFFSET %i "                                                  \
+  "LIMIT %i"
+
 #define TRACKER_METADATA_REQUEST                \
   "SELECT %s "                                  \
   "WHERE "                                      \
@@ -601,9 +631,9 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   g_free (sparql_final);
 }
 
-void
-grl_tracker_source_browse (GrlMediaSource *source,
-                           GrlMediaSourceBrowseSpec *bs)
+static void
+grl_tracker_source_browse_category (GrlMediaSource *source,
+                                    GrlMediaSourceBrowseSpec *bs)
 {
   GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
   gchar                *constraint;
@@ -671,6 +701,66 @@ grl_tracker_source_browse (GrlMediaSource *source,
   g_free (constraint);
   g_free (sparql_select);
   g_free (sparql_final);
+}
+
+static void
+grl_tracker_source_browse_filesystem (GrlMediaSource *source,
+                                      GrlMediaSourceBrowseSpec *bs)
+{
+  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  gchar                *constraint;
+  gchar                *sparql_select;
+  gchar                *sparql_final;
+  struct OperationSpec *os;
+
+  GRL_DEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
+
+  sparql_select = grl_tracker_source_get_select_string (bs->source, bs->keys);
+  constraint = grl_tracker_source_get_device_constraint (priv);
+
+  if (bs->container == NULL ||
+      !grl_media_get_id (bs->container)) {
+    sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST,
+                                    sparql_select,
+                                    constraint,
+                                    bs->skip, bs->count);
+
+  } else {
+    sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_REQUEST,
+                                    sparql_select,
+                                    constraint,
+                                    grl_media_get_id (bs->container),
+                                    bs->skip, bs->count);
+  }
+
+  GRL_DEBUG ("\tselect: '%s'", sparql_final);
+
+  os = tracker_operation_initiate (source, priv, bs->browse_id);
+  os->keys         = bs->keys;
+  os->skip         = bs->skip;
+  os->count        = bs->count;
+  os->callback     = bs->callback;
+  os->user_data    = bs->user_data;
+
+  tracker_sparql_connection_query_async (priv->tracker_connection,
+                                         sparql_final,
+                                         os->cancel_op,
+                                         (GAsyncReadyCallback) tracker_query_cb,
+                                         os);
+
+  g_free (constraint);
+  g_free (sparql_select);
+  g_free (sparql_final);
+}
+
+void
+grl_tracker_source_browse (GrlMediaSource *source,
+                           GrlMediaSourceBrowseSpec *bs)
+{
+  if (grl_tracker_browse_filesystem)
+    grl_tracker_source_browse_filesystem (source, bs);
+  else
+    grl_tracker_source_browse_category (source, bs);
 }
 
 void

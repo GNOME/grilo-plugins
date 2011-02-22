@@ -35,6 +35,7 @@
 #define RDF_TYPE_MUSIC  "nmm#MusicPiece"
 #define RDF_TYPE_IMAGE  "nmm#Photo"
 #define RDF_TYPE_VIDEO  "nmm#Video"
+#define RDF_TYPE_FOLDER "nfo#Folder"
 #define RDF_TYPE_BOX    "grilo#Box"
 
 #define RDF_TYPE_VOLUME "tracker#Volume"

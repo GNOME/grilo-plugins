@@ -82,7 +82,7 @@ GHashTable *grl_tracker_modified_sources;
 
 /* tracker plugin config */
 gboolean grl_tracker_per_device_source = FALSE;
-
+gboolean grl_tracker_browse_filesystem = FALSE;
 
 /* =================== Tracker Plugin  =============== */
 
@@ -295,6 +295,8 @@ grl_tracker_plugin_init (GrlPluginRegistry *registry,
 
     grl_tracker_per_device_source =
       grl_config_get_boolean (config, "per-device-source");
+    grl_tracker_browse_filesystem =
+      grl_config_get_boolean (config, "browse-filesystem");
   }
 
   tracker_sparql_connection_get_async (NULL,

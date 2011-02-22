@@ -103,6 +103,15 @@ grl_gravatar_source_plugin_init (GrlPluginRegistry *registry,
     return FALSE;
   }
 
+  /* Create relationship */
+  grl_plugin_registry_register_metadata_key_relation (registry,
+                                                      GRL_METADATA_KEY_ARTIST,
+                                                      GRL_METADATA_KEY_ARTIST_AVATAR);
+
+  grl_plugin_registry_register_metadata_key_relation (registry,
+                                                      GRL_METADATA_KEY_AUTHOR,
+                                                      GRL_METADATA_KEY_AUTHOR_AVATAR);
+
   GrlGravatarSource *source = grl_gravatar_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
@@ -226,6 +235,26 @@ has_dependency (GrlMedia *media, GrlKeyID dependency, GList **missing_keys)
   return FALSE;
 }
 
+static void
+set_avatar (GrlData *data,
+            GrlKeyID key)
+{
+  gint length, i;
+  GrlRelatedKeys *relkeys;
+  gchar *avatar_url;
+
+  length = grl_data_length (data, key);
+
+  for (i = 0; i < length; i++) {
+    relkeys = grl_data_get_related_keys (data, key, i);
+    avatar_url = get_avatar (grl_related_keys_get_string (relkeys, key));
+    if (avatar_url) {
+      grl_related_keys_set_string (relkeys, key, avatar_url);
+      g_free (avatar_url);
+    }
+  }
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -268,7 +297,6 @@ grl_gravatar_source_resolve (GrlMetadataSource *source,
 {
   gboolean artist_avatar_required = FALSE;
   gboolean author_avatar_required = FALSE;
-  gchar *avatar_url;
 
   GRL_DEBUG ("grl_gravatar_source_resolve");
 
@@ -286,25 +314,11 @@ grl_gravatar_source_resolve (GrlMetadataSource *source,
   }
 
   if (artist_avatar_required) {
-    avatar_url = get_avatar (grl_data_get_string (GRL_DATA (rs->media),
-                                                  GRL_METADATA_KEY_ARTIST));
-    if (avatar_url) {
-      grl_data_set_string (GRL_DATA (rs->media),
-                           GRL_METADATA_KEY_ARTIST_AVATAR,
-                           avatar_url);
-      g_free (avatar_url);
-    }
+    set_avatar (GRL_DATA (rs->media), GRL_METADATA_KEY_ARTIST);
   }
 
   if (author_avatar_required) {
-    avatar_url = get_avatar (grl_data_get_string (GRL_DATA (rs->media),
-                                                  GRL_METADATA_KEY_AUTHOR));
-    if (avatar_url) {
-      grl_data_set_string (GRL_DATA (rs->media),
-                           GRL_METADATA_KEY_AUTHOR_AVATAR,
-                           avatar_url);
-      g_free (avatar_url);
-    }
+    set_avatar (GRL_DATA (rs->media), GRL_METADATA_KEY_AUTHOR);
   }
 
   rs->callback (source, rs->media, rs->user_data, NULL);

@@ -41,7 +41,10 @@ GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 /* -------- Last.FM API -------- */
 
 #define LASTFM_GET_ALBUM "http://ws.audioscrobbler.com/1.0/album/%s/%s/info.xml"
-#define LASTFM_XML_COVER "/album/coverart/medium"
+
+#define LASTFM_XML_COVER_MEDIUM "/album/coverart/medium"
+#define LASTFM_XML_COVER_LARGE  "/album/coverart/large"
+#define LASTFM_XML_COVER_SMALL  "/album/coverart/small"
 
 /* ------- Pluging Info -------- */
 
@@ -145,7 +148,7 @@ grl_lastfm_albumart_source_finalize (GObject *object)
 /* ======================= Utilities ==================== */
 
 static gchar *
-xml_get_image (const gchar *xmldata)
+xml_get_image (const gchar *xmldata, const gchar *image_node)
 {
   xmlDocPtr doc;
   xmlXPathContextPtr xpath_ctx;
@@ -164,8 +167,7 @@ xml_get_image (const gchar *xmldata)
     return NULL;
   }
 
-  xpath_res = xmlXPathEvalExpression ((xmlChar *) LASTFM_XML_COVER,
-                                      xpath_ctx);
+  xpath_res = xmlXPathEvalExpression ((xmlChar *) image_node, xpath_ctx);
   if (!xpath_res) {
     xmlXPathFreeContext (xpath_ctx);
     xmlFreeDoc (doc);
@@ -194,6 +196,7 @@ read_done_cb (GObject *source_object,
     (GrlMetadataSourceResolveSpec *) user_data;
   GError *error = NULL;
   GError *wc_error = NULL;
+  GrlRelatedKeys *relkeys;
   gchar *content = NULL;
   gchar *image = NULL;
 
@@ -213,11 +216,27 @@ read_done_cb (GObject *source_object,
     return;
   }
 
-  image = xml_get_image (content);
+  image = xml_get_image (content, LASTFM_XML_COVER_MEDIUM);
   if (image) {
-    grl_data_set_string (GRL_DATA (rs->media),
-                         GRL_METADATA_KEY_THUMBNAIL,
-                         image);
+    relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
+                                              NULL);
+    grl_data_add_related_keys (GRL_DATA (rs->media), relkeys);
+    g_free (image);
+  }
+
+  image = xml_get_image (content, LASTFM_XML_COVER_LARGE);
+  if (image) {
+    relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
+                                              NULL);
+    grl_data_add_related_keys (GRL_DATA (rs->media), relkeys);
+    g_free (image);
+  }
+
+  image = xml_get_image (content, LASTFM_XML_COVER_SMALL);
+  if (image) {
+    relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
+                                              NULL);
+    grl_data_add_related_keys (GRL_DATA (rs->media), relkeys);
     g_free (image);
   }
 

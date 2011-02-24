@@ -15,7 +15,7 @@ AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src])
 
-AM_CONFIG_HEADER(src/config.h)
+AM_CONFIG_HEADER(config.h)
 
 AC_PROG_CC
 AC_PROG_INSTALL
@@ -753,22 +753,24 @@ AC_SUBST([builddir])
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
-  src/youtube/Makefile
-  src/fake-metadata/Makefile
-  src/filesystem/Makefile
-  src/jamendo/Makefile
-  src/lastfm-albumart/Makefile
-  src/upnp/Makefile
-  src/flickr/Makefile
-  src/podcasts/Makefile
-  src/bookmarks/Makefile
-  src/shoutcast/Makefile
-  src/apple-trailers/Makefile
-  src/metadata-store/Makefile
-  src/vimeo/Makefile
-  src/gravatar/Makefile
-  src/tracker/Makefile
-  src/local-metadata/Makefile
+  src/media/upnp/Makefile
+  src/media/vimeo/Makefile
+  src/media/bookmarks/Makefile
+  src/media/tracker/Makefile
+  src/media/podcasts/Makefile
+  src/media/jamendo/Makefile
+  src/media/youtube/Makefile
+  src/media/shoutcast/Makefile
+  src/media/flickr/Makefile
+  src/media/filesystem/Makefile
+  src/media/Makefile
+  src/media/apple-trailers/Makefile
+  src/metadata/metadata-store/Makefile
+  src/metadata/gravatar/Makefile
+  src/metadata/lastfm-albumart/Makefile
+  src/metadata/fake-metadata/Makefile
+  src/metadata/Makefile
+  src/metadata/local-metadata/Makefile
   test/Makefile
 ])
 

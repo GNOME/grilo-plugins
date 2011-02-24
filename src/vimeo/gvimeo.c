@@ -187,6 +187,7 @@ sign_string (gchar *message, gchar *key)
   gchar *signed_message = NULL;
   gcry_md_hd_t digest_obj;
   unsigned char *hmac_digest;
+  guint digest_len;
 
   gcry_md_open(&digest_obj,
 	       GCRY_MD_SHA1,
@@ -196,8 +197,8 @@ sign_string (gchar *message, gchar *key)
   gcry_md_final (digest_obj);
   hmac_digest = gcry_md_read (digest_obj, 0);
 
-  signed_message = g_base64_encode (hmac_digest,
-				    strlen ((gchar *) hmac_digest));
+  digest_len = gcry_md_get_algo_dlen (GCRY_MD_SHA1);
+  signed_message = g_base64_encode (hmac_digest, digest_len);
 
   gcry_md_close (digest_obj);
 

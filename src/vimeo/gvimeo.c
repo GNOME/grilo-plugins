@@ -95,6 +95,7 @@ static VideoInfo video_info[] = {{SIMPLE, VIMEO_VIDEO_TITLE},
 				 {EXTENDED, VIMEO_VIDEO_OWNER}};
 
 static void g_vimeo_finalize (GObject *object);
+static gchar * encode_uri (const gchar *uri);
 
 /* -------------------- GOBJECT -------------------- */
 
@@ -162,6 +163,7 @@ get_nonce (void)
 
 static gchar *
 get_videos_search_params (GVimeo *vimeo, const gchar *text, gint page) {
+  gchar *encoded_text = encode_uri (text);
   gchar *timestamp = get_timestamp ();
   gchar *nonce = get_nonce ();
   gchar *params = g_strdup_printf (VIMEO_VIDEO_SEARCH,
@@ -171,9 +173,10 @@ get_videos_search_params (GVimeo *vimeo, const gchar *text, gint page) {
 				   timestamp,
 				   page,
 				   vimeo->priv->per_page,
-				   text);
+				   encoded_text);
   g_free (timestamp);
   g_free (nonce);
+  g_free (encoded_text);
 
   return params;
 }

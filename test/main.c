@@ -235,37 +235,37 @@ main (void)
   grl_plugin_registry_add_config (registry, config, NULL);
 
   grl_plugin_registry_load (registry,
-                            "../src/youtube/.libs/libgrlyoutube.so",
+                            "../src/media/youtube/.libs/libgrlyoutube.so",
                             NULL);
   grl_plugin_registry_load (registry,
-                            "../src/filesystem/.libs/libgrlfilesystem.so",
+                            "../src/media/filesystem/.libs/libgrlfilesystem.so",
                             NULL);
   grl_plugin_registry_load (registry,
-                            "../src/jamendo/.libs/libgrljamendo.so",
+                            "../src/media/jamendo/.libs/libgrljamendo.so",
                             NULL);
   grl_plugin_registry_load (registry,
-                            "../src/shoutcast/.libs/libgrlshoutcast.so",
+                            "../src/media/shoutcast/.libs/libgrlshoutcast.so",
                             NULL);
   grl_plugin_registry_load (registry,
-                            "../src/apple-trailers/.libs/libgrlappletrailers.so",
+                            "../src/media/apple-trailers/.libs/libgrlappletrailers.so",
                             NULL);
   grl_plugin_registry_load (registry,
-                            "../src/fake-metadata/.libs/libgrlfakemetadata.so",
+                            "../src/metadata/fake-metadata/.libs/libgrlfakemetadata.so",
                             NULL);
   grl_plugin_registry_load (registry,
-                            "../src/lastfm-albumart/.libs/libgrllastfm-albumart.so",
+                            "../src/metadata/lastfm-albumart/.libs/libgrllastfm-albumart.so",
                             NULL);
   grl_plugin_registry_load (registry,
-                            "../src/flickr/.libs/libgrlflickr.so",
+                            "../src/media/flickr/.libs/libgrlflickr.so",
                             NULL);
   grl_plugin_registry_load (registry,
-                            "../src/metadata-store/.libs/libgrlmetadatastore.so",
+                            "../src/metadata/metadata-store/.libs/libgrlmetadatastore.so",
                             NULL);
   grl_plugin_registry_load (registry,
-                            "../src/bookmarks/.libs/libgrlbookmarks.so",
+                            "../src/media/bookmarks/.libs/libgrlbookmarks.so",
                             NULL);
   grl_plugin_registry_load (registry,
-                            "../src/podcasts/.libs/libgrlpodcasts.so",
+                            "../src/media/podcasts/.libs/libgrlpodcasts.so",
                             NULL);
 
   GRL_DEBUG ("Obtaining sources");

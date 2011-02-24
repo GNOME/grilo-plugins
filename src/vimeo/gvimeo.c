@@ -409,7 +409,7 @@ get_video_play_url_complete_cb (SoupSession *session,
 }
 
 static gchar *
-encode_uri (gchar *uri)
+encode_uri (const gchar *uri)
 {
   return soup_uri_encode (uri, "%!*'();:@&=+$,/?#[] ");
 }

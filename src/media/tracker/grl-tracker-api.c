@@ -562,18 +562,25 @@ grl_tracker_source_metadata (GrlMediaSource *source,
                              GrlMediaSourceMetadataSpec *ms)
 {
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *sparql_select, *sparql_final;
+  gchar                *constraint = NULL, *sparql_select, *sparql_final;
 
   GRL_DEBUG ("%s: id=%i", __FUNCTION__, ms->metadata_id);
 
   if (grl_media_get_id (ms->media) == NULL) {
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
-    return;
+    if (grl_tracker_per_device_source) {
+      constraint = grl_tracker_source_get_device_constraint (priv);
+      sparql_select = grl_tracker_source_get_select_string (source, ms->keys);
+      sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST,
+                                      sparql_select, constraint, 0, 1);
+    } else {
+      ms->callback (ms->source, ms->media, ms->user_data, NULL);
+      return;
+    }
+  } else {
+    sparql_select = grl_tracker_source_get_select_string (source, ms->keys);
+    sparql_final = g_strdup_printf (TRACKER_METADATA_REQUEST, sparql_select,
+                                    grl_media_get_id (ms->media));
   }
-
-  sparql_select = grl_tracker_source_get_select_string (source, ms->keys);
-  sparql_final = g_strdup_printf (TRACKER_METADATA_REQUEST, sparql_select,
-                                  grl_media_get_id (ms->media));
 
   GRL_DEBUG ("\tselect: '%s'", sparql_final);
 
@@ -583,6 +590,8 @@ grl_tracker_source_metadata (GrlMediaSource *source,
                                          (GAsyncReadyCallback) tracker_metadata_cb,
                                          ms);
 
+  if (constraint != NULL)
+    g_free (constraint);
   if (sparql_select != NULL)
     g_free (sparql_select);
   if (sparql_final != NULL)

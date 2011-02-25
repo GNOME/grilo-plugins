@@ -31,6 +31,11 @@
 
 void grl_tracker_init_requests (void);
 
+gboolean grl_tracker_source_may_resolve (GrlMetadataSource *source,
+                                         GrlMedia *media,
+                                         GrlKeyID key_id,
+                                         GList **missing_keys);
+
 const GList *grl_tracker_source_supported_keys (GrlMetadataSource *source);
 
 void grl_tracker_source_query (GrlMediaSource *source,

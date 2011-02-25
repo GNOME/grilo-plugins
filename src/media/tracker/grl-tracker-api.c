@@ -381,6 +381,15 @@ tracker_metadata_cb (GObject                    *source_object,
 
 /**/
 
+gboolean
+grl_tracker_source_may_resolve (GrlMetadataSource *source,
+                                GrlMedia *media,
+                                GrlKeyID key_id,
+                                GList **missing_keys)
+{
+  return TRUE;
+}
+
 const GList *
 grl_tracker_source_supported_keys (GrlMetadataSource *source)
 {

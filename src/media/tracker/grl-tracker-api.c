@@ -33,67 +33,79 @@
 /* --------- Logging  -------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT tracker_request_log_domain
+
 GRL_LOG_DOMAIN_STATIC(tracker_request_log_domain);
+GRL_LOG_DOMAIN_STATIC(tracker_result_log_domain);
+
+/* Inputs/requests */
+#define GRL_IDEBUG(args...)            \
+  GRL_LOG (tracker_request_log_domain, \
+           GRL_LOG_LEVEL_DEBUG, args)
+
+/* Outputs/results */
+#define GRL_ODEBUG(args...)           \
+  GRL_LOG (tracker_result_log_domain, \
+           GRL_LOG_LEVEL_DEBUG, args)
 
 /* ------- Definitions ------- */
 
-#define TRACKER_QUERY_REQUEST                  \
-  "SELECT rdf:type(?urn) %s "                  \
-  "WHERE { %s . %s } "                         \
-  "ORDER BY DESC(nfo:fileLastModified(?urn)) " \
-  "OFFSET %i "                                 \
+#define TRACKER_QUERY_REQUEST                   \
+  "SELECT rdf:type(?urn) %s "                   \
+  "WHERE { %s . %s } "                          \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
+  "OFFSET %i "                                  \
   "LIMIT %i"
 
-#define TRACKER_SEARCH_REQUEST                   \
-  "SELECT rdf:type(?urn) %s "                    \
-  "WHERE "                                       \
-  "{ "                                           \
-  "?urn a nfo:Media . "                          \
-  "?urn tracker:available ?tr . "                \
-  "?urn fts:match '*%s*' . "                     \
-  "%s "                                          \
-  "} "                                           \
-  "ORDER BY DESC(nfo:fileLastModified(?urn)) "   \
-  "OFFSET %i "                                   \
+#define TRACKER_SEARCH_REQUEST                  \
+  "SELECT rdf:type(?urn) %s "                   \
+  "WHERE "                                      \
+  "{ "                                          \
+  "?urn a nfo:Media . "                         \
+  "?urn tracker:available ?tr . "               \
+  "?urn fts:match '*%s*' . "                    \
+  "%s "                                         \
+  "} "                                          \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
+  "OFFSET %i "                                  \
   "LIMIT %i"
 
-#define TRACKER_SEARCH_ALL_REQUEST               \
-  "SELECT rdf:type(?urn) %s "                    \
-  "WHERE "                                       \
-  "{ "                                           \
-  "?urn a nfo:Media . "                          \
-  "?urn tracker:available ?tr . "                \
-  "%s "                                          \
-  "} "                                           \
-  "ORDER BY DESC(nfo:fileLastModified(?urn)) "   \
-  "OFFSET %i "                                   \
+#define TRACKER_SEARCH_ALL_REQUEST              \
+  "SELECT rdf:type(?urn) %s "                   \
+  "WHERE "                                      \
+  "{ "                                          \
+  "?urn a nfo:Media . "                         \
+  "?urn tracker:available ?tr . "               \
+  "%s "                                         \
+  "} "                                          \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
+  "OFFSET %i "                                  \
   "LIMIT %i"
 
-#define TRACKER_BROWSE_CATEGORY_REQUEST        \
-  "SELECT rdf:type(?urn) %s "                  \
-  "WHERE "                                     \
-  "{ "                                         \
-  "?urn a %s . "                               \
-  "?urn tracker:available ?tr . "              \
-  "%s "                                        \
-  "} "                                         \
-  "ORDER BY DESC(nfo:fileLastModified(?urn)) " \
-  "OFFSET %i "                                 \
+#define TRACKER_BROWSE_CATEGORY_REQUEST         \
+  "SELECT rdf:type(?urn) %s "                   \
+  "WHERE "                                      \
+  "{ "                                          \
+  "?urn a %s . "                                \
+  "?urn tracker:available ?tr . "               \
+  "%s "                                         \
+  "} "                                          \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
+  "OFFSET %i "                                  \
   "LIMIT %i"
 
-#define TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST                  \
-  "SELECT rdf:type(?urn) %s "                                   \
-  "WHERE "                                                      \
-  "{ "                                                          \
-  "{ ?urn a nfo:Folder } UNION "                                \
-  "{ ?urn a nfo:Audio } UNION "                                 \
-  "{ ?urn a nmm:Photo } UNION "                                 \
-  "{ ?urn a nmm:Video } . "                                     \
-  "%s "                                                         \
-  "FILTER (!bound(nfo:belongsToContainer(?urn))) "              \
-  "} "                                                          \
-  "ORDER BY DESC(nfo:fileLastModified(?urn)) "                  \
-  "OFFSET %i "                                                  \
+#define TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST          \
+  "SELECT rdf:type(?urn) %s "                           \
+  "WHERE "                                              \
+  "{ "                                                  \
+  "{ ?urn a nfo:Folder } UNION "                        \
+  "{ ?urn a nfo:Audio } UNION "                         \
+  "{ ?urn a nmm:Photo } UNION "                         \
+  "{ ?urn a nmm:Video } . "                             \
+  "%s "                                                 \
+  "FILTER (!bound(nfo:belongsToContainer(?urn))) "      \
+  "} "                                                  \
+  "ORDER BY DESC(nfo:fileLastModified(?urn)) "          \
+  "OFFSET %i "                                          \
   "LIMIT %i"
 
 #define TRACKER_BROWSE_FILESYSTEM_REQUEST                       \
@@ -191,19 +203,19 @@ fill_grilo_media_from_sparql (GrlTrackerSource    *source,
   if (assoc == NULL)
     return;
 
-  GRL_DEBUG ("\tSetting media prop (col=%i/var=%s/prop=%s) %s",
-             column,
-             sparql_key,
-             g_param_spec_get_name (G_PARAM_SPEC (assoc->grl_key)),
-             tracker_sparql_cursor_get_string (cursor, column, NULL));
+  GRL_ODEBUG ("\tSetting media prop (col=%i/var=%s/prop=%s) %s",
+              column,
+              sparql_key,
+              g_param_spec_get_name (G_PARAM_SPEC (assoc->grl_key)),
+              tracker_sparql_cursor_get_string (cursor, column, NULL));
 
   if (tracker_sparql_cursor_is_bound (cursor, column) == FALSE) {
-    GRL_DEBUG ("\t\tDropping, no data");
+    GRL_ODEBUG ("\t\tDropping, no data");
     return;
   }
 
   if (grl_data_has_key (GRL_DATA (media), assoc->grl_key)) {
-    GRL_DEBUG ("\t\tDropping, already here");
+    GRL_ODEBUG ("\t\tDropping, already here");
     return;
   }
 
@@ -231,7 +243,7 @@ fill_grilo_media_from_sparql (GrlTrackerSource    *source,
     break;
 
   default:
-    GRL_DEBUG ("\t\tUnexpected data type");
+    GRL_ODEBUG ("\t\tUnexpected data type");
     break;
   }
 }
@@ -246,10 +258,10 @@ tracker_query_result_cb (GObject              *source_object,
   GError      *tracker_error = NULL, *error = NULL;
   GrlMedia    *media;
 
-  GRL_DEBUG ("%s", __FUNCTION__);
+  GRL_ODEBUG ("%s", __FUNCTION__);
 
   if (g_cancellable_is_cancelled (operation->cancel_op)) {
-    GRL_DEBUG ("\tOperation %u cancelled", operation->operation_id);
+    GRL_ODEBUG ("\tOperation %u cancelled", operation->operation_id);
     operation->callback (operation->source,
                          operation->operation_id,
                          NULL, 0,
@@ -263,7 +275,7 @@ tracker_query_result_cb (GObject              *source_object,
                                           result,
                                           &tracker_error)) {
     if (tracker_error != NULL) {
-      GRL_DEBUG ("\terror in parsing : %s", tracker_error->message);
+      GRL_ODEBUG ("\terror in parsing : %s", tracker_error->message);
 
       error = g_error_new (GRL_CORE_ERROR,
                            GRL_CORE_ERROR_BROWSE_FAILED,
@@ -278,7 +290,7 @@ tracker_query_result_cb (GObject              *source_object,
       g_error_free (error);
       g_error_free (tracker_error);
     } else {
-      GRL_DEBUG ("\tend of parsing :)");
+      GRL_ODEBUG ("\tend of parsing :)");
 
       /* Only emit this last one if more result than expected */
       if (operation->count > 1)
@@ -294,7 +306,7 @@ tracker_query_result_cb (GObject              *source_object,
 
   sparql_type = tracker_sparql_cursor_get_string (operation->cursor, 0, NULL);
 
-  GRL_DEBUG ("\tParsing line %i of type %s", operation->current, sparql_type);
+  GRL_ODEBUG ("\tParsing line %i of type %s", operation->current, sparql_type);
 
   media = grl_tracker_build_grilo_media (sparql_type);
 
@@ -317,7 +329,7 @@ tracker_query_result_cb (GObject              *source_object,
   /* Schedule the next line to parse */
   operation->current++;
   if (operation->count < 1)
-        tracker_operation_terminate (operation);
+    tracker_operation_terminate (operation);
   else
     tracker_sparql_cursor_next_async (operation->cursor, operation->cancel_op,
                                       (GAsyncReadyCallback) tracker_query_result_cb,
@@ -331,7 +343,7 @@ tracker_query_cb (GObject              *source_object,
 {
   GError *tracker_error = NULL, *error = NULL;
 
-  GRL_DEBUG ("%s", __FUNCTION__);
+  GRL_ODEBUG ("%s", __FUNCTION__);
 
   operation->cursor =
     tracker_sparql_connection_query_finish (operation->priv->tracker_connection,
@@ -372,7 +384,7 @@ tracker_metadata_cb (GObject                    *source_object,
   GError               *tracker_error = NULL, *error = NULL;
   TrackerSparqlCursor  *cursor;
 
-  GRL_DEBUG ("%s", __FUNCTION__);
+  GRL_ODEBUG ("%s", __FUNCTION__);
 
   cursor = tracker_sparql_connection_query_finish (priv->tracker_connection,
                                                    result, &tracker_error);
@@ -508,7 +520,7 @@ grl_tracker_source_query (GrlMediaSource *source,
   gchar                *sparql_select;
   struct OperationSpec *os;
 
-  GRL_DEBUG ("%s: id=%u", __FUNCTION__, qs->query_id);
+  GRL_IDEBUG ("%s: id=%u", __FUNCTION__, qs->query_id);
 
   if (!qs->query || qs->query[0] == '\0') {
     error = g_error_new_literal (GRL_CORE_ERROR,
@@ -535,7 +547,7 @@ grl_tracker_source_query (GrlMediaSource *source,
     return;
   }
 
-  GRL_DEBUG ("\tselect : '%s'", qs->query);
+  GRL_IDEBUG ("\tselect : '%s'", qs->query);
 
   os = tracker_operation_initiate (source, priv, qs->query_id);
   os->keys         = qs->keys;
@@ -564,7 +576,7 @@ grl_tracker_source_metadata (GrlMediaSource *source,
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
   gchar                *constraint = NULL, *sparql_select, *sparql_final;
 
-  GRL_DEBUG ("%s: id=%i", __FUNCTION__, ms->metadata_id);
+  GRL_IDEBUG ("%s: id=%i", __FUNCTION__, ms->metadata_id);
 
   if (grl_media_get_id (ms->media) == NULL) {
     if (grl_tracker_per_device_source) {
@@ -582,7 +594,7 @@ grl_tracker_source_metadata (GrlMediaSource *source,
                                     grl_media_get_id (ms->media));
   }
 
-  GRL_DEBUG ("\tselect: '%s'", sparql_final);
+  GRL_IDEBUG ("\tselect: '%s'", sparql_final);
 
   tracker_sparql_connection_query_async (priv->tracker_connection,
                                          sparql_final,
@@ -607,7 +619,7 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   gchar                *sparql_final;
   struct OperationSpec *os;
 
-  GRL_DEBUG ("%s: id=%u", __FUNCTION__, ss->search_id);
+  GRL_IDEBUG ("%s: id=%u", __FUNCTION__, ss->search_id);
 
   constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_select = grl_tracker_source_get_select_string (source, ss->keys);
@@ -620,7 +632,7 @@ grl_tracker_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
                                     ss->text, constraint, ss->skip, ss->count);
   }
 
-  GRL_DEBUG ("\tselect: '%s'", sparql_final);
+  GRL_IDEBUG ("\tselect: '%s'", sparql_final);
 
   os = tracker_operation_initiate (source, priv, ss->search_id);
   os->keys         = ss->keys;
@@ -652,7 +664,7 @@ grl_tracker_source_browse_category (GrlMediaSource *source,
   GrlMedia             *media;
   const gchar          *category;
 
-  GRL_DEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
+  GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
 
   if (bs->container == NULL ||
       !grl_data_has_key (GRL_DATA (bs->container),
@@ -692,7 +704,7 @@ grl_tracker_source_browse_category (GrlMediaSource *source,
                                   constraint,
                                   bs->skip, bs->count);
 
-  GRL_DEBUG ("\tselect: '%s'", sparql_final);
+  GRL_IDEBUG ("\tselect: '%s'", sparql_final);
 
   os = tracker_operation_initiate (source, priv, bs->browse_id);
   os->keys         = bs->keys;
@@ -722,7 +734,7 @@ grl_tracker_source_browse_filesystem (GrlMediaSource *source,
   gchar                *sparql_final;
   struct OperationSpec *os;
 
-  GRL_DEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
+  GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
 
   sparql_select = grl_tracker_source_get_select_string (bs->source, bs->keys);
   constraint = grl_tracker_source_get_device_constraint (priv);
@@ -742,7 +754,7 @@ grl_tracker_source_browse_filesystem (GrlMediaSource *source,
                                     bs->skip, bs->count);
   }
 
-  GRL_DEBUG ("\tselect: '%s'", sparql_final);
+  GRL_IDEBUG ("\tselect: '%s'", sparql_final);
 
   os = tracker_operation_initiate (source, priv, bs->browse_id);
   os->keys         = bs->keys;
@@ -778,7 +790,7 @@ grl_tracker_source_cancel (GrlMediaSource *source, guint operation_id)
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
   struct OperationSpec *os;
 
-  GRL_DEBUG ("%s: id=%u", __FUNCTION__, operation_id);
+  GRL_IDEBUG ("%s: id=%u", __FUNCTION__, operation_id);
 
   os = g_hash_table_lookup (priv->operations, GSIZE_TO_POINTER (operation_id));
 
@@ -821,4 +833,5 @@ grl_tracker_init_requests (void)
 
 
   GRL_LOG_DOMAIN_INIT (tracker_request_log_domain, "tracker-request");
+  GRL_LOG_DOMAIN_INIT (tracker_result_log_domain, "tracker-result");
 }

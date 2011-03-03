@@ -249,7 +249,9 @@ update_media (GrlMedia *media, GHashTable *video)
   str = g_hash_table_lookup (video, VIMEO_VIDEO_UPLOAD_DATE);
   if (str)
   {
-    grl_media_set_date (media, str_to_iso8601(str));
+    gchar *date = str_to_iso8601(str);
+    grl_media_set_date (media, date);
+    g_free (date);
   }
 
   str = g_hash_table_lookup (video, VIMEO_VIDEO_THUMBNAIL);

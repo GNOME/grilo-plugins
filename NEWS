@@ -1,3 +1,42 @@
+NEW in 0.1.10
+=============
+
+  * General
+    * Use the new grl_metadata_source_may_resolve() function
+    * Split src/ code between media and metadata sources
+
+  * Gravatar plugin
+    * Use the new multi-valued API to provide several avatars
+
+  * Jamendo plugin
+    * Fixed feeds category
+
+  * LastFM album art plugin
+    * Use the new mult-valued API to provide several thumbnails
+
+  * Podcasts plugin
+    * Fixed invalid GrlNetWc free
+
+  * Shoutcast plugin
+    * Disabled by default (it is broken)
+
+  * UPnP plugin
+    * Use GrlData API to set metadata properties
+
+  * Vimeo plugin
+    * Several fixes
+    * Fixed BGO#643811 - Date format for vimeo plugin
+
+  * Youtube plugin
+    * Use the new mult-valued API to provide several thumbnails
+
+  * Contributors to this release:
+    * Guillaume Emont <gemont@igalia.com>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+    * Michael Wood <michael.g.wood@linux.intel.com>
+
+
 NEW in 0.1.9
 ============
 

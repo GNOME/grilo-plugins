@@ -1,3 +1,19 @@
+grilo-0.1-plugins (0.1.10-1) unstable; urgency=low
+
+  * General: use the new grl_metadata_source_may_resolve() function, split src/
+    code between media and metadata sources
+  * Gravatar plugin: use the new multi-valued API to provide several avatars
+  * Jamendo plugin: fixed feeds category
+  * LastFM album art plugin: use the new mult-valued API to provide several
+    thumbnails
+  * Podcasts plugin: fixed invalid GrlNetWc free
+  * Shoutcast plugin: disabled by default (it is broken)
+  * UPnP plugin: use GrlData API to set metadata properties
+  * Vimeo plugin: several fixes, fixed BGO#643811 - Date format for vimeo plugin
+  * Youtube plugin, use the new mult-valued API to provide several thumbnails
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Fri, 04 Mar 2011 18:08:30 +0100
+
 grilo-0.1-plugins (0.1.9-1) unstable; urgency=low
 
   * General: implemented NULL-text search (search all)

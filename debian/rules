@@ -10,6 +10,7 @@ DEB_CONFIGURE_SCRIPT := ./autogen.sh
 
 DEB_CONFIGURE_EXTRA_FLAGS :=		\
 	--disable-fakemetadata		\
+	--disable-shoutcast		\
 	--enable-bookmarks		\
 	--enable-filesystem		\
 	--enable-flickr			\
@@ -19,7 +20,6 @@ DEB_CONFIGURE_EXTRA_FLAGS :=		\
 	--enable-localmetadata		\
 	--enable-metadata-store		\
 	--enable-podcasts		\
-	--enable-shoutcast		\
 	--enable-upnp			\
 	--enable-vimeo			\
 	--enable-youtube

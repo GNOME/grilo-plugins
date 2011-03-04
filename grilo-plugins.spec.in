@@ -50,6 +50,7 @@ Youtube
 %build
 %configure				\
 	--disable-fakemetadata		\
+	--disable-shoutcast		\
 	--enable-apple-trailers		\
 	--enable-bookmarks		\
 	--enable-filesystem		\
@@ -60,7 +61,6 @@ Youtube
         --enable-localmetadata          \
         --enable-metadata-store         \
 	--enable-podcasts		\
-	--enable-shoutcast		\
 	--enable-tracker		\
 	--enable-upnp			\
         --enable-vimeo                  \
@@ -88,6 +88,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/grilo-0.1/plugins/*.xml
 
 %changelog
+* Fri Mar 04 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.10-1
+- General: use the new grl_metadata_source_may_resolve() function, split src/ code between media and metadata sources
+- Gravatar plugin: use the new multi-valued API to provide several avatars
+- Jamendo plugin: fixed feeds category
+- LastFM album art plugin: use the new mult-valued API to provide several thumbnails
+- Podcasts plugin: fixed invalid GrlNetWc free
+- Shoutcast plugin: disabled by default (it is broken)
+- UPnP plugin: use GrlData API to set metadata properties
+- Vimeo plugin: several fixes, fixed BGO#643811 - Date format for vimeo plugin
+- Youtube plugin, use the new mult-valued API to provide several thumbnails
+
 * Thu Feb 10 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.9-1
 - General: implemented NULL-text search (search all)
 - Bookmarks plugin: fixed saving/loading content from database, added content-changed notification

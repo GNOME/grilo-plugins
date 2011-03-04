@@ -99,6 +99,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_result_log_domain);
   "{ "                                                  \
   "{ ?urn a nfo:Folder } UNION "                        \
   "{ ?urn a nfo:Audio } UNION "                         \
+  "{ ?urn a nfo:Document } UNION "                      \
   "{ ?urn a nmm:Photo } UNION "                         \
   "{ ?urn a nmm:Video } . "                             \
   "%s "                                                 \
@@ -114,6 +115,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_result_log_domain);
   "{ "                                                          \
   "{ ?urn a nfo:Folder } UNION "                                \
   "{ ?urn a nfo:Audio } UNION "                                 \
+  "{ ?urn a nfo:Document } UNION "                              \
   "{ ?urn a nmm:Photo } UNION "                                 \
   "{ ?urn a nmm:Video } . "                                     \
   "%s "                                                         \
@@ -671,6 +673,13 @@ grl_tracker_source_browse_category (GrlMediaSource *source,
                               grl_metadata_key_tracker_category)) {
     /* Hardcoded categories */
     media = grl_media_box_new ();
+    grl_media_set_title (media, "Documents");
+    grl_data_set_string (GRL_DATA (media),
+                         grl_metadata_key_tracker_category,
+                         "nfo:Document");
+    bs->callback (bs->source, bs->browse_id, media, 3, bs->user_data, NULL);
+
+    media = grl_media_box_new ();
     grl_media_set_title (media, "Music");
     grl_data_set_string (GRL_DATA (media),
                          grl_metadata_key_tracker_category,
@@ -678,14 +687,14 @@ grl_tracker_source_browse_category (GrlMediaSource *source,
     bs->callback (bs->source, bs->browse_id, media, 2, bs->user_data, NULL);
 
     media = grl_media_box_new ();
-    grl_media_set_title (media, "Photo");
+    grl_media_set_title (media, "Photos");
     grl_data_set_string (GRL_DATA (media),
                          grl_metadata_key_tracker_category,
                          "nmm:Photo");
     bs->callback (bs->source, bs->browse_id, media, 1, bs->user_data, NULL);
 
     media = grl_media_box_new ();
-    grl_media_set_title (media, "Video");
+    grl_media_set_title (media, "Videos");
     grl_data_set_string (GRL_DATA (media),
                          grl_metadata_key_tracker_category,
                          "nmm:Video");

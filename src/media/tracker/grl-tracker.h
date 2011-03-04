@@ -75,4 +75,14 @@ struct _GrlTrackerSourceClass {
 
 GType grl_tracker_source_get_type (void);
 
+gboolean grl_tracker_source_can_notify (GrlTrackerSource *source);
+
+/**/
+void grl_tracker_add_source (GrlTrackerSource *source);
+
+void grl_tracker_del_source (GrlTrackerSource *source);
+
+GrlTrackerSource *grl_tracker_source_find (const gchar *id);
+
+
 #endif /* _GRL_TRACKER_H_ */

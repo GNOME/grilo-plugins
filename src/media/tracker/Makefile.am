@@ -21,7 +21,15 @@ libgrltracker_la_LDFLAGS = \
 
 libgrltracker_la_SOURCES = 	\
 	grl-tracker.c 		\
-	grl-tracker.h
+	grl-tracker.h		\
+	grl-tracker-api.c	\
+	grl-tracker-api.h	\
+	grl-tracker-cache.c	\
+	grl-tracker-cache.h	\
+	grl-tracker-notif.c	\
+	grl-tracker-notif.h	\
+	grl-tracker-utils.c	\
+	grl-tracker-utils.h
 
 libdir = $(GRL_PLUGINS_DIR)
 trackerxmldir = $(GRL_PLUGINS_CONF_DIR)

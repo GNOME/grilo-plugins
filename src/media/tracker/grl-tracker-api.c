@@ -94,7 +94,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_result_log_domain);
   "LIMIT %i"
 
 #define TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST          \
-  "SELECT rdf:type(?urn) %s "                           \
+  "SELECT DISTINCT rdf:type(?urn) %s "                  \
   "WHERE "                                              \
   "{ "                                                  \
   "{ ?urn a nfo:Folder } UNION "                        \
@@ -109,7 +109,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_result_log_domain);
   "LIMIT %i"
 
 #define TRACKER_BROWSE_FILESYSTEM_REQUEST                       \
-  "SELECT rdf:type(?urn) %s "                                   \
+  "SELECT DISTINCT rdf:type(?urn) %s "                          \
   "WHERE "                                                      \
   "{ "                                                          \
   "{ ?urn a nfo:Folder } UNION "                                \

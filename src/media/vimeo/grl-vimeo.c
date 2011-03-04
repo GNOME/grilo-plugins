@@ -197,6 +197,20 @@ str_to_gint (gchar *str)
   return 0;
 }
 
+static gchar *
+str_to_iso8601 (gchar *str)
+{
+  gchar **date;
+  gchar *iso8601_date;
+
+  date = g_strsplit (str, " ", -1);
+  iso8601_date = g_strdup_printf ("%sT%sZ", date[0], date[1]);
+  g_strfreev (date);
+
+  return iso8601_date;
+}
+
+
 static void
 update_media (GrlMedia *media, GHashTable *video)
 {
@@ -235,7 +249,9 @@ update_media (GrlMedia *media, GHashTable *video)
   str = g_hash_table_lookup (video, VIMEO_VIDEO_UPLOAD_DATE);
   if (str)
   {
-    grl_media_set_date (media, str);
+    gchar *date = str_to_iso8601(str);
+    grl_media_set_date (media, date);
+    g_free (date);
   }
 
   str = g_hash_table_lookup (video, VIMEO_VIDEO_THUMBNAIL);

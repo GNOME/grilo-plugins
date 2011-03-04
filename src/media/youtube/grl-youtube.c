@@ -605,6 +605,7 @@ build_media_from_entry (GrlMedia *content,
 			gpointer user_data)
 {
   GDataYouTubeVideo *video;
+  GDataMediaThumbnail *thumbnail;
   GrlMedia *media;
   GList *iter;
   gboolean need_url = FALSE;
@@ -632,11 +633,11 @@ build_media_from_entry (GrlMedia *content,
     } else if (iter->data == GRL_METADATA_KEY_THUMBNAIL) {
       GList *thumb_list;
       thumb_list = gdata_youtube_video_get_thumbnails (video);
-      if (thumb_list) {
-        GDataMediaThumbnail *thumbnail;
+      while (thumb_list) {
         thumbnail = GDATA_MEDIA_THUMBNAIL (thumb_list->data);
-        grl_media_set_thumbnail (media,
+        grl_media_add_thumbnail (media,
                                  gdata_media_thumbnail_get_uri (thumbnail));
+        thumb_list = g_list_next (thumb_list);
       }
     } else if (iter->data == GRL_METADATA_KEY_DATE) {
       GTimeVal date;

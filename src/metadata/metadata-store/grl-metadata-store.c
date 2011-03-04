@@ -96,8 +96,11 @@ static void grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
 
 static const GList *grl_metadata_store_source_supported_keys (GrlMetadataSource *source);
 
-static const GList *grl_metadata_store_source_key_depends (GrlMetadataSource *source,
-							   GrlKeyID key_id);
+static gboolean grl_metadata_store_source_may_resolve (GrlMetadataSource *source,
+                                                       GrlMedia *media,
+                                                       GrlKeyID key_id,
+                                                       GList **missing_keys);
+
 static const GList *grl_metadata_store_source_writable_keys (GrlMetadataSource *source);
 
 gboolean grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
@@ -146,7 +149,7 @@ grl_metadata_store_source_class_init (GrlMetadataStoreSourceClass * klass)
 {
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   metadata_class->supported_keys = grl_metadata_store_source_supported_keys;
-  metadata_class->key_depends = grl_metadata_store_source_key_depends;
+  metadata_class->may_resolve = grl_metadata_store_source_may_resolve;
   metadata_class->writable_keys = grl_metadata_store_source_writable_keys;
   metadata_class->resolve = grl_metadata_store_source_resolve;
   metadata_class->set_metadata = grl_metadata_store_source_set_metadata;
@@ -548,23 +551,32 @@ grl_metadata_store_source_writable_keys (GrlMetadataSource *source)
   return keys;
 }
 
-static const GList *
-grl_metadata_store_source_key_depends (GrlMetadataSource *source,
-				       GrlKeyID key_id)
+static gboolean
+grl_metadata_store_source_may_resolve (GrlMetadataSource *source,
+                                       GrlMedia *media,
+                                       GrlKeyID key_id,
+                                       GList **missing_keys)
 {
-  static GList *deps = NULL;
-  if (!deps) {
-    deps = grl_metadata_key_list_new (GRL_METADATA_KEY_ID, NULL);
+  if (!(key_id == GRL_METADATA_KEY_RATING
+        || key_id == GRL_METADATA_KEY_PLAY_COUNT
+        || key_id == GRL_METADATA_KEY_LAST_PLAYED
+        || key_id == GRL_METADATA_KEY_LAST_POSITION))
+    return FALSE;
+
+
+  if (media) {
+    if (!(GRL_IS_MEDIA_VIDEO (media) || GRL_IS_MEDIA_AUDIO (media)))
+      /* the keys we handle for now only make sense for audio and video */
+      return FALSE;
+
+    if (grl_data_key_is_known (GRL_DATA (media), GRL_METADATA_KEY_ID))
+      return TRUE;
   }
 
-  if (key_id == GRL_METADATA_KEY_RATING ||
-      key_id == GRL_METADATA_KEY_PLAY_COUNT ||
-      key_id == GRL_METADATA_KEY_LAST_PLAYED ||
-      key_id == GRL_METADATA_KEY_LAST_POSITION) {
-    return deps;
-  }
+  if (missing_keys)
+    *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID, NULL);
 
-  return NULL;
+  return FALSE;
 }
 
 static void

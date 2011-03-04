@@ -50,8 +50,10 @@ static void grl_local_metadata_source_resolve (GrlMetadataSource *source,
 
 static const GList *grl_local_metadata_source_supported_keys (GrlMetadataSource *source);
 
-static const GList * grl_local_metadata_source_key_depends (GrlMetadataSource *source,
-                                                            GrlKeyID key_id);
+static gboolean grl_local_metadata_source_may_resolve (GrlMetadataSource *source,
+                                                       GrlMedia *media,
+                                                       GrlKeyID key_id,
+                                                       GList **missing_keys);
 
 gboolean grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
                                                const GrlPluginInfo *plugin,
@@ -99,7 +101,7 @@ grl_local_metadata_source_class_init (GrlLocalMetadataSourceClass * klass)
 {
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   metadata_class->supported_keys = grl_local_metadata_source_supported_keys;
-  metadata_class->key_depends = grl_local_metadata_source_key_depends;
+  metadata_class->may_resolve = grl_local_metadata_source_may_resolve;
   metadata_class->resolve = grl_local_metadata_source_resolve;
 }
 
@@ -183,7 +185,11 @@ static void
 resolve_album_art (GrlMetadataSourceResolveSpec *rs)
 {
   /* FIXME: implement this, according to
-   * http://live.gnome.org/MediaArtStorageSpec */
+   * http://live.gnome.org/MediaArtStorageSpec
+   *
+   * When this is implemented, _may_resolve() should be modified to accept
+   * GrlMediaAudio.
+   */
   GError *error;
   error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
     "Thumbnail resolution for GrlMediaAudio not implemented in local-metadata");
@@ -191,6 +197,23 @@ resolve_album_art (GrlMetadataSourceResolveSpec *rs)
   g_error_free (error);
 }
 
+static gboolean
+has_compatible_media_url (GrlMedia *media)
+{
+  gboolean ret = FALSE;
+  const gchar *url;
+  gchar *scheme;
+
+  url = grl_media_get_url (media);
+  scheme = g_uri_parse_scheme (url);
+
+  ret = 0 == g_strcmp0 (scheme, "file");
+
+  if (scheme)
+    g_free (scheme);
+
+  return ret;
+}
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -204,35 +227,35 @@ grl_local_metadata_source_supported_keys (GrlMetadataSource *source)
   return keys;
 }
 
-static const GList *
-grl_local_metadata_source_key_depends (GrlMetadataSource *source,
-                                       GrlKeyID key_id)
+static gboolean
+grl_local_metadata_source_may_resolve (GrlMetadataSource *source,
+                                       GrlMedia *media,
+                                       GrlKeyID key_id,
+                                       GList **missing_keys)
 {
-  static GList *deps = NULL;
-  if (!deps) {
-    deps = grl_metadata_key_list_new (GRL_METADATA_KEY_URL, NULL);
-  }
+  if (key_id != GRL_METADATA_KEY_THUMBNAIL
+      || GRL_IS_MEDIA_AUDIO (media)
+      || GRL_IS_MEDIA_BOX (media))
+    return FALSE;
 
-  if (key_id == GRL_METADATA_KEY_THUMBNAIL)
-    return deps;
+  if (media && grl_data_key_is_known (GRL_DATA (media), GRL_METADATA_KEY_URL))
+    return has_compatible_media_url (media);
 
-  return NULL;
+  if (missing_keys)
+    *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_URL, NULL);
+
+  return FALSE;
 }
 
 static void
 grl_local_metadata_source_resolve (GrlMetadataSource *source,
                                   GrlMetadataSourceResolveSpec *rs)
 {
-  const gchar *url;
-  gchar *scheme;
   GError *error = NULL;
 
   GRL_DEBUG ("grl_local_metadata_source_resolve");
 
-  url = grl_media_get_url (rs->media);
-  scheme = g_uri_parse_scheme (url);
-
-  if (0 != g_strcmp0 (scheme, "file"))
+  if (!has_compatible_media_url (rs->media))
     error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
                          "local-metadata needs a url in the file:// scheme");
   else if (!g_list_find (rs->keys, GRL_METADATA_KEY_THUMBNAIL))
@@ -243,7 +266,7 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
     /* No can do! */
     rs->callback (source, rs->media, rs->user_data, error);
     g_error_free (error);
-    goto exit;
+    return;
   }
 
   if (GRL_IS_MEDIA_VIDEO (rs->media)
@@ -255,8 +278,5 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
     /* What's that media type? */
     rs->callback (source, rs->media, rs->user_data, NULL);
   }
-
-exit:
-  g_free (scheme);
 }
 

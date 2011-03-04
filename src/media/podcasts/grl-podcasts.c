@@ -441,7 +441,7 @@ read_url_async (GrlPodcastsSource *source,
    * In this case, as we don't know the previous URL,
    * we ditch the Wc and create another. It's cheap.
    */
-  if (!source->priv->wc)
+  if (source->priv->wc)
     g_object_unref (source->priv->wc);
 
   source->priv->wc = grl_net_wc_new ();

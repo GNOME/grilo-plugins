@@ -6,7 +6,7 @@
 # Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.9])
+m4_define([prj_version], [0.1.10])
 
 AC_INIT([prj_name], [prj_version])
 
@@ -15,7 +15,7 @@ AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src])
 
-AM_CONFIG_HEADER(src/config.h)
+AM_CONFIG_HEADER(config.h)
 
 AC_PROG_CC
 AC_PROG_INSTALL
@@ -82,7 +82,7 @@ fi
 PKG_CHECK_MODULES([DEPS], glib-2.0      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
-			  ${GRL_NAME} = 0.1.9)
+			  ${GRL_NAME} = 0.1.10)
 
 # ----------------------------------------------------------
 # DEFINITIONS
@@ -103,7 +103,7 @@ AC_SUBST(GRL_PLUGINS_CONF_DIR)
 # EXTERNAL/OPTIONAL DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} = 0.1.9],
+PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} = 0.1.10],
 			    HAVE_GRLNET=yes,
 			    HAVE_GRLNET=no)
 
@@ -483,7 +483,7 @@ AC_DEFINE_UNQUOTED([BOOKMARKS_PLUGIN_ID], ["$BOOKMARKS_PLUGIN_ID"], [Bookmarks p
 
 AC_ARG_ENABLE(shoutcast,
         AC_HELP_STRING([--enable-shoutcast],
-                [enable SHOUTcast plugin (default: auto)]),
+                [enable SHOUTcast plugin (default: no)]),
         [
                 case "$enableval" in
                      yes)
@@ -497,11 +497,13 @@ AC_ARG_ENABLE(shoutcast,
                 esac
         ],
         [
-                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
-                   enable_shoutcast=yes
-                else
-                   enable_shoutcast=no
-                fi
+                 enable_shoutcast=no
+#                Do not build SHOUTCast by default; it is broken
+#                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+#                   enable_shoutcast=yes
+#                else
+#                   enable_shoutcast=no
+#                fi
         ])
 
 AM_CONDITIONAL([SHOUTCAST_PLUGIN], [test "x$enable_shoutcast" = "xyes"])
@@ -754,22 +756,24 @@ AC_CONFIG_FILES([
   grilo-plugins.spec
   Makefile
   src/Makefile
-  src/youtube/Makefile
-  src/fake-metadata/Makefile
-  src/filesystem/Makefile
-  src/jamendo/Makefile
-  src/lastfm-albumart/Makefile
-  src/upnp/Makefile
-  src/flickr/Makefile
-  src/podcasts/Makefile
-  src/bookmarks/Makefile
-  src/shoutcast/Makefile
-  src/apple-trailers/Makefile
-  src/metadata-store/Makefile
-  src/vimeo/Makefile
-  src/gravatar/Makefile
-  src/tracker/Makefile
-  src/local-metadata/Makefile
+  src/media/upnp/Makefile
+  src/media/vimeo/Makefile
+  src/media/bookmarks/Makefile
+  src/media/tracker/Makefile
+  src/media/podcasts/Makefile
+  src/media/jamendo/Makefile
+  src/media/youtube/Makefile
+  src/media/shoutcast/Makefile
+  src/media/flickr/Makefile
+  src/media/filesystem/Makefile
+  src/media/Makefile
+  src/media/apple-trailers/Makefile
+  src/metadata/metadata-store/Makefile
+  src/metadata/gravatar/Makefile
+  src/metadata/lastfm-albumart/Makefile
+  src/metadata/fake-metadata/Makefile
+  src/metadata/Makefile
+  src/metadata/local-metadata/Makefile
   test/Makefile
 ])
 

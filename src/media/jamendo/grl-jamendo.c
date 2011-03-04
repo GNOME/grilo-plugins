@@ -880,13 +880,13 @@ send_feeds (GrlMediaSourceBrowseSpec *bs)
 
     media = grl_media_box_new ();
     update_media_from_feed (media, i);
+    remaining--;
     bs->callback (bs->source,
                   bs->browse_id,
                   media,
                   remaining,
                   bs->user_data,
                   NULL);
-    remaining--;
   }
 }
 

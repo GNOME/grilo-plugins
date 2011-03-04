@@ -52,8 +52,10 @@ static void grl_fake_metadata_source_set_metadata (GrlMetadataSource *source,
 
 static const GList *grl_fake_metadata_source_supported_keys (GrlMetadataSource *source);
 
-static const GList *grl_fake_metadata_source_key_depends (GrlMetadataSource *source,
-                                                          GrlKeyID key_id);
+static gboolean grl_fake_metadata_source_may_resolve (GrlMetadataSource *source,
+                                                      GrlMedia *media,
+                                                      GrlKeyID key_id,
+                                                      GList **missing_keys);
 
 static const GList *grl_fake_metadata_source_writable_keys (GrlMetadataSource *source);
 
@@ -103,7 +105,7 @@ grl_fake_metadata_source_class_init (GrlFakeMetadataSourceClass * klass)
 {
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   metadata_class->supported_keys = grl_fake_metadata_source_supported_keys;
-  metadata_class->key_depends = grl_fake_metadata_source_key_depends;
+  metadata_class->may_resolve = grl_fake_metadata_source_may_resolve;
   metadata_class->resolve = grl_fake_metadata_source_resolve;
   metadata_class->set_metadata = grl_fake_metadata_source_set_metadata;
   metadata_class->writable_keys = grl_fake_metadata_source_writable_keys;
@@ -168,27 +170,20 @@ grl_fake_metadata_source_supported_keys (GrlMetadataSource *source)
   return keys;
 }
 
-static const GList *
-grl_fake_metadata_source_key_depends (GrlMetadataSource *source,
-                                      GrlKeyID key_id)
+static gboolean
+grl_fake_metadata_source_may_resolve (GrlMetadataSource *source,
+                                      GrlMedia *media,
+                                      GrlKeyID key_id,
+                                      GList **missing_keys)
 {
-  static GList *deps = NULL;
-  if (!deps) {
-    deps = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, NULL);
-  }
-
-  if (key_id == GRL_METADATA_KEY_AUTHOR ||
-      key_id == GRL_METADATA_KEY_ARTIST ||
-      key_id == GRL_METADATA_KEY_ALBUM ||
-      key_id == GRL_METADATA_KEY_GENRE ||
-      key_id == GRL_METADATA_KEY_DESCRIPTION ||
-      key_id == GRL_METADATA_KEY_DURATION ||
-      key_id == GRL_METADATA_KEY_DATE ||
-      key_id == GRL_METADATA_KEY_THUMBNAIL) {
-    return deps;
-  }
-
-  return  NULL;
+  return (key_id == GRL_METADATA_KEY_AUTHOR ||
+          key_id == GRL_METADATA_KEY_ARTIST ||
+          key_id == GRL_METADATA_KEY_ALBUM ||
+          key_id == GRL_METADATA_KEY_GENRE ||
+          key_id == GRL_METADATA_KEY_DESCRIPTION ||
+          key_id == GRL_METADATA_KEY_DURATION ||
+          key_id == GRL_METADATA_KEY_DATE ||
+          key_id == GRL_METADATA_KEY_THUMBNAIL);
 }
 
 static const GList *

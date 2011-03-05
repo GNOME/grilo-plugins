@@ -645,6 +645,7 @@ build_media_from_entry (GrlMedia *content,
 #ifdef GDATA_API_SUBJECT_TO_CHANGE
       gint64 published = gdata_entry_get_published (entry);
       date.tv_sec = (glong) published;
+      date.tv_usec = 0;
 #else
       gdata_entry_get_published (entry, &date);
 #endif

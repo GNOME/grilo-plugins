@@ -45,6 +45,8 @@ GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 #define LASTFM_XML_COVER_MEDIUM "/album/coverart/medium"
 #define LASTFM_XML_COVER_LARGE  "/album/coverart/large"
 #define LASTFM_XML_COVER_SMALL  "/album/coverart/small"
+#define LASTFM_XML_COVER_EXTRA  "/album/coverart/extralarge"
+#define LASTFM_XML_COVER_MEGA   "/album/coverart/mega"
 
 /* ------- Pluging Info -------- */
 
@@ -216,7 +218,15 @@ read_done_cb (GObject *source_object,
     return;
   }
 
-  image = xml_get_image (content, LASTFM_XML_COVER_MEDIUM);
+  image = xml_get_image (content, LASTFM_XML_COVER_MEGA);
+  if (image) {
+    relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
+                                              NULL);
+    grl_data_add_related_keys (GRL_DATA (rs->media), relkeys);
+    g_free (image);
+  }
+
+  image = xml_get_image (content, LASTFM_XML_COVER_EXTRA);
   if (image) {
     relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
                                               NULL);
@@ -225,6 +235,14 @@ read_done_cb (GObject *source_object,
   }
 
   image = xml_get_image (content, LASTFM_XML_COVER_LARGE);
+  if (image) {
+    relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
+                                              NULL);
+    grl_data_add_related_keys (GRL_DATA (rs->media), relkeys);
+    g_free (image);
+  }
+
+  image = xml_get_image (content, LASTFM_XML_COVER_MEDIUM);
   if (image) {
     relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
                                               NULL);

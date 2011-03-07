@@ -341,7 +341,6 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
   source_class->notify_change_start = grl_tracker_source_change_start;
   source_class->notify_change_stop  = grl_tracker_source_change_stop;
 
-  metadata_class->may_resolve    = grl_tracker_source_may_resolve;
   metadata_class->supported_keys = grl_tracker_source_supported_keys;
 
   g_class->finalize     = grl_tracker_source_finalize;

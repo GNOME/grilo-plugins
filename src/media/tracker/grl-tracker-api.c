@@ -277,11 +277,12 @@ tracker_query_result_cb (GObject              *source_object,
                                           result,
                                           &tracker_error)) {
     if (tracker_error != NULL) {
-      GRL_ODEBUG ("\terror in parsing : %s", tracker_error->message);
+      GRL_ODEBUG ("\terror in parsing query id=%u : %s",
+                  operation->operation_id, tracker_error->message);
 
       error = g_error_new (GRL_CORE_ERROR,
                            GRL_CORE_ERROR_BROWSE_FAILED,
-                           "Failed to start browse action : %s",
+                           "Failed to start browse/query action : %s",
                            tracker_error->message);
 
       operation->callback (operation->source,
@@ -292,7 +293,7 @@ tracker_query_result_cb (GObject              *source_object,
       g_error_free (error);
       g_error_free (tracker_error);
     } else {
-      GRL_ODEBUG ("\tend of parsing :)");
+      GRL_ODEBUG ("\tend of parsing id=%u :)", operation->operation_id);
 
       /* Only emit this last one if more result than expected */
       if (operation->count > 1)
@@ -352,11 +353,12 @@ tracker_query_cb (GObject              *source_object,
                                             result, &tracker_error);
 
   if (tracker_error) {
-    GRL_WARNING ("Could not execute sparql query: %s", tracker_error->message);
+    GRL_WARNING ("Could not execute sparql query id=%u: %s",
+                 operation->operation_id, tracker_error->message);
 
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_BROWSE_FAILED,
-			 "Failed to start browse action : %s",
+			 "Failed to start browse/query action : %s",
                          tracker_error->message);
 
     operation->callback (operation->source, operation->operation_id, NULL, 0,
@@ -392,11 +394,12 @@ tracker_metadata_cb (GObject                    *source_object,
                                                    result, &tracker_error);
 
   if (tracker_error) {
-    GRL_WARNING ("Could not execute sparql query: %s", tracker_error->message);
+    GRL_WARNING ("Could not execute sparql query id=%u : %s",
+                 ms->metadata_id, tracker_error->message);
 
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_BROWSE_FAILED,
-			 "Failed to start browse action : %s",
+			 "Failed to start metadata action : %s",
                          tracker_error->message);
 
     ms->callback (ms->source, NULL, ms->user_data, error);

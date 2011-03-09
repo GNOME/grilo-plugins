@@ -244,6 +244,7 @@ grl_flickr_source_finalize (GObject *object)
 
   source = GRL_FLICKR_SOURCE (object);
   g_free (source->priv->user_id);
+  g_object_unref (source->priv->flickr);
 
   G_OBJECT_CLASS (grl_flickr_source_parent_class)->finalize (object);
 }

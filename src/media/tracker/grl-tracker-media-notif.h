@@ -22,10 +22,10 @@
  *
  */
 
-#ifndef _GRL_TRACKER_NOTIF_H_
-#define _GRL_TRACKER_NOTIF_H_
+#ifndef _GRL_TRACKER_MEDIA_NOTIF_H_
+#define _GRL_TRACKER_MEDIA_NOTIF_H_
 
-#include "grl-tracker.h"
+#include "grl-tracker-media.h"
 
 /* ------- Definitions ------- */
 
@@ -47,8 +47,8 @@
 
 /**/
 
-void grl_tracker_dbus_start_watch (void);
+void grl_tracker_media_dbus_start_watch (void);
 
-void grl_tracker_init_notifs (void);
+void grl_tracker_media_init_notifs (void);
 
-#endif /* _GRL_TRACKER_NOTIF_H_ */
+#endif /* _GRL_TRACKER_MEDIA_NOTIF_H_ */

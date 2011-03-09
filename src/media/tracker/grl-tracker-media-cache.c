@@ -24,10 +24,10 @@
 
 #include <glib.h>
 
-#include "grl-tracker-cache.h"
+#include "grl-tracker-media-cache.h"
 
 typedef struct {
-  GrlTrackerSource *source;
+  GrlTrackerMedia *source;
 
   GHashTable *id_table;
 } GrlTrackerCacheSource;
@@ -42,7 +42,7 @@ struct _GrlTrackerCache {
 };
 
 static GrlTrackerCacheSource *
-grl_tracker_cache_source_new (GrlTrackerSource *source)
+grl_tracker_cache_media_new (GrlTrackerMedia *source)
 {
   GrlTrackerCacheSource *csource = g_slice_new0 (GrlTrackerCacheSource);
 
@@ -53,7 +53,7 @@ grl_tracker_cache_source_new (GrlTrackerSource *source)
 }
 
 static void
-grl_tracker_cache_source_free (GrlTrackerCacheSource *csource)
+grl_tracker_cache_media_free (GrlTrackerCacheSource *csource)
 {
   g_hash_table_destroy (csource->id_table);
 
@@ -63,7 +63,7 @@ grl_tracker_cache_source_free (GrlTrackerCacheSource *csource)
 /**/
 
 GrlTrackerCache *
-grl_tracker_cache_new (gsize size)
+grl_tracker_media_cache_new (gsize size)
 {
   GrlTrackerCache *cache;
 
@@ -82,7 +82,7 @@ grl_tracker_cache_new (gsize size)
 }
 
 void
-grl_tracker_cache_free (GrlTrackerCache *cache)
+grl_tracker_media_cache_free (GrlTrackerCache *cache)
 {
   GHashTableIter iter;
   gpointer key, value;
@@ -91,7 +91,7 @@ grl_tracker_cache_free (GrlTrackerCache *cache)
 
   g_hash_table_iter_init (&iter, cache->source_table);
   while (g_hash_table_iter_next (&iter, &key, &value)) {
-    grl_tracker_cache_del_source (cache, key);
+    grl_tracker_media_cache_del_source (cache, key);
   }
 
   if (cache->id_list) {
@@ -105,9 +105,9 @@ grl_tracker_cache_free (GrlTrackerCache *cache)
 }
 
 void
-grl_tracker_cache_add_item (GrlTrackerCache *cache,
-                            guint id,
-                            GrlTrackerSource *source)
+grl_tracker_media_cache_add_item (GrlTrackerCache *cache,
+                                  guint id,
+                                  GrlTrackerMedia *source)
 {
   GList *lid;
   GrlTrackerCacheSource *csource;
@@ -120,7 +120,7 @@ grl_tracker_cache_add_item (GrlTrackerCache *cache,
   csource = g_hash_table_lookup (cache->source_table, source);
 
   if (!csource) {
-    csource = grl_tracker_cache_source_new (source);
+    csource = grl_tracker_cache_media_new (source);
     g_hash_table_insert (cache->source_table, source, csource);
   }
 
@@ -144,8 +144,8 @@ grl_tracker_cache_add_item (GrlTrackerCache *cache,
 }
 
 void
-grl_tracker_cache_del_source (GrlTrackerCache *cache,
-                              GrlTrackerSource *source)
+grl_tracker_media_cache_del_source (GrlTrackerCache *cache,
+                                    GrlTrackerMedia *source)
 {
   GrlTrackerCacheSource *csource;
   GHashTableIter iter;
@@ -167,18 +167,18 @@ grl_tracker_cache_del_source (GrlTrackerCache *cache,
   }
 
   g_hash_table_remove (cache->source_table, source);
-  grl_tracker_cache_source_free (csource);
+  grl_tracker_cache_media_free (csource);
 }
 
-GrlTrackerSource *
-grl_tracker_cache_get_source (GrlTrackerCache *cache, guint id)
+GrlTrackerMedia *
+grl_tracker_media_cache_get_source (GrlTrackerCache *cache, guint id)
 {
   GrlTrackerCacheSource *csource;
 
   g_return_val_if_fail (cache != NULL, NULL);
 
   csource = (GrlTrackerCacheSource *) g_hash_table_lookup (cache->id_table,
-                                                      GSIZE_TO_POINTER (id));
+                                                           GSIZE_TO_POINTER (id));
 
   if (csource) {
     return csource->source;

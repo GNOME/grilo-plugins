@@ -22,24 +22,24 @@
  *
  */
 
-#ifndef _GRL_TRACKER_CACHE_H_
-#define _GRL_TRACKER_CACHE_H_
+#ifndef _GRL_TRACKER_MEDIA_CACHE_H_
+#define _GRL_TRACKER_MEDIA_CACHE_H_
 
-#include "grl-tracker.h"
+#include "grl-tracker-media.h"
 
 typedef struct _GrlTrackerCache GrlTrackerCache;
 
-GrlTrackerCache *grl_tracker_cache_new (gsize size);
+GrlTrackerCache *grl_tracker_media_cache_new (gsize size);
 
-void grl_tracker_cache_free (GrlTrackerCache *cache);
+void grl_tracker_media_cache_free (GrlTrackerCache *cache);
 
-void grl_tracker_cache_add_item (GrlTrackerCache *cache,
-                                 guint id,
-                                 GrlTrackerSource *source);
-void grl_tracker_cache_del_source (GrlTrackerCache *cache,
-                                   GrlTrackerSource *source);
+void grl_tracker_media_cache_add_item (GrlTrackerCache *cache,
+                                       guint id,
+                                       GrlTrackerMedia *source);
+void grl_tracker_media_cache_del_source (GrlTrackerCache *cache,
+                                         GrlTrackerMedia *source);
 
-GrlTrackerSource *grl_tracker_cache_get_source (GrlTrackerCache *cache,
-                                                guint id);
+GrlTrackerMedia *grl_tracker_media_cache_get_source (GrlTrackerCache *cache,
+                                                     guint id);
 
-#endif /* _GRL_TRACKER_CACHE_H_ */
+#endif /* _GRL_TRACKER_MEDIA_CACHE_H_ */

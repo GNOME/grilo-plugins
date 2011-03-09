@@ -25,7 +25,7 @@
 #ifndef _GRL_TRACKER_UTILS_H_
 #define _GRL_TRACKER_UTILS_H_
 
-#include "grl-tracker.h"
+#include "grl-tracker-media-priv.h"
 
 /* ------- Definitions ------- */
 
@@ -57,14 +57,14 @@ tracker_grl_sparql_t *grl_tracker_get_mapping_from_sparql (const gchar *key);
 
 GrlMedia *grl_tracker_build_grilo_media (const gchar *rdf_type);
 
-gchar *grl_tracker_source_get_device_constraint (GrlTrackerSourcePriv *priv);
+gchar *grl_tracker_media_get_device_constraint (GrlTrackerMediaPriv *priv);
 
-gchar *grl_tracker_source_get_select_string (GrlMediaSource *source,
-                                             const GList *keys);
+gchar *grl_tracker_media_get_select_string (GrlMediaSource *source,
+                                            const GList *keys);
 
-gchar *grl_tracker_get_source_name (const gchar *rdf_type,
-                                    const gchar *uri,
-                                    const gchar *datasource,
-                                    const gchar *datasource_name);
+gchar *grl_tracker_get_media_name (const gchar *rdf_type,
+                                   const gchar *uri,
+                                   const gchar *datasource,
+                                   const gchar *datasource_name);
 
 #endif /* _GRL_TRACKER_UTILS_H_ */

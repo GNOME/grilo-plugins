@@ -23,7 +23,6 @@
  */
 
 #include "grl-tracker-utils.h"
-#include "grl-tracker-priv.h"
 
 /**/
 
@@ -165,7 +164,7 @@ get_mapping_from_grl (const GrlKeyID key)
 /**/
 
 gchar *
-grl_tracker_source_get_device_constraint (GrlTrackerSourcePriv *priv)
+grl_tracker_media_get_device_constraint (GrlTrackerMediaPriv *priv)
 {
   if (priv->tracker_datasource == NULL)
     return g_strdup ("");
@@ -175,8 +174,8 @@ grl_tracker_source_get_device_constraint (GrlTrackerSourcePriv *priv)
 }
 
 gchar *
-grl_tracker_source_get_select_string (GrlMediaSource *source,
-                                      const GList *keys)
+grl_tracker_media_get_select_string (GrlMediaSource *source,
+                                     const GList *keys)
 {
   const GList *key = keys;
   GString *gstr = g_string_new ("");
@@ -295,10 +294,10 @@ get_tracker_upnp_name (const gchar *datasource_name)
 }
 
 gchar *
-grl_tracker_get_source_name (const gchar *rdf_type,
-                             const gchar *uri,
-                             const gchar *datasource,
-                             const gchar *datasource_name)
+grl_tracker_get_media_name (const gchar *rdf_type,
+                            const gchar *uri,
+                            const gchar *datasource,
+                            const gchar *datasource_name)
 {
   gchar *source_name = NULL;
   gchar **rdf_single_type;
@@ -323,7 +322,7 @@ grl_tracker_get_source_name (const gchar *rdf_type,
 
   if (!source_name)
     source_name = g_strdup_printf  ("%s %s",
-                                    GRL_TRACKER_SOURCE_NAME,
+                                    GRL_TRACKER_MEDIA_NAME,
                                     datasource);
 
   return source_name;

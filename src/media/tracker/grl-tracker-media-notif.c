@@ -541,61 +541,53 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
              (unsigned long) g_variant_iter_n_children (iter2),
 	     evt);
 
-  /* Avoid processing item from uninteresting classes */
-  if (g_str_has_suffix (class_name, RDF_TYPE_MUSIC) ||
-      g_str_has_suffix (class_name, RDF_TYPE_AUDIO) ||
-      g_str_has_suffix (class_name, RDF_TYPE_VIDEO) ||
-      g_str_has_suffix (class_name, RDF_TYPE_IMAGE)) {
+  /* Process deleted items */
+  while (g_variant_iter_loop (iter1, "(iiii)", &graph,
+                              &subject, &predicate, &object)) {
+    gpointer psubject = GSIZE_TO_POINTER (subject);
+    GrlTrackerMedia *source =
+      grl_tracker_media_cache_get_source (grl_tracker_item_cache, subject);
 
-    /* Process deleted items */
-    while (g_variant_iter_loop (iter1, "(iiii)", &graph,
-                                &subject, &predicate, &object)) {
-      gpointer psubject = GSIZE_TO_POINTER (subject);
-      GrlTrackerMedia *source =
-        grl_tracker_media_cache_get_source (grl_tracker_item_cache, subject);
+    /* GRL_DEBUG ("\tdelete=> subject=%i", subject); */
 
-      /* GRL_DEBUG ("\tdelete=> subject=%i", subject); */
-
-      if (source) {
-        g_hash_table_insert (evt->deleted_items, psubject,
-                             g_object_ref (source));
-      } else {
+    if (source) {
+      g_hash_table_insert (evt->deleted_items, psubject,
+                           g_object_ref (source));
+    } else {
         g_hash_table_insert (evt->orphan_items, psubject,
                              GSIZE_TO_POINTER (GRL_CONTENT_REMOVED));
-      }
     }
+  }
 
-    /* Process inserted items */
-    while (g_variant_iter_loop (iter2, "(iiii)", &graph,
-                                &subject, &predicate, &object)) {
-      gpointer psubject = GSIZE_TO_POINTER (subject);
-      GrlTrackerMedia *source =
-        grl_tracker_media_cache_get_source (grl_tracker_item_cache, subject);
+  while (g_variant_iter_loop (iter2, "(iiii)", &graph,
+                              &subject, &predicate, &object)) {
+    gpointer psubject = GSIZE_TO_POINTER (subject);
+    GrlTrackerMedia *source =
+      grl_tracker_media_cache_get_source (grl_tracker_item_cache, subject);
 
-      /* GRL_DEBUG ("\tinsert=> subject=%i", subject); */
+    /* GRL_DEBUG ("\tinsert=> subject=%i", subject); */
 
-      if (source) {
-        /* Removed & inserted items are probably just renamed items... */
-        if (g_hash_table_lookup (evt->deleted_items, psubject)) {
-          g_hash_table_remove (evt->deleted_items, psubject);
-          g_hash_table_insert (evt->updated_items, psubject,
-                               g_object_ref (source));
-        } else if (!g_hash_table_lookup (evt->updated_items, psubject)) {
-          g_hash_table_insert (evt->inserted_items, psubject,
-                               g_object_ref (source));
-        }
-      } else {
-        gpointer state;
+    if (source) {
+      /* Removed & inserted items are probably just renamed items... */
+      if (g_hash_table_lookup (evt->deleted_items, psubject)) {
+        g_hash_table_remove (evt->deleted_items, psubject);
+        g_hash_table_insert (evt->updated_items, psubject,
+                             g_object_ref (source));
+      } else if (!g_hash_table_lookup (evt->updated_items, psubject)) {
+        g_hash_table_insert (evt->inserted_items, psubject,
+                             g_object_ref (source));
+      }
+    } else {
+      gpointer state;
 
-        if (g_hash_table_lookup_extended (evt->orphan_items, psubject,
-                                          NULL, &state) &&
+      if (g_hash_table_lookup_extended (evt->orphan_items, psubject,
+                                        NULL, &state) &&
             (GPOINTER_TO_INT (state) == GRL_CONTENT_REMOVED)) {
-          g_hash_table_insert (evt->orphan_items, psubject,
-                               GSIZE_TO_POINTER (GRL_CONTENT_CHANGED));
-        } else {
-          g_hash_table_insert (evt->orphan_items, psubject,
-                               GSIZE_TO_POINTER (GRL_CONTENT_ADDED));
-        }
+        g_hash_table_insert (evt->orphan_items, psubject,
+                             GSIZE_TO_POINTER (GRL_CONTENT_CHANGED));
+      } else {
+        g_hash_table_insert (evt->orphan_items, psubject,
+                             GSIZE_TO_POINTER (GRL_CONTENT_ADDED));
       }
     }
   }

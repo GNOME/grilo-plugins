@@ -278,8 +278,8 @@ tracker_query_result_cb (GObject              *source_object,
                                           result,
                                           &tracker_error)) {
     if (tracker_error != NULL) {
-      GRL_ODEBUG ("\terror in parsing query id=%u : %s",
-                  operation->operation_id, tracker_error->message);
+      GRL_WARNING ("\terror in parsing query id=%u : %s",
+                   operation->operation_id, tracker_error->message);
 
       error = g_error_new (GRL_CORE_ERROR,
                            GRL_CORE_ERROR_BROWSE_FAILED,

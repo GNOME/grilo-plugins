@@ -32,19 +32,19 @@
 
 /* --------- Logging  -------- */
 
-#define GRL_LOG_DOMAIN_DEFAULT tracker_request_log_domain
+#define GRL_LOG_DOMAIN_DEFAULT tracker_media_request_log_domain
 
-GRL_LOG_DOMAIN_STATIC(tracker_request_log_domain);
-GRL_LOG_DOMAIN_STATIC(tracker_result_log_domain);
+GRL_LOG_DOMAIN_STATIC(tracker_media_request_log_domain);
+GRL_LOG_DOMAIN_STATIC(tracker_media_result_log_domain);
 
 /* Inputs/requests */
 #define GRL_IDEBUG(args...)                     \
-  GRL_LOG (tracker_request_log_domain,          \
+  GRL_LOG (tracker_media_request_log_domain,    \
            GRL_LOG_LEVEL_DEBUG, args)
 
 /* Outputs/results */
 #define GRL_ODEBUG(args...)                     \
-  GRL_LOG (tracker_result_log_domain,           \
+  GRL_LOG (tracker_media_result_log_domain,     \
            GRL_LOG_LEVEL_DEBUG, args)
 
 /* ------- Definitions ------- */
@@ -836,6 +836,8 @@ grl_tracker_media_init_requests (void)
                                                NULL);
 
 
-  GRL_LOG_DOMAIN_INIT (tracker_request_log_domain, "tracker-request");
-  GRL_LOG_DOMAIN_INIT (tracker_result_log_domain, "tracker-result");
+  GRL_LOG_DOMAIN_INIT (tracker_media_request_log_domain,
+                       "tracker-media-request");
+  GRL_LOG_DOMAIN_INIT (tracker_media_result_log_domain,
+                       "tracker-media-result");
 }

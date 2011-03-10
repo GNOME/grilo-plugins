@@ -55,7 +55,7 @@
 
 /* ---- MetadataSource information ---- */
 
-#define GRL_TRACKER_METADATA_ID   "grl-tracker-media"
+#define GRL_TRACKER_METADATA_ID   "grl-tracker-metadata"
 #define GRL_TRACKER_METADATA_NAME "TrackerMetadata"
 #define GRL_TRACKER_METADATA_DESC               \
   "A plugin for searching metadata"             \

@@ -40,8 +40,8 @@
 
 /* --------- Logging  -------- */
 
-#define GRL_LOG_DOMAIN_DEFAULT tracker_general_log_domain
-GRL_LOG_DOMAIN_STATIC(tracker_general_log_domain);
+#define GRL_LOG_DOMAIN_DEFAULT tracker_media_log_domain
+GRL_LOG_DOMAIN_STATIC(tracker_media_log_domain);
 
 /* ------- Definitions ------- */
 
@@ -329,6 +329,9 @@ tracker_get_datasources_cb (GObject      *object,
 void
 grl_tracker_media_sources_init (void)
 {
+
+  GRL_LOG_DOMAIN_INIT (tracker_media_log_domain, "tracker-media");
+
   GRL_DEBUG ("%s", __FUNCTION__);
 
   grl_tracker_item_cache =

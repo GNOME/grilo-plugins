@@ -78,11 +78,13 @@ GType grl_tracker_media_get_type (void);
 gboolean grl_tracker_media_can_notify (GrlTrackerMedia *source);
 
 /**/
+
+void grl_tracker_media_sources_init (void);
+
 void grl_tracker_add_source (GrlTrackerMedia *source);
 
 void grl_tracker_del_source (GrlTrackerMedia *source);
 
 GrlTrackerMedia *grl_tracker_media_find (const gchar *id);
-
 
 #endif /* _GRL_TRACKER_MEDIA_H_ */

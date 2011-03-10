@@ -429,13 +429,6 @@ tracker_metadata_cb (GObject                    *source_object,
 
 /**/
 
-const GList *
-grl_tracker_media_supported_keys (GrlMetadataSource *source)
-{
-  return
-    grl_plugin_registry_get_metadata_keys (grl_plugin_registry_get_default ());
-}
-
 /**
  * Query is a SPARQL query.
  *
@@ -529,7 +522,7 @@ grl_tracker_media_query (GrlMediaSource *source,
   /* Check if it is a full sparql query */
   if (g_ascii_strncasecmp (qs->query, "select ", 7) != 0) {
     constraint = grl_tracker_media_get_device_constraint (priv);
-    sparql_select = grl_tracker_media_get_select_string (source, qs->keys);
+    sparql_select = grl_tracker_media_get_select_string (qs->keys);
     sparql_final = g_strdup_printf (TRACKER_QUERY_REQUEST,
                                     sparql_select,
                                     qs->query,
@@ -578,7 +571,7 @@ grl_tracker_media_metadata (GrlMediaSource *source,
   if (grl_media_get_id (ms->media) == NULL) {
     if (grl_tracker_per_device_source) {
       constraint = grl_tracker_media_get_device_constraint (priv);
-      sparql_select = grl_tracker_media_get_select_string (source, ms->keys);
+      sparql_select = grl_tracker_media_get_select_string (ms->keys);
       sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST,
                                       sparql_select, constraint, 0, 1);
     } else {
@@ -586,7 +579,7 @@ grl_tracker_media_metadata (GrlMediaSource *source,
       return;
     }
   } else {
-    sparql_select = grl_tracker_media_get_select_string (source, ms->keys);
+    sparql_select = grl_tracker_media_get_select_string (ms->keys);
     sparql_final = g_strdup_printf (TRACKER_METADATA_REQUEST, sparql_select,
                                     grl_media_get_id (ms->media));
   }
@@ -619,7 +612,7 @@ grl_tracker_media_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, ss->search_id);
 
   constraint = grl_tracker_media_get_device_constraint (priv);
-  sparql_select = grl_tracker_media_get_select_string (source, ss->keys);
+  sparql_select = grl_tracker_media_get_select_string (ss->keys);
   if (!ss->text || ss->text[0] == '\0') {
     /* Search all */
     sparql_final = g_strdup_printf (TRACKER_SEARCH_ALL_REQUEST, sparql_select,
@@ -701,7 +694,7 @@ grl_tracker_media_browse_category (GrlMediaSource *source,
                                   grl_metadata_key_tracker_category);
 
   constraint = grl_tracker_media_get_device_constraint (priv);
-  sparql_select = grl_tracker_media_get_select_string (bs->source, bs->keys);
+  sparql_select = grl_tracker_media_get_select_string (bs->keys);
   sparql_final = g_strdup_printf (TRACKER_BROWSE_CATEGORY_REQUEST,
                                   sparql_select,
                                   category,
@@ -740,7 +733,7 @@ grl_tracker_media_browse_filesystem (GrlMediaSource *source,
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
 
-  sparql_select = grl_tracker_media_get_select_string (bs->source, bs->keys);
+  sparql_select = grl_tracker_media_get_select_string (bs->keys);
   constraint = grl_tracker_media_get_device_constraint (priv);
 
   if (bs->container == NULL ||

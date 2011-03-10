@@ -56,8 +56,6 @@ enum {
   PROP_TRACKER_CONNECTION,
 };
 
-static GrlTrackerMedia *grl_tracker_media_new (TrackerSparqlConnection *connection);
-
 static void grl_tracker_media_set_property (GObject      *object,
                                              guint         propid,
                                              const GValue *value,
@@ -67,24 +65,118 @@ static void grl_tracker_media_constructed (GObject *object);
 
 static void grl_tracker_media_finalize (GObject *object);
 
-gboolean grl_tracker_plugin_init (GrlPluginRegistry *registry,
-                                  const GrlPluginInfo *plugin,
-                                  GList *configs);
-
 /* ===================== Globals  ================= */
-
-TrackerSparqlConnection *grl_tracker_connection = NULL;
-const GrlPluginInfo *grl_tracker_plugin;
 
 /* shared data across  */
 GrlTrackerCache *grl_tracker_item_cache;
 GHashTable *grl_tracker_modified_sources;
 
-/* tracker plugin config */
-gboolean grl_tracker_per_device_source = FALSE;
-gboolean grl_tracker_browse_filesystem = FALSE;
+/* ================== TrackerMedia GObject ================ */
 
-/* =================== Tracker Plugin  =============== */
+G_DEFINE_TYPE (GrlTrackerMedia, grl_tracker_media, GRL_TYPE_MEDIA_SOURCE);
+
+static GrlTrackerMedia *
+grl_tracker_media_new (TrackerSparqlConnection *connection)
+{
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  return g_object_new (GRL_TRACKER_MEDIA_TYPE,
+                       "source-id", GRL_TRACKER_MEDIA_ID,
+                       "source-name", GRL_TRACKER_MEDIA_NAME,
+                       "source-desc", GRL_TRACKER_MEDIA_DESC,
+                       "tracker-connection", connection,
+                       NULL);
+}
+
+static void
+grl_tracker_media_class_init (GrlTrackerMediaClass * klass)
+{
+  GrlMediaSourceClass    *source_class   = GRL_MEDIA_SOURCE_CLASS (klass);
+  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  GObjectClass           *g_class        = G_OBJECT_CLASS (klass);
+
+  source_class->query               = grl_tracker_media_query;
+  source_class->metadata            = grl_tracker_media_metadata;
+  source_class->search              = grl_tracker_media_search;
+  source_class->browse              = grl_tracker_media_browse;
+  source_class->cancel              = grl_tracker_media_cancel;
+  source_class->notify_change_start = grl_tracker_media_change_start;
+  source_class->notify_change_stop  = grl_tracker_media_change_stop;
+
+  metadata_class->supported_keys = grl_tracker_supported_keys;
+
+  g_class->finalize     = grl_tracker_media_finalize;
+  g_class->set_property = grl_tracker_media_set_property;
+  g_class->constructed  = grl_tracker_media_constructed;
+
+  g_object_class_install_property (g_class,
+                                   PROP_TRACKER_CONNECTION,
+                                   g_param_spec_object ("tracker-connection",
+                                                        "tracker connection",
+                                                        "A Tracker connection",
+                                                        TRACKER_SPARQL_TYPE_CONNECTION,
+                                                        G_PARAM_WRITABLE
+                                                        | G_PARAM_CONSTRUCT_ONLY
+                                                        | G_PARAM_STATIC_NAME));
+
+  g_type_class_add_private (klass, sizeof (GrlTrackerMediaPriv));
+
+  grl_tracker_setup_key_mappings ();
+}
+
+static void
+grl_tracker_media_init (GrlTrackerMedia *source)
+{
+  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
+
+  source->priv = priv;
+
+  priv->operations = g_hash_table_new (g_direct_hash, g_direct_equal);
+}
+
+static void
+grl_tracker_media_constructed (GObject *object)
+{
+  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (object);
+
+  if (grl_tracker_per_device_source)
+    g_object_get (object, "source-id", &priv->tracker_datasource, NULL);
+}
+
+static void
+grl_tracker_media_finalize (GObject *object)
+{
+  GrlTrackerMedia *self;
+
+  self = GRL_TRACKER_MEDIA (object);
+  if (self->priv->tracker_connection)
+    g_object_unref (self->priv->tracker_connection);
+
+  G_OBJECT_CLASS (grl_tracker_media_parent_class)->finalize (object);
+}
+
+static void
+grl_tracker_media_set_property (GObject      *object,
+                                 guint         propid,
+                                 const GValue *value,
+                                 GParamSpec   *pspec)
+
+{
+  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (object);
+
+  switch (propid) {
+    case PROP_TRACKER_CONNECTION:
+      if (priv->tracker_connection != NULL)
+        g_object_unref (G_OBJECT (priv->tracker_connection));
+      priv->tracker_connection = g_object_ref (g_value_get_object (value));
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, propid, pspec);
+  }
+}
+
+/* =================== TrackerMedia Plugin  =============== */
 
 void
 grl_tracker_add_source (GrlTrackerMedia *source)
@@ -234,16 +326,15 @@ tracker_get_datasources_cb (GObject      *object,
                                     cursor);
 }
 
-static void
-tracker_get_connection_cb (GObject             *object,
-                           GAsyncResult        *res,
-                           const GrlPluginInfo *plugin)
+void
+grl_tracker_media_sources_init (void)
 {
-  /* GrlTrackerMedia *source; */
-
   GRL_DEBUG ("%s", __FUNCTION__);
 
-  grl_tracker_connection = tracker_sparql_connection_get_finish (res, NULL);
+  grl_tracker_item_cache =
+    grl_tracker_media_cache_new (TRACKER_ITEM_CACHE_SIZE);
+  grl_tracker_modified_sources = g_hash_table_new (g_str_hash, g_str_equal);
+
 
   if (grl_tracker_connection != NULL) {
     grl_tracker_media_dbus_start_watch ();
@@ -264,154 +355,3 @@ tracker_get_connection_cb (GObject             *object,
     }
   }
 }
-
-gboolean
-grl_tracker_plugin_init (GrlPluginRegistry *registry,
-                         const GrlPluginInfo *plugin,
-                         GList *configs)
-{
-  GrlConfig *config;
-  gint config_count;
-
-  GRL_DEBUG ("%s", __FUNCTION__);
-
-  GRL_LOG_DOMAIN_INIT (tracker_general_log_domain, "tracker-general");
-  grl_tracker_media_init_notifs ();
-  grl_tracker_media_init_requests ();
-
-  grl_tracker_plugin = plugin;
-  grl_tracker_item_cache =
-    grl_tracker_media_cache_new (TRACKER_ITEM_CACHE_SIZE);
-  grl_tracker_modified_sources = g_hash_table_new (g_str_hash, g_str_equal);
-
-  if (!configs) {
-    GRL_WARNING ("\tConfiguration not provided! Using default configuration.");
-  } else {
-    config_count = g_list_length (configs);
-    if (config_count > 1) {
-      GRL_WARNING ("\tProvided %i configs, but will only use one", config_count);
-    }
-
-    config = GRL_CONFIG (configs->data);
-
-    grl_tracker_per_device_source =
-      grl_config_get_boolean (config, "per-device-source");
-    grl_tracker_browse_filesystem =
-      grl_config_get_boolean (config, "browse-filesystem");
-  }
-
-  tracker_sparql_connection_get_async (NULL,
-                                       (GAsyncReadyCallback) tracker_get_connection_cb,
-                                       (gpointer) plugin);
-  return TRUE;
-}
-
-GRL_PLUGIN_REGISTER (grl_tracker_plugin_init,
-                     NULL,
-                     GRL_TRACKER_PLUGIN_ID);
-
-/* ================== Tracker GObject ================ */
-
-static GrlTrackerMedia *
-grl_tracker_media_new (TrackerSparqlConnection *connection)
-{
-  GRL_DEBUG ("%s", __FUNCTION__);
-
-  return g_object_new (GRL_TRACKER_MEDIA_TYPE,
-                       "source-id", GRL_TRACKER_MEDIA_ID,
-                       "source-name", GRL_TRACKER_MEDIA_NAME,
-                       "source-desc", GRL_TRACKER_MEDIA_DESC,
-                       "tracker-connection", connection,
-                       NULL);
-}
-
-G_DEFINE_TYPE (GrlTrackerMedia, grl_tracker_media, GRL_TYPE_MEDIA_SOURCE);
-
-static void
-grl_tracker_media_class_init (GrlTrackerMediaClass * klass)
-{
-  GrlMediaSourceClass    *source_class   = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
-  GObjectClass           *g_class        = G_OBJECT_CLASS (klass);
-
-  source_class->query               = grl_tracker_media_query;
-  source_class->metadata            = grl_tracker_media_metadata;
-  source_class->search              = grl_tracker_media_search;
-  source_class->browse              = grl_tracker_media_browse;
-  source_class->cancel              = grl_tracker_media_cancel;
-  source_class->notify_change_start = grl_tracker_media_change_start;
-  source_class->notify_change_stop  = grl_tracker_media_change_stop;
-
-  metadata_class->supported_keys = grl_tracker_media_supported_keys;
-
-  g_class->finalize     = grl_tracker_media_finalize;
-  g_class->set_property = grl_tracker_media_set_property;
-  g_class->constructed  = grl_tracker_media_constructed;
-
-  g_object_class_install_property (g_class,
-                                   PROP_TRACKER_CONNECTION,
-                                   g_param_spec_object ("tracker-connection",
-                                                        "tracker connection",
-                                                        "A Tracker connection",
-                                                        TRACKER_SPARQL_TYPE_CONNECTION,
-                                                        G_PARAM_WRITABLE
-                                                        | G_PARAM_CONSTRUCT_ONLY
-                                                        | G_PARAM_STATIC_NAME));
-
-  g_type_class_add_private (klass, sizeof (GrlTrackerMediaPriv));
-
-  grl_tracker_setup_key_mappings ();
-}
-
-static void
-grl_tracker_media_init (GrlTrackerMedia *source)
-{
-  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
-
-  source->priv = priv;
-
-  priv->operations = g_hash_table_new (g_direct_hash, g_direct_equal);
-}
-
-static void
-grl_tracker_media_constructed (GObject *object)
-{
-  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (object);
-
-  if (grl_tracker_per_device_source)
-    g_object_get (object, "source-id", &priv->tracker_datasource, NULL);
-}
-
-static void
-grl_tracker_media_finalize (GObject *object)
-{
-  GrlTrackerMedia *self;
-
-  self = GRL_TRACKER_MEDIA (object);
-  if (self->priv->tracker_connection)
-    g_object_unref (self->priv->tracker_connection);
-
-  G_OBJECT_CLASS (grl_tracker_media_parent_class)->finalize (object);
-}
-
-static void
-grl_tracker_media_set_property (GObject      *object,
-                                 guint         propid,
-                                 const GValue *value,
-                                 GParamSpec   *pspec)
-
-{
-  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (object);
-
-  switch (propid) {
-    case PROP_TRACKER_CONNECTION:
-      if (priv->tracker_connection != NULL)
-        g_object_unref (G_OBJECT (priv->tracker_connection));
-      priv->tracker_connection = g_object_ref (g_value_get_object (value));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, propid, pspec);
-  }
-}
-

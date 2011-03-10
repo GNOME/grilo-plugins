@@ -1,0 +1,124 @@
+/*
+ * Copyright (C) 2011 Igalia S.L.
+ * Copyright (C) 2011 Intel Corporation.
+ *
+ * Contact: Iago Toral Quiroga <itoral@igalia.com>
+ *
+ * Authors: Juan A. Suarez Romero <jasuarez@igalia.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <grilo.h>
+#include <string.h>
+#include <tracker-sparql.h>
+
+#include "grl-tracker.h"
+#include "grl-tracker-media.h"
+#include "grl-tracker-media-api.h"
+#include "grl-tracker-media-notif.h"
+#include "grl-tracker-metadata.h"
+
+/* --------- Logging  -------- */
+
+#define GRL_LOG_DOMAIN_DEFAULT tracker_general_log_domain
+GRL_LOG_DOMAIN_STATIC(tracker_general_log_domain);
+
+/* ------- Definitions ------- */
+
+/* --- Other --- */
+
+gboolean grl_tracker_plugin_init (GrlPluginRegistry *registry,
+                                  const GrlPluginInfo *plugin,
+                                  GList *configs);
+
+/* ===================== Globals  ================= */
+
+TrackerSparqlConnection *grl_tracker_connection = NULL;
+const GrlPluginInfo *grl_tracker_plugin;
+
+/* tracker plugin config */
+gboolean grl_tracker_per_device_source = FALSE;
+gboolean grl_tracker_browse_filesystem = FALSE;
+
+/* =================== Tracker Plugin  =============== */
+
+static void
+tracker_get_connection_cb (GObject             *object,
+                           GAsyncResult        *res,
+                           const GrlPluginInfo *plugin)
+{
+  /* GrlTrackerMedia *source; */
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  grl_tracker_connection = tracker_sparql_connection_get_finish (res, NULL);
+
+  if (grl_tracker_connection != NULL) {
+    grl_tracker_media_dbus_start_watch ();
+
+    grl_tracker_metadata_source_init ();
+    grl_tracker_media_sources_init ();
+  }
+}
+
+gboolean
+grl_tracker_plugin_init (GrlPluginRegistry *registry,
+                         const GrlPluginInfo *plugin,
+                         GList *configs)
+{
+  GrlConfig *config;
+  gint config_count;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  GRL_LOG_DOMAIN_INIT (tracker_general_log_domain, "tracker-general");
+  grl_tracker_media_init_notifs ();
+  grl_tracker_media_init_requests ();
+  grl_tracker_metadata_init_requests ();
+
+  grl_tracker_plugin = plugin;
+
+  if (!configs) {
+    GRL_WARNING ("\tConfiguration not provided! Using default configuration.");
+  } else {
+    config_count = g_list_length (configs);
+    if (config_count > 1) {
+      GRL_WARNING ("\tProvided %i configs, but will only use one", config_count);
+    }
+
+    config = GRL_CONFIG (configs->data);
+
+    grl_tracker_per_device_source =
+      grl_config_get_boolean (config, "per-device-source");
+    grl_tracker_browse_filesystem =
+      grl_config_get_boolean (config, "browse-filesystem");
+  }
+
+  tracker_sparql_connection_get_async (NULL,
+                                       (GAsyncReadyCallback) tracker_get_connection_cb,
+                                       (gpointer) plugin);
+  return TRUE;
+}
+
+GRL_PLUGIN_REGISTER (grl_tracker_plugin_init,
+                     NULL,
+                     GRL_TRACKER_PLUGIN_ID);

@@ -20,6 +20,9 @@ libgrltracker_la_LDFLAGS = \
 	-avoid-version
 
 libgrltracker_la_SOURCES = 		\
+	grl-tracker.c			\
+	grl-tracker.h			\
+	\
 	grl-tracker-media.c		\
 	grl-tracker-media.h		\
 	grl-tracker-media-api.c		\
@@ -28,6 +31,9 @@ libgrltracker_la_SOURCES = 		\
 	grl-tracker-media-cache.h	\
 	grl-tracker-media-notif.c	\
 	grl-tracker-media-notif.h	\
+	\
+	grl-tracker-metadata.c		\
+	grl-tracker-metadata.h		\
 	\
 	grl-tracker-utils.c		\
 	grl-tracker-utils.h

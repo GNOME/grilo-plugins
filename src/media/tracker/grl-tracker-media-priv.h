@@ -30,13 +30,11 @@
 
 #include <tracker-sparql.h>
 
-/* ---- Plugin information --- */
+/* ---- MediaSource information ---- */
 
-#define GRL_TRACKER_PLUGIN_ID   TRACKER_PLUGIN_ID
-
-#define GRL_TRACKER_MEDIA_ID   "grl-tracker"
-#define GRL_TRACKER_MEDIA_NAME "Tracker"
-#define GRL_TRACKER_MEDIA_DESC                 \
+#define GRL_TRACKER_MEDIA_ID   "grl-tracker-media"
+#define GRL_TRACKER_MEDIA_NAME "TrackerMedia"
+#define GRL_TRACKER_MEDIA_DESC                  \
   "A plugin for searching multimedia "          \
   "content using Tracker"
 

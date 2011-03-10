@@ -51,6 +51,10 @@ typedef struct {
   const gchar *sparql_key_flavor;
 } tracker_grl_sparql_t;
 
+const GList *grl_tracker_supported_keys (GrlMetadataSource *source);
+
+gboolean grl_tracker_key_is_supported (const GrlKeyID key);
+
 void grl_tracker_setup_key_mappings (void);
 
 tracker_grl_sparql_t *grl_tracker_get_mapping_from_sparql (const gchar *key);
@@ -59,8 +63,7 @@ GrlMedia *grl_tracker_build_grilo_media (const gchar *rdf_type);
 
 gchar *grl_tracker_media_get_device_constraint (GrlTrackerMediaPriv *priv);
 
-gchar *grl_tracker_media_get_select_string (GrlMediaSource *source,
-                                            const GList *keys);
+gchar *grl_tracker_media_get_select_string (const GList *keys);
 
 gchar *grl_tracker_get_media_name (const gchar *rdf_type,
                                    const gchar *uri,

@@ -161,6 +161,12 @@ get_mapping_from_grl (const GrlKeyID key)
   return (GList *) g_hash_table_lookup (grl_to_sparql_mapping, key);
 }
 
+gboolean
+grl_tracker_key_is_supported (const GrlKeyID key)
+{
+  return g_hash_table_lookup (grl_to_sparql_mapping, key) != NULL;
+}
+
 /**/
 
 gchar *
@@ -174,8 +180,7 @@ grl_tracker_media_get_device_constraint (GrlTrackerMediaPriv *priv)
 }
 
 gchar *
-grl_tracker_media_get_select_string (GrlMediaSource *source,
-                                     const GList *keys)
+grl_tracker_media_get_select_string (const GList *keys)
 {
   const GList *key = keys;
   GString *gstr = g_string_new ("");
@@ -326,4 +331,11 @@ grl_tracker_get_media_name (const gchar *rdf_type,
                                     datasource);
 
   return source_name;
+}
+
+const GList *
+grl_tracker_supported_keys (GrlMetadataSource *source)
+{
+  return
+    grl_plugin_registry_get_metadata_keys (grl_plugin_registry_get_default ());
 }

@@ -31,8 +31,6 @@
 
 void grl_tracker_media_init_requests (void);
 
-const GList *grl_tracker_media_supported_keys (GrlMetadataSource *source);
-
 void grl_tracker_media_query (GrlMediaSource *source,
                               GrlMediaSourceQuerySpec *qs);
 

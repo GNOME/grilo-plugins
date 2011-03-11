@@ -412,15 +412,15 @@ tracker_metadata_cb (GObject                    *source_object,
   }
 
 
-  tracker_sparql_cursor_next (cursor, NULL, NULL);
+  if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+    /* Translate Sparql result into Grilo result */
+    for (col = 0 ; col < tracker_sparql_cursor_get_n_columns (cursor) ; col++) {
+      fill_grilo_media_from_sparql (GRL_TRACKER_MEDIA (ms->source),
+                                    ms->media, cursor, col);
+    }
 
-  /* Translate Sparql result into Grilo result */
-  for (col = 0 ; col < tracker_sparql_cursor_get_n_columns (cursor) ; col++) {
-    fill_grilo_media_from_sparql (GRL_TRACKER_MEDIA (ms->source),
-                                  ms->media, cursor, col);
+    ms->callback (ms->source, ms->media, ms->user_data, NULL);
   }
-
-  ms->callback (ms->source, ms->media, ms->user_data, NULL);
 
  end_operation:
   if (cursor)

@@ -261,7 +261,7 @@ get_tracker_volume_name (const gchar *uri,
   GList *mounts, *mount;
   GFile *file;
 
-  if (uri != NULL) {
+  if (uri != NULL && *uri != '\0') {
     volume_monitor = g_volume_monitor_get ();
     mounts = g_volume_monitor_get_mounts (volume_monitor);
     file = g_file_new_for_uri (uri);

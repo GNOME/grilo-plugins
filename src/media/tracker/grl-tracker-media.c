@@ -257,7 +257,7 @@ tracker_get_datasource_cb (GObject             *object,
                            TrackerSparqlCursor *cursor)
 {
   const gchar *type, *datasource, *datasource_name, *uri;
-  gboolean source_available;
+  gboolean source_available = FALSE;
   GError *error = NULL;
   GrlTrackerMedia *source;
 
@@ -278,7 +278,8 @@ tracker_get_datasource_cb (GObject             *object,
   datasource = tracker_sparql_cursor_get_string (cursor, 1, NULL);
   datasource_name = tracker_sparql_cursor_get_string (cursor, 2, NULL);
   uri = tracker_sparql_cursor_get_string (cursor, 3, NULL);
-  source_available = tracker_sparql_cursor_get_boolean (cursor, 4);
+  if (tracker_sparql_cursor_is_bound (cursor, 4))
+    source_available = tracker_sparql_cursor_get_boolean (cursor, 4);
 
   source = grl_tracker_media_find (datasource);
 

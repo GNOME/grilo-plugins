@@ -286,7 +286,7 @@ get_tracker_volume_name (const gchar *uri,
     g_object_unref (G_OBJECT (file));
     g_object_unref (G_OBJECT (volume_monitor));
   } else {
-    source_name = g_strdup ("Local");
+    source_name = g_strdup ("Local files");
   }
 
   return source_name;

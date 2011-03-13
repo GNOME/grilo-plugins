@@ -208,13 +208,6 @@ fill_grilo_media_from_sparql (GrlTrackerMetadata  *source,
 
   switch (G_PARAM_SPEC (assoc->grl_key)->value_type) {
   case G_TYPE_STRING:
-    /* Cache the source associated to this result. */
-    /* if (assoc->grl_key == GRL_METADATA_KEY_ID) { */
-    /*   grl_tracker_media_cache_add_item (grl_tracker_item_cache, */
-    /*                                     tracker_sparql_cursor_get_integer (cursor, */
-    /*                                                                        column), */
-    /*                                     source); */
-    /* } */
     val.str_val = tracker_sparql_cursor_get_string (cursor, column, NULL);
     if (val.str_val != NULL)
       grl_data_set_string (GRL_DATA (media), assoc->grl_key, val.str_val);

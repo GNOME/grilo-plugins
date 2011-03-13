@@ -44,6 +44,19 @@ GRL_LOG_DOMAIN_STATIC(tracker_general_log_domain);
 
 /* ------- Definitions ------- */
 
+#define TRACKER_FOLDER_CLASS_REQUEST           \
+  "SELECT ?urn WHERE "                         \
+  "{ "                                         \
+  "?urn a rdfs:Class . "                       \
+  "FILTER(fn:ends-with(?urn,\"nfo#Folder\")) " \
+  "}"
+
+#define TRACKER_NOTIFY_FOLDER_UPDATE            \
+  "INSERT "                                     \
+  "{ "                                          \
+  "<%s> tracker:notify true "                   \
+  "}"
+
 /* --- Other --- */
 
 gboolean grl_tracker_plugin_init (GrlPluginRegistry *registry,
@@ -62,6 +75,63 @@ gboolean grl_tracker_browse_filesystem = FALSE;
 /* =================== Tracker Plugin  =============== */
 
 static void
+init_sources (void)
+{
+  if (grl_tracker_connection != NULL) {
+    grl_tracker_media_dbus_start_watch ();
+
+    grl_tracker_metadata_source_init ();
+    grl_tracker_media_sources_init ();
+  }
+}
+
+static void
+tracker_update_folder_class_cb (GObject      *object,
+                                GAsyncResult *result,
+                                gpointer      data)
+{
+  init_sources ();
+}
+
+static void
+tracker_get_folder_class_cb (GObject      *object,
+                             GAsyncResult *result,
+                             gpointer       data)
+{
+  TrackerSparqlCursor  *cursor;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  cursor = tracker_sparql_connection_query_finish (grl_tracker_connection,
+                                                   result, NULL);
+
+  if (!cursor) {
+    init_sources ();
+    return;
+  }
+
+  if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+    gchar *update = g_strdup_printf (TRACKER_NOTIFY_FOLDER_UPDATE,
+                                     tracker_sparql_cursor_get_string (cursor,
+                                                                       0,
+                                                                       NULL));
+
+    GRL_DEBUG ("\tupdate query: '%s'", update);
+
+    tracker_sparql_connection_update_async (grl_tracker_connection,
+                                            update,
+                                            G_PRIORITY_DEFAULT,
+                                            NULL,
+                                            tracker_update_folder_class_cb,
+                                            NULL);
+
+    g_free (update);
+  }
+
+  g_object_unref (cursor);
+}
+
+static void
 tracker_get_connection_cb (GObject             *object,
                            GAsyncResult        *res,
                            const GrlPluginInfo *plugin)
@@ -72,12 +142,14 @@ tracker_get_connection_cb (GObject             *object,
 
   grl_tracker_connection = tracker_sparql_connection_get_finish (res, NULL);
 
-  if (grl_tracker_connection != NULL) {
-    grl_tracker_media_dbus_start_watch ();
-
-    grl_tracker_metadata_source_init ();
-    grl_tracker_media_sources_init ();
-  }
+  if (grl_tracker_browse_filesystem)
+    tracker_sparql_connection_query_async (grl_tracker_connection,
+                                           TRACKER_FOLDER_CLASS_REQUEST,
+                                           NULL,
+                                           tracker_get_folder_class_cb,
+                                           NULL);
+  else
+    init_sources ();
 }
 
 gboolean

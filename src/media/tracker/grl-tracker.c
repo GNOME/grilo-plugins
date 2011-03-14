@@ -36,6 +36,7 @@
 #include "grl-tracker-media-api.h"
 #include "grl-tracker-media-notif.h"
 #include "grl-tracker-metadata.h"
+#include "grl-tracker-utils.h"
 
 /* --------- Logging  -------- */
 
@@ -166,6 +167,8 @@ grl_tracker_plugin_init (GrlPluginRegistry *registry,
   grl_tracker_media_init_notifs ();
   grl_tracker_media_init_requests ();
   grl_tracker_metadata_init_requests ();
+
+  grl_tracker_setup_key_mappings ();
 
   grl_tracker_plugin = plugin;
 

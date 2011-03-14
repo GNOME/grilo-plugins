@@ -128,8 +128,6 @@ grl_tracker_media_class_init (GrlTrackerMediaClass * klass)
                                                        | G_PARAM_STATIC_NAME));
 
   g_type_class_add_private (klass, sizeof (GrlTrackerMediaPriv));
-
-  grl_tracker_setup_key_mappings ();
 }
 
 static void

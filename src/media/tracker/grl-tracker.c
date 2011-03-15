@@ -161,8 +161,6 @@ grl_tracker_plugin_init (GrlPluginRegistry *registry,
   GrlConfig *config;
   gint config_count;
 
-  GRL_DEBUG ("%s", __FUNCTION__);
-
   GRL_LOG_DOMAIN_INIT (tracker_general_log_domain, "tracker-general");
   grl_tracker_media_init_notifs ();
   grl_tracker_media_init_requests ();

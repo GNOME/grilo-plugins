@@ -367,7 +367,7 @@ tracker_query_cb (GObject              *source_object,
 
     g_error_free (tracker_error);
     g_error_free (error);
-    g_slice_free (struct OperationSpec, operation);
+    tracker_operation_terminate (operation);
 
     return;
   }

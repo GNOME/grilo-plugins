@@ -111,7 +111,7 @@ tracker_evt_update_media_add (tracker_evt_update_t *evt,
   GrlTrackerMedia *source;
   GrlTrackerMediaPriv *priv;
 
-  source = g_hash_table_lookup (grl_tracker_modified_sources, id);
+  source = g_hash_table_lookup (grl_tracker_media_sources_modified, id);
   if (!source) {
     source = g_object_new (GRL_TRACKER_MEDIA_TYPE,
 			   "source-id", id,
@@ -120,11 +120,12 @@ tracker_evt_update_media_add (tracker_evt_update_t *evt,
 			   "tracker-connection", grl_tracker_connection,
                            "tracker-datasource", id,
 			   NULL);
-    g_hash_table_insert (grl_tracker_modified_sources,
+    g_hash_table_insert (grl_tracker_media_sources_modified,
                          (gpointer) grl_tracker_media_get_tracker_source (source),
                         source);
   }
 
+  /* FIXME: something's wrong here... */
   priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
   priv->state = GRL_TRACKER_MEDIA_STATE_INSERTING;
   priv->notification_ref++;
@@ -277,6 +278,7 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
 {
   guint id;
   gchar *str_id;
+  gboolean first = TRUE;
   GString *request_str;
   GList *subject, *subjects;
   GrlMedia *media;
@@ -299,9 +301,14 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
   while (subject != NULL) {
     id = GPOINTER_TO_INT (subject->data);
     if (GPOINTER_TO_INT (g_hash_table_lookup (evt->orphan_items,
-					      subject->data)) != GRL_CONTENT_REMOVED) {
-      g_string_append_printf (request_str, "%u", id);
-      break;
+                                              subject->data)) != GRL_CONTENT_REMOVED) {
+      if (first) {
+        g_string_append_printf (request_str, "%u", id);
+        first = FALSE;
+      }
+      else {
+        g_string_append_printf (request_str, ", %u", id);
+      }
     } else {
       /* Notify all sources that a been removed */
       media = grl_media_new ();
@@ -311,62 +318,33 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
 
       source = sources;
       while (source != NULL) {
-	if (GRL_IS_TRACKER_MEDIA (source->data)) {
-	  GRL_DEBUG ("\tNotify id=%u source=%s p=%p", id,
+        if (GRL_IS_TRACKER_MEDIA (source->data)) {
+          GRL_DEBUG ("\tNotify id=%u source=%s p=%p", id,
                      grl_metadata_source_get_name (GRL_METADATA_SOURCE (source->data)),
                      source->data);
-	  if (grl_tracker_media_can_notify (GRL_TRACKER_MEDIA (source->data)))
-	    grl_media_source_notify_change (GRL_MEDIA_SOURCE (source->data),
+          if (grl_tracker_media_can_notify (GRL_TRACKER_MEDIA (source->data)))
+            grl_media_source_notify_change (GRL_MEDIA_SOURCE (source->data),
                                             media, GRL_CONTENT_REMOVED, FALSE);
-	}
-	source = source->next;
+        }
+        source = source->next;
       }
       g_object_unref (media);
     }
     subject = subject->next;
   }
 
-  if (subject != NULL) {
-    subject = subject->next;
-    while (subject != NULL) {
-      id = GPOINTER_TO_INT (subject->data);
-      if (GPOINTER_TO_INT (g_hash_table_lookup (evt->orphan_items,
-						subject->data)) != GRL_CONTENT_REMOVED) {
-	g_string_append_printf (request_str, ", %u", id);
-      } else {
-	/* Notify all sources that a been removed */
-        media = grl_media_new ();
-	str_id = g_strdup_printf ("%u", id);
-	grl_media_set_id (media, str_id);
-	g_free (str_id);
+  g_list_free (subjects);
 
-	source = sources;
-	while (source != NULL) {
-	  if (GRL_IS_TRACKER_MEDIA (source->data)) {
-	    GRL_DEBUG ("\tNotify id=%u source=%s p=%p", id,
-                       grl_metadata_source_get_name (GRL_METADATA_SOURCE (source->data)),
-                       source->data);
-	    if (grl_tracker_media_can_notify (GRL_TRACKER_MEDIA (source->data)))
-              grl_media_source_notify_change (GRL_MEDIA_SOURCE (source->data),
-                                              media, GRL_CONTENT_REMOVED, FALSE);
-	  }
-	  source = source->next;
-	}
-        g_object_unref (media);
-      }
-      subject = subject->next;
-    }
-    g_list_free (subjects);
-
+  if (request_str->len == 0) {
     g_string_append (request_str, TRACKER_MEDIA_ITEM_END);
 
     GRL_DEBUG ("\trequest : '%s'", request_str->str);
 
     tracker_sparql_connection_query_async (grl_tracker_connection,
                                            request_str->str,
-					   NULL,
+                                           NULL,
                                            (GAsyncReadyCallback) tracker_evt_update_orphans_cb,
-					   evt);
+                                           evt);
   } else {
     tracker_evt_postupdate_sources (evt);
   }
@@ -536,7 +514,7 @@ tracker_dbus_signal_cb (GDBusConnection *connection,
 
   g_variant_get (parameters, "(&sa(iiii)a(iiii))", &class_name, &iter1, &iter2);
 
-  GRL_DEBUG ("\tTracker update event for class=%s ins=%lu del=%lu evt=%p",
+  GRL_DEBUG ("Tracker update event for class=%s ins=%lu del=%lu evt=%p",
              class_name,
              (unsigned long) g_variant_iter_n_children (iter1),
              (unsigned long) g_variant_iter_n_children (iter2),

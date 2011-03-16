@@ -68,7 +68,8 @@ static void grl_tracker_media_finalize (GObject *object);
 
 /* shared data across  */
 GrlTrackerCache *grl_tracker_item_cache;
-GHashTable *grl_tracker_modified_sources;
+GHashTable *grl_tracker_media_sources_modified;
+GHashTable *grl_tracker_media_sources;
 
 /* ================== TrackerMedia GObject ================ */
 
@@ -206,8 +207,11 @@ grl_tracker_add_source (GrlTrackerMedia *source)
     priv->notification_ref--;
   }
   if (priv->notification_ref == 0) {
-    g_hash_table_remove (grl_tracker_modified_sources,
+    g_hash_table_remove (grl_tracker_media_sources_modified,
                          grl_tracker_media_get_tracker_source (source));
+    g_hash_table_insert (grl_tracker_media_sources,
+                         (gpointer) grl_tracker_media_get_tracker_source (source),
+                         source);
     priv->state = GRL_TRACKER_MEDIA_STATE_RUNNING;
     grl_plugin_registry_register_source (grl_plugin_registry_get_default (),
                                          grl_tracker_plugin,
@@ -228,7 +232,9 @@ grl_tracker_del_source (GrlTrackerMedia *source)
     priv->notification_ref--;
   }
   if (priv->notification_ref == 0) {
-    g_hash_table_remove (grl_tracker_modified_sources,
+    g_hash_table_remove (grl_tracker_media_sources_modified,
+                         grl_tracker_media_get_tracker_source (source));
+    g_hash_table_remove (grl_tracker_media_sources,
                          grl_tracker_media_get_tracker_source (source));
     grl_tracker_media_cache_del_source (grl_tracker_item_cache, source);
     priv->state = GRL_TRACKER_MEDIA_STATE_DELETED;
@@ -252,17 +258,15 @@ grl_tracker_media_can_notify (GrlTrackerMedia *source)
 GrlTrackerMedia *
 grl_tracker_media_find (const gchar *id)
 {
-  GrlMediaPlugin *source;
+  GrlTrackerMedia *source;
 
-  source = grl_plugin_registry_lookup_source (grl_plugin_registry_get_default (),
-					      id);
+  source = g_hash_table_lookup (grl_tracker_media_sources, id);
 
-  if (source && GRL_IS_TRACKER_MEDIA (source)) {
+  if (source)
     return (GrlTrackerMedia *) source;
-  }
 
   return
-    (GrlTrackerMedia *) g_hash_table_lookup (grl_tracker_modified_sources,
+    (GrlTrackerMedia *) g_hash_table_lookup (grl_tracker_media_sources_modified,
                                              id);
 }
 
@@ -353,7 +357,9 @@ grl_tracker_media_sources_init (void)
 
   grl_tracker_item_cache =
     grl_tracker_media_cache_new (TRACKER_ITEM_CACHE_SIZE);
-  grl_tracker_modified_sources = g_hash_table_new (g_str_hash, g_str_equal);
+  grl_tracker_media_sources = g_hash_table_new (g_str_hash, g_str_equal);
+  grl_tracker_media_sources_modified = g_hash_table_new (g_str_hash,
+                                                         g_str_equal);
 
 
   if (grl_tracker_connection != NULL) {

@@ -75,7 +75,7 @@ extern const GrlPluginInfo *grl_tracker_plugin;
 
 /* shared data across  */
 extern GrlTrackerCache *grl_tracker_item_cache;
-extern GHashTable *grl_tracker_modified_sources;
+extern GHashTable *grl_tracker_media_sources_modified;
 
 /* tracker plugin config */
 extern gboolean grl_tracker_per_device_source;

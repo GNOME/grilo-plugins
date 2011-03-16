@@ -172,7 +172,8 @@ grl_tracker_key_is_supported (const GrlKeyID key)
 gchar *
 grl_tracker_media_get_device_constraint (GrlTrackerMediaPriv *priv)
 {
-  if (priv->tracker_datasource == NULL)
+  if (priv->tracker_datasource == NULL ||
+      priv->tracker_datasource[0] == '\0')
     return g_strdup ("");
 
   return g_strdup_printf ("?urn nie:dataSource <%s> .",

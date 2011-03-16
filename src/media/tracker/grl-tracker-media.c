@@ -85,6 +85,7 @@ grl_tracker_media_new (TrackerSparqlConnection *connection)
                        "source-name", GRL_TRACKER_MEDIA_NAME,
                        "source-desc", GRL_TRACKER_MEDIA_DESC,
                        "tracker-connection", connection,
+                       "tracker-datasource", "",
                        NULL);
 }
 

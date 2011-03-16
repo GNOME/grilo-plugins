@@ -46,12 +46,20 @@ GRL_LOG_DOMAIN_STATIC(tracker_metadata_result_log_domain);
 
 /* ------- Definitions ------- */
 
-#define TRACKER_RESOLVE_REQUEST                 \
+#define TRACKER_RESOLVE_URL_REQUEST             \
   "SELECT %s "                                  \
   "WHERE "                                      \
   "{ "                                          \
   "?urn a nie:DataObject . "                    \
   "?urn nie:url \"%s\" " \
+  "}"
+
+#define TRACKER_RESOLVE_ID_REQUEST              \
+  "SELECT %s "                                  \
+  "WHERE "                                      \
+  "{ "                                          \
+  "?urn a nie:DataObject . "                    \
+  "FILTER(tracker:id(?urn) = %i) "              \
   "}"
 
 /**/
@@ -286,18 +294,16 @@ grl_tracker_metadata_may_resolve (GrlMetadataSource  *source,
                                   GrlKeyID            key_id,
                                   GList             **missing_keys)
 {
-  const gchar *url;
+  GRL_IDEBUG ("%s: key=%s", __FUNCTION__, g_param_spec_get_name (key_id));
 
-  if (media) {
-    url = grl_media_get_url (media);
+  if (!grl_tracker_key_is_supported (key_id))
+    return FALSE;
 
-    if (url && grl_tracker_key_is_supported (key_id)) {
+  if (media && grl_media_get_url (media))
       return TRUE;
-    }
-  } else {
-    if (grl_tracker_key_is_supported (key_id))
-      return TRUE;
-  }
+
+  if (missing_keys)
+    *missing_keys = g_list_append (*missing_keys, GRL_METADATA_KEY_URL);
 
   return FALSE;
 }
@@ -313,18 +319,21 @@ grl_tracker_metadata_resolve (GrlMetadataSource            *source,
 
   GRL_IDEBUG ("%s", __FUNCTION__);
 
-  g_return_if_fail (url != NULL);
+  if (url) {
+    sparql_select = grl_tracker_media_get_select_string (rs->keys);
+    sparql_final = g_strdup_printf (TRACKER_RESOLVE_URL_REQUEST,
+                                    sparql_select, url);
+  } else {
+    g_return_if_reached ();
+  }
 
-  sparql_select = grl_tracker_media_get_select_string (rs->keys);
-  sparql_final = g_strdup_printf (TRACKER_RESOLVE_REQUEST, sparql_select, url);
+  GRL_IDEBUG ("request: '%s'", sparql_final);
 
   tracker_sparql_connection_query_async (priv->tracker_connection,
                                          sparql_final,
                                          NULL,
                                          (GAsyncReadyCallback) tracker_resolve_cb,
                                          rs);
-
-  GRL_IDEBUG ("request: '%s'", sparql_final);
 
   g_free (sparql_select);
   g_free (sparql_final);

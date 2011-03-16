@@ -35,12 +35,10 @@ GRL_LOG_DOMAIN_STATIC(tracker_notif_log_domain);
 
 /* ------- Definitions ------- */
 
-#define TRACKER_MEDIA_ITEM_START                                        \
+#define TRACKER_MEDIA_ITEM                                              \
   "SELECT rdf:type(?urn) tracker:id(?urn) nie:dataSource(?urn) "	\
   "WHERE { ?urn a nfo:FileDataObject . "                                \
-  "FILTER (tracker:id(?urn) IN ("
-
-#define TRACKER_MEDIA_ITEM_END ")) }"
+  "FILTER (tracker:id(?urn) IN (%s)) }"
 
 /**/
 
@@ -88,6 +86,8 @@ tracker_evt_update_free (tracker_evt_update_t *evt)
   if (!evt)
     return;
 
+  GRL_DEBUG ("free evt=%p", evt);
+
   g_hash_table_destroy (evt->inserted_items);
   g_hash_table_destroy (evt->deleted_items);
   g_hash_table_destroy (evt->updated_items);
@@ -96,9 +96,6 @@ tracker_evt_update_free (tracker_evt_update_t *evt)
 
   g_list_free (evt->new_sources);
   g_list_free (evt->old_sources);
-
-  if (evt->cursor != NULL)
-    g_object_unref (evt->cursor);
 
   g_slice_free (tracker_evt_update_t, evt);
 }
@@ -125,7 +122,6 @@ tracker_evt_update_media_add (tracker_evt_update_t *evt,
                         source);
   }
 
-  /* FIXME: something's wrong here... */
   priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
   priv->state = GRL_TRACKER_MEDIA_STATE_INSERTING;
   priv->notification_ref++;
@@ -195,10 +191,15 @@ tracker_evt_update_orphan_item_cb (GObject              *object,
       GRL_DEBUG ("\tend of parsing...");
     }
 
+    g_object_unref (evt->cursor);
+    evt->cursor = NULL;
+
     if (grl_tracker_per_device_source) {
       /* Once all items have been processed, add new sources and we're
 	 done. */
       tracker_evt_postupdate_sources (evt);
+    } else {
+      tracker_evt_update_free (evt);
     }
 
     return;
@@ -255,8 +256,6 @@ tracker_evt_update_orphans_cb (GObject              *object,
 
   GRL_DEBUG ("%s: evt=%p", __FUNCTION__, evt);
 
-  if (evt->cursor != NULL)
-    g_object_unref (evt->cursor);
   evt->cursor = tracker_sparql_connection_query_finish (grl_tracker_connection,
                                                         result, &error);
 
@@ -276,12 +275,9 @@ tracker_evt_update_orphans_cb (GObject              *object,
 static void
 tracker_evt_update_orphans (tracker_evt_update_t *evt)
 {
-  guint id;
-  gchar *str_id;
   gboolean first = TRUE;
   GString *request_str;
   GList *subject, *subjects;
-  GrlMedia *media;
   GList *source, *sources;
 
   GRL_DEBUG ("%s: evt=%p", __FUNCTION__, evt);
@@ -294,12 +290,12 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
   sources = grl_plugin_registry_get_sources (grl_plugin_registry_get_default (),
 					     FALSE);
 
-  request_str = g_string_new (TRACKER_MEDIA_ITEM_START);
+  request_str = g_string_new ("");
   subjects = g_hash_table_get_keys (evt->orphan_items);
 
   subject = subjects;
   while (subject != NULL) {
-    id = GPOINTER_TO_INT (subject->data);
+    guint id = GPOINTER_TO_INT (subject->data);
     if (GPOINTER_TO_INT (g_hash_table_lookup (evt->orphan_items,
                                               subject->data)) != GRL_CONTENT_REMOVED) {
       if (first) {
@@ -318,8 +314,9 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
                      grl_metadata_source_get_name (GRL_METADATA_SOURCE (source->data)),
                      source->data);
           if (grl_tracker_media_can_notify (GRL_TRACKER_MEDIA (source->data))) {
-            media = grl_media_new ();
-            str_id = g_strdup_printf ("%u", id);
+            GrlMedia *media = grl_media_new ();
+            gchar *str_id = g_strdup_printf ("%u", id);
+
             grl_media_set_id (media, str_id);
             g_free (str_id);
 
@@ -336,16 +333,18 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
 
   g_list_free (subjects);
 
-  if (request_str->len == 0) {
-    g_string_append (request_str, TRACKER_MEDIA_ITEM_END);
+  if (request_str->len > 0) {
+    gchar *sparql_final = g_strdup_printf (TRACKER_MEDIA_ITEM, request_str->str);
 
-    GRL_DEBUG ("\trequest : '%s'", request_str->str);
+    GRL_DEBUG ("\trequest : '%s'", sparql_final);
 
     tracker_sparql_connection_query_async (grl_tracker_connection,
-                                           request_str->str,
+                                           sparql_final,
                                            NULL,
                                            (GAsyncReadyCallback) tracker_evt_update_orphans_cb,
                                            evt);
+
+    g_free (sparql_final);
   } else {
     tracker_evt_postupdate_sources (evt);
   }
@@ -423,6 +422,9 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
       GRL_DEBUG ("\tend of parsing... start notifying sources");
     }
 
+    g_object_unref (evt->cursor);
+    evt->cursor = NULL;
+
     /* Once all sources have been preupdated, start items
        updates. */
     tracker_evt_update_items (evt);
@@ -470,8 +472,6 @@ tracker_evt_preupdate_sources_cb (GObject              *object,
 
   GRL_DEBUG ("%s: evt=%p", __FUNCTION__, evt);
 
-  if (evt->cursor != NULL)
-    g_object_unref (evt->cursor);
   evt->cursor = tracker_sparql_connection_query_finish (grl_tracker_connection,
                                                         result, &error);
 

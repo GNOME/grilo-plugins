@@ -118,10 +118,11 @@ tracker_evt_update_media_add (tracker_evt_update_t *evt,
 			   "source-name", source_name,
 			   "source-desc", GRL_TRACKER_MEDIA_DESC,
 			   "tracker-connection", grl_tracker_connection,
+                           "tracker-datasource", id,
 			   NULL);
     g_hash_table_insert (grl_tracker_modified_sources,
-			 (gpointer) grl_metadata_source_get_id (GRL_METADATA_SOURCE (source)),
-			 source);
+                         (gpointer) grl_tracker_media_get_tracker_source (source),
+                        source);
   }
 
   priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
@@ -147,7 +148,7 @@ tracker_evt_update_media_del (tracker_evt_update_t *evt,
 
   GRL_DEBUG ("Predel source p=%p name=%s id=%s count=%u", source,
              grl_metadata_source_get_name (GRL_METADATA_SOURCE (source)),
-             grl_metadata_source_get_id (GRL_METADATA_SOURCE (source)),
+             grl_tracker_media_get_tracker_source (source),
              priv->notification_ref);
 }
 

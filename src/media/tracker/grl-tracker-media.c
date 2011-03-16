@@ -54,14 +54,13 @@ GRL_LOG_DOMAIN_STATIC(tracker_media_log_domain);
 enum {
   PROP_0,
   PROP_TRACKER_CONNECTION,
+  PROP_TRACKER_DATASOURCE,
 };
 
 static void grl_tracker_media_set_property (GObject      *object,
                                              guint         propid,
                                              const GValue *value,
                                              GParamSpec   *pspec);
-
-static void grl_tracker_media_constructed (GObject *object);
 
 static void grl_tracker_media_finalize (GObject *object);
 
@@ -107,7 +106,6 @@ grl_tracker_media_class_init (GrlTrackerMediaClass * klass)
 
   g_class->finalize     = grl_tracker_media_finalize;
   g_class->set_property = grl_tracker_media_set_property;
-  g_class->constructed  = grl_tracker_media_constructed;
 
   g_object_class_install_property (g_class,
                                    PROP_TRACKER_CONNECTION,
@@ -118,6 +116,16 @@ grl_tracker_media_class_init (GrlTrackerMediaClass * klass)
                                                         G_PARAM_WRITABLE
                                                         | G_PARAM_CONSTRUCT_ONLY
                                                         | G_PARAM_STATIC_NAME));
+
+ g_object_class_install_property (g_class,
+                                  PROP_TRACKER_DATASOURCE,
+                                  g_param_spec_string ("tracker-datasource",
+                                                       "tracker datasource",
+                                                       "A Tracker nie:DataSource URN",
+                                                       NULL,
+                                                       G_PARAM_WRITABLE
+                                                       | G_PARAM_CONSTRUCT_ONLY
+                                                       | G_PARAM_STATIC_NAME));
 
   g_type_class_add_private (klass, sizeof (GrlTrackerMediaPriv));
 
@@ -135,15 +143,6 @@ grl_tracker_media_init (GrlTrackerMedia *source)
 }
 
 static void
-grl_tracker_media_constructed (GObject *object)
-{
-  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (object);
-
-  if (grl_tracker_per_device_source)
-    g_object_get (object, "source-id", &priv->tracker_datasource, NULL);
-}
-
-static void
 grl_tracker_media_finalize (GObject *object)
 {
   GrlTrackerMedia *self;
@@ -157,9 +156,9 @@ grl_tracker_media_finalize (GObject *object)
 
 static void
 grl_tracker_media_set_property (GObject      *object,
-                                 guint         propid,
-                                 const GValue *value,
-                                 GParamSpec   *pspec)
+                                guint         propid,
+                                const GValue *value,
+                                GParamSpec   *pspec)
 
 {
   GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (object);
@@ -171,9 +170,27 @@ grl_tracker_media_set_property (GObject      *object,
       priv->tracker_connection = g_object_ref (g_value_get_object (value));
       break;
 
+    case PROP_TRACKER_DATASOURCE:
+      if (priv->tracker_datasource != NULL)
+        g_free (priv->tracker_datasource);
+      priv->tracker_datasource = g_strdup (g_value_get_string (value));
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, propid, pspec);
   }
+}
+
+const gchar *
+grl_tracker_media_get_tracker_source (GrlTrackerMedia *source)
+{
+  GrlTrackerMediaPriv *priv;
+
+  g_return_val_if_fail (GRL_IS_TRACKER_MEDIA (source), NULL);
+
+  priv = source->priv;
+
+  return priv->tracker_datasource;
 }
 
 /* =================== TrackerMedia Plugin  =============== */
@@ -192,7 +209,7 @@ grl_tracker_add_source (GrlTrackerMedia *source)
   }
   if (priv->notification_ref == 0) {
     g_hash_table_remove (grl_tracker_modified_sources,
-                         grl_metadata_source_get_id (GRL_METADATA_SOURCE (source)));
+                         grl_tracker_media_get_tracker_source (source));
     priv->state = GRL_TRACKER_MEDIA_STATE_RUNNING;
     grl_plugin_registry_register_source (grl_plugin_registry_get_default (),
                                          grl_tracker_plugin,
@@ -214,7 +231,7 @@ grl_tracker_del_source (GrlTrackerMedia *source)
   }
   if (priv->notification_ref == 0) {
     g_hash_table_remove (grl_tracker_modified_sources,
-                         grl_metadata_source_get_id (GRL_METADATA_SOURCE (source)));
+                         grl_tracker_media_get_tracker_source (source));
     grl_tracker_media_cache_del_source (grl_tracker_item_cache, source);
     priv->state = GRL_TRACKER_MEDIA_STATE_DELETED;
     grl_plugin_registry_unregister_source (grl_plugin_registry_get_default (),
@@ -289,10 +306,11 @@ tracker_get_datasource_cb (GObject             *object,
     GRL_DEBUG ("\tnew datasource: urn=%s name=%s uri=%s\n",
 	       datasource, datasource_name, uri);
     source = g_object_new (GRL_TRACKER_MEDIA_TYPE,
-                           "source-id", datasource,
+                           "source-id", GRL_TRACKER_MEDIA_ID,
                            "source-name", source_name,
                            "source-desc", GRL_TRACKER_MEDIA_DESC,
                            "tracker-connection", grl_tracker_connection,
+                           "tracker-datasource", datasource,
                            NULL);
     grl_tracker_add_source (source);
     g_free (source_name);

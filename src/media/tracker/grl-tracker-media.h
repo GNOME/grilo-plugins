@@ -77,6 +77,8 @@ GType grl_tracker_media_get_type (void);
 
 gboolean grl_tracker_media_can_notify (GrlTrackerMedia *source);
 
+const gchar *grl_tracker_media_get_tracker_source (GrlTrackerMedia *source);
+
 /**/
 
 void grl_tracker_media_sources_init (void);

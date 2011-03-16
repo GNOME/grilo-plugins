@@ -51,7 +51,7 @@ insert_key_mapping (GrlKeyID     grl_key,
                     const gchar *sparql_key_attr,
                     const gchar *sparql_key_flavor)
 {
-  tracker_grl_sparql_t *assoc = g_slice_new0 (tracker_grl_sparql_t);
+  tracker_grl_sparql_t *assoc = g_new0 (tracker_grl_sparql_t, 1);
   GList *assoc_list = g_hash_table_lookup (grl_to_sparql_mapping, grl_key);
   gchar *canon_name = g_strdup (g_param_spec_get_name (grl_key));
 

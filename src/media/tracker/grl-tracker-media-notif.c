@@ -310,25 +310,26 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
         g_string_append_printf (request_str, ", %u", id);
       }
     } else {
-      /* Notify all sources that a been removed */
-      media = grl_media_new ();
-      str_id = g_strdup_printf ("%u", id);
-      grl_media_set_id (media, str_id);
-      g_free (str_id);
-
+      /* Notify all sources that a media been removed */
       source = sources;
       while (source != NULL) {
         if (GRL_IS_TRACKER_MEDIA (source->data)) {
           GRL_DEBUG ("\tNotify id=%u source=%s p=%p", id,
                      grl_metadata_source_get_name (GRL_METADATA_SOURCE (source->data)),
                      source->data);
-          if (grl_tracker_media_can_notify (GRL_TRACKER_MEDIA (source->data)))
+          if (grl_tracker_media_can_notify (GRL_TRACKER_MEDIA (source->data))) {
+            media = grl_media_new ();
+            str_id = g_strdup_printf ("%u", id);
+            grl_media_set_id (media, str_id);
+            g_free (str_id);
+
             grl_media_source_notify_change (GRL_MEDIA_SOURCE (source->data),
                                             media, GRL_CONTENT_REMOVED, FALSE);
+            g_object_unref (media);
+          }
         }
         source = source->next;
       }
-      g_object_unref (media);
     }
     subject = subject->next;
   }

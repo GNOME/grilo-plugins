@@ -31,6 +31,7 @@ libgrltracker_la_SOURCES = 		\
 	grl-tracker-media-cache.h	\
 	grl-tracker-media-notif.c	\
 	grl-tracker-media-notif.h	\
+	grl-tracker-media-priv.h	\
 	\
 	grl-tracker-metadata.c		\
 	grl-tracker-metadata.h		\

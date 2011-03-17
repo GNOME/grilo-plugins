@@ -1,3 +1,14 @@
+grilo-0.1-plugins (0.1.11-1) unstable; urgency=low
+
+  * Filesystem plugin: small fix
+  * Flickr plugin: plugged a leak
+  * LastFM album art plugin: added extralarge and megalarge thumbnails
+  * Tracker plugin: several fixes, provided a tracker-based metadata source
+  * UPnP plugin: fixed small bug
+  * Youtube plugin: fixed BGO#643924 - [PATCH] youtube plugin not parsing date
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Thu, 17 Mar 2011 22:57:31 +0100
+
 grilo-0.1-plugins (0.1.10-1) unstable; urgency=low
 
   * General: use the new grl_metadata_source_may_resolve() function, split src/

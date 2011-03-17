@@ -6,7 +6,7 @@
 # Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.10])
+m4_define([prj_version], [0.1.11])
 
 AC_INIT([prj_name], [prj_version])
 
@@ -82,7 +82,7 @@ fi
 PKG_CHECK_MODULES([DEPS], glib-2.0      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
-			  ${GRL_NAME} = 0.1.10)
+			  ${GRL_NAME} = 0.1.11)
 
 # ----------------------------------------------------------
 # DEFINITIONS
@@ -103,7 +103,7 @@ AC_SUBST(GRL_PLUGINS_CONF_DIR)
 # EXTERNAL/OPTIONAL DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} = 0.1.10],
+PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} = 0.1.11],
 			    HAVE_GRLNET=yes,
 			    HAVE_GRLNET=no)
 

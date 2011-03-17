@@ -551,12 +551,11 @@ setup_key_mappings (void)
   g_hash_table_insert (key_mapping, GRL_METADATA_KEY_DATE, "modified");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_TITLE, "title");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_URL, "res");
-  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DATE, "modified");
+  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DATE, "dc:date");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_ARTIST, "upnp:artist");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_ALBUM, "upnp:album");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_GENRE, "upnp:genre");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DURATION, "res@duration");
-  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DATE, "modified");
 }
 
 static gchar *
@@ -795,6 +794,8 @@ get_value_for_key (GrlKeyID key_id,
                                 (const xmlChar *) "duration");
   } else if (key_id == GRL_METADATA_KEY_URL && props) {
     val = (gchar *) xmlNodeGetContent ((xmlNode *) props->data);
+  } else if (key_id == GRL_METADATA_KEY_DATE && props) {
+    val = g_strdup (gupnp_didl_lite_object_get_date (didl));
   } else if (key_id == GRL_METADATA_KEY_THUMBNAIL && props) {
     val = g_strdup (gupnp_didl_lite_object_get_album_art (didl));
     if (!val)

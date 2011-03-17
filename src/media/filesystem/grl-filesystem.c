@@ -481,7 +481,7 @@ create_content (GrlMedia *content,
   grl_media_set_id (media,  root_dir ? NULL : path);
 
   /* URL */
-  str = g_strconcat ("file://", path, NULL);
+  str = g_file_get_uri (file);
   grl_media_set_url (media, str);
   g_free (str);
 

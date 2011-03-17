@@ -88,6 +88,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/grilo-0.1/plugins/*.xml
 
 %changelog
+* Thu Mar 17 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.11-1
+- Filesystem plugin: small fix
+- Flickr plugin: plugged a leak
+- LastFM album art plugin: added extralarge and megalarge thumbnails
+- Tracker plugin: several fixes, provided a tracker-based metadata source
+- UPnP plugin: fixed small bug
+- Youtube plugin: fixed BGO#643924 - [PATCH] youtube plugin not parsing date
+
 * Fri Mar 04 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.10-1
 - General: use the new grl_metadata_source_may_resolve() function, split src/ code between media and metadata sources
 - Gravatar plugin: use the new multi-valued API to provide several avatars

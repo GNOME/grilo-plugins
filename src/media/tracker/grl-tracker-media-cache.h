@@ -22,11 +22,24 @@
  *
  */
 
-#ifndef _GRL_TRACKER_H_
-#define _GRL_TRACKER_H_
+#ifndef _GRL_TRACKER_MEDIA_CACHE_H_
+#define _GRL_TRACKER_MEDIA_CACHE_H_
 
-/* ---- Plugin information --- */
+#include "grl-tracker-media.h"
 
-#define GRL_TRACKER_PLUGIN_ID   TRACKER_PLUGIN_ID
+typedef struct _GrlTrackerCache GrlTrackerCache;
 
-#endif /* _GRL_TRACKER_H_ */
+GrlTrackerCache *grl_tracker_media_cache_new (gsize size);
+
+void grl_tracker_media_cache_free (GrlTrackerCache *cache);
+
+void grl_tracker_media_cache_add_item (GrlTrackerCache *cache,
+                                       guint id,
+                                       GrlTrackerMedia *source);
+void grl_tracker_media_cache_del_source (GrlTrackerCache *cache,
+                                         GrlTrackerMedia *source);
+
+GrlTrackerMedia *grl_tracker_media_cache_get_source (GrlTrackerCache *cache,
+                                                     guint id);
+
+#endif /* _GRL_TRACKER_MEDIA_CACHE_H_ */

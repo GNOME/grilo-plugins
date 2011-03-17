@@ -1,3 +1,31 @@
+NEW in 0.1.11
+=============
+
+  * Filesystem plugin
+    * Small fix
+
+  * Flickr plugin
+    * Plugged a leak
+
+  * LastFM album art plugin
+    * Added extralarge and megalarge thumbnails
+
+  * Tracker plugin
+    * Several fixes
+    * Provided a tracker-based metadata source
+
+  * UPnP plugin
+    * Fixed small bug.
+
+  * Youtube plugin
+     * Fixed BGO#643924 - [PATCH] youtube plugin not parsing date
+
+  * Contributors to this release:
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+    Michael Wood <michael.g.wood@linux.intel.com>
+
+
 NEW in 0.1.10
 =============
 

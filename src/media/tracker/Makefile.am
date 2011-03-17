@@ -19,9 +19,25 @@ libgrltracker_la_LDFLAGS = \
 	-module		   \
 	-avoid-version
 
-libgrltracker_la_SOURCES = 	\
-	grl-tracker.c 		\
-	grl-tracker.h
+libgrltracker_la_SOURCES = 		\
+	grl-tracker.c			\
+	grl-tracker.h			\
+	\
+	grl-tracker-media.c		\
+	grl-tracker-media.h		\
+	grl-tracker-media-api.c		\
+	grl-tracker-media-api.h		\
+	grl-tracker-media-cache.c	\
+	grl-tracker-media-cache.h	\
+	grl-tracker-media-notif.c	\
+	grl-tracker-media-notif.h	\
+	grl-tracker-media-priv.h	\
+	\
+	grl-tracker-metadata.c		\
+	grl-tracker-metadata.h		\
+	\
+	grl-tracker-utils.c		\
+	grl-tracker-utils.h
 
 libdir = $(GRL_PLUGINS_DIR)
 trackerxmldir = $(GRL_PLUGINS_CONF_DIR)

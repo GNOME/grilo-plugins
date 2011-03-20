@@ -709,6 +709,9 @@ AC_ARG_ENABLE(localmetadata,
                         if test "x$HAVE_GIO" = "xno"; then
                            AC_MSG_ERROR([gio-2.0 not found, install it or use --disable-localmetadata])
                         fi
+                        if test "x$HAVE_GLIB_2_26" = "xno"; then
+                           AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-localmetadata])
+                        fi
                         ;;
                 esac
         ],

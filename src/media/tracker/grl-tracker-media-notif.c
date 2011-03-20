@@ -479,7 +479,9 @@ tracker_evt_preupdate_sources_cb (GObject              *object,
     GRL_WARNING ("\tCannot handle datasource request : %s", error->message);
 
     g_error_free (error);
-    tracker_evt_update_free (evt);
+
+    tracker_evt_update_items (evt);
+    tracker_evt_update_orphans (evt);
     return;
   }
 

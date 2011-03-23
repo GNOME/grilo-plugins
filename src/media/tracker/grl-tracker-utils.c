@@ -146,6 +146,14 @@ grl_tracker_setup_key_mappings (void)
   insert_key_mapping (GRL_METADATA_KEY_WIDTH,
                       "nfo:width(?urn)",
                       "video");
+
+  insert_key_mapping (GRL_METADATA_KEY_SEASON,
+                      "nmm:season(?urn)",
+                      "video");
+
+  insert_key_mapping (GRL_METADATA_KEY_EPISODE,
+                      "nmm:episodeNumber(?urn)",
+                      "video");
 }
 
 tracker_grl_sparql_t *

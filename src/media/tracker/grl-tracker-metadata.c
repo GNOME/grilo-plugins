@@ -26,6 +26,7 @@
 
 #include "grl-tracker-metadata.h"
 #include "grl-tracker-utils.h"
+#include "grl-tracker-media.h"
 
 /* --------- Logging  -------- */
 
@@ -297,6 +298,9 @@ grl_tracker_metadata_may_resolve (GrlMetadataSource  *source,
                                   GList             **missing_keys)
 {
   GRL_IDEBUG ("%s: key=%s", __FUNCTION__, g_param_spec_get_name (key_id));
+
+  if (media && grl_tracker_media_find_source (grl_media_get_source (media)))
+      return FALSE;
 
   if (!grl_tracker_key_is_supported (key_id))
     return FALSE;

@@ -89,4 +89,6 @@ void grl_tracker_del_source (GrlTrackerMedia *source);
 
 GrlTrackerMedia *grl_tracker_media_find (const gchar *id);
 
+GrlTrackerMedia *grl_tracker_media_find_source (const gchar *id);
+
 #endif /* _GRL_TRACKER_MEDIA_H_ */

@@ -271,6 +271,37 @@ grl_tracker_media_find (const gchar *id)
                                              id);
 }
 
+static gboolean
+match_plugin_id (gpointer key,
+                 gpointer value,
+                 gpointer user_data)
+{
+  if (g_strcmp0 (grl_metadata_source_get_id (GRL_METADATA_SOURCE (value)),
+                 (gchar *) user_data) == 0) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/* Search for registered plugin with @id */
+GrlTrackerMedia *
+grl_tracker_media_find_source (const gchar *id)
+{
+  GrlTrackerMedia *source;
+
+  source = g_hash_table_find (grl_tracker_media_sources,
+                              match_plugin_id,
+                              (gpointer) id);
+  if (source) {
+    return source;
+  }
+
+  return g_hash_table_find (grl_tracker_media_sources_modified,
+                            match_plugin_id,
+                            (gpointer) id);
+}
+
 static void
 tracker_get_datasource_cb (GObject             *object,
                            GAsyncResult        *result,

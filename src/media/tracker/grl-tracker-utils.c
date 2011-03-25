@@ -47,6 +47,24 @@ build_flavored_key (gchar *key, const gchar *flavor)
 }
 
 static void
+set_orientation (TrackerSparqlCursor *cursor,
+                 gint                 column,
+                 GrlMedia            *media,
+                 GrlKeyID             key)
+{
+  const gchar *str = tracker_sparql_cursor_get_string (cursor, column, NULL);
+
+  if (g_str_has_suffix (str, "nfo#orientation-top"))
+    grl_data_set_int (GRL_DATA (media), key, 0);
+  else if (g_str_has_suffix (str, "nfo#orientation-right"))
+    grl_data_set_int (GRL_DATA (media), key, 90);
+  else if (g_str_has_suffix (str, "nfo#orientation-bottom"))
+    grl_data_set_int (GRL_DATA (media), key, 180);
+  else if (g_str_has_suffix (str, "nfo#orientation-left"))
+    grl_data_set_int (GRL_DATA (media), key, 270);
+}
+
+static tracker_grl_sparql_t *
 insert_key_mapping (GrlKeyID     grl_key,
                     const gchar *sparql_key_attr,
                     const gchar *sparql_key_flavor)
@@ -71,6 +89,23 @@ insert_key_mapping (GrlKeyID     grl_key,
                        assoc);
 
   g_free (canon_name);
+
+  return assoc;
+}
+
+static tracker_grl_sparql_t *
+insert_key_mapping_with_setter (GrlKeyID                       grl_key,
+                                const gchar                   *sparql_key_attr,
+                                const gchar                   *sparql_key_flavor,
+                                tracker_grl_sparql_setter_cb_t setter)
+{
+  tracker_grl_sparql_t *assoc;
+
+  assoc = insert_key_mapping (grl_key, sparql_key_attr, sparql_key_flavor);
+
+  assoc->set_value = setter;
+
+  return assoc;
 }
 
 void
@@ -154,6 +189,31 @@ grl_tracker_setup_key_mappings (void)
   insert_key_mapping (GRL_METADATA_KEY_EPISODE,
                       "nmm:episodeNumber(?urn)",
                       "video");
+
+  insert_key_mapping (GRL_METADATA_KEY_CREATION_DATE,
+                      "nie:contentCreated(?urn)",
+                      "image");
+
+  insert_key_mapping (GRL_METADATA_KEY_CAMERA_MODEL,
+                      "nfo:model(nfo:equipment(?urn))",
+                      "image");
+
+  insert_key_mapping (GRL_METADATA_KEY_FLASH_USED,
+                      "nmm:flash(?urn)",
+                      "image");
+
+  insert_key_mapping (GRL_METADATA_KEY_EXPOSURE_TIME,
+                      "nmm:exposureTime(?urn)",
+                      "image");
+
+  insert_key_mapping (GRL_METADATA_KEY_ISO_SPEED,
+                      "nmm:isoSpeed(?urn)",
+                      "image");
+
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_ORIENTATION,
+                                  "nfo:orientation(?urn)",
+                                  "image",
+                                  set_orientation);
 }
 
 tracker_grl_sparql_t *

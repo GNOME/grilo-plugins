@@ -221,33 +221,37 @@ fill_grilo_media_from_sparql (GrlTrackerMedia    *source,
     return;
   }
 
-  switch (G_PARAM_SPEC (assoc->grl_key)->value_type) {
-  case G_TYPE_STRING:
-    /* Cache the source associated to this result. */
-    if (assoc->grl_key == GRL_METADATA_KEY_ID) {
-      grl_tracker_media_cache_add_item (grl_tracker_item_cache,
-                                        tracker_sparql_cursor_get_integer (cursor,
-                                                                           column),
-                                        source);
+  if (assoc->set_value) {
+    assoc->set_value (cursor, column, media, assoc->grl_key);
+  } else {
+    switch (G_PARAM_SPEC (assoc->grl_key)->value_type) {
+      case G_TYPE_STRING:
+        /* Cache the source associated to this result. */
+        if (assoc->grl_key == GRL_METADATA_KEY_ID) {
+          grl_tracker_media_cache_add_item (grl_tracker_item_cache,
+                                            tracker_sparql_cursor_get_integer (cursor,
+                                                                               column),
+                                            source);
+        }
+        val.str_val = tracker_sparql_cursor_get_string (cursor, column, NULL);
+        if (val.str_val != NULL)
+          grl_data_set_string (GRL_DATA (media), assoc->grl_key, val.str_val);
+        break;
+
+      case G_TYPE_INT:
+        val.int_val = tracker_sparql_cursor_get_integer (cursor, column);
+        grl_data_set_int (GRL_DATA (media), assoc->grl_key, val.int_val);
+        break;
+
+      case G_TYPE_FLOAT:
+        val.double_val = tracker_sparql_cursor_get_double (cursor, column);
+        grl_data_set_float (GRL_DATA (media), assoc->grl_key, (gfloat) val.double_val);
+        break;
+
+      default:
+        GRL_ODEBUG ("\t\tUnexpected data type");
+        break;
     }
-    val.str_val = tracker_sparql_cursor_get_string (cursor, column, NULL);
-    if (val.str_val != NULL)
-      grl_data_set_string (GRL_DATA (media), assoc->grl_key, val.str_val);
-    break;
-
-  case G_TYPE_INT:
-    val.int_val = tracker_sparql_cursor_get_integer (cursor, column);
-    grl_data_set_int (GRL_DATA (media), assoc->grl_key, val.int_val);
-    break;
-
-  case G_TYPE_FLOAT:
-    val.double_val = tracker_sparql_cursor_get_double (cursor, column);
-    grl_data_set_float (GRL_DATA (media), assoc->grl_key, (gfloat) val.double_val);
-    break;
-
-  default:
-    GRL_ODEBUG ("\t\tUnexpected data type");
-    break;
   }
 }
 

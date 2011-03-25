@@ -44,11 +44,18 @@
 
 /**/
 
+typedef void (*tracker_grl_sparql_setter_cb_t) (TrackerSparqlCursor *cursor,
+                                                gint                 column,
+                                                GrlMedia            *media,
+                                                GrlKeyID             key);
+
 typedef struct {
   GrlKeyID     grl_key;
   const gchar *sparql_key_name;
   const gchar *sparql_key_attr;
   const gchar *sparql_key_flavor;
+
+  tracker_grl_sparql_setter_cb_t set_value;
 } tracker_grl_sparql_t;
 
 const GList *grl_tracker_supported_keys (GrlMetadataSource *source);

@@ -44,12 +44,22 @@
 
 /**/
 
+typedef void (*tracker_grl_sparql_setter_cb_t) (TrackerSparqlCursor *cursor,
+                                                gint                 column,
+                                                GrlMedia            *media,
+                                                GrlKeyID             key);
+
 typedef struct {
   GrlKeyID     grl_key;
   const gchar *sparql_key_name;
   const gchar *sparql_key_attr;
+  const gchar *sparql_key_attr_call;
   const gchar *sparql_key_flavor;
+
+  tracker_grl_sparql_setter_cb_t set_value;
 } tracker_grl_sparql_t;
+
+extern GrlKeyID grl_metadata_key_tracker_urn;
 
 const GList *grl_tracker_supported_keys (GrlMetadataSource *source);
 
@@ -64,6 +74,14 @@ GrlMedia *grl_tracker_build_grilo_media (const gchar *rdf_type);
 gchar *grl_tracker_media_get_device_constraint (GrlTrackerMediaPriv *priv);
 
 gchar *grl_tracker_media_get_select_string (const GList *keys);
+
+gchar *grl_tracker_tracker_get_insert_string (GrlMedia *media,
+                                              const GList *keys);
+
+gchar *grl_tracker_get_delete_string (const GList *keys);
+
+gchar *grl_tracker_get_delete_conditional_string (const gchar *urn,
+                                                  const GList *keys);
 
 gchar *grl_tracker_get_media_name (const gchar *rdf_type,
                                    const gchar *uri,

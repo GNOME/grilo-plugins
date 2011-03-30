@@ -71,9 +71,9 @@ tracker_evt_update_new (void)
 {
   tracker_evt_update_t *evt = g_slice_new0 (tracker_evt_update_t);
 
-  evt->inserted_items = g_hash_table_new (g_direct_hash, g_direct_equal);
-  evt->deleted_items = g_hash_table_new (g_direct_hash, g_direct_equal);
-  evt->updated_items = g_hash_table_new (g_direct_hash, g_direct_equal);
+  evt->inserted_items = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
+  evt->deleted_items = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
+  evt->updated_items = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
 
   evt->orphan_items = g_hash_table_new (g_direct_hash, g_direct_equal);
 
@@ -479,7 +479,9 @@ tracker_evt_preupdate_sources_cb (GObject              *object,
     GRL_WARNING ("\tCannot handle datasource request : %s", error->message);
 
     g_error_free (error);
-    tracker_evt_update_free (evt);
+
+    tracker_evt_update_items (evt);
+    tracker_evt_update_orphans (evt);
     return;
   }
 

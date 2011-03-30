@@ -333,7 +333,7 @@ grl_tracker_metadata_resolve (GrlMetadataSource            *source,
     g_return_if_reached ();
   }
 
-  GRL_IDEBUG ("request: '%s'", sparql_final);
+  GRL_IDEBUG ("\trequest: '%s'", sparql_final);
 
   tracker_sparql_connection_query_async (priv->tracker_connection,
                                          sparql_final,

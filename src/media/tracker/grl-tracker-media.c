@@ -342,7 +342,7 @@ tracker_get_datasource_cb (GObject             *object,
     GRL_DEBUG ("\tnew datasource: urn=%s name=%s uri=%s => name=%s\n",
 	       datasource, datasource_name, uri, source_name);
     source = g_object_new (GRL_TRACKER_MEDIA_TYPE,
-                           "source-id", GRL_TRACKER_MEDIA_ID,
+                           "source-id", datasource,
                            "source-name", source_name,
                            "source-desc", GRL_TRACKER_MEDIA_DESC,
                            "tracker-connection", grl_tracker_connection,

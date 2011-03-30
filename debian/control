@@ -11,7 +11,7 @@ Homepage: http://gitorious.org/grilo
 
 Package: grilo-0.1-plugins
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libgrilo-0.1 (>= 0.1.11)
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgrilo-0.1 (>= 0.1.12)
 Description: Grilo framework plugins
  Grilo is a framework that provides access to different sources of
  multimedia content, using a pluggable system.

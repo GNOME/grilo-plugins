@@ -29,6 +29,9 @@
 static GHashTable *grl_to_sparql_mapping = NULL;
 static GHashTable *sparql_to_grl_mapping = NULL;
 
+GrlKeyID grl_metadata_key_tracker_urn;
+
+
 /**/
 
 static gchar *
@@ -67,16 +70,19 @@ set_orientation (TrackerSparqlCursor *cursor,
 static tracker_grl_sparql_t *
 insert_key_mapping (GrlKeyID     grl_key,
                     const gchar *sparql_key_attr,
+                    const gchar *sparql_key_attr_call,
                     const gchar *sparql_key_flavor)
 {
   tracker_grl_sparql_t *assoc = g_new0 (tracker_grl_sparql_t, 1);
   GList *assoc_list = g_hash_table_lookup (grl_to_sparql_mapping, grl_key);
   gchar *canon_name = g_strdup (g_param_spec_get_name (grl_key));
 
-  assoc->grl_key           = grl_key;
-  assoc->sparql_key_name   = build_flavored_key (canon_name, sparql_key_flavor);
-  assoc->sparql_key_attr   = sparql_key_attr;
-  assoc->sparql_key_flavor = sparql_key_flavor;
+  assoc->grl_key              = grl_key;
+  assoc->sparql_key_name      = build_flavored_key (canon_name,
+                                                    sparql_key_flavor);
+  assoc->sparql_key_attr      = sparql_key_attr;
+  assoc->sparql_key_attr_call = sparql_key_attr_call;
+  assoc->sparql_key_flavor    = sparql_key_flavor;
 
   assoc_list = g_list_append (assoc_list, assoc);
 
@@ -96,12 +102,16 @@ insert_key_mapping (GrlKeyID     grl_key,
 static tracker_grl_sparql_t *
 insert_key_mapping_with_setter (GrlKeyID                       grl_key,
                                 const gchar                   *sparql_key_attr,
+                                const gchar                   *sparql_key_attr_call,
                                 const gchar                   *sparql_key_flavor,
                                 tracker_grl_sparql_setter_cb_t setter)
 {
   tracker_grl_sparql_t *assoc;
 
-  assoc = insert_key_mapping (grl_key, sparql_key_attr, sparql_key_flavor);
+  assoc = insert_key_mapping (grl_key,
+                              sparql_key_attr,
+                              sparql_key_attr_call,
+                              sparql_key_flavor);
 
   assoc->set_value = setter;
 
@@ -111,106 +121,146 @@ insert_key_mapping_with_setter (GrlKeyID                       grl_key,
 void
 grl_tracker_setup_key_mappings (void)
 {
+  grl_metadata_key_tracker_urn =
+    grl_plugin_registry_register_metadata_key (grl_plugin_registry_get_default (),
+                                               g_param_spec_string ("tracker-urn",
+                                                                    "Tracker URN",
+                                                                    "Universal resource number in Tracker's store",
+                                                                    NULL,
+                                                                    G_PARAM_STATIC_STRINGS |
+                                                                    G_PARAM_READWRITE),
+                                               NULL);
+
+
   grl_to_sparql_mapping = g_hash_table_new (g_direct_hash, g_direct_equal);
   sparql_to_grl_mapping = g_hash_table_new (g_str_hash, g_str_equal);
 
+  insert_key_mapping (grl_metadata_key_tracker_urn,
+                      NULL,
+                      "?urn",
+                      "file");
+
   insert_key_mapping (GRL_METADATA_KEY_ALBUM,
+                      NULL,
                       "nmm:albumTitle(nmm:musicAlbum(?urn))",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_ARTIST,
+                      NULL,
                       "nmm:artistName(nmm:performer(?urn))",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_AUTHOR,
+                      NULL,
                       "nmm:artistName(nmm:performer(?urn))",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_BITRATE,
+                      "nfo:averageBitrate",
                       "nfo:averageBitrate(?urn)",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_CHILDCOUNT,
+                      "nfo:entryCounter",
                       "nfo:entryCounter(?urn)",
                       "directory");
 
   insert_key_mapping (GRL_METADATA_KEY_DATE,
+                      "nfo:fileLastModified",
                       "nfo:fileLastModified(?urn)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_DURATION,
+                      "nfo:duration",
                       "nfo:duration(?urn)",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_FRAMERATE,
+                      "nfo:frameRate",
                       "nfo:frameRate(?urn)",
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_HEIGHT,
+                      "nfo:height",
                       "nfo:height(?urn)",
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_ID,
+                      "tracker:id",
                       "tracker:id(?urn)",
                       "file");
 
-  insert_key_mapping (GRL_METADATA_KEY_LAST_PLAYED,
-                      "nfo:fileLastAccessed(?urn)",
-                      "file");
+  /* insert_key_mapping (GRL_METADATA_KEY_LAST_PLAYED, */
+  /*                     "nfo:fileLastAccessed(?urn)", */
+  /*                     "file"); */
 
   insert_key_mapping (GRL_METADATA_KEY_MIME,
+                      "nie:mimeType",
                       "nie:mimeType(?urn)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_SITE,
+                      "nie:url",
                       "nie:url(?urn)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_TITLE,
+                      "nie:title",
                       "nie:title(?urn)",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_TITLE,
+                      "nfo:fileName",
                       "nfo:fileName(?urn)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_URL,
+                      "nie:url",
                       "nie:url(?urn)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_WIDTH,
+                      "nfo:width",
                       "nfo:width(?urn)",
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_SEASON,
+                      "nmm:season",
                       "nmm:season(?urn)",
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_EPISODE,
+                      "nmm:episodeNumber",
                       "nmm:episodeNumber(?urn)",
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_CREATION_DATE,
+                      "nie:contentCreated",
                       "nie:contentCreated(?urn)",
                       "image");
 
   insert_key_mapping (GRL_METADATA_KEY_CAMERA_MODEL,
+                      NULL,
                       "nfo:model(nfo:equipment(?urn))",
                       "image");
 
   insert_key_mapping (GRL_METADATA_KEY_FLASH_USED,
+                      "nmm:flash",
                       "nmm:flash(?urn)",
                       "image");
 
   insert_key_mapping (GRL_METADATA_KEY_EXPOSURE_TIME,
+                      "nmm:exposureTime",
                       "nmm:exposureTime(?urn)",
                       "image");
 
   insert_key_mapping (GRL_METADATA_KEY_ISO_SPEED,
+                      "nmm:isoSpeed",
                       "nmm:isoSpeed(?urn)",
                       "image");
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_ORIENTATION,
+                                  "nfo:orientation",
                                   "nfo:orientation(?urn)",
                                   "image",
                                   set_orientation);
@@ -256,15 +306,20 @@ grl_tracker_media_get_select_string (const GList *keys)
   GList *assoc_list;
   tracker_grl_sparql_t *assoc;
 
+  assoc_list = get_mapping_from_grl (grl_metadata_key_tracker_urn);
+  assoc = (tracker_grl_sparql_t *) assoc_list->data;
+  g_string_append_printf (gstr, "%s AS %s ",
+                          assoc->sparql_key_attr_call,
+                          assoc->sparql_key_name);
+
   while (key != NULL) {
     assoc_list = get_mapping_from_grl ((GrlKeyID) key->data);
     while (assoc_list != NULL) {
       assoc = (tracker_grl_sparql_t *) assoc_list->data;
       if (assoc != NULL) {
-        g_string_append_printf (gstr, "%s AS %s",
-                                assoc->sparql_key_attr,
+        g_string_append_printf (gstr, "%s AS %s ",
+                                assoc->sparql_key_attr_call,
                                 assoc->sparql_key_name);
-        g_string_append (gstr, " ");
       }
       assoc_list = assoc_list->next;
     }

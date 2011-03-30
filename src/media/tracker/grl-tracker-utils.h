@@ -53,10 +53,13 @@ typedef struct {
   GrlKeyID     grl_key;
   const gchar *sparql_key_name;
   const gchar *sparql_key_attr;
+  const gchar *sparql_key_attr_call;
   const gchar *sparql_key_flavor;
 
   tracker_grl_sparql_setter_cb_t set_value;
 } tracker_grl_sparql_t;
+
+extern GrlKeyID grl_metadata_key_tracker_urn;
 
 const GList *grl_tracker_supported_keys (GrlMetadataSource *source);
 

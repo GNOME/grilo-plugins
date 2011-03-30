@@ -105,6 +105,8 @@ grl_tracker_media_class_init (GrlTrackerMediaClass * klass)
   source_class->notify_change_stop  = grl_tracker_media_change_stop;
 
   metadata_class->supported_keys = grl_tracker_supported_keys;
+  metadata_class->writable_keys  = grl_tracker_media_writable_keys;
+  metadata_class->set_metadata   = grl_tracker_media_set_metadata;
 
   g_class->finalize     = grl_tracker_media_finalize;
   g_class->set_property = grl_tracker_media_set_property;
@@ -337,8 +339,8 @@ tracker_get_datasource_cb (GObject             *object,
   if ((source == NULL) && source_available) {
     gchar *source_name = grl_tracker_get_media_name (type, uri, datasource,
                                                      datasource_name);
-    GRL_DEBUG ("\tnew datasource: urn=%s name=%s uri=%s\n",
-	       datasource, datasource_name, uri);
+    GRL_DEBUG ("\tnew datasource: urn=%s name=%s uri=%s => name=%s\n",
+	       datasource, datasource_name, uri, source_name);
     source = g_object_new (GRL_TRACKER_MEDIA_TYPE,
                            "source-id", GRL_TRACKER_MEDIA_ID,
                            "source-name", source_name,

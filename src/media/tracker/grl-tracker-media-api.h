@@ -31,11 +31,16 @@
 
 void grl_tracker_media_init_requests (void);
 
+const GList *grl_tracker_media_writable_keys (GrlMetadataSource *source);
+
 void grl_tracker_media_query (GrlMediaSource *source,
                               GrlMediaSourceQuerySpec *qs);
 
 void grl_tracker_media_metadata (GrlMediaSource *source,
                                  GrlMediaSourceMetadataSpec *ms);
+
+void grl_tracker_media_set_metadata (GrlMetadataSource *source,
+                                     GrlMetadataSourceSetMetadataSpec *sms);
 
 void grl_tracker_media_search (GrlMediaSource *source,
                                GrlMediaSourceSearchSpec *ss);

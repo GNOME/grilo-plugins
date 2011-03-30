@@ -75,6 +75,14 @@ gchar *grl_tracker_media_get_device_constraint (GrlTrackerMediaPriv *priv);
 
 gchar *grl_tracker_media_get_select_string (const GList *keys);
 
+gchar *grl_tracker_tracker_get_insert_string (GrlMedia *media,
+                                              const GList *keys);
+
+gchar *grl_tracker_get_delete_string (const GList *keys);
+
+gchar *grl_tracker_get_delete_conditional_string (const gchar *urn,
+                                                  const GList *keys);
+
 gchar *grl_tracker_get_media_name (const gchar *rdf_type,
                                    const gchar *uri,
                                    const gchar *datasource,

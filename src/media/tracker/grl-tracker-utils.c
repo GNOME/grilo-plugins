@@ -264,6 +264,21 @@ grl_tracker_setup_key_mappings (void)
                                   "nfo:orientation(?urn)",
                                   "image",
                                   set_orientation);
+
+  insert_key_mapping (GRL_METADATA_KEY_PLAY_COUNT,
+                      "nie:usageCounter",
+                      "nie:usageCounter(?urn)",
+                      "media");
+
+  insert_key_mapping (GRL_METADATA_KEY_LAST_PLAYED,
+                      "nie:contentAccessed",
+                      "nie:contentAccessed(?urn)",
+                      "media");
+
+  insert_key_mapping (GRL_METADATA_KEY_LAST_POSITION,
+                      "nfo:lastPlayedPosition",
+                      "nfo:lastPlayedPosition(?urn)",
+                      "media");
 }
 
 tracker_grl_sparql_t *
@@ -327,6 +342,143 @@ grl_tracker_media_get_select_string (const GList *keys)
   }
 
   return g_string_free (gstr, FALSE);
+}
+
+static void
+gen_prop_insert_string (GString *gstr,
+                        tracker_grl_sparql_t *assoc,
+                        GrlData *data)
+{
+  switch (G_PARAM_SPEC (assoc->grl_key)->value_type) {
+  case G_TYPE_STRING:
+    g_string_append_printf (gstr, "%s %s",
+                            assoc->sparql_key_attr,
+                            grl_data_get_string (data, assoc->grl_key));
+    break;
+
+  case G_TYPE_INT:
+    g_string_append_printf (gstr, "%s %i",
+                            assoc->sparql_key_attr,
+                            grl_data_get_int (data, assoc->grl_key));
+    break;
+
+  case G_TYPE_FLOAT:
+    g_string_append_printf (gstr, "%s %f",
+                            assoc->sparql_key_attr,
+                            grl_data_get_float (data, assoc->grl_key));
+    break;
+
+  default:
+    break;
+  }
+}
+
+gchar *
+grl_tracker_tracker_get_insert_string (GrlMedia *media, const GList *keys)
+{
+  gboolean first = TRUE;
+  const GList *key = keys, *assoc_list;
+  tracker_grl_sparql_t *assoc;
+  GString *gstr = g_string_new ("");
+  gchar *ret;
+
+  while (key != NULL) {
+    assoc_list = get_mapping_from_grl ((GrlKeyID) key->data);
+    while (assoc_list != NULL) {
+      assoc = (tracker_grl_sparql_t *) assoc_list->data;
+      if (assoc != NULL) {
+        if (grl_data_key_is_known (GRL_DATA (media), key->data)) {
+          if (first) {
+            gen_prop_insert_string (gstr, assoc, GRL_DATA (media));
+            first = FALSE;
+          } else {
+            g_string_append (gstr, " ; ");
+            gen_prop_insert_string (gstr, assoc, GRL_DATA (media));
+          }
+        }
+      }
+      assoc_list = assoc_list->next;
+    }
+    key = key->next;
+  }
+
+  ret = gstr->str;
+  g_string_free (gstr, FALSE);
+
+  return ret;
+}
+
+gchar *
+grl_tracker_get_delete_string (const GList *keys)
+{
+  gboolean first = TRUE;
+  const GList *key = keys, *assoc_list;
+  tracker_grl_sparql_t *assoc;
+  GString *gstr = g_string_new ("");
+  gchar *ret;
+  gint var_n = 0;
+
+  while (key != NULL) {
+    assoc_list = get_mapping_from_grl ((GrlKeyID) key->data);
+    while (assoc_list != NULL) {
+      assoc = (tracker_grl_sparql_t *) assoc_list->data;
+      if (assoc != NULL) {
+        if (first) {
+          g_string_append_printf (gstr, "%s ?v%i",
+                                  assoc->sparql_key_attr, var_n);
+          first = FALSE;
+        } else {
+          g_string_append_printf (gstr, " ; %s ?v%i",
+                                  assoc->sparql_key_attr, var_n);
+        }
+        var_n++;
+      }
+      assoc_list = assoc_list->next;
+    }
+    key = key->next;
+  }
+
+  ret = gstr->str;
+  g_string_free (gstr, FALSE);
+
+  return ret;
+}
+
+gchar *
+grl_tracker_get_delete_conditional_string (const gchar *urn,
+                                           const GList *keys)
+{
+  gboolean first = TRUE;
+  const GList *key = keys, *assoc_list;
+  tracker_grl_sparql_t *assoc;
+  GString *gstr = g_string_new ("");
+  gchar *ret;
+  gint var_n = 0;
+
+  while (key != NULL) {
+    assoc_list = get_mapping_from_grl ((GrlKeyID) key->data);
+    while (assoc_list != NULL) {
+      assoc = (tracker_grl_sparql_t *) assoc_list->data;
+      if (assoc != NULL) {
+        if (first) {
+          g_string_append_printf (gstr, "OPTIONAL { <%s>  %s ?v%i }",
+                                  urn,  assoc->sparql_key_attr, var_n);
+          first = FALSE;
+        } else {
+          g_string_append_printf (gstr, " . OPTIONAL { <%s> %s ?v%i }",
+                                  urn, assoc->sparql_key_attr, var_n);
+        }
+        var_n++;
+      }
+      assoc_list = assoc_list->next;
+    }
+    key = key->next;
+  }
+
+  ret = gstr->str;
+  g_string_free (gstr, FALSE);
+
+  return ret;
 }
 
 /**/

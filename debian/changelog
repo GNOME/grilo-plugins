@@ -1,3 +1,11 @@
+grilo-0.1-plugins (0.1.12-1) unstable; urgency=low
+
+  * Local metadata plugin: add support for series and seasons
+  * Tracker plugin: several fixes and improvements, add support for writting
+    back metadata.
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Wed, 30 Mar 2011 21:32:18 +0200
+
 grilo-0.1-plugins (0.1.11-1) unstable; urgency=low
 
   * Filesystem plugin: small fix

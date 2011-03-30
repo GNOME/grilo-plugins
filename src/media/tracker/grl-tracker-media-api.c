@@ -133,6 +133,10 @@ GRL_LOG_DOMAIN_STATIC(tracker_media_result_log_domain);
   "FILTER (tracker:id(?urn) = %s) "             \
   "}"
 
+#define TRACKER_SAVE_REQUEST                            \
+  "DELETE { <%s> %s } WHERE { <%s> a nfo:Media . %s } " \
+  "INSERT { <%s> a nfo:Media ; %s . }"
+
 /**/
 
 struct OperationSpec {
@@ -221,33 +225,37 @@ fill_grilo_media_from_sparql (GrlTrackerMedia    *source,
     return;
   }
 
-  switch (G_PARAM_SPEC (assoc->grl_key)->value_type) {
-  case G_TYPE_STRING:
-    /* Cache the source associated to this result. */
-    if (assoc->grl_key == GRL_METADATA_KEY_ID) {
-      grl_tracker_media_cache_add_item (grl_tracker_item_cache,
-                                        tracker_sparql_cursor_get_integer (cursor,
-                                                                           column),
-                                        source);
+  if (assoc->set_value) {
+    assoc->set_value (cursor, column, media, assoc->grl_key);
+  } else {
+    switch (G_PARAM_SPEC (assoc->grl_key)->value_type) {
+      case G_TYPE_STRING:
+        /* Cache the source associated to this result. */
+        if (assoc->grl_key == GRL_METADATA_KEY_ID) {
+          grl_tracker_media_cache_add_item (grl_tracker_item_cache,
+                                            tracker_sparql_cursor_get_integer (cursor,
+                                                                               column),
+                                            source);
+        }
+        val.str_val = tracker_sparql_cursor_get_string (cursor, column, NULL);
+        if (val.str_val != NULL)
+          grl_data_set_string (GRL_DATA (media), assoc->grl_key, val.str_val);
+        break;
+
+      case G_TYPE_INT:
+        val.int_val = tracker_sparql_cursor_get_integer (cursor, column);
+        grl_data_set_int (GRL_DATA (media), assoc->grl_key, val.int_val);
+        break;
+
+      case G_TYPE_FLOAT:
+        val.double_val = tracker_sparql_cursor_get_double (cursor, column);
+        grl_data_set_float (GRL_DATA (media), assoc->grl_key, (gfloat) val.double_val);
+        break;
+
+      default:
+        GRL_ODEBUG ("\t\tUnexpected data type");
+        break;
     }
-    val.str_val = tracker_sparql_cursor_get_string (cursor, column, NULL);
-    if (val.str_val != NULL)
-      grl_data_set_string (GRL_DATA (media), assoc->grl_key, val.str_val);
-    break;
-
-  case G_TYPE_INT:
-    val.int_val = tracker_sparql_cursor_get_integer (cursor, column);
-    grl_data_set_int (GRL_DATA (media), assoc->grl_key, val.int_val);
-    break;
-
-  case G_TYPE_FLOAT:
-    val.double_val = tracker_sparql_cursor_get_double (cursor, column);
-    grl_data_set_float (GRL_DATA (media), assoc->grl_key, (gfloat) val.double_val);
-    break;
-
-  default:
-    GRL_ODEBUG ("\t\tUnexpected data type");
-    break;
   }
 }
 
@@ -403,7 +411,7 @@ tracker_metadata_cb (GObject                    *source_object,
 			 "Failed to start metadata action : %s",
                          tracker_error->message);
 
-    ms->callback (ms->source, NULL, ms->user_data, error);
+    ms->callback (ms->source, ms->media, ms->user_data, error);
 
     g_error_free (tracker_error);
     g_error_free (error);
@@ -427,7 +435,50 @@ tracker_metadata_cb (GObject                    *source_object,
     g_object_unref (G_OBJECT (cursor));
 }
 
+static void
+tracker_set_metadata_cb (GObject                          *source_object,
+                         GAsyncResult                     *result,
+                         GrlMetadataSourceSetMetadataSpec *sms)
+{
+  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (sms->source);
+  GError *tracker_error = NULL, *error = NULL;
+
+  tracker_sparql_connection_update_finish (priv->tracker_connection,
+                                           result,
+                                           &tracker_error);
+
+  if (tracker_error) {
+    GRL_WARNING ("Could not execute sparql update : %s",
+                 tracker_error->message);
+
+    error = g_error_new (GRL_CORE_ERROR,
+			 GRL_CORE_ERROR_SET_METADATA_FAILED,
+			 "Failed to set metadata : %s",
+                         tracker_error->message);
+
+    sms->callback (sms->source, sms->media, NULL, sms->user_data, error);
+
+    g_error_free (tracker_error);
+    g_error_free (error);
+  } else {
+    sms->callback (sms->source, sms->media, NULL, sms->user_data, error);
+  }
+}
+
 /**/
+
+const GList *
+grl_tracker_media_writable_keys (GrlMetadataSource *source)
+{
+  static GList *keys = NULL;
+  if (!keys) {
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_PLAY_COUNT,
+                                      GRL_METADATA_KEY_LAST_PLAYED,
+                                      GRL_METADATA_KEY_LAST_POSITION,
+                                      NULL);
+  }
+  return keys;
+}
 
 /**
  * Query is a SPARQL query.
@@ -598,6 +649,40 @@ grl_tracker_media_metadata (GrlMediaSource *source,
     g_free (sparql_select);
   if (sparql_final != NULL)
     g_free (sparql_final);
+}
+
+void
+grl_tracker_media_set_metadata (GrlMetadataSource *source,
+                                GrlMetadataSourceSetMetadataSpec *sms)
+{
+  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
+  gchar *sparql_delete, *sparql_cdelete, *sparql_insert, *sparql_final;
+  const gchar *urn = grl_data_get_string (GRL_DATA (sms->media),
+                                          grl_metadata_key_tracker_urn);
+
+  GRL_IDEBUG ("%s: urn=%s", G_STRFUNC, urn);
+
+  sparql_delete = grl_tracker_get_delete_string (sms->keys);
+  sparql_cdelete = grl_tracker_get_delete_conditional_string (urn, sms->keys);
+  sparql_insert = grl_tracker_tracker_get_insert_string (sms->media, sms->keys);
+  sparql_final = g_strdup_printf (TRACKER_SAVE_REQUEST,
+                                  urn, sparql_delete,
+                                  urn, sparql_cdelete,
+                                  urn, sparql_insert);
+
+  GRL_IDEBUG ("\trequest: '%s'", sparql_final);
+
+  tracker_sparql_connection_update_async (priv->tracker_connection,
+                                          sparql_final,
+                                          G_PRIORITY_DEFAULT,
+                                          NULL,
+                                          (GAsyncReadyCallback) tracker_set_metadata_cb,
+                                          sms);
+
+  g_free (sparql_delete);
+  g_free (sparql_cdelete);
+  g_free (sparql_insert);
+  g_free (sparql_final);
 }
 
 void
@@ -827,7 +912,6 @@ grl_tracker_media_init_requests (void)
                                                                     G_PARAM_STATIC_STRINGS |
                                                                     G_PARAM_READWRITE),
                                                NULL);
-
 
   GRL_LOG_DOMAIN_INIT (tracker_media_request_log_domain,
                        "tracker-media-request");

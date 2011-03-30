@@ -6,7 +6,7 @@
 # Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.11])
+m4_define([prj_version], [0.1.12])
 
 AC_INIT([prj_name], [prj_version])
 
@@ -82,7 +82,7 @@ fi
 PKG_CHECK_MODULES([DEPS], glib-2.0      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
-			  ${GRL_NAME} = 0.1.11)
+			  ${GRL_NAME} = 0.1.12)
 
 # ----------------------------------------------------------
 # DEFINITIONS
@@ -103,7 +103,7 @@ AC_SUBST(GRL_PLUGINS_CONF_DIR)
 # EXTERNAL/OPTIONAL DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} = 0.1.11],
+PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} = 0.1.12],
 			    HAVE_GRLNET=yes,
 			    HAVE_GRLNET=no)
 
@@ -125,11 +125,11 @@ AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
-PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
-                                  HAVE_TRACKER_SPARQL=yes,
-                                  [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
-                                                                     HAVE_TRACKER_SPARQL=yes,
-                                                                     HAVE_TRACKER_SPARQL=no)])
+REQUIRED_TRACKER_VERSION=0.10.5
+PKG_CHECK_MODULES(TRACKER_SPARQL,
+                  tracker-sparql-0.10 >= ${REQUIRED_TRACKER_VERSION},
+                  HAVE_TRACKER_SPARQL=yes,
+                  HAVE_TRACKER_SPARQL=no)
 
 PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
                              HAVE_GLIB_2_26=yes,
@@ -669,7 +669,7 @@ AC_ARG_ENABLE(tracker,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
-                           AC_MSG_ERROR([tracker-sparql-0.9 not found, install it or use --disable-tracker])
+                           AC_MSG_ERROR([tracker-sparql ${REQUIRED_TRACKER_VERSION} not found, install it or use --disable-tracker])
                         fi
                         if test "x$HAVE_GLIB_2_26" = "xno"; then
                            AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-tracker])
@@ -709,11 +709,14 @@ AC_ARG_ENABLE(localmetadata,
                         if test "x$HAVE_GIO" = "xno"; then
                            AC_MSG_ERROR([gio-2.0 not found, install it or use --disable-localmetadata])
                         fi
+                        if test "x$HAVE_GLIB_2_26" = "xno"; then
+                           AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-localmetadata])
+                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes"; then
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_GLIB_2_26" = "xyes"; then
                    enable_localmetadata=yes
                 else
                    enable_localmetadata=no

@@ -1,3 +1,19 @@
+NEW in 0.1.12
+=============
+
+  * Local metadata plugin
+    * Add support for series and seasons
+
+  * Tracker plugin
+    * Several fixes and improvements
+    * Add support for writting back metadata
+
+  * Contributors to this release:
+    Iago Toral Quiroga <itoral@igalia.com>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+
+
 NEW in 0.1.11
 =============
 

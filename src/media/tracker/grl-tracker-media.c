@@ -105,6 +105,8 @@ grl_tracker_media_class_init (GrlTrackerMediaClass * klass)
   source_class->notify_change_stop  = grl_tracker_media_change_stop;
 
   metadata_class->supported_keys = grl_tracker_supported_keys;
+  metadata_class->writable_keys  = grl_tracker_media_writable_keys;
+  metadata_class->set_metadata   = grl_tracker_media_set_metadata;
 
   g_class->finalize     = grl_tracker_media_finalize;
   g_class->set_property = grl_tracker_media_set_property;
@@ -271,6 +273,37 @@ grl_tracker_media_find (const gchar *id)
                                              id);
 }
 
+static gboolean
+match_plugin_id (gpointer key,
+                 gpointer value,
+                 gpointer user_data)
+{
+  if (g_strcmp0 (grl_metadata_source_get_id (GRL_METADATA_SOURCE (value)),
+                 (gchar *) user_data) == 0) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/* Search for registered plugin with @id */
+GrlTrackerMedia *
+grl_tracker_media_find_source (const gchar *id)
+{
+  GrlTrackerMedia *source;
+
+  source = g_hash_table_find (grl_tracker_media_sources,
+                              match_plugin_id,
+                              (gpointer) id);
+  if (source) {
+    return source;
+  }
+
+  return g_hash_table_find (grl_tracker_media_sources_modified,
+                            match_plugin_id,
+                            (gpointer) id);
+}
+
 static void
 tracker_get_datasource_cb (GObject             *object,
                            GAsyncResult        *result,
@@ -306,10 +339,10 @@ tracker_get_datasource_cb (GObject             *object,
   if ((source == NULL) && source_available) {
     gchar *source_name = grl_tracker_get_media_name (type, uri, datasource,
                                                      datasource_name);
-    GRL_DEBUG ("\tnew datasource: urn=%s name=%s uri=%s\n",
-	       datasource, datasource_name, uri);
+    GRL_DEBUG ("\tnew datasource: urn=%s name=%s uri=%s => name=%s\n",
+	       datasource, datasource_name, uri, source_name);
     source = g_object_new (GRL_TRACKER_MEDIA_TYPE,
-                           "source-id", GRL_TRACKER_MEDIA_ID,
+                           "source-id", datasource,
                            "source-name", source_name,
                            "source-desc", GRL_TRACKER_MEDIA_DESC,
                            "tracker-connection", grl_tracker_connection,

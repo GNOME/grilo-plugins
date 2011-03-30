@@ -51,11 +51,15 @@
                               GRL_LOCAL_METADATA_SOURCE_TYPE,    \
                               GrlLocalMetadataSourceClass))
 
-typedef struct _GrlLocalMetadataSource GrlLocalMetadataSource;
+typedef struct _GrlLocalMetadataSource     GrlLocalMetadataSource;
+typedef struct _GrlLocalMetadataSourcePriv GrlLocalMetadataSourcePriv;
 
 struct _GrlLocalMetadataSource {
 
   GrlMetadataSource parent;
+
+  /*< private >*/
+  GrlLocalMetadataSourcePriv *priv;
 
 };
 

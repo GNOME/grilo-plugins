@@ -349,11 +349,14 @@ gen_prop_insert_string (GString *gstr,
                         tracker_grl_sparql_t *assoc,
                         GrlData *data)
 {
+  gchar *tmp;
+
   switch (G_PARAM_SPEC (assoc->grl_key)->value_type) {
   case G_TYPE_STRING:
-    g_string_append_printf (gstr, "%s %s",
-                            assoc->sparql_key_attr,
-                            grl_data_get_string (data, assoc->grl_key));
+    tmp = g_strescape (grl_data_get_string (data, assoc->grl_key), NULL);
+    g_string_append_printf (gstr, "%s \"%s\"",
+                            assoc->sparql_key_attr, tmp);
+    g_free (tmp);
     break;
 
   case G_TYPE_INT:

@@ -281,6 +281,8 @@ tracker_resolve_cb (GObject                      *source_object,
     }
 
     rs->callback (rs->source, rs->media, rs->user_data, NULL);
+  } else {
+    rs->callback (rs->source, rs->media, rs->user_data, NULL);
   }
 
  end_operation:

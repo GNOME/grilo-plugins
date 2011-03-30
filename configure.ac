@@ -125,11 +125,11 @@ AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
-PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
-                                  HAVE_TRACKER_SPARQL=yes,
-                                  [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
-                                                                     HAVE_TRACKER_SPARQL=yes,
-                                                                     HAVE_TRACKER_SPARQL=no)])
+REQUIRED_TRACKER_VERSION=0.10.5
+PKG_CHECK_MODULES(TRACKER_SPARQL,
+                  tracker-sparql-0.10 >= ${REQUIRED_TRACKER_VERSION},
+                  HAVE_TRACKER_SPARQL=yes,
+                  HAVE_TRACKER_SPARQL=no)
 
 PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
                              HAVE_GLIB_2_26=yes,
@@ -669,7 +669,7 @@ AC_ARG_ENABLE(tracker,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
-                           AC_MSG_ERROR([tracker-sparql-0.9 not found, install it or use --disable-tracker])
+                           AC_MSG_ERROR([tracker-sparql ${REQUIRED_TRACKER_VERSION} not found, install it or use --disable-tracker])
                         fi
                         if test "x$HAVE_GLIB_2_26" = "xno"; then
                            AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-tracker])

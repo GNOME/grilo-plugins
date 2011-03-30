@@ -279,6 +279,13 @@ grl_tracker_setup_key_mappings (void)
                       "nfo:lastPlayedPosition",
                       "nfo:lastPlayedPosition(?urn)",
                       "media");
+
+  if (grl_tracker_upnp_present) {
+    insert_key_mapping (GRL_METADATA_KEY_THUMBNAIL,
+                        "upnp:thumbnail",
+                        "upnp:thumbnail(?urn)",
+                        "media");
+  }
 }
 
 tracker_grl_sparql_t *

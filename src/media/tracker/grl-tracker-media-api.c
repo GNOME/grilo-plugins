@@ -224,7 +224,7 @@ fill_grilo_media_from_sparql (GrlTrackerMedia    *source,
     return;
   }
 
-  if (grl_data_key_is_known (GRL_DATA (media), assoc->grl_key)) {
+  if (grl_data_has_key (GRL_DATA (media), assoc->grl_key)) {
     GRL_ODEBUG ("\t\tDropping, already here");
     return;
   }
@@ -748,8 +748,8 @@ grl_tracker_media_browse_category (GrlMediaSource *source,
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
 
   if (bs->container == NULL ||
-      !grl_data_key_is_known (GRL_DATA (bs->container),
-                              grl_metadata_key_tracker_category)) {
+      !grl_data_has_key (GRL_DATA (bs->container),
+                         grl_metadata_key_tracker_category)) {
     /* Hardcoded categories */
     media = grl_media_box_new ();
     grl_media_set_title (media, "Documents");

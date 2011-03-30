@@ -403,7 +403,7 @@ grl_tracker_tracker_get_insert_string (GrlMedia *media, const GList *keys)
     while (assoc_list != NULL) {
       assoc = (tracker_grl_sparql_t *) assoc_list->data;
       if (assoc != NULL) {
-        if (grl_data_key_is_known (GRL_DATA (media), key->data)) {
+        if (grl_data_has_key (GRL_DATA (media), key->data)) {
           if (first) {
             gen_prop_insert_string (gstr, assoc, GRL_DATA (media));
             first = FALSE;

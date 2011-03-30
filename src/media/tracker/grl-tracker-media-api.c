@@ -411,7 +411,7 @@ tracker_metadata_cb (GObject                    *source_object,
 			 "Failed to start metadata action : %s",
                          tracker_error->message);
 
-    ms->callback (ms->source, NULL, ms->user_data, error);
+    ms->callback (ms->source, ms->media, ms->user_data, error);
 
     g_error_free (tracker_error);
     g_error_free (error);

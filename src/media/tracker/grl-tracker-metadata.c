@@ -265,7 +265,7 @@ tracker_resolve_cb (GObject                      *source_object,
 			 "Failed to start resolve action : %s",
                          tracker_error->message);
 
-    rs->callback (rs->source, NULL, rs->user_data, error);
+    rs->callback (rs->source, rs->media, rs->user_data, error);
 
     g_error_free (tracker_error);
     g_error_free (error);

@@ -716,7 +716,7 @@ AC_ARG_ENABLE(localmetadata,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes"; then
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_GLIB_2_26" = "xyes"; then
                    enable_localmetadata=yes
                 else
                    enable_localmetadata=no

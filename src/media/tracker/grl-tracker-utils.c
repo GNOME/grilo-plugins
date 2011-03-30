@@ -615,6 +615,11 @@ grl_tracker_get_media_name (const gchar *rdf_type,
 const GList *
 grl_tracker_supported_keys (GrlMetadataSource *source)
 {
-  return
-    grl_plugin_registry_get_metadata_keys (grl_plugin_registry_get_default ());
+  static GList *supported_keys = NULL;
+
+  if (!supported_keys) {
+    supported_keys =  g_hash_table_get_keys (grl_to_sparql_mapping);
+  }
+
+  return supported_keys;
 }

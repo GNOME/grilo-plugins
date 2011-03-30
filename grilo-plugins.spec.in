@@ -10,18 +10,18 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  grilo-devel >= @VERSION@
 BuildRequires:  gnome-common
-BuildRequires:  glib2-devel
+BuildRequires:  glib2-devel >= 2.26.0
 BuildRequires:  libxml2-devel
 BuildRequires:  gupnp-devel >= 0.13.0
 BuildRequires:  gupnp-av-devel >= 0.5.0
 BuildRequires:  sqlite-devel
 BuildRequires:  libgdata-devel
-BuildRequires:  tracker-devel >= 0.9.0
+BuildRequires:  tracker-devel >= 0.10.5
 
 Requires:       grilo >= @VERSION@
 Requires:       gupnp >= 0.13.0
 Requires:       gupnp-av >= 0.5.0
-Requires:       tracker >= 0.9.0
+Requires:       tracker >= 0.10.5
 
 
 %description
@@ -88,6 +88,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/grilo-0.1/plugins/*.xml
 
 %changelog
+* Wed Mar 30 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 01.12-1
+- Local metadata plugin: add support for series and seasons
+- Tracker plugin: several fixes and improvements, add support for writting back metadata.
+
 * Thu Mar 17 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.11-1
 - Filesystem plugin: small fix
 - Flickr plugin: plugged a leak

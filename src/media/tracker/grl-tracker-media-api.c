@@ -22,6 +22,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <gio/gio.h>
 #include <tracker-sparql.h>
 
@@ -474,7 +478,9 @@ grl_tracker_media_writable_keys (GrlMetadataSource *source)
   if (!keys) {
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_PLAY_COUNT,
                                       GRL_METADATA_KEY_LAST_PLAYED,
+#ifdef TRACKER_0_10_5
                                       GRL_METADATA_KEY_LAST_POSITION,
+#endif
                                       NULL);
   }
   return keys;

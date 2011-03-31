@@ -22,6 +22,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "grl-tracker-utils.h"
 
 /**/
@@ -275,10 +279,12 @@ grl_tracker_setup_key_mappings (void)
                       "nie:contentAccessed(?urn)",
                       "media");
 
+#ifdef TRACKER_0_10_5
   insert_key_mapping (GRL_METADATA_KEY_LAST_POSITION,
                       "nfo:lastPlayedPosition",
                       "nfo:lastPlayedPosition(?urn)",
                       "media");
+#endif
 
   if (grl_tracker_upnp_present) {
     insert_key_mapping (GRL_METADATA_KEY_THUMBNAIL,

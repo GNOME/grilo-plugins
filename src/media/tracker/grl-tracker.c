@@ -183,11 +183,18 @@ tracker_get_connection_cb (GObject             *object,
                            GAsyncResult        *res,
                            const GrlPluginInfo *plugin)
 {
+  GError *error = NULL;
   /* GrlTrackerMedia *source; */
 
   GRL_DEBUG ("%s", __FUNCTION__);
 
-  grl_tracker_connection = tracker_sparql_connection_get_finish (res, NULL);
+  grl_tracker_connection = tracker_sparql_connection_get_finish (res, &error);
+
+  if (error) {
+    GRL_WARNING ("Could not get connection to Tracker: %s", error->message);
+    g_error_free (error);
+    return;
+  }
 
   GRL_DEBUG ("\trequest : '%s'", TRACKER_UPNP_CLASS_REQUEST);
 

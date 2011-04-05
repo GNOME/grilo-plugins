@@ -186,7 +186,7 @@ static void grl_jamendo_source_query (GrlMediaSource *source,
 static void grl_jamendo_source_search (GrlMediaSource *source,
                                        GrlMediaSourceSearchSpec *ss);
 
-static void grl_jamendo_source_cancel (GrlMediaSource *source,
+static void grl_jamendo_source_cancel (GrlMetadataSource *source,
                                        guint operation_id);
 
 /* =================== Jamendo Plugin  =============== */
@@ -253,7 +253,7 @@ grl_jamendo_source_class_init (GrlJamendoSourceClass * klass)
   source_class->browse = grl_jamendo_source_browse;
   source_class->query = grl_jamendo_source_query;
   source_class->search = grl_jamendo_source_search;
-  source_class->cancel = grl_jamendo_source_cancel;
+  metadata_class->cancel = grl_jamendo_source_cancel;
   metadata_class->supported_keys = grl_jamendo_source_supported_keys;
   g_class->finalize = grl_jamendo_source_finalize;
 
@@ -1337,7 +1337,7 @@ grl_jamendo_source_search (GrlMediaSource *source,
 }
 
 static void
-grl_jamendo_source_cancel (GrlMediaSource *source, guint operation_id)
+grl_jamendo_source_cancel (GrlMetadataSource *source, guint operation_id)
 {
   XmlParseEntries *xpe;
   GrlJamendoSourcePriv *priv;
@@ -1356,8 +1356,7 @@ grl_jamendo_source_cancel (GrlMediaSource *source, guint operation_id)
   GRL_DEBUG ("grl_jamendo_source_cancel");
 
   xpe =
-    (XmlParseEntries *) grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (source),
-                                                                operation_id);
+    (XmlParseEntries *) grl_metadata_source_get_operation_data (source, operation_id);
 
   if (xpe) {
     xpe->cancelled = TRUE;

@@ -101,10 +101,10 @@ grl_tracker_media_class_init (GrlTrackerMediaClass * klass)
   source_class->metadata            = grl_tracker_media_metadata;
   source_class->search              = grl_tracker_media_search;
   source_class->browse              = grl_tracker_media_browse;
-  source_class->cancel              = grl_tracker_media_cancel;
   source_class->notify_change_start = grl_tracker_media_change_start;
   source_class->notify_change_stop  = grl_tracker_media_change_stop;
 
+  metadata_class->cancel         = grl_tracker_media_cancel;
   metadata_class->supported_keys = grl_tracker_supported_keys;
   metadata_class->writable_keys  = grl_tracker_media_writable_keys;
   metadata_class->set_metadata   = grl_tracker_media_set_metadata;

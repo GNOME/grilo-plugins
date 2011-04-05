@@ -141,7 +141,7 @@ static gboolean grl_filesystem_test_media_from_uri (GrlMediaSource *source,
 static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
                                                GrlMediaSourceMediaFromUriSpec *mfus);
 
-static void grl_filesystem_source_cancel (GrlMediaSource *source,
+static void grl_filesystem_source_cancel (GrlMetadataSource *source,
                                           guint operation_id);
 
 static gboolean grl_filesystem_source_notify_change_start (GrlMediaSource *source,
@@ -218,7 +218,6 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_filesystem_source_browse;
   source_class->search = grl_filesystem_source_search;
-  source_class->cancel = grl_filesystem_source_cancel;
   source_class->notify_change_start = grl_filesystem_source_notify_change_start;
   source_class->notify_change_stop = grl_filesystem_source_notify_change_stop;
   source_class->metadata = grl_filesystem_source_metadata;
@@ -226,6 +225,7 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   source_class->media_from_uri = grl_filesystem_get_media_from_uri;
   G_OBJECT_CLASS (source_class)->finalize = grl_filesystem_source_finalize;
   metadata_class->supported_keys = grl_filesystem_source_supported_keys;
+  metadata_class->cancel = grl_filesystem_source_cancel;
   g_type_class_add_private (klass, sizeof (GrlFilesystemSourcePrivate));
 }
 
@@ -1281,7 +1281,7 @@ beach:
 }
 
 static void
-grl_filesystem_source_cancel (GrlMediaSource *source, guint operation_id)
+grl_filesystem_source_cancel (GrlMetadataSource *source, guint operation_id)
 {
   GCancellable *cancellable;
   GrlFilesystemSourcePrivate *priv;

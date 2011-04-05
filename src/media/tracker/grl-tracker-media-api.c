@@ -847,7 +847,7 @@ grl_tracker_media_browse (GrlMediaSource *source,
 }
 
 void
-grl_tracker_media_cancel (GrlMediaSource *source, guint operation_id)
+grl_tracker_media_cancel (GrlMetadataSource *source, guint operation_id)
 {
   GrlTrackerOp *os;
 

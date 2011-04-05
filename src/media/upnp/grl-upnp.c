@@ -989,7 +989,7 @@ gupnp_metadata_result_cb (GUPnPDIDLLiteParser *parser,
   GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
   if (gupnp_didl_lite_object_get_id (didl)) {
     build_media_from_didl (ms->media, didl, ms->keys);
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   }
 }
 
@@ -1016,7 +1016,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
 
   if (!result) {
     GRL_WARNING ("Metadata operation failed");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     if (error) {
       GRL_WARNING ("  Reason: %s", error->message);
       g_error_free (error);
@@ -1027,7 +1027,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
 
   if (!didl) {
     GRL_DEBUG ("Got no metadata");
-    ms->callback (ms->source, ms->media,  ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media,  ms->user_data, NULL);
 
     goto free_resources;
   }
@@ -1041,7 +1041,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
                                      &error);
   if (error) {
     GRL_WARNING ("Failed to parse DIDL result: %s", error->message);
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
     goto free_resources;
   }
@@ -1291,7 +1291,7 @@ grl_upnp_source_metadata (GrlMediaSource *source,
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to start metadata action");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   }
 

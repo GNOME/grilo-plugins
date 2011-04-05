@@ -377,7 +377,7 @@ getInfo_cb (GFlickr *f, GHashTable *photo, gpointer user_data)
     update_media (ms->media, photo);
   }
 
-  ms->callback (ms->source, ms->media, ms->user_data, NULL);
+  ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
 }
 
 static void
@@ -699,7 +699,7 @@ grl_flickr_source_metadata (GrlMediaSource *source,
   const gchar *id;
 
   if (!ms->media || (id = grl_media_get_id (ms->media)) == NULL) {
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
     return;
   }
 

@@ -1347,7 +1347,7 @@ stream_metadata (GrlMediaSourceMetadataSpec *ms)
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to get podcast stream metadata");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
     return;
   }
@@ -1356,13 +1356,13 @@ stream_metadata (GrlMediaSourceMetadataSpec *ms)
 
   if (r == SQLITE_ROW) {
     build_media_from_stmt (ms->media, sql_stmt, FALSE);
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   } else {
     GRL_WARNING ("Failed to get podcast stream: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to get podcast stream metadata");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   }
 
@@ -1385,7 +1385,7 @@ podcast_metadata (GrlMediaSourceMetadataSpec *ms)
   if (!id) {
     /* Root category: special case */
     grl_media_set_title (ms->media, GRL_ROOT_TITLE);
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
     return;
   }
 
@@ -1393,14 +1393,14 @@ podcast_metadata (GrlMediaSourceMetadataSpec *ms)
 
   if (sql_stmt) {
     build_media_from_stmt (ms->media, sql_stmt, TRUE);
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
     sqlite3_finalize (sql_stmt);
   } else {
     GRL_WARNING ("Failed to get podcast: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to get podcast metadata");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   }
 }
@@ -1557,7 +1557,7 @@ grl_podcasts_source_metadata (GrlMediaSource *source,
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "No database connection");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
     return;
   }

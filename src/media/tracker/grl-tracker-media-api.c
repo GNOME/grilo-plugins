@@ -394,7 +394,7 @@ tracker_metadata_cb (GObject      *source_object,
 			 "Failed to start metadata action : %s",
                          tracker_error->message);
 
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
 
     g_error_free (tracker_error);
     g_error_free (error);
@@ -410,7 +410,7 @@ tracker_metadata_cb (GObject      *source_object,
                                     ms->media, cursor, col);
     }
 
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   }
 
  end_operation:
@@ -619,7 +619,7 @@ grl_tracker_media_metadata (GrlMediaSource *source,
       sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST,
                                       sparql_select, constraint, 0, 1);
     } else {
-      ms->callback (ms->source, ms->media, ms->user_data, NULL);
+      ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
       return;
     }
   } else {

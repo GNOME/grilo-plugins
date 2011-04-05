@@ -722,6 +722,7 @@ read_done_cb (GObject *source_object,
   switch (xpe->type) {
   case METADATA:
     xpe->spec.ms->callback (xpe->spec.ms->source,
+                            xpe->spec.ms->metadata_id,
                             xpe->spec.ms->media,
                             xpe->spec.ms->user_data,
                             error);
@@ -1065,14 +1066,14 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
     g_free (url);
   } else {
     if (ms->media) {
-      ms->callback (ms->source, ms->media, ms->user_data, NULL);
+      ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
     }
   }
 
   return;
 
  send_error:
-  ms->callback (ms->source, NULL, ms->user_data, error);
+  ms->callback (ms->source, ms->metadata_id, NULL, ms->user_data, error);
   g_error_free (error);
 }
 

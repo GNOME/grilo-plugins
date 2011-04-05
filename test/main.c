@@ -137,6 +137,7 @@ browse_cb (GrlMediaSource *source,
 
 static void
 metadata_cb (GrlMediaSource *source,
+             guint operation_id,
 	     GrlMedia *media,
 	     gpointer user_data,
 	     const GError *error)
@@ -169,7 +170,7 @@ resolve_cb (GrlMetadataSource *source,
             gpointer user_data,
             const GError *error)
 {
-  metadata_cb (NULL, media, user_data, error);
+  metadata_cb (NULL, 0, media, user_data, error);
 }
 
 static void

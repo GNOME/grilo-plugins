@@ -1196,13 +1196,13 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
     create_content (ms->media, path,
 		    ms->flags & GRL_RESOLVE_FAST_ONLY,
 		    !id);
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   } else {
     GError *error = g_error_new (GRL_CORE_ERROR,
 				 GRL_CORE_ERROR_METADATA_FAILED,
 				 "File '%s' does not exist",
 				 path);
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   }
 }
@@ -1252,7 +1252,7 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
                          "Cannot create media from '%s'", mfus->uri);
-    mfus->callback (source, NULL, mfus->user_data, error);
+    mfus->callback (source, mfus->media_from_uri_id, NULL, mfus->user_data, error);
     g_clear_error (&error);
     return;
   }
@@ -1265,7 +1265,7 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
                          "Cannot create media from '%s', error message: %s",
                          mfus->uri, error->message);
     g_clear_error (&error);
-    mfus->callback (source, NULL, mfus->user_data, new_error);
+    mfus->callback (source, mfus->media_from_uri_id, NULL, mfus->user_data, new_error);
     g_clear_error (&new_error);
     goto beach;
   }
@@ -1274,7 +1274,7 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
   /* Note: we assume create_content() never returns NULL, which seems to be true */
   media = create_content (NULL, path, mfus->flags & GRL_RESOLVE_FAST_ONLY,
                           FALSE);
-  mfus->callback (source, media, mfus->user_data, NULL);
+  mfus->callback (source, mfus->media_from_uri_id, media, mfus->user_data, NULL);
 
 beach:
   g_free (path);

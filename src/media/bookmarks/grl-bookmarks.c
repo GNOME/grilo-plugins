@@ -390,7 +390,7 @@ bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
   if (!id) {
     /* Root category: special case */
     grl_media_set_title (ms->media, GRL_ROOT_TITLE);
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
     return;
   }
 
@@ -404,7 +404,7 @@ bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to get bookmark metadata");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
     return;
   }
@@ -413,13 +413,13 @@ bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
 
   if (r == SQLITE_ROW) {
     build_media_from_stmt (ms->media, sql_stmt);
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   } else {
     GRL_WARNING ("Failed to get bookmark: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to get bookmark metadata");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   }
 
@@ -840,7 +840,7 @@ grl_bookmarks_source_metadata (GrlMediaSource *source,
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "No database connection");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   }
 

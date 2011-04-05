@@ -574,7 +574,8 @@ grl_apple_trailers_source_browse (GrlMediaSource *source,
 
   op_data = g_slice_new0 (OperationData);
   op_data->bs = bs;
-  grl_media_source_set_operation_data (source, bs->browse_id, op_data);
+  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
+                                          bs->browse_id, op_data);
 
   if (at_source->priv->hd) {
     read_url_async (at_source, APPLE_TRAILERS_CURRENT_HD, op_data);
@@ -599,7 +600,9 @@ grl_apple_trailers_source_cancel (GrlMediaSource *source, guint operation_id)
   if (priv->wc)
     grl_net_wc_flush_delayed_requests (priv->wc);
 
-  op_data = (OperationData *) grl_media_source_get_operation_data (source, operation_id);
+  op_data =
+    (OperationData *) grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (source),
+                                                              operation_id);
 
   if (op_data) {
     op_data->cancelled = TRUE;

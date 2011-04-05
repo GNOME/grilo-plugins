@@ -715,7 +715,8 @@ grl_shoutcast_source_cancel (GrlMediaSource *source, guint operation_id)
     g_cancellable_cancel (cancellable);
   cancellable = NULL;
 
-  op_data = (OperationData *) grl_media_source_get_operation_data (source, operation_id);
+  op_data =
+    (OperationData *) grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (source), operation_id);
 
   if (op_data) {
     op_data->cancelled = TRUE;

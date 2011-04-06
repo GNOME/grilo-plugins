@@ -408,7 +408,7 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
                                        tracker_evt_update_t *evt)
 {
   const gchar *type, *datasource, *uri, *datasource_name;
-  gboolean source_available;
+  gboolean source_available = TRUE;
   GrlTrackerMedia *source;
   GError *error = NULL;
 
@@ -437,7 +437,8 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
   datasource = tracker_sparql_cursor_get_string (evt->cursor, 1, NULL);
   datasource_name = tracker_sparql_cursor_get_string (evt->cursor, 2, NULL);
   uri = tracker_sparql_cursor_get_string (evt->cursor, 3, NULL);
-  source_available = tracker_sparql_cursor_get_boolean (evt->cursor, 4);
+  if (tracker_sparql_cursor_is_bound (evt->cursor, 4))
+    source_available = tracker_sparql_cursor_get_boolean (evt->cursor, 4);
 
   source = grl_tracker_media_find (datasource);
 

@@ -484,15 +484,15 @@ resolve_video (GrlMetadataSourceResolveSpec *rs, resolution_flags_t flags)
                  FLAG_VIDEO_EPISODE)))
     return;
 
-  miss_flags |= grl_data_key_is_known (data, GRL_METADATA_KEY_TITLE) ?
+  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_TITLE) ?
     0 : FLAG_VIDEO_TITLE;
-  miss_flags |= grl_data_key_is_known (data, GRL_METADATA_KEY_SHOW) ?
+  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_SHOW) ?
     0 : FLAG_VIDEO_SHOWNAME;
-  miss_flags |= grl_data_key_is_known (data, GRL_METADATA_KEY_DATE) ?
+  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_DATE) ?
     0 : FLAG_VIDEO_DATE;
-  miss_flags |= grl_data_key_is_known (data, GRL_METADATA_KEY_SEASON) ?
+  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_SEASON) ?
     0 : FLAG_VIDEO_SEASON;
-  miss_flags |= grl_data_key_is_known (data, GRL_METADATA_KEY_EPISODE) ?
+  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_EPISODE) ?
     0 : FLAG_VIDEO_EPISODE;
 
   fill_flags = flags & miss_flags;
@@ -645,8 +645,8 @@ grl_local_metadata_source_may_resolve (GrlMetadataSource *source,
   GrlLocalMetadataSourcePriv *priv =
     GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (source);
 
-  if (media && grl_data_key_is_known (GRL_DATA (media),
-                                      GRL_METADATA_KEY_URL)) {
+  if (media && grl_data_has_key (GRL_DATA (media),
+                                 GRL_METADATA_KEY_URL)) {
     if (GRL_IS_MEDIA_IMAGE (media)) {
       if (has_compatible_media_url (media) &&
           (key_id == GRL_METADATA_KEY_THUMBNAIL))

@@ -569,7 +569,7 @@ grl_metadata_store_source_may_resolve (GrlMetadataSource *source,
       /* the keys we handle for now only make sense for audio and video */
       return FALSE;
 
-    if (grl_data_key_is_known (GRL_DATA (media), GRL_METADATA_KEY_ID))
+    if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_ID))
       return TRUE;
   }
 

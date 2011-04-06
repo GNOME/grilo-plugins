@@ -974,8 +974,8 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
   GRL_DEBUG ("grl_jamendo_source_metadata");
 
   if (!ms->media ||
-      !grl_data_key_is_known (GRL_DATA (ms->media),
-                              GRL_METADATA_KEY_ID)) {
+      !grl_data_has_key (GRL_DATA (ms->media),
+                         GRL_METADATA_KEY_ID)) {
     /* Get info from root */
     if (!ms->media) {
       ms->media = grl_media_box_new ();

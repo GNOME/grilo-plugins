@@ -209,7 +209,7 @@ fill_grilo_media_from_sparql (GrlMedia            *media,
     return;
   }
 
-  if (grl_data_key_is_known (GRL_DATA (media), assoc->grl_key)) {
+  if (grl_data_has_key (GRL_DATA (media), assoc->grl_key)) {
     GRL_ODEBUG ("\t\tDropping, already here");
     return;
   }

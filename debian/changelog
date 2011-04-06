@@ -1,3 +1,12 @@
+grilo-0.1-plugins (0.1.13-1) unstable; urgency=low
+
+  * General: do not use grl_data_key_is_known(), as it is deprecated
+
+  * Tracker: do not load the plugin if Tracker is not running, allow
+    Tracker versions below 0.10.5
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Wed, 06 Apr 2011 18:55:47 +0200
+
 grilo-0.1-plugins (0.1.12-1) unstable; urgency=low
 
   * Local metadata plugin: add support for series and seasons

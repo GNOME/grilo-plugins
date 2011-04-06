@@ -166,6 +166,7 @@ metadata_cb (GrlMediaSource *source,
 
 static void
 resolve_cb (GrlMetadataSource *source,
+            guint resolve_id,
             GrlMedia *media,
             gpointer user_data,
             const GError *error)

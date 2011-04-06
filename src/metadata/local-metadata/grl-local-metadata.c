@@ -438,11 +438,11 @@ got_file_info (GFile *file, GAsyncResult *result,
     grl_media_set_thumbnail (rs->media, thumbnail_uri);
     g_free (thumbnail_uri);
 
-    rs->callback (rs->source, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
   } else {
     GRL_INFO ("Could not find thumbnail for media: %s",
               grl_media_get_url (rs->media));
-    rs->callback (rs->source, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
   }
 
   goto exit;
@@ -451,7 +451,7 @@ error:
     {
       GError *new_error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
                                        "Got error: %s", error->message);
-      rs->callback (rs->source, rs->media, rs->user_data, new_error);
+      rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, new_error);
 
       g_error_free (error);
       g_error_free (new_error);
@@ -566,7 +566,7 @@ resolve_album_art (GrlMetadataSourceResolveSpec *rs, resolution_flags_t flags)
   GError *error;
   error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
     "Thumbnail resolution for GrlMediaAudio not implemented in local-metadata");
-  rs->callback (rs->source, rs->media, rs->user_data, error);
+  rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
   g_error_free (error);
 }
 
@@ -692,7 +692,7 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
 
   if (error) {
     /* No can do! */
-    rs->callback (source, rs->media, rs->user_data, error);
+    rs->callback (source, rs->resolve_id, rs->media, rs->user_data, error);
     g_error_free (error);
     return;
   }
@@ -709,7 +709,7 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
     resolve_album_art (rs, flags);
   } else {
     /* What's that media type? */
-    rs->callback (source, rs->media, rs->user_data, NULL);
+    rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
   }
 }
 

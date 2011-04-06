@@ -267,7 +267,7 @@ tracker_resolve_cb (GObject      *source_object,
 			 "Failed to start resolve action : %s",
                          tracker_error->message);
 
-    rs->callback (rs->source, rs->media, rs->user_data, error);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
 
     g_error_free (tracker_error);
     g_error_free (error);
@@ -282,9 +282,9 @@ tracker_resolve_cb (GObject      *source_object,
       fill_grilo_media_from_sparql (rs->media, cursor, col);
     }
 
-    rs->callback (rs->source, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
   } else {
-    rs->callback (rs->source, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
   }
 
  end_operation:

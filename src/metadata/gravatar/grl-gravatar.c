@@ -316,5 +316,5 @@ grl_gravatar_source_resolve (GrlMetadataSource *source,
     set_avatar (GRL_DATA (rs->media), GRL_METADATA_KEY_AUTHOR);
   }
 
-  rs->callback (source, rs->media, rs->user_data, NULL);
+  rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
 }

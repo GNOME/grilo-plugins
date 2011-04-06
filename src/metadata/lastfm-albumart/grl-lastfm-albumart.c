@@ -207,7 +207,7 @@ read_done_cb (GObject *source_object,
                          GRL_CORE_ERROR_RESOLVE_FAILED,
                          "Failed to connect to Last.FM: '%s'",
                          wc_error->message);
-    rs->callback (rs->source, rs->media, rs->user_data, error);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
     g_error_free (wc_error);
     g_error_free (error);
 
@@ -254,7 +254,7 @@ read_done_cb (GObject *source_object,
     g_free (image);
   }
 
-  rs->callback (rs->source, rs->media, rs->user_data, NULL);
+  rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
 }
 
 static void
@@ -343,7 +343,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
 
   if (iter == NULL) {
     GRL_DEBUG ("No supported key was requested");
-    rs->callback (source, rs->media, rs->user_data, NULL);
+    rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
   } else {
     artist = grl_data_get_string (GRL_DATA (rs->media),
                                   GRL_METADATA_KEY_ARTIST);
@@ -353,7 +353,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
 
     if (!artist || !album) {
       GRL_DEBUG ("Missing dependencies");
-      rs->callback (source, rs->media, rs->user_data, NULL);
+      rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
     } else {
       esc_artist = g_uri_escape_string (artist, NULL, TRUE);
       esc_album = g_uri_escape_string (album, NULL, TRUE);

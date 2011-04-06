@@ -594,7 +594,7 @@ grl_metadata_store_source_resolve (GrlMetadataSource *source,
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_RESOLVE_FAILED,
 			 "source-id not available, cannot resolve metadata.");
-    rs->callback (rs->source, rs->media, rs->user_data, error);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
     g_error_free (error);
     return;
   }
@@ -608,13 +608,13 @@ grl_metadata_store_source_resolve (GrlMetadataSource *source,
 			       source_id, media_id);
   if (stmt) {
     fill_metadata (rs->media, rs->keys, stmt);
-    rs->callback (rs->source, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
   } else {
     GRL_WARNING ("Failed to resolve metadata");
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_RESOLVE_FAILED,
 			 "Failed to resolve metadata.");
-    rs->callback (rs->source, rs->media, rs->user_data, error);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
     g_error_free (error);
   }
 }

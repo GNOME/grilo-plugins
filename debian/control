@@ -5,7 +5,7 @@ Maintainer: Juan A. Suarez Romero <jasuarez@igalia.com>
 Build-Depends: cdbs, debhelper (>= 5), libgrilo-0.1-dev (>= 0.1.16),
  gnome-common, libglib2.0-dev (>= 2.26.0), libxml2-dev,
  libgupnp-1.0-dev (>= 0.13.0), libgupnp-av-1.0-dev (>= 0.5.0), libsqlite3-dev,
- libgdata-dev, libgmime-2.4-dev, libquvi-dev (>= 0.2.15)
+ libgdata-dev, libgcrypt11-dev, , libgmime-2.4-dev, libquvi-dev (>= 0.2.15)
 Standards-Version: 3.7.2
 Homepage: http://gitorious.org/grilo
 

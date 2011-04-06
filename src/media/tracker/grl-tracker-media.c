@@ -31,6 +31,7 @@
 #include <string.h>
 #include <tracker-sparql.h>
 
+#include "grl-tracker.h"
 #include "grl-tracker-media.h"
 #include "grl-tracker-media-priv.h"
 #include "grl-tracker-media-api.h"
@@ -193,6 +194,18 @@ grl_tracker_media_get_tracker_source (GrlTrackerMedia *source)
   priv = source->priv;
 
   return priv->tracker_datasource;
+}
+
+TrackerSparqlConnection *
+grl_tracker_media_get_tracker_connection (GrlTrackerMedia *source)
+{
+  GrlTrackerMediaPriv *priv;
+
+  g_return_val_if_fail (GRL_IS_TRACKER_MEDIA (source), NULL);
+
+  priv = source->priv;
+
+  return priv->tracker_connection;
 }
 
 /* =================== TrackerMedia Plugin  =============== */

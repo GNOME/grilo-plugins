@@ -24,6 +24,7 @@
 
 #include <tracker-sparql.h>
 
+#include "grl-tracker.h"
 #include "grl-tracker-media-notif.h"
 #include "grl-tracker-media-priv.h"
 #include "grl-tracker-utils.h"

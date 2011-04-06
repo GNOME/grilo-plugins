@@ -29,9 +29,11 @@
 #include <gio/gio.h>
 #include <tracker-sparql.h>
 
+#include "grl-tracker.h"
 #include "grl-tracker-media-api.h"
 #include "grl-tracker-media-cache.h"
 #include "grl-tracker-media-priv.h"
+#include "grl-tracker-request-queue.h"
 #include "grl-tracker-utils.h"
 
 /* --------- Logging  -------- */
@@ -143,56 +145,17 @@ GRL_LOG_DOMAIN_STATIC(tracker_media_result_log_domain);
 
 /**/
 
-struct OperationSpec {
-  GrlMediaSource         *source;
-  GrlTrackerMediaPriv    *priv;
-  guint                   operation_id;
-  GCancellable           *cancel_op;
-  const GList            *keys;
-  guint                   skip;
-  guint                   count;
-  guint                   current;
-  GrlMediaSourceResultCb  callback;
-  gpointer                user_data;
-  TrackerSparqlCursor    *cursor;
-};
+/**/
+
+static GrlKeyID    grl_metadata_key_tracker_category;
+static GHashTable *grl_tracker_operations;
 
 /**/
 
-static GrlKeyID grl_metadata_key_tracker_category;
 
 /**/
 
-static struct OperationSpec *
-tracker_operation_initiate (GrlMediaSource *source,
-                            GrlTrackerMediaPriv *priv,
-                            guint operation_id)
-{
-  struct OperationSpec *os = g_slice_new0 (struct OperationSpec);
-
-  os->source       = source;
-  os->priv         = priv;
-  os->operation_id = operation_id;
-  os->cancel_op    = g_cancellable_new ();
-
-  g_hash_table_insert (priv->operations, GSIZE_TO_POINTER (operation_id), os);
-
-  return os;
-}
-
-static void
-tracker_operation_terminate (struct OperationSpec *os)
-{
-  if (os == NULL)
-    return;
-
-  g_hash_table_remove (os->priv->operations,
-                       GSIZE_TO_POINTER (os->operation_id));
-
-  g_object_unref (G_OBJECT (os->cursor));
-  g_object_unref (G_OBJECT (os->cancel_op));
-  g_slice_free (struct OperationSpec, os);
-}
+/**/
 
 static void
 fill_grilo_media_from_sparql (GrlTrackerMedia    *source,
@@ -263,143 +226,159 @@ fill_grilo_media_from_sparql (GrlTrackerMedia    *source,
   }
 }
 
+/* I can haz templatze ?? */
+#define TRACKER_QUERY_CB(spec_type,name)                             \
+                                                                     \
+  static void                                                           \
+  tracker_##name##_result_cb (GObject      *source_object,              \
+                              GAsyncResult *result,                     \
+                              GrlTrackerOp *os)                         \
+  {                                                                     \
+    gint         col;                                                   \
+    const gchar *sparql_type;                                           \
+    GError      *tracker_error = NULL, *error = NULL;                   \
+    GrlMedia    *media;                                                 \
+    spec_type   *spec =                                                 \
+      (spec_type *) os->data;                                           \
+                                                                        \
+    GRL_ODEBUG ("%s", __FUNCTION__);                                    \
+                                                                        \
+    if (g_cancellable_is_cancelled (os->cancel)) {                      \
+      GRL_ODEBUG ("\tOperation %u cancelled", spec->name##_id);         \
+      spec->callback (spec->source,                                     \
+                      spec->name##_id,                                  \
+                      NULL, 0,                                          \
+                      spec->user_data, NULL);                           \
+      grl_tracker_queue_done (grl_tracker_queue, os);                   \
+                                                                        \
+      return;                                                           \
+    }                                                                   \
+                                                                        \
+    if (!tracker_sparql_cursor_next_finish (os->cursor,                 \
+                                            result,                     \
+                                            &tracker_error)) {          \
+      if (tracker_error != NULL) {                                      \
+        GRL_WARNING ("\terror in parsing query id=%u : %s",             \
+                     spec->name##_id, tracker_error->message);          \
+                                                                        \
+        error = g_error_new (GRL_CORE_ERROR,                            \
+                             GRL_CORE_ERROR_BROWSE_FAILED,              \
+                             "Failed to start query action : %s",       \
+                             tracker_error->message);                   \
+                                                                        \
+        spec->callback (spec->source,                                   \
+                        spec->name##_id,                                \
+                        NULL, 0,                                        \
+                        spec->user_data, error);                        \
+                                                                        \
+        g_error_free (error);                                           \
+        g_error_free (tracker_error);                                   \
+      } else {                                                          \
+        GRL_ODEBUG ("\tend of parsing id=%u :)", spec->name##_id);      \
+                                                                        \
+        /* Only emit this last one if more result than expected */      \
+        if (os->count > 1)                                              \
+          spec->callback (spec->source,                                 \
+                          spec->name##_id,                              \
+                          NULL, 0,                                      \
+                          spec->user_data, NULL);                       \
+      }                                                                 \
+                                                                        \
+      grl_tracker_queue_done (grl_tracker_queue, os);                   \
+      return;                                                           \
+    }                                                                   \
+                                                                        \
+    sparql_type = tracker_sparql_cursor_get_string (os->cursor,         \
+                                                    0,                  \
+                                                    NULL);              \
+                                                                        \
+    GRL_ODEBUG ("\tParsing line %i of type %s",                         \
+                os->current, sparql_type);                              \
+                                                                        \
+    media = grl_tracker_build_grilo_media (sparql_type);                \
+                                                                        \
+    if (media != NULL) {                                                \
+      for (col = 1 ;                                                    \
+           col < tracker_sparql_cursor_get_n_columns (os->cursor) ;     \
+           col++) {                                                     \
+        fill_grilo_media_from_sparql (GRL_TRACKER_MEDIA (spec->source), \
+                                      media, os->cursor, col);          \
+      }                                                                 \
+                                                                        \
+      spec->callback (spec->source,                                     \
+                      spec->name##_id,                                  \
+                      media,                                            \
+                      --os->count,                                      \
+                      spec->user_data,                                  \
+                      NULL);                                            \
+    }                                                                   \
+                                                                        \
+    /* Schedule the next line to parse */                               \
+    os->current++;                                                      \
+    if (os->count < 1)                                                  \
+      grl_tracker_queue_done (grl_tracker_queue, os);                   \
+    else                                                                \
+      tracker_sparql_cursor_next_async (os->cursor, os->cancel,         \
+                                        (GAsyncReadyCallback) tracker_##name##_result_cb, \
+                                        (gpointer) os);                 \
+  }                                                                     \
+                                                                        \
+  static void                                                           \
+  tracker_##name##_cb (GObject      *source_object,                     \
+                       GAsyncResult *result,                            \
+                       GrlTrackerOp *os)                                \
+  {                                                                     \
+    GError *tracker_error = NULL, *error = NULL;                        \
+    spec_type *spec = (spec_type *) os->data;                           \
+    TrackerSparqlConnection *connection =                               \
+      grl_tracker_media_get_tracker_connection (GRL_TRACKER_MEDIA (spec->source)); \
+                                                                        \
+    GRL_ODEBUG ("%s", __FUNCTION__);                                    \
+                                                                        \
+    os->cursor =                                                        \
+      tracker_sparql_connection_query_finish (connection,               \
+                                              result, &tracker_error);  \
+                                                                        \
+    if (tracker_error) {                                                \
+      GRL_WARNING ("Could not execute sparql query id=%u: %s",          \
+                   spec->name##_id, tracker_error->message);            \
+                                                                        \
+      error = g_error_new (GRL_CORE_ERROR,                              \
+                           GRL_CORE_ERROR_BROWSE_FAILED,                \
+                           "Failed to start query action : %s",         \
+                           tracker_error->message);                     \
+                                                                        \
+      spec->callback (spec->source, spec->name##_id, NULL, 0,           \
+                      spec->user_data, error);                          \
+                                                                        \
+      g_error_free (tracker_error);                                     \
+      g_error_free (error);                                             \
+      grl_tracker_queue_done (grl_tracker_queue, os);                   \
+                                                                        \
+      return;                                                           \
+    }                                                                   \
+                                                                        \
+    /* Start parsing results */                                         \
+    os->current = 0;                                                    \
+    tracker_sparql_cursor_next_async (os->cursor, NULL,                 \
+                                      (GAsyncReadyCallback) tracker_##name##_result_cb, \
+                                      (gpointer) os);                   \
+  }
+
+TRACKER_QUERY_CB(GrlMediaSourceQuerySpec, query)
+TRACKER_QUERY_CB(GrlMediaSourceBrowseSpec, browse)
+TRACKER_QUERY_CB(GrlMediaSourceSearchSpec, search)
+
 static void
-tracker_query_result_cb (GObject              *source_object,
-                         GAsyncResult         *result,
-                         struct OperationSpec *operation)
+tracker_metadata_cb (GObject      *source_object,
+                     GAsyncResult *result,
+                     GrlTrackerOp *os)
 {
-  gint         col;
-  const gchar *sparql_type;
-  GError      *tracker_error = NULL, *error = NULL;
-  GrlMedia    *media;
-
-  GRL_ODEBUG ("%s", __FUNCTION__);
-
-  if (g_cancellable_is_cancelled (operation->cancel_op)) {
-    GRL_ODEBUG ("\tOperation %u cancelled", operation->operation_id);
-    operation->callback (operation->source,
-                         operation->operation_id,
-                         NULL, 0,
-                         operation->user_data, NULL);
-    tracker_operation_terminate (operation);
-
-    return;
-  }
-
-  if (!tracker_sparql_cursor_next_finish (operation->cursor,
-                                          result,
-                                          &tracker_error)) {
-    if (tracker_error != NULL) {
-      GRL_WARNING ("\terror in parsing query id=%u : %s",
-                   operation->operation_id, tracker_error->message);
-
-      error = g_error_new (GRL_CORE_ERROR,
-                           GRL_CORE_ERROR_BROWSE_FAILED,
-                           "Failed to start browse/query action : %s",
-                           tracker_error->message);
-
-      operation->callback (operation->source,
-                           operation->operation_id,
-                           NULL, 0,
-                           operation->user_data, error);
-
-      g_error_free (error);
-      g_error_free (tracker_error);
-    } else {
-      GRL_ODEBUG ("\tend of parsing id=%u :)", operation->operation_id);
-
-      /* Only emit this last one if more result than expected */
-      if (operation->count > 1)
-        operation->callback (operation->source,
-                             operation->operation_id,
-                             NULL, 0,
-                             operation->user_data, NULL);
-    }
-
-    tracker_operation_terminate (operation);
-    return;
-  }
-
-  sparql_type = tracker_sparql_cursor_get_string (operation->cursor, 0, NULL);
-
-  GRL_ODEBUG ("\tParsing line %i of type %s", operation->current, sparql_type);
-
-  media = grl_tracker_build_grilo_media (sparql_type);
-
-  if (media != NULL) {
-    for (col = 1 ;
-         col < tracker_sparql_cursor_get_n_columns (operation->cursor) ;
-         col++) {
-      fill_grilo_media_from_sparql (GRL_TRACKER_MEDIA (operation->source),
-                                    media, operation->cursor, col);
-    }
-
-    operation->callback (operation->source,
-                         operation->operation_id,
-                         media,
-                         --operation->count,
-                         operation->user_data,
-                         NULL);
-  }
-
-  /* Schedule the next line to parse */
-  operation->current++;
-  if (operation->count < 1)
-    tracker_operation_terminate (operation);
-  else
-    tracker_sparql_cursor_next_async (operation->cursor, operation->cancel_op,
-                                      (GAsyncReadyCallback) tracker_query_result_cb,
-                                      (gpointer) operation);
-}
-
-static void
-tracker_query_cb (GObject              *source_object,
-                  GAsyncResult         *result,
-                  struct OperationSpec *operation)
-{
-  GError *tracker_error = NULL, *error = NULL;
-
-  GRL_ODEBUG ("%s", __FUNCTION__);
-
-  operation->cursor =
-    tracker_sparql_connection_query_finish (operation->priv->tracker_connection,
-                                            result, &tracker_error);
-
-  if (tracker_error) {
-    GRL_WARNING ("Could not execute sparql query id=%u: %s",
-                 operation->operation_id, tracker_error->message);
-
-    error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_BROWSE_FAILED,
-			 "Failed to start browse/query action : %s",
-                         tracker_error->message);
-
-    operation->callback (operation->source, operation->operation_id, NULL, 0,
-                         operation->user_data, error);
-
-    g_error_free (tracker_error);
-    g_error_free (error);
-    tracker_operation_terminate (operation);
-
-    return;
-  }
-
-  /* Start parsing results */
-  operation->current = 0;
-  tracker_sparql_cursor_next_async (operation->cursor, NULL,
-                                    (GAsyncReadyCallback) tracker_query_result_cb,
-                                    (gpointer) operation);
-}
-
-static void
-tracker_metadata_cb (GObject                    *source_object,
-                     GAsyncResult               *result,
-                     GrlMediaSourceMetadataSpec *ms)
-{
-  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (ms->source);
-  gint                  col;
-  GError               *tracker_error = NULL, *error = NULL;
-  TrackerSparqlCursor  *cursor;
+  GrlMediaSourceMetadataSpec *ms            = (GrlMediaSourceMetadataSpec *) os->data;
+  GrlTrackerMediaPriv        *priv          = GRL_TRACKER_MEDIA_GET_PRIVATE (ms->source);
+  gint                        col;
+  GError                     *tracker_error = NULL, *error = NULL;
+  TrackerSparqlCursor        *cursor;
 
   GRL_ODEBUG ("%s", __FUNCTION__);
 
@@ -437,13 +416,17 @@ tracker_metadata_cb (GObject                    *source_object,
  end_operation:
   if (cursor)
     g_object_unref (G_OBJECT (cursor));
+
+  grl_tracker_queue_done (grl_tracker_queue, os);
 }
 
 static void
-tracker_set_metadata_cb (GObject                          *source_object,
-                         GAsyncResult                     *result,
-                         GrlMetadataSourceSetMetadataSpec *sms)
+tracker_set_metadata_cb (GObject      *source_object,
+                         GAsyncResult *result,
+                         GrlTrackerOp *os)
 {
+  GrlMetadataSourceSetMetadataSpec *sms =
+    (GrlMetadataSourceSetMetadataSpec *) os->data;
   GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (sms->source);
   GError *tracker_error = NULL, *error = NULL;
 
@@ -467,6 +450,8 @@ tracker_set_metadata_cb (GObject                          *source_object,
   } else {
     sms->callback (sms->source, sms->media, NULL, sms->user_data, error);
   }
+
+  grl_tracker_queue_done (grl_tracker_queue, os);
 }
 
 /**/
@@ -565,7 +550,7 @@ grl_tracker_media_query (GrlMediaSource *source,
   gchar                *constraint;
   gchar                *sparql_final;
   gchar                *sparql_select;
-  struct OperationSpec *os;
+  GrlTrackerOp         *os;
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, qs->query_id);
 
@@ -596,18 +581,19 @@ grl_tracker_media_query (GrlMediaSource *source,
 
   GRL_IDEBUG ("\tselect : '%s'", qs->query);
 
-  os = tracker_operation_initiate (source, priv, qs->query_id);
-  os->keys         = qs->keys;
-  os->skip         = qs->skip;
-  os->count        = qs->count;
-  os->callback     = qs->callback;
-  os->user_data    = qs->user_data;
+  os = grl_tracker_op_initiate_query (qs->query_id,
+                                      g_strdup (qs->query),
+                                      (GAsyncReadyCallback) tracker_query_cb,
+                                      qs);
 
-  tracker_sparql_connection_query_async (priv->tracker_connection,
-                                         qs->query,
-                                         os->cancel_op,
-                                         (GAsyncReadyCallback) tracker_query_cb,
-                                         os);
+  os->keys  = qs->keys;
+  os->skip  = qs->skip;
+  os->count = qs->count;
+  os->data  = qs;
+  /* os->cb.sr     = qs->callback; */
+  /* os->user_data = qs->user_data; */
+
+  grl_tracker_queue_push (grl_tracker_queue, os);
 
   return;
 
@@ -620,8 +606,9 @@ void
 grl_tracker_media_metadata (GrlMediaSource *source,
                             GrlMediaSourceMetadataSpec *ms)
 {
-  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
-  gchar                *constraint = NULL, *sparql_select, *sparql_final;
+  GrlTrackerMediaPriv *priv       = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
+  gchar               *constraint = NULL, *sparql_select, *sparql_final;
+  GrlTrackerOp        *os;
 
   GRL_IDEBUG ("%s: id=%i", __FUNCTION__, ms->metadata_id);
 
@@ -643,28 +630,28 @@ grl_tracker_media_metadata (GrlMediaSource *source,
 
   GRL_IDEBUG ("\tselect: '%s'", sparql_final);
 
-  tracker_sparql_connection_query_async (priv->tracker_connection,
-                                         sparql_final,
-                                         NULL,
+  os = grl_tracker_op_initiate_metadata (sparql_final,
                                          (GAsyncReadyCallback) tracker_metadata_cb,
                                          ms);
+  os->keys = ms->keys;
+
+  grl_tracker_queue_push (grl_tracker_queue, os);
 
   if (constraint != NULL)
     g_free (constraint);
   if (sparql_select != NULL)
     g_free (sparql_select);
-  if (sparql_final != NULL)
-    g_free (sparql_final);
 }
 
 void
 grl_tracker_media_set_metadata (GrlMetadataSource *source,
                                 GrlMetadataSourceSetMetadataSpec *sms)
 {
-  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
+  /* GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source); */
   gchar *sparql_delete, *sparql_cdelete, *sparql_insert, *sparql_final;
   const gchar *urn = grl_data_get_string (GRL_DATA (sms->media),
                                           grl_metadata_key_tracker_urn);
+  GrlTrackerOp *os;
 
   GRL_IDEBUG ("%s: urn=%s", G_STRFUNC, urn);
 
@@ -676,19 +663,18 @@ grl_tracker_media_set_metadata (GrlMetadataSource *source,
                                   urn, sparql_cdelete,
                                   urn, sparql_insert);
 
+  os = grl_tracker_op_initiate_set_metadata (sparql_final,
+                                             (GAsyncReadyCallback) tracker_set_metadata_cb,
+                                             sms);
+  os->keys = sms->keys;
+
   GRL_IDEBUG ("\trequest: '%s'", sparql_final);
 
-  tracker_sparql_connection_update_async (priv->tracker_connection,
-                                          sparql_final,
-                                          G_PRIORITY_DEFAULT,
-                                          NULL,
-                                          (GAsyncReadyCallback) tracker_set_metadata_cb,
-                                          sms);
+  grl_tracker_queue_push (grl_tracker_queue, os);
 
   g_free (sparql_delete);
   g_free (sparql_cdelete);
   g_free (sparql_insert);
-  g_free (sparql_final);
 }
 
 void
@@ -698,7 +684,7 @@ grl_tracker_media_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
-  struct OperationSpec *os;
+  GrlTrackerOp         *os;
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, ss->search_id);
 
@@ -715,22 +701,18 @@ grl_tracker_media_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
 
   GRL_IDEBUG ("\tselect: '%s'", sparql_final);
 
-  os = tracker_operation_initiate (source, priv, ss->search_id);
-  os->keys         = ss->keys;
-  os->skip         = ss->skip;
-  os->count        = ss->count;
-  os->callback     = ss->callback;
-  os->user_data    = ss->user_data;
+  os = grl_tracker_op_initiate_query (ss->search_id,
+                                      sparql_final,
+                                      (GAsyncReadyCallback) tracker_search_cb,
+                                      ss);
+  os->keys  = ss->keys;
+  os->skip  = ss->skip;
+  os->count = ss->count;
 
-  tracker_sparql_connection_query_async (priv->tracker_connection,
-                                         sparql_final,
-                                         os->cancel_op,
-                                         (GAsyncReadyCallback) tracker_query_cb,
-                                         os);
+  grl_tracker_queue_push (grl_tracker_queue, os);
 
   g_free (constraint);
   g_free (sparql_select);
-  g_free (sparql_final);
 }
 
 static void
@@ -741,7 +723,7 @@ grl_tracker_media_browse_category (GrlMediaSource *source,
   gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
-  struct OperationSpec *os;
+  GrlTrackerOp         *os;
   GrlMedia             *media;
   const gchar          *category;
 
@@ -794,22 +776,18 @@ grl_tracker_media_browse_category (GrlMediaSource *source,
 
   GRL_IDEBUG ("\tselect: '%s'", sparql_final);
 
-  os = tracker_operation_initiate (source, priv, bs->browse_id);
-  os->keys         = bs->keys;
-  os->skip         = bs->skip;
-  os->count        = bs->count;
-  os->callback     = bs->callback;
-  os->user_data    = bs->user_data;
+  os = grl_tracker_op_initiate_query (bs->browse_id,
+                                      sparql_final,
+                                      (GAsyncReadyCallback) tracker_browse_cb,
+                                      bs);
+  os->keys  = bs->keys;
+  os->skip  = bs->skip;
+  os->count = bs->count;
 
-  tracker_sparql_connection_query_async (priv->tracker_connection,
-                                         sparql_final,
-                                         os->cancel_op,
-                                         (GAsyncReadyCallback) tracker_query_cb,
-                                         os);
+  grl_tracker_queue_push (grl_tracker_queue, os);
 
   g_free (constraint);
   g_free (sparql_select);
-  g_free (sparql_final);
 }
 
 static void
@@ -820,7 +798,7 @@ grl_tracker_media_browse_filesystem (GrlMediaSource *source,
   gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
-  struct OperationSpec *os;
+  GrlTrackerOp         *os;
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
 
@@ -844,22 +822,18 @@ grl_tracker_media_browse_filesystem (GrlMediaSource *source,
 
   GRL_IDEBUG ("\tselect: '%s'", sparql_final);
 
-  os = tracker_operation_initiate (source, priv, bs->browse_id);
-  os->keys         = bs->keys;
-  os->skip         = bs->skip;
-  os->count        = bs->count;
-  os->callback     = bs->callback;
-  os->user_data    = bs->user_data;
+  os = grl_tracker_op_initiate_query (bs->browse_id,
+                                      sparql_final,
+                                      (GAsyncReadyCallback) tracker_browse_cb,
+                                      bs);
+  os->keys  = bs->keys;
+  os->skip  = bs->skip;
+  os->count = bs->count;
 
-  tracker_sparql_connection_query_async (priv->tracker_connection,
-                                         sparql_final,
-                                         os->cancel_op,
-                                         (GAsyncReadyCallback) tracker_query_cb,
-                                         os);
+  grl_tracker_queue_push (grl_tracker_queue, os);
 
   g_free (constraint);
   g_free (sparql_select);
-  g_free (sparql_final);
 }
 
 void
@@ -875,15 +849,15 @@ grl_tracker_media_browse (GrlMediaSource *source,
 void
 grl_tracker_media_cancel (GrlMediaSource *source, guint operation_id)
 {
-  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
-  struct OperationSpec *os;
+  GrlTrackerOp *os;
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, operation_id);
 
-  os = g_hash_table_lookup (priv->operations, GSIZE_TO_POINTER (operation_id));
+  os = g_hash_table_lookup (grl_tracker_operations,
+                            GSIZE_TO_POINTER (operation_id));
 
   if (os != NULL)
-    g_cancellable_cancel (os->cancel_op);
+    grl_tracker_queue_cancel (grl_tracker_queue, os);
 }
 
 gboolean
@@ -918,6 +892,8 @@ grl_tracker_media_init_requests (void)
                                                                     G_PARAM_STATIC_STRINGS |
                                                                     G_PARAM_READWRITE),
                                                NULL);
+
+  grl_tracker_operations = g_hash_table_new (g_direct_hash, g_direct_equal);
 
   GRL_LOG_DOMAIN_INIT (tracker_media_request_log_domain,
                        "tracker-media-request");

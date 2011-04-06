@@ -1,3 +1,17 @@
+NEW in 0.1.13
+=============
+
+  * General:
+    * Do not use grl_data_key_is_known(), as it is deprecated
+
+  * Tracker:
+    * Do not load the plugin if Tracker is not running
+    * Allow Tracker versions below 0.10.5
+
+  * Contributors to this release:
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+
+
 NEW in 0.1.12
 =============
 

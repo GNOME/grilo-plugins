@@ -298,9 +298,9 @@ grl_lastfm_albumart_source_may_resolve (GrlMetadataSource *source,
     return FALSE;
 
   if (media) {
-    if (grl_data_key_is_known (GRL_DATA (media), GRL_METADATA_KEY_ARTIST))
+    if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_ARTIST))
       have_artist = TRUE;
-    if (grl_data_key_is_known (GRL_DATA (media), GRL_METADATA_KEY_ALBUM))
+    if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_ALBUM))
       have_album = TRUE;
   }
 

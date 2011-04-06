@@ -22,6 +22,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "grl-tracker-utils.h"
 
 /**/
@@ -275,10 +279,12 @@ grl_tracker_setup_key_mappings (void)
                       "nie:contentAccessed(?urn)",
                       "media");
 
+#ifdef TRACKER_0_10_5
   insert_key_mapping (GRL_METADATA_KEY_LAST_POSITION,
                       "nfo:lastPlayedPosition",
                       "nfo:lastPlayedPosition(?urn)",
                       "media");
+#endif
 
   if (grl_tracker_upnp_present) {
     insert_key_mapping (GRL_METADATA_KEY_THUMBNAIL,
@@ -397,7 +403,7 @@ grl_tracker_tracker_get_insert_string (GrlMedia *media, const GList *keys)
     while (assoc_list != NULL) {
       assoc = (tracker_grl_sparql_t *) assoc_list->data;
       if (assoc != NULL) {
-        if (grl_data_key_is_known (GRL_DATA (media), key->data)) {
+        if (grl_data_has_key (GRL_DATA (media), key->data)) {
           if (first) {
             gen_prop_insert_string (gstr, assoc, GRL_DATA (media));
             first = FALSE;

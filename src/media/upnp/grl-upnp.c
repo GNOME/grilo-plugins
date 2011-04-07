@@ -280,6 +280,7 @@ container_changed_cb (GUPnPServiceProxy *proxy,
                       GValue *value,
                       gpointer user_data)
 {
+  GPtrArray *changed_medias;
   GrlMedia *container;
   GrlMediaSource *source = GRL_MEDIA_SOURCE (user_data);
   gchar **tokens;
@@ -289,16 +290,18 @@ container_changed_cb (GUPnPServiceProxy *proxy,
 
   /* Value is a list of pairs (id, number), where "id" is the container id */
   tokens = g_strsplit (g_value_get_string (value), ",", -1);
+  changed_medias = g_ptr_array_sized_new (g_strv_length (tokens) / 2);
   while (tokens[i]) {
     container = grl_media_box_new ();
     grl_media_set_id (container, tokens[i]);
-    grl_media_source_notify_change (source,
-                                    container,
-                                    GRL_CONTENT_CHANGED,
-                                    FALSE);
-    g_object_unref (container);
+    g_ptr_array_add (changed_medias, container);
     i += 2;
   }
+
+  grl_media_source_notify_change_list (source,
+                                       changed_medias,
+                                       GRL_CONTENT_CHANGED,
+                                       FALSE);
   g_strfreev (tokens);
 }
 

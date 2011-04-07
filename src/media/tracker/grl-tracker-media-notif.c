@@ -235,8 +235,8 @@ tracker_evt_update_orphan_item_cb (GObject              *object,
         GRL_DEBUG ("\tNotify id=%u source=%s p=%p", id,
                    grl_metadata_source_get_name (GRL_METADATA_SOURCE (source)),
                    source);
-        grl_media_source_notify_change (GRL_MEDIA_SOURCE (source), media,
-                                        change_type, FALSE);
+        grl_media_source_notify_change (GRL_MEDIA_SOURCE (source),
+                                        media, change_type, FALSE);
 
         g_object_unref (media);
       }
@@ -322,7 +322,9 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
             g_free (str_id);
 
             grl_media_source_notify_change (GRL_MEDIA_SOURCE (source->data),
-                                            media, GRL_CONTENT_REMOVED, FALSE);
+                                            media,
+                                            GRL_CONTENT_REMOVED,
+                                            FALSE);
             g_object_unref (media);
           }
         }

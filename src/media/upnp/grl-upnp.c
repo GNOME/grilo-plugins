@@ -52,10 +52,6 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
 #define SOURCE_NAME_TEMPLATE  "UPnP - %s"
 #define SOURCE_DESC_TEMPLATE  "A source for browsing the UPnP server '%s'"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 /* --- Other --- */
 
 #ifndef CONTENT_DIR_SERVICE

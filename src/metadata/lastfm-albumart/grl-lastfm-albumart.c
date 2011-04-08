@@ -56,10 +56,6 @@ GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 #define SOURCE_NAME "Album art Provider from Last.FM"
 #define SOURCE_DESC "A plugin for getting album arts using Last.FM as backend"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 static GrlNetWc *wc;
 
 static GrlLastfmAlbumartSource *grl_lastfm_albumart_source_new (void);

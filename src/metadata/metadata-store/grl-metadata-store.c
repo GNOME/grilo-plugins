@@ -44,10 +44,6 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
 #define SOURCE_NAME "Metadata Store"
 #define SOURCE_DESC "A plugin for storing extra metadata information"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 #define GRL_SQL_DB        ".grl-metadata-store"
 
 #define GRL_SQL_CREATE_TABLE_STORE			 \

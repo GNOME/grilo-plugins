@@ -41,10 +41,6 @@ GRL_LOG_DOMAIN_STATIC(local_metadata_log_domain);
 #define SOURCE_NAME "Local Metadata Provider"
 #define SOURCE_DESC "A source providing locally available metadata"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 /**/
 
 #define TV_REGEX                                \

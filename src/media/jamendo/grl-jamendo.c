@@ -88,10 +88,6 @@ GRL_LOG_DOMAIN_STATIC(jamendo_log_domain);
 #define SOURCE_NAME "Jamendo"
 #define SOURCE_DESC "A source for browsing and searching Jamendo videos"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 enum {
   METADATA,
   BROWSE,

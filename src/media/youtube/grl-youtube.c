@@ -114,10 +114,6 @@ GRL_LOG_DOMAIN_STATIC(youtube_log_domain);
 #define SOURCE_NAME "Youtube"
 #define SOURCE_DESC "A source for browsing and searching Youtube videos"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 /* --- Data types --- */
 
 typedef void (*AsyncReadCbFunc) (gchar *data, gpointer user_data);

@@ -53,10 +53,6 @@ GRL_LOG_DOMAIN_STATIC(vimeo_log_domain);
 #define SOURCE_NAME "Vimeo"
 #define SOURCE_DESC "A source for browsing and searching Vimeo videos"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 typedef struct {
   GrlMediaSourceSearchSpec *ss;
   gint offset;

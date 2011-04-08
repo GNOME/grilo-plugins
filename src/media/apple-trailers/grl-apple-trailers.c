@@ -54,10 +54,6 @@ GRL_LOG_DOMAIN_STATIC(apple_trailers_log_domain);
 #define SOURCE_NAME "Apple Movie Trailers"
 #define SOURCE_DESC "A plugin for browsing Apple Movie Trailers"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 typedef struct {
   GrlMediaSourceBrowseSpec *bs;
   xmlDocPtr xml_doc;

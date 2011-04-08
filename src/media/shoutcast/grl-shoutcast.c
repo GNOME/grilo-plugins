@@ -57,10 +57,6 @@ GRL_LOG_DOMAIN_STATIC(shoutcast_log_domain);
 #define SOURCE_NAME "SHOUTcast"
 #define SOURCE_DESC "A source for browsing SHOUTcast radios"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 typedef struct {
   GrlMedia *media;
   GrlMediaSource *source;

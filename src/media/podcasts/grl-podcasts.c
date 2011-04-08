@@ -146,10 +146,6 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
 #define SOURCE_NAME "Podcasts"
 #define SOURCE_DESC "A source for browsing podcasts"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 enum {
   PODCAST_ID = 0,
   PODCAST_TITLE,

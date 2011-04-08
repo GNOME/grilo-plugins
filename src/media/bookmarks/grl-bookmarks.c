@@ -116,11 +116,6 @@ GRL_LOG_DOMAIN_STATIC(bookmarks_log_domain);
 #define SOURCE_NAME "Bookmarks"
 #define SOURCE_DESC "A source for organizing media bookmarks"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
-
 enum {
   BOOKMARK_TYPE_CATEGORY = 0,
   BOOKMARK_TYPE_STREAM,

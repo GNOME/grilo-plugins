@@ -63,10 +63,6 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 #define SOURCE_NAME "Filesystem"
 #define SOURCE_DESC "A source for browsing the filesystem"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 /* --- Grilo Filesystem Private --- */
 
 #define GRL_FILESYSTEM_SOURCE_GET_PRIVATE(object)         \

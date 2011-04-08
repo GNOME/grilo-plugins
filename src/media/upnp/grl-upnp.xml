@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>UPnP</name>
+    <module>libgrlupnp</module>
     <description>A plugin for browsing UPnP servers</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

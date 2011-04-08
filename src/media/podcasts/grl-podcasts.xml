@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>Podcasts</name>
+    <module>libgrlpodcasts</module>
     <description>A plugin for browsing podcasts</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

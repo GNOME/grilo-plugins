@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>Album art Provider from Last.FM</name>
+    <module>libgrllastfm-albumart</module>
     <description>A plugin for getting album arts using Last.FM as backend</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

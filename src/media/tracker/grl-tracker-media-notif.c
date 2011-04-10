@@ -409,7 +409,7 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
                                        tracker_evt_update_t *evt)
 {
   const gchar *type, *datasource, *uri, *datasource_name;
-  gboolean source_available = TRUE;
+  gboolean source_available = FALSE;
   GrlTrackerMedia *source;
   GError *error = NULL;
 

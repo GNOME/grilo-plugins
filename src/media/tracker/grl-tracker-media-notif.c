@@ -451,8 +451,10 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
       gchar *source_name = grl_tracker_get_media_name (type, uri, datasource,
                                                        datasource_name);
       /* Defer source creation until we have processed all sources */
-      tracker_evt_update_media_add (evt, datasource, source_name);
-      g_free (source_name);
+      if (source_name) {
+        tracker_evt_update_media_add (evt, datasource, source_name);
+        g_free (source_name);
+      }
     } else {
       GRL_DEBUG ("\tChanges on source %p / %s", source, datasource);
     }

@@ -352,17 +352,19 @@ tracker_get_datasource_cb (GObject             *object,
   if ((source == NULL) && source_available) {
     gchar *source_name = grl_tracker_get_media_name (type, uri, datasource,
                                                      datasource_name);
-    GRL_DEBUG ("\tnew datasource: urn=%s name=%s uri=%s => name=%s\n",
-	       datasource, datasource_name, uri, source_name);
-    source = g_object_new (GRL_TRACKER_MEDIA_TYPE,
-                           "source-id", datasource,
-                           "source-name", source_name,
-                           "source-desc", GRL_TRACKER_MEDIA_DESC,
-                           "tracker-connection", grl_tracker_connection,
-                           "tracker-datasource", datasource,
-                           NULL);
-    grl_tracker_add_source (source);
-    g_free (source_name);
+    if (source_name) {
+      GRL_DEBUG ("\tnew datasource: urn=%s name=%s uri=%s => name=%s\n",
+                 datasource, datasource_name, uri, source_name);
+      source = g_object_new (GRL_TRACKER_MEDIA_TYPE,
+                             "source-id", datasource,
+                             "source-name", source_name,
+                             "source-desc", GRL_TRACKER_MEDIA_DESC,
+                             "tracker-connection", grl_tracker_connection,
+                             "tracker-datasource", datasource,
+                             NULL);
+      grl_tracker_add_source (source);
+      g_free (source_name);
+    }
   }
 
   tracker_sparql_cursor_next_async (cursor, NULL,

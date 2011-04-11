@@ -72,6 +72,9 @@ static gboolean grl_lastfm_albumart_source_may_resolve (GrlMetadataSource *sourc
                                                         GrlKeyID key_id,
                                                         GList **missing_keys);
 
+static void grl_lastfm_albumart_source_cancel (GrlMetadataSource *source,
+                                               guint operation_id);
+
 gboolean grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
                                                  const GrlPluginInfo *plugin,
                                                  GList *configs);
@@ -120,6 +123,7 @@ grl_lastfm_albumart_source_class_init (GrlLastfmAlbumartSourceClass * klass)
   metadata_class->supported_keys = grl_lastfm_albumart_source_supported_keys;
   metadata_class->may_resolve = grl_lastfm_albumart_source_may_resolve;
   metadata_class->resolve = grl_lastfm_albumart_source_resolve;
+  metadata_class->cancel = grl_lastfm_albumart_source_cancel;
 
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize = grl_lastfm_albumart_source_finalize;
@@ -203,12 +207,16 @@ read_done_cb (GObject *source_object,
                               &content,
                               NULL,
                               &wc_error)) {
-    error = g_error_new (GRL_CORE_ERROR,
-                         GRL_CORE_ERROR_RESOLVE_FAILED,
-                         "Failed to connect to Last.FM: '%s'",
-                         wc_error->message);
+    if (wc_error->code == GRL_NET_WC_ERROR_CANCELLED) {
+      g_propagate_error (&error, wc_error);
+    } else {
+      error = g_error_new (GRL_CORE_ERROR,
+                           GRL_CORE_ERROR_RESOLVE_FAILED,
+                           "Failed to connect to Last.FM: '%s'",
+                           wc_error->message);
+      g_error_free (wc_error);
+    }
     rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
-    g_error_free (wc_error);
     g_error_free (error);
 
     return;
@@ -258,13 +266,20 @@ read_done_cb (GObject *source_object,
 }
 
 static void
-read_url_async (const gchar *url, gpointer user_data)
+read_url_async (GrlMetadataSource *source,
+                const gchar *url,
+                GrlMetadataSourceResolveSpec *rs)
 {
+  GCancellable *cancellable;
+
   if (!wc)
     wc = grl_net_wc_new ();
 
+  cancellable = g_cancellable_new ();
+  grl_metadata_source_set_operation_data (source, rs->resolve_id, cancellable);
+
   GRL_DEBUG ("Opening '%s'", url);
-  grl_net_wc_request_async (wc, url, NULL, read_done_cb, user_data);
+  grl_net_wc_request_async (wc, url, cancellable, read_done_cb, rs);
 }
 
 /* ================== API Implementation ================ */
@@ -358,10 +373,23 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
       esc_artist = g_uri_escape_string (artist, NULL, TRUE);
       esc_album = g_uri_escape_string (album, NULL, TRUE);
       url = g_strdup_printf (LASTFM_GET_ALBUM, esc_artist, esc_album);
-      read_url_async (url, rs);
+      read_url_async (source, url, rs);
       g_free (esc_artist);
       g_free (esc_album);
       g_free (url);
     }
+  }
+}
+
+static void
+grl_lastfm_albumart_source_cancel (GrlMetadataSource *source,
+                                   guint operation_id)
+{
+  GCancellable *cancellable =
+    (GCancellable *) grl_metadata_source_get_operation_data (source,
+                                                             operation_id);
+
+  if (cancellable) {
+    g_cancellable_cancel (cancellable);
   }
 }

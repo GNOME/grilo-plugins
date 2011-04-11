@@ -520,7 +520,8 @@ browse_emit_idle (gpointer user_data)
     entry_path = (gchar *) idle_data->current->data;
     content = create_content (NULL,
 			      entry_path,
-			      idle_data->spec->flags & GRL_RESOLVE_FAST_ONLY,
+                              grl_operation_options_get_flags (idle_data->spec->options)
+                                & GRL_RESOLVE_FAST_ONLY,
 			      FALSE);
     g_free (idle_data->current->data);
 
@@ -938,7 +939,9 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
       if (ss->skip) {
         ss->skip--;
       } else {
-        media = create_content (NULL, path, ss->flags & GRL_RESOLVE_FAST_ONLY, FALSE);
+        media = create_content (NULL, path,
+                                grl_operation_options_get_flags (ss->options)
+                                  & GRL_RESOLVE_FAST_ONLY, FALSE);
       }
     }
 
@@ -1194,7 +1197,8 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
 
   if (g_file_test (path, G_FILE_TEST_EXISTS)) {
     create_content (ms->media, path,
-		    ms->flags & GRL_RESOLVE_FAST_ONLY,
+		    grl_operation_options_get_flags (ms->options)
+                      & GRL_RESOLVE_FAST_ONLY,
 		    !id);
     ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   } else {
@@ -1272,7 +1276,9 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
 
   /* FIXME: this is a blocking call, not sure we want that in here */
   /* Note: we assume create_content() never returns NULL, which seems to be true */
-  media = create_content (NULL, path, mfus->flags & GRL_RESOLVE_FAST_ONLY,
+  media = create_content (NULL, path,
+                          grl_operation_options_get_flags (mfus->options)
+                            & GRL_RESOLVE_FAST_ONLY,
                           FALSE);
   mfus->callback (source, mfus->media_from_uri_id, media, mfus->user_data, NULL);
 

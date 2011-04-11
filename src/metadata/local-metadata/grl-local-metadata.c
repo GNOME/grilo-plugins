@@ -111,6 +111,9 @@ static gboolean grl_local_metadata_source_may_resolve (GrlMetadataSource *source
                                                        GrlKeyID key_id,
                                                        GList **missing_keys);
 
+static void grl_local_metadata_source_cancel (GrlMetadataSource *source,
+                                              guint operation_id);
+
 gboolean grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
                                                const GrlPluginInfo *plugin,
                                                GList *configs);
@@ -180,6 +183,7 @@ grl_local_metadata_source_class_init (GrlLocalMetadataSourceClass * klass)
   metadata_class->supported_keys = grl_local_metadata_source_supported_keys;
   metadata_class->may_resolve = grl_local_metadata_source_may_resolve;
   metadata_class->resolve = grl_local_metadata_source_resolve;
+  metadata_class->cancel = grl_local_metadata_source_cancel;
 
   g_class->set_property = grl_local_metadata_source_set_property;
 
@@ -463,7 +467,9 @@ exit:
 }
 
 static void
-resolve_video (GrlMetadataSourceResolveSpec *rs, resolution_flags_t flags)
+resolve_video (GrlMetadataSource *source,
+               GrlMetadataSourceResolveSpec *rs,
+               resolution_flags_t flags)
 {
   gchar *title, *showname;
   GDateTime *date;
@@ -539,23 +545,30 @@ resolve_video (GrlMetadataSourceResolveSpec *rs, resolution_flags_t flags)
 }
 
 static void
-resolve_image (GrlMetadataSourceResolveSpec *rs, resolution_flags_t flags)
+resolve_image (GrlMetadataSource *source,
+               GrlMetadataSourceResolveSpec *rs,
+               resolution_flags_t flags)
 {
   GFile *file;
+  GCancellable *cancellable;
 
   GRL_DEBUG ("resolve_image");
 
   if (flags & FLAG_THUMBNAIL) {
     file = g_file_new_for_uri (grl_media_get_url (rs->media));
 
+    cancellable = g_cancellable_new ();
+    grl_metadata_source_set_operation_data (source, rs->resolve_id, cancellable);
     g_file_query_info_async (file, G_FILE_ATTRIBUTE_THUMBNAIL_PATH,
-                             G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT, NULL,
+                             G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT, cancellable,
                              (GAsyncReadyCallback)got_file_info, rs);
   }
 }
 
 static void
-resolve_album_art (GrlMetadataSourceResolveSpec *rs, resolution_flags_t flags)
+resolve_album_art (GrlMetadataSource *source,
+                   GrlMetadataSourceResolveSpec *rs,
+                   resolution_flags_t flags)
 {
   /* FIXME: implement this, according to
    * http://live.gnome.org/MediaArtStorageSpec
@@ -701,15 +714,27 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
 
   if (GRL_IS_MEDIA_VIDEO (rs->media)) {
     if (priv->guess_video)
-      resolve_video (rs, flags);
-    resolve_image (rs, flags);
+      resolve_video (source, rs, flags);
+    resolve_image (source, rs, flags);
   } else if (GRL_IS_MEDIA_IMAGE (rs->media)) {
-    resolve_image (rs, flags);
+    resolve_image (source, rs, flags);
   } else if (GRL_IS_MEDIA_AUDIO (rs->media)) {
-    resolve_album_art (rs, flags);
+    resolve_album_art (source, rs, flags);
   } else {
     /* What's that media type? */
     rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
   }
 }
 
+static void
+grl_local_metadata_source_cancel (GrlMetadataSource *source,
+                                  guint operation_id)
+{
+  GCancellable *cancellable =
+    (GCancellable *) grl_metadata_source_get_operation_data (source,
+                                                             operation_id);
+
+  if (cancellable) {
+    g_cancellable_cancel (cancellable);
+  }
+}

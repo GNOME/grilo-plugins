@@ -88,6 +88,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/grilo-0.1/plugins/*.xml
 
 %changelog
+* Wed Apr 13 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.14-1
+- General: get rid of unused definitions, use new "content-changed" API, added "module" information to XML files, use new API instead of deprecated ones
+- Jamendo plugin: plugged some leaks
+- LastFM Album Art plugin: resolve() is now a cancellable operation
+- Local metadata plugin: small fixes, resolve() is now a cancellable operation
+- Tracker plugin: several fixes
+- UPnP plugin: plugged some leaks
+
 * Wed Apr 06 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.13-1
 - General: do not use grl_data_key_is_known(), as it is deprecated
 - Tracker: do not load the plugin if Tracker is not running, allow Tracker versions below 0.10.5

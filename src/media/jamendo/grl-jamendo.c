@@ -88,10 +88,6 @@ GRL_LOG_DOMAIN_STATIC(jamendo_log_domain);
 #define SOURCE_NAME "Jamendo"
 #define SOURCE_DESC "A source for browsing and searching Jamendo videos"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 enum {
   METADATA,
   BROWSE,
@@ -190,7 +186,7 @@ static void grl_jamendo_source_query (GrlMediaSource *source,
 static void grl_jamendo_source_search (GrlMediaSource *source,
                                        GrlMediaSourceSearchSpec *ss);
 
-static void grl_jamendo_source_cancel (GrlMediaSource *source,
+static void grl_jamendo_source_cancel (GrlMetadataSource *source,
                                        guint operation_id);
 
 /* =================== Jamendo Plugin  =============== */
@@ -257,7 +253,7 @@ grl_jamendo_source_class_init (GrlJamendoSourceClass * klass)
   source_class->browse = grl_jamendo_source_browse;
   source_class->query = grl_jamendo_source_query;
   source_class->search = grl_jamendo_source_search;
-  source_class->cancel = grl_jamendo_source_cancel;
+  metadata_class->cancel = grl_jamendo_source_cancel;
   metadata_class->supported_keys = grl_jamendo_source_supported_keys;
   g_class->finalize = grl_jamendo_source_finalize;
 
@@ -726,6 +722,7 @@ read_done_cb (GObject *source_object,
   switch (xpe->type) {
   case METADATA:
     xpe->spec.ms->callback (xpe->spec.ms->source,
+                            xpe->spec.ms->metadata_id,
                             xpe->spec.ms->media,
                             xpe->spec.ms->user_data,
                             error);
@@ -1069,14 +1066,14 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
     g_free (url);
   } else {
     if (ms->media) {
-      ms->callback (ms->source, ms->media, ms->user_data, NULL);
+      ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
     }
   }
 
   return;
 
  send_error:
-  ms->callback (ms->source, NULL, ms->user_data, error);
+  ms->callback (ms->source, ms->metadata_id, NULL, ms->user_data, error);
   g_error_free (error);
 }
 
@@ -1171,6 +1168,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
                                jamendo_keys,
                                page_size,
                                page_number);
+        g_free (jamendo_keys);
       } else {
         send_feeds (bs);
         return;
@@ -1200,7 +1198,8 @@ grl_jamendo_source_browse (GrlMediaSource *source,
   xpe->offset = page_offset;
   xpe->spec.bs = bs;
 
-  grl_media_source_set_operation_data (source, bs->browse_id, xpe);
+  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
+                                          bs->browse_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
@@ -1272,13 +1271,15 @@ grl_jamendo_source_query (GrlMediaSource *source,
                          page_number,
                          term);
   g_free (term);
+  g_free (jamendo_keys);
 
   xpe = g_slice_new0 (XmlParseEntries);
   xpe->type = QUERY;
   xpe->offset = page_offset;
   xpe->spec.qs = qs;
 
-  grl_media_source_set_operation_data (source, qs->query_id, xpe);
+  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
+                                          qs->query_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
@@ -1331,14 +1332,16 @@ grl_jamendo_source_search (GrlMediaSource *source,
   xpe->offset = page_offset;
   xpe->spec.ss = ss;
 
-  grl_media_source_set_operation_data (source, ss->search_id, xpe);
+  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
+                                          ss->search_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
+  g_free (jamendo_keys);
   g_free (url);
 }
 
 static void
-grl_jamendo_source_cancel (GrlMediaSource *source, guint operation_id)
+grl_jamendo_source_cancel (GrlMetadataSource *source, guint operation_id)
 {
   XmlParseEntries *xpe;
   GrlJamendoSourcePriv *priv;
@@ -1356,8 +1359,8 @@ grl_jamendo_source_cancel (GrlMediaSource *source, guint operation_id)
 
   GRL_DEBUG ("grl_jamendo_source_cancel");
 
-  xpe = (XmlParseEntries *) grl_media_source_get_operation_data (source,
-                                                                 operation_id);
+  xpe =
+    (XmlParseEntries *) grl_metadata_source_get_operation_data (source, operation_id);
 
   if (xpe) {
     xpe->cancelled = TRUE;

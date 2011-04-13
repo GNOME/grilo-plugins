@@ -57,10 +57,6 @@ GRL_LOG_DOMAIN_STATIC(shoutcast_log_domain);
 #define SOURCE_NAME "SHOUTcast"
 #define SOURCE_DESC "A source for browsing SHOUTcast radios"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 typedef struct {
   GrlMedia *media;
   GrlMediaSource *source;
@@ -102,7 +98,7 @@ static void grl_shoutcast_source_browse (GrlMediaSource *source,
 static void grl_shoutcast_source_search (GrlMediaSource *source,
                                          GrlMediaSourceSearchSpec *ss);
 
-static void grl_shoutcast_source_cancel (GrlMediaSource *source,
+static void grl_shoutcast_source_cancel (GrlMetadataSource *source,
                                          guint operation_id);
 
 static void read_url_async (const gchar *url, OperationData *op_data);
@@ -154,7 +150,7 @@ grl_shoutcast_source_class_init (GrlShoutcastSourceClass * klass)
   source_class->metadata = grl_shoutcast_source_metadata;
   source_class->browse = grl_shoutcast_source_browse;
   source_class->search = grl_shoutcast_source_search;
-  source_class->cancel = grl_shoutcast_source_cancel;
+  metadata_class->cancel = grl_shoutcast_source_cancel;
   metadata_class->supported_keys = grl_shoutcast_source_supported_keys;
   gobject_class->finalize = grl_shoutcast_source_finalize;
 }
@@ -709,7 +705,7 @@ grl_shoutcast_source_search (GrlMediaSource *source,
 }
 
 static void
-grl_shoutcast_source_cancel (GrlMediaSource *source, guint operation_id)
+grl_shoutcast_source_cancel (GrlMetadataSource *source, guint operation_id)
 {
   OperationData *op_data;
 
@@ -719,7 +715,8 @@ grl_shoutcast_source_cancel (GrlMediaSource *source, guint operation_id)
     g_cancellable_cancel (cancellable);
   cancellable = NULL;
 
-  op_data = (OperationData *) grl_media_source_get_operation_data (source, operation_id);
+  op_data =
+    (OperationData *) grl_metadata_source_get_operation_data (source, operation_id);
 
   if (op_data) {
     op_data->cancelled = TRUE;

@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>Vimeo</name>
+    <module>libgrlvimeo</module>
     <description>A plugin for searching Vimeo videos</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

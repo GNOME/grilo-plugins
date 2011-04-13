@@ -44,10 +44,6 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
 #define SOURCE_NAME "Metadata Store"
 #define SOURCE_DESC "A plugin for storing extra metadata information"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 #define GRL_SQL_DB        ".grl-metadata-store"
 
 #define GRL_SQL_CREATE_TABLE_STORE			 \
@@ -598,7 +594,7 @@ grl_metadata_store_source_resolve (GrlMetadataSource *source,
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_RESOLVE_FAILED,
 			 "source-id not available, cannot resolve metadata.");
-    rs->callback (rs->source, rs->media, rs->user_data, error);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
     g_error_free (error);
     return;
   }
@@ -612,13 +608,13 @@ grl_metadata_store_source_resolve (GrlMetadataSource *source,
 			       source_id, media_id);
   if (stmt) {
     fill_metadata (rs->media, rs->keys, stmt);
-    rs->callback (rs->source, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
   } else {
     GRL_WARNING ("Failed to resolve metadata");
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_RESOLVE_FAILED,
 			 "Failed to resolve metadata.");
-    rs->callback (rs->source, rs->media, rs->user_data, error);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
     g_error_free (error);
   }
 }

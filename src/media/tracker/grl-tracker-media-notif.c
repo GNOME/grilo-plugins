@@ -24,6 +24,7 @@
 
 #include <tracker-sparql.h>
 
+#include "grl-tracker.h"
 #include "grl-tracker-media-notif.h"
 #include "grl-tracker-media-priv.h"
 #include "grl-tracker-utils.h"
@@ -234,8 +235,8 @@ tracker_evt_update_orphan_item_cb (GObject              *object,
         GRL_DEBUG ("\tNotify id=%u source=%s p=%p", id,
                    grl_metadata_source_get_name (GRL_METADATA_SOURCE (source)),
                    source);
-        grl_media_source_notify_change (GRL_MEDIA_SOURCE (source), media,
-                                        change_type, FALSE);
+        grl_media_source_notify_change (GRL_MEDIA_SOURCE (source),
+                                        media, change_type, FALSE);
 
         g_object_unref (media);
       }
@@ -321,7 +322,9 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
             g_free (str_id);
 
             grl_media_source_notify_change (GRL_MEDIA_SOURCE (source->data),
-                                            media, GRL_CONTENT_REMOVED, FALSE);
+                                            media,
+                                            GRL_CONTENT_REMOVED,
+                                            FALSE);
             g_object_unref (media);
           }
         }
@@ -408,7 +411,7 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
                                        tracker_evt_update_t *evt)
 {
   const gchar *type, *datasource, *uri, *datasource_name;
-  gboolean source_available;
+  gboolean source_available = FALSE;
   GrlTrackerMedia *source;
   GError *error = NULL;
 
@@ -437,7 +440,8 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
   datasource = tracker_sparql_cursor_get_string (evt->cursor, 1, NULL);
   datasource_name = tracker_sparql_cursor_get_string (evt->cursor, 2, NULL);
   uri = tracker_sparql_cursor_get_string (evt->cursor, 3, NULL);
-  source_available = tracker_sparql_cursor_get_boolean (evt->cursor, 4);
+  if (tracker_sparql_cursor_is_bound (evt->cursor, 4))
+    source_available = tracker_sparql_cursor_get_boolean (evt->cursor, 4);
 
   source = grl_tracker_media_find (datasource);
 
@@ -449,8 +453,10 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
       gchar *source_name = grl_tracker_get_media_name (type, uri, datasource,
                                                        datasource_name);
       /* Defer source creation until we have processed all sources */
-      tracker_evt_update_media_add (evt, datasource, source_name);
-      g_free (source_name);
+      if (source_name) {
+        tracker_evt_update_media_add (evt, datasource, source_name);
+        g_free (source_name);
+      }
     } else {
       GRL_DEBUG ("\tChanges on source %p / %s", source, datasource);
     }

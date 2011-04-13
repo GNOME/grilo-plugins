@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>Fake Metadata Provider</name>
+    <module>libgrlfakemetadata</module>
     <description>A plugin for faking metadata resolution</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

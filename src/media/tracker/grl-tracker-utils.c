@@ -617,11 +617,6 @@ grl_tracker_get_media_name (const gchar *rdf_type,
 
   g_strfreev (rdf_single_type);
 
-  if (!source_name)
-    source_name = g_strdup_printf  ("%s %s",
-                                    GRL_TRACKER_MEDIA_NAME,
-                                    datasource);
-
   return source_name;
 }
 

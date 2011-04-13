@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>YouTube</name>
+    <module>libgrlyoutube</module>
     <description>A plugin for browsing and searching Youtube videos</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

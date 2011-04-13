@@ -54,10 +54,6 @@ GRL_LOG_DOMAIN_STATIC(apple_trailers_log_domain);
 #define SOURCE_NAME "Apple Movie Trailers"
 #define SOURCE_DESC "A plugin for browsing Apple Movie Trailers"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 typedef struct {
   GrlMediaSourceBrowseSpec *bs;
   xmlDocPtr xml_doc;
@@ -95,7 +91,7 @@ static const GList *grl_apple_trailers_source_supported_keys (GrlMetadataSource 
 static void grl_apple_trailers_source_browse (GrlMediaSource *source,
                                               GrlMediaSourceBrowseSpec *bs);
 
-static void grl_apple_trailers_source_cancel (GrlMediaSource *source,
+static void grl_apple_trailers_source_cancel (GrlMetadataSource *source,
                                               guint operation_id);
 
 /* =================== Apple Trailers Plugin  =============== */
@@ -220,7 +216,7 @@ grl_apple_trailers_source_class_init (GrlAppleTrailersSourceClass * klass)
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   GObjectClass *g_class = G_OBJECT_CLASS (klass);
   source_class->browse = grl_apple_trailers_source_browse;
-  source_class->cancel = grl_apple_trailers_source_cancel;
+  metadata_class->cancel = grl_apple_trailers_source_cancel;
   metadata_class->supported_keys = grl_apple_trailers_source_supported_keys;
   g_class->finalize = grl_apple_trailers_source_finalize;
   g_class->set_property = grl_apple_trailers_source_set_property;
@@ -578,7 +574,8 @@ grl_apple_trailers_source_browse (GrlMediaSource *source,
 
   op_data = g_slice_new0 (OperationData);
   op_data->bs = bs;
-  grl_media_source_set_operation_data (source, bs->browse_id, op_data);
+  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
+                                          bs->browse_id, op_data);
 
   if (at_source->priv->hd) {
     read_url_async (at_source, APPLE_TRAILERS_CURRENT_HD, op_data);
@@ -588,7 +585,7 @@ grl_apple_trailers_source_browse (GrlMediaSource *source,
 }
 
 static void
-grl_apple_trailers_source_cancel (GrlMediaSource *source, guint operation_id)
+grl_apple_trailers_source_cancel (GrlMetadataSource *source, guint operation_id)
 {
   OperationData *op_data;
   GrlAppleTrailersSourcePriv *priv;
@@ -603,7 +600,8 @@ grl_apple_trailers_source_cancel (GrlMediaSource *source, guint operation_id)
   if (priv->wc)
     grl_net_wc_flush_delayed_requests (priv->wc);
 
-  op_data = (OperationData *) grl_media_source_get_operation_data (source, operation_id);
+  op_data =
+    (OperationData *) grl_metadata_source_get_operation_data (source, operation_id);
 
   if (op_data) {
     op_data->cancelled = TRUE;

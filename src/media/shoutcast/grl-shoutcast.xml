@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>SHOUTcast</name>
+    <module>libgrlshoutcast</module>
     <description>A plugin for browsing SHOUTcast radios</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

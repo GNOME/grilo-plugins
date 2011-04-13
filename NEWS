@@ -1,3 +1,33 @@
+NEW in 0.1.14
+=============
+
+  * General
+    * Get rid of unused definitions
+    * Use new "content-changed" API
+    * Added "module" information to XML files
+    * Use new API instead of deprecated ones.
+
+  * Jamendo plugin
+    * Plugged some leaks
+
+  * LastFM Album Art plugin
+    * resolve() is now a cancellable operation
+
+  * Local metadata plugin
+    * Small fixes
+    * resolve() is now a cancellable operation
+
+  * Tracker plugin
+    * Several fixes
+
+  * UPnP plugin
+    * Plugged some leaks
+
+  * Contributors to this release:
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+
+
 NEW in 0.1.13
 =============
 

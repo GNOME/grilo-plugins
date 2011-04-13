@@ -26,6 +26,7 @@
 #define _GRL_TRACKER_MEDIA_H_
 
 #include <grilo.h>
+#include <tracker-sparql.h>
 
 #define GRL_TRACKER_MEDIA_TYPE                  \
   (grl_tracker_media_get_type ())
@@ -78,6 +79,8 @@ GType grl_tracker_media_get_type (void);
 gboolean grl_tracker_media_can_notify (GrlTrackerMedia *source);
 
 const gchar *grl_tracker_media_get_tracker_source (GrlTrackerMedia *source);
+
+TrackerSparqlConnection *grl_tracker_media_get_tracker_connection (GrlTrackerMedia *source);
 
 /**/
 

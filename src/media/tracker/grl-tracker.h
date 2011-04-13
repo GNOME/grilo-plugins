@@ -25,8 +25,13 @@
 #ifndef _GRL_TRACKER_H_
 #define _GRL_TRACKER_H_
 
+#include "grl-tracker-request-queue.h"
+
 /* ---- Plugin information --- */
 
 #define GRL_TRACKER_PLUGIN_ID   TRACKER_PLUGIN_ID
+
+extern GrlTrackerQueue *grl_tracker_queue;
+extern TrackerSparqlConnection *grl_tracker_connection;
 
 #endif /* _GRL_TRACKER_H_ */

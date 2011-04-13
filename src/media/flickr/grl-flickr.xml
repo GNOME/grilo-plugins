@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>Flickr</name>
+    <module>libgrlflickr</module>
     <description>A plugin for browsing and searching Flickr photos</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

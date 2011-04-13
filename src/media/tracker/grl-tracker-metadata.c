@@ -24,6 +24,7 @@
 
 #include <tracker-sparql.h>
 
+#include "grl-tracker.h"
 #include "grl-tracker-metadata.h"
 #include "grl-tracker-utils.h"
 #include "grl-tracker-media.h"
@@ -242,10 +243,11 @@ fill_grilo_media_from_sparql (GrlMedia            *media,
 }
 
 static void
-tracker_resolve_cb (GObject                      *source_object,
-                    GAsyncResult                 *result,
-                    GrlMetadataSourceResolveSpec *rs)
+tracker_resolve_cb (GObject      *source_object,
+                    GAsyncResult *result,
+                    GrlTrackerOp *os)
 {
+  GrlMetadataSourceResolveSpec *rs = (GrlMetadataSourceResolveSpec *) os->data;
   GrlTrackerMetadataPriv *priv = GRL_TRACKER_METADATA_GET_PRIVATE (rs->source);
   gint                  col;
   GError               *tracker_error = NULL, *error = NULL;
@@ -265,7 +267,7 @@ tracker_resolve_cb (GObject                      *source_object,
 			 "Failed to start resolve action : %s",
                          tracker_error->message);
 
-    rs->callback (rs->source, rs->media, rs->user_data, error);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
 
     g_error_free (tracker_error);
     g_error_free (error);
@@ -280,14 +282,16 @@ tracker_resolve_cb (GObject                      *source_object,
       fill_grilo_media_from_sparql (rs->media, cursor, col);
     }
 
-    rs->callback (rs->source, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
   } else {
-    rs->callback (rs->source, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
   }
 
  end_operation:
   if (cursor)
     g_object_unref (G_OBJECT (cursor));
+
+  grl_tracker_queue_done (grl_tracker_queue, os);
 }
 
 
@@ -321,9 +325,9 @@ static void
 grl_tracker_metadata_resolve (GrlMetadataSource            *source,
                               GrlMetadataSourceResolveSpec *rs)
 {
-  GrlTrackerMetadataPriv *priv = GRL_TRACKER_METADATA_GET_PRIVATE (source);
   const gchar *url = grl_media_get_url (rs->media);
   gchar *sparql_select, *sparql_final;
+  GrlTrackerOp *os;
 
   GRL_IDEBUG ("%s", __FUNCTION__);
 
@@ -337,14 +341,13 @@ grl_tracker_metadata_resolve (GrlMetadataSource            *source,
 
   GRL_IDEBUG ("\trequest: '%s'", sparql_final);
 
-  tracker_sparql_connection_query_async (priv->tracker_connection,
-                                         sparql_final,
-                                         NULL,
+  os = grl_tracker_op_initiate_metadata (sparql_final,
                                          (GAsyncReadyCallback) tracker_resolve_cb,
                                          rs);
 
+  grl_tracker_queue_push (grl_tracker_queue, os);
+
   g_free (sparql_select);
-  g_free (sparql_final);
 }
 
 /* =================== TrackerMedia Plugin  =============== */

@@ -52,10 +52,6 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
 #define SOURCE_NAME_TEMPLATE  "UPnP - %s"
 #define SOURCE_DESC_TEMPLATE  "A source for browsing the UPnP server '%s'"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 /* --- Other --- */
 
 #ifndef CONTENT_DIR_SERVICE
@@ -284,6 +280,7 @@ container_changed_cb (GUPnPServiceProxy *proxy,
                       GValue *value,
                       gpointer user_data)
 {
+  GPtrArray *changed_medias;
   GrlMedia *container;
   GrlMediaSource *source = GRL_MEDIA_SOURCE (user_data);
   gchar **tokens;
@@ -293,16 +290,18 @@ container_changed_cb (GUPnPServiceProxy *proxy,
 
   /* Value is a list of pairs (id, number), where "id" is the container id */
   tokens = g_strsplit (g_value_get_string (value), ",", -1);
+  changed_medias = g_ptr_array_sized_new (g_strv_length (tokens) / 2);
   while (tokens[i]) {
     container = grl_media_box_new ();
     grl_media_set_id (container, tokens[i]);
-    grl_media_source_notify_change (source,
-                                    container,
-                                    GRL_CONTENT_CHANGED,
-                                    FALSE);
-    g_object_unref (container);
+    g_ptr_array_add (changed_medias, container);
     i += 2;
   }
+
+  grl_media_source_notify_change_list (source,
+                                       changed_medias,
+                                       GRL_CONTENT_CHANGED,
+                                       FALSE);
   g_strfreev (tokens);
 }
 
@@ -362,6 +361,7 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
                                        NULL);
 
  free_resources:
+  g_free (caps);
   free_source_info (source_info);
 }
 
@@ -426,6 +426,7 @@ device_available_cb (GUPnPControlPoint *cp,
   if (grl_plugin_registry_lookup_source (registry, source_id)) {
     GRL_DEBUG ("A source with id '%s' is already registered. Skipping...",
                source_id);
+    g_free (name);
     goto free_resources;
   }
 
@@ -433,7 +434,7 @@ device_available_cb (GUPnPControlPoint *cp,
   /* Now let's check if it supports search operations before registering */
   struct SourceInfo *source_info = g_slice_new0 (struct SourceInfo);
   source_info->source_id = g_strdup (source_id);
-  source_info->source_name = g_strdup (name);
+  source_info->source_name = name;
   source_info->device = g_object_ref (device);
   source_info->service = g_object_ref (service);
   source_info->plugin = (GrlPluginInfo *) user_data;
@@ -990,7 +991,7 @@ gupnp_metadata_result_cb (GUPnPDIDLLiteParser *parser,
   GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
   if (gupnp_didl_lite_object_get_id (didl)) {
     build_media_from_didl (ms->media, didl, ms->keys);
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   }
 }
 
@@ -1017,7 +1018,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
 
   if (!result) {
     GRL_WARNING ("Metadata operation failed");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     if (error) {
       GRL_WARNING ("  Reason: %s", error->message);
       g_error_free (error);
@@ -1028,7 +1029,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
 
   if (!didl) {
     GRL_DEBUG ("Got no metadata");
-    ms->callback (ms->source, ms->media,  ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media,  ms->user_data, NULL);
 
     goto free_resources;
   }
@@ -1042,7 +1043,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
                                      &error);
   if (error) {
     GRL_WARNING ("Failed to parse DIDL result: %s", error->message);
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
     goto free_resources;
   }
@@ -1292,7 +1293,7 @@ grl_upnp_source_metadata (GrlMediaSource *source,
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_METADATA_FAILED,
 			 "Failed to start metadata action");
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   }
 

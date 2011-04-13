@@ -36,6 +36,8 @@ libgrltracker_la_SOURCES = 		\
 	grl-tracker-metadata.c		\
 	grl-tracker-metadata.h		\
 	\
+	grl-tracker-request-queue.c	\
+	grl-tracker-request-queue.h	\
 	grl-tracker-utils.c		\
 	grl-tracker-utils.h
 

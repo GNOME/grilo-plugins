@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>Bookmarks</name>
+    <module>libgrlbookmarks</module>
     <description>A plugin for organizing media bookmarks</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

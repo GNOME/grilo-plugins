@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>Jamendo</name>
+    <module>libgrljamendo</module>
     <description>A plugin for browsing and searching Jamendo videos</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

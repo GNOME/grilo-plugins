@@ -63,10 +63,6 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 #define SOURCE_NAME "Filesystem"
 #define SOURCE_DESC "A source for browsing the filesystem"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 /* --- Grilo Filesystem Private --- */
 
 #define GRL_FILESYSTEM_SOURCE_GET_PRIVATE(object)         \
@@ -145,7 +141,7 @@ static gboolean grl_filesystem_test_media_from_uri (GrlMediaSource *source,
 static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
                                                GrlMediaSourceMediaFromUriSpec *mfus);
 
-static void grl_filesystem_source_cancel (GrlMediaSource *source,
+static void grl_filesystem_source_cancel (GrlMetadataSource *source,
                                           guint operation_id);
 
 static gboolean grl_filesystem_source_notify_change_start (GrlMediaSource *source,
@@ -222,7 +218,6 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   source_class->browse = grl_filesystem_source_browse;
   source_class->search = grl_filesystem_source_search;
-  source_class->cancel = grl_filesystem_source_cancel;
   source_class->notify_change_start = grl_filesystem_source_notify_change_start;
   source_class->notify_change_stop = grl_filesystem_source_notify_change_stop;
   source_class->metadata = grl_filesystem_source_metadata;
@@ -230,6 +225,7 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   source_class->media_from_uri = grl_filesystem_get_media_from_uri;
   G_OBJECT_CLASS (source_class)->finalize = grl_filesystem_source_finalize;
   metadata_class->supported_keys = grl_filesystem_source_supported_keys;
+  metadata_class->cancel = grl_filesystem_source_cancel;
   g_type_class_add_private (klass, sizeof (GrlFilesystemSourcePrivate));
 }
 
@@ -1200,13 +1196,13 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
     create_content (ms->media, path,
 		    ms->flags & GRL_RESOLVE_FAST_ONLY,
 		    !id);
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   } else {
     GError *error = g_error_new (GRL_CORE_ERROR,
 				 GRL_CORE_ERROR_METADATA_FAILED,
 				 "File '%s' does not exist",
 				 path);
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   }
 }
@@ -1256,7 +1252,7 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
                          "Cannot create media from '%s'", mfus->uri);
-    mfus->callback (source, NULL, mfus->user_data, error);
+    mfus->callback (source, mfus->media_from_uri_id, NULL, mfus->user_data, error);
     g_clear_error (&error);
     return;
   }
@@ -1269,7 +1265,7 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
                          "Cannot create media from '%s', error message: %s",
                          mfus->uri, error->message);
     g_clear_error (&error);
-    mfus->callback (source, NULL, mfus->user_data, new_error);
+    mfus->callback (source, mfus->media_from_uri_id, NULL, mfus->user_data, new_error);
     g_clear_error (&new_error);
     goto beach;
   }
@@ -1278,14 +1274,14 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
   /* Note: we assume create_content() never returns NULL, which seems to be true */
   media = create_content (NULL, path, mfus->flags & GRL_RESOLVE_FAST_ONLY,
                           FALSE);
-  mfus->callback (source, media, mfus->user_data, NULL);
+  mfus->callback (source, mfus->media_from_uri_id, media, mfus->user_data, NULL);
 
 beach:
   g_free (path);
 }
 
 static void
-grl_filesystem_source_cancel (GrlMediaSource *source, guint operation_id)
+grl_filesystem_source_cancel (GrlMetadataSource *source, guint operation_id)
 {
   GCancellable *cancellable;
   GrlFilesystemSourcePrivate *priv;

@@ -53,10 +53,6 @@ GRL_LOG_DOMAIN_STATIC(vimeo_log_domain);
 #define SOURCE_NAME "Vimeo"
 #define SOURCE_DESC "A source for browsing and searching Vimeo videos"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 typedef struct {
   GrlMediaSourceSearchSpec *ss;
   gint offset;
@@ -345,7 +341,7 @@ video_get_play_url_cb (gchar *url, gpointer user_data)
     grl_media_set_url (ms->media, url);
   }
 
-  ms->callback (ms->source, ms->media, ms->user_data, NULL);
+  ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
 }
 
 /* ================== API Implementation ================ */
@@ -379,7 +375,7 @@ grl_vimeo_source_metadata (GrlMediaSource *source,
 
   if (!ms->media || (id_str = grl_media_get_id (ms->media)) == NULL)
   {
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
     return;
   }
 

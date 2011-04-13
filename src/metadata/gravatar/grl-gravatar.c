@@ -45,11 +45,6 @@ GRL_LOG_DOMAIN_STATIC(gravatar_log_domain);
 #define SOURCE_NAME "Avatar provider from Gravatar"
 #define SOURCE_DESC "A plugin to get avatars for artist and author fields"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
-
 static GrlGravatarSource *grl_gravatar_source_new (void);
 
 static void grl_gravatar_source_resolve (GrlMetadataSource *source,
@@ -321,5 +316,5 @@ grl_gravatar_source_resolve (GrlMetadataSource *source,
     set_avatar (GRL_DATA (rs->media), GRL_METADATA_KEY_AUTHOR);
   }
 
-  rs->callback (source, rs->media, rs->user_data, NULL);
+  rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
 }

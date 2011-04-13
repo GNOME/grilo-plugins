@@ -70,7 +70,6 @@ struct _GrlTrackerMediaPriv {
 
 /**/
 
-extern TrackerSparqlConnection *grl_tracker_connection;
 extern const GrlPluginInfo *grl_tracker_plugin;
 
 /* shared data across  */

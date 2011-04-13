@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>Tracker</name>
+    <module>libgrltracker</module>
     <description>A plugin for searching multimedia content using Tracker</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

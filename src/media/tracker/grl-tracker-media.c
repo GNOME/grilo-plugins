@@ -31,6 +31,7 @@
 #include <string.h>
 #include <tracker-sparql.h>
 
+#include "grl-tracker.h"
 #include "grl-tracker-media.h"
 #include "grl-tracker-media-priv.h"
 #include "grl-tracker-media-api.h"
@@ -100,10 +101,10 @@ grl_tracker_media_class_init (GrlTrackerMediaClass * klass)
   source_class->metadata            = grl_tracker_media_metadata;
   source_class->search              = grl_tracker_media_search;
   source_class->browse              = grl_tracker_media_browse;
-  source_class->cancel              = grl_tracker_media_cancel;
   source_class->notify_change_start = grl_tracker_media_change_start;
   source_class->notify_change_stop  = grl_tracker_media_change_stop;
 
+  metadata_class->cancel         = grl_tracker_media_cancel;
   metadata_class->supported_keys = grl_tracker_supported_keys;
   metadata_class->writable_keys  = grl_tracker_media_writable_keys;
   metadata_class->set_metadata   = grl_tracker_media_set_metadata;
@@ -193,6 +194,18 @@ grl_tracker_media_get_tracker_source (GrlTrackerMedia *source)
   priv = source->priv;
 
   return priv->tracker_datasource;
+}
+
+TrackerSparqlConnection *
+grl_tracker_media_get_tracker_connection (GrlTrackerMedia *source)
+{
+  GrlTrackerMediaPriv *priv;
+
+  g_return_val_if_fail (GRL_IS_TRACKER_MEDIA (source), NULL);
+
+  priv = source->priv;
+
+  return priv->tracker_connection;
 }
 
 /* =================== TrackerMedia Plugin  =============== */
@@ -339,17 +352,19 @@ tracker_get_datasource_cb (GObject             *object,
   if ((source == NULL) && source_available) {
     gchar *source_name = grl_tracker_get_media_name (type, uri, datasource,
                                                      datasource_name);
-    GRL_DEBUG ("\tnew datasource: urn=%s name=%s uri=%s => name=%s\n",
-	       datasource, datasource_name, uri, source_name);
-    source = g_object_new (GRL_TRACKER_MEDIA_TYPE,
-                           "source-id", datasource,
-                           "source-name", source_name,
-                           "source-desc", GRL_TRACKER_MEDIA_DESC,
-                           "tracker-connection", grl_tracker_connection,
-                           "tracker-datasource", datasource,
-                           NULL);
-    grl_tracker_add_source (source);
-    g_free (source_name);
+    if (source_name) {
+      GRL_DEBUG ("\tnew datasource: urn=%s name=%s uri=%s => name=%s\n",
+                 datasource, datasource_name, uri, source_name);
+      source = g_object_new (GRL_TRACKER_MEDIA_TYPE,
+                             "source-id", datasource,
+                             "source-name", source_name,
+                             "source-desc", GRL_TRACKER_MEDIA_DESC,
+                             "tracker-connection", grl_tracker_connection,
+                             "tracker-datasource", datasource,
+                             NULL);
+      grl_tracker_add_source (source);
+      g_free (source_name);
+    }
   }
 
   tracker_sparql_cursor_next_async (cursor, NULL,

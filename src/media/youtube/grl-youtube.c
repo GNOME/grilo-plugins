@@ -114,10 +114,6 @@ GRL_LOG_DOMAIN_STATIC(youtube_log_domain);
 #define SOURCE_NAME "Youtube"
 #define SOURCE_DESC "A source for browsing and searching Youtube videos"
 
-#define AUTHOR      "Igalia S.L."
-#define LICENSE     "LGPL"
-#define SITE        "http://www.igalia.com"
-
 /* --- Data types --- */
 
 typedef void (*AsyncReadCbFunc) (gchar *data, gpointer user_data);
@@ -898,7 +894,7 @@ static void
 build_media_from_entry_metadata_cb (GrlMedia *media, gpointer user_data)
 {
   GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
-  ms->callback (ms->source, media, ms->user_data, NULL);
+  ms->callback (ms->source, ms->metadata_id, media, ms->user_data, NULL);
 }
 
 static void
@@ -970,7 +966,7 @@ metadata_cb (GObject *object,
 #endif
   if (error) {
     error->code = GRL_CORE_ERROR_METADATA_FAILED;
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   } else {
     build_media_from_entry (ms->media, video, ms->keys,
@@ -1334,7 +1330,7 @@ build_media_from_entry_media_from_uri_cb (GrlMedia *media, gpointer user_data)
 {
   GrlMediaSourceMediaFromUriSpec *mfus =
     (GrlMediaSourceMediaFromUriSpec *) user_data;
-  mfus->callback (mfus->source, media, mfus->user_data, NULL);
+  mfus->callback (mfus->source, mfus->media_from_uri_id, media, mfus->user_data, NULL);
 }
 
 static void
@@ -1360,7 +1356,7 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
 
   if (error) {
     error->code = GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED;
-    mfus->callback (mfus->source, NULL, mfus->user_data, error);
+    mfus->callback (mfus->source, mfus->media_from_uri_id, NULL, mfus->user_data, error);
     g_error_free (error);
   } else {
     build_media_from_entry (NULL, video, mfus->keys,
@@ -1568,10 +1564,10 @@ grl_youtube_source_metadata (GrlMediaSource *source,
   }
 
   if (error) {
-    ms->callback (ms->source, ms->media, ms->user_data, error);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   } else if (media) {
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   }
 }
 
@@ -1604,7 +1600,7 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
 			 "Cannot create media from '%s'", mfus->uri);
-    mfus->callback (source, NULL, mfus->user_data, error);
+    mfus->callback (source, mfus->media_from_uri_id, NULL, mfus->user_data, error);
     g_error_free (error);
     return;
   }

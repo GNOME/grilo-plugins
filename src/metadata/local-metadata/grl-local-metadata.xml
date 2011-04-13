@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>Local Metadata Provider</name>
+    <module>libgrllocalmetadata</module>
     <description>A plugin that gets simple-to-obtain metadata from the local system</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

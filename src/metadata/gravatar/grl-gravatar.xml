@@ -1,6 +1,7 @@
 <plugin>
   <info>
     <name>Avatar provider from Gravatar</name>
+    <module>libgrlgravatar</module>
     <description>A plugin to get avatars for artist and author fields</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>

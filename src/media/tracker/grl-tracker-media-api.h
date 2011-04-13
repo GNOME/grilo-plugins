@@ -42,13 +42,13 @@ void grl_tracker_media_metadata (GrlMediaSource *source,
 void grl_tracker_media_set_metadata (GrlMetadataSource *source,
                                      GrlMetadataSourceSetMetadataSpec *sms);
 
+void grl_tracker_media_cancel (GrlMetadataSource *source, guint operation_id);
+
 void grl_tracker_media_search (GrlMediaSource *source,
                                GrlMediaSourceSearchSpec *ss);
 
 void grl_tracker_media_browse (GrlMediaSource *source,
                                GrlMediaSourceBrowseSpec *bs);
-
-void grl_tracker_media_cancel (GrlMediaSource *source, guint operation_id);
 
 gboolean grl_tracker_media_change_start (GrlMediaSource *source,
                                          GError **error);

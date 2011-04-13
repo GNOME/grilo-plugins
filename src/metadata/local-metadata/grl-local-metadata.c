@@ -136,11 +136,11 @@ grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
   GRL_DEBUG ("grl_local_metadata_source_plugin_init");
 
   if (!configs) {
-    GRL_WARNING ("\tConfiguration not provided! Using default configuration.");
+    GRL_INFO ("\tConfiguration not provided! Using default configuration.");
   } else {
     config_count = g_list_length (configs);
     if (config_count > 1) {
-      GRL_WARNING ("\tProvided %i configs, but will only use one", config_count);
+      GRL_INFO ("\tProvided %i configs, but will only use one", config_count);
     }
 
     config = GRL_CONFIG (configs->data);

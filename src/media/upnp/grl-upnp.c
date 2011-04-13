@@ -361,6 +361,7 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
                                        NULL);
 
  free_resources:
+  g_free (caps);
   free_source_info (source_info);
 }
 
@@ -425,6 +426,7 @@ device_available_cb (GUPnPControlPoint *cp,
   if (grl_plugin_registry_lookup_source (registry, source_id)) {
     GRL_DEBUG ("A source with id '%s' is already registered. Skipping...",
                source_id);
+    g_free (name);
     goto free_resources;
   }
 
@@ -432,7 +434,7 @@ device_available_cb (GUPnPControlPoint *cp,
   /* Now let's check if it supports search operations before registering */
   struct SourceInfo *source_info = g_slice_new0 (struct SourceInfo);
   source_info->source_id = g_strdup (source_id);
-  source_info->source_name = g_strdup (name);
+  source_info->source_name = name;
   source_info->device = g_object_ref (device);
   source_info->service = g_object_ref (service);
   source_info->plugin = (GrlPluginInfo *) user_data;

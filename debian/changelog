@@ -1,3 +1,15 @@
+grilo-0.1-plugins (0.1.14-1) unstable; urgency=low
+
+  * General: get rid of unused definitions, use new "content-changed" API, added
+    "module" information to XML files, use new API instead of deprecated ones.
+  * Jamendo plugin: plugged some leaks
+  * LastFM Album Art plugin: resolve() is now a cancellable operation
+  * Local metadata plugin: small fixes, resolve() is now a cancellable operation
+  * Tracker plugin: several fixes
+  * UPnP plugin: plugged some leaks
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Wed, 13 Apr 2011 18:30:26 +0200
+
 grilo-0.1-plugins (0.1.13-1) unstable; urgency=low
 
   * General: do not use grl_data_key_is_known(), as it is deprecated

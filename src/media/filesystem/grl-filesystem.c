@@ -125,6 +125,9 @@ gboolean grl_filesystem_plugin_init (GrlPluginRegistry *registry,
 
 static const GList *grl_filesystem_source_supported_keys (GrlMetadataSource *source);
 
+static GrlCaps *grl_filesystem_source_get_caps (GrlMetadataSource *source,
+                                                GrlSupportedOps operation);
+
 static void grl_filesystem_source_metadata (GrlMediaSource *source,
                                             GrlMediaSourceMetadataSpec *ms);
 
@@ -226,6 +229,7 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   G_OBJECT_CLASS (source_class)->finalize = grl_filesystem_source_finalize;
   metadata_class->supported_keys = grl_filesystem_source_supported_keys;
   metadata_class->cancel = grl_filesystem_source_cancel;
+  metadata_class->get_caps = grl_filesystem_source_get_caps;
   g_type_class_add_private (klass, sizeof (GrlFilesystemSourcePrivate));
 }
 
@@ -1346,4 +1350,18 @@ grl_filesystem_source_notify_change_stop (GrlMediaSource *source,
   }
 
   return TRUE;
+}
+
+static GrlCaps *
+grl_filesystem_source_get_caps (GrlMetadataSource *source,
+                                GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  /* Nothing very special for now */
+
+  if (caps == NULL)
+   caps = grl_caps_new ();
+
+  return caps;
 }

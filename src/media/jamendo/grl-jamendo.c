@@ -1168,6 +1168,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
                                jamendo_keys,
                                page_size,
                                page_number);
+        g_free (jamendo_keys);
       } else {
         send_feeds (bs);
         return;
@@ -1270,6 +1271,7 @@ grl_jamendo_source_query (GrlMediaSource *source,
                          page_number,
                          term);
   g_free (term);
+  g_free (jamendo_keys);
 
   xpe = g_slice_new0 (XmlParseEntries);
   xpe->type = QUERY;
@@ -1334,6 +1336,7 @@ grl_jamendo_source_search (GrlMediaSource *source,
                                           ss->search_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
+  g_free (jamendo_keys);
   g_free (url);
 }
 

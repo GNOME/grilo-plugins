@@ -128,6 +128,7 @@ typedef struct {
 
 typedef struct {
   GrlMediaSource *source;
+  GCancellable *cancellable;
   guint operation_id;
   const gchar *container_id;
   GList *keys;
@@ -156,6 +157,7 @@ typedef struct {
 
 typedef struct {
   GrlMedia *media;
+  GCancellable *cancellable;
   BuildMediaFromEntryCbFunc callback;
   gpointer user_data;
 } SetMediaUrlAsyncReadCb;
@@ -208,6 +210,9 @@ static gboolean grl_youtube_test_media_from_uri (GrlMediaSource *source,
 
 static void grl_youtube_get_media_from_uri (GrlMediaSource *source,
 					    GrlMediaSourceMediaFromUriSpec *mfus);
+
+static void grl_youtube_source_cancel (GrlMetadataSource *source,
+                                       guint operation_id);
 
 static void build_directories (GDataService *service);
 static void compute_feed_counts (GDataService *service);
@@ -349,6 +354,7 @@ grl_youtube_source_class_init (GrlYoutubeSourceClass * klass)
   source_class->media_from_uri = grl_youtube_get_media_from_uri;
   metadata_class->supported_keys = grl_youtube_source_supported_keys;
   metadata_class->slow_keys = grl_youtube_source_slow_keys;
+  metadata_class->cancel = grl_youtube_source_cancel;
   gobject_class->set_property = grl_youtube_source_set_property;
   gobject_class->finalize = grl_youtube_source_finalize;
 
@@ -422,6 +428,9 @@ operation_spec_unref (OperationSpec *os)
 {
   os->ref_count--;
   if (os->ref_count == 0) {
+    if (os->cancellable) {
+      g_object_unref (os->cancellable);
+    }
     g_slice_free (OperationSpec, os);
     GRL_DEBUG ("freeing spec");
   }
@@ -458,7 +467,9 @@ read_done_cb (GObject *source_object,
                          NULL,
                          &wc_error);
   if (wc_error) {
-    GRL_WARNING ("Failed to open '%s': %s", arc->url, wc_error->message);
+    if (wc_error->code != GRL_NET_WC_ERROR_CANCELLED) {
+      GRL_WARNING ("Failed to open '%s': %s", arc->url, wc_error->message);
+    }
     arc->callback (NULL, arc->user_data);
     g_error_free (wc_error);
   } else {
@@ -470,6 +481,7 @@ read_done_cb (GObject *source_object,
 
 static void
 read_url_async (const gchar *url,
+                GCancellable *cancellable,
                 AsyncReadCbFunc callback,
                 gpointer user_data)
 {
@@ -483,7 +495,7 @@ read_url_async (const gchar *url,
   GRL_DEBUG ("Opening async '%s'", url);
   grl_net_wc_request_async (get_wc (),
                         url,
-                        NULL,
+                        cancellable,
                         read_done_cb,
                         arc);
 }
@@ -559,6 +571,7 @@ set_media_url_async_read_cb (gchar *data, gpointer user_data)
 
 static void
 set_media_url (GrlMedia *media,
+               GCancellable *cancellable,
 	       BuildMediaFromEntryCbFunc callback,
 	       gpointer user_data)
 {
@@ -583,10 +596,12 @@ set_media_url (GrlMedia *media,
 
   set_media_url_async_read_data = g_new0 (SetMediaUrlAsyncReadCb, 1);
   set_media_url_async_read_data->media = media;
+  set_media_url_async_read_data->cancellable = cancellable;
   set_media_url_async_read_data->callback = callback;
   set_media_url_async_read_data->user_data = user_data;
 
   read_url_async (video_info_url,
+                  cancellable,
 		  set_media_url_async_read_cb,
 		  set_media_url_async_read_data);
 
@@ -596,6 +611,7 @@ set_media_url (GrlMedia *media,
 static void
 build_media_from_entry (GrlMedia *content,
 			GDataEntry *entry,
+                        GCancellable *cancellable,
 			const GList *keys,
 			BuildMediaFromEntryCbFunc callback,
 			gpointer user_data)
@@ -682,7 +698,7 @@ build_media_from_entry (GrlMedia *content,
 
   if (need_url) {
     /* URL resolution is async */
-    set_media_url (media, callback, user_data);
+    set_media_url (media, cancellable, callback, user_data);
   } else {
     callback (media, user_data);
   }
@@ -910,6 +926,12 @@ build_media_from_entry_search_cb (GrlMedia *media, gpointer user_data)
   OperationSpec *os = (OperationSpec *) user_data;
   guint remaining;
 
+  if (g_cancellable_is_cancelled (os->cancellable)) {
+    GRL_DEBUG ("%s: cancelled", __FUNCTION__);
+    operation_spec_unref (os);
+    return;
+  }
+
   if (os->emitted < os->count) {
     remaining = os->count - os->emitted - 1;
     os->callback (os->source,
@@ -934,6 +956,7 @@ build_directories (GDataService *service)
 
   /* Parse category list from Youtube and compute category counts */
   read_url_async (YOUTUBE_CATEGORIES_URL,
+                  NULL,
                   build_categories_directory_read_cb,
                   service);
 
@@ -969,7 +992,7 @@ metadata_cb (GObject *object,
     ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   } else {
-    build_media_from_entry (ms->media, video, ms->keys,
+    build_media_from_entry (ms->media, video, NULL, ms->keys,
 			    build_media_from_entry_metadata_cb, ms);
   }
 
@@ -985,13 +1008,21 @@ search_progress_cb (GDataEntry *entry,
 		    gpointer user_data)
 {
   OperationSpec *os = (OperationSpec *) user_data;
+
+  /* Check if operation has been cancelled */
+  if (g_cancellable_is_cancelled (os->cancellable)) {
+    GRL_DEBUG ("%s: cancelled", __FUNCTION__);
+    build_media_from_entry_search_cb (NULL, os);
+    return;
+  }
+
   if (index < count) {
     /* Keep track of the items we got here. Due to the asynchronous
      * nature of build_media_from_entry(), when search_cb is invoked
      * we have to check if we got as many results as we requested or
      * not, and handle that situation properly */
     os->matches++;
-    build_media_from_entry (NULL, entry, os->keys,
+    build_media_from_entry (NULL, entry, os->cancellable, os->keys,
 			    build_media_from_entry_search_cb, os);
   } else {
     GRL_WARNING ("Invalid index/count received grom libgdata, ignoring result");
@@ -1009,6 +1040,14 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
   GError *error = NULL;
   gboolean need_extra_unref = FALSE;
   GrlYoutubeSource *source = GRL_YOUTUBE_SOURCE (os->source);
+
+  /* Check if operation was cancelled */
+  if (g_cancellable_is_cancelled (os->cancellable)) {
+    GRL_DEBUG ("Search operation has been cancelled");
+    os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+    operation_spec_unref (os);
+    return;
+  }
 
   feed = gdata_service_query_finish (source->priv->service, result, &error);
   if (!error && feed) {
@@ -1359,7 +1398,7 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
     mfus->callback (mfus->source, mfus->media_from_uri_id, NULL, mfus->user_data, error);
     g_error_free (error);
   } else {
-    build_media_from_entry (NULL, video, mfus->keys,
+    build_media_from_entry (NULL, video, NULL, mfus->keys,
 			    build_media_from_entry_media_from_uri_cb,
 			    mfus);
   }
@@ -1416,6 +1455,7 @@ grl_youtube_source_search (GrlMediaSource *source,
 
   os = operation_spec_new ();
   os->source = source;
+  os->cancellable = g_cancellable_new ();
   os->operation_id = ss->search_id;
   os->keys = ss->keys;
   os->skip = ss->skip + 1;
@@ -1427,10 +1467,14 @@ grl_youtube_source_search (GrlMediaSource *source,
   /* Look for OPERATION_SPEC_REF_RATIONALE for details */
   operation_spec_ref (os);
 
+  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
+                                          ss->search_id,
+                                          os);
+
   query = gdata_query_new_with_limits (ss->text, os->skip, os->count);
   gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (source)->priv->service),
 					    query,
-					    NULL,
+					    os->cancellable,
 					    search_progress_cb,
 					    os,
 					    (GAsyncReadyCallback) search_cb,
@@ -1625,4 +1669,19 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
 						  media_from_uri_cb,
 						  mfus);
 #endif
+}
+
+static void
+grl_youtube_source_cancel (GrlMetadataSource *source,
+                           guint operation_id)
+{
+  GRL_DEBUG (__FUNCTION__);
+
+  OperationSpec *os =
+    (OperationSpec *) grl_metadata_source_get_operation_data (source,
+                                                              operation_id);
+
+  if (os && os->cancellable) {
+    g_cancellable_cancel (os->cancellable);
+  }
 }

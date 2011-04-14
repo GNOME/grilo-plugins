@@ -991,8 +991,13 @@ metadata_cb (GObject *object,
     ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   } else {
-    build_media_from_entry (ms->media, video, NULL, ms->keys,
-			    build_media_from_entry_metadata_cb, ms);
+    build_media_from_entry (ms->media,
+                            video,
+                            grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (ms->source),
+                                                                    ms->metadata_id),
+                            ms->keys,
+			    build_media_from_entry_metadata_cb,
+                            ms);
   }
 
   if (video) {
@@ -1285,7 +1290,7 @@ produce_from_feed (OperationSpec *os)
   os->cancellable = g_cancellable_new ();
   grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (os->source),
                                           os->operation_id,
-                                          os);
+                                          os->cancellable);
 
   service = GRL_YOUTUBE_SOURCE (os->source)->priv->service;
   query = gdata_query_new_with_limits (NULL , os->skip, os->count);
@@ -1476,7 +1481,7 @@ grl_youtube_source_search (GrlMediaSource *source,
 
   grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
                                           ss->search_id,
-                                          os);
+                                          os->cancellable);
 
   query = gdata_query_new_with_limits (ss->text, os->skip, os->count);
   gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (source)->priv->service),
@@ -1543,6 +1548,7 @@ grl_youtube_source_metadata (GrlMediaSource *source,
 {
   YoutubeMediaType media_type;
   const gchar *id;
+  GCancellable *cancellable;
   GDataService *service;
   GError *error = NULL;
   GrlMedia *media = NULL;
@@ -1591,6 +1597,10 @@ grl_youtube_source_metadata (GrlMediaSource *source,
     break;
   case YOUTUBE_MEDIA_TYPE_VIDEO:
   default:
+    cancellable = g_cancellable_new ();
+    grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
+                                            ms->metadata_id,
+                                            cancellable);
 #ifdef GDATA_API_SUBJECT_TO_CHANGE
     {
       gchar *entryid = g_strconcat ("tag:youtube.com,2008:video:", id, NULL);
@@ -1598,7 +1608,7 @@ grl_youtube_source_metadata (GrlMediaSource *source,
                                               entryid,
                                               NULL,
                                               GDATA_TYPE_YOUTUBE_VIDEO,
-                                              NULL,
+                                              cancellable,
                                               metadata_cb,
                                               ms);
       g_free (entryid);
@@ -1607,7 +1617,7 @@ grl_youtube_source_metadata (GrlMediaSource *source,
     gdata_youtube_service_query_single_video_async (GDATA_YOUTUBE_SERVICE (service),
                                                     NULL,
                                                     id,
-                                                    NULL,
+                                                    cancellable,
                                                     metadata_cb,
                                                     ms);
 #endif
@@ -1684,11 +1694,11 @@ grl_youtube_source_cancel (GrlMetadataSource *source,
 {
   GRL_DEBUG (__FUNCTION__);
 
-  OperationSpec *os =
-    (OperationSpec *) grl_metadata_source_get_operation_data (source,
+  GCancellable *cancellable =
+    (GCancellable *) grl_metadata_source_get_operation_data (source,
                                                               operation_id);
 
-  if (os && os->cancellable) {
-    g_cancellable_cancel (os->cancellable);
+  if (cancellable) {
+    g_cancellable_cancel (cancellable);
   }
 }

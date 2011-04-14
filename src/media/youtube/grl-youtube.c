@@ -1410,7 +1410,11 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
     mfus->callback (mfus->source, mfus->media_from_uri_id, NULL, mfus->user_data, error);
     g_error_free (error);
   } else {
-    build_media_from_entry (NULL, video, NULL, mfus->keys,
+    build_media_from_entry (NULL,
+                            video,
+                            grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (mfus->source),
+                                                                    mfus->media_from_uri_id),
+                            mfus->keys,
 			    build_media_from_entry_media_from_uri_cb,
 			    mfus);
   }
@@ -1654,6 +1658,7 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
 
   gchar *video_id;
   GError *error;
+  GCancellable *cancellable;
   GDataService *service;
 
   video_id = get_video_id_from_url (mfus->uri);
@@ -1668,13 +1673,17 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
 
   service = GRL_YOUTUBE_SOURCE (source)->priv->service;
 
+  cancellable = g_cancellable_new ();
+  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
+                                          mfus->media_from_uri_id,
+                                          cancellable);
 #ifdef GDATA_API_SUBJECT_TO_CHANGE
   gchar *entry_id = g_strconcat ("tag:youtube.com,2008:video:", video_id, NULL);
   gdata_service_query_single_entry_async (service,
 					  entry_id,
 					  NULL,
 					  GDATA_TYPE_YOUTUBE_VIDEO,
-					  NULL,
+					  cancellable,
 					  media_from_uri_cb,
 					  mfus);
   g_free (entry_id);
@@ -1682,7 +1691,7 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
   gdata_youtube_service_query_single_video_async (GDATA_YOUTUBE_SERVICE (service),
 						  NULL,
 						  video_id,
-						  NULL,
+						  cancellable,
 						  media_from_uri_cb,
 						  mfus);
 #endif

@@ -928,7 +928,6 @@ build_media_from_entry_search_cb (GrlMedia *media, gpointer user_data)
 
   if (g_cancellable_is_cancelled (os->cancellable)) {
     GRL_DEBUG ("%s: cancelled", __FUNCTION__);
-    operation_spec_unref (os);
     return;
   }
 
@@ -1011,7 +1010,7 @@ search_progress_cb (GDataEntry *entry,
 
   /* Check if operation has been cancelled */
   if (g_cancellable_is_cancelled (os->cancellable)) {
-    GRL_DEBUG ("%s: cancelled", __FUNCTION__);
+    GRL_DEBUG ("%s: cancelled (%u, %u)", __FUNCTION__, index, count);
     build_media_from_entry_search_cb (NULL, os);
     return;
   }
@@ -1045,6 +1044,9 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
   if (g_cancellable_is_cancelled (os->cancellable)) {
     GRL_DEBUG ("Search operation has been cancelled");
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+    operation_spec_unref (os);
+    /* Look for OPERATION_SPEC_REF_RATIONALE for details on the reason for this
+     * extra unref */
     operation_spec_unref (os);
     return;
   }
@@ -1280,13 +1282,18 @@ produce_from_feed (OperationSpec *os)
    * is invoked last, the spec will be freed only once. */
   operation_spec_ref (os);
 
+  os->cancellable = g_cancellable_new ();
+  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (os->source),
+                                          os->operation_id,
+                                          os);
+
   service = GRL_YOUTUBE_SOURCE (os->source)->priv->service;
   query = gdata_query_new_with_limits (NULL , os->skip, os->count);
   os->category_info = &feeds_dir[feed_type];
   gdata_youtube_service_query_standard_feed_async (GDATA_YOUTUBE_SERVICE (service),
                                                    feed_type,
                                                    query,
-                                                   NULL,
+                                                   os->cancellable,
                                                    search_progress_cb,
                                                    os,
                                                    (GAsyncReadyCallback) search_cb,

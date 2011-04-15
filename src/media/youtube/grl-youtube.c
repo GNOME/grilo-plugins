@@ -414,6 +414,18 @@ grl_youtube_source_finalize (GObject *object)
 
 /* ======================= Utilities ==================== */
 
+static void
+release_operation_data (GrlMetadataSource *source,
+                        guint operation_id)
+{
+  GCancellable *cancellable = grl_metadata_source_get_operation_data (source,
+                                                                      operation_id);
+
+  if (cancellable) {
+    g_object_unref (cancellable);
+  }
+}
+
 static OperationSpec *
 operation_spec_new ()
 {
@@ -910,6 +922,7 @@ static void
 build_media_from_entry_metadata_cb (GrlMedia *media, gpointer user_data)
 {
   GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
+  release_operation_data (GRL_METADATA_SOURCE (ms->source), ms->metadata_id);
   ms->callback (ms->source, ms->metadata_id, media, ms->user_data, NULL);
 }
 
@@ -987,6 +1000,7 @@ metadata_cb (GObject *object,
                    (GDATA_YOUTUBE_SERVICE (service), result, &error));
 #endif
   if (error) {
+    release_operation_data (GRL_METADATA_SOURCE (ms->source), ms->metadata_id);
     error->code = GRL_CORE_ERROR_METADATA_FAILED;
     ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
@@ -1381,6 +1395,8 @@ build_media_from_entry_media_from_uri_cb (GrlMedia *media, gpointer user_data)
 {
   GrlMediaSourceMediaFromUriSpec *mfus =
     (GrlMediaSourceMediaFromUriSpec *) user_data;
+
+  release_operation_data (GRL_METADATA_SOURCE (mfus->source), mfus->media_from_uri_id);
   mfus->callback (mfus->source, mfus->media_from_uri_id, media, mfus->user_data, NULL);
 }
 
@@ -1407,6 +1423,7 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
 
   if (error) {
     error->code = GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED;
+    release_operation_data (GRL_METADATA_SOURCE (mfus->source), mfus->media_from_uri_id);
     mfus->callback (mfus->source, mfus->media_from_uri_id, NULL, mfus->user_data, error);
     g_error_free (error);
   } else {

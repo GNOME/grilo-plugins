@@ -1,3 +1,11 @@
+grilo-0.1-plugins (0.1.15-1) unstable; urgency=low
+
+  * LastFM Album Art plugin: plugged some leaks
+  * Local Metadata plugin: plugged some leaks
+  * Youtube plugin: plugged some leaks, made operations cancellable
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Wed, 20 Apr 2011 17:23:11 +0200
+
 grilo-0.1-plugins (0.1.14-1) unstable; urgency=low
 
   * General: get rid of unused definitions, use new "content-changed" API, added

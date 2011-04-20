@@ -1,3 +1,20 @@
+NEW in 0.1.15
+=============
+
+  * LastFM Album Art plugin
+    * Plugged some leaks
+
+  * Local Metadata plugin
+    * Plugged some leaks
+
+  * Youtube plugin
+    * Plugged some leaks
+    * Made operations cancellable
+
+  * Contributors to this release:
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+
+
 NEW in 0.1.14
 =============
 

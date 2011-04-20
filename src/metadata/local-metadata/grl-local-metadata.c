@@ -418,11 +418,21 @@ static void
 got_file_info (GFile *file, GAsyncResult *result,
                GrlMetadataSourceResolveSpec *rs)
 {
+  GCancellable *cancellable;
   GFileInfo *info;
   GError *error = NULL;
   const gchar *thumbnail_path;
 
   GRL_DEBUG ("got_file_info");
+
+  /* Free stored operation data */
+  cancellable =
+    grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (rs->source),
+                                            rs->resolve_id);
+
+  if (cancellable) {
+    g_object_unref (cancellable);
+  }
 
   info = g_file_query_info_finish (file, result, &error);
   if (error)

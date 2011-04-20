@@ -196,11 +196,20 @@ read_done_cb (GObject *source_object,
 {
   GrlMetadataSourceResolveSpec *rs =
     (GrlMetadataSourceResolveSpec *) user_data;
+  GCancellable *cancellable;
   GError *error = NULL;
   GError *wc_error = NULL;
   GrlRelatedKeys *relkeys;
   gchar *content = NULL;
   gchar *image = NULL;
+
+  /* Get rid of stored operation data */
+  cancellable =
+    grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (rs->source),
+                                            rs->resolve_id);
+  if (cancellable) {
+    g_object_unref (cancellable);
+  }
 
   if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
                               res,

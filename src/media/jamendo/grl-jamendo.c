@@ -857,11 +857,12 @@ update_media_from_feed (GrlMedia *media, int i)
 {
   char *id;
 
-  id = g_strdup_printf("%d/%d", JAMENDO_FEEDS_CAT, i);
+  id = g_strdup_printf("%d" JAMENDO_ID_SEP "%d", JAMENDO_FEEDS_CAT, i);
   grl_media_set_id (media, id);
   g_free (id);
 
   grl_media_set_title (media, feeds[i].name);
+
 }
 
 static void

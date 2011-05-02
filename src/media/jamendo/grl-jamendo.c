@@ -31,6 +31,7 @@
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <string.h>
+#include <errno.h>
 
 #include "grl-jamendo.h"
 
@@ -1039,7 +1040,16 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
       if (id_split[1]) {
         int i;
 
-        i = atoi (id_split[0]);
+        errno = 0;
+        i = strtol (id_split[1], NULL, 0);
+        if (errno != 0 || (i <= 0 && i > G_N_ELEMENTS (feeds))) {
+          error = g_error_new (GRL_CORE_ERROR,
+                               GRL_CORE_ERROR_METADATA_FAILED,
+                               "Invalid cat id: '%s'", id_split[1]);
+          g_strfreev (id_split);
+          goto send_error;
+        }
+
         update_media_from_feed (ms->media, i);
       } else {
         update_media_from_feeds (ms->media);

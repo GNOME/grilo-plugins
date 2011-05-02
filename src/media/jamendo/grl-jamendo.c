@@ -39,6 +39,8 @@
 #define GRL_LOG_DOMAIN_DEFAULT jamendo_log_domain
 GRL_LOG_DOMAIN_STATIC(jamendo_log_domain);
 
+#define GRL_TRACE(x) GRL_DEBUG(__PRETTY_FUNCTION__)
+
 #define JAMENDO_ID_SEP    "/"
 #define JAMENDO_ROOT_NAME "Jamendo"
 
@@ -198,7 +200,7 @@ grl_jamendo_plugin_init (GrlPluginRegistry *registry,
 {
   GRL_LOG_DOMAIN_INIT (jamendo_log_domain, "jamendo");
 
-  GRL_DEBUG ("jamendo_plugin_init");
+  GRL_TRACE ();
 
   GrlJamendoSource *source = grl_jamendo_source_new ();
   grl_plugin_registry_register_source (registry,
@@ -217,7 +219,7 @@ GRL_PLUGIN_REGISTER (grl_jamendo_plugin_init,
 static GrlJamendoSource *
 grl_jamendo_source_new (void)
 {
-  GRL_DEBUG ("grl_jamendo_source_new");
+  GRL_TRACE();
   return g_object_new (GRL_JAMENDO_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
@@ -584,7 +586,7 @@ xml_parse_entries_idle (gpointer user_data)
   Entry *entry;
   gint remaining = 0;
 
-  GRL_DEBUG ("xml_parse_entries_idle");
+  GRL_TRACE ();
 
   parse_more = (xpe->cancelled == FALSE && xpe->node);
 
@@ -968,7 +970,7 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
   GError *error = NULL;
   JamendoCategory category;
 
-  GRL_DEBUG ("grl_jamendo_source_metadata");
+  GRL_TRACE ();
 
   if (!ms->media ||
       !grl_data_has_key (GRL_DATA (ms->media),
@@ -1092,7 +1094,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
   guint page_number;
   guint page_offset;
 
-  GRL_DEBUG ("grl_jamendo_source_browse");
+  GRL_TRACE ();
 
   container_id = grl_media_get_id (bs->container);
 
@@ -1233,7 +1235,7 @@ grl_jamendo_source_query (GrlMediaSource *source,
   guint page_number;
   guint page_offset;
 
-  GRL_DEBUG ("grl_jamendo_source_query");
+  GRL_TRACE ();
 
   if (!parse_query (qs->query, &category, &term)) {
     error = g_error_new (GRL_CORE_ERROR,
@@ -1303,7 +1305,7 @@ grl_jamendo_source_search (GrlMediaSource *source,
   guint page_number;
   guint page_offset;
 
-  GRL_DEBUG ("grl_jamendo_source_search");
+  GRL_TRACE ();
 
   jamendo_keys = get_jamendo_keys (JAMENDO_TRACK_CAT);
 

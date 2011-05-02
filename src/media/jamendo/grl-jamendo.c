@@ -392,7 +392,6 @@ static Entry *
 xml_parse_entry (xmlDocPtr doc, xmlNodePtr entry)
 {
   xmlNodePtr node;
-  xmlNs *ns;
   Entry *data = g_slice_new0 (Entry);
 
   if (strcmp ((gchar *) entry->name, JAMENDO_ARTIST) == 0) {
@@ -408,8 +407,6 @@ xml_parse_entry (xmlDocPtr doc, xmlNodePtr entry)
   node = entry->xmlChildrenNode;
 
   while (node) {
-    ns = node->ns;
-
     if (!xmlStrcmp (node->name, (const xmlChar *) "id")) {
       data->id =
         (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);

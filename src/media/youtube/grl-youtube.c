@@ -186,14 +186,14 @@ static void grl_youtube_source_set_property (GObject *object,
 static void grl_youtube_source_finalize (GObject *object);
 
 gboolean grl_youtube_plugin_init (GrlPluginRegistry *registry,
-                                  const GrlPluginInfo *plugin,
+                                  GrlPlugin *plugin,
                                   GList *configs);
 
-static const GList *grl_youtube_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_youtube_source_supported_keys (GrlSource *source);
 
-static const GList *grl_youtube_source_slow_keys (GrlMetadataSource *source);
+static const GList *grl_youtube_source_slow_keys (GrlSource *source);
 
-static GrlCaps * grl_youtube_source_get_caps (GrlMetadataSource *source,
+static GrlCaps * grl_youtube_source_get_caps (GrlSource *source,
                                               GrlSupportedOps operation);
 
 static void grl_youtube_source_search (GrlMediaSource *source,
@@ -211,7 +211,7 @@ static gboolean grl_youtube_test_media_from_uri (GrlMediaSource *source,
 static void grl_youtube_get_media_from_uri (GrlMediaSource *source,
 					    GrlMediaSourceMediaFromUriSpec *mfus);
 
-static void grl_youtube_source_cancel (GrlMetadataSource *source,
+static void grl_youtube_source_cancel (GrlSource *source,
                                        guint operation_id);
 
 static void produce_from_directory (CategoryInfo *dir, gint dir_size, OperationSpec *os);
@@ -247,7 +247,7 @@ static GrlYoutubeSource *ytsrc = NULL;
 
 gboolean
 grl_youtube_plugin_init (GrlPluginRegistry *registry,
-                         const GrlPluginInfo *plugin,
+                         GrlPlugin *plugin,
                          GList *configs)
 {
   gchar *api_key;
@@ -287,7 +287,7 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
 
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
 
   g_free (api_key);
@@ -348,20 +348,24 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
 static void
 grl_youtube_source_class_init (GrlYoutubeSourceClass * klass)
 {
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  source_class->search = grl_youtube_source_search;
-  source_class->browse = grl_youtube_source_browse;
-  source_class->metadata = grl_youtube_source_metadata;
-  source_class->test_media_from_uri = grl_youtube_test_media_from_uri;
-  source_class->media_from_uri = grl_youtube_get_media_from_uri;
-  metadata_class->supported_keys = grl_youtube_source_supported_keys;
-  metadata_class->slow_keys = grl_youtube_source_slow_keys;
-  metadata_class->get_caps = grl_youtube_source_get_caps;
-  metadata_class->cancel = grl_youtube_source_cancel;
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
+
   gobject_class->set_property = grl_youtube_source_set_property;
   gobject_class->finalize = grl_youtube_source_finalize;
+
+  source_class->supported_keys = grl_youtube_source_supported_keys;
+  source_class->slow_keys = grl_youtube_source_slow_keys;
+  source_class->get_caps = grl_youtube_source_get_caps;
+  source_class->cancel = grl_youtube_source_cancel;
+
+  media_class->search = grl_youtube_source_search;
+  media_class->browse = grl_youtube_source_browse;
+  media_class->metadata = grl_youtube_source_metadata;
+  media_class->test_media_from_uri = grl_youtube_test_media_from_uri;
+  media_class->media_from_uri = grl_youtube_get_media_from_uri;
+
 
   g_object_class_install_property (gobject_class,
                                    PROP_SERVICE,
@@ -1293,7 +1297,7 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_youtube_source_supported_keys (GrlMetadataSource *source)
+grl_youtube_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -1316,7 +1320,7 @@ grl_youtube_source_supported_keys (GrlMetadataSource *source)
 }
 
 static const GList *
-grl_youtube_source_slow_keys (GrlMetadataSource *source)
+grl_youtube_source_slow_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -1586,7 +1590,7 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
 }
 
 static void
-grl_youtube_source_cancel (GrlMetadataSource *source,
+grl_youtube_source_cancel (GrlSource *source,
                            guint operation_id)
 {
   GCancellable *cancellable;
@@ -1601,7 +1605,7 @@ grl_youtube_source_cancel (GrlMetadataSource *source,
 }
 
 static GrlCaps *
-grl_youtube_source_get_caps (GrlMetadataSource *source,
+grl_youtube_source_get_caps (GrlSource *source,
                              GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;

@@ -31,12 +31,12 @@ GRL_LOG_DOMAIN_STATIC(test_main_log_domain);
 #define YOUTUBE_KEY "AI39si4EfscPllSfUy1IwexMf__kntTL_G5dfSr2iUEVN45RHGq92Aq0lX25OlnOkG6KTN-4soVAkAf67fWYXuHfVADZYr7S1A"
 
 static void
-print_supported_ops (GrlMetadataSource *source)
+print_supported_ops (GrlSource *source)
 {
   GRL_DEBUG ("  Operations available in '%s'",
-             grl_metadata_source_get_name (source));
+             grl_source_get_name (source));
 
-  GrlSupportedOps caps = grl_metadata_source_supported_operations (source);
+  GrlSupportedOps caps = grl_source_supported_operations (source);
 
   if (caps & GRL_OP_METADATA) {
     GRL_DEBUG ("    + Metadata");
@@ -329,15 +329,15 @@ main (void)
   g_assert (podcasts);
   GRL_DEBUG ("Supported operations");
 
-  print_supported_ops (GRL_METADATA_SOURCE (youtube));
-  print_supported_ops (GRL_METADATA_SOURCE (fs));
-  if (flickr) print_supported_ops (GRL_METADATA_SOURCE (flickr));
-  print_supported_ops (GRL_METADATA_SOURCE (jamendo));
-  print_supported_ops (GRL_METADATA_SOURCE (apple_trailers));
-  print_supported_ops (GRL_METADATA_SOURCE (shoutcast));
+  print_supported_ops (GRL_SOURCE (youtube));
+  print_supported_ops (GRL_SOURCE (fs));
+  if (flickr) print_supported_ops (GRL_SOURCE (flickr));
+  print_supported_ops (GRL_SOURCE (jamendo));
+  print_supported_ops (GRL_SOURCE (apple_trailers));
+  print_supported_ops (GRL_SOURCE (shoutcast));
   if (fake) print_supported_ops (fake);
-  print_supported_ops (GRL_METADATA_SOURCE (podcasts));
-  print_supported_ops (GRL_METADATA_SOURCE (bookmarks));
+  print_supported_ops (GRL_SOURCE (podcasts));
+  print_supported_ops (GRL_SOURCE (bookmarks));
   print_supported_ops (lastfm);
   print_supported_ops (metadata_store);
 

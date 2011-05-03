@@ -93,24 +93,25 @@ grl_tracker_media_new (TrackerSparqlConnection *connection)
 static void
 grl_tracker_media_class_init (GrlTrackerMediaClass * klass)
 {
-  GrlMediaSourceClass    *source_class   = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
-  GObjectClass           *g_class        = G_OBJECT_CLASS (klass);
-
-  source_class->query               = grl_tracker_media_query;
-  source_class->metadata            = grl_tracker_media_metadata;
-  source_class->search              = grl_tracker_media_search;
-  source_class->browse              = grl_tracker_media_browse;
-  source_class->notify_change_start = grl_tracker_media_change_start;
-  source_class->notify_change_stop  = grl_tracker_media_change_stop;
-
-  metadata_class->cancel         = grl_tracker_media_cancel;
-  metadata_class->supported_keys = grl_tracker_supported_keys;
-  metadata_class->writable_keys  = grl_tracker_media_writable_keys;
-  metadata_class->set_metadata   = grl_tracker_media_set_metadata;
+  GObjectClass        *g_class      = G_OBJECT_CLASS (klass);
+  GrlSourceClass      *source_class = GRL_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *media_class  = GRL_MEDIA_SOURCE_CLASS (klass);
 
   g_class->finalize     = grl_tracker_media_finalize;
   g_class->set_property = grl_tracker_media_set_property;
+
+  source_class->cancel         = grl_tracker_media_cancel;
+  source_class->supported_keys = grl_tracker_supported_keys;
+  source_class->writable_keys  = grl_tracker_media_writable_keys;
+  /* source_class->set_metadata   = grl_tracker_media_set_metadata; */
+
+  media_class->query               = grl_tracker_media_query;
+  media_class->metadata            = grl_tracker_media_metadata;
+  media_class->search              = grl_tracker_media_search;
+  media_class->browse              = grl_tracker_media_browse;
+  media_class->notify_change_start = grl_tracker_media_change_start;
+  media_class->notify_change_stop  = grl_tracker_media_change_stop;
+
 
   g_object_class_install_property (g_class,
                                    PROP_TRACKER_CONNECTION,
@@ -216,7 +217,7 @@ grl_tracker_add_source (GrlTrackerMedia *source)
   GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
 
   GRL_DEBUG ("====================>add source '%s' count=%u",
-             grl_metadata_source_get_name (GRL_METADATA_SOURCE (source)),
+             grl_source_get_name (GRL_SOURCE (source)),
              priv->notification_ref);
 
   if (priv->notification_ref > 0) {
@@ -231,7 +232,7 @@ grl_tracker_add_source (GrlTrackerMedia *source)
     priv->state = GRL_TRACKER_MEDIA_STATE_RUNNING;
     grl_plugin_registry_register_source (grl_plugin_registry_get_default (),
                                          grl_tracker_plugin,
-                                         GRL_MEDIA_PLUGIN (source),
+                                         GRL_SOURCE (source),
                                          NULL);
   }
 }
@@ -242,7 +243,7 @@ grl_tracker_del_source (GrlTrackerMedia *source)
   GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source);
 
   GRL_DEBUG ("==================>del source '%s' count=%u",
-             grl_metadata_source_get_name (GRL_METADATA_SOURCE (source)),
+             grl_source_get_name (GRL_SOURCE (source)),
              priv->notification_ref);
   if (priv->notification_ref > 0) {
     priv->notification_ref--;
@@ -255,7 +256,7 @@ grl_tracker_del_source (GrlTrackerMedia *source)
     grl_tracker_media_cache_del_source (grl_tracker_item_cache, source);
     priv->state = GRL_TRACKER_MEDIA_STATE_DELETED;
     grl_plugin_registry_unregister_source (grl_plugin_registry_get_default (),
-                                           GRL_MEDIA_PLUGIN (source),
+                                           GRL_SOURCE (source),
                                            NULL);
   }
 }
@@ -291,7 +292,7 @@ match_plugin_id (gpointer key,
                  gpointer value,
                  gpointer user_data)
 {
-  if (g_strcmp0 (grl_metadata_source_get_id (GRL_METADATA_SOURCE (value)),
+  if (g_strcmp0 (grl_source_get_id (GRL_SOURCE (value)),
                  (gchar *) user_data) == 0) {
     return TRUE;
   }

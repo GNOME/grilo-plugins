@@ -50,7 +50,7 @@ static GrlGravatarSource *grl_gravatar_source_new (void);
 static void grl_gravatar_source_resolve (GrlMetadataSource *source,
                                          GrlMetadataSourceResolveSpec *rs);
 
-static const GList *grl_gravatar_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_gravatar_source_supported_keys (GrlSource *source);
 
 static gboolean grl_gravatar_source_may_resolve (GrlMetadataSource *source,
                                                  GrlMedia *media,
@@ -63,7 +63,7 @@ static GrlKeyID register_gravatar_key (GrlPluginRegistry *registry,
                                        const gchar *blurb);
 
 gboolean grl_gravatar_source_plugin_init (GrlPluginRegistry *registry,
-                                          const GrlPluginInfo *plugin,
+                                          GrlPlugin *plugin,
                                           GList *configs);
 
 GrlKeyID GRL_METADATA_KEY_ARTIST_AVATAR = 0;
@@ -73,7 +73,7 @@ GrlKeyID GRL_METADATA_KEY_AUTHOR_AVATAR = 0;
 
 gboolean
 grl_gravatar_source_plugin_init (GrlPluginRegistry *registry,
-                                 const GrlPluginInfo *plugin,
+                                 GrlPlugin *plugin,
                                  GList *configs)
 {
   GRL_LOG_DOMAIN_INIT (gravatar_log_domain, "gravatar");
@@ -110,7 +110,7 @@ grl_gravatar_source_plugin_init (GrlPluginRegistry *registry,
   GrlGravatarSource *source = grl_gravatar_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
   return TRUE;
 }
@@ -135,8 +135,11 @@ grl_gravatar_source_new (void)
 static void
 grl_gravatar_source_class_init (GrlGravatarSourceClass * klass)
 {
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
-  metadata_class->supported_keys = grl_gravatar_source_supported_keys;
+
+  source_class->supported_keys = grl_gravatar_source_supported_keys;
+
   metadata_class->may_resolve = grl_gravatar_source_may_resolve;
   metadata_class->resolve = grl_gravatar_source_resolve;
 }
@@ -253,7 +256,7 @@ set_avatar (GrlData *data,
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_gravatar_source_supported_keys (GrlMetadataSource *source)
+grl_gravatar_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
 

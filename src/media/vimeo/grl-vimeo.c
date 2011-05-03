@@ -67,12 +67,12 @@ struct _GrlVimeoSourcePrivate {
 static GrlVimeoSource *grl_vimeo_source_new (void);
 
 gboolean grl_vimeo_plugin_init (GrlPluginRegistry *registry,
-				const GrlPluginInfo *plugin,
-				GList *configs);
+                                GrlPlugin *plugin,
+                                GList *configs);
 
-static const GList *grl_vimeo_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_vimeo_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_vimeo_source_get_caps (GrlMetadataSource *source,
+static GrlCaps * grl_vimeo_source_get_caps (GrlSource *source,
                                             GrlSupportedOps operation);
 
 static void grl_vimeo_source_metadata (GrlMediaSource *source,
@@ -85,8 +85,8 @@ static void grl_vimeo_source_search (GrlMediaSource *source,
 
 gboolean
 grl_vimeo_plugin_init (GrlPluginRegistry *registry,
-                        const GrlPluginInfo *plugin,
-                        GList *configs)
+                       GrlPlugin *plugin,
+                       GList *configs)
 {
   gchar *vimeo_key;
   gchar *vimeo_secret;
@@ -131,7 +131,7 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
 
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
   init_result = TRUE;
 
@@ -166,13 +166,14 @@ grl_vimeo_source_new (void)
 static void
 grl_vimeo_source_class_init (GrlVimeoSourceClass * klass)
 {
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
-  source_class->metadata = grl_vimeo_source_metadata;
-  source_class->search = grl_vimeo_source_search;
-  metadata_class->supported_keys = grl_vimeo_source_supported_keys;
-  metadata_class->get_caps = grl_vimeo_source_get_caps;
+  source_class->supported_keys = grl_vimeo_source_supported_keys;
+  source_class->get_caps = grl_vimeo_source_get_caps;
+
+  media_class->metadata = grl_vimeo_source_metadata;
+  media_class->search = grl_vimeo_source_search;
 
   g_type_class_add_private (klass, sizeof (GrlVimeoSourcePrivate));
 }
@@ -357,7 +358,7 @@ video_get_play_url_cb (gchar *url, gpointer user_data)
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_vimeo_source_supported_keys (GrlMetadataSource *source)
+grl_vimeo_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -437,8 +438,8 @@ grl_vimeo_source_search (GrlMediaSource *source,
 }
 
 static GrlCaps *
-grl_vimeo_source_get_caps (GrlMetadataSource *source,
-                            GrlSupportedOps operation)
+grl_vimeo_source_get_caps (GrlSource *source,
+                           GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;
 

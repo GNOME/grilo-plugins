@@ -89,7 +89,7 @@ struct SourceInfo {
   gchar *source_name;
   GUPnPDeviceProxy* device;
   GUPnPServiceProxy* service;
-  GrlPluginInfo *plugin;
+  GrlPlugin *plugin;
 };
 
 static void setup_key_mappings (void);
@@ -99,14 +99,14 @@ static gchar *build_source_id (const gchar *udn);
 static GrlUpnpSource *grl_upnp_source_new (const gchar *id, const gchar *name);
 
 gboolean grl_upnp_plugin_init (GrlPluginRegistry *registry,
-                               const GrlPluginInfo *plugin,
+                               GrlPlugin *plugin,
                                GList *configs);
 
 static void grl_upnp_source_finalize (GObject *plugin);
 
-static const GList *grl_upnp_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_upnp_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_upnp_source_get_caps (GrlMetadataSource *source,
+static GrlCaps * grl_upnp_source_get_caps (GrlSource *source,
                                            GrlSupportedOps operation);
 
 static void grl_upnp_source_browse (GrlMediaSource *source,
@@ -121,7 +121,7 @@ static void grl_upnp_source_query (GrlMediaSource *source,
 static void grl_upnp_source_metadata (GrlMediaSource *source,
                                       GrlMediaSourceMetadataSpec *ms);
 
-static GrlSupportedOps grl_upnp_source_supported_operations (GrlMetadataSource *source);
+static GrlSupportedOps grl_upnp_source_supported_operations (GrlSource *source);
 
 static gboolean grl_upnp_source_notify_change_start (GrlMediaSource *source,
                                                      GError **error);
@@ -149,7 +149,7 @@ static GUPnPContextManager *context_manager = NULL;
 
 gboolean
 grl_upnp_plugin_init (GrlPluginRegistry *registry,
-                      const GrlPluginInfo *plugin,
+                      GrlPlugin *plugin,
                       GList *configs)
 {
   GRL_LOG_DOMAIN_INIT (upnp_log_domain, "upnp");
@@ -173,7 +173,7 @@ grl_upnp_plugin_init (GrlPluginRegistry *registry,
 }
 
 static void
-grl_upnp_plugin_deinit (void)
+grl_upnp_plugin_deinit (GrlPlugin *plugin)
 {
   GRL_DEBUG ("grl_upnp_plugin_deinit");
 
@@ -217,21 +217,21 @@ static void
 grl_upnp_source_class_init (GrlUpnpSourceClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   gobject_class->finalize = grl_upnp_source_finalize;
 
-  metadata_class->supported_keys = grl_upnp_source_supported_keys;
-  metadata_class->supported_operations = grl_upnp_source_supported_operations;
-  metadata_class->get_caps = grl_upnp_source_get_caps;
+  source_class->supported_keys = grl_upnp_source_supported_keys;
+  source_class->supported_operations = grl_upnp_source_supported_operations;
+  source_class->get_caps = grl_upnp_source_get_caps;
 
-  source_class->browse = grl_upnp_source_browse;
-  source_class->search = grl_upnp_source_search;
-  source_class->query = grl_upnp_source_query;
-  source_class->metadata = grl_upnp_source_metadata;
-  source_class->notify_change_start = grl_upnp_source_notify_change_start;
-  source_class->notify_change_stop = grl_upnp_source_notify_change_stop;
+  media_class->browse = grl_upnp_source_browse;
+  media_class->search = grl_upnp_source_search;
+  media_class->query = grl_upnp_source_query;
+  media_class->metadata = grl_upnp_source_metadata;
+  media_class->notify_change_start = grl_upnp_source_notify_change_start;
+  media_class->notify_change_stop = grl_upnp_source_notify_change_stop;
 
   g_type_class_add_private (klass, sizeof (GrlUpnpPrivate));
 
@@ -275,6 +275,7 @@ free_source_info (struct SourceInfo *info)
   g_free (info->source_name);
   g_object_unref (info->device);
   g_object_unref (info->service);
+  g_object_unref (info->plugin);
   g_slice_free (struct SourceInfo, info);
 }
 
@@ -361,7 +362,7 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
 
   grl_plugin_registry_register_source (registry,
                                        source_info->plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
 
  free_resources:
@@ -441,7 +442,7 @@ device_available_cb (GUPnPControlPoint *cp,
   source_info->source_name = name;
   source_info->device = g_object_ref (device);
   source_info->service = g_object_ref (service);
-  source_info->plugin = (GrlPluginInfo *) user_data;
+  source_info->plugin = g_object_ref ((GrlPlugin *) user_data);
 
   if (!gupnp_service_proxy_begin_action (GUPNP_SERVICE_PROXY (service),
 					 "GetSearchCapabilities",
@@ -454,7 +455,7 @@ device_available_cb (GUPnPControlPoint *cp,
     registry = grl_plugin_registry_get_default ();
     grl_plugin_registry_register_source (registry,
                                          source_info->plugin,
-                                         GRL_MEDIA_PLUGIN (source),
+                                         GRL_SOURCE (source),
                                          NULL);
     free_source_info (source_info);
   }
@@ -470,7 +471,7 @@ device_unavailable_cb (GUPnPControlPoint *cp,
 		       gpointer user_data)
 {
   const gchar* udn;
-  GrlMediaPlugin *source;
+  GrlSource *source;
   GrlPluginRegistry *registry;
   gchar *source_id;
 
@@ -1060,7 +1061,7 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_upnp_source_supported_keys (GrlMetadataSource *source)
+grl_upnp_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -1307,7 +1308,7 @@ grl_upnp_source_metadata (GrlMediaSource *source,
 }
 
 static GrlSupportedOps
-grl_upnp_source_supported_operations (GrlMetadataSource *metadata_source)
+grl_upnp_source_supported_operations (GrlSource *metadata_source)
 {
   GrlSupportedOps caps;
   GrlUpnpSource *source;
@@ -1339,7 +1340,7 @@ grl_upnp_source_notify_change_start (GrlMediaSource *source,
                  GRL_CORE_ERROR,
                  GRL_CORE_ERROR_NOTIFY_CHANGED_FAILED,
                  "Unable to listen for changes in %s",
-                 grl_metadata_source_get_id (GRL_METADATA_SOURCE (source)));
+                 grl_source_get_id (GRL_SOURCE (source)));
     return FALSE;
   }
   gupnp_service_proxy_set_subscribed (upnp_source->priv->service, TRUE);
@@ -1364,7 +1365,7 @@ grl_upnp_source_notify_change_stop (GrlMediaSource *source,
 }
 
 static GrlCaps *
-grl_upnp_source_get_caps (GrlMetadataSource *source,
+grl_upnp_source_get_caps (GrlSource *source,
                           GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;

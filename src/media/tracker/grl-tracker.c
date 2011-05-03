@@ -69,13 +69,13 @@ GRL_LOG_DOMAIN_STATIC(tracker_general_log_domain);
 /* --- Other --- */
 
 gboolean grl_tracker_plugin_init (GrlPluginRegistry *registry,
-                                  const GrlPluginInfo *plugin,
+                                  GrlPlugin *plugin,
                                   GList *configs);
 
 /* ===================== Globals  ================= */
 
 TrackerSparqlConnection *grl_tracker_connection = NULL;
-const GrlPluginInfo *grl_tracker_plugin;
+GrlPlugin *grl_tracker_plugin;
 gboolean grl_tracker_upnp_present = FALSE;
 GrlTrackerQueue *grl_tracker_queue = NULL;
 
@@ -184,9 +184,9 @@ tracker_get_upnp_class_cb (GObject      *object,
 }
 
 static void
-tracker_get_connection_cb (GObject             *object,
-                           GAsyncResult        *res,
-                           const GrlPluginInfo *plugin)
+tracker_get_connection_cb (GObject      *object,
+                           GAsyncResult *res,
+                           GrlPlugin    *plugin)
 {
   GError *error = NULL;
   /* GrlTrackerMedia *source; */
@@ -212,7 +212,7 @@ tracker_get_connection_cb (GObject             *object,
 
 gboolean
 grl_tracker_plugin_init (GrlPluginRegistry *registry,
-                         const GrlPluginInfo *plugin,
+                         GrlPlugin *plugin,
                          GList *configs)
 {
   GrlConfig *config;

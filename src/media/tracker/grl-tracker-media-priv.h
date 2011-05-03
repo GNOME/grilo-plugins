@@ -71,7 +71,7 @@ struct _GrlTrackerMediaPriv {
 
 /**/
 
-extern const GrlPluginInfo *grl_tracker_plugin;
+extern GrlPlugin *grl_tracker_plugin;
 
 /* shared data across  */
 extern GrlTrackerCache *grl_tracker_item_cache;

@@ -235,9 +235,9 @@ static GrlPodcastsSource *grl_podcasts_source_new (void);
 
 static void grl_podcasts_source_finalize (GObject *plugin);
 
-static const GList *grl_podcasts_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_podcasts_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_podcasts_source_get_caps (GrlMetadataSource *source,
+static GrlCaps * grl_podcasts_source_get_caps (GrlSource *source,
                                                GrlSupportedOps operation);
 
 static void grl_podcasts_source_browse (GrlMediaSource *source,
@@ -261,7 +261,7 @@ static gboolean grl_podcasts_source_notify_change_stop (GrlMediaSource *source,
 
 static gboolean
 grl_podcasts_plugin_init (GrlPluginRegistry *registry,
-                          const GrlPluginInfo *plugin,
+                          GrlPlugin *plugin,
                           GList *configs)
 {
   GrlConfig *config;
@@ -275,7 +275,7 @@ grl_podcasts_plugin_init (GrlPluginRegistry *registry,
   GrlPodcastsSource *source = grl_podcasts_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
 
   source->priv->cache_time = DEFAULT_CACHE_TIME;
@@ -325,22 +325,22 @@ static void
 grl_podcasts_source_class_init (GrlPodcastsSourceClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   gobject_class->finalize = grl_podcasts_source_finalize;
 
-  source_class->browse = grl_podcasts_source_browse;
-  source_class->search = grl_podcasts_source_search;
-  source_class->query = grl_podcasts_source_query;
-  source_class->metadata = grl_podcasts_source_metadata;
-  source_class->store = grl_podcasts_source_store;
-  source_class->remove = grl_podcasts_source_remove;
-  source_class->notify_change_start = grl_podcasts_source_notify_change_start;
-  source_class->notify_change_stop = grl_podcasts_source_notify_change_stop;
+  source_class->supported_keys = grl_podcasts_source_supported_keys;
+  source_class->get_caps = grl_podcasts_source_get_caps;
 
-  metadata_class->supported_keys = grl_podcasts_source_supported_keys;
-  metadata_class->get_caps = grl_podcasts_source_get_caps;
+  media_class->browse = grl_podcasts_source_browse;
+  media_class->search = grl_podcasts_source_search;
+  media_class->query = grl_podcasts_source_query;
+  media_class->metadata = grl_podcasts_source_metadata;
+  media_class->store = grl_podcasts_source_store;
+  media_class->remove = grl_podcasts_source_remove;
+  media_class->notify_change_start = grl_podcasts_source_notify_change_start;
+  media_class->notify_change_stop = grl_podcasts_source_notify_change_stop;
 
   g_type_class_add_private (klass, sizeof (GrlPodcastsPrivate));
 }
@@ -1596,7 +1596,7 @@ media_id_is_podcast (const gchar *id)
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_podcasts_source_supported_keys (GrlMetadataSource *source)
+grl_podcasts_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -1814,7 +1814,7 @@ grl_podcasts_source_notify_change_stop (GrlMediaSource *source,
 }
 
 static GrlCaps *
-grl_podcasts_source_get_caps (GrlMetadataSource *source,
+grl_podcasts_source_get_caps (GrlSource *source,
                               GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;

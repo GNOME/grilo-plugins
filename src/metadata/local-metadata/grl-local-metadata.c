@@ -104,19 +104,19 @@ static GrlLocalMetadataSource *grl_local_metadata_source_new (gboolean guess_vid
 static void grl_local_metadata_source_resolve (GrlMetadataSource *source,
                                               GrlMetadataSourceResolveSpec *rs);
 
-static const GList *grl_local_metadata_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_local_metadata_source_supported_keys (GrlSource *source);
 
 static gboolean grl_local_metadata_source_may_resolve (GrlMetadataSource *source,
                                                        GrlMedia *media,
                                                        GrlKeyID key_id,
                                                        GList **missing_keys);
 
-static void grl_local_metadata_source_cancel (GrlMetadataSource *source,
+static void grl_local_metadata_source_cancel (GrlSource *source,
                                               guint operation_id);
 
 gboolean grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
-                                               const GrlPluginInfo *plugin,
-                                               GList *configs);
+                                                GrlPlugin *plugin,
+                                                GList *configs);
 
 /**/
 
@@ -124,8 +124,8 @@ gboolean grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
 
 gboolean
 grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
-                                      const GrlPluginInfo *plugin,
-                                      GList *configs)
+                                       GrlPlugin *plugin,
+                                       GList *configs)
 {
   guint config_count;
   gboolean guess_video = TRUE;
@@ -151,7 +151,7 @@ grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
   GrlLocalMetadataSource *source = grl_local_metadata_source_new (guess_video);
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
   return TRUE;
 }
@@ -178,14 +178,16 @@ static void
 grl_local_metadata_source_class_init (GrlLocalMetadataSourceClass * klass)
 {
   GObjectClass           *g_class        = G_OBJECT_CLASS (klass);
+  GrlSourceClass         *source_class   = GRL_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
 
-  metadata_class->supported_keys = grl_local_metadata_source_supported_keys;
+  g_class->set_property = grl_local_metadata_source_set_property;
+
+  source_class->supported_keys = grl_local_metadata_source_supported_keys;
+  source_class->cancel = grl_local_metadata_source_cancel;
+
   metadata_class->may_resolve = grl_local_metadata_source_may_resolve;
   metadata_class->resolve = grl_local_metadata_source_resolve;
-  metadata_class->cancel = grl_local_metadata_source_cancel;
-
-  g_class->set_property = grl_local_metadata_source_set_property;
 
   g_object_class_install_property (g_class,
                                    PROP_GUESS_VIDEO,
@@ -853,7 +855,7 @@ get_resolution_flags (GList *keys)
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_local_metadata_source_supported_keys (GrlMetadataSource *source)
+grl_local_metadata_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -1011,7 +1013,7 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
 }
 
 static void
-grl_local_metadata_source_cancel (GrlMetadataSource *source,
+grl_local_metadata_source_cancel (GrlSource *source,
                                   guint operation_id)
 {
   GCancellable *cancellable =

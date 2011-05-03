@@ -657,7 +657,7 @@ grl_tracker_get_media_name (const gchar *rdf_type,
 }
 
 const GList *
-grl_tracker_supported_keys (GrlMetadataSource *source)
+grl_tracker_supported_keys (GrlSource *source)
 {
   static GList *supported_keys = NULL;
 
@@ -669,7 +669,7 @@ grl_tracker_supported_keys (GrlMetadataSource *source)
 }
 
 GrlCaps *
-grl_tracker_get_caps (GrlMetadataSource *source,
+grl_tracker_get_caps (GrlSource *source,
                       GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;

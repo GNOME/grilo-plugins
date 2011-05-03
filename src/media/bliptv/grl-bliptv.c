@@ -88,12 +88,12 @@ static void bliptv_setup_mapping (void);
 static GrlBliptvSource *grl_bliptv_source_new (void);
 
 gboolean grl_bliptv_plugin_init (GrlPluginRegistry *registry,
-                                 const GrlPluginInfo *plugin,
+                                 GrlPlugin *plugin,
                                  GList *configs);
 
-static const GList *grl_bliptv_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_bliptv_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_bliptv_source_get_caps (GrlMetadataSource *source,
+static GrlCaps * grl_bliptv_source_get_caps (GrlSource *source,
                                              GrlSupportedOps operation);
 
 static void grl_bliptv_source_browse (GrlMediaSource *source,
@@ -102,14 +102,14 @@ static void grl_bliptv_source_browse (GrlMediaSource *source,
 static void grl_bliptv_source_search (GrlMediaSource *source,
                                       GrlMediaSourceSearchSpec *ss);
 
-static void grl_bliptv_source_cancel (GrlMediaSource *source,
+static void grl_bliptv_source_cancel (GrlSource *source,
                                       guint operation_id);
 
 /**/
 
 gboolean
 grl_bliptv_plugin_init (GrlPluginRegistry *registry,
-                        const GrlPluginInfo *plugin,
+                        GrlPlugin *plugin,
                         GList *configs)
 {
   GRL_LOG_DOMAIN_INIT (bliptv_log_domain, "bliptv");
@@ -119,7 +119,7 @@ grl_bliptv_plugin_init (GrlPluginRegistry *registry,
   GrlBliptvSource *source = grl_bliptv_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
   return TRUE;
 }
@@ -157,20 +157,20 @@ static void
 grl_bliptv_source_class_init (GrlBliptvSourceClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   g_type_class_add_private (klass, sizeof (GrlBliptvSourcePrivate));
 
   object_class->dispose = grl_bliptv_source_dispose;
   object_class->finalize = grl_bliptv_source_finalize;
 
-  source_class->browse = grl_bliptv_source_browse;
-  source_class->search = grl_bliptv_source_search;
+  source_class->supported_keys = grl_bliptv_source_supported_keys;
+  source_class->get_caps = grl_bliptv_source_get_caps;
   source_class->cancel = grl_bliptv_source_cancel;
 
-  metadata_class->supported_keys = grl_bliptv_source_supported_keys;
-  metadata_class->get_caps = grl_bliptv_source_get_caps;
+  media_class->browse = grl_bliptv_source_browse;
+  media_class->search = grl_bliptv_source_search;
 }
 
 static void
@@ -371,7 +371,7 @@ proxy_call_raw_async_cb (RestProxyCall *call,
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_bliptv_source_supported_keys (GrlMetadataSource *source)
+grl_bliptv_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -479,7 +479,7 @@ grl_bliptv_source_search (GrlMediaSource *source,
 }
 
 static void
-grl_bliptv_source_cancel (GrlMediaSource *source, guint operation_id)
+grl_bliptv_source_cancel (GrlSource *source, guint operation_id)
 {
   BliptvOperation *op = grl_operation_get_data (operation_id);
 
@@ -503,7 +503,7 @@ grl_bliptv_source_cancel (GrlMediaSource *source, guint operation_id)
 }
 
 static GrlCaps *
-grl_bliptv_source_get_caps (GrlMetadataSource *source,
+grl_bliptv_source_get_caps (GrlSource *source,
                             GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;

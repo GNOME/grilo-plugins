@@ -92,25 +92,25 @@ static void grl_metadata_store_source_resolve (GrlMetadataSource *source,
 static void grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
 						    GrlMetadataSourceSetMetadataSpec *sms);
 
-static const GList *grl_metadata_store_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_metadata_store_source_supported_keys (GrlSource *source);
 
 static gboolean grl_metadata_store_source_may_resolve (GrlMetadataSource *source,
                                                        GrlMedia *media,
                                                        GrlKeyID key_id,
                                                        GList **missing_keys);
 
-static const GList *grl_metadata_store_source_writable_keys (GrlMetadataSource *source);
+static const GList *grl_metadata_store_source_writable_keys (GrlSource *source);
 
 gboolean grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
-						const GrlPluginInfo *plugin,
-						GList *configs);
+                                                GrlPlugin *plugin,
+                                                GList *configs);
 
 
 /* =================== GrlMetadataStore Plugin  =============== */
 
 gboolean
 grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
-                                      const GrlPluginInfo *plugin,
+                                      GrlPlugin *plugin,
                                       GList *configs)
 {
   GRL_LOG_DOMAIN_INIT (metadata_store_log_domain, "metadata-store");
@@ -120,7 +120,7 @@ grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
   GrlMetadataStoreSource *source = grl_metadata_store_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
   return TRUE;
 }
@@ -145,10 +145,13 @@ grl_metadata_store_source_new (void)
 static void
 grl_metadata_store_source_class_init (GrlMetadataStoreSourceClass * klass)
 {
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
-  metadata_class->supported_keys = grl_metadata_store_source_supported_keys;
+
+  source_class->supported_keys = grl_metadata_store_source_supported_keys;
+  source_class->writable_keys = grl_metadata_store_source_writable_keys;
+
   metadata_class->may_resolve = grl_metadata_store_source_may_resolve;
-  metadata_class->writable_keys = grl_metadata_store_source_writable_keys;
   metadata_class->resolve = grl_metadata_store_source_resolve;
   metadata_class->set_metadata = grl_metadata_store_source_set_metadata;
 
@@ -528,7 +531,7 @@ write_keys (sqlite3 *db,
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_metadata_store_source_supported_keys (GrlMetadataSource *source)
+grl_metadata_store_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -542,7 +545,7 @@ grl_metadata_store_source_supported_keys (GrlMetadataSource *source)
 }
 
 static const GList *
-grl_metadata_store_source_writable_keys (GrlMetadataSource *source)
+grl_metadata_store_source_writable_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {

@@ -116,16 +116,18 @@ grl_tracker_metadata_new (TrackerSparqlConnection *connection)
 static void
 grl_tracker_metadata_class_init (GrlTrackerMetadataClass * klass)
 {
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   GObjectClass           *g_class        = G_OBJECT_CLASS (klass);
-
-  metadata_class->supported_keys = grl_tracker_supported_keys;
-  metadata_class->may_resolve    = grl_tracker_metadata_may_resolve;
-  metadata_class->resolve        = grl_tracker_metadata_resolve;
-  metadata_class->get_caps       = grl_tracker_get_caps;
+  GrlSourceClass         *source_class   = GRL_SOURCE_CLASS (klass);
+  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
 
   g_class->finalize     = grl_tracker_metadata_finalize;
   g_class->set_property = grl_tracker_metadata_set_property;
+
+  source_class->supported_keys = grl_tracker_supported_keys;
+  source_class->get_caps       = grl_tracker_get_caps;
+
+  metadata_class->may_resolve = grl_tracker_metadata_may_resolve;
+  metadata_class->resolve     = grl_tracker_metadata_resolve;
 
   g_object_class_install_property (g_class,
                                    PROP_TRACKER_CONNECTION,
@@ -362,7 +364,7 @@ grl_tracker_metadata_source_init (void)
 
   grl_plugin_registry_register_source (grl_plugin_registry_get_default (),
                                        grl_tracker_plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
 }
 

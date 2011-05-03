@@ -95,12 +95,12 @@ typedef struct {
 static GrlShoutcastSource *grl_shoutcast_source_new (const gchar *dev_key);
 
 gboolean grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
-                                    const GrlPluginInfo *plugin,
+                                    GrlPlugin *plugin,
                                     GList *configs);
 
-static const GList *grl_shoutcast_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_shoutcast_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_shoutcast_source_get_caps (GrlMetadataSource *source,
+static GrlCaps * grl_shoutcast_source_get_caps (GrlSource *source,
                                                 GrlSupportedOps operation);
 
 static void grl_shoutcast_source_metadata (GrlMediaSource *source,
@@ -112,7 +112,7 @@ static void grl_shoutcast_source_browse (GrlMediaSource *source,
 static void grl_shoutcast_source_search (GrlMediaSource *source,
                                          GrlMediaSourceSearchSpec *ss);
 
-static void grl_shoutcast_source_cancel (GrlMetadataSource *source,
+static void grl_shoutcast_source_cancel (GrlSource *source,
                                          guint operation_id);
 
 static void read_url_async (GrlShoutcastSource *source,
@@ -125,7 +125,7 @@ static void grl_shoutcast_source_finalize (GObject *object);
 
 gboolean
 grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
-                           const GrlPluginInfo *plugin,
+                           GrlPlugin *plugin,
                            GList *configs)
 {
   gchar *dev_key;
@@ -157,7 +157,7 @@ grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
   source = grl_shoutcast_source_new (dev_key);
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
 
   g_free (dev_key);
@@ -192,19 +192,19 @@ grl_shoutcast_source_new (const gchar *dev_key)
 static void
 grl_shoutcast_source_class_init (GrlShoutcastSourceClass * klass)
 {
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  source_class->metadata = grl_shoutcast_source_metadata;
-  source_class->browse = grl_shoutcast_source_browse;
-  source_class->search = grl_shoutcast_source_search;
-
-  metadata_class->cancel = grl_shoutcast_source_cancel;
-  metadata_class->supported_keys = grl_shoutcast_source_supported_keys;
-  metadata_class->get_caps = grl_shoutcast_source_get_caps;
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   gobject_class->finalize = grl_shoutcast_source_finalize;
+
+  source_class->cancel = grl_shoutcast_source_cancel;
+  source_class->supported_keys = grl_shoutcast_source_supported_keys;
+  source_class->get_caps = grl_shoutcast_source_get_caps;
+
+  media_class->metadata = grl_shoutcast_source_metadata;
+  media_class->browse = grl_shoutcast_source_browse;
+  media_class->search = grl_shoutcast_source_search;
 
   g_type_class_add_private (klass, sizeof (GrlShoutcastSourcePriv));
 }
@@ -618,7 +618,7 @@ read_url_async (GrlShoutcastSource *source,
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_shoutcast_source_supported_keys (GrlMetadataSource *source)
+grl_shoutcast_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -790,7 +790,7 @@ grl_shoutcast_source_search (GrlMediaSource *source,
 }
 
 static void
-grl_shoutcast_source_cancel (GrlMetadataSource *source, guint operation_id)
+grl_shoutcast_source_cancel (GrlSource *source, guint operation_id)
 {
   OperationData *op_data;
   GrlShoutcastSourcePriv *priv;
@@ -812,7 +812,7 @@ grl_shoutcast_source_cancel (GrlMetadataSource *source, guint operation_id)
 }
 
 static GrlCaps *
-grl_shoutcast_source_get_caps (GrlMetadataSource *source,
+grl_shoutcast_source_get_caps (GrlSource *source,
                                GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;

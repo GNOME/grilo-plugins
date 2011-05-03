@@ -83,25 +83,25 @@ static GrlAppleTrailersSource *grl_apple_trailers_source_new (gboolean hd,
                                                               gboolean xlarge);
 
 gboolean grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
-                                         const GrlPluginInfo *plugin,
+                                         GrlPlugin *plugin,
                                          GList *configs);
 
-static const GList *grl_apple_trailers_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_apple_trailers_source_supported_keys (GrlSource *source);
 
 static void grl_apple_trailers_source_browse (GrlMediaSource *source,
                                               GrlMediaSourceBrowseSpec *bs);
 
-static void grl_apple_trailers_source_cancel (GrlMetadataSource *source,
+static void grl_apple_trailers_source_cancel (GrlSource *source,
                                               guint operation_id);
 
-static GrlCaps *grl_apple_trailers_source_get_caps (GrlMetadataSource *source,
+static GrlCaps *grl_apple_trailers_source_get_caps (GrlSource *source,
                                                     GrlSupportedOps operation);
 
 /* =================== Apple Trailers Plugin  =============== */
 
 gboolean
 grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
-                                const GrlPluginInfo *plugin,
+                                GrlPlugin *plugin,
                                 GList *configs)
 {
   GrlAppleTrailersSource *source;
@@ -141,7 +141,7 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
   source = grl_apple_trailers_source_new (hd, xlarge);
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
   return TRUE;
 }
@@ -215,15 +215,19 @@ grl_apple_trailers_source_set_property (GObject *object,
 static void
 grl_apple_trailers_source_class_init (GrlAppleTrailersSourceClass * klass)
 {
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   GObjectClass *g_class = G_OBJECT_CLASS (klass);
-  source_class->browse = grl_apple_trailers_source_browse;
-  metadata_class->cancel = grl_apple_trailers_source_cancel;
-  metadata_class->supported_keys = grl_apple_trailers_source_supported_keys;
-  metadata_class->get_caps = grl_apple_trailers_source_get_caps;
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
+
   g_class->finalize = grl_apple_trailers_source_finalize;
   g_class->set_property = grl_apple_trailers_source_set_property;
+
+  source_class->cancel = grl_apple_trailers_source_cancel;
+  source_class->supported_keys = grl_apple_trailers_source_supported_keys;
+  source_class->get_caps = grl_apple_trailers_source_get_caps;
+
+  media_class->browse = grl_apple_trailers_source_browse;
+
 
   g_object_class_install_property (g_class,
                                    PROP_HD,
@@ -556,7 +560,7 @@ read_url_async (GrlAppleTrailersSource *source,
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_apple_trailers_source_supported_keys (GrlMetadataSource *source)
+grl_apple_trailers_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -598,7 +602,7 @@ grl_apple_trailers_source_browse (GrlMediaSource *source,
 }
 
 static void
-grl_apple_trailers_source_cancel (GrlMetadataSource *source, guint operation_id)
+grl_apple_trailers_source_cancel (GrlSource *source, guint operation_id)
 {
   OperationData *op_data;
   GrlAppleTrailersSourcePriv *priv;
@@ -621,7 +625,7 @@ grl_apple_trailers_source_cancel (GrlMetadataSource *source, guint operation_id)
 }
 
 static GrlCaps *
-grl_apple_trailers_source_get_caps (GrlMetadataSource *source,
+grl_apple_trailers_source_get_caps (GrlSource *source,
                                     GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;

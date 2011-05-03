@@ -85,7 +85,7 @@ static void token_info_cb (GFlickr *f,
 static GrlFlickrSource *grl_flickr_source_public_new (const gchar *flickr_api_key,
                                                       const gchar *flickr_secret);
 
-static void grl_flickr_source_personal_new (const GrlPluginInfo *plugin,
+static void grl_flickr_source_personal_new (GrlPlugin *plugin,
                                             const gchar *flickr_api_key,
                                             const gchar *flickr_secret,
                                             const gchar *flickr_token);
@@ -93,13 +93,13 @@ static void grl_flickr_source_personal_new (const GrlPluginInfo *plugin,
 static void grl_flickr_source_finalize (GObject *object);
 
 gboolean grl_flickr_plugin_init (GrlPluginRegistry *registry,
-				 const GrlPluginInfo *plugin,
+                                 GrlPlugin *plugin,
                                  GList *configs);
 
 
-static const GList *grl_flickr_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_flickr_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_flickr_source_get_caps (GrlMetadataSource *source,
+static GrlCaps * grl_flickr_source_get_caps (GrlSource *source,
                                              GrlSupportedOps operation);
 
 static void grl_flickr_source_browse (GrlMediaSource *source,
@@ -115,7 +115,7 @@ static void grl_flickr_source_search (GrlMediaSource *source,
 
 gboolean
 grl_flickr_plugin_init (GrlPluginRegistry *registry,
-                        const GrlPluginInfo *plugin,
+                        GrlPlugin *plugin,
                         GList *configs)
 {
   gchar *flickr_key;
@@ -155,7 +155,7 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
       public_source_created = TRUE;
       grl_plugin_registry_register_source (registry,
                                            plugin,
-                                           GRL_MEDIA_PLUGIN (source),
+                                           GRL_SOURCE (source),
                                            NULL);
     }
 
@@ -199,7 +199,7 @@ grl_flickr_source_public_new (const gchar *flickr_api_key,
 }
 
 static void
-grl_flickr_source_personal_new (const GrlPluginInfo *plugin,
+grl_flickr_source_personal_new (GrlPlugin *plugin,
                                 const gchar *flickr_api_key,
                                 const gchar *flickr_secret,
                                 const gchar *flickr_token)
@@ -214,15 +214,17 @@ static void
 grl_flickr_source_class_init (GrlFlickrSourceClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   gobject_class->finalize = grl_flickr_source_finalize;
-  source_class->browse = grl_flickr_source_browse;
-  source_class->metadata = grl_flickr_source_metadata;
-  source_class->search = grl_flickr_source_search;
-  metadata_class->supported_keys = grl_flickr_source_supported_keys;
-  metadata_class->get_caps = grl_flickr_source_get_caps;
+
+  source_class->supported_keys = grl_flickr_source_supported_keys;
+  source_class->get_caps = grl_flickr_source_get_caps;
+
+  media_class->browse = grl_flickr_source_browse;
+  media_class->metadata = grl_flickr_source_metadata;
+  media_class->search = grl_flickr_source_search;
 
   g_type_class_add_private (klass, sizeof (GrlFlickrSourcePrivate));
 }
@@ -258,7 +260,7 @@ token_info_cb (GFlickr *f,
                gpointer user_data)
 {
   GrlFlickrSource *source;
-  GrlPluginInfo *plugin = (GrlPluginInfo *) user_data;
+  GrlPlugin *plugin = (GrlPlugin *) user_data;
   GrlPluginRegistry *registry;
   gchar *fullname;
   gchar *source_desc;
@@ -296,7 +298,7 @@ token_info_cb (GFlickr *f,
     source->priv->user_id = g_strdup (g_hash_table_lookup (info, "user_nsid"));
     grl_plugin_registry_register_source (registry,
                                          plugin,
-                                         GRL_MEDIA_PLUGIN (source),
+                                         GRL_SOURCE (source),
                                          NULL);
   }
 
@@ -592,7 +594,7 @@ gettags_cb (GFlickr *f, GList *taglist, gpointer user_data)
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_flickr_source_supported_keys (GrlMetadataSource *source)
+grl_flickr_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -770,7 +772,7 @@ grl_flickr_source_search (GrlMediaSource *source,
 }
 
 static GrlCaps *
-grl_flickr_source_get_caps (GrlMetadataSource *source,
+grl_flickr_source_get_caps (GrlSource *source,
                             GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;

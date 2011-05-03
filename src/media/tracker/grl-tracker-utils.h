@@ -62,9 +62,9 @@ typedef struct {
 
 extern GrlKeyID grl_metadata_key_tracker_urn;
 
-const GList *grl_tracker_supported_keys (GrlMetadataSource *source);
+const GList *grl_tracker_supported_keys (GrlSource *source);
 
-GrlCaps * grl_tracker_get_caps (GrlMetadataSource *source,
+GrlCaps * grl_tracker_get_caps (GrlSource *source,
                                 GrlSupportedOps operation);
 
 gboolean grl_tracker_key_is_supported (const GrlKeyID key);

@@ -158,8 +158,8 @@ static GrlBookmarksSource *grl_bookmarks_source_new (void);
 
 static void grl_bookmarks_source_finalize (GObject *plugin);
 
-static const GList *grl_bookmarks_source_supported_keys (GrlMetadataSource *source);
-static GrlSupportedOps grl_bookmarks_source_supported_operations (GrlMetadataSource *metadata_source);
+static const GList *grl_bookmarks_source_supported_keys (GrlSource *source);
+static GrlSupportedOps grl_bookmarks_source_supported_operations (GrlSource *metadata_source);
 
 static void grl_bookmarks_source_search (GrlMediaSource *source,
 					 GrlMediaSourceSearchSpec *ss);
@@ -180,14 +180,14 @@ static gboolean grl_bookmarks_source_notify_change_start (GrlMediaSource *source
 static gboolean grl_bookmarks_source_notify_change_stop (GrlMediaSource *source,
                                                          GError **error);
 
-static GrlCaps * grl_bookmarks_source_get_caps (GrlMetadataSource *source,
+static GrlCaps * grl_bookmarks_source_get_caps (GrlSource *source,
                                                 GrlSupportedOps operation);
 
  /* =================== Bookmarks Plugin  =============== */
 
  static gboolean
  grl_bookmarks_plugin_init (GrlPluginRegistry *registry,
-                            const GrlPluginInfo *plugin,
+                            GrlPlugin *plugin,
                             GList *configs)
  {
    GParamSpec *spec;
@@ -217,7 +217,7 @@ static GrlCaps * grl_bookmarks_source_get_caps (GrlMetadataSource *source,
    GrlBookmarksSource *source = grl_bookmarks_source_new ();
    grl_plugin_registry_register_source (registry,
                                         plugin,
-                                        GRL_MEDIA_PLUGIN (source),
+                                        GRL_SOURCE (source),
                                         NULL);
    return TRUE;
  }
@@ -243,27 +243,25 @@ static GrlCaps * grl_bookmarks_source_get_caps (GrlMetadataSource *source,
  grl_bookmarks_source_class_init (GrlBookmarksSourceClass * klass)
  {
    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
+   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+   GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
    gobject_class->finalize = grl_bookmarks_source_finalize;
 
-   metadata_class->supported_operations =
-     grl_bookmarks_source_supported_operations;
+   source_class->supported_operations = grl_bookmarks_source_supported_operations;
+   source_class->supported_keys = grl_bookmarks_source_supported_keys;
+   source_class->get_caps = grl_bookmarks_source_get_caps;
 
-   source_class->browse = grl_bookmarks_source_browse;
-   source_class->search = grl_bookmarks_source_search;
-   source_class->query = grl_bookmarks_source_query;
-   source_class->store = grl_bookmarks_source_store;
-   source_class->remove = grl_bookmarks_source_remove;
-   source_class->metadata = grl_bookmarks_source_metadata;
-   source_class->notify_change_start = grl_bookmarks_source_notify_change_start;
-   source_class->notify_change_stop = grl_bookmarks_source_notify_change_stop;
+   media_class->browse = grl_bookmarks_source_browse;
+   media_class->search = grl_bookmarks_source_search;
+   media_class->query = grl_bookmarks_source_query;
+   media_class->store = grl_bookmarks_source_store;
+   media_class->remove = grl_bookmarks_source_remove;
+   media_class->metadata = grl_bookmarks_source_metadata;
+   media_class->notify_change_start = grl_bookmarks_source_notify_change_start;
+   media_class->notify_change_stop = grl_bookmarks_source_notify_change_stop;
 
-  metadata_class->supported_keys = grl_bookmarks_source_supported_keys;
-  metadata_class->get_caps = grl_bookmarks_source_get_caps;
-
-  g_type_class_add_private (klass, sizeof (GrlBookmarksPrivate));
+   g_type_class_add_private (klass, sizeof (GrlBookmarksPrivate));
 }
 
 static void
@@ -722,7 +720,7 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_bookmarks_source_supported_keys (GrlMetadataSource *source)
+grl_bookmarks_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -886,7 +884,7 @@ grl_bookmarks_source_metadata (GrlMediaSource *source,
 }
 
 static GrlSupportedOps
-grl_bookmarks_source_supported_operations (GrlMetadataSource *metadata_source)
+grl_bookmarks_source_supported_operations (GrlSource *metadata_source)
 {
   GrlSupportedOps caps;
 
@@ -919,7 +917,7 @@ grl_bookmarks_source_notify_change_stop (GrlMediaSource *source,
 }
 
 static GrlCaps *
-grl_bookmarks_source_get_caps (GrlMetadataSource *source,
+grl_bookmarks_source_get_caps (GrlSource *source,
                                GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;

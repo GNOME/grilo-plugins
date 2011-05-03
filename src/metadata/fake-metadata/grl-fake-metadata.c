@@ -45,7 +45,7 @@ static void grl_fake_metadata_source_resolve (GrlMetadataSource *source,
 static void grl_fake_metadata_source_set_metadata (GrlMetadataSource *source,
 						   GrlMetadataSourceSetMetadataSpec *sms);
 
-static const GList *grl_fake_metadata_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_fake_metadata_source_supported_keys (GrlSource *source);
 
 static gboolean grl_fake_metadata_source_may_resolve (GrlMetadataSource *source,
                                                       GrlMedia *media,
@@ -55,7 +55,7 @@ static gboolean grl_fake_metadata_source_may_resolve (GrlMetadataSource *source,
 static const GList *grl_fake_metadata_source_writable_keys (GrlMetadataSource *source);
 
 gboolean grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
-                                               const GrlPluginInfo *plugin,
+                                               GrlPlugin *plugin,
                                                GList *configs);
 
 
@@ -63,7 +63,7 @@ gboolean grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
 
 gboolean
 grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
-                                      const GrlPluginInfo *plugin,
+                                      GrlPlugin *plugin,
                                       GList *configs)
 {
   GRL_LOG_DOMAIN_INIT (fake_metadata_log_domain, "fake-metadata");
@@ -73,7 +73,7 @@ grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
   GrlFakeMetadataSource *source = grl_fake_metadata_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
   return TRUE;
 }
@@ -98,8 +98,11 @@ grl_fake_metadata_source_new (void)
 static void
 grl_fake_metadata_source_class_init (GrlFakeMetadataSourceClass * klass)
 {
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
-  metadata_class->supported_keys = grl_fake_metadata_source_supported_keys;
+
+  source_class->supported_keys = grl_fake_metadata_source_supported_keys;
+
   metadata_class->may_resolve = grl_fake_metadata_source_may_resolve;
   metadata_class->resolve = grl_fake_metadata_source_resolve;
   metadata_class->set_metadata = grl_fake_metadata_source_set_metadata;
@@ -150,7 +153,7 @@ fill_metadata (GrlMedia *media, GrlKeyID key_id)
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_fake_metadata_source_supported_keys (GrlMetadataSource *source)
+grl_fake_metadata_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {

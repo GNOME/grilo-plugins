@@ -66,18 +66,18 @@ static GrlOpticalMediaSource *grl_optical_media_source_new (void);
 static void grl_optical_media_source_finalize (GObject *object);
 
 gboolean grl_optical_media_plugin_init (GrlPluginRegistry *registry,
-                                        const GrlPluginInfo *plugin,
+                                        GrlPlugin *plugin,
                                         GList *configs);
 
-static const GList *grl_optical_media_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_optical_media_source_supported_keys (GrlSource *source);
 
-static GrlCaps *grl_optical_media_source_get_caps (GrlMetadataSource *source,
+static GrlCaps *grl_optical_media_source_get_caps (GrlSource *source,
                                                    GrlSupportedOps operation);
 
 static void grl_optical_media_source_browse (GrlMediaSource *source,
                                              GrlMediaSourceBrowseSpec *bs);
 
-static void grl_optical_media_source_cancel (GrlMetadataSource *source,
+static void grl_optical_media_source_cancel (GrlSource *source,
                                              guint operation_id);
 
 static void
@@ -89,7 +89,7 @@ on_g_volume_monitor_event (GVolumeMonitor *monitor,
 
 gboolean
 grl_optical_media_plugin_init (GrlPluginRegistry *registry,
-                               const GrlPluginInfo *plugin,
+                               GrlPlugin *plugin,
                                GList *configs)
 {
   GRL_LOG_DOMAIN_INIT (optical_media_log_domain, "optical_media");
@@ -100,7 +100,7 @@ grl_optical_media_plugin_init (GrlPluginRegistry *registry,
 
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
 
   return TRUE;
@@ -132,17 +132,17 @@ grl_optical_media_source_new (void)
 static void
 grl_optical_media_source_class_init (GrlOpticalMediaSourceClass * klass)
 {
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   object_class->finalize = grl_optical_media_source_finalize;
 
-  source_class->browse = grl_optical_media_source_browse;
+  source_class->supported_keys = grl_optical_media_source_supported_keys;
+  source_class->cancel = grl_optical_media_source_cancel;
+  source_class->get_caps = grl_optical_media_source_get_caps;
 
-  metadata_class->supported_keys = grl_optical_media_source_supported_keys;
-  metadata_class->cancel = grl_optical_media_source_cancel;
-  metadata_class->get_caps = grl_optical_media_source_get_caps;
+  media_class->browse = grl_optical_media_source_browse;
 
   g_type_class_add_private (klass, sizeof (GrlOpticalMediaSourcePrivate));
 }
@@ -199,7 +199,7 @@ on_g_volume_monitor_event (GVolumeMonitor *monitor,
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_optical_media_source_supported_keys (GrlMetadataSource *source)
+grl_optical_media_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -543,7 +543,7 @@ grl_optical_media_source_browse (GrlMediaSource *source,
 }
 
 static void
-grl_optical_media_source_cancel (GrlMetadataSource *source, guint operation_id)
+grl_optical_media_source_cancel (GrlSource *source, guint operation_id)
 {
   GCancellable *cancellable;
 
@@ -555,7 +555,7 @@ grl_optical_media_source_cancel (GrlMetadataSource *source, guint operation_id)
 }
 
 static GrlCaps *
-grl_optical_media_source_get_caps (GrlMetadataSource *source,
+grl_optical_media_source_get_caps (GrlSource *source,
                                    GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;

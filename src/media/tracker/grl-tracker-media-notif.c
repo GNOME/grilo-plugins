@@ -146,7 +146,7 @@ tracker_evt_update_media_del (tracker_evt_update_t *evt,
   evt->old_sources = g_list_append (evt->old_sources, source);
 
   GRL_DEBUG ("Predel source p=%p name=%s id=%s count=%u", source,
-             grl_metadata_source_get_name (GRL_METADATA_SOURCE (source)),
+             grl_source_get_name (GRL_SOURCE (source)),
              grl_tracker_media_get_tracker_source (source),
              priv->notification_ref);
 }
@@ -234,7 +234,7 @@ tracker_evt_update_orphan_item_cb (GObject              *object,
         g_free (str_id);
 
         GRL_DEBUG ("\tNotify id=%u source=%s p=%p", id,
-                   grl_metadata_source_get_name (GRL_METADATA_SOURCE (source)),
+                   grl_source_get_name (GRL_SOURCE (source)),
                    source);
         grl_media_source_notify_change (GRL_MEDIA_SOURCE (source),
                                         media, change_type, FALSE);
@@ -313,7 +313,7 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
       while (source != NULL) {
         if (GRL_IS_TRACKER_MEDIA (source->data)) {
           GRL_DEBUG ("\tNotify id=%u source=%s p=%p", id,
-                     grl_metadata_source_get_name (GRL_METADATA_SOURCE (source->data)),
+                     grl_source_get_name (GRL_SOURCE (source->data)),
                      source->data);
           if (grl_tracker_media_can_notify (GRL_TRACKER_MEDIA (source->data))) {
             GrlMedia *media = grl_media_new ();
@@ -375,7 +375,7 @@ tracker_evt_update_items_cb (gpointer              key,
 
   if (!grl_tracker_media_can_notify (source)) {
     GRL_DEBUG ("\tno notification for source %s...",
-	       grl_metadata_source_get_name (GRL_METADATA_SOURCE (source)));
+	       grl_source_get_name (GRL_SOURCE (source)));
     return;
   }
 
@@ -385,7 +385,7 @@ tracker_evt_update_items_cb (gpointer              key,
   g_free (str_id);
 
   GRL_DEBUG ("\tNotify id=%u source=%s", id,
-             grl_metadata_source_get_name (GRL_METADATA_SOURCE (source)));
+             grl_source_get_name (GRL_SOURCE (source)));
   grl_media_source_notify_change (GRL_MEDIA_SOURCE (source), media,
                                   evt->change_type, FALSE);
 

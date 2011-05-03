@@ -426,44 +426,44 @@ tracker_metadata_cb (GObject      *source_object,
   grl_tracker_queue_done (grl_tracker_queue, os);
 }
 
-static void
-tracker_set_metadata_cb (GObject      *source_object,
-                         GAsyncResult *result,
-                         GrlTrackerOp *os)
-{
-  GrlMetadataSourceSetMetadataSpec *sms =
-    (GrlMetadataSourceSetMetadataSpec *) os->data;
-  GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (sms->source);
-  GError *tracker_error = NULL, *error = NULL;
+/* static void */
+/* tracker_set_metadata_cb (GObject      *source_object, */
+/*                          GAsyncResult *result, */
+/*                          GrlTrackerOp *os) */
+/* { */
+/*   GrlMetadataSourceSetMetadataSpec *sms = */
+/*     (GrlMetadataSourceSetMetadataSpec *) os->data; */
+/*   GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (sms->source); */
+/*   GError *tracker_error = NULL, *error = NULL; */
 
-  tracker_sparql_connection_update_finish (priv->tracker_connection,
-                                           result,
-                                           &tracker_error);
+/*   tracker_sparql_connection_update_finish (priv->tracker_connection, */
+/*                                            result, */
+/*                                            &tracker_error); */
 
-  if (tracker_error) {
-    GRL_WARNING ("Could not execute sparql update : %s",
-                 tracker_error->message);
+/*   if (tracker_error) { */
+/*     GRL_WARNING ("Could not execute sparql update : %s", */
+/*                  tracker_error->message); */
 
-    error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_SET_METADATA_FAILED,
-			 "Failed to set metadata : %s",
-                         tracker_error->message);
+/*     error = g_error_new (GRL_CORE_ERROR, */
+/* 			 GRL_CORE_ERROR_SET_METADATA_FAILED, */
+/* 			 "Failed to set metadata : %s", */
+/*                          tracker_error->message); */
 
-    sms->callback (sms->source, sms->media, NULL, sms->user_data, error);
+/*     sms->callback (sms->source, sms->media, NULL, sms->user_data, error); */
 
-    g_error_free (tracker_error);
-    g_error_free (error);
-  } else {
-    sms->callback (sms->source, sms->media, NULL, sms->user_data, error);
-  }
+/*     g_error_free (tracker_error); */
+/*     g_error_free (error); */
+/*   } else { */
+/*     sms->callback (sms->source, sms->media, NULL, sms->user_data, error); */
+/*   } */
 
-  grl_tracker_queue_done (grl_tracker_queue, os);
-}
+/*   grl_tracker_queue_done (grl_tracker_queue, os); */
+/* } */
 
 /**/
 
 const GList *
-grl_tracker_media_writable_keys (GrlMetadataSource *source)
+grl_tracker_media_writable_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -651,39 +651,39 @@ grl_tracker_media_metadata (GrlMediaSource *source,
     g_free (sparql_select);
 }
 
-void
-grl_tracker_media_set_metadata (GrlMetadataSource *source,
-                                GrlMetadataSourceSetMetadataSpec *sms)
-{
-  /* GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source); */
-  gchar *sparql_delete, *sparql_cdelete, *sparql_insert, *sparql_final;
-  const gchar *urn = grl_data_get_string (GRL_DATA (sms->media),
-                                          grl_metadata_key_tracker_urn);
-  GrlTrackerOp *os;
+/* void */
+/* grl_tracker_media_set_metadata (GrlMetadataSource *source, */
+/*                                 GrlMetadataSourceSetMetadataSpec *sms) */
+/* { */
+/*   /\* GrlTrackerMediaPriv *priv = GRL_TRACKER_MEDIA_GET_PRIVATE (source); *\/ */
+/*   gchar *sparql_delete, *sparql_cdelete, *sparql_insert, *sparql_final; */
+/*   const gchar *urn = grl_data_get_string (GRL_DATA (sms->media), */
+/*                                           grl_metadata_key_tracker_urn); */
+/*   GrlTrackerOp *os; */
 
-  GRL_IDEBUG ("%s: urn=%s", G_STRFUNC, urn);
+/*   GRL_IDEBUG ("%s: urn=%s", G_STRFUNC, urn); */
 
-  sparql_delete = grl_tracker_get_delete_string (sms->keys);
-  sparql_cdelete = grl_tracker_get_delete_conditional_string (urn, sms->keys);
-  sparql_insert = grl_tracker_tracker_get_insert_string (sms->media, sms->keys);
-  sparql_final = g_strdup_printf (TRACKER_SAVE_REQUEST,
-                                  urn, sparql_delete,
-                                  urn, sparql_cdelete,
-                                  urn, sparql_insert);
+/*   sparql_delete = grl_tracker_get_delete_string (sms->keys); */
+/*   sparql_cdelete = grl_tracker_get_delete_conditional_string (urn, sms->keys); */
+/*   sparql_insert = grl_tracker_tracker_get_insert_string (sms->media, sms->keys); */
+/*   sparql_final = g_strdup_printf (TRACKER_SAVE_REQUEST, */
+/*                                   urn, sparql_delete, */
+/*                                   urn, sparql_cdelete, */
+/*                                   urn, sparql_insert); */
 
-  os = grl_tracker_op_initiate_set_metadata (sparql_final,
-                                             (GAsyncReadyCallback) tracker_set_metadata_cb,
-                                             sms);
-  os->keys = sms->keys;
+/*   os = grl_tracker_op_initiate_set_metadata (sparql_final, */
+/*                                              (GAsyncReadyCallback) tracker_set_metadata_cb, */
+/*                                              sms); */
+/*   os->keys = sms->keys; */
 
-  GRL_IDEBUG ("\trequest: '%s'", sparql_final);
+/*   GRL_IDEBUG ("\trequest: '%s'", sparql_final); */
 
-  grl_tracker_queue_push (grl_tracker_queue, os);
+/*   grl_tracker_queue_push (grl_tracker_queue, os); */
 
-  g_free (sparql_delete);
-  g_free (sparql_cdelete);
-  g_free (sparql_insert);
-}
+/*   g_free (sparql_delete); */
+/*   g_free (sparql_cdelete); */
+/*   g_free (sparql_insert); */
+/* } */
 
 void
 grl_tracker_media_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
@@ -865,7 +865,7 @@ grl_tracker_media_browse (GrlMediaSource *source,
 }
 
 void
-grl_tracker_media_cancel (GrlMetadataSource *source, guint operation_id)
+grl_tracker_media_cancel (GrlSource *source, guint operation_id)
 {
   GrlTrackerOp *os;
 

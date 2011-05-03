@@ -172,13 +172,13 @@ struct _GrlJamendoSourcePriv {
 static GrlJamendoSource *grl_jamendo_source_new (void);
 
 gboolean grl_jamendo_plugin_init (GrlPluginRegistry *registry,
-                                  const GrlPluginInfo *plugin,
+                                  GrlPlugin *plugin,
                                   GList *configs);
 
-static const GList *grl_jamendo_source_supported_keys (GrlMetadataSource *source);
+static const GList *grl_jamendo_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_jamendo_source_get_caps (GrlMetadataSource *source,
-                                              GrlSupportedOps operation);
+static GrlCaps *grl_jamendo_source_get_caps (GrlSource *source,
+                                             GrlSupportedOps operation);
 
 static void grl_jamendo_source_metadata (GrlMediaSource *source,
                                          GrlMediaSourceMetadataSpec *ms);
@@ -192,14 +192,14 @@ static void grl_jamendo_source_query (GrlMediaSource *source,
 static void grl_jamendo_source_search (GrlMediaSource *source,
                                        GrlMediaSourceSearchSpec *ss);
 
-static void grl_jamendo_source_cancel (GrlMetadataSource *source,
+static void grl_jamendo_source_cancel (GrlSource *source,
                                        guint operation_id);
 
 /* =================== Jamendo Plugin  =============== */
 
 gboolean
 grl_jamendo_plugin_init (GrlPluginRegistry *registry,
-                         const GrlPluginInfo *plugin,
+                         GrlPlugin *plugin,
                          GList *configs)
 {
   GRL_LOG_DOMAIN_INIT (jamendo_log_domain, "jamendo");
@@ -209,7 +209,7 @@ grl_jamendo_plugin_init (GrlPluginRegistry *registry,
   GrlJamendoSource *source = grl_jamendo_source_new ();
   grl_plugin_registry_register_source (registry,
                                        plugin,
-                                       GRL_MEDIA_PLUGIN (source),
+                                       GRL_SOURCE (source),
                                        NULL);
   return TRUE;
 }
@@ -252,17 +252,20 @@ grl_jamendo_source_finalize (GObject *object)
 static void
 grl_jamendo_source_class_init (GrlJamendoSourceClass * klass)
 {
-  GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   GObjectClass *g_class = G_OBJECT_CLASS (klass);
-  source_class->metadata = grl_jamendo_source_metadata;
-  source_class->browse = grl_jamendo_source_browse;
-  source_class->query = grl_jamendo_source_query;
-  source_class->search = grl_jamendo_source_search;
-  metadata_class->cancel = grl_jamendo_source_cancel;
-  metadata_class->supported_keys = grl_jamendo_source_supported_keys;
-  metadata_class->get_caps = grl_jamendo_source_get_caps;
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
+
   g_class->finalize = grl_jamendo_source_finalize;
+
+  source_class->cancel = grl_jamendo_source_cancel;
+  source_class->supported_keys = grl_jamendo_source_supported_keys;
+  source_class->get_caps = grl_jamendo_source_get_caps;
+
+  media_class->metadata = grl_jamendo_source_metadata;
+  media_class->browse = grl_jamendo_source_browse;
+  media_class->query = grl_jamendo_source_query;
+  media_class->search = grl_jamendo_source_search;
 
   g_type_class_add_private (klass, sizeof (GrlJamendoSourcePriv));
 }
@@ -947,7 +950,7 @@ parse_query (const gchar *query, JamendoCategory *category, gchar **term)
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_jamendo_source_supported_keys (GrlMetadataSource *source)
+grl_jamendo_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -1362,7 +1365,7 @@ grl_jamendo_source_search (GrlMediaSource *source,
 }
 
 static void
-grl_jamendo_source_cancel (GrlMetadataSource *source, guint operation_id)
+grl_jamendo_source_cancel (GrlSource *source, guint operation_id)
 {
   XmlParseEntries *xpe;
   GrlJamendoSourcePriv *priv;
@@ -1388,7 +1391,7 @@ grl_jamendo_source_cancel (GrlMetadataSource *source, guint operation_id)
 }
 
 static GrlCaps *
-grl_jamendo_source_get_caps (GrlMetadataSource *source,
+grl_jamendo_source_get_caps (GrlSource *source,
                              GrlSupportedOps operation)
 {
   static GrlCaps *caps = NULL;

@@ -248,16 +248,17 @@ fill_metadata (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
 
   iter = keys;
   while (iter) {
-    if (iter->data == GRL_METADATA_KEY_PLAY_COUNT) {
+    GrlKeyID key = GRLPOINTER_TO_KEYID (iter->data);
+    if (key == GRL_METADATA_KEY_PLAY_COUNT) {
       play_count = sqlite3_column_int (stmt, STORE_PLAY_COUNT);
       grl_media_set_play_count (media, play_count);
-    } else if (iter->data == GRL_METADATA_KEY_RATING) {
+    } else if (key == GRL_METADATA_KEY_RATING) {
       rating = sqlite3_column_double (stmt, STORE_RATING);
       grl_media_set_rating (media, rating, 5.00);
-    } else if (iter->data == GRL_METADATA_KEY_LAST_PLAYED) {
+    } else if (key == GRL_METADATA_KEY_LAST_PLAYED) {
       last_played = (gchar *) sqlite3_column_text (stmt, STORE_LAST_PLAYED);
       grl_media_set_last_played (media, last_played);
-    } else if (iter->data == GRL_METADATA_KEY_LAST_POSITION) {
+    } else if (key == GRL_METADATA_KEY_LAST_POSITION) {
       last_position = sqlite3_column_int (stmt, STORE_LAST_POSITION);
       grl_media_set_last_position (media, last_position);
     }
@@ -319,16 +320,17 @@ bind_and_exec (sqlite3 *db,
   iter_keys = keys;
   while (iter_names) {
     if (iter_names->data) {
-      if (iter_keys->data == GRL_METADATA_KEY_RATING) {
+      GrlKeyID key = GRLPOINTER_TO_KEYID (iter_keys->data);
+      if (key == GRL_METADATA_KEY_RATING) {
 	double_value = grl_media_get_rating (media);
 	sqlite3_bind_double (stmt, count, double_value);
-      } else if (iter_keys->data == GRL_METADATA_KEY_PLAY_COUNT) {
+      } else if (key == GRL_METADATA_KEY_PLAY_COUNT) {
 	int_value = grl_media_get_play_count (media);
 	sqlite3_bind_int (stmt, count, int_value);
-      } else if (iter_keys->data == GRL_METADATA_KEY_LAST_POSITION) {
+      } else if (key == GRL_METADATA_KEY_LAST_POSITION) {
 	int_value = grl_media_get_last_position (media);
 	sqlite3_bind_int (stmt, count, int_value);
-      } else if (iter_keys->data == GRL_METADATA_KEY_LAST_PLAYED) {
+      } else if (key == GRL_METADATA_KEY_LAST_PLAYED) {
 	char_value = grl_media_get_last_played (media);
 	sqlite3_bind_text (stmt, count, char_value, -1, SQLITE_STATIC);
       }
@@ -449,11 +451,12 @@ write_keys (sqlite3 *db,
   /* Get DB column names for each key to be updated */
   iter = sms->keys;
   while (iter) {
-    const gchar *col_name = get_column_name_from_key_id (iter->data);
+    const gchar *col_name =
+        get_column_name_from_key_id (GRLPOINTER_TO_KEYID (iter->data));
     if (!col_name) {
       GRL_WARNING ("Key %" GRL_KEYID_FORMAT " is not supported for "
                        "writing, ignoring...",
-                 iter->data);
+                 GRLPOINTER_TO_KEYID (iter->data));
       failed_keys = g_list_prepend (failed_keys, iter->data);
     } else {
       supported_keys++;

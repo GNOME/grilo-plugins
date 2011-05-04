@@ -330,9 +330,11 @@ grl_lastfm_albumart_source_may_resolve (GrlMetadataSource *source,
   if (missing_keys) {
     GList *result = NULL;
     if (!have_artist)
-      result = g_list_append (result, GRL_METADATA_KEY_ARTIST);
+      result =
+          g_list_append (result, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST));
     if (!have_album)
-      result = g_list_append (result, GRL_METADATA_KEY_ALBUM);
+      result =
+          g_list_append (result, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM));
 
     if (result)
       *missing_keys = result;
@@ -358,7 +360,8 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
   /* Check that albumart is requested */
   iter = rs->keys;
   while (iter) {
-    if (iter->data == GRL_METADATA_KEY_THUMBNAIL) {
+    GrlKeyID key = GRLPOINTER_TO_KEYID (iter->data);
+    if (key == GRL_METADATA_KEY_THUMBNAIL) {
       break;
     } else {
       iter = g_list_next (iter);

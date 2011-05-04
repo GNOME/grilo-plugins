@@ -66,8 +66,8 @@ gboolean grl_gravatar_source_plugin_init (GrlPluginRegistry *registry,
                                           const GrlPluginInfo *plugin,
                                           GList *configs);
 
-GrlKeyID GRL_METADATA_KEY_ARTIST_AVATAR = NULL;
-GrlKeyID GRL_METADATA_KEY_AUTHOR_AVATAR = NULL;
+GrlKeyID GRL_METADATA_KEY_ARTIST_AVATAR = 0;
+GrlKeyID GRL_METADATA_KEY_AUTHOR_AVATAR = 0;
 
 /* =================== Gravatar Plugin  =============== */
 
@@ -171,11 +171,11 @@ register_gravatar_key (GrlPluginRegistry *registry,
 
   /* If key was not registered, could be that it is already registered. If so,
      check if type is the expected one, and reuse it */
-  if (!key) {
+  if (key == GRL_METADATA_KEY_INVALID) {
     g_param_spec_unref (spec);
     key = grl_plugin_registry_lookup_metadata_key (registry, name);
-    if (!key || GRL_METADATA_KEY_GET_TYPE (key) != G_TYPE_STRING) {
-      key = NULL;
+    if (grl_metadata_key_get_type (key) != G_TYPE_STRING) {
+      key = GRL_METADATA_KEY_INVALID;
     }
   }
 
@@ -259,10 +259,14 @@ grl_gravatar_source_supported_keys (GrlMetadataSource *source)
 
   if (!keys) {
     if (GRL_METADATA_KEY_ARTIST_AVATAR) {
-      keys = g_list_prepend (keys, GRL_METADATA_KEY_ARTIST_AVATAR);
+      keys =
+          g_list_prepend (keys,
+                          GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST_AVATAR));
     }
     if (GRL_METADATA_KEY_AUTHOR_AVATAR) {
-      keys =g_list_prepend (keys, GRL_METADATA_KEY_AUTHOR_AVATAR);
+      keys =
+          g_list_prepend (keys,
+                          GRLKEYID_TO_POINTER (GRL_METADATA_KEY_AUTHOR_AVATAR));
     }
   }
 
@@ -300,9 +304,10 @@ grl_gravatar_source_resolve (GrlMetadataSource *source,
   /* Check that albumart is requested */
   iter = rs->keys;
   while (iter && (!artist_avatar_required || !author_avatar_required)) {
-    if (iter->data == GRL_METADATA_KEY_ARTIST_AVATAR) {
+    GrlKeyID key = GRLPOINTER_TO_KEYID (iter->data);
+    if (key == GRL_METADATA_KEY_ARTIST_AVATAR) {
       artist_avatar_required = TRUE;
-    } else if (iter->data == GRL_METADATA_KEY_AUTHOR_AVATAR) {
+    } else if (key == GRL_METADATA_KEY_AUTHOR_AVATAR) {
       author_avatar_required = TRUE;
     }
     iter = g_list_next (iter);

@@ -490,13 +490,13 @@ device_unavailable_cb (GUPnPControlPoint *cp,
 const static gchar *
 get_upnp_key (const GrlKeyID key_id)
 {
-  return g_hash_table_lookup (key_mapping, key_id);
+  return g_hash_table_lookup (key_mapping, GRLKEYID_TO_POINTER (key_id));
 }
 
 const static gchar *
 get_upnp_key_for_filter (const GrlKeyID key_id)
 {
-  return g_hash_table_lookup (filter_key_mapping, key_id);
+  return g_hash_table_lookup (filter_key_mapping, GRLKEYID_TO_POINTER (key_id));
 }
 
 static gchar *
@@ -511,7 +511,7 @@ get_upnp_filter (const GList *keys)
   iter = (GList *) keys;
   while (iter) {
     upnp_key =
-      (gchar *) get_upnp_key_for_filter (iter->data);
+      (gchar *) get_upnp_key_for_filter (GRLPOINTER_TO_KEYID (iter->data));
     if (upnp_key) {
       if (!first) {
 	g_string_append (filter, ",");
@@ -544,19 +544,19 @@ setup_key_mappings (void)
   key_mapping = g_hash_table_new (g_direct_hash, g_direct_equal);
   filter_key_mapping = g_hash_table_new (g_direct_hash, g_direct_equal);
 
-  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_TITLE, "title");
-  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_ARTIST, "artist");
-  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_ALBUM, "album");
-  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_GENRE, "genre");
-  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_URL, "res");
-  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_DATE, "modified");
-  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_TITLE, "title");
-  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_URL, "res");
-  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DATE, "dc:date");
-  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_ARTIST, "upnp:artist");
-  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_ALBUM, "upnp:album");
-  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_GENRE, "upnp:genre");
-  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DURATION, "res@duration");
+  g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE), "title");
+  g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST), "artist");
+  g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM), "album");
+  g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_GENRE), "genre");
+  g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL), "res");
+  g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DATE), "modified");
+  g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE), "title");
+  g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL), "res");
+  g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DATE), "dc:date");
+  g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST), "upnp:artist");
+  g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM), "upnp:album");
+  g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_GENRE), "upnp:genre");
+  g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DURATION), "res@duration");
 }
 
 static gchar *
@@ -884,9 +884,10 @@ build_media_from_didl (GrlMedia *content,
 
   iter = keys;
   while (iter) {
-    gchar *value = get_value_for_key (iter->data, didl_node, didl_props);
+    GrlKeyID key = GRLPOINTER_TO_KEYID (iter->data);
+    gchar *value = get_value_for_key (key, didl_node, didl_props);
     if (value) {
-      set_metadata_value (GRL_DATA (media), iter->data, value);
+      set_metadata_value (GRL_DATA (media), key, value);
     }
     iter = g_list_next (iter);
   }

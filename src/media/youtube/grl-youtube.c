@@ -649,12 +649,13 @@ build_media_from_entry (GrlMedia *content,
 
   iter = (GList *) keys;
   while (iter) {
-    if (iter->data == GRL_METADATA_KEY_TITLE) {
+    GrlKeyID key = GRLPOINTER_TO_KEYID (iter->data);
+    if (key == GRL_METADATA_KEY_TITLE) {
       grl_media_set_title (media, gdata_entry_get_title (entry));
-    } else if (iter->data == GRL_METADATA_KEY_DESCRIPTION) {
+    } else if (key == GRL_METADATA_KEY_DESCRIPTION) {
       grl_media_set_description (media,
 				 gdata_youtube_video_get_description (video));
-    } else if (iter->data == GRL_METADATA_KEY_THUMBNAIL) {
+    } else if (key == GRL_METADATA_KEY_THUMBNAIL) {
       GList *thumb_list;
       thumb_list = gdata_youtube_video_get_thumbnails (video);
       while (thumb_list) {
@@ -663,7 +664,7 @@ build_media_from_entry (GrlMedia *content,
                                  gdata_media_thumbnail_get_uri (thumbnail));
         thumb_list = g_list_next (thumb_list);
       }
-    } else if (iter->data == GRL_METADATA_KEY_DATE) {
+    } else if (key == GRL_METADATA_KEY_DATE) {
       GTimeVal date;
       gchar *date_str;
 #ifdef GDATA_API_SUBJECT_TO_CHANGE
@@ -678,23 +679,23 @@ build_media_from_entry (GrlMedia *content,
         grl_media_set_date (media, date_str);
         g_free (date_str);
       }
-    } else if (iter->data == GRL_METADATA_KEY_DURATION) {
+    } else if (key == GRL_METADATA_KEY_DURATION) {
       grl_media_set_duration (media, gdata_youtube_video_get_duration (video));
-    } else if (iter->data == GRL_METADATA_KEY_MIME) {
+    } else if (key == GRL_METADATA_KEY_MIME) {
       grl_media_set_mime (media, YOUTUBE_VIDEO_MIME);
-    } else if (iter->data == GRL_METADATA_KEY_SITE) {
+    } else if (key == GRL_METADATA_KEY_SITE) {
       grl_media_set_site (media, gdata_youtube_video_get_player_uri (video));
-    } else if (iter->data == GRL_METADATA_KEY_EXTERNAL_URL) {
+    } else if (key == GRL_METADATA_KEY_EXTERNAL_URL) {
       grl_media_set_external_url (media,
 				  gdata_youtube_video_get_player_uri (video));
-    } else if (iter->data == GRL_METADATA_KEY_RATING) {
+    } else if (key == GRL_METADATA_KEY_RATING) {
       gdouble average;
       gdata_youtube_video_get_rating (video, NULL, NULL, NULL, &average);
       grl_media_set_rating (media, average, 5.00);
-    } else if (iter->data == GRL_METADATA_KEY_URL) {
+    } else if (key == GRL_METADATA_KEY_URL) {
       /* This needs another query and will be resolved asynchronously p Q*/
       need_url = TRUE;
-    } else if (iter->data == GRL_METADATA_KEY_EXTERNAL_PLAYER) {
+    } else if (key == GRL_METADATA_KEY_EXTERNAL_PLAYER) {
       GDataYouTubeContent *youtube_content;
       youtube_content =
 	gdata_youtube_video_look_up_content (video,

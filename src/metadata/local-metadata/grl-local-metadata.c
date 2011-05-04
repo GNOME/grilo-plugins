@@ -614,24 +614,25 @@ has_compatible_media_url (GrlMedia *media)
 static resolution_flags_t
 get_resolution_flags (GList *keys)
 {
-  GList *key = keys;
+  GList *iter = keys;
   resolution_flags_t flags = 0;
 
-  while (key != NULL) {
-    if (key->data == GRL_METADATA_KEY_TITLE)
+  while (iter != NULL) {
+    GrlKeyID key = GRLPOINTER_TO_KEYID (iter->data);
+    if (key == GRL_METADATA_KEY_TITLE)
       flags |= FLAG_VIDEO_TITLE;
-    else if (key->data == GRL_METADATA_KEY_SHOW)
+    else if (key == GRL_METADATA_KEY_SHOW)
       flags |= FLAG_VIDEO_SHOWNAME;
-    else if (key->data == GRL_METADATA_KEY_DATE)
+    else if (key == GRL_METADATA_KEY_DATE)
       flags |= FLAG_VIDEO_DATE;
-    else if (key->data == GRL_METADATA_KEY_SEASON)
+    else if (key == GRL_METADATA_KEY_SEASON)
       flags |= FLAG_VIDEO_SEASON;
-    else if (key->data == GRL_METADATA_KEY_EPISODE)
+    else if (key == GRL_METADATA_KEY_EPISODE)
       flags |= FLAG_VIDEO_EPISODE;
-    else if (key->data == GRL_METADATA_KEY_THUMBNAIL)
+    else if (key == GRL_METADATA_KEY_THUMBNAIL)
       flags |= FLAG_THUMBNAIL;
 
-    key = key->next;
+    iter = iter->next;
   }
 
   return flags;

@@ -200,7 +200,15 @@ str_to_iso8601 (gchar *str)
   gchar *iso8601_date;
 
   date = g_strsplit (str, " ", -1);
-  iso8601_date = g_strdup_printf ("%sT%sZ", date[0], date[1]);
+  if (date[0]) {
+    if (date[1]) {
+      iso8601_date = g_strdup_printf ("%sT%sZ", date[0], date[1]);
+    } else {
+      iso8601_date = g_strdup_printf ("%sT", date[0]);
+    }
+  } else {
+    iso8601_date = NULL;
+  }
   g_strfreev (date);
 
   return iso8601_date;
@@ -246,8 +254,10 @@ update_media (GrlMedia *media, GHashTable *video)
   if (str)
   {
     gchar *date = str_to_iso8601(str);
-    grl_media_set_date (media, date);
-    g_free (date);
+    if (date) {
+      grl_media_set_date (media, date);
+      g_free (date);
+    }
   }
 
   str = g_hash_table_lookup (video, VIMEO_VIDEO_THUMBNAIL);

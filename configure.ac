@@ -153,7 +153,7 @@ if test "x$HAVE_GDATA" = "xyes"; then
    gdata_version_major=`echo $gdata_version | awk -F. '{ print $1 }'`
    gdata_version_minor=`echo $gdata_version | awk -F. '{ print $2 }'`
    if test $gdata_version_major -eq 0 -a $gdata_version_minor -ge 7; then
-      GDATA_CFLAGS+=" -DGDATA_API_SUBJECT_TO_CHANGE"
+      GDATA_CFLAGS="$GDATA_CFLAGS -DGDATA_API_SUBJECT_TO_CHANGE"
    fi
 fi
 

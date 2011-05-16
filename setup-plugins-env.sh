@@ -16,7 +16,7 @@ export GRL_PLUGIN_PATH
 
 echo ""
 echo "Include this script as source for your current shell or just copy and paste"
-echo "the followind environment variable definition:"
+echo "the following environment variable definition:"
 echo ""
 
 echo "------- 8< ------ 8< ------- 8< -------- 8< ------- 8< ------- 8< ------- 8< -------"

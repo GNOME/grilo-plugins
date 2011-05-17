@@ -69,16 +69,18 @@ print_supported_ops (GrlMetadataSource *source)
 static void
 print_metadata (gpointer key, GrlData *content)
 {
-  if (key == GRL_METADATA_KEY_DESCRIPTION) {
+  GrlKeyID keyid = GRLPOINTER_TO_KEYID (key);
+
+  if (keyid == GRL_METADATA_KEY_DESCRIPTION) {
     return;
   }
 
-  const GValue *value = grl_data_get (content, key);
+  const GValue *value = grl_data_get (content, keyid);
   if (value && G_VALUE_HOLDS_STRING (value)) {
-    GRL_DEBUG ("\t%s: %s", GRL_METADATA_KEY_GET_NAME (key),
+    GRL_DEBUG ("\t%s: %s", GRL_METADATA_KEY_GET_NAME (keyid),
                g_value_get_string (value));
   } else if (value && G_VALUE_HOLDS_INT (value)) {
-    GRL_DEBUG ("\t%s: %d",  GRL_METADATA_KEY_GET_NAME (key),
+    GRL_DEBUG ("\t%s: %d",  GRL_METADATA_KEY_GET_NAME (keyid),
                g_value_get_int (value));
   }
 }

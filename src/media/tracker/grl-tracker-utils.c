@@ -78,8 +78,9 @@ insert_key_mapping (GrlKeyID     grl_key,
                     const gchar *sparql_key_flavor)
 {
   tracker_grl_sparql_t *assoc = g_new0 (tracker_grl_sparql_t, 1);
-  GList *assoc_list = g_hash_table_lookup (grl_to_sparql_mapping, grl_key);
-  gchar *canon_name = g_strdup (g_param_spec_get_name (grl_key));
+  GList *assoc_list = g_hash_table_lookup (grl_to_sparql_mapping,
+                                           GRLKEYID_TO_POINTER (grl_key));
+  gchar *canon_name = g_strdup (GRL_METADATA_KEY_GET_NAME (grl_key));
 
   assoc->grl_key              = grl_key;
   assoc->sparql_key_name      = build_flavored_key (canon_name,
@@ -90,12 +91,14 @@ insert_key_mapping (GrlKeyID     grl_key,
 
   assoc_list = g_list_append (assoc_list, assoc);
 
-  g_hash_table_insert (grl_to_sparql_mapping, grl_key, assoc_list);
+  g_hash_table_insert (grl_to_sparql_mapping,
+                       GRLKEYID_TO_POINTER (grl_key),
+                       assoc_list);
   g_hash_table_insert (sparql_to_grl_mapping,
                        (gpointer) assoc->sparql_key_name,
                        assoc);
   g_hash_table_insert (sparql_to_grl_mapping,
-                       (gpointer) g_param_spec_get_name (G_PARAM_SPEC (grl_key)),
+                       (gpointer) GRL_METADATA_KEY_GET_NAME (grl_key),
                        assoc);
 
   g_free (canon_name);
@@ -304,13 +307,15 @@ grl_tracker_get_mapping_from_sparql (const gchar *key)
 static GList *
 get_mapping_from_grl (const GrlKeyID key)
 {
-  return (GList *) g_hash_table_lookup (grl_to_sparql_mapping, key);
+  return (GList *) g_hash_table_lookup (grl_to_sparql_mapping,
+                                        GRLKEYID_TO_POINTER (key));
 }
 
 gboolean
 grl_tracker_key_is_supported (const GrlKeyID key)
 {
-  return g_hash_table_lookup (grl_to_sparql_mapping, key) != NULL;
+  return g_hash_table_lookup (grl_to_sparql_mapping,
+                              GRLKEYID_TO_POINTER (key)) != NULL;
 }
 
 /**/
@@ -341,7 +346,7 @@ grl_tracker_media_get_select_string (const GList *keys)
                           assoc->sparql_key_name);
 
   while (key != NULL) {
-    assoc_list = get_mapping_from_grl ((GrlKeyID) key->data);
+    assoc_list = get_mapping_from_grl (GPOINTER_TO_UINT (key->data));
     while (assoc_list != NULL) {
       assoc = (tracker_grl_sparql_t *) assoc_list->data;
       if (assoc != NULL) {
@@ -364,7 +369,7 @@ gen_prop_insert_string (GString *gstr,
 {
   gchar *tmp;
 
-  switch (G_PARAM_SPEC (assoc->grl_key)->value_type) {
+  switch (GRL_METADATA_KEY_GET_TYPE (assoc->grl_key)) {
   case G_TYPE_STRING:
     tmp = g_strescape (grl_data_get_string (data, assoc->grl_key), NULL);
     g_string_append_printf (gstr, "%s \"%s\"",
@@ -399,11 +404,12 @@ grl_tracker_tracker_get_insert_string (GrlMedia *media, const GList *keys)
   gchar *ret;
 
   while (key != NULL) {
-    assoc_list = get_mapping_from_grl ((GrlKeyID) key->data);
+    assoc_list = get_mapping_from_grl (GRLPOINTER_TO_KEYID (key->data));
     while (assoc_list != NULL) {
       assoc = (tracker_grl_sparql_t *) assoc_list->data;
       if (assoc != NULL) {
-        if (grl_data_has_key (GRL_DATA (media), key->data)) {
+        if (grl_data_has_key (GRL_DATA (media),
+                              GRLPOINTER_TO_KEYID (key->data))) {
           if (first) {
             gen_prop_insert_string (gstr, assoc, GRL_DATA (media));
             first = FALSE;
@@ -435,7 +441,7 @@ grl_tracker_get_delete_string (const GList *keys)
   gint var_n = 0;
 
   while (key != NULL) {
-    assoc_list = get_mapping_from_grl ((GrlKeyID) key->data);
+    assoc_list = get_mapping_from_grl (GRLPOINTER_TO_KEYID (key->data));
     while (assoc_list != NULL) {
       assoc = (tracker_grl_sparql_t *) assoc_list->data;
       if (assoc != NULL) {
@@ -472,7 +478,7 @@ grl_tracker_get_delete_conditional_string (const gchar *urn,
   gint var_n = 0;
 
   while (key != NULL) {
-    assoc_list = get_mapping_from_grl ((GrlKeyID) key->data);
+    assoc_list = get_mapping_from_grl (GRLPOINTER_TO_KEYID (key->data));
     while (assoc_list != NULL) {
       assoc = (tracker_grl_sparql_t *) assoc_list->data;
       if (assoc != NULL) {

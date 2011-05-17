@@ -179,7 +179,7 @@ fill_grilo_media_from_sparql (GrlTrackerMedia    *source,
   GRL_ODEBUG ("\tSetting media prop (col=%i/var=%s/prop=%s) %s",
               column,
               sparql_key,
-              g_param_spec_get_name (G_PARAM_SPEC (assoc->grl_key)),
+              GRL_METADATA_KEY_GET_NAME (assoc->grl_key),
               tracker_sparql_cursor_get_string (cursor, column, NULL));
 
   if (tracker_sparql_cursor_is_bound (cursor, column) == FALSE) {
@@ -195,7 +195,7 @@ fill_grilo_media_from_sparql (GrlTrackerMedia    *source,
   if (assoc->set_value) {
     assoc->set_value (cursor, column, media, assoc->grl_key);
   } else {
-    switch (G_PARAM_SPEC (assoc->grl_key)->value_type) {
+    switch (GRL_METADATA_KEY_GET_TYPE (assoc->grl_key)) {
       case G_TYPE_STRING:
         /* Cache the source associated to this result. */
         if (assoc->grl_key == GRL_METADATA_KEY_ID) {

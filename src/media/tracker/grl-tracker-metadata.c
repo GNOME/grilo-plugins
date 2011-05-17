@@ -202,7 +202,7 @@ fill_grilo_media_from_sparql (GrlMedia            *media,
   GRL_ODEBUG ("\tSetting media prop (col=%i/var=%s/prop=%s) %s",
               column,
               sparql_key,
-              g_param_spec_get_name (G_PARAM_SPEC (assoc->grl_key)),
+              GRL_METADATA_KEY_GET_NAME (assoc->grl_key),
               tracker_sparql_cursor_get_string (cursor, column, NULL));
 
   if (tracker_sparql_cursor_is_bound (cursor, column) == FALSE) {
@@ -218,7 +218,7 @@ fill_grilo_media_from_sparql (GrlMedia            *media,
   if (assoc->set_value) {
     assoc->set_value (cursor, column, media, assoc->grl_key);
   } else {
-    switch (G_PARAM_SPEC (assoc->grl_key)->value_type) {
+    switch (GRL_METADATA_KEY_GET_TYPE (assoc->grl_key)) {
       case G_TYPE_STRING:
         val.str_val = tracker_sparql_cursor_get_string (cursor, column, NULL);
         if (val.str_val != NULL)
@@ -303,7 +303,7 @@ grl_tracker_metadata_may_resolve (GrlMetadataSource  *source,
                                   GrlKeyID            key_id,
                                   GList             **missing_keys)
 {
-  GRL_IDEBUG ("%s: key=%s", __FUNCTION__, g_param_spec_get_name (key_id));
+  GRL_IDEBUG ("%s: key=%s", __FUNCTION__, GRL_METADATA_KEY_GET_NAME (key_id));
 
   if (media && grl_tracker_media_find_source (grl_media_get_source (media)))
       return FALSE;
@@ -315,7 +315,8 @@ grl_tracker_metadata_may_resolve (GrlMetadataSource  *source,
       return TRUE;
 
   if (missing_keys)
-    *missing_keys = g_list_append (*missing_keys, GRL_METADATA_KEY_URL);
+    *missing_keys = g_list_append (*missing_keys,
+                                   GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL));
 
   return FALSE;
 }

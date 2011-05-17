@@ -883,15 +883,23 @@ grl_tracker_media_change_stop (GrlMediaSource *source, GError **error)
 void
 grl_tracker_media_init_requests (void)
 {
+  GrlPluginRegistry *registry = grl_plugin_registry_get_default ();
+
+  /* Check if "tracker-category" is registered; if not, the register it */
   grl_metadata_key_tracker_category =
-    grl_plugin_registry_register_metadata_key (grl_plugin_registry_get_default (),
-                                               g_param_spec_string ("tracker-category",
-                                                                    "Tracker category",
-                                                                    "Category a media belongs to",
-                                                                    NULL,
-                                                                    G_PARAM_STATIC_STRINGS |
-                                                                    G_PARAM_READWRITE),
-                                               NULL);
+    grl_plugin_registry_lookup_metadata_key (registry, "tracker-category");
+
+  if (grl_metadata_key_tracker_category == GRL_METADATA_KEY_INVALID) {
+    grl_metadata_key_tracker_category =
+      grl_plugin_registry_register_metadata_key (grl_plugin_registry_get_default (),
+                                                 g_param_spec_string ("tracker-category",
+                                                                      "Tracker category",
+                                                                      "Category a media belongs to",
+                                                                      NULL,
+                                                                      G_PARAM_STATIC_STRINGS |
+                                                                      G_PARAM_READWRITE),
+                                                 NULL);
+  }
 
   grl_tracker_operations = g_hash_table_new (g_direct_hash, g_direct_equal);
 

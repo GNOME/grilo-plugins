@@ -131,7 +131,7 @@ grl_tracker_setup_key_mappings (void)
   grl_metadata_key_tracker_urn =
     grl_plugin_registry_lookup_metadata_key (registry, "tracker-urn");
 
-  if (grl_metadata_key_tracker_urn == GRL_METADATA_KEY_INVALID) {
+  if (grl_metadata_key_tracker_urn == NULL) {
     grl_metadata_key_tracker_urn =
       grl_plugin_registry_register_metadata_key (grl_plugin_registry_get_default (),
                                                  g_param_spec_string ("tracker-urn",

@@ -889,7 +889,7 @@ grl_tracker_media_init_requests (void)
   grl_metadata_key_tracker_category =
     grl_plugin_registry_lookup_metadata_key (registry, "tracker-category");
 
-  if (grl_metadata_key_tracker_category == GRL_METADATA_KEY_INVALID) {
+  if (grl_metadata_key_tracker_category == NULL) {
     grl_metadata_key_tracker_category =
       grl_plugin_registry_register_metadata_key (grl_plugin_registry_get_default (),
                                                  g_param_spec_string ("tracker-category",

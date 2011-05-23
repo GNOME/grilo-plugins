@@ -126,7 +126,7 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
   GRL_DEBUG ("flickr_plugin_init");
 
   if (!configs) {
-    GRL_WARNING ("Missing configuration");
+    GRL_INFO ("Configuration not provided! Plugin not loaded");
     return FALSE;
   }
 
@@ -138,7 +138,8 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
     flickr_secret = grl_config_get_api_secret (config);
 
     if (!flickr_key || !flickr_secret) {
-      GRL_WARNING ("Required configuration keys not set up");
+      GRL_INFO ("Required API key or secret configuration not provdied. "
+                " Plugin not loaded");
     } else if (flickr_token) {
       grl_flickr_source_personal_new (plugin,
                                       flickr_key,

@@ -261,19 +261,19 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
   GRL_DEBUG ("youtube_plugin_init");
 
   if (!configs) {
-    GRL_WARNING ("Configuration not provided! Cannot configure plugin.");
+    GRL_INFO ("Configuration not provided! Plugin not loaded");
     return FALSE;
   }
 
   config_count = g_list_length (configs);
   if (config_count > 1) {
-    GRL_WARNING ("Provided %d configs, but will only use one", config_count);
+    GRL_INFO ("Provided %d configs, but will only use one", config_count);
   }
 
   config = GRL_CONFIG (configs->data);
   api_key = grl_config_get_api_key (config);
   if (!api_key) {
-    GRL_WARNING ("Missing API Key, cannot configure Youtube plugin");
+    GRL_INFO ("Missing API Key, cannot load plugin");
     return FALSE;
   }
 

@@ -405,8 +405,8 @@ xml_parse_result (const gchar *str, OperationData *op_data)
                            "Can not build xpath context");
     }
 
-    op_data->metadata_cb (
-                          op_data->source,
+    op_data->metadata_cb (op_data->source,
+                          op_data->operation_id,
                           op_data->media,
                           op_data->user_data,
                           error);
@@ -587,6 +587,7 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
     data->user_data = ms->user_data;
     data->error_code = GRL_CORE_ERROR_METADATA_FAILED;
     data->media = ms->media;
+    data->operation_id = ms->metadata_id;
 
     id_tokens = g_strsplit (media_id, "/", -1);
 
@@ -617,7 +618,7 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
     read_url_async (url, data);
     g_free (url);
   } else {
-    ms->callback (ms->source, ms->media, ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   }
 }
 
@@ -653,7 +654,8 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
     data->genre = g_strdup (container_id);
   }
 
-  grl_media_source_set_operation_data (source, bs->browse_id, data);
+  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
+                                          bs->browse_id, data);
 
   read_url_async (url, data);
 
@@ -693,7 +695,8 @@ grl_shoutcast_source_search (GrlMediaSource *source,
   data->user_data = ss->user_data;
   data->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
 
-  grl_media_source_set_operation_data (source, ss->search_id, data);
+  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
+                                          ss->search_id, data);
 
   url = g_strdup_printf (SHOUTCAST_SEARCH_RADIOS,
                          ss->text,

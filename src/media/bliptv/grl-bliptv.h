@@ -61,7 +61,7 @@ typedef struct _GrlBliptvSourcePrivate GrlBliptvSourcePrivate;
 
 struct _GrlBliptvSource
 {
-  GrlMediaSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlBliptvSourcePrivate *priv;
@@ -69,7 +69,7 @@ struct _GrlBliptvSource
 
 struct _GrlBliptvSourceClass
 {
-  GrlMediaSourceClass parent_class;
+  GrlSourceClass parent_class;
 };
 
 GType grl_bliptv_source_get_type (void) G_GNUC_CONST;

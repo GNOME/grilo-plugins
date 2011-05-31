@@ -72,7 +72,7 @@ typedef struct _GrlTrackerMetadataPriv GrlTrackerMetadataPriv;
 
 struct _GrlTrackerMetadata {
 
-  GrlMetadataSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlTrackerMetadataPriv *priv;
@@ -83,7 +83,7 @@ typedef struct _GrlTrackerMetadataClass GrlTrackerMetadataClass;
 
 struct _GrlTrackerMetadataClass {
 
-  GrlMetadataSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

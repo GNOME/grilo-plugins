@@ -57,7 +57,7 @@ typedef struct _GrlGravatarSource GrlGravatarSource;
 
 struct _GrlGravatarSource {
 
-  GrlMetadataSource parent;
+  GrlSource parent;
 
 };
 
@@ -65,7 +65,7 @@ typedef struct _GrlGravatarSourceClass GrlGravatarSourceClass;
 
 struct _GrlGravatarSourceClass {
 
-  GrlMetadataSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

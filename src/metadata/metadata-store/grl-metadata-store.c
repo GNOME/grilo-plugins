@@ -86,18 +86,18 @@ enum {
 
 static GrlMetadataStoreSource *grl_metadata_store_source_new (void);
 
-static void grl_metadata_store_source_resolve (GrlMetadataSource *source,
-					       GrlMetadataSourceResolveSpec *rs);
+static void grl_metadata_store_source_resolve (GrlSource *source,
+                                               GrlSourceResolveSpec *rs);
 
-static void grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
-						    GrlMetadataSourceSetMetadataSpec *sms);
+static void grl_metadata_store_source_store_metadata (GrlSource *source,
+                                                      GrlSourceStoreMetadataSpec *sms);
 
-static const GList *grl_metadata_store_source_supported_keys (GrlSource *source);
-
-static gboolean grl_metadata_store_source_may_resolve (GrlMetadataSource *source,
+static gboolean grl_metadata_store_source_may_resolve (GrlSource *source,
                                                        GrlMedia *media,
                                                        GrlKeyID key_id,
                                                        GList **missing_keys);
+
+static const GList *grl_metadata_store_source_supported_keys (GrlSource *source);
 
 static const GList *grl_metadata_store_source_writable_keys (GrlSource *source);
 
@@ -110,8 +110,8 @@ gboolean grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
 
 gboolean
 grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
-                                      GrlPlugin *plugin,
-                                      GList *configs)
+                                       GrlPlugin *plugin,
+                                       GList *configs)
 {
   GRL_LOG_DOMAIN_INIT (metadata_store_log_domain, "metadata-store");
 
@@ -146,14 +146,12 @@ static void
 grl_metadata_store_source_class_init (GrlMetadataStoreSourceClass * klass)
 {
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
 
   source_class->supported_keys = grl_metadata_store_source_supported_keys;
   source_class->writable_keys = grl_metadata_store_source_writable_keys;
-
-  metadata_class->may_resolve = grl_metadata_store_source_may_resolve;
-  metadata_class->resolve = grl_metadata_store_source_resolve;
-  metadata_class->set_metadata = grl_metadata_store_source_set_metadata;
+  source_class->may_resolve = grl_metadata_store_source_may_resolve;
+  source_class->resolve = grl_metadata_store_source_resolve;
+  source_class->store_metadata = grl_metadata_store_source_store_metadata;
 
   g_type_class_add_private (klass, sizeof (GrlMetadataStorePrivate));
 }
@@ -208,8 +206,9 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
   GRL_DEBUG ("  OK");
 }
 
-G_DEFINE_TYPE (GrlMetadataStoreSource, grl_metadata_store_source,
-               GRL_TYPE_METADATA_SOURCE);
+G_DEFINE_TYPE (GrlMetadataStoreSource,
+               grl_metadata_store_source,
+               GRL_TYPE_SOURCE);
 
 /* ======================= Utilities ==================== */
 
@@ -447,7 +446,7 @@ static GList *
 write_keys (sqlite3 *db,
 	    const gchar *source_id,
 	    const gchar *media_id,
-	    GrlMetadataSourceSetMetadataSpec *sms,
+	    GrlSourceStoreMetadataSpec *sms,
 	    GError **error)
 {
   GList *col_names = NULL;
@@ -478,9 +477,9 @@ write_keys (sqlite3 *db,
     GRL_WARNING ("Failed to update metadata, none of the specified "
                      "keys is writable");
     *error = g_error_new (GRL_CORE_ERROR,
-			  GRL_CORE_ERROR_SET_METADATA_FAILED,
-			  "Failed to update metadata, "
-			  "specified keys are not writable");
+                          GRL_CORE_ERROR_STORE_METADATA_FAILED,
+                          "Failed to update metadata, "
+                          "specified keys are not writable");
     goto done;
   }
 
@@ -497,8 +496,8 @@ write_keys (sqlite3 *db,
     g_list_free (failed_keys);
     failed_keys = g_list_copy (sms->keys);
     *error = g_error_new (GRL_CORE_ERROR,
-			  GRL_CORE_ERROR_SET_METADATA_FAILED,
-			  "Failed to update metadata");
+                          GRL_CORE_ERROR_STORE_METADATA_FAILED,
+                          "Failed to update metadata");
     goto done;
   } 
   
@@ -518,8 +517,8 @@ write_keys (sqlite3 *db,
     g_list_free (failed_keys);
     failed_keys = g_list_copy (sms->keys);
     *error = g_error_new (GRL_CORE_ERROR,
-			  GRL_CORE_ERROR_SET_METADATA_FAILED,
-			  "Failed to update metadata");
+                          GRL_CORE_ERROR_STORE_METADATA_FAILED,
+                          "Failed to update metadata");
     goto done;
   } 
 
@@ -559,7 +558,7 @@ grl_metadata_store_source_writable_keys (GrlSource *source)
 }
 
 static gboolean
-grl_metadata_store_source_may_resolve (GrlMetadataSource *source,
+grl_metadata_store_source_may_resolve (GrlSource *source,
                                        GrlMedia *media,
                                        GrlKeyID key_id,
                                        GList **missing_keys)
@@ -587,14 +586,14 @@ grl_metadata_store_source_may_resolve (GrlMetadataSource *source,
 }
 
 static void
-grl_metadata_store_source_resolve (GrlMetadataSource *source,
-				   GrlMetadataSourceResolveSpec *rs)
+grl_metadata_store_source_resolve (GrlSource *source,
+                                   GrlSourceResolveSpec *rs)
 {
-  GRL_DEBUG ("grl_metadata_store_source_resolve");
-
   const gchar *source_id, *media_id;
   sqlite3_stmt *stmt;
   GError *error = NULL;
+
+  GRL_DEBUG (__FUNCTION__);
 
   source_id = grl_media_get_source (rs->media);
   media_id = grl_media_get_id (rs->media);
@@ -605,7 +604,7 @@ grl_metadata_store_source_resolve (GrlMetadataSource *source,
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_RESOLVE_FAILED,
 			 "source-id not available, cannot resolve metadata.");
-    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
     return;
   }
@@ -619,20 +618,20 @@ grl_metadata_store_source_resolve (GrlMetadataSource *source,
 			       source_id, media_id);
   if (stmt) {
     fill_metadata (rs->media, rs->keys, stmt);
-    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   } else {
     GRL_WARNING ("Failed to resolve metadata");
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_RESOLVE_FAILED,
 			 "Failed to resolve metadata.");
-    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
   }
 }
 
 static void
-grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
-					GrlMetadataSourceSetMetadataSpec *sms)
+grl_metadata_store_source_store_metadata (GrlSource *source,
+                                          GrlSourceStoreMetadataSpec *sms)
 {
   GRL_DEBUG ("grl_metadata_store_source_set_metadata");
 
@@ -647,8 +646,8 @@ grl_metadata_store_source_set_metadata (GrlMetadataSource *source,
   if (!source_id) {
     GRL_WARNING ("Failed to update metadata: source-id not available");
     error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_SET_METADATA_FAILED,
-			 "source-id not available, cannot update metadata.");
+                         GRL_CORE_ERROR_STORE_METADATA_FAILED,
+                         "source-id not available, cannot update metadata.");
     failed_keys = g_list_copy (sms->keys);
   } else {
     /* Special case for root categories */

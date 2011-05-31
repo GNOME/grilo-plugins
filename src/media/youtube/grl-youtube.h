@@ -56,7 +56,7 @@ typedef struct _GrlYoutubeSourcePriv GrlYoutubeSourcePriv;
 
 struct _GrlYoutubeSource {
 
-  GrlMediaSource parent;
+  GrlSource parent;
   GrlYoutubeSourcePriv *priv;
 
 };
@@ -65,7 +65,7 @@ typedef struct _GrlYoutubeSourceClass GrlYoutubeSourceClass;
 
 struct _GrlYoutubeSourceClass {
 
-  GrlMediaSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

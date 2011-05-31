@@ -47,12 +47,12 @@ GRL_LOG_DOMAIN_STATIC(gravatar_log_domain);
 
 static GrlGravatarSource *grl_gravatar_source_new (void);
 
-static void grl_gravatar_source_resolve (GrlMetadataSource *source,
-                                         GrlMetadataSourceResolveSpec *rs);
+static void grl_gravatar_source_resolve (GrlSource *source,
+                                         GrlSourceResolveSpec *rs);
 
 static const GList *grl_gravatar_source_supported_keys (GrlSource *source);
 
-static gboolean grl_gravatar_source_may_resolve (GrlMetadataSource *source,
+static gboolean grl_gravatar_source_may_resolve (GrlSource *source,
                                                  GrlMedia *media,
                                                  GrlKeyID key_id,
                                                  GList **missing_keys);
@@ -136,12 +136,10 @@ static void
 grl_gravatar_source_class_init (GrlGravatarSourceClass * klass)
 {
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
 
   source_class->supported_keys = grl_gravatar_source_supported_keys;
-
-  metadata_class->may_resolve = grl_gravatar_source_may_resolve;
-  metadata_class->resolve = grl_gravatar_source_resolve;
+  source_class->may_resolve = grl_gravatar_source_may_resolve;
+  source_class->resolve = grl_gravatar_source_resolve;
 }
 
 static void
@@ -151,7 +149,7 @@ grl_gravatar_source_init (GrlGravatarSource *source)
 
 G_DEFINE_TYPE (GrlGravatarSource,
                grl_gravatar_source,
-               GRL_TYPE_METADATA_SOURCE);
+               GRL_TYPE_SOURCE);
 
 /* ======================= Utilities ==================== */
 
@@ -277,7 +275,7 @@ grl_gravatar_source_supported_keys (GrlSource *source)
 }
 
 static gboolean
-grl_gravatar_source_may_resolve (GrlMetadataSource *source,
+grl_gravatar_source_may_resolve (GrlSource *source,
                                  GrlMedia *media,
                                  GrlKeyID key_id,
                                  GList **missing_keys)
@@ -294,13 +292,13 @@ grl_gravatar_source_may_resolve (GrlMetadataSource *source,
 }
 
 static void
-grl_gravatar_source_resolve (GrlMetadataSource *source,
-                             GrlMetadataSourceResolveSpec *rs)
+grl_gravatar_source_resolve (GrlSource *source,
+                             GrlSourceResolveSpec *rs)
 {
   gboolean artist_avatar_required = FALSE;
   gboolean author_avatar_required = FALSE;
 
-  GRL_DEBUG ("grl_gravatar_source_resolve");
+  GRL_DEBUG (__FUNCTION__);
 
   GList *iter;
 
@@ -324,5 +322,5 @@ grl_gravatar_source_resolve (GrlMetadataSource *source,
     set_avatar (GRL_DATA (rs->media), GRL_METADATA_KEY_AUTHOR);
   }
 
-  rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
+  rs->callback (source, rs->operation_id, rs->media, rs->user_data, NULL);
 }

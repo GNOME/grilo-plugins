@@ -56,7 +56,7 @@ typedef struct _GrlMetadataStoreSource GrlMetadataStoreSource;
 
 struct _GrlMetadataStoreSource {
 
-  GrlMetadataSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlMetadataStorePrivate *priv;
@@ -66,7 +66,7 @@ typedef struct _GrlMetadataStoreSourceClass GrlMetadataStoreSourceClass;
 
 struct _GrlMetadataStoreSourceClass {
 
-  GrlMetadataSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

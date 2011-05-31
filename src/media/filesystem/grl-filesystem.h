@@ -62,7 +62,7 @@ typedef struct _GrlFilesystemSourcePrivate GrlFilesystemSourcePrivate;
 
 struct _GrlFilesystemSource {
 
-  GrlMediaSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlFilesystemSourcePrivate *priv;
@@ -72,7 +72,7 @@ typedef struct _GrlFilesystemSourceClass GrlFilesystemSourceClass;
 
 struct _GrlFilesystemSourceClass {
 
-  GrlMediaSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

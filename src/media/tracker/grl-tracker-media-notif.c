@@ -58,9 +58,9 @@ typedef struct {
   GList *old_sources;
 
   /* Convenient stuff (for tracker/own callbacks...) */
-  TrackerSparqlCursor      *cursor;
-  gboolean                  in_use;
-  GrlMediaSourceChangeType  change_type;
+  TrackerSparqlCursor  *cursor;
+  gboolean             in_use;
+  GrlSourceChangeType  change_type;
 } tracker_evt_update_t;
 
 /**/
@@ -236,8 +236,8 @@ tracker_evt_update_orphan_item_cb (GObject              *object,
         GRL_DEBUG ("\tNotify id=%u source=%s p=%p", id,
                    grl_source_get_name (GRL_SOURCE (source)),
                    source);
-        grl_media_source_notify_change (GRL_MEDIA_SOURCE (source),
-                                        media, change_type, FALSE);
+        grl_source_notify_change (GRL_SOURCE (source),
+                                  media, change_type, FALSE);
 
         g_object_unref (media);
       }
@@ -322,10 +322,10 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
             grl_media_set_id (media, str_id);
             g_free (str_id);
 
-            grl_media_source_notify_change (GRL_MEDIA_SOURCE (source->data),
-                                            media,
-                                            GRL_CONTENT_REMOVED,
-                                            FALSE);
+            grl_source_notify_change (GRL_SOURCE (source->data),
+                                      media,
+                                      GRL_CONTENT_REMOVED,
+                                      FALSE);
             g_object_unref (media);
           }
         }
@@ -386,8 +386,7 @@ tracker_evt_update_items_cb (gpointer              key,
 
   GRL_DEBUG ("\tNotify id=%u source=%s", id,
              grl_source_get_name (GRL_SOURCE (source)));
-  grl_media_source_notify_change (GRL_MEDIA_SOURCE (source), media,
-                                  evt->change_type, FALSE);
+  grl_source_notify_change (GRL_SOURCE (source), media, evt->change_type, FALSE);
 
   g_object_unref (media);
 }

@@ -57,7 +57,7 @@ typedef struct _GrlLastfmAlbumartSource GrlLastfmAlbumartSource;
 
 struct _GrlLastfmAlbumartSource {
 
-  GrlMetadataSource parent;
+  GrlSource parent;
 
 };
 
@@ -65,7 +65,7 @@ typedef struct _GrlLastfmAlbumartSourceClass GrlLastfmAlbumartSourceClass;
 
 struct _GrlLastfmAlbumartSourceClass {
 
-  GrlMetadataSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

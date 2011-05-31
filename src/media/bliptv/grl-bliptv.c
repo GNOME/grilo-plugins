@@ -48,7 +48,7 @@ GRL_LOG_DOMAIN_STATIC(bliptv_log_domain);
 #define SOURCE_DESC "A source for browsing and searching Blip.tv videos"
 
 
-G_DEFINE_TYPE (GrlBliptvSource, grl_bliptv_source, GRL_TYPE_MEDIA_SOURCE)
+G_DEFINE_TYPE (GrlBliptvSource, grl_bliptv_source, GRL_TYPE_SOURCE)
 
 #define BLIPTV_SOURCE_PRIVATE(o)                                        \
   (G_TYPE_INSTANCE_GET_PRIVATE ((o),                                    \
@@ -62,12 +62,12 @@ struct _GrlBliptvSourcePrivate
 
 typedef struct
 {
-  GrlMediaSource *source;
-  guint           operation_id;
-  guint           count;
+  GrlSource *source;
+  guint      operation_id;
+  guint      count;
 
-  GrlMediaSourceResultCb callback;
-  gpointer               user_data;
+  GrlSourceResultCb callback;
+  gpointer          user_data;
 
   RestProxy     *proxy;
   RestProxyCall *call;
@@ -96,11 +96,11 @@ static const GList *grl_bliptv_source_supported_keys (GrlSource *source);
 static GrlCaps * grl_bliptv_source_get_caps (GrlSource *source,
                                              GrlSupportedOps operation);
 
-static void grl_bliptv_source_browse (GrlMediaSource *source,
-                                      GrlMediaSourceBrowseSpec *bs);
+static void grl_bliptv_source_browse (GrlSource *source,
+                                      GrlSourceBrowseSpec *bs);
 
-static void grl_bliptv_source_search (GrlMediaSource *source,
-                                      GrlMediaSourceSearchSpec *ss);
+static void grl_bliptv_source_search (GrlSource *source,
+                                      GrlSourceSearchSpec *ss);
 
 static void grl_bliptv_source_cancel (GrlSource *source,
                                       guint operation_id);
@@ -158,7 +158,6 @@ grl_bliptv_source_class_init (GrlBliptvSourceClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   g_type_class_add_private (klass, sizeof (GrlBliptvSourcePrivate));
 
@@ -168,9 +167,8 @@ grl_bliptv_source_class_init (GrlBliptvSourceClass *klass)
   source_class->supported_keys = grl_bliptv_source_supported_keys;
   source_class->get_caps = grl_bliptv_source_get_caps;
   source_class->cancel = grl_bliptv_source_cancel;
-
-  media_class->browse = grl_bliptv_source_browse;
-  media_class->search = grl_bliptv_source_search;
+  source_class->browse = grl_bliptv_source_browse;
+  source_class->search = grl_bliptv_source_search;
 }
 
 static void
@@ -387,8 +385,8 @@ grl_bliptv_source_supported_keys (GrlSource *source)
 }
 
 static void
-grl_bliptv_source_browse (GrlMediaSource *source,
-                          GrlMediaSourceBrowseSpec *bs)
+grl_bliptv_source_browse (GrlSource *source,
+                          GrlSourceBrowseSpec *bs)
 {
   BliptvOperation *op = g_slice_new0 (BliptvOperation);
   GError *error = NULL;
@@ -397,11 +395,11 @@ grl_bliptv_source_browse (GrlMediaSource *source,
 
   op->source       = g_object_ref (source);
   op->count        = count;
-  op->operation_id = bs->browse_id;
+  op->operation_id = bs->operation_id;
   op->callback     = bs->callback;
   op->user_data    = bs->user_data;
 
-  grl_operation_set_data (bs->browse_id, op);
+  grl_operation_set_data (bs->operation_id, op);
 
   op->proxy = rest_proxy_new ("http://blip.tv/posts/", FALSE);
   op->call = rest_proxy_new_call (op->proxy);
@@ -410,7 +408,7 @@ grl_bliptv_source_browse (GrlMediaSource *source,
   rest_proxy_call_add_param (op->call, "pagelen", length);
   g_free (length);
 
-  GRL_DEBUG ("Starting browse request for id=%u", bs->browse_id);
+  GRL_DEBUG ("Starting browse request for id=%u", bs->operation_id);
 
   if (!rest_proxy_call_async (op->call,
                               proxy_call_raw_async_cb,
@@ -423,14 +421,14 @@ grl_bliptv_source_browse (GrlMediaSource *source,
           GRL_WARNING ("Could not start search request : %s", error->message);
           g_error_free (error);
         }
-      bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, NULL);
+      bs->callback (source, bs->operation_id, NULL, 0, bs->user_data, NULL);
       bliptv_operation_free (op);
     }
 }
 
 static void
-grl_bliptv_source_search (GrlMediaSource *source,
-                          GrlMediaSourceSearchSpec *ss)
+grl_bliptv_source_search (GrlSource *source,
+                          GrlSourceSearchSpec *ss)
 {
   BliptvOperation *op = g_slice_new0 (BliptvOperation);
   GError *error = NULL;
@@ -440,11 +438,11 @@ grl_bliptv_source_search (GrlMediaSource *source,
 
   op->source       = g_object_ref (source);
   op->count        = count;
-  op->operation_id = ss->search_id;
+  op->operation_id = ss->operation_id;
   op->callback     = ss->callback;
   op->user_data    = ss->user_data;
 
-  grl_operation_set_data (ss->search_id, op);
+  grl_operation_set_data (ss->operation_id, op);
 
   op->proxy = rest_proxy_new ("http://blip.tv/posts/", FALSE);
   op->call = rest_proxy_new_call (op->proxy);
@@ -455,7 +453,7 @@ grl_bliptv_source_search (GrlMediaSource *source,
   g_free (length);
 
   GRL_DEBUG ("Starting search request for id=%u : '%s'",
-             ss->search_id, ss->text);
+             ss->operation_id, ss->text);
 
   if (!rest_proxy_call_async (op->call,
                               proxy_call_raw_async_cb,
@@ -472,7 +470,7 @@ grl_bliptv_source_search (GrlMediaSource *source,
                                GRL_CORE_ERROR_SEARCH_FAILED,
                                "Unable to search '%s'",
                                ss->text? ss->text: "");
-      ss->callback (source, ss->search_id, NULL, 0, ss->user_data, grl_error);
+      ss->callback (source, ss->operation_id, NULL, 0, ss->user_data, grl_error);
       g_error_free (grl_error);
       bliptv_operation_free (op);
     }

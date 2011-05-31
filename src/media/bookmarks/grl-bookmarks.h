@@ -56,7 +56,7 @@ typedef struct _GrlBookmarksSource  GrlBookmarksSource;
 
 struct _GrlBookmarksSource {
 
-  GrlMediaSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlBookmarksPrivate *priv;
@@ -66,7 +66,7 @@ typedef struct _GrlBookmarksSourceClass GrlBookmarksSourceClass;
 
 struct _GrlBookmarksSourceClass {
 
-  GrlMediaSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

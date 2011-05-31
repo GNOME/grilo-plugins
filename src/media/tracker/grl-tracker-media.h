@@ -59,7 +59,7 @@ typedef struct _GrlTrackerMediaPriv GrlTrackerMediaPriv;
 
 struct _GrlTrackerMedia {
 
-  GrlMediaSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlTrackerMediaPriv *priv;
@@ -70,7 +70,7 @@ typedef struct _GrlTrackerMediaClass GrlTrackerMediaClass;
 
 struct _GrlTrackerMediaClass {
 
-  GrlMediaSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

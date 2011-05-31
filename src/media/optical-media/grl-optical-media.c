@@ -74,8 +74,8 @@ static const GList *grl_optical_media_source_supported_keys (GrlSource *source);
 static GrlCaps *grl_optical_media_source_get_caps (GrlSource *source,
                                                    GrlSupportedOps operation);
 
-static void grl_optical_media_source_browse (GrlMediaSource *source,
-                                             GrlMediaSourceBrowseSpec *bs);
+static void grl_optical_media_source_browse (GrlSource *source,
+                                             GrlSourceBrowseSpec *bs);
 
 static void grl_optical_media_source_cancel (GrlSource *source,
                                              guint operation_id);
@@ -115,7 +115,7 @@ GRL_PLUGIN_REGISTER (grl_optical_media_plugin_init,
 
 G_DEFINE_TYPE (GrlOpticalMediaSource,
                grl_optical_media_source,
-               GRL_TYPE_MEDIA_SOURCE);
+               GRL_TYPE_SOURCE);
 
 static GrlOpticalMediaSource *
 grl_optical_media_source_new (void)
@@ -134,15 +134,13 @@ grl_optical_media_source_class_init (GrlOpticalMediaSourceClass * klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   object_class->finalize = grl_optical_media_source_finalize;
 
   source_class->supported_keys = grl_optical_media_source_supported_keys;
   source_class->cancel = grl_optical_media_source_cancel;
   source_class->get_caps = grl_optical_media_source_get_caps;
-
-  media_class->browse = grl_optical_media_source_browse;
+  source_class->browse = grl_optical_media_source_browse;
 
   g_type_class_add_private (klass, sizeof (GrlOpticalMediaSourcePrivate));
 }
@@ -193,7 +191,7 @@ on_g_volume_monitor_event (GVolumeMonitor *monitor,
                            gpointer device,
                            GrlOpticalMediaSource *source)
 {
-  grl_media_source_notify_change (GRL_MEDIA_SOURCE (source), NULL, GRL_CONTENT_CHANGED, TRUE);
+  grl_source_notify_change (GRL_SOURCE (source), NULL, GRL_CONTENT_CHANGED, TRUE);
 }
 
 /* ================== API Implementation ================ */
@@ -379,8 +377,8 @@ add_drive (GList *media_list,
 typedef struct {
   TotemPlParser *parser;
   GCancellable *cancellable;
-  GrlMediaSource *source;
-  GrlMediaSourceBrowseSpec *bs;
+  GrlSource *source;
+  GrlSourceBrowseSpec *bs;
   GList *media_list;
   GrlMedia *media;
 } BrowseData;
@@ -404,7 +402,7 @@ parsed_finished (TotemPlParser *pl, GAsyncResult *result, BrowseData *data)
   if (retval == TOTEM_PL_PARSER_RESULT_SUCCESS &&
       grl_media_get_url (data->media) != NULL) {
     data->bs->callback (data->bs->source,
-                        data->bs->browse_id,
+                        data->bs->operation_id,
                         data->media,
                         -1,
                         data->bs->user_data,
@@ -455,7 +453,7 @@ resolve_disc_urls (BrowseData *data)
     }
     /* No media left, we're done */
     data->bs->callback (data->bs->source,
-                        data->bs->browse_id,
+                        data->bs->operation_id,
                         NULL,
                         0,
                         data->bs->user_data,
@@ -478,8 +476,8 @@ resolve_disc_urls (BrowseData *data)
 }
 
 static void
-grl_optical_media_source_browse (GrlMediaSource *source,
-                                 GrlMediaSourceBrowseSpec *bs)
+grl_optical_media_source_browse (GrlSource *source,
+                                 GrlSourceBrowseSpec *bs)
 {
   GList *drives;
   GList *mounts;
@@ -516,7 +514,7 @@ grl_optical_media_source_browse (GrlMediaSource *source,
   if (media_list == NULL) {
     /* Tell the caller we're done */
     bs->callback (bs->source,
-                  bs->browse_id,
+                  bs->operation_id,
                   NULL,
                   0,
                   bs->user_data,
@@ -533,7 +531,7 @@ grl_optical_media_source_browse (GrlMediaSource *source,
   data->media_list = media_list;
   data->cancellable = g_cancellable_new ();
 
-  grl_operation_set_data (bs->browse_id, data->cancellable);
+  grl_operation_set_data (bs->operation_id, data->cancellable);
 
   data->parser = totem_pl_parser_new ();
   g_signal_connect (G_OBJECT (data->parser), "entry-parsed",

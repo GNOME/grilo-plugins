@@ -55,7 +55,7 @@ typedef struct _GrlFakeMetadataSource GrlFakeMetadataSource;
 
 struct _GrlFakeMetadataSource {
 
-  GrlMetadataSource parent;
+  GrlSource parent;
 
 };
 
@@ -63,7 +63,7 @@ typedef struct _GrlFakeMetadataSourceClass GrlFakeMetadataSourceClass;
 
 struct _GrlFakeMetadataSourceClass {
 
-  GrlMetadataSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

@@ -88,7 +88,7 @@ typedef gboolean (*RecursiveOperationCb) (GFileInfo *file_info,
                                           RecursiveOperation *operation);
 
 typedef struct {
-  GrlMediaSourceBrowseSpec *spec;
+  GrlSourceBrowseSpec *spec;
   GList *entries;
   GList *current;
   const gchar *path;
@@ -127,30 +127,28 @@ static const GList *grl_filesystem_source_supported_keys (GrlSource *source);
 
 static GrlCaps *grl_filesystem_source_get_caps (GrlSource *source,
                                                 GrlSupportedOps operation);
+static void grl_filesystem_source_resolve (GrlSource *source,
+                                           GrlSourceResolveSpec *rs);
 
-static void grl_filesystem_source_metadata (GrlMediaSource *source,
-                                            GrlMediaSourceMetadataSpec *ms);
+static void grl_filesystem_source_browse (GrlSource *source,
+                                          GrlSourceBrowseSpec *bs);
 
-static void grl_filesystem_source_browse (GrlMediaSource *source,
-                                          GrlMediaSourceBrowseSpec *bs);
+static void grl_filesystem_source_search (GrlSource *source,
+                                          GrlSourceSearchSpec *ss);
 
-static void grl_filesystem_source_search (GrlMediaSource *source,
-                                          GrlMediaSourceSearchSpec *ss);
-
-
-static gboolean grl_filesystem_test_media_from_uri (GrlMediaSource *source,
+static gboolean grl_filesystem_test_media_from_uri (GrlSource *source,
                                                     const gchar *uri);
 
-static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
-                                               GrlMediaSourceMediaFromUriSpec *mfus);
+static void grl_filesystem_get_media_from_uri (GrlSource *source,
+                                               GrlSourceMediaFromUriSpec *mfus);
 
 static void grl_filesystem_source_cancel (GrlSource *source,
                                           guint operation_id);
 
-static gboolean grl_filesystem_source_notify_change_start (GrlMediaSource *source,
+static gboolean grl_filesystem_source_notify_change_start (GrlSource *source,
                                                            GError **error);
 
-static gboolean grl_filesystem_source_notify_change_stop (GrlMediaSource *source,
+static gboolean grl_filesystem_source_notify_change_stop (GrlSource *source,
                                                           GError **error);
 
 /* =================== Filesystem Plugin  =============== */
@@ -201,7 +199,7 @@ GRL_PLUGIN_REGISTER (grl_filesystem_plugin_init,
 
 G_DEFINE_TYPE (GrlFilesystemSource,
                grl_filesystem_source,
-               GRL_TYPE_MEDIA_SOURCE);
+               GRL_TYPE_SOURCE);
 
 static GrlFilesystemSource *
 grl_filesystem_source_new (void)
@@ -219,21 +217,19 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
 {
   GObjectClass *g_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   g_class->finalize = grl_filesystem_source_finalize;
 
   source_class->supported_keys = grl_filesystem_source_supported_keys;
   source_class->cancel = grl_filesystem_source_cancel;
   source_class->get_caps = grl_filesystem_source_get_caps;
-
-  media_class->browse = grl_filesystem_source_browse;
-  media_class->search = grl_filesystem_source_search;
-  media_class->notify_change_start = grl_filesystem_source_notify_change_start;
-  media_class->notify_change_stop = grl_filesystem_source_notify_change_stop;
-  media_class->metadata = grl_filesystem_source_metadata;
-  media_class->test_media_from_uri = grl_filesystem_test_media_from_uri;
-  media_class->media_from_uri = grl_filesystem_get_media_from_uri;
+  source_class->browse = grl_filesystem_source_browse;
+  source_class->search = grl_filesystem_source_search;
+  source_class->notify_change_start = grl_filesystem_source_notify_change_start;
+  source_class->notify_change_stop = grl_filesystem_source_notify_change_stop;
+  source_class->resolve = grl_filesystem_source_resolve;
+  source_class->test_media_from_uri = grl_filesystem_test_media_from_uri;
+  source_class->media_from_uri = grl_filesystem_get_media_from_uri;
 
   g_type_class_add_private (klass, sizeof (GrlFilesystemSourcePrivate));
 }
@@ -450,7 +446,6 @@ set_container_childcount (const gchar *path,
   }
 
   /* Count valid entries */
-
   count = 0;
   while ((entry_name = g_dir_read_name (dir)) != NULL) {
     gchar *entry_path;
@@ -634,7 +629,7 @@ browse_emit_idle (gpointer user_data)
     g_free (idle_data->current->data);
 
     idle_data->spec->callback (idle_data->spec->source,
-			       idle_data->spec->browse_id,
+			       idle_data->spec->operation_id,
 			       content,
 			       idle_data->remaining--,
 			       idle_data->spec->user_data,
@@ -659,7 +654,7 @@ finish:
 }
 
 static void
-produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path, GrlOperationOptions *options)
+produce_from_path (GrlSourceBrowseSpec *bs, const gchar *path, GrlOperationOptions *options)
 {
   GDir *dir;
   GError *error = NULL;
@@ -673,7 +668,7 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path, GrlOperation
   dir = g_dir_open (path, 0, &error);
   if (error) {
     GRL_DEBUG ("Failed to open directory '%s': %s", path, error->message);
-    bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
+    bs->callback (bs->source, bs->operation_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
     return;
   }
@@ -728,16 +723,16 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path, GrlOperation
     idle_data->entries = entries;
     idle_data->current = entries;
     idle_data->cancellable = g_cancellable_new ();
-    idle_data->id = bs->browse_id;
+    idle_data->id = bs->operation_id;
     g_hash_table_insert (GRL_FILESYSTEM_SOURCE (bs->source)->priv->cancellables,
-                         GUINT_TO_POINTER (bs->browse_id),
+                         GUINT_TO_POINTER (bs->operation_id),
                          idle_data->cancellable);
 
     g_idle_add (browse_emit_idle, idle_data);
   } else {
     /* No results */
     bs->callback (bs->source,
-		  bs->browse_id,
+		  bs->operation_id,
 		  NULL,
 		  0,
 		  bs->user_data,
@@ -972,12 +967,12 @@ cancel_cb (GFileInfo *file_info, RecursiveOperation *operation)
   GrlFilesystemSource *fs_source;
 
   if (operation->on_file_data) {
-    GrlMediaSourceSearchSpec *ss =
-      (GrlMediaSourceSearchSpec *) operation->on_file_data;
+    GrlSourceSearchSpec *ss =
+      (GrlSourceSearchSpec *) operation->on_file_data;
     fs_source = GRL_FILESYSTEM_SOURCE (ss->source);
     g_hash_table_remove (fs_source->priv->cancellables,
-                         GUINT_TO_POINTER (ss->search_id));
-    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
+                         GUINT_TO_POINTER (ss->operation_id));
+    ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, NULL);
   }
 
   if (operation->on_dir_data) {
@@ -992,11 +987,11 @@ static gboolean
 finish_cb (GFileInfo *file_info, RecursiveOperation *operation)
 {
   if (operation->on_file_data) {
-    GrlMediaSourceSearchSpec *ss =
-      (GrlMediaSourceSearchSpec *) operation->on_file_data;
+    GrlSourceSearchSpec *ss =
+      (GrlSourceSearchSpec *) operation->on_file_data;
     g_hash_table_remove (GRL_FILESYSTEM_SOURCE (ss->source)->priv->cancellables,
-                         GUINT_TO_POINTER (ss->search_id));
-    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, NULL);
+                         GUINT_TO_POINTER (ss->operation_id));
+    ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, NULL);
   }
 
   if (operation->on_dir_data) {
@@ -1014,7 +1009,7 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
   gchar *haystack = NULL;
   gchar *normalized_needle = NULL;
   gchar *normalized_haystack = NULL;
-  GrlMediaSourceSearchSpec *ss = operation->on_file_data;
+  GrlSourceSearchSpec *ss = operation->on_file_data;
   gint remaining = -1;
 
   GRL_DEBUG (__func__);
@@ -1064,7 +1059,7 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
       if (count == 0) {
         remaining = 0;
       }
-      ss->callback (ss->source, ss->search_id, media, remaining, ss->user_data, NULL);
+      ss->callback (ss->source, ss->operation_id, media, remaining, ss->user_data, NULL);
     }
   }
 
@@ -1076,7 +1071,7 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
 }
 
 static void
-notify_parent_change (GrlMediaSource *source, GFile *child, GrlMediaSourceChangeType change)
+notify_parent_change (GrlSource *source, GFile *child, GrlSourceChangeType change)
 {
   GFile *parent;
   GrlMedia *media;
@@ -1090,7 +1085,7 @@ notify_parent_change (GrlMediaSource *source, GFile *child, GrlMediaSourceChange
   }
 
   media = create_content (NULL, parent_path, GRL_RESOLVE_FAST_ONLY, parent == NULL, NULL);
-  grl_media_source_notify_change (source, media, change, FALSE);
+  grl_source_notify_change (source, media, change, FALSE);
   g_object_unref (media);
 
   if (parent) {
@@ -1106,7 +1101,7 @@ directory_changed (GFileMonitor *monitor,
                    GFileMonitorEvent event,
                    gpointer data)
 {
-  GrlMediaSource *source = GRL_MEDIA_SOURCE (data);
+  GrlSource *source = GRL_SOURCE (data);
   gchar *file_path, *other_file_path;
   gchar *file_parent_path = NULL;
   gchar *other_file_parent_path = NULL;
@@ -1232,13 +1227,13 @@ grl_filesystem_source_supported_keys (GrlSource *source)
 }
 
 static void
-grl_filesystem_source_browse (GrlMediaSource *source,
-                              GrlMediaSourceBrowseSpec *bs)
+grl_filesystem_source_browse (GrlSource *source,
+                              GrlSourceBrowseSpec *bs)
 {
   const gchar *id;
   GList *chosen_paths;
 
-  GRL_DEBUG ("grl_filesystem_source_browse");
+  GRL_DEBUG (__FUNCTION__);
 
   id = grl_media_get_id (bs->container);
   chosen_paths = GRL_FILESYSTEM_SOURCE(source)->priv->chosen_paths;
@@ -1258,7 +1253,7 @@ grl_filesystem_source_browse (GrlMediaSource *source,
         remaining--;
         if (content) {
           bs->callback (source,
-                        bs->browse_id,
+                        bs->operation_id,
                         content,
                         --remaining,
                         bs->user_data,
@@ -1271,13 +1266,13 @@ grl_filesystem_source_browse (GrlMediaSource *source,
   }
 }
 
-static void grl_filesystem_source_search (GrlMediaSource *source,
-                                          GrlMediaSourceSearchSpec *ss)
+static void grl_filesystem_source_search (GrlSource *source,
+                                          GrlSourceSearchSpec *ss)
 {
   RecursiveOperation *operation;
   GrlFilesystemSource *fs_source;
 
-  GRL_DEBUG ("grl_filesystem_source_search");
+  GRL_DEBUG (__FUNCTION__);
 
   fs_source = GRL_FILESYSTEM_SOURCE (source);
 
@@ -1288,7 +1283,7 @@ static void grl_filesystem_source_search (GrlMediaSource *source,
   operation->on_file_data = ss;
   operation->max_depth = fs_source->priv->max_search_depth;
   g_hash_table_insert (GRL_FILESYSTEM_SOURCE (source)->priv->cancellables,
-                       GUINT_TO_POINTER (ss->search_id),
+                       GUINT_TO_POINTER (ss->operation_id),
                        operation->cancellable);
 
   recursive_operation_initialize (operation, fs_source);
@@ -1296,43 +1291,43 @@ static void grl_filesystem_source_search (GrlMediaSource *source,
 }
 
 static void
-grl_filesystem_source_metadata (GrlMediaSource *source,
-                                GrlMediaSourceMetadataSpec *ms)
+grl_filesystem_source_resolve (GrlSource *source,
+                               GrlSourceResolveSpec *rs)
 {
   const gchar *path;
   const gchar *id;
 
-  GRL_DEBUG ("grl_filesystem_source_metadata");
+  GRL_DEBUG (__FUNCTION__);
 
-  id = grl_media_get_id (ms->media);
+  id = grl_media_get_id (rs->media);
   path = id ? id : G_DIR_SEPARATOR_S;
 
   if (g_file_test (path, G_FILE_TEST_EXISTS)) {
-    create_content (ms->media, path,
-		    grl_operation_options_get_flags (ms->options)
-                      & GRL_RESOLVE_FAST_ONLY,
-		    !id,
-                    ms->options);
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
+    create_content (rs->media, path,
+                    grl_operation_options_get_flags (rs->options)
+                    & GRL_RESOLVE_FAST_ONLY,
+                    !id,
+                    rs->options);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   } else {
     GError *error = g_error_new (GRL_CORE_ERROR,
-				 GRL_CORE_ERROR_METADATA_FAILED,
-				 "File '%s' does not exist",
-				 path);
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
+                                 GRL_CORE_ERROR_RESOLVE_FAILED,
+                                 "File '%s' does not exist",
+                                 path);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
   }
 }
 
 static gboolean
-grl_filesystem_test_media_from_uri (GrlMediaSource *source,
+grl_filesystem_test_media_from_uri (GrlSource *source,
                                     const gchar *uri)
 {
   gchar *path, *scheme;
   GError *error = NULL;
   gboolean ret = FALSE;
 
-  GRL_DEBUG ("grl_filesystem_test_media_from_uri");
+  GRL_DEBUG (__FUNCTION__);
 
   scheme = g_uri_parse_scheme (uri);
   ret = (g_strcmp0(scheme, "file") == 0);
@@ -1352,15 +1347,15 @@ grl_filesystem_test_media_from_uri (GrlMediaSource *source,
   return ret;
 }
 
-static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
-                                               GrlMediaSourceMediaFromUriSpec *mfus)
+static void grl_filesystem_get_media_from_uri (GrlSource *source,
+                                               GrlSourceMediaFromUriSpec *mfus)
 {
   gchar *path, *scheme;
   GError *error = NULL;
   gboolean ret = FALSE;
   GrlMedia *media;
 
-  GRL_DEBUG ("grl_filesystem_get_media_from_uri");
+  GRL_DEBUG (__FUNCTION__);
 
   scheme = g_uri_parse_scheme (mfus->uri);
   ret = (g_strcmp0(scheme, "file") == 0);
@@ -1369,7 +1364,7 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
                          "Cannot create media from '%s'", mfus->uri);
-    mfus->callback (source, mfus->media_from_uri_id, NULL, mfus->user_data, error);
+    mfus->callback (source, mfus->operation_id, NULL, mfus->user_data, error);
     g_clear_error (&error);
     return;
   }
@@ -1382,7 +1377,7 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
                          "Cannot create media from '%s', error message: %s",
                          mfus->uri, error->message);
     g_clear_error (&error);
-    mfus->callback (source, mfus->media_from_uri_id, NULL, mfus->user_data, new_error);
+    mfus->callback (source, mfus->operation_id, NULL, mfus->user_data, new_error);
     g_clear_error (&new_error);
     goto beach;
   }
@@ -1395,7 +1390,7 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
                        & GRL_RESOLVE_FAST_ONLY,
                       FALSE,
                       mfus->options);
-  mfus->callback (source, mfus->media_from_uri_id, media, mfus->user_data, NULL);
+  mfus->callback (source, mfus->operation_id, media, mfus->user_data, NULL);
 
 beach:
   g_free (path);
@@ -1417,7 +1412,7 @@ grl_filesystem_source_cancel (GrlSource *source, guint operation_id)
 }
 
 static gboolean
-grl_filesystem_source_notify_change_start (GrlMediaSource *source,
+grl_filesystem_source_notify_change_start (GrlSource *source,
                                            GError **error)
 {
   GrlFilesystemSource *fs_source;
@@ -1442,7 +1437,7 @@ grl_filesystem_source_notify_change_start (GrlMediaSource *source,
 }
 
 static gboolean
-grl_filesystem_source_notify_change_stop (GrlMediaSource *source,
+grl_filesystem_source_notify_change_stop (GrlSource *source,
                                           GError **error)
 {
   GrlFilesystemSource *fs_source = GRL_FILESYSTEM_SOURCE (source);

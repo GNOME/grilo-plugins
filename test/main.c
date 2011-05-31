@@ -38,9 +38,6 @@ print_supported_ops (GrlSource *source)
 
   GrlSupportedOps caps = grl_source_supported_operations (source);
 
-  if (caps & GRL_OP_METADATA) {
-    GRL_DEBUG ("    + Metadata");
-  }
   if (caps & GRL_OP_RESOLVE) {
     GRL_DEBUG ("    + Resolution");
   }
@@ -61,8 +58,8 @@ print_supported_ops (GrlSource *source)
   if (caps & GRL_OP_REMOVE) {
     GRL_DEBUG ("    + Remove");
   }
-  if (caps & GRL_OP_SET_METADATA) {
-    GRL_DEBUG ("    + Set Metadata");
+  if (caps & GRL_OP_STORE_METADATA) {
+    GRL_DEBUG ("    + Store Metadata");
   }
 }
 
@@ -104,12 +101,12 @@ box_from_id (const gchar *id)
 }
 
 static void
-browse_cb (GrlMediaSource *source,
-	   guint browse_id,
+browse_cb (GrlSource *source,
+           guint browse_id,
            GrlMedia *media,
-	   guint remaining,
-	   gpointer user_data,
-	   const GError *error)
+           guint remaining,
+           gpointer user_data,
+           const GError *error)
 {
   GList *keys;
   static guint index = 0;
@@ -138,15 +135,15 @@ browse_cb (GrlMediaSource *source,
 }
 
 static void
-metadata_cb (GrlMediaSource *source,
+resolve_cb (GrlSource *source,
              guint operation_id,
-	     GrlMedia *media,
-	     gpointer user_data,
-	     const GError *error)
+             GrlMedia *media,
+             gpointer user_data,
+             const GError *error)
 {
   GList *keys;
 
-  GRL_DEBUG ("  metadata_cb");
+  GRL_DEBUG ("  resolve_cb");
 
   if (error) {
     GRL_DEBUG ("Error: %s", error->message);
@@ -167,21 +164,11 @@ metadata_cb (GrlMediaSource *source,
 }
 
 static void
-resolve_cb (GrlMetadataSource *source,
-            guint resolve_id,
-            GrlMedia *media,
-            gpointer user_data,
-            const GError *error)
-{
-  metadata_cb (NULL, 0, media, user_data, error);
-}
-
-static void
-set_cb (GrlMetadataSource *source,
-	GrlMedia *media,
-	GList *failed_keys,
-	gpointer user_data,
-	const GError *error)
+set_cb (GrlSource *source,
+        GrlMedia *media,
+        GList *failed_keys,
+        gpointer user_data,
+        const GError *error)
 {
   if (error) {
     g_critical ("%s: %d keys not written",
@@ -274,49 +261,49 @@ main (void)
 
   GRL_DEBUG ("Obtaining sources");
 
-  GrlMediaSource *youtube =
-    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
-                                                          "grl-youtube");
+  GrlSource *youtube =
+    grl_plugin_registry_lookup_source (registry,
+                                       "grl-youtube");
 
-  GrlMediaSource *fs =
-    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
-                                                          "grl-filesystem");
+  GrlSource *fs =
+    grl_plugin_registry_lookup_source (registry,
+                                       "grl-filesystem");
 
-  GrlMediaSource *flickr =
-    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
-                                                          "grl-flickr");
+  GrlSource *flickr =
+    grl_plugin_registry_lookup_source (registry,
+                                       "grl-flickr");
 
-  GrlMediaSource *jamendo =
-    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
-                                                          "grl-jamendo");
+  GrlSource *jamendo =
+    grl_plugin_registry_lookup_source (registry,
+                                       "grl-jamendo");
 
-  GrlMediaSource *shoutcast =
-    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
-                                                          "grl-shoutcast");
+  GrlSource *shoutcast =
+    grl_plugin_registry_lookup_source (registry,
+                                       "grl-shoutcast");
 
-  GrlMediaSource *apple_trailers =
-    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
-                                                          "grl-apple-trailers");
+  GrlSource *apple_trailers =
+    grl_plugin_registry_lookup_source (registry,
+                                       "grl-apple-trailers");
 
-  GrlMetadataSource *fake =
-    (GrlMetadataSource *) grl_plugin_registry_lookup_source (registry,
-                                                             "grl-fake-metadata");
+  GrlSource *fake =
+    grl_plugin_registry_lookup_source (registry,
+                                       "grl-fake-metadata");
 
-  GrlMetadataSource *lastfm =
-    (GrlMetadataSource *) grl_plugin_registry_lookup_source (registry,
-                                                             "grl-lastfm-albumart");
+  GrlSource *lastfm =
+    grl_plugin_registry_lookup_source (registry,
+                                       "grl-lastfm-albumart");
 
-  GrlMetadataSource *metadata_store =
-    (GrlMetadataSource *) grl_plugin_registry_lookup_source (registry,
-                                                             "grl-metadata-store");
+  GrlSource *metadata_store =
+    grl_plugin_registry_lookup_source (registry,
+                                       "grl-metadata-store");
 
-  GrlMediaSource *bookmarks =
-    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
-                                                          "grl-bookmarks");
+  GrlSource *bookmarks =
+    grl_plugin_registry_lookup_source (registry,
+                                       "grl-bookmarks");
 
-  GrlMediaSource *podcasts =
-    (GrlMediaSource *) grl_plugin_registry_lookup_source (registry,
-                                                          "grl-podcasts");
+  GrlSource *podcasts =
+    grl_plugin_registry_lookup_source (registry,
+                                       "grl-podcasts");
 
   g_assert (youtube);
   g_assert (fs);
@@ -329,58 +316,58 @@ main (void)
   g_assert (podcasts);
   GRL_DEBUG ("Supported operations");
 
-  print_supported_ops (GRL_SOURCE (youtube));
-  print_supported_ops (GRL_SOURCE (fs));
-  if (flickr) print_supported_ops (GRL_SOURCE (flickr));
-  print_supported_ops (GRL_SOURCE (jamendo));
-  print_supported_ops (GRL_SOURCE (apple_trailers));
-  print_supported_ops (GRL_SOURCE (shoutcast));
+  if (youtube) print_supported_ops (youtube);
+  if (fs) print_supported_ops (fs);
+  if (flickr) print_supported_ops (flickr);
+  if (jamendo) print_supported_ops (jamendo);
+  if (apple_trailers) print_supported_ops (apple_trailers);
+  if (shoutcast) print_supported_ops (shoutcast);
   if (fake) print_supported_ops (fake);
-  print_supported_ops (GRL_SOURCE (podcasts));
-  print_supported_ops (GRL_SOURCE (bookmarks));
-  print_supported_ops (lastfm);
-  print_supported_ops (metadata_store);
+  if (podcasts) print_supported_ops (podcasts);
+  if (bookmarks) print_supported_ops (bookmarks);
+  if (lastfm) print_supported_ops (lastfm);
+  if (metadata_store) print_supported_ops (metadata_store);
 
   GRL_DEBUG ("testing");
 
-  if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) grl_media_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) grl_media_source_browse (youtube, media_from_id ("standard-feeds/most-viewed"), keys, 0, 10, GRL_RESOLVE_FAST_ONLY , browse_cb, NULL);
-  if (0) grl_media_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) grl_media_source_search (youtube, "igalia", keys, 0, 5, GRL_RESOLVE_NORMAL, browse_cb, NULL);
-  if (0) grl_media_source_search (youtube, "igalia", keys, 1, 10, GRL_RESOLVE_FULL | GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) grl_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
-  if (0) grl_media_source_metadata (youtube, NULL, keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY | GRL_RESOLVE_FULL, metadata_cb, NULL);
-  if (0) grl_media_source_metadata (youtube, NULL, keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY , metadata_cb, NULL);
-  if (0) grl_media_source_metadata (youtube, NULL, keys, 0, metadata_cb, NULL);
-  if (0) grl_media_source_browse (fs, media_from_id ("/home"), keys, 0, 100, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FULL, browse_cb, NULL);
-  if (0) grl_media_source_metadata (fs, media_from_id ("/home"), keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FULL, metadata_cb, NULL);
-  if (0) grl_media_source_search (flickr, "igalia", keys, 1, 10, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) grl_media_source_metadata (flickr, media_from_id ("4201406347"), keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FULL, metadata_cb, NULL);
-  if (0) grl_media_source_browse (jamendo, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) grl_media_source_browse (jamendo, media_from_id("1"), keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) grl_media_source_browse (jamendo, media_from_id("1/9"), keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) grl_media_source_browse (jamendo, media_from_id("2"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) grl_media_source_browse (jamendo, media_from_id("2/25"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) grl_media_source_browse (jamendo, media_from_id("2/1225"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) grl_media_source_browse (jamendo, media_from_id("3/174"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) grl_media_source_metadata (jamendo, NULL, keys, 0, metadata_cb, NULL);
-  if (0) grl_media_source_metadata (jamendo, media_from_id("1"), keys, 0, metadata_cb, NULL);
-  if (0) grl_media_source_metadata (jamendo, media_from_id("1/9"), keys, 0, metadata_cb, NULL);
-  if (0) grl_media_source_metadata (jamendo, media_from_id("2/1225"), keys, 0, metadata_cb, NULL);
-  if (0) grl_media_source_metadata (jamendo, media_from_id("3/174"), keys, 0, metadata_cb, NULL);
-  if (0) grl_media_source_query (jamendo, "artist=shake da", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) grl_media_source_query (jamendo, "album=Nick", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) grl_media_source_query (jamendo, "track=asylum mind", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) grl_media_source_search (jamendo, "next", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) grl_media_source_browse (shoutcast, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) grl_media_source_browse (shoutcast, media_from_id("American"), keys, 2, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
-  if (0) grl_media_source_search (shoutcast, "Roxette", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
-  if (0) grl_media_source_metadata (shoutcast, box_from_id("24hs"), keys, 0, metadata_cb, NULL);
-  if (0) grl_media_source_metadata (shoutcast, box_from_id("2424hs"), keys, 0, metadata_cb, NULL);
-  if (0) grl_media_source_metadata (shoutcast, media_from_id("American/556687"), keys, 0, metadata_cb, NULL);
-  if (0) grl_media_source_metadata (shoutcast, media_from_id("American/556682"), keys, 0, metadata_cb, NULL);
-  if (0) grl_media_source_browse (apple_trailers, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_browse (youtube, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_browse (youtube, media_from_id ("standard-feeds/most-viewed"), keys, 0, 10, GRL_RESOLVE_FAST_ONLY , browse_cb, NULL);
+  if (0) grl_source_browse (youtube, media_from_id ("categories/Sports"), keys,  0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_source_search (youtube, "igalia", keys, 0, 5, GRL_RESOLVE_NORMAL, browse_cb, NULL);
+  if (0) grl_source_search (youtube, "igalia", keys, 1, 10, GRL_RESOLVE_FULL | GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_source_resolve (youtube, NULL, keys, 0, resolve_cb, NULL);
+  if (0) grl_source_resolve (youtube, NULL, keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY | GRL_RESOLVE_FULL, resolve_cb, NULL);
+  if (0) grl_source_resolve (youtube, NULL, keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FAST_ONLY , resolve_cb, NULL);
+  if (0) grl_source_resolve (youtube, NULL, keys, 0, resolve_cb, NULL);
+  if (0) grl_source_browse (fs, media_from_id ("/home"), keys, 0, 100, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FULL, browse_cb, NULL);
+  if (0) grl_source_resolve (fs, media_from_id ("/home"), keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FULL, resolve_cb, NULL);
+  if (0) grl_source_search (flickr, "igalia", keys, 1, 10, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_source_resolve (flickr, media_from_id ("4201406347"), keys, GRL_RESOLVE_IDLE_RELAY | GRL_RESOLVE_FULL, resolve_cb, NULL);
+  if (0) grl_source_browse (jamendo, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_browse (jamendo, media_from_id("1"), keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_browse (jamendo, media_from_id("1/9"), keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_browse (jamendo, media_from_id("2"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_browse (jamendo, media_from_id("2/25"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_browse (jamendo, media_from_id("2/1225"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_browse (jamendo, media_from_id("3/174"), keys, -1, 2, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_resolve (jamendo, NULL, keys, 0, resolve_cb, NULL);
+  if (0) grl_source_resolve (jamendo, media_from_id("1"), keys, 0, resolve_cb, NULL);
+  if (0) grl_source_resolve (jamendo, media_from_id("1/9"), keys, 0, resolve_cb, NULL);
+  if (0) grl_source_resolve (jamendo, media_from_id("2/1225"), keys, 0, resolve_cb, NULL);
+  if (0) grl_source_resolve (jamendo, media_from_id("3/174"), keys, 0, resolve_cb, NULL);
+  if (0) grl_source_query (jamendo, "artist=shake da", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_source_query (jamendo, "album=Nick", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_source_query (jamendo, "track=asylum mind", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_source_search (jamendo, "next", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_source_browse (shoutcast, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_browse (shoutcast, media_from_id("American"), keys, 2, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
+  if (0) grl_source_search (shoutcast, "Roxette", keys, 0, 5, GRL_RESOLVE_FAST_ONLY, browse_cb, NULL);
+  if (0) grl_source_resolve (shoutcast, box_from_id("24hs"), keys, 0, resolve_cb, NULL);
+  if (0) grl_source_resolve (shoutcast, box_from_id("2424hs"), keys, 0, resolve_cb, NULL);
+  if (0) grl_source_resolve (shoutcast, media_from_id("American/556687"), keys, 0, resolve_cb, NULL);
+  if (0) grl_source_resolve (shoutcast, media_from_id("American/556682"), keys, 0, resolve_cb, NULL);
+  if (0) grl_source_browse (apple_trailers, NULL, keys, 0, 5, GRL_RESOLVE_IDLE_RELAY , browse_cb, NULL);
   if (0) {
     GrlMedia *media = media_from_id ("test");
     grl_data_set_string (GRL_DATA (media),
@@ -389,7 +376,7 @@ main (void)
     grl_data_set_string (GRL_DATA (media),
                          GRL_METADATA_KEY_ALBUM,
                          "pop hits");
-    grl_metadata_source_resolve (lastfm, keys, media, GRL_RESOLVE_IDLE_RELAY, resolve_cb, NULL);
+    grl_source_resolve (lastfm, media, keys, GRL_RESOLVE_IDLE_RELAY, resolve_cb, NULL);
   }
   if (0) {
     GrlMedia *media = media_from_id ("test-id");
@@ -406,8 +393,9 @@ main (void)
 						      GRL_METADATA_KEY_TITLE,
                                                       GRL_METADATA_KEY_GENRE,
 						      NULL);
-    grl_metadata_source_set_metadata (metadata_store, media, keys_to_write,
-				      GRL_WRITE_FULL, set_cb, NULL);
+    grl_source_store_metadata (metadata_store,
+                               media, keys_to_write,
+                               GRL_WRITE_FULL, set_cb, NULL);
   }
 
   GRL_DEBUG ("Running main loop");

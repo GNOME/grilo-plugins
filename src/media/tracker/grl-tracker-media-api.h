@@ -34,27 +34,27 @@ void grl_tracker_media_init_requests (void);
 
 const GList *grl_tracker_media_writable_keys (GrlSource *source);
 
-void grl_tracker_media_query (GrlMediaSource *source,
-                              GrlMediaSourceQuerySpec *qs);
+void grl_tracker_media_query (GrlSource *source,
+                              GrlSourceQuerySpec *qs);
 
-void grl_tracker_media_metadata (GrlMediaSource *source,
-                                 GrlMediaSourceMetadataSpec *ms);
+void grl_tracker_media_resolve (GrlSource *source,
+                                GrlSourceResolveSpec *rs);
 
-/* void grl_tracker_media_set_metadata (GrlMetadataSource *source, */
-/*                                      GrlMetadataSourceSetMetadataSpec *sms); */
+void grl_tracker_media_store_metadata (GrlSource *source,
+                                       GrlSourceStoreMetadataSpec *sms);
 
 void grl_tracker_media_cancel (GrlSource *source, guint operation_id);
 
-void grl_tracker_media_search (GrlMediaSource *source,
-                               GrlMediaSourceSearchSpec *ss);
+void grl_tracker_media_search (GrlSource *source,
+                               GrlSourceSearchSpec *ss);
 
-void grl_tracker_media_browse (GrlMediaSource *source,
-                               GrlMediaSourceBrowseSpec *bs);
+void grl_tracker_media_browse (GrlSource *source,
+                               GrlSourceBrowseSpec *bs);
 
-gboolean grl_tracker_media_change_start (GrlMediaSource *source,
+gboolean grl_tracker_media_change_start (GrlSource *source,
                                          GError **error);
 
-gboolean grl_tracker_media_change_stop (GrlMediaSource *source,
+gboolean grl_tracker_media_change_stop (GrlSource *source,
                                         GError **error);
 
 #endif /* _GRL_TRACKER_MEDIA_API_H_ */

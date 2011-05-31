@@ -75,9 +75,9 @@ struct _GrlShoutcastSourcePriv {
 
 typedef struct {
   GrlMedia *media;
-  GrlMediaSource *source;
-  GrlMediaSourceMetadataCb metadata_cb;
-  GrlMediaSourceResultCb result_cb;
+  GrlSource *source;
+  GrlSourceResolveCb resolve_cb;
+  GrlSourceResultCb result_cb;
   gboolean cancelled;
   gboolean cache;
   gchar *filter_entry;
@@ -103,14 +103,14 @@ static const GList *grl_shoutcast_source_supported_keys (GrlSource *source);
 static GrlCaps * grl_shoutcast_source_get_caps (GrlSource *source,
                                                 GrlSupportedOps operation);
 
-static void grl_shoutcast_source_metadata (GrlMediaSource *source,
-                                           GrlMediaSourceMetadataSpec *ms);
+static void grl_shoutcast_source_resolve (GrlSource *source,
+                                          GrlSourceResolveSpec *rs);
 
-static void grl_shoutcast_source_browse (GrlMediaSource *source,
-                                         GrlMediaSourceBrowseSpec *bs);
+static void grl_shoutcast_source_browse (GrlSource *source,
+                                         GrlSourceBrowseSpec *bs);
 
-static void grl_shoutcast_source_search (GrlMediaSource *source,
-                                         GrlMediaSourceSearchSpec *ss);
+static void grl_shoutcast_source_search (GrlSource *source,
+                                         GrlSourceSearchSpec *ss);
 
 static void grl_shoutcast_source_cancel (GrlSource *source,
                                          guint operation_id);
@@ -176,7 +176,7 @@ grl_shoutcast_source_new (const gchar *dev_key)
 {
   GrlShoutcastSource *source;
 
-  GRL_DEBUG ("grl_shoutcast_source_new");
+  GRL_DEBUG (__FUNCTION__);
 
   source =  g_object_new (GRL_SHOUTCAST_SOURCE_TYPE,
                           "source-id", SOURCE_ID,
@@ -194,17 +194,15 @@ grl_shoutcast_source_class_init (GrlShoutcastSourceClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   gobject_class->finalize = grl_shoutcast_source_finalize;
 
   source_class->cancel = grl_shoutcast_source_cancel;
   source_class->supported_keys = grl_shoutcast_source_supported_keys;
   source_class->get_caps = grl_shoutcast_source_get_caps;
-
-  media_class->metadata = grl_shoutcast_source_metadata;
-  media_class->browse = grl_shoutcast_source_browse;
-  media_class->search = grl_shoutcast_source_search;
+  source_class->resolve = grl_shoutcast_source_resolve;
+  source_class->browse = grl_shoutcast_source_browse;
+  source_class->search = grl_shoutcast_source_search;
 
   g_type_class_add_private (klass, sizeof (GrlShoutcastSourcePriv));
 }
@@ -216,7 +214,7 @@ grl_shoutcast_source_init (GrlShoutcastSource *source)
   source->priv->cached_page_expired = TRUE;
 }
 
-G_DEFINE_TYPE (GrlShoutcastSource, grl_shoutcast_source, GRL_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlShoutcastSource, grl_shoutcast_source, GRL_TYPE_SOURCE);
 
 static void
 grl_shoutcast_source_finalize (GObject *object)
@@ -472,11 +470,11 @@ xml_parse_result (const gchar *str, OperationData *op_data)
                            "Can not build xpath context");
     }
 
-    op_data->metadata_cb (op_data->source,
-                          op_data->operation_id,
-                          op_data->media,
-                          op_data->user_data,
-                          error);
+    op_data->resolve_cb (op_data->source,
+                         op_data->operation_id,
+                         op_data->media,
+                         op_data->user_data,
+                         error);
     goto free_resources;
   }
 
@@ -634,8 +632,8 @@ grl_shoutcast_source_supported_keys (GrlSource *source)
 }
 
 static void
-grl_shoutcast_source_metadata (GrlMediaSource *source,
-                               GrlMediaSourceMetadataSpec *ms)
+grl_shoutcast_source_resolve (GrlSource *source,
+                              GrlSourceResolveSpec *rs)
 {
   const gchar *media_id;
   gchar **id_tokens;
@@ -650,20 +648,20 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
      repeat the Pop browsing and get the result with station id 1321. If it
      doesn't exist (think in results obtained from a search), we do nothing */
 
-  media_id = grl_media_get_id (ms->media);
+  media_id = grl_media_get_id (rs->media);
 
   /* Check if we need to report about root category */
   if (!media_id) {
-    grl_media_set_title (ms->media, "SHOUTcast");
+    grl_media_set_title (rs->media, "SHOUTcast");
   } else {
     data = g_slice_new0 (OperationData);
     data->source = source;
     data->count = 1;
-    data->metadata_cb = ms->callback;
-    data->user_data = ms->user_data;
-    data->error_code = GRL_CORE_ERROR_METADATA_FAILED;
-    data->media = ms->media;
-    data->operation_id = ms->metadata_id;
+    data->resolve_cb = rs->callback;
+    data->user_data = rs->user_data;
+    data->error_code = GRL_CORE_ERROR_RESOLVE_FAILED;
+    data->media = rs->media;
+    data->operation_id = rs->operation_id;
 
     id_tokens = g_strsplit (media_id, "/", -1);
 
@@ -697,13 +695,13 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
     read_url_async (shoutcast_source, url, data);
     g_free (url);
   } else {
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   }
 }
 
 static void
-grl_shoutcast_source_browse (GrlMediaSource *source,
-                             GrlMediaSourceBrowseSpec *bs)
+grl_shoutcast_source_browse (GrlSource *source,
+                             GrlSourceBrowseSpec *bs)
 {
   OperationData *data;
   const gchar *container_id;
@@ -714,7 +712,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
 
   data = g_slice_new0 (OperationData);
   data->source = source;
-  data->operation_id = bs->browse_id;
+  data->operation_id = bs->operation_id;
   data->result_cb = bs->callback;
   data->skip = grl_operation_options_get_skip (bs->options);
   data->count = grl_operation_options_get_count (bs->options);
@@ -736,7 +734,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
     data->genre = g_strdup (container_id);
   }
 
-  grl_operation_set_data (bs->browse_id, data);
+  grl_operation_set_data (bs->operation_id, data);
 
   read_url_async (shoutcast_source, url, data);
 
@@ -744,8 +742,8 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
 }
 
 static void
-grl_shoutcast_source_search (GrlMediaSource *source,
-                             GrlMediaSourceSearchSpec *ss)
+grl_shoutcast_source_search (GrlSource *source,
+                             GrlSourceSearchSpec *ss)
 {
   GError *error;
   OperationData *data;
@@ -758,7 +756,7 @@ grl_shoutcast_source_search (GrlMediaSource *source,
                          GRL_CORE_ERROR_SEARCH_FAILED,
                          "Search text not specified");
     ss->callback (ss->source,
-                  ss->search_id,
+                  ss->operation_id,
                   NULL,
                   0,
                   ss->user_data,
@@ -770,14 +768,14 @@ grl_shoutcast_source_search (GrlMediaSource *source,
 
   data = g_slice_new0 (OperationData);
   data->source = source;
-  data->operation_id = ss->search_id;
+  data->operation_id = ss->operation_id;
   data->result_cb = ss->callback;
   data->skip = grl_operation_options_get_skip (ss->options);
   data->count = grl_operation_options_get_count (ss->options);
   data->user_data = ss->user_data;
   data->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
 
-  grl_operation_set_data (ss->search_id, data);
+  grl_operation_set_data (ss->operation_id, data);
 
   url = g_strdup_printf (SHOUTCAST_SEARCH_RADIOS,
                          shoutcast_source->priv->dev_key,

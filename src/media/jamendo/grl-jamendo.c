@@ -92,7 +92,7 @@ GRL_LOG_DOMAIN_STATIC(jamendo_log_domain);
 #define SOURCE_DESC "A source for browsing and searching Jamendo music"
 
 enum {
-  METADATA,
+  RESOLVE,
   BROWSE,
   QUERY,
   SEARCH
@@ -127,10 +127,10 @@ typedef struct {
 typedef struct {
   gint type;
   union {
-    GrlMediaSourceBrowseSpec *bs;
-    GrlMediaSourceQuerySpec *qs;
-    GrlMediaSourceMetadataSpec *ms;
-    GrlMediaSourceSearchSpec *ss;
+    GrlSourceBrowseSpec *bs;
+    GrlSourceQuerySpec *qs;
+    GrlSourceResolveSpec *rs;
+    GrlSourceSearchSpec *ss;
   } spec;
   xmlNodePtr node;
   xmlDocPtr doc;
@@ -180,17 +180,17 @@ static const GList *grl_jamendo_source_supported_keys (GrlSource *source);
 static GrlCaps *grl_jamendo_source_get_caps (GrlSource *source,
                                              GrlSupportedOps operation);
 
-static void grl_jamendo_source_metadata (GrlMediaSource *source,
-                                         GrlMediaSourceMetadataSpec *ms);
+static void grl_jamendo_source_resolve (GrlSource *source,
+                                        GrlSourceResolveSpec *rs);
 
-static void grl_jamendo_source_browse (GrlMediaSource *source,
-                                       GrlMediaSourceBrowseSpec *bs);
+static void grl_jamendo_source_browse (GrlSource *source,
+                                       GrlSourceBrowseSpec *bs);
 
-static void grl_jamendo_source_query (GrlMediaSource *source,
-                                      GrlMediaSourceQuerySpec *qs);
+static void grl_jamendo_source_query (GrlSource *source,
+                                      GrlSourceQuerySpec *qs);
 
-static void grl_jamendo_source_search (GrlMediaSource *source,
-                                       GrlMediaSourceSearchSpec *ss);
+static void grl_jamendo_source_search (GrlSource *source,
+                                       GrlSourceSearchSpec *ss);
 
 static void grl_jamendo_source_cancel (GrlSource *source,
                                        guint operation_id);
@@ -231,7 +231,7 @@ grl_jamendo_source_new (void)
 		       NULL);
 }
 
-G_DEFINE_TYPE (GrlJamendoSource, grl_jamendo_source, GRL_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlJamendoSource, grl_jamendo_source, GRL_TYPE_SOURCE);
 
 static void
 grl_jamendo_source_finalize (GObject *object)
@@ -254,18 +254,16 @@ grl_jamendo_source_class_init (GrlJamendoSourceClass * klass)
 {
   GObjectClass *g_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   g_class->finalize = grl_jamendo_source_finalize;
 
   source_class->cancel = grl_jamendo_source_cancel;
   source_class->supported_keys = grl_jamendo_source_supported_keys;
   source_class->get_caps = grl_jamendo_source_get_caps;
-
-  media_class->metadata = grl_jamendo_source_metadata;
-  media_class->browse = grl_jamendo_source_browse;
-  media_class->query = grl_jamendo_source_query;
-  media_class->search = grl_jamendo_source_search;
+  source_class->resolve = grl_jamendo_source_resolve;
+  source_class->browse = grl_jamendo_source_browse;
+  source_class->query = grl_jamendo_source_query;
+  source_class->search = grl_jamendo_source_search;
 
   g_type_class_add_private (klass, sizeof (GrlJamendoSourcePriv));
 }
@@ -277,34 +275,10 @@ grl_jamendo_source_init (GrlJamendoSource *source)
 
   /* If we try to get too much elements in a single step, Jamendo might return
      nothing. So limit the maximum amount of elements in each query */
-  grl_media_source_set_auto_split_threshold (GRL_MEDIA_SOURCE (source),
-                                             MAX_ELEMENTS);
+  grl_source_set_auto_split_threshold (GRL_SOURCE (source), MAX_ELEMENTS);
 }
 
 /* ======================= Utilities ==================== */
-
-#if 0
-static void
-print_entry (Entry *entry)
-{
-  g_print ("Entry Information:\n");
-  g_print ("            ID: %s\n", entry->id);
-  g_print ("   Artist Name: %s\n", entry->artist_name);
-  g_print ("  Artist Genre: %s\n", entry->artist_genre);
-  g_print ("    Artist URL: %s\n", entry->artist_url);
-  g_print ("  Artist Image: %s\n", entry->artist_image);
-  g_print ("    Album Name: %s\n", entry->album_name);
-  g_print ("   Album Genre: %s\n", entry->album_genre);
-  g_print ("     Album URL: %s\n", entry->album_url);
-  g_print ("Album Duration: %s\n", entry->album_duration);
-  g_print ("   Album Image: %s\n", entry->album_image);
-  g_print ("    Track Name: %s\n", entry->track_name);
-  g_print ("     Track URL: %s\n", entry->track_url);
-  g_print ("  Track Stream: %s\n", entry->track_stream);
-  g_print ("Track Duration: %s\n", entry->track_duration);
-  g_print ("     Feed Name: %s\n", entry->feed_name);
-}
-#endif
 
 static void
 free_entry (Entry *entry)
@@ -615,7 +589,7 @@ xml_parse_entries_idle (gpointer user_data)
     switch (xpe->type) {
     case BROWSE:
       xpe->spec.bs->callback (xpe->spec.bs->source,
-                              xpe->spec.bs->browse_id,
+                              xpe->spec.bs->operation_id,
                               media,
                               remaining,
                               xpe->spec.bs->user_data,
@@ -623,7 +597,7 @@ xml_parse_entries_idle (gpointer user_data)
       break;
     case QUERY:
       xpe->spec.qs->callback (xpe->spec.qs->source,
-                              xpe->spec.qs->query_id,
+                              xpe->spec.qs->operation_id,
                               media,
                               remaining,
                               xpe->spec.qs->user_data,
@@ -631,7 +605,7 @@ xml_parse_entries_idle (gpointer user_data)
       break;
     case SEARCH:
       xpe->spec.ss->callback (xpe->spec.ss->source,
-                              xpe->spec.ss->search_id,
+                              xpe->spec.ss->operation_id,
                               media,
                               remaining,
                               xpe->spec.ss->user_data,
@@ -671,8 +645,8 @@ read_done_cb (GObject *source_object,
                               NULL,
                               &wc_error)) {
     switch (xpe->type) {
-    case METADATA:
-      error_code = GRL_CORE_ERROR_METADATA_FAILED;
+    case RESOLVE:
+      error_code = GRL_CORE_ERROR_RESOLVE_FAILED;
       break;
     case BROWSE:
       error_code = GRL_CORE_ERROR_BROWSE_FAILED;
@@ -704,21 +678,21 @@ read_done_cb (GObject *source_object,
   }
 
   if (xpe->node) {
-    if (xpe->type == METADATA) {
+    if (xpe->type == RESOLVE) {
       entry = xml_parse_entry (xpe->doc, xpe->node);
       xmlFreeDoc (xpe->doc);
-      update_media_from_entry (xpe->spec.ms->media, entry);
+      update_media_from_entry (xpe->spec.rs->media, entry);
       free_entry (entry);
       goto invoke_cb;
     } else {
       g_idle_add (xml_parse_entries_idle, xpe);
     }
   } else {
-    if (xpe->type == METADATA) {
+    if (xpe->type == RESOLVE) {
       error = g_error_new (GRL_CORE_ERROR,
-                           GRL_CORE_ERROR_METADATA_FAILED,
+                           GRL_CORE_ERROR_RESOLVE_FAILED,
                            "Unable to get information: '%s'",
-                           grl_media_get_id (xpe->spec.ms->media));
+                           grl_media_get_id (xpe->spec.rs->media));
     }
     goto invoke_cb;
   }
@@ -727,16 +701,16 @@ read_done_cb (GObject *source_object,
 
  invoke_cb:
   switch (xpe->type) {
-  case METADATA:
-    xpe->spec.ms->callback (xpe->spec.ms->source,
-                            xpe->spec.ms->metadata_id,
-                            xpe->spec.ms->media,
-                            xpe->spec.ms->user_data,
+  case RESOLVE:
+    xpe->spec.rs->callback (xpe->spec.rs->source,
+                            xpe->spec.rs->operation_id,
+                            xpe->spec.rs->media,
+                            xpe->spec.rs->user_data,
                             error);
     break;
   case BROWSE:
     xpe->spec.bs->callback (xpe->spec.bs->source,
-                            xpe->spec.bs->browse_id,
+                            xpe->spec.bs->operation_id,
                             NULL,
                             0,
                             xpe->spec.bs->user_data,
@@ -744,7 +718,7 @@ read_done_cb (GObject *source_object,
     break;
   case QUERY:
     xpe->spec.qs->callback (xpe->spec.qs->source,
-                            xpe->spec.qs->query_id,
+                            xpe->spec.qs->operation_id,
                             NULL,
                             0,
                             xpe->spec.qs->user_data,
@@ -752,7 +726,7 @@ read_done_cb (GObject *source_object,
     break;
   case SEARCH:
     xpe->spec.ss->callback (xpe->spec.ss->source,
-                            xpe->spec.ss->search_id,
+                            xpe->spec.ss->operation_id,
                             NULL,
                             0,
                             xpe->spec.ss->user_data,
@@ -826,7 +800,7 @@ update_media_from_feeds (GrlMedia *media)
 }
 
 static void
-send_toplevel_categories (GrlMediaSourceBrowseSpec *bs)
+send_toplevel_categories (GrlSourceBrowseSpec *bs)
 {
   GrlMedia *media;
   gint remaining;
@@ -835,7 +809,7 @@ send_toplevel_categories (GrlMediaSourceBrowseSpec *bs)
 
   /* Check if all elements must be skipped */
   if (skip > 1 || count == 0) {
-    bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, NULL);
+    bs->callback (bs->source, bs->operation_id, NULL, 0, bs->user_data, NULL);
     return;
   }
 
@@ -845,20 +819,20 @@ send_toplevel_categories (GrlMediaSourceBrowseSpec *bs)
     media = grl_media_box_new ();
     update_media_from_artists (media);
     remaining--;
-    bs->callback (bs->source, bs->browse_id, media, remaining, bs->user_data, NULL);
+    bs->callback (bs->source, bs->operation_id, media, remaining, bs->user_data, NULL);
   }
 
   if (remaining) {
     media = grl_media_box_new ();
     update_media_from_albums (media);
-    bs->callback (bs->source, bs->browse_id, media, remaining, bs->user_data, NULL);
+    bs->callback (bs->source, bs->operation_id, media, remaining, bs->user_data, NULL);
     remaining--;
   }
 
   if (remaining) {
     media = grl_media_box_new ();
     update_media_from_feeds (media);
-    bs->callback (bs->source, bs->browse_id, media, 0, bs->user_data, NULL);
+    bs->callback (bs->source, bs->operation_id, media, 0, bs->user_data, NULL);
   }
 }
 
@@ -876,7 +850,7 @@ update_media_from_feed (GrlMedia *media, int i)
 }
 
 static void
-send_feeds (GrlMediaSourceBrowseSpec *bs)
+send_feeds (GrlSourceBrowseSpec *bs)
 {
   int i;
   int remaining;
@@ -891,7 +865,7 @@ send_feeds (GrlMediaSourceBrowseSpec *bs)
     update_media_from_feed (media, i);
     remaining--;
     bs->callback (bs->source,
-                  bs->browse_id,
+                  bs->operation_id,
                   media,
                   remaining,
                   bs->user_data,
@@ -969,8 +943,8 @@ grl_jamendo_source_supported_keys (GrlSource *source)
 }
 
 static void
-grl_jamendo_source_metadata (GrlMediaSource *source,
-                             GrlMediaSourceMetadataSpec *ms)
+grl_jamendo_source_resolve (GrlSource *source,
+                            GrlSourceResolveSpec *rs)
 {
   gchar *url = NULL;
   gchar *jamendo_keys = NULL;
@@ -982,21 +956,21 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
 
   GRL_TRACE ();
 
-  if (!ms->media ||
-      !grl_data_has_key (GRL_DATA (ms->media),
+  if (!rs->media ||
+      !grl_data_has_key (GRL_DATA (rs->media),
                          GRL_METADATA_KEY_ID)) {
     /* Get info from root */
-    if (!ms->media) {
-      ms->media = grl_media_box_new ();
+    if (!rs->media) {
+      rs->media = grl_media_box_new ();
     }
-    update_media_from_root (ms->media);
+    update_media_from_root (rs->media);
   } else {
-    id = grl_media_get_id (ms->media);
+    id = grl_media_get_id (rs->media);
     id_split = g_strsplit (id, JAMENDO_ID_SEP, 0);
 
     if (g_strv_length (id_split) == 0) {
       error = g_error_new (GRL_CORE_ERROR,
-                           GRL_CORE_ERROR_METADATA_FAILED,
+                           GRL_CORE_ERROR_RESOLVE_FAILED,
                            "Invalid id: '%s'",
                            id);
       goto send_error;
@@ -1015,7 +989,7 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
         g_free (jamendo_keys);
       } else {
         /* Requesting information from artist category */
-        update_media_from_artists (ms->media);
+        update_media_from_artists (rs->media);
       }
     } else if (category == JAMENDO_ALBUM_CAT) {
       if (id_split[1]) {
@@ -1028,7 +1002,7 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
         g_free (jamendo_keys);
       } else {
         /* Requesting information from album category */
-        update_media_from_albums (ms->media);
+        update_media_from_albums (rs->media);
       }
     } else if (category == JAMENDO_TRACK_CAT) {
       if (id_split[1]) {
@@ -1041,7 +1015,7 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
         g_free (jamendo_keys);
       } else {
         error = g_error_new (GRL_CORE_ERROR,
-                             GRL_CORE_ERROR_METADATA_FAILED,
+                             GRL_CORE_ERROR_RESOLVE_FAILED,
                              "Invalid id: '%s'",
                              id);
         g_strfreev (id_split);
@@ -1055,19 +1029,19 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
         i = strtol (id_split[1], NULL, 0);
         if (errno != 0 || (i <= 0 && i > G_N_ELEMENTS (feeds))) {
           error = g_error_new (GRL_CORE_ERROR,
-                               GRL_CORE_ERROR_METADATA_FAILED,
+                               GRL_CORE_ERROR_RESOLVE_FAILED,
                                "Invalid cat id: '%s'", id_split[1]);
           g_strfreev (id_split);
           goto send_error;
         }
 
-        update_media_from_feed (ms->media, i);
+        update_media_from_feed (rs->media, i);
       } else {
-        update_media_from_feeds (ms->media);
+        update_media_from_feeds (rs->media);
       }
     } else {
       error = g_error_new (GRL_CORE_ERROR,
-                           GRL_CORE_ERROR_METADATA_FAILED,
+                           GRL_CORE_ERROR_RESOLVE_FAILED,
                            "Invalid id: '%s'",
                            id);
       g_strfreev (id_split);
@@ -1081,26 +1055,26 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
 
   if (url) {
     xpe = g_slice_new0 (XmlParseEntries);
-    xpe->type = METADATA;
-    xpe->spec.ms = ms;
+    xpe->type = RESOLVE;
+    xpe->spec.rs = rs;
     read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
     g_free (url);
   } else {
-    if (ms->media) {
-      ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
+    if (rs->media) {
+      rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
     }
   }
 
   return;
 
  send_error:
-  ms->callback (ms->source, ms->metadata_id, NULL, ms->user_data, error);
+  rs->callback (rs->source, rs->operation_id, NULL, rs->user_data, error);
   g_error_free (error);
 }
 
 static void
-grl_jamendo_source_browse (GrlMediaSource *source,
-                           GrlMediaSourceBrowseSpec *bs)
+grl_jamendo_source_browse (GrlSource *source,
+                           GrlSourceBrowseSpec *bs)
 {
   gchar *url = NULL;
   gchar *jamendo_keys;
@@ -1211,7 +1185,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
   }
 
   if (error) {
-    bs->callback (source, bs->browse_id, NULL, 0, bs->user_data, error);
+    bs->callback (source, bs->operation_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
     return;
   }
@@ -1221,7 +1195,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
   xpe->offset = page_offset;
   xpe->spec.bs = bs;
 
-  grl_operation_set_data (bs->browse_id, xpe);
+  grl_operation_set_data (bs->operation_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
@@ -1241,8 +1215,8 @@ grl_jamendo_source_browse (GrlMediaSource *source,
  *
  */
 static void
-grl_jamendo_source_query (GrlMediaSource *source,
-                          GrlMediaSourceQuerySpec *qs)
+grl_jamendo_source_query (GrlSource *source,
+                          GrlSourceQuerySpec *qs)
 {
   GError *error = NULL;
   JamendoCategory category;
@@ -1302,7 +1276,7 @@ grl_jamendo_source_query (GrlMediaSource *source,
   xpe->offset = page_offset;
   xpe->spec.qs = qs;
 
-  grl_operation_set_data (qs->query_id, xpe);
+  grl_operation_set_data (qs->operation_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
@@ -1310,14 +1284,14 @@ grl_jamendo_source_query (GrlMediaSource *source,
   return;
 
  send_error:
-  qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
+  qs->callback (qs->source, qs->operation_id, NULL, 0, qs->user_data, error);
   g_error_free (error);
 }
 
 
 static void
-grl_jamendo_source_search (GrlMediaSource *source,
-                           GrlMediaSourceSearchSpec *ss)
+grl_jamendo_source_search (GrlSource *source,
+                           GrlSourceSearchSpec *ss)
 {
   XmlParseEntries *xpe;
   gchar *jamendo_keys;
@@ -1357,7 +1331,7 @@ grl_jamendo_source_search (GrlMediaSource *source,
   xpe->offset = page_offset;
   xpe->spec.ss = ss;
 
-  grl_operation_set_data (ss->search_id, xpe);
+  grl_operation_set_data (ss->operation_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (jamendo_keys);

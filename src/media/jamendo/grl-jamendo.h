@@ -58,7 +58,7 @@ typedef struct _GrlJamendoSourcePriv GrlJamendoSourcePriv;
 
 struct _GrlJamendoSource {
 
-  GrlMediaSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlJamendoSourcePriv *priv;
@@ -69,7 +69,7 @@ typedef struct _GrlJamendoSourceClass GrlJamendoSourceClass;
 
 struct _GrlJamendoSourceClass {
 
-  GrlMediaSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

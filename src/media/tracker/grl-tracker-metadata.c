@@ -88,17 +88,17 @@ static void grl_tracker_metadata_set_property (GObject      *object,
 
 static void grl_tracker_metadata_finalize (GObject *object);
 
-static gboolean grl_tracker_metadata_may_resolve (GrlMetadataSource  *source,
-                                                  GrlMedia           *media,
-                                                  GrlKeyID            key_id,
-                                                  GList             **missing_keys);
+static gboolean grl_tracker_metadata_may_resolve (GrlSource *source,
+                                                  GrlMedia  *media,
+                                                  GrlKeyID  key_id,
+                                                  GList     **missing_keys);
 
-static void grl_tracker_metadata_resolve (GrlMetadataSource            *source,
-                                          GrlMetadataSourceResolveSpec *rs);
+static void grl_tracker_metadata_resolve (GrlSource            *source,
+                                          GrlSourceResolveSpec *rs);
 
 /* ================== TrackerMetadata GObject ================ */
 
-G_DEFINE_TYPE (GrlTrackerMetadata, grl_tracker_metadata, GRL_TYPE_METADATA_SOURCE);
+G_DEFINE_TYPE (GrlTrackerMetadata, grl_tracker_metadata, GRL_TYPE_SOURCE);
 
 static GrlTrackerMetadata *
 grl_tracker_metadata_new (TrackerSparqlConnection *connection)
@@ -118,16 +118,14 @@ grl_tracker_metadata_class_init (GrlTrackerMetadataClass * klass)
 {
   GObjectClass           *g_class        = G_OBJECT_CLASS (klass);
   GrlSourceClass         *source_class   = GRL_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
 
   g_class->finalize     = grl_tracker_metadata_finalize;
   g_class->set_property = grl_tracker_metadata_set_property;
 
-  source_class->supported_keys = grl_tracker_supported_keys;
+  source_class->supported_keys   = grl_tracker_supported_keys;
+  source_class->may_resolve    = grl_tracker_metadata_may_resolve;
+  source_class->resolve        = grl_tracker_metadata_resolve;
   source_class->get_caps       = grl_tracker_get_caps;
-
-  metadata_class->may_resolve = grl_tracker_metadata_may_resolve;
-  metadata_class->resolve     = grl_tracker_metadata_resolve;
 
   g_object_class_install_property (g_class,
                                    PROP_TRACKER_CONNECTION,
@@ -251,7 +249,7 @@ tracker_resolve_cb (GObject      *source_object,
                     GAsyncResult *result,
                     GrlTrackerOp *os)
 {
-  GrlMetadataSourceResolveSpec *rs = (GrlMetadataSourceResolveSpec *) os->data;
+  GrlSourceResolveSpec   *rs = (GrlSourceResolveSpec *) os->data;
   GrlTrackerMetadataPriv *priv = GRL_TRACKER_METADATA_GET_PRIVATE (rs->source);
   gint                  col;
   GError               *tracker_error = NULL, *error = NULL;
@@ -271,7 +269,7 @@ tracker_resolve_cb (GObject      *source_object,
 			 "Failed to start resolve action : %s",
                          tracker_error->message);
 
-    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
 
     g_error_free (tracker_error);
     g_error_free (error);
@@ -286,9 +284,9 @@ tracker_resolve_cb (GObject      *source_object,
       fill_grilo_media_from_sparql (rs->media, cursor, col);
     }
 
-    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   } else {
-    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   }
 
  end_operation:
@@ -302,10 +300,10 @@ tracker_resolve_cb (GObject      *source_object,
 /**/
 
 static gboolean
-grl_tracker_metadata_may_resolve (GrlMetadataSource  *source,
-                                  GrlMedia           *media,
-                                  GrlKeyID            key_id,
-                                  GList             **missing_keys)
+grl_tracker_metadata_may_resolve (GrlSource *source,
+                                  GrlMedia  *media,
+                                  GrlKeyID  key_id,
+                                  GList     **missing_keys)
 {
   GRL_IDEBUG ("%s: key=%s", __FUNCTION__, GRL_METADATA_KEY_GET_NAME (key_id));
 
@@ -327,8 +325,8 @@ grl_tracker_metadata_may_resolve (GrlMetadataSource  *source,
 
 
 static void
-grl_tracker_metadata_resolve (GrlMetadataSource            *source,
-                              GrlMetadataSourceResolveSpec *rs)
+grl_tracker_metadata_resolve (GrlSource            *source,
+                              GrlSourceResolveSpec *rs)
 {
   const gchar *url = grl_media_get_url (rs->media);
   gchar *sparql_select, *sparql_final;

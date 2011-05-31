@@ -75,12 +75,12 @@ struct _GrlUpnpPrivate {
 };
 
 struct OperationSpec {
-  GrlMediaSource *source;
+  GrlSource *source;
   guint operation_id;
   GList *keys;
   guint skip;
   guint count;
-  GrlMediaSourceResultCb callback;
+  GrlSourceResultCb callback;
   gpointer user_data;
 };
 
@@ -106,27 +106,27 @@ static void grl_upnp_source_finalize (GObject *plugin);
 
 static const GList *grl_upnp_source_supported_keys (GrlSource *source);
 
+static GrlSupportedOps grl_upnp_source_supported_operations (GrlSource *source);
+
 static GrlCaps * grl_upnp_source_get_caps (GrlSource *source,
                                            GrlSupportedOps operation);
 
-static void grl_upnp_source_browse (GrlMediaSource *source,
-                                    GrlMediaSourceBrowseSpec *bs);
+static void grl_upnp_source_browse (GrlSource *source,
+                                    GrlSourceBrowseSpec *bs);
 
-static void grl_upnp_source_search (GrlMediaSource *source,
-                                    GrlMediaSourceSearchSpec *ss);
+static void grl_upnp_source_search (GrlSource *source,
+                                    GrlSourceSearchSpec *ss);
 
-static void grl_upnp_source_query (GrlMediaSource *source,
-                                   GrlMediaSourceQuerySpec *qs);
+static void grl_upnp_source_query (GrlSource *source,
+                                   GrlSourceQuerySpec *qs);
 
-static void grl_upnp_source_metadata (GrlMediaSource *source,
-                                      GrlMediaSourceMetadataSpec *ms);
+static void grl_upnp_source_resolve (GrlSource *source,
+                                     GrlSourceResolveSpec *rs);
 
-static GrlSupportedOps grl_upnp_source_supported_operations (GrlSource *source);
-
-static gboolean grl_upnp_source_notify_change_start (GrlMediaSource *source,
+static gboolean grl_upnp_source_notify_change_start (GrlSource *source,
                                                      GError **error);
 
-static gboolean grl_upnp_source_notify_change_stop (GrlMediaSource *source,
+static gboolean grl_upnp_source_notify_change_stop (GrlSource *source,
                                                     GError **error);
 
 static void context_available_cb (GUPnPContextManager *context_manager,
@@ -189,7 +189,7 @@ GRL_PLUGIN_REGISTER (grl_upnp_plugin_init,
 
 /* ================== UPnP GObject ================ */
 
-G_DEFINE_TYPE (GrlUpnpSource, grl_upnp_source, GRL_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlUpnpSource, grl_upnp_source, GRL_TYPE_SOURCE);
 
 static GrlUpnpSource *
 grl_upnp_source_new (const gchar *source_id, const gchar *name)
@@ -218,20 +218,18 @@ grl_upnp_source_class_init (GrlUpnpSourceClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   gobject_class->finalize = grl_upnp_source_finalize;
 
   source_class->supported_keys = grl_upnp_source_supported_keys;
   source_class->supported_operations = grl_upnp_source_supported_operations;
   source_class->get_caps = grl_upnp_source_get_caps;
-
-  media_class->browse = grl_upnp_source_browse;
-  media_class->search = grl_upnp_source_search;
-  media_class->query = grl_upnp_source_query;
-  media_class->metadata = grl_upnp_source_metadata;
-  media_class->notify_change_start = grl_upnp_source_notify_change_start;
-  media_class->notify_change_stop = grl_upnp_source_notify_change_stop;
+  source_class->browse = grl_upnp_source_browse;
+  source_class->search = grl_upnp_source_search;
+  source_class->query = grl_upnp_source_query;
+  source_class->resolve = grl_upnp_source_resolve;
+  source_class->notify_change_start = grl_upnp_source_notify_change_start;
+  source_class->notify_change_stop = grl_upnp_source_notify_change_stop;
 
   g_type_class_add_private (klass, sizeof (GrlUpnpPrivate));
 
@@ -287,7 +285,7 @@ container_changed_cb (GUPnPServiceProxy *proxy,
 {
   GPtrArray *changed_medias;
   GrlMedia *container;
-  GrlMediaSource *source = GRL_MEDIA_SOURCE (user_data);
+  GrlSource *source = GRL_SOURCE (user_data);
   gchar **tokens;
   gint i = 0;
 
@@ -303,10 +301,10 @@ container_changed_cb (GUPnPServiceProxy *proxy,
     i += 2;
   }
 
-  grl_media_source_notify_change_list (source,
-                                       changed_medias,
-                                       GRL_CONTENT_CHANGED,
-                                       FALSE);
+  grl_source_notify_change_list (source,
+                                 changed_medias,
+                                 GRL_CONTENT_CHANGED,
+                                 FALSE);
   g_strfreev (tokens);
 }
 
@@ -998,30 +996,31 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
 }
 
 static void
-gupnp_metadata_result_cb (GUPnPDIDLLiteParser *parser,
-			  GUPnPDIDLLiteObject *didl,
-			  gpointer user_data)
+gupnp_resolve_result_cb (GUPnPDIDLLiteParser *parser,
+                         GUPnPDIDLLiteObject *didl,
+                         gpointer user_data)
 {
-  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
+  GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) user_data;
+
   if (gupnp_didl_lite_object_get_id (didl)) {
-    build_media_from_didl (ms->media, didl, ms->keys);
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
+    build_media_from_didl (rs->media, didl, rs->keys);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   }
 }
 
 static void
-gupnp_metadata_cb (GUPnPServiceProxy *service,
-		   GUPnPServiceProxyAction *action,
-		   gpointer user_data)
+gupnp_resolve_cb (GUPnPServiceProxy *service,
+                  GUPnPServiceProxyAction *action,
+                  gpointer user_data)
 {
   GError *error = NULL;
   gchar *didl = NULL;
-  GrlMediaSourceMetadataSpec *ms;
+  GrlSourceResolveSpec *rs;
   GUPnPDIDLLiteParser *didl_parser;
 
-  GRL_DEBUG ("gupnp_metadata_cb");
+  GRL_DEBUG (__FUNCTION__);
 
-  ms = (GrlMediaSourceMetadataSpec *) user_data;
+  rs = (GrlSourceResolveSpec *) user_data;
   didl_parser = gupnp_didl_lite_parser_new ();
 
   gupnp_service_proxy_end_action (service, action, &error,
@@ -1029,9 +1028,8 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
                                   NULL);
 
   if (!didl) {
-    GRL_DEBUG ("Got no metadata");
-    ms->callback (ms->source, ms->metadata_id,
-                  ms->media, ms->user_data, error? error: NULL);
+    GRL_DEBUG ("Resolve operation failed");
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     if (error) {
       g_error_free (error);
     }
@@ -1041,14 +1039,14 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
 
   g_signal_connect (G_OBJECT (didl_parser),
                     "object-available",
-                    G_CALLBACK (gupnp_metadata_result_cb),
-                    ms);
+                    G_CALLBACK (gupnp_resolve_result_cb),
+                    rs);
   gupnp_didl_lite_parser_parse_didl (didl_parser,
                                      didl,
                                      &error);
   if (error) {
     GRL_WARNING ("Failed to parse DIDL result: %s", error->message);
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
     goto free_resources;
   }
@@ -1084,7 +1082,8 @@ grl_upnp_source_supported_keys (GrlSource *source)
 }
 
 static void
-grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
+grl_upnp_source_browse (GrlSource *source,
+                        GrlSourceBrowseSpec *bs)
 {
   GUPnPServiceProxyAction* action;
   gchar *upnp_filter;
@@ -1099,7 +1098,7 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
 
   os = g_slice_new0 (struct OperationSpec);
   os->source = bs->source;
-  os->operation_id = bs->browse_id;
+  os->operation_id = bs->operation_id;
   os->keys = bs->keys;
   os->skip = grl_operation_options_get_skip (bs->options);
   os->count = grl_operation_options_get_count (bs->options);
@@ -1132,7 +1131,7 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_BROWSE_FAILED,
 			 "Failed to start browse action");
-    bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
+    bs->callback (bs->source, bs->operation_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
     g_slice_free (struct OperationSpec, os);
   }
@@ -1141,7 +1140,7 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
 }
 
 static void
-grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
+grl_upnp_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
 {
   GUPnPServiceProxyAction* action;
   gchar *upnp_filter;
@@ -1159,7 +1158,7 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
 
   os = g_slice_new0 (struct OperationSpec);
   os->source = ss->source;
-  os->operation_id = ss->search_id;
+  os->operation_id = ss->operation_id;
   os->keys = ss->keys;
   os->skip = grl_operation_options_get_skip (ss->options);
   os->count = grl_operation_options_get_count (ss->options);
@@ -1187,7 +1186,7 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_SEARCH_FAILED,
 			 "Failed to start browse action");
-    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
+    ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
     g_slice_free (struct OperationSpec, os);
   }
@@ -1207,7 +1206,7 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
  * be useful.
  */
 static void
-grl_upnp_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
+grl_upnp_source_query (GrlSource *source, GrlSourceQuerySpec *qs)
 {
   GUPnPServiceProxyAction* action;
   gchar *upnp_filter;
@@ -1223,7 +1222,7 @@ grl_upnp_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
 
   os = g_slice_new0 (struct OperationSpec);
   os->source = qs->source;
-  os->operation_id = qs->query_id;
+  os->operation_id = qs->operation_id;
   os->keys = qs->keys;
   os->skip = grl_operation_options_get_skip (qs->options);
   os->count = grl_operation_options_get_count (qs->options);
@@ -1250,7 +1249,7 @@ grl_upnp_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_QUERY_FAILED,
 			 "Failed to start query action");
-    qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
+    qs->callback (qs->source, qs->operation_id, NULL, 0, qs->user_data, error);
     g_error_free (error);
     g_slice_free (struct OperationSpec, os);
   }
@@ -1259,48 +1258,48 @@ grl_upnp_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
 }
 
 static void
-grl_upnp_source_metadata (GrlMediaSource *source,
-                          GrlMediaSourceMetadataSpec *ms)
+grl_upnp_source_resolve (GrlSource *source,
+                         GrlSourceResolveSpec *rs)
 {
   GUPnPServiceProxyAction* action;
   gchar *upnp_filter;
   gchar *id;
   GError *error = NULL;
 
-  GRL_DEBUG ("grl_upnp_source_metadata");
+  GRL_DEBUG (__FUNCTION__);
 
-  upnp_filter = get_upnp_filter (ms->keys);
+  upnp_filter = get_upnp_filter (rs->keys);
 
   GRL_DEBUG ("filter: '%s'", upnp_filter);
 
-  id = (gchar *) grl_media_get_id (ms->media);
+  id = (gchar *) grl_media_get_id (rs->media);
   if (!id) {
-    grl_media_set_title (ms->media, GRL_UPNP_SOURCE (source)->priv->upnp_name);
+    grl_media_set_title (rs->media, GRL_UPNP_SOURCE (source)->priv->upnp_name);
     id = "0";
   }
 
   action =
     gupnp_service_proxy_begin_action (GRL_UPNP_SOURCE (source)->priv->service,
-				      "Browse", gupnp_metadata_cb,
-                                      ms,
-				      "ObjectID", G_TYPE_STRING,
+                                      "Browse", gupnp_resolve_cb,
+                                      rs,
+                                      "ObjectID", G_TYPE_STRING,
                                       id,
-				      "BrowseFlag", G_TYPE_STRING,
+                                      "BrowseFlag", G_TYPE_STRING,
                                       "BrowseMetadata",
-				      "Filter", G_TYPE_STRING,
+                                      "Filter", G_TYPE_STRING,
                                       upnp_filter,
-				      "StartingIndex", G_TYPE_UINT,
+                                      "StartingIndex", G_TYPE_UINT,
                                       0,
-				      "RequestedCount", G_TYPE_UINT,
+                                      "RequestedCount", G_TYPE_UINT,
                                       0,
-				      "SortCriteria", G_TYPE_STRING,
+                                      "SortCriteria", G_TYPE_STRING,
                                       "",
-				      NULL);
+                                      NULL);
   if (!action) {
     error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_METADATA_FAILED,
-			 "Failed to start metadata action");
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
+                         GRL_CORE_ERROR_RESOLVE_FAILED,
+                         "Failed to start resolve action");
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
   }
 
@@ -1308,25 +1307,25 @@ grl_upnp_source_metadata (GrlMediaSource *source,
 }
 
 static GrlSupportedOps
-grl_upnp_source_supported_operations (GrlSource *metadata_source)
+grl_upnp_source_supported_operations (GrlSource *source)
 {
   GrlSupportedOps caps;
-  GrlUpnpSource *source;
+  GrlUpnpSource *upnp_source;
 
   /* Some sources may support search() while other not, so we rewrite
      supported_operations() to take that into account.
      See also note in grl_upnp_source_query() */
 
-  source = GRL_UPNP_SOURCE (metadata_source);
-  caps = GRL_OP_BROWSE | GRL_OP_METADATA | GRL_OP_NOTIFY_CHANGE;
-  if (source->priv->search_enabled)
+  upnp_source = GRL_UPNP_SOURCE (source);
+  caps = GRL_OP_BROWSE | GRL_OP_RESOLVE | GRL_OP_NOTIFY_CHANGE;
+  if (upnp_source->priv->search_enabled)
     caps = caps | GRL_OP_SEARCH | GRL_OP_QUERY;
 
   return caps;
 }
 
 static gboolean
-grl_upnp_source_notify_change_start (GrlMediaSource *source,
+grl_upnp_source_notify_change_start (GrlSource *source,
                                      GError **error)
 {
   GrlUpnpSource *upnp_source = GRL_UPNP_SOURCE (source);
@@ -1350,7 +1349,7 @@ grl_upnp_source_notify_change_start (GrlMediaSource *source,
 
 
 static gboolean
-grl_upnp_source_notify_change_stop (GrlMediaSource *source,
+grl_upnp_source_notify_change_stop (GrlSource *source,
                                     GError **error)
 {
   GrlUpnpSource *upnp_source = GRL_UPNP_SOURCE (source);

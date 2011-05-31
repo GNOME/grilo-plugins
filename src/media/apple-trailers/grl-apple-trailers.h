@@ -58,7 +58,7 @@ typedef struct _GrlAppleTrailersSourcePriv GrlAppleTrailersSourcePriv;
 
 struct _GrlAppleTrailersSource {
 
-  GrlMediaSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlAppleTrailersSourcePriv *priv;
@@ -69,7 +69,7 @@ typedef struct _GrlAppleTrailersSourceClass GrlAppleTrailersSourceClass;
 
 struct _GrlAppleTrailersSourceClass {
 
-  GrlMediaSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

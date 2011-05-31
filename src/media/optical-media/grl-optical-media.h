@@ -57,7 +57,7 @@ typedef struct _GrlOpticalMediaSourcePrivate GrlOpticalMediaSourcePrivate;
 
 struct _GrlOpticalMediaSource {
 
-  GrlMediaSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlOpticalMediaSourcePrivate *priv;
@@ -67,7 +67,7 @@ typedef struct _GrlOpticalMediaSourceClass GrlOpticalMediaSourceClass;
 
 struct _GrlOpticalMediaSourceClass {
 
-  GrlMediaSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

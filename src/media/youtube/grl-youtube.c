@@ -128,15 +128,15 @@ typedef struct {
 } CategoryInfo;
 
 typedef struct {
-  GrlMediaSource *source;
+  GrlSource *source;
   GCancellable *cancellable;
   guint operation_id;
   const gchar *container_id;
   GList *keys;
-  GrlMetadataResolutionFlags flags;
+  GrlResolutionFlags flags;
   guint skip;
   guint count;
-  GrlMediaSourceResultCb callback;
+  GrlSourceResultCb callback;
   gpointer user_data;
   guint error_code;
   CategoryInfo *category_info;
@@ -196,20 +196,20 @@ static const GList *grl_youtube_source_slow_keys (GrlSource *source);
 static GrlCaps * grl_youtube_source_get_caps (GrlSource *source,
                                               GrlSupportedOps operation);
 
-static void grl_youtube_source_search (GrlMediaSource *source,
-                                       GrlMediaSourceSearchSpec *ss);
+static void grl_youtube_source_search (GrlSource *source,
+                                       GrlSourceSearchSpec *ss);
 
-static void grl_youtube_source_browse (GrlMediaSource *source,
-                                       GrlMediaSourceBrowseSpec *bs);
+static void grl_youtube_source_browse (GrlSource *source,
+                                       GrlSourceBrowseSpec *bs);
 
-static void grl_youtube_source_metadata (GrlMediaSource *source,
-                                         GrlMediaSourceMetadataSpec *ms);
+static void grl_youtube_source_resolve (GrlSource *source,
+                                        GrlSourceResolveSpec *rs);
 
-static gboolean grl_youtube_test_media_from_uri (GrlMediaSource *source,
+static gboolean grl_youtube_test_media_from_uri (GrlSource *source,
 						 const gchar *uri);
 
-static void grl_youtube_get_media_from_uri (GrlMediaSource *source,
-					    GrlMediaSourceMediaFromUriSpec *mfus);
+static void grl_youtube_get_media_from_uri (GrlSource *source,
+					    GrlSourceMediaFromUriSpec *mfus);
 
 static void grl_youtube_source_cancel (GrlSource *source,
                                        guint operation_id);
@@ -301,7 +301,7 @@ GRL_PLUGIN_REGISTER (grl_youtube_plugin_init,
 
 /* ================== YouTube GObject ================ */
 
-G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_SOURCE);
 
 static GrlYoutubeSource *
 grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
@@ -350,7 +350,6 @@ grl_youtube_source_class_init (GrlYoutubeSourceClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   gobject_class->set_property = grl_youtube_source_set_property;
   gobject_class->finalize = grl_youtube_source_finalize;
@@ -360,12 +359,11 @@ grl_youtube_source_class_init (GrlYoutubeSourceClass * klass)
   source_class->get_caps = grl_youtube_source_get_caps;
   source_class->cancel = grl_youtube_source_cancel;
 
-  media_class->search = grl_youtube_source_search;
-  media_class->browse = grl_youtube_source_browse;
-  media_class->metadata = grl_youtube_source_metadata;
-  media_class->test_media_from_uri = grl_youtube_test_media_from_uri;
-  media_class->media_from_uri = grl_youtube_get_media_from_uri;
-
+  source_class->search = grl_youtube_source_search;
+  source_class->browse = grl_youtube_source_browse;
+  source_class->resolve = grl_youtube_source_resolve;
+  source_class->test_media_from_uri = grl_youtube_test_media_from_uri;
+  source_class->media_from_uri = grl_youtube_get_media_from_uri;
 
   g_object_class_install_property (gobject_class,
                                    PROP_SERVICE,
@@ -427,8 +425,7 @@ grl_youtube_source_finalize (GObject *object)
 /* ======================= Utilities ==================== */
 
 static void
-release_operation_data (GrlMetadataSource *source,
-                        guint operation_id)
+release_operation_data (guint operation_id)
 {
   GCancellable *cancellable = grl_operation_get_data (operation_id);
 
@@ -757,11 +754,11 @@ get_category_index_from_id (const gchar *category_id)
 }
 
 static void
-build_media_from_entry_metadata_cb (GrlMedia *media, gpointer user_data)
+build_media_from_entry_resolve_cb (GrlMedia *media, gpointer user_data)
 {
-  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
-  release_operation_data (GRL_METADATA_SOURCE (ms->source), ms->metadata_id);
-  ms->callback (ms->source, ms->metadata_id, media, ms->user_data, NULL);
+  GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) user_data;
+  release_operation_data (rs->operation_id);
+  rs->callback (rs->source, rs->operation_id, media, rs->user_data, NULL);
 }
 
 static void
@@ -811,36 +808,36 @@ build_category_directory (OperationSpec *os)
 }
 
 static void
-metadata_cb (GObject *object,
-	     GAsyncResult *result,
-	     gpointer user_data)
+resolve_cb (GObject *object,
+            GAsyncResult *result,
+            gpointer user_data)
 {
+  GRL_DEBUG (__FUNCTION__);
+
   GError *error = NULL;
   GrlYoutubeSource *source;
   GDataEntry *video;
   GDataService *service;
-  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
+  GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) user_data;
 
-  GRL_DEBUG ("metadata_cb");
-
-  source = GRL_YOUTUBE_SOURCE (ms->source);
+  source = GRL_YOUTUBE_SOURCE (rs->source);
   service = GDATA_SERVICE (source->priv->service);
 
   video = gdata_service_query_single_entry_finish (service, result, &error);
 
   if (error) {
-    release_operation_data (GRL_METADATA_SOURCE (ms->source), ms->metadata_id);
-    error->code = GRL_CORE_ERROR_METADATA_FAILED;
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
+    release_operation_data (rs->operation_id);
+    error->code = GRL_CORE_ERROR_RESOLVE_FAILED;
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
   } else {
-    build_media_from_entry (GRL_YOUTUBE_SOURCE (ms->source),
-                            ms->media,
+    build_media_from_entry (GRL_YOUTUBE_SOURCE (rs->source),
+                            rs->media,
                             video,
-                            grl_operation_get_data (ms->metadata_id),
-                            ms->keys,
-			    build_media_from_entry_metadata_cb,
-                            ms);
+                            grl_operation_get_data (rs->operation_id),
+                            rs->keys,
+			    build_media_from_entry_resolve_cb,
+                            rs);
   }
 
   if (video) {
@@ -1252,11 +1249,11 @@ get_video_id_from_url (const gchar *url)
 static void
 build_media_from_entry_media_from_uri_cb (GrlMedia *media, gpointer user_data)
 {
-  GrlMediaSourceMediaFromUriSpec *mfus =
-    (GrlMediaSourceMediaFromUriSpec *) user_data;
+  GrlSourceMediaFromUriSpec *mfus = (GrlSourceMediaFromUriSpec *) user_data;
 
-  release_operation_data (GRL_METADATA_SOURCE (mfus->source), mfus->media_from_uri_id);
-  mfus->callback (mfus->source, mfus->media_from_uri_id, media, mfus->user_data, NULL);
+  release_operation_data (mfus->operation_id);
+  mfus->callback (mfus->source, mfus->operation_id,
+                  media, mfus->user_data, NULL);
 }
 
 static void
@@ -1266,8 +1263,7 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
   GrlYoutubeSource *source;
   GDataEntry *video;
   GDataService *service;
-  GrlMediaSourceMediaFromUriSpec *mfus =
-    (GrlMediaSourceMediaFromUriSpec *) user_data;
+  GrlSourceMediaFromUriSpec *mfus = (GrlSourceMediaFromUriSpec *) user_data;
 
   source = GRL_YOUTUBE_SOURCE (mfus->source);
   service = GDATA_SERVICE (source->priv->service);
@@ -1276,14 +1272,14 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
 
   if (error) {
     error->code = GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED;
-    release_operation_data (GRL_METADATA_SOURCE (mfus->source), mfus->media_from_uri_id);
-    mfus->callback (mfus->source, mfus->media_from_uri_id, NULL, mfus->user_data, error);
+    release_operation_data (mfus->operation_id);
+    mfus->callback (mfus->source, mfus->operation_id, NULL, mfus->user_data, error);
     g_error_free (error);
   } else {
     build_media_from_entry (GRL_YOUTUBE_SOURCE (mfus->source),
                             NULL,
                             video,
-                            grl_operation_get_data (mfus->media_from_uri_id),
+                            grl_operation_get_data (mfus->operation_id),
                             mfus->keys,
 			    build_media_from_entry_media_from_uri_cb,
 			    mfus);
@@ -1304,7 +1300,7 @@ grl_youtube_source_supported_keys (GrlSource *source)
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
                                       GRL_METADATA_KEY_TITLE,
                                       GRL_METADATA_KEY_URL,
-				      GRL_METADATA_KEY_EXTERNAL_URL,
+                                      GRL_METADATA_KEY_EXTERNAL_URL,
                                       GRL_METADATA_KEY_DESCRIPTION,
                                       GRL_METADATA_KEY_DURATION,
                                       GRL_METADATA_KEY_PUBLICATION_DATE,
@@ -1313,7 +1309,7 @@ grl_youtube_source_supported_keys (GrlSource *source)
                                       GRL_METADATA_KEY_CHILDCOUNT,
                                       GRL_METADATA_KEY_SITE,
                                       GRL_METADATA_KEY_RATING,
-				      GRL_METADATA_KEY_EXTERNAL_PLAYER,
+                                      GRL_METADATA_KEY_EXTERNAL_PLAYER,
                                       NULL);
   }
   return keys;
@@ -1331,20 +1327,21 @@ grl_youtube_source_slow_keys (GrlSource *source)
 }
 
 static void
-grl_youtube_source_search (GrlMediaSource *source,
-                           GrlMediaSourceSearchSpec *ss)
+grl_youtube_source_search (GrlSource *source,
+                           GrlSourceSearchSpec *ss)
 {
   OperationSpec *os;
   GDataQuery *query;
 
-  GRL_DEBUG ("grl_youtube_source_search (%u, %d)",
+  GRL_DEBUG ("%s (%u, %d)",
+             __FUNCTION__,
              grl_operation_options_get_skip (ss->options),
              grl_operation_options_get_count (ss->options));
 
   os = operation_spec_new ();
   os->source = source;
   os->cancellable = g_cancellable_new ();
-  os->operation_id = ss->search_id;
+  os->operation_id = ss->operation_id;
   os->keys = ss->keys;
   os->skip = grl_operation_options_get_skip (ss->options) + 1;
   os->count = grl_operation_options_get_count (ss->options);
@@ -1355,7 +1352,7 @@ grl_youtube_source_search (GrlMediaSource *source,
   /* Look for OPERATION_SPEC_REF_RATIONALE for details */
   operation_spec_ref (os);
 
-  grl_operation_set_data (ss->search_id, os->cancellable);
+  grl_operation_set_data (ss->operation_id, os->cancellable);
 
   query = gdata_query_new_with_limits (ss->text, os->skip, os->count);
 
@@ -1382,19 +1379,19 @@ grl_youtube_source_search (GrlMediaSource *source,
 }
 
 static void
-grl_youtube_source_browse (GrlMediaSource *source,
-                           GrlMediaSourceBrowseSpec *bs)
+grl_youtube_source_browse (GrlSource *source,
+                           GrlSourceBrowseSpec *bs)
 {
   OperationSpec *os;
   const gchar *container_id;
 
-  GRL_DEBUG ("grl_youtube_source_browse: %s", grl_media_get_id (bs->container));
+  GRL_DEBUG ("%s: %s", __FUNCTION__, grl_media_get_id (bs->container));
 
   container_id = grl_media_get_id (bs->container);
 
   os = operation_spec_new ();
   os->source = bs->source;
-  os->operation_id = bs->browse_id;
+  os->operation_id = bs->operation_id;
   os->container_id = container_id;
   os->keys = bs->keys;
   os->flags = grl_operation_options_get_flags (bs->options);
@@ -1436,8 +1433,8 @@ grl_youtube_source_browse (GrlMediaSource *source,
 }
 
 static void
-grl_youtube_source_metadata (GrlMediaSource *source,
-                             GrlMediaSourceMetadataSpec *ms)
+grl_youtube_source_resolve (GrlSource *source,
+                            GrlSourceResolveSpec *rs)
 {
   YoutubeMediaType media_type;
   const gchar *id;
@@ -1446,32 +1443,32 @@ grl_youtube_source_metadata (GrlMediaSource *source,
   GError *error = NULL;
   GrlMedia *media = NULL;
 
-  GRL_DEBUG ("grl_youtube_source_metadata");
+  GRL_DEBUG (__FUNCTION__);
 
-  id = grl_media_get_id (ms->media);
+  id = grl_media_get_id (rs->media);
   media_type = classify_media_id (id);
   service = GRL_YOUTUBE_SOURCE (source)->priv->service;
 
   switch (media_type) {
   case YOUTUBE_MEDIA_TYPE_ROOT:
-    media = produce_container_from_directory (service, ms->media, NULL, 0);
+    media = produce_container_from_directory (service, rs->media, NULL, 0);
     break;
   case YOUTUBE_MEDIA_TYPE_FEEDS:
-    media = produce_container_from_directory (service, ms->media, root_dir, 0);
+    media = produce_container_from_directory (service, rs->media, root_dir, 0);
     break;
   case YOUTUBE_MEDIA_TYPE_CATEGORIES:
-    media = produce_container_from_directory (service, ms->media, root_dir, 1);
+    media = produce_container_from_directory (service, rs->media, root_dir, 1);
     break;
   case YOUTUBE_MEDIA_TYPE_FEED:
     {
       gint index = get_feed_type_from_id (id);
       if (index >= 0) {
-	media = produce_container_from_directory (service, ms->media, feeds_dir,
-						  index);
+        media = produce_container_from_directory (service, rs->media, feeds_dir,
+                                                  index);
       } else {
-	error = g_error_new (GRL_CORE_ERROR,
-			     GRL_CORE_ERROR_METADATA_FAILED,
-			     "Invalid feed id");
+        error = g_error_new (GRL_CORE_ERROR,
+                             GRL_CORE_ERROR_RESOLVE_FAILED,
+                             "Invalid feed id");
       }
     }
     break;
@@ -1479,19 +1476,19 @@ grl_youtube_source_metadata (GrlMediaSource *source,
     {
       gint index = get_category_index_from_id (id);
       if (index >= 0) {
-	media = produce_container_from_directory (service, ms->media,
-						  categories_dir, index);
+        media = produce_container_from_directory (service, rs->media,
+                                                  categories_dir, index);
       } else {
 	error = g_error_new (GRL_CORE_ERROR,
-			     GRL_CORE_ERROR_METADATA_FAILED,
-			     "Invalid category id");
+                        GRL_CORE_ERROR_RESOLVE_FAILED,
+                        "Invalid category id");
       }
     }
     break;
   case YOUTUBE_MEDIA_TYPE_VIDEO:
   default:
     cancellable = g_cancellable_new ();
-    grl_operation_set_data (ms->metadata_id, cancellable);
+    grl_operation_set_data (rs->operation_id, cancellable);
     gchar *entryid = g_strconcat ("tag:youtube.com,2008:video:", id, NULL);
 
 #ifdef HAVE_LIBGDATA_0_9
@@ -1501,8 +1498,8 @@ grl_youtube_source_metadata (GrlMediaSource *source,
                                               NULL,
                                               GDATA_TYPE_YOUTUBE_VIDEO,
                                               cancellable,
-                                              metadata_cb,
-                                              ms);
+                                              resolve_cb,
+                                              rs);
 #else /* HAVE_LIBGDATA_0_9 */
       gdata_service_query_single_entry_async (service,
                                               entryid,
@@ -1518,20 +1515,20 @@ grl_youtube_source_metadata (GrlMediaSource *source,
   }
 
   if (error) {
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
   } else if (media) {
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   }
 }
 
 static gboolean
-grl_youtube_test_media_from_uri (GrlMediaSource *source, const gchar *uri)
+grl_youtube_test_media_from_uri (GrlSource *source, const gchar *uri)
 {
   gchar *video_id;
   gboolean ok;
 
-  GRL_DEBUG ("grl_youtube_test_media_from_uri");
+  GRL_DEBUG (__FUNCTION__);
 
   video_id = get_video_id_from_url (uri);
   ok = (video_id != NULL);
@@ -1540,8 +1537,8 @@ grl_youtube_test_media_from_uri (GrlMediaSource *source, const gchar *uri)
 }
 
 static void
-grl_youtube_get_media_from_uri (GrlMediaSource *source,
-				 GrlMediaSourceMediaFromUriSpec *mfus)
+grl_youtube_get_media_from_uri (GrlSource *source,
+                                GrlSourceMediaFromUriSpec *mfus)
 {
   gchar *video_id;
   GError *error;
@@ -1549,14 +1546,14 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
   GDataService *service;
   gchar *entry_id;
 
-  GRL_DEBUG ("grl_youtube_get_media_from_uri");
+  GRL_DEBUG (__FUNCTION__);
 
   video_id = get_video_id_from_url (mfus->uri);
   if (video_id == NULL) {
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
 			 "Cannot create media from '%s'", mfus->uri);
-    mfus->callback (source, mfus->media_from_uri_id, NULL, mfus->user_data, error);
+    mfus->callback (source, mfus->operation_id, NULL, mfus->user_data, error);
     g_error_free (error);
     return;
   }
@@ -1564,7 +1561,7 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
   service = GRL_YOUTUBE_SOURCE (source)->priv->service;
 
   cancellable = g_cancellable_new ();
-  grl_operation_set_data (mfus->media_from_uri_id, cancellable);
+  grl_operation_set_data (mfus->operation_id, cancellable);
   entry_id = g_strconcat ("tag:youtube.com,2008:video:", video_id, NULL);
 
 #ifdef HAVE_LIBGDATA_0_9

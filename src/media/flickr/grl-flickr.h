@@ -61,7 +61,7 @@ typedef struct _GrlFlickrSourcePrivate GrlFlickrSourcePrivate;
 
 struct _GrlFlickrSource {
 
-  GrlMediaSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlFlickrSourcePrivate *priv;
@@ -71,7 +71,7 @@ typedef struct _GrlFlickrSourceClass GrlFlickrSourceClass;
 
 struct _GrlFlickrSourceClass {
 
-  GrlMediaSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

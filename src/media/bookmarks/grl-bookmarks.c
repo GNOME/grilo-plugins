@@ -143,12 +143,12 @@ struct _GrlBookmarksPrivate {
 };
 
 typedef struct {
-  GrlMediaSource *source;
+  GrlSource *source;
   guint operation_id;
   const gchar *media_id;
   guint skip;
   guint count;
-  GrlMediaSourceResultCb callback;
+  GrlSourceResultCb callback;
   guint error_code;
   gboolean is_query;
   gpointer user_data;
@@ -159,25 +159,25 @@ static GrlBookmarksSource *grl_bookmarks_source_new (void);
 static void grl_bookmarks_source_finalize (GObject *plugin);
 
 static const GList *grl_bookmarks_source_supported_keys (GrlSource *source);
-static GrlSupportedOps grl_bookmarks_source_supported_operations (GrlSource *metadata_source);
+static GrlSupportedOps grl_bookmarks_source_supported_operations (GrlSource *source);
 
-static void grl_bookmarks_source_search (GrlMediaSource *source,
-					 GrlMediaSourceSearchSpec *ss);
-static void grl_bookmarks_source_query (GrlMediaSource *source,
-					GrlMediaSourceQuerySpec *qs);
-static void grl_bookmarks_source_browse (GrlMediaSource *source,
-                                        GrlMediaSourceBrowseSpec *bs);
-static void grl_bookmarks_source_metadata (GrlMediaSource *source,
-					   GrlMediaSourceMetadataSpec *ms);
-static void grl_bookmarks_source_store (GrlMediaSource *source,
-                                       GrlMediaSourceStoreSpec *ss);
-static void grl_bookmarks_source_remove (GrlMediaSource *source,
-					 GrlMediaSourceRemoveSpec *rs);
+static void grl_bookmarks_source_search (GrlSource *source,
+                                         GrlSourceSearchSpec *ss);
+static void grl_bookmarks_source_query (GrlSource *source,
+                                        GrlSourceQuerySpec *qs);
+static void grl_bookmarks_source_browse (GrlSource *source,
+                                         GrlSourceBrowseSpec *bs);
+static void grl_bookmarks_source_resolve (GrlSource *source,
+                                          GrlSourceResolveSpec *rs);
+static void grl_bookmarks_source_store (GrlSource *source,
+                                        GrlSourceStoreSpec *ss);
+static void grl_bookmarks_source_remove (GrlSource *source,
+                                         GrlSourceRemoveSpec *rs);
 
-static gboolean grl_bookmarks_source_notify_change_start (GrlMediaSource *source,
+static gboolean grl_bookmarks_source_notify_change_start (GrlSource *source,
                                                           GError **error);
 
-static gboolean grl_bookmarks_source_notify_change_stop (GrlMediaSource *source,
+static gboolean grl_bookmarks_source_notify_change_stop (GrlSource *source,
                                                          GError **error);
 
 static GrlCaps * grl_bookmarks_source_get_caps (GrlSource *source,
@@ -244,22 +244,20 @@ static GrlCaps * grl_bookmarks_source_get_caps (GrlSource *source,
  {
    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
    GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-   GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
    gobject_class->finalize = grl_bookmarks_source_finalize;
 
    source_class->supported_operations = grl_bookmarks_source_supported_operations;
    source_class->supported_keys = grl_bookmarks_source_supported_keys;
    source_class->get_caps = grl_bookmarks_source_get_caps;
-
-   media_class->browse = grl_bookmarks_source_browse;
-   media_class->search = grl_bookmarks_source_search;
-   media_class->query = grl_bookmarks_source_query;
-   media_class->store = grl_bookmarks_source_store;
-   media_class->remove = grl_bookmarks_source_remove;
-   media_class->metadata = grl_bookmarks_source_metadata;
-   media_class->notify_change_start = grl_bookmarks_source_notify_change_start;
-   media_class->notify_change_stop = grl_bookmarks_source_notify_change_stop;
+   source_class->browse = grl_bookmarks_source_browse;
+   source_class->search = grl_bookmarks_source_search;
+   source_class->query = grl_bookmarks_source_query;
+   source_class->store = grl_bookmarks_source_store;
+   source_class->remove = grl_bookmarks_source_remove;
+   source_class->resolve = grl_bookmarks_source_resolve;
+   source_class->notify_change_start = grl_bookmarks_source_notify_change_start;
+   source_class->notify_change_stop = grl_bookmarks_source_notify_change_stop;
 
    g_type_class_add_private (klass, sizeof (GrlBookmarksPrivate));
 }
@@ -314,7 +312,7 @@ grl_bookmarks_source_init (GrlBookmarksSource *source)
   GRL_DEBUG ("  OK");
 }
 
-G_DEFINE_TYPE (GrlBookmarksSource, grl_bookmarks_source, GRL_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlBookmarksSource, grl_bookmarks_source, GRL_TYPE_SOURCE);
 
 static void
 grl_bookmarks_source_finalize (GObject *object)
@@ -409,7 +407,7 @@ build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
 }
 
 static void
-bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
+bookmark_resolve (GrlSourceResolveSpec *rs)
 {
   gint r;
   sqlite3_stmt *sql_stmt = NULL;
@@ -417,16 +415,16 @@ bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
   GError *error = NULL;
   gchar *sql;
   const gchar *id;
-  
-  GRL_DEBUG ("bookmark_metadata");
 
-  db = GRL_BOOKMARKS_SOURCE (ms->source)->priv->db;
+  GRL_DEBUG (__FUNCTION__);
 
-  id = grl_media_get_id (ms->media);
+  db = GRL_BOOKMARKS_SOURCE (rs->source)->priv->db;
+
+  id = grl_media_get_id (rs->media);
   if (!id) {
     /* Root category: special case */
-    grl_media_set_title (ms->media, GRL_ROOT_TITLE);
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
+    grl_media_set_title (rs->media, GRL_ROOT_TITLE);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
     return;
   }
 
@@ -438,9 +436,9 @@ bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
   if (r != SQLITE_OK) {
     GRL_WARNING ("Failed to get bookmark: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_METADATA_FAILED,
-			 "Failed to get bookmark metadata");
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
+                         GRL_CORE_ERROR_RESOLVE_FAILED,
+                         "Failed to get bookmark metadata");
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
     return;
   }
@@ -448,14 +446,14 @@ bookmark_metadata (GrlMediaSourceMetadataSpec *ms)
   while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
 
   if (r == SQLITE_ROW) {
-    build_media_from_stmt (ms->media, sql_stmt);
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
+    build_media_from_stmt (rs->media, sql_stmt);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   } else {
     GRL_WARNING ("Failed to get bookmark: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_METADATA_FAILED,
-			 "Failed to get bookmark metadata");
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
+                         GRL_CORE_ERROR_RESOLVE_FAILED,
+                         "Failed to get bookmark metadata");
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
   }
 
@@ -601,18 +599,19 @@ remove_bookmark (GrlBookmarksSource *bookmarks_source,
   if (bookmarks_source->priv->notify_changes) {
     /* We can improve accuracy computing the parent container of removed
        element */
-    grl_media_source_notify_change (GRL_MEDIA_SOURCE (bookmarks_source),
-                                    NULL,
-                                    GRL_CONTENT_REMOVED,
-                                    TRUE);
+    grl_source_notify_change (GRL_SOURCE (bookmarks_source),
+                              NULL,
+                              GRL_CONTENT_REMOVED,
+                              TRUE);
   }
 }
 
 static void
 store_bookmark (GrlBookmarksSource *bookmarks_source,
-		GrlMediaBox *parent,
-		GrlMedia *bookmark,
-		GError **error)
+                GList **keylist,
+                GrlMediaBox *parent,
+                GrlMedia *bookmark,
+                GError **error)
 {
   gint r;
   sqlite3_stmt *sql_stmt = NULL;
@@ -670,10 +669,20 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
   sqlite3_bind_int (sql_stmt, BOOKMARK_TYPE, type);
   if (type == BOOKMARK_TYPE_STREAM) {
     sqlite3_bind_text (sql_stmt, BOOKMARK_URL, url, -1, SQLITE_STATIC);
+    *keylist = g_list_remove (*keylist,
+                              GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL));
   } else {
     sqlite3_bind_null (sql_stmt, BOOKMARK_URL);
   }
-  sqlite3_bind_text (sql_stmt, BOOKMARK_TITLE, title, -1, SQLITE_STATIC);
+  if (title) {
+    sqlite3_bind_text (sql_stmt, BOOKMARK_TITLE, title, -1, SQLITE_STATIC);
+    *keylist = g_list_remove (*keylist,
+                              GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE));
+  } else if (url) {
+    sqlite3_bind_text (sql_stmt, BOOKMARK_TITLE, url, -1, SQLITE_STATIC);
+  } else {
+    sqlite3_bind_text (sql_stmt, BOOKMARK_TITLE, "(unknown)", -1, SQLITE_STATIC);
+  }
   if (date) {
     sqlite3_bind_text (sql_stmt, BOOKMARK_DATE, date, -1, SQLITE_STATIC);
   } else {
@@ -681,11 +690,15 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
   }
   if (mime) {
     sqlite3_bind_text (sql_stmt, BOOKMARK_MIME, mime, -1, SQLITE_STATIC);
+    *keylist = g_list_remove (*keylist,
+                              GRLKEYID_TO_POINTER (GRL_METADATA_KEY_MIME));
   } else {
     sqlite3_bind_null (sql_stmt, BOOKMARK_MIME);
   }
   if (desc) {
     sqlite3_bind_text (sql_stmt, BOOKMARK_DESC, desc, -1, SQLITE_STATIC);
+    *keylist = g_list_remove (*keylist,
+                              GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DESCRIPTION));
   } else {
     sqlite3_bind_null (sql_stmt, BOOKMARK_DESC);
   }
@@ -710,10 +723,10 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
   g_free (id);
 
   if (bookmarks_source->priv->notify_changes) {
-    grl_media_source_notify_change (GRL_MEDIA_SOURCE (bookmarks_source),
-                                    GRL_MEDIA (parent),
-                                    GRL_CONTENT_ADDED,
-                                    FALSE);
+    grl_source_notify_change (GRL_SOURCE (bookmarks_source),
+                              GRL_MEDIA (parent),
+                              GRL_CONTENT_ADDED,
+                              FALSE);
   }
 }
 
@@ -736,8 +749,8 @@ grl_bookmarks_source_supported_keys (GrlSource *source)
 }
 
 static void
-grl_bookmarks_source_browse (GrlMediaSource *source,
-                            GrlMediaSourceBrowseSpec *bs)
+grl_bookmarks_source_browse (GrlSource *source,
+                             GrlSourceBrowseSpec *bs)
 {
   GRL_DEBUG ("grl_bookmarks_source_browse");
 
@@ -751,14 +764,14 @@ grl_bookmarks_source_browse (GrlMediaSource *source,
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_BROWSE_FAILED,
 			 "No database connection");
-    bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
+    bs->callback (bs->source, bs->operation_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
   }
 
   /* Configure browse operation */
   os = g_slice_new0 (OperationSpec);
   os->source = bs->source;
-  os->operation_id = bs->browse_id;
+  os->operation_id = bs->operation_id;
   os->media_id = grl_media_get_id (bs->container);
   os->count = grl_operation_options_get_count (bs->options);
   os->skip = grl_operation_options_get_skip (bs->options);
@@ -771,8 +784,8 @@ grl_bookmarks_source_browse (GrlMediaSource *source,
 }
 
 static void
-grl_bookmarks_source_search (GrlMediaSource *source,
-			     GrlMediaSourceSearchSpec *ss)
+grl_bookmarks_source_search (GrlSource *source,
+                             GrlSourceSearchSpec *ss)
 {
   GRL_DEBUG ("grl_bookmarks_source_search");
 
@@ -786,13 +799,13 @@ grl_bookmarks_source_search (GrlMediaSource *source,
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_QUERY_FAILED,
 			 "No database connection");
-    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
+    ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
   }
 
   os = g_slice_new0 (OperationSpec);
   os->source = ss->source;
-  os->operation_id = ss->search_id;
+  os->operation_id = ss->operation_id;
   os->count = grl_operation_options_get_count (ss->options);
   os->skip = grl_operation_options_get_skip (ss->options);
   os->callback = ss->callback;
@@ -803,8 +816,8 @@ grl_bookmarks_source_search (GrlMediaSource *source,
 }
 
 static void
-grl_bookmarks_source_query (GrlMediaSource *source,
-			    GrlMediaSourceQuerySpec *qs)
+grl_bookmarks_source_query (GrlSource *source,
+                            GrlSourceQuerySpec *qs)
 {
   GRL_DEBUG ("grl_bookmarks_source_query");
 
@@ -818,13 +831,13 @@ grl_bookmarks_source_query (GrlMediaSource *source,
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_QUERY_FAILED,
 			 "No database connection");
-    qs->callback (qs->source, qs->query_id, NULL, 0, qs->user_data, error);
+    qs->callback (qs->source, qs->operation_id, NULL, 0, qs->user_data, error);
     g_error_free (error);
   }
 
   os = g_slice_new0 (OperationSpec);
   os->source = qs->source;
-  os->operation_id = qs->query_id;
+  os->operation_id = qs->operation_id;
   os->count = grl_operation_options_get_count (qs->options);
   os->skip = grl_operation_options_get_skip (qs->options);
   os->callback = qs->callback;
@@ -835,23 +848,27 @@ grl_bookmarks_source_query (GrlMediaSource *source,
 }
 
 static void
-grl_bookmarks_source_store (GrlMediaSource *source, GrlMediaSourceStoreSpec *ss)
+grl_bookmarks_source_store (GrlSource *source, GrlSourceStoreSpec *ss)
 {
-  GRL_DEBUG ("grl_bookmarks_source_store");
-  /* FIXME: Try to guess bookmark mime somehow */
   GError *error = NULL;
+  GList *keylist;
+
+  GRL_DEBUG ("grl_bookmarks_source_store");
+
+  /* FIXME: Try to guess bookmark mime somehow */
+  keylist = grl_data_get_keys (GRL_DATA (ss->media));
   store_bookmark (GRL_BOOKMARKS_SOURCE (ss->source),
-		  ss->parent, ss->media, &error);
-  ss->callback (ss->source, ss->parent, ss->media, ss->user_data, error);
+                  &keylist, ss->parent, ss->media, &error);
+  ss->callback (ss->source, ss->media, keylist, ss->user_data, error);
   if (error) {
     g_error_free (error);
   }
 }
 
-static void grl_bookmarks_source_remove (GrlMediaSource *source,
-					 GrlMediaSourceRemoveSpec *rs)
+static void grl_bookmarks_source_remove (GrlSource *source,
+                                         GrlSourceRemoveSpec *rs)
 {
-  GRL_DEBUG ("grl_bookmarks_source_remove");
+  GRL_DEBUG (__FUNCTION__);
   GError *error = NULL;
   remove_bookmark (GRL_BOOKMARKS_SOURCE (rs->source),
 		   rs->media_id, &error);
@@ -862,10 +879,10 @@ static void grl_bookmarks_source_remove (GrlMediaSource *source,
 }
 
 static void
-grl_bookmarks_source_metadata (GrlMediaSource *source,
-			       GrlMediaSourceMetadataSpec *ms)
+grl_bookmarks_source_resolve (GrlSource *source,
+                              GrlSourceResolveSpec *rs)
 {
-  GRL_DEBUG ("grl_bookmarks_source_metadata");
+  GRL_DEBUG (__FUNCTION__);
 
   GrlBookmarksSource *bookmarks_source;
   GError *error = NULL;
@@ -874,28 +891,28 @@ grl_bookmarks_source_metadata (GrlMediaSource *source,
   if (!bookmarks_source->priv->db) {
     GRL_WARNING ("Can't execute operation: no database connection.");
     error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_METADATA_FAILED,
-			 "No database connection");
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
+                         GRL_CORE_ERROR_RESOLVE_FAILED,
+                         "No database connection");
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
   }
 
-  bookmark_metadata (ms);
+  bookmark_resolve (rs);
 }
 
 static GrlSupportedOps
-grl_bookmarks_source_supported_operations (GrlSource *metadata_source)
+grl_bookmarks_source_supported_operations (GrlSource *source)
 {
   GrlSupportedOps caps;
 
-  caps = GRL_OP_BROWSE | GRL_OP_METADATA | GRL_OP_SEARCH | GRL_OP_QUERY |
+  caps = GRL_OP_BROWSE | GRL_OP_RESOLVE | GRL_OP_SEARCH | GRL_OP_QUERY |
     GRL_OP_STORE | GRL_OP_STORE_PARENT | GRL_OP_REMOVE | GRL_OP_NOTIFY_CHANGE;
 
   return caps;
 }
 
 static gboolean
-grl_bookmarks_source_notify_change_start (GrlMediaSource *source,
+grl_bookmarks_source_notify_change_start (GrlSource *source,
                                           GError **error)
 {
   GrlBookmarksSource *bookmarks_source = GRL_BOOKMARKS_SOURCE (source);
@@ -906,7 +923,7 @@ grl_bookmarks_source_notify_change_start (GrlMediaSource *source,
 }
 
 static gboolean
-grl_bookmarks_source_notify_change_stop (GrlMediaSource *source,
+grl_bookmarks_source_notify_change_stop (GrlSource *source,
                                          GError **error)
 {
   GrlBookmarksSource *bookmarks_source = GRL_BOOKMARKS_SOURCE (source);

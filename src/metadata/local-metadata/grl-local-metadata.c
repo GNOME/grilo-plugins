@@ -101,18 +101,18 @@ static void grl_local_metadata_source_set_property (GObject      *object,
 
 static GrlLocalMetadataSource *grl_local_metadata_source_new (gboolean guess_video);
 
-static void grl_local_metadata_source_resolve (GrlMetadataSource *source,
-                                              GrlMetadataSourceResolveSpec *rs);
+static void grl_local_metadata_source_resolve (GrlSource *source,
+                                               GrlSourceResolveSpec *rs);
 
 static const GList *grl_local_metadata_source_supported_keys (GrlSource *source);
 
-static gboolean grl_local_metadata_source_may_resolve (GrlMetadataSource *source,
+static void grl_local_metadata_source_cancel (GrlSource *source,
+                                              guint operation_id);
+
+static gboolean grl_local_metadata_source_may_resolve (GrlSource *source,
                                                        GrlMedia *media,
                                                        GrlKeyID key_id,
                                                        GList **missing_keys);
-
-static void grl_local_metadata_source_cancel (GrlSource *source,
-                                              guint operation_id);
 
 gboolean grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
                                                 GrlPlugin *plugin,
@@ -179,15 +179,13 @@ grl_local_metadata_source_class_init (GrlLocalMetadataSourceClass * klass)
 {
   GObjectClass           *g_class        = G_OBJECT_CLASS (klass);
   GrlSourceClass         *source_class   = GRL_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
 
   g_class->set_property = grl_local_metadata_source_set_property;
 
   source_class->supported_keys = grl_local_metadata_source_supported_keys;
   source_class->cancel = grl_local_metadata_source_cancel;
-
-  metadata_class->may_resolve = grl_local_metadata_source_may_resolve;
-  metadata_class->resolve = grl_local_metadata_source_resolve;
+  source_class->may_resolve = grl_local_metadata_source_may_resolve;
+  source_class->resolve = grl_local_metadata_source_resolve;
 
   g_object_class_install_property (g_class,
                                    PROP_GUESS_VIDEO,
@@ -209,7 +207,7 @@ grl_local_metadata_source_init (GrlLocalMetadataSource *source)
 
 G_DEFINE_TYPE (GrlLocalMetadataSource,
                grl_local_metadata_source,
-               GRL_TYPE_METADATA_SOURCE);
+               GRL_TYPE_SOURCE);
 
 static void
 grl_local_metadata_source_set_property (GObject      *object,
@@ -417,8 +415,9 @@ video_guess_values_from_uri (const gchar *uri,
 }
 
 static void
-got_file_info (GFile *file, GAsyncResult *result,
-               GrlMetadataSourceResolveSpec *rs)
+got_file_info (GFile *file,
+               GAsyncResult *result,
+               GrlSourceResolveSpec *rs)
 {
   GCancellable *cancellable;
   GFileInfo *info;
@@ -428,7 +427,7 @@ got_file_info (GFile *file, GAsyncResult *result,
   GRL_DEBUG ("got_file_info");
 
   /* Free stored operation data */
-  cancellable = grl_operation_get_data (rs->resolve_id);
+  cancellable = grl_operation_get_data (rs->operation_id);
 
   if (cancellable) {
     g_object_unref (cancellable);
@@ -452,11 +451,11 @@ got_file_info (GFile *file, GAsyncResult *result,
     grl_media_set_thumbnail (rs->media, thumbnail_uri);
     g_free (thumbnail_uri);
 
-    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   } else {
     GRL_INFO ("Could not find thumbnail for media: %s",
               grl_media_get_url (rs->media));
-    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   }
 
   goto exit;
@@ -465,7 +464,7 @@ error:
     {
       GError *new_error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
                                        "Got error: %s", error->message);
-      rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, new_error);
+      rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, new_error);
 
       g_error_free (error);
       g_error_free (new_error);
@@ -477,8 +476,8 @@ exit:
 }
 
 static void
-resolve_video (GrlMetadataSource *source,
-               GrlMetadataSourceResolveSpec *rs,
+resolve_video (GrlSource *source,
+               GrlSourceResolveSpec *rs,
                GrlKeyID key,
                resolution_flags_t flags)
 {
@@ -554,8 +553,8 @@ resolve_video (GrlMetadataSource *source,
 }
 
 static gboolean
-resolve_image (GrlMetadataSource *source,
-               GrlMetadataSourceResolveSpec *rs,
+resolve_image (GrlSource *source,
+               GrlSourceResolveSpec *rs,
                resolution_flags_t flags)
 {
   GFile *file;
@@ -567,7 +566,7 @@ resolve_image (GrlMetadataSource *source,
     file = g_file_new_for_uri (grl_media_get_url (rs->media));
 
     cancellable = g_cancellable_new ();
-    grl_operation_set_data (rs->resolve_id, cancellable);
+    grl_operation_set_data (rs->operation_id, cancellable);
     g_file_query_info_async (file, G_FILE_ATTRIBUTE_THUMBNAIL_PATH,
                              G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT, cancellable,
                              (GAsyncReadyCallback)got_file_info, rs);
@@ -713,8 +712,8 @@ albumart_strip_invalid_entities (const gchar *original)
 }
 
 static gboolean
-resolve_album_art (GrlMetadataSource *source,
-                   GrlMetadataSourceResolveSpec *rs,
+resolve_album_art (GrlSource *source,
+                   GrlSourceResolveSpec *rs,
                    resolution_flags_t flags)
 {
   const gchar *artist_value, *album_value;
@@ -772,7 +771,7 @@ resolve_album_art (GrlMetadataSource *source,
     g_free (thumbnail_uri);
     g_free (file_path);
   }
-  rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
+  rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
 
   return FALSE;
 }
@@ -871,7 +870,7 @@ grl_local_metadata_source_supported_keys (GrlSource *source)
 }
 
 static gboolean
-grl_local_metadata_source_may_resolve (GrlMetadataSource *source,
+grl_local_metadata_source_may_resolve (GrlSource *source,
                                        GrlMedia *media,
                                        GrlKeyID key_id,
                                        GList **missing_keys)
@@ -959,8 +958,8 @@ missing_url:
 }
 
 static void
-grl_local_metadata_source_resolve (GrlMetadataSource *source,
-                                  GrlMetadataSourceResolveSpec *rs)
+grl_local_metadata_source_resolve (GrlSource *source,
+                                   GrlSourceResolveSpec *rs)
 {
   GError *error = NULL;
   resolution_flags_t flags;
@@ -969,7 +968,7 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
   gboolean can_access;
   gboolean done;
 
-  GRL_DEBUG ("grl_local_metadata_source_resolve");
+  GRL_DEBUG (__FUNCTION__);
 
   /* Can we access the media through gvfs? */
   can_access = has_compatible_media_url (rs->media);
@@ -985,7 +984,7 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
 
   if (error) {
     /* No can do! */
-    rs->callback (source, rs->resolve_id, rs->media, rs->user_data, error);
+    rs->callback (source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
     return;
   }
@@ -1009,7 +1008,7 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
   /* Only call the callback if there are no async jobs left-over,
    * such as resolve_image() checking for thumbnails */
   if (done)
-    rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
+    rs->callback (source, rs->operation_id, rs->media, rs->user_data, NULL);
 }
 
 static void

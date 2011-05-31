@@ -74,7 +74,7 @@ GHashTable *grl_tracker_media_sources;
 
 /* ================== TrackerMedia GObject ================ */
 
-G_DEFINE_TYPE (GrlTrackerMedia, grl_tracker_media, GRL_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlTrackerMedia, grl_tracker_media, GRL_TYPE_SOURCE);
 
 static GrlTrackerMedia *
 grl_tracker_media_new (TrackerSparqlConnection *connection)
@@ -95,22 +95,20 @@ grl_tracker_media_class_init (GrlTrackerMediaClass * klass)
 {
   GObjectClass        *g_class      = G_OBJECT_CLASS (klass);
   GrlSourceClass      *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMediaSourceClass *media_class  = GRL_MEDIA_SOURCE_CLASS (klass);
 
   g_class->finalize     = grl_tracker_media_finalize;
   g_class->set_property = grl_tracker_media_set_property;
 
-  source_class->cancel         = grl_tracker_media_cancel;
-  source_class->supported_keys = grl_tracker_supported_keys;
-  source_class->writable_keys  = grl_tracker_media_writable_keys;
-  /* source_class->set_metadata   = grl_tracker_media_set_metadata; */
-
-  media_class->query               = grl_tracker_media_query;
-  media_class->metadata            = grl_tracker_media_metadata;
-  media_class->search              = grl_tracker_media_search;
-  media_class->browse              = grl_tracker_media_browse;
-  media_class->notify_change_start = grl_tracker_media_change_start;
-  media_class->notify_change_stop  = grl_tracker_media_change_stop;
+  source_class->cancel              = grl_tracker_media_cancel;
+  source_class->supported_keys      = grl_tracker_supported_keys;
+  source_class->writable_keys       = grl_tracker_media_writable_keys;
+  source_class->store_metadata      = grl_tracker_media_store_metadata;
+  source_class->query               = grl_tracker_media_query;
+  source_class->resolve             = grl_tracker_media_resolve;
+  source_class->search              = grl_tracker_media_search;
+  source_class->browse              = grl_tracker_media_browse;
+  source_class->notify_change_start = grl_tracker_media_change_start;
+  source_class->notify_change_stop  = grl_tracker_media_change_stop;
 
 
   g_object_class_install_property (g_class,

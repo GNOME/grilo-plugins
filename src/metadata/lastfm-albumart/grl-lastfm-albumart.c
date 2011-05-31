@@ -62,12 +62,12 @@ static GrlLastfmAlbumartSource *grl_lastfm_albumart_source_new (void);
 
 static void grl_lastfm_albumart_source_finalize (GObject *object);
 
-static void grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
-                                                GrlMetadataSourceResolveSpec *rs);
+static void grl_lastfm_albumart_source_resolve (GrlSource *source,
+                                                GrlSourceResolveSpec *rs);
 
 static const GList *grl_lastfm_albumart_source_supported_keys (GrlSource *source);
 
-static gboolean grl_lastfm_albumart_source_may_resolve (GrlMetadataSource *source,
+static gboolean grl_lastfm_albumart_source_may_resolve (GrlSource *source,
                                                         GrlMedia *media,
                                                         GrlKeyID key_id,
                                                         GList **missing_keys);
@@ -121,13 +121,11 @@ grl_lastfm_albumart_source_class_init (GrlLastfmAlbumartSourceClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
 
   source_class->supported_keys = grl_lastfm_albumart_source_supported_keys;
   source_class->cancel = grl_lastfm_albumart_source_cancel;
-
-  metadata_class->may_resolve = grl_lastfm_albumart_source_may_resolve;
-  metadata_class->resolve = grl_lastfm_albumart_source_resolve;
+  source_class->may_resolve = grl_lastfm_albumart_source_may_resolve;
+  source_class->resolve = grl_lastfm_albumart_source_resolve;
 
   gobject_class->finalize = grl_lastfm_albumart_source_finalize;
 }
@@ -139,7 +137,7 @@ grl_lastfm_albumart_source_init (GrlLastfmAlbumartSource *source)
 
 G_DEFINE_TYPE (GrlLastfmAlbumartSource,
                grl_lastfm_albumart_source,
-               GRL_TYPE_METADATA_SOURCE);
+               GRL_TYPE_SOURCE);
 
 static void
 grl_lastfm_albumart_source_finalize (GObject *object)
@@ -197,8 +195,7 @@ read_done_cb (GObject *source_object,
               GAsyncResult *res,
               gpointer user_data)
 {
-  GrlMetadataSourceResolveSpec *rs =
-    (GrlMetadataSourceResolveSpec *) user_data;
+  GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) user_data;
   GCancellable *cancellable;
   GError *error = NULL;
   GError *wc_error = NULL;
@@ -207,7 +204,7 @@ read_done_cb (GObject *source_object,
   gchar *image = NULL;
 
   /* Get rid of stored operation data */
-  cancellable = grl_operation_get_data (rs->resolve_id);
+  cancellable = grl_operation_get_data (rs->operation_id);
   if (cancellable) {
     g_object_unref (cancellable);
   }
@@ -226,7 +223,7 @@ read_done_cb (GObject *source_object,
                            wc_error->message);
       g_error_free (wc_error);
     }
-    rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
 
     return;
@@ -272,13 +269,13 @@ read_done_cb (GObject *source_object,
     g_free (image);
   }
 
-  rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
+  rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
 }
 
 static void
-read_url_async (GrlMetadataSource *source,
+read_url_async (GrlSource *source,
                 const gchar *url,
-                GrlMetadataSourceResolveSpec *rs)
+                GrlSourceResolveSpec *rs)
 {
   GCancellable *cancellable;
 
@@ -286,7 +283,7 @@ read_url_async (GrlMetadataSource *source,
     wc = grl_net_wc_new ();
 
   cancellable = g_cancellable_new ();
-  grl_operation_set_data (rs->resolve_id, cancellable);
+  grl_operation_set_data (rs->operation_id, cancellable);
 
   GRL_DEBUG ("Opening '%s'", url);
   grl_net_wc_request_async (wc, url, cancellable, read_done_cb, rs);
@@ -308,7 +305,7 @@ grl_lastfm_albumart_source_supported_keys (GrlSource *source)
 }
 
 static gboolean
-grl_lastfm_albumart_source_may_resolve (GrlMetadataSource *source,
+grl_lastfm_albumart_source_may_resolve (GrlSource *source,
                                         GrlMedia *media,
                                         GrlKeyID key_id,
                                         GList **missing_keys)
@@ -345,8 +342,8 @@ grl_lastfm_albumart_source_may_resolve (GrlMetadataSource *source,
 }
 
 static void
-grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
-                                    GrlMetadataSourceResolveSpec *rs)
+grl_lastfm_albumart_source_resolve (GrlSource *source,
+                                    GrlSourceResolveSpec *rs)
 {
   const gchar *artist = NULL;
   const gchar *album = NULL;
@@ -354,7 +351,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
   gchar *esc_album = NULL;
   gchar *url = NULL;
 
-  GRL_DEBUG ("grl_lastfm_albumart_source_resolve");
+  GRL_DEBUG (__FUNCTION__);
 
   GList *iter;
 
@@ -371,7 +368,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
 
   if (iter == NULL) {
     GRL_DEBUG ("No supported key was requested");
-    rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
+    rs->callback (source, rs->operation_id, rs->media, rs->user_data, NULL);
   } else {
     artist = grl_data_get_string (GRL_DATA (rs->media),
                                   GRL_METADATA_KEY_ARTIST);
@@ -381,7 +378,7 @@ grl_lastfm_albumart_source_resolve (GrlMetadataSource *source,
 
     if (!artist || !album) {
       GRL_DEBUG ("Missing dependencies");
-      rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
+      rs->callback (source, rs->operation_id, rs->media, rs->user_data, NULL);
     } else {
       esc_artist = g_uri_escape_string (artist, NULL, TRUE);
       esc_album = g_uri_escape_string (album, NULL, TRUE);

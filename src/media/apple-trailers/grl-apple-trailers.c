@@ -55,7 +55,7 @@ GRL_LOG_DOMAIN_STATIC(apple_trailers_log_domain);
 #define SOURCE_DESC "A plugin for browsing Apple Movie Trailers"
 
 typedef struct {
-  GrlMediaSourceBrowseSpec *bs;
+  GrlSourceBrowseSpec *bs;
   xmlDocPtr xml_doc;
   xmlNodePtr xml_entries;
   gboolean cancelled;
@@ -88,8 +88,8 @@ gboolean grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
 
 static const GList *grl_apple_trailers_source_supported_keys (GrlSource *source);
 
-static void grl_apple_trailers_source_browse (GrlMediaSource *source,
-                                              GrlMediaSourceBrowseSpec *bs);
+static void grl_apple_trailers_source_browse (GrlSource *source,
+                                              GrlSourceBrowseSpec *bs);
 
 static void grl_apple_trailers_source_cancel (GrlSource *source,
                                               guint operation_id);
@@ -172,7 +172,7 @@ grl_apple_trailers_source_new (gboolean high_definition,
   return source;
 }
 
-G_DEFINE_TYPE (GrlAppleTrailersSource, grl_apple_trailers_source, GRL_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlAppleTrailersSource, grl_apple_trailers_source, GRL_TYPE_SOURCE);
 
 static void
 grl_apple_trailers_source_finalize (GObject *object)
@@ -215,19 +215,16 @@ grl_apple_trailers_source_set_property (GObject *object,
 static void
 grl_apple_trailers_source_class_init (GrlAppleTrailersSourceClass * klass)
 {
-  GObjectClass *g_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
+  GObjectClass *g_class = G_OBJECT_CLASS (klass);
 
   g_class->finalize = grl_apple_trailers_source_finalize;
   g_class->set_property = grl_apple_trailers_source_set_property;
 
   source_class->cancel = grl_apple_trailers_source_cancel;
   source_class->supported_keys = grl_apple_trailers_source_supported_keys;
+  source_class->browse = grl_apple_trailers_source_browse;
   source_class->get_caps = grl_apple_trailers_source_get_caps;
-
-  media_class->browse = grl_apple_trailers_source_browse;
-
 
   g_object_class_install_property (g_class,
                                    PROP_HD,
@@ -403,7 +400,7 @@ send_movie_info (OperationData *op_data)
 
   if (op_data->cancelled) {
     op_data->bs->callback (op_data->bs->source,
-                           op_data->bs->browse_id,
+                           op_data->bs->operation_id,
                            NULL,
                            0,
                            op_data->bs->user_data,
@@ -420,7 +417,7 @@ send_movie_info (OperationData *op_data)
       !op_data->xml_entries->next || count == 1;
 
     op_data->bs->callback (op_data->bs->source,
-                           op_data->bs->browse_id,
+                           op_data->bs->operation_id,
                            media,
                            last? 0: -1,
                            op_data->bs->user_data,
@@ -487,7 +484,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
 
  finalize:
   op_data->bs->callback (op_data->bs->source,
-                         op_data->bs->browse_id,
+                         op_data->bs->operation_id,
                          NULL,
                          0,
                          op_data->bs->user_data,
@@ -524,7 +521,7 @@ read_done_cb (GObject *source_object,
                          "Failed to connect Apple Trailers: '%s'",
                          wc_error->message);
     op_data->bs->callback (op_data->bs->source,
-                           op_data->bs->browse_id,
+                           op_data->bs->operation_id,
                            NULL,
                            0,
                            op_data->bs->user_data,
@@ -582,17 +579,17 @@ grl_apple_trailers_source_supported_keys (GrlSource *source)
 }
 
 static void
-grl_apple_trailers_source_browse (GrlMediaSource *source,
-                                  GrlMediaSourceBrowseSpec *bs)
+grl_apple_trailers_source_browse (GrlSource *source,
+                                  GrlSourceBrowseSpec *bs)
 {
   GrlAppleTrailersSource *at_source = GRL_APPLE_TRAILERS_SOURCE (source);
   OperationData *op_data;
 
-  GRL_DEBUG ("grl_apple_trailers_source_browse");
+  GRL_DEBUG (__FUNCTION__);
 
   op_data = g_slice_new0 (OperationData);
   op_data->bs = bs;
-  grl_operation_set_data (bs->browse_id, op_data);
+  grl_operation_set_data (bs->operation_id, op_data);
 
   if (at_source->priv->hd) {
     read_url_async (at_source, APPLE_TRAILERS_CURRENT_HD, op_data);

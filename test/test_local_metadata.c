@@ -45,7 +45,7 @@
  * It's a test program, global variables are allowed!
  */
 
-GrlMetadataSource *local_source = NULL;
+GrlSource *local_source = NULL;
 GMainLoop *loop = NULL;
 
 static gchar *
@@ -151,8 +151,8 @@ setup (void)
   registry = grl_plugin_registry_get_default ();
   grl_plugin_registry_load_all (registry, NULL);
   local_source =
-      GRL_METADATA_SOURCE (grl_plugin_registry_lookup_source (registry,
-                                                              LOCAL_SOURCE_ID));
+    GRL_SOURCE (grl_plugin_registry_lookup_source (registry,
+                                                   LOCAL_SOURCE_ID));
 
 finish:
   return ret;
@@ -194,8 +194,8 @@ test_image_thumbnail (void)
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
 
-  media = grl_metadata_source_resolve_sync (local_source, keys, media,
-                                            GRL_RESOLVE_NORMAL, &error);
+  media = grl_source_resolve_sync (GRL_SOURCE (local_source), media, keys,
+                                   GRL_RESOLVE_NORMAL, &error);
   if (error) {
     g_clear_error (&error);
     ret = FALSE;
@@ -238,8 +238,8 @@ test_image_no_thumbnail (void)
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
 
-  media = grl_metadata_source_resolve_sync (local_source, keys, media,
-                                            GRL_RESOLVE_NORMAL, &error);
+  media = grl_source_resolve_sync (GRL_SOURCE (local_source), media, keys,
+                                   GRL_RESOLVE_NORMAL, &error);
   if (error) {
     g_clear_error (&error);
     ret = FALSE;

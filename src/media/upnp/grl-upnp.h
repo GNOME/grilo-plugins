@@ -56,7 +56,7 @@ typedef struct _GrlUpnpSource  GrlUpnpSource;
 
 struct _GrlUpnpSource {
 
-  GrlMediaSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlUpnpPrivate *priv;
@@ -66,7 +66,7 @@ typedef struct _GrlUpnpSourceClass GrlUpnpSourceClass;
 
 struct _GrlUpnpSourceClass {
 
-  GrlMediaSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

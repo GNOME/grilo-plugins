@@ -61,8 +61,8 @@ GRL_LOG_DOMAIN(flickr_log_domain);
 #define PERSONAL_SOURCE_DESC "A source for browsing and searching %s' flickr photos"
 
 typedef struct {
-  GrlMediaSource *source;
-  GrlMediaSourceResultCb callback;
+  GrlSource *source;
+  GrlSourceResultCb callback;
   gchar *user_id;
   gchar *tags;
   gchar *text;
@@ -102,14 +102,14 @@ static const GList *grl_flickr_source_supported_keys (GrlSource *source);
 static GrlCaps * grl_flickr_source_get_caps (GrlSource *source,
                                              GrlSupportedOps operation);
 
-static void grl_flickr_source_browse (GrlMediaSource *source,
-                                      GrlMediaSourceBrowseSpec *bs);
+static void grl_flickr_source_browse (GrlSource *source,
+                                      GrlSourceBrowseSpec *bs);
 
-static void grl_flickr_source_metadata (GrlMediaSource *source,
-                                        GrlMediaSourceMetadataSpec *ss);
+static void grl_flickr_source_resolve (GrlSource *source,
+                                       GrlSourceResolveSpec *rs);
 
-static void grl_flickr_source_search (GrlMediaSource *source,
-                                      GrlMediaSourceSearchSpec *ss);
+static void grl_flickr_source_search (GrlSource *source,
+                                      GrlSourceSearchSpec *ss);
 
 /* =================== Flickr Plugin  =============== */
 
@@ -178,7 +178,7 @@ GRL_PLUGIN_REGISTER (grl_flickr_plugin_init,
 
 /* ================== Flickr GObject ================ */
 
-G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_SOURCE);
 
 static GrlFlickrSource *
 grl_flickr_source_public_new (const gchar *flickr_api_key,
@@ -215,16 +215,14 @@ grl_flickr_source_class_init (GrlFlickrSourceClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   gobject_class->finalize = grl_flickr_source_finalize;
 
   source_class->supported_keys = grl_flickr_source_supported_keys;
   source_class->get_caps = grl_flickr_source_get_caps;
-
-  media_class->browse = grl_flickr_source_browse;
-  media_class->metadata = grl_flickr_source_metadata;
-  media_class->search = grl_flickr_source_search;
+  source_class->browse = grl_flickr_source_browse;
+  source_class->resolve = grl_flickr_source_resolve;
+  source_class->search = grl_flickr_source_search;
 
   g_type_class_add_private (klass, sizeof (GrlFlickrSourcePrivate));
 }
@@ -234,8 +232,7 @@ grl_flickr_source_init (GrlFlickrSource *source)
 {
   source->priv = GRL_FLICKR_SOURCE_GET_PRIVATE (source);
 
-  grl_media_source_set_auto_split_threshold (GRL_MEDIA_SOURCE (source),
-                                             SEARCH_MAX);
+  grl_source_set_auto_split_threshold (GRL_SOURCE (source), SEARCH_MAX);
 }
 
 static void
@@ -383,13 +380,13 @@ update_media (GrlMedia *media, GHashTable *photo)
 static void
 getInfo_cb (GFlickr *f, GHashTable *photo, gpointer user_data)
 {
-  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
+  GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) user_data;
 
   if (photo) {
-    update_media (ms->media, photo);
+    update_media (rs->media, photo);
   }
 
-  ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
+  rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
 }
 
 static void
@@ -452,7 +449,7 @@ static void
 photosetslist_cb (GFlickr *f, GList *photosets, gpointer user_data)
 {
   GrlMedia *media;
-  GrlMediaSourceBrowseSpec *bs = (GrlMediaSourceBrowseSpec *) user_data;
+  GrlSourceBrowseSpec *bs = (GrlSourceBrowseSpec *) user_data;
   gchar *value;
   gint count, desired_count;
 
@@ -463,7 +460,7 @@ photosetslist_cb (GFlickr *f, GList *photosets, gpointer user_data)
   /* No more elements can be sent */
   if (!photosets) {
     bs->callback (bs->source,
-                  bs->browse_id,
+                  bs->operation_id,
                   NULL,
                   0,
                   bs->user_data,
@@ -494,7 +491,7 @@ photosetslist_cb (GFlickr *f, GList *photosets, gpointer user_data)
     }
 
     bs->callback (bs->source,
-                  bs->browse_id,
+                  bs->operation_id,
                   media,
                   count,
                   bs->user_data,
@@ -557,7 +554,7 @@ static void
 gettags_cb (GFlickr *f, GList *taglist, gpointer user_data)
 {
   GrlMedia *media;
-  GrlMediaSourceBrowseSpec *bs = (GrlMediaSourceBrowseSpec *) user_data;
+  GrlSourceBrowseSpec *bs = (GrlSourceBrowseSpec *) user_data;
   gint count;
 
   /* Go to offset element */
@@ -566,7 +563,7 @@ gettags_cb (GFlickr *f, GList *taglist, gpointer user_data)
   /* No more elements can be sent */
   if (!taglist) {
     bs->callback (bs->source,
-                  bs->browse_id,
+                  bs->operation_id,
                   NULL,
                   0,
                   bs->user_data,
@@ -582,7 +579,7 @@ gettags_cb (GFlickr *f, GList *taglist, gpointer user_data)
     grl_media_set_id (media, taglist->data);
     grl_media_set_title (media, taglist->data);
     bs->callback (bs->source,
-                  bs->browse_id,
+                  bs->operation_id,
                   media,
                   count,
                   bs->user_data,
@@ -611,8 +608,8 @@ grl_flickr_source_supported_keys (GrlSource *source)
 }
 
 static void
-grl_flickr_source_public_browse (GrlMediaSource *source,
-                                 GrlMediaSourceBrowseSpec *bs)
+grl_flickr_source_public_browse (GrlSource *source,
+                                 GrlSourceBrowseSpec *bs)
 {
   GFlickr *f = GRL_FLICKR_SOURCE (source)->priv->flickr;
   const gchar *container_id;
@@ -626,7 +623,7 @@ grl_flickr_source_public_browse (GrlMediaSource *source,
   if (!container_id) {
     /* Get hot tags list. List is limited up to HOTLIST_MAX tags */
     if (skip >= HOTLIST_MAX) {
-      bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, NULL);
+      bs->callback (bs->source, bs->operation_id, NULL, 0, bs->user_data, NULL);
     } else {
       request_size = CLAMP (skip + count, 1, HOTLIST_MAX);
       g_flickr_tags_getHotList (f, request_size, gettags_cb, bs);
@@ -649,7 +646,7 @@ grl_flickr_source_public_browse (GrlMediaSource *source,
     od->text = NULL;
     od->user_data = bs->user_data;
     od->count = count;
-    od->operation_id = bs->browse_id;
+    od->operation_id = bs->operation_id;
     g_flickr_photos_search (f,
                             od->user_id,
                             NULL,
@@ -661,8 +658,8 @@ grl_flickr_source_public_browse (GrlMediaSource *source,
 }
 
 static void
-grl_flickr_source_personal_browse (GrlMediaSource *source,
-                                   GrlMediaSourceBrowseSpec *bs)
+grl_flickr_source_personal_browse (GrlSource *source,
+                                   GrlSourceBrowseSpec *bs)
 {
   GFlickr *f = GRL_FLICKR_SOURCE (source)->priv->flickr;
   OperationData *od;
@@ -693,15 +690,15 @@ grl_flickr_source_personal_browse (GrlMediaSource *source,
     od->text = (gchar *) container_id;
     od->user_data = bs->user_data;
     od->count = count;
-    od->operation_id = bs->browse_id;
+    od->operation_id = bs->operation_id;
 
     g_flickr_photosets_getPhotos (f, container_id, od->page, photosetsphotos_cb, od);
   }
 }
 
 static void
-grl_flickr_source_browse (GrlMediaSource *source,
-                          GrlMediaSourceBrowseSpec *bs)
+grl_flickr_source_browse (GrlSource *source,
+                          GrlSourceBrowseSpec *bs)
 {
   if (GRL_FLICKR_SOURCE (source)->priv->user_id) {
     grl_flickr_source_personal_browse (source, bs);
@@ -711,25 +708,25 @@ grl_flickr_source_browse (GrlMediaSource *source,
 }
 
 static void
-grl_flickr_source_metadata (GrlMediaSource *source,
-                            GrlMediaSourceMetadataSpec *ms)
+grl_flickr_source_resolve (GrlSource *source,
+                           GrlSourceResolveSpec *rs)
 {
   const gchar *id;
 
-  if (!ms->media || (id = grl_media_get_id (ms->media)) == NULL) {
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
+  if (!rs->media || (id = grl_media_get_id (rs->media)) == NULL) {
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
     return;
   }
 
   g_flickr_photos_getInfo (GRL_FLICKR_SOURCE (source)->priv->flickr,
                            atol (id),
                            getInfo_cb,
-                           ms);
+                           rs);
 }
 
 static void
-grl_flickr_source_search (GrlMediaSource *source,
-                          GrlMediaSourceSearchSpec *ss)
+grl_flickr_source_search (GrlSource *source,
+                          GrlSourceSearchSpec *ss)
 {
   GFlickr *f = GRL_FLICKR_SOURCE (source)->priv->flickr;
   guint per_page;
@@ -753,7 +750,7 @@ grl_flickr_source_search (GrlMediaSource *source,
   od->text = ss->text;
   od->user_data = ss->user_data;
   od->count = count;
-  od->operation_id = ss->search_id;
+  od->operation_id = ss->operation_id;
 
   if (od->user_id || od->text) {
     g_flickr_photos_search (f,

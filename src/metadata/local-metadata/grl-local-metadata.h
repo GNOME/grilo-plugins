@@ -56,7 +56,7 @@ typedef struct _GrlLocalMetadataSourcePriv GrlLocalMetadataSourcePriv;
 
 struct _GrlLocalMetadataSource {
 
-  GrlMetadataSource parent;
+  GrlSource parent;
 
   /*< private >*/
   GrlLocalMetadataSourcePriv *priv;
@@ -67,7 +67,7 @@ typedef struct _GrlLocalMetadataSourceClass GrlLocalMetadataSourceClass;
 
 struct _GrlLocalMetadataSourceClass {
 
-  GrlMetadataSourceClass parent_class;
+  GrlSourceClass parent_class;
 
 };
 

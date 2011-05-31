@@ -5,6 +5,7 @@
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
  * Authors: Joaquim Rocha <jrocha@igalia.com>
+            Juan A. Suarez Romero <jasuarez@igalia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -55,7 +56,7 @@ GRL_LOG_DOMAIN_STATIC(vimeo_log_domain);
 #define SOURCE_DESC "A source for browsing and searching Vimeo videos"
 
 typedef struct {
-  GrlMediaSourceSearchSpec *ss;
+  GrlSourceSearchSpec *ss;
   gint offset;
   gint page;
 } SearchData;
@@ -75,11 +76,11 @@ static const GList *grl_vimeo_source_supported_keys (GrlSource *source);
 static GrlCaps * grl_vimeo_source_get_caps (GrlSource *source,
                                             GrlSupportedOps operation);
 
-static void grl_vimeo_source_metadata (GrlMediaSource *source,
-				       GrlMediaSourceMetadataSpec *ss);
+static void grl_vimeo_source_resolve (GrlSource *source,
+                                      GrlSourceResolveSpec *rs);
 
-static void grl_vimeo_source_search (GrlMediaSource *source,
-				     GrlMediaSourceSearchSpec *ss);
+static void grl_vimeo_source_search (GrlSource *source,
+                                     GrlSourceSearchSpec *ss);
 
 /* =================== Vimeo Plugin  =============== */
 
@@ -167,13 +168,11 @@ static void
 grl_vimeo_source_class_init (GrlVimeoSourceClass * klass)
 {
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMediaSourceClass *media_class = GRL_MEDIA_SOURCE_CLASS (klass);
 
   source_class->supported_keys = grl_vimeo_source_supported_keys;
   source_class->get_caps = grl_vimeo_source_get_caps;
-
-  media_class->metadata = grl_vimeo_source_metadata;
-  media_class->search = grl_vimeo_source_search;
+  source_class->resolve = grl_vimeo_source_resolve;
+  source_class->search = grl_vimeo_source_search;
 
   g_type_class_add_private (klass, sizeof (GrlVimeoSourcePrivate));
 }
@@ -184,7 +183,7 @@ grl_vimeo_source_init (GrlVimeoSource *source)
   source->priv = GRL_VIMEO_SOURCE_GET_PRIVATE (source);
 }
 
-G_DEFINE_TYPE (GrlVimeoSource, grl_vimeo_source, GRL_TYPE_MEDIA_SOURCE);
+G_DEFINE_TYPE (GrlVimeoSource, grl_vimeo_source, GRL_TYPE_SOURCE);
 
 /* ======================= Utilities ==================== */
 
@@ -295,7 +294,7 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
   /* No more elements can be sent */
   if (!video_list) {
     sd->ss->callback (sd->ss->source,
-                      sd->ss->search_id,
+                      sd->ss->operation_id,
                       NULL,
                       0,
                       sd->ss->user_data,
@@ -315,7 +314,7 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
     {
       update_media (media, video_list->data);
       sd->ss->callback (sd->ss->source,
-			sd->ss->search_id,
+			sd->ss->operation_id,
 			media,
 			count == 1? 0: -1,
 			sd->ss->user_data,
@@ -345,14 +344,13 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
 static void
 video_get_play_url_cb (gchar *url, gpointer user_data)
 {
-  GrlMediaSourceMetadataSpec *ms = (GrlMediaSourceMetadataSpec *) user_data;
+  GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) user_data;
 
-  if (url)
-  {
-    grl_media_set_url (ms->media, url);
+  if (url) {
+    grl_media_set_url (rs->media, url);
   }
 
-  ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
+  rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
 }
 
 /* ================== API Implementation ================ */
@@ -367,7 +365,7 @@ grl_vimeo_source_supported_keys (GrlSource *source)
 				      GRL_METADATA_KEY_DESCRIPTION,
 				      GRL_METADATA_KEY_URL,
 				      GRL_METADATA_KEY_AUTHOR,
-                                      GRL_METADATA_KEY_PUBLICATION_DATE,
+                      GRL_METADATA_KEY_PUBLICATION_DATE,
 				      GRL_METADATA_KEY_THUMBNAIL,
 				      GRL_METADATA_KEY_DURATION,
 				      GRL_METADATA_KEY_WIDTH,
@@ -378,34 +376,32 @@ grl_vimeo_source_supported_keys (GrlSource *source)
 }
 
 static void
-grl_vimeo_source_metadata (GrlMediaSource *source,
-			   GrlMediaSourceMetadataSpec *ms)
+grl_vimeo_source_resolve (GrlSource *source,
+                          GrlSourceResolveSpec *rs)
 {
   gint id;
   const gchar *id_str;
 
-  if (!ms->media || (id_str = grl_media_get_id (ms->media)) == NULL)
-  {
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
+  if (!rs->media || (id_str = grl_media_get_id (rs->media)) == NULL) {
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
     return;
   }
 
   errno = 0;
   id = (gint) g_ascii_strtod (id_str, NULL);
-  if (errno != 0)
-  {
+  if (errno != 0) {
     return;
   }
 
   g_vimeo_video_get_play_url (GRL_VIMEO_SOURCE (source)->priv->vimeo,
-			      id,
-			      video_get_play_url_cb,
-			      ms);
+                              id,
+                              video_get_play_url_cb,
+                              rs);
 }
 
 static void
-grl_vimeo_source_search (GrlMediaSource *source,
-			 GrlMediaSourceSearchSpec *ss)
+grl_vimeo_source_search (GrlSource *source,
+                         GrlSourceSearchSpec *ss)
 {
   SearchData *sd;
   GError *error;
@@ -420,7 +416,7 @@ grl_vimeo_source_search (GrlMediaSource *source,
       g_error_new_literal (GRL_CORE_ERROR,
                            GRL_CORE_ERROR_SEARCH_NULL_UNSUPPORTED,
                            "Unable to execute search: non NULL search text is required");
-    ss->callback (ss->source, ss->search_id, NULL, 0, ss->user_data, error);
+    ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
     return;
   }

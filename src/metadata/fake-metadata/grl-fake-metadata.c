@@ -39,20 +39,20 @@ GRL_LOG_DOMAIN_STATIC(fake_metadata_log_domain);
 
 static GrlFakeMetadataSource *grl_fake_metadata_source_new (void);
 
-static void grl_fake_metadata_source_resolve (GrlMetadataSource *source,
-                                              GrlMetadataSourceResolveSpec *rs);
+static void grl_fake_metadata_source_resolve (GrlSource *source,
+                                              GrlSourceResolveSpec *rs);
 
-static void grl_fake_metadata_source_set_metadata (GrlMetadataSource *source,
-						   GrlMetadataSourceSetMetadataSpec *sms);
+static void grl_fake_metadata_source_store_metadata (GrlSource *source,
+                                                     GrlSourceStoreMetadataSpec *sms);
 
 static const GList *grl_fake_metadata_source_supported_keys (GrlSource *source);
 
-static gboolean grl_fake_metadata_source_may_resolve (GrlMetadataSource *source,
+static gboolean grl_fake_metadata_source_may_resolve (GrlSource *source,
                                                       GrlMedia *media,
                                                       GrlKeyID key_id,
                                                       GList **missing_keys);
 
-static const GList *grl_fake_metadata_source_writable_keys (GrlMetadataSource *source);
+static const GList *grl_fake_metadata_source_writable_keys (GrlSource *source);
 
 gboolean grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
                                                GrlPlugin *plugin,
@@ -99,14 +99,12 @@ static void
 grl_fake_metadata_source_class_init (GrlFakeMetadataSourceClass * klass)
 {
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-  GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
 
   source_class->supported_keys = grl_fake_metadata_source_supported_keys;
-
-  metadata_class->may_resolve = grl_fake_metadata_source_may_resolve;
-  metadata_class->resolve = grl_fake_metadata_source_resolve;
-  metadata_class->set_metadata = grl_fake_metadata_source_set_metadata;
-  metadata_class->writable_keys = grl_fake_metadata_source_writable_keys;
+  source_class->may_resolve = grl_fake_metadata_source_may_resolve;
+  source_class->resolve = grl_fake_metadata_source_resolve;
+  source_class->store_metadata = grl_fake_metadata_source_store_metadata;
+  source_class->writable_keys = grl_fake_metadata_source_writable_keys;
 }
 
 static void
@@ -116,7 +114,7 @@ grl_fake_metadata_source_init (GrlFakeMetadataSource *source)
 
 G_DEFINE_TYPE (GrlFakeMetadataSource,
                grl_fake_metadata_source,
-               GRL_TYPE_METADATA_SOURCE);
+               GRL_TYPE_SOURCE);
 
 /* ======================= Utilities ==================== */
 
@@ -171,7 +169,7 @@ grl_fake_metadata_source_supported_keys (GrlSource *source)
 }
 
 static gboolean
-grl_fake_metadata_source_may_resolve (GrlMetadataSource *source,
+grl_fake_metadata_source_may_resolve (GrlSource *source,
                                       GrlMedia *media,
                                       GrlKeyID key_id,
                                       GList **missing_keys)
@@ -187,7 +185,7 @@ grl_fake_metadata_source_may_resolve (GrlMetadataSource *source,
 }
 
 static const GList *
-grl_fake_metadata_source_writable_keys (GrlMetadataSource *source)
+grl_fake_metadata_source_writable_keys (GrlSource *source)
 {
   static GList *keys = NULL;
   if (!keys) {
@@ -200,8 +198,8 @@ grl_fake_metadata_source_writable_keys (GrlMetadataSource *source)
 }
 
 static void
-grl_fake_metadata_source_resolve (GrlMetadataSource *source,
-                                  GrlMetadataSourceResolveSpec *rs)
+grl_fake_metadata_source_resolve (GrlSource *source,
+                                  GrlSourceResolveSpec *rs)
 {
   GRL_DEBUG ("grl_fake_metadata_source_resolve");
 
@@ -213,12 +211,12 @@ grl_fake_metadata_source_resolve (GrlMetadataSource *source,
     iter = g_list_next (iter);
   }
 
-  rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
+  rs->callback (source, rs->operation_id, rs->media, rs->user_data, NULL);
 }
 
 static void
-grl_fake_metadata_source_set_metadata (GrlMetadataSource *source,
-				       GrlMetadataSourceSetMetadataSpec *sms)
+grl_fake_metadata_source_store_metadata (GrlSource *source,
+                                         GrlSourceStoreMetadataSpec *sms)
 {
   GRL_DEBUG ("grl_fake_metadata_source_set_metadata");
   GRL_DEBUG ("  Faking set metadata for %d keys!", g_list_length (sms->keys));

@@ -65,7 +65,8 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
   "length  INTEGER, "                            \
   "mime    TEXT, "                               \
   "date    TEXT, "                               \
-  "desc    TEXT)"
+  "desc    TEXT, "                               \
+  "image   TEXT)"
 
 #define GRL_SQL_GET_PODCASTS				\
   "SELECT p.*, count(s.podcast <> '') "			\
@@ -100,10 +101,10 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
   "DELETE FROM streams "                        \
   "WHERE url='%s'"
 
-#define GRL_SQL_STORE_STREAM                            \
-  "INSERT INTO streams "                                \
-  "(podcast, url, title, length, mime, date, desc) "    \
-  "VALUES (?, ?, ?, ?, ?, ?, ?)"
+#define GRL_SQL_STORE_STREAM                                    \
+  "INSERT INTO streams "                                        \
+  "(podcast, url, title, length, mime, date, desc, image) "     \
+  "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 
 #define GRL_SQL_DELETE_PODCAST_STREAMS          \
   "DELETE FROM streams WHERE podcast='%s'"
@@ -167,6 +168,7 @@ enum {
   STREAM_MIME,
   STREAM_DATE,
   STREAM_DESC,
+  STREAM_IMAGE,
 };
 
 typedef void (*AsyncReadCbFunc) (gchar *data, gpointer user_data);
@@ -190,6 +192,7 @@ typedef struct {
   gchar *duration;
   gchar *summary;
   gchar *mime;
+  gchar *image;
 } Entry;
 
 struct _GrlPodcastsPrivate {
@@ -606,7 +609,7 @@ build_media_from_entry (Entry *entry)
   media = build_media (NULL, FALSE,
 		       entry->url, entry->title, entry->url,
 		       entry->summary, entry->mime, entry->published,
-		       NULL, duration, 0);
+		       entry->image, duration, 0);
   return media;
 }
 
@@ -642,6 +645,7 @@ build_media_from_stmt (GrlMedia *content,
     date = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DATE);
     desc = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DESC);
     duration = sqlite3_column_int (sql_stmt, STREAM_LENGTH);
+    duration = sqlite3_column_int (sql_stmt, STREAM_IMAGE);
     media = build_media (content, is_podcast, url,
                          title, url, desc, mime, date, NULL, duration, 0);
   }
@@ -922,6 +926,7 @@ store_stream (sqlite3 *db, const gchar *podcast_id, Entry *entry)
   sqlite3_bind_text (sql_stmt, 5, entry->mime, -1, SQLITE_STATIC);
   sqlite3_bind_text (sql_stmt, 6, entry->published, -1, SQLITE_STATIC);
   sqlite3_bind_text (sql_stmt, 7, entry->summary, -1, SQLITE_STATIC);
+  sqlite3_bind_text (sql_stmt, 8, entry->image, -1, SQLITE_STATIC);
 
   while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
 
@@ -993,6 +998,14 @@ parse_entry (xmlDocPtr doc, xmlNodePtr entry, Entry *data)
     } else if (!xmlStrcmp (node->name, (const xmlChar *) "duration")) {
       data->duration =
 	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "image")) {
+      if (!data->image) {
+        data->image = (gchar *) xmlGetProp (node, (xmlChar *) "href");
+      }
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "thumbnail")) {
+      if (data->image)
+        g_free (data->image);
+      data->image = (gchar *) xmlGetProp (node, (xmlChar *) "url");
     }
     node = node->next;
   }

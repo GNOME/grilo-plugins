@@ -645,9 +645,9 @@ build_media_from_stmt (GrlMedia *content,
     date = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DATE);
     desc = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DESC);
     duration = sqlite3_column_int (sql_stmt, STREAM_LENGTH);
-    duration = sqlite3_column_int (sql_stmt, STREAM_IMAGE);
+    image = (gchar *) sqlite3_column_text (sql_stmt, STREAM_IMAGE);
     media = build_media (content, is_podcast, url,
-                         title, url, desc, mime, date, NULL, duration, 0);
+                         title, url, desc, mime, date, image, duration, 0);
   }
 
   return media;

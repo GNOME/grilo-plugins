@@ -399,6 +399,7 @@ free_entry (Entry *entry)
   g_free (entry->summary);
   g_free (entry->url);
   g_free (entry->mime);
+  g_slice_free (Entry, entry);
 }
 
 static void

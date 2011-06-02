@@ -125,6 +125,8 @@ AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
+PKG_CHECK_MODULES(GMIME, gmime-2.4, HAVE_GMIME=yes, HAVE_GMIME=no)
+
 PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
                                   HAVE_TRACKER_SPARQL=yes,
                                   [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
@@ -415,16 +417,18 @@ AC_ARG_ENABLE(podcasts,
                         if test "x$HAVE_SQLITE" = "xno"; then
                            AC_MSG_ERROR([sqlite3 not found, install it or use --disable-podcasts])
                         fi
+                        if test "x$HAVE_GMIME" = "xno"; then
+                           AC_MSG_ERROR([gmime not found, install it or use --disable-podcasts])
+                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
-                   if test "x$HAVE_SQLITE" = "xyes"; then
-                     enable_podcasts=yes
-                   else
-                     enable_podcasts=no
-                   fi
+                if test "x$HAVE_GRLNET" = "xyes" -a \
+                        "x$HAVE_XML" = "xyes" -a \
+                        "x$HAVE_SQLITE" = "xyes" -a \
+                        "x$HAVE_GMIME" = "xyes"; then
+                   enable_podcasts=yes
                 else
                    enable_podcasts=no
                 fi

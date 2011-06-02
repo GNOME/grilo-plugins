@@ -140,7 +140,7 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
 
 /* --- Other --- */
 
-#define CACHE_DURATION (24 * 60 * 60)
+#define DEFAULT_CACHE_TIME (24 * 60 * 60)
 
 /* --- Plugin information --- */
 
@@ -199,6 +199,7 @@ struct _GrlPodcastsPrivate {
   sqlite3 *db;
   GrlNetWc *wc;
   gboolean notify_changes;
+  gint cache_time;
 };
 
 typedef struct {
@@ -255,6 +256,10 @@ grl_podcasts_plugin_init (GrlPluginRegistry *registry,
                           const GrlPluginInfo *plugin,
                           GList *configs)
 {
+  GrlConfig *config;
+  gint config_count;
+  gint cache_time;
+
   GRL_LOG_DOMAIN_INIT (podcasts_log_domain, "podcasts");
 
   GRL_DEBUG ("podcasts_plugin_init");
@@ -264,6 +269,30 @@ grl_podcasts_plugin_init (GrlPluginRegistry *registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source),
                                        NULL);
+
+  source->priv->cache_time = DEFAULT_CACHE_TIME;
+  if (!configs || !configs->data) {
+    return TRUE;
+  }
+
+  config_count = g_list_length (configs);
+  if (config_count > 1) {
+    GRL_INFO ("Provided %d configs, but will only use one", config_count);
+  }
+
+  config = GRL_CONFIG (configs->data);
+
+  cache_time = grl_config_get_int (config, "cache-time");
+  if (cache_time <= 0) {
+    /* Disable cache */
+    source->priv->cache_time = 0;
+    GRL_INFO ("Disabling cache");
+  } else {
+    /* Cache time in seconds */
+    source->priv->cache_time = cache_time;
+    GRL_INFO ("Setting cache time to %d seconds", cache_time);
+  }
+
   return TRUE;
 }
 
@@ -1328,7 +1357,7 @@ produce_podcast_contents (OperationSpec *os)
     GRL_DEBUG ("Podcast last-refreshed: '%s'", lr_str);
     g_time_val_from_iso8601 (lr_str ? lr_str : "", &lr);
     g_get_current_time (&now);
-    now.tv_sec -= CACHE_DURATION;
+    now.tv_sec -= GRL_PODCASTS_SOURCE (os->source)->priv->cache_time;
     if (now.tv_sec >= lr.tv_sec) {
       /* We have to read the podcast feed again */
       GRL_DEBUG ("Refreshing podcast '%s'...", os->media_id);

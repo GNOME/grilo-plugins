@@ -29,6 +29,7 @@
 #include <libxml/xpath.h>
 #include <sqlite3.h>
 #include <string.h>
+#include <gmime/gmime-utils.h>
 
 #include "grl-podcasts.h"
 
@@ -182,6 +183,7 @@ typedef struct {
 typedef struct {
   gchar *image;
   gchar *desc;
+  gchar *published;
 } PodcastData;
 
 typedef struct {
@@ -212,6 +214,7 @@ typedef struct {
   GrlMediaSourceResultCb callback;
   guint error_code;
   gboolean is_query;
+  time_t last_refreshed;
   gpointer user_data;
 } OperationSpec;
 
@@ -439,6 +442,7 @@ free_podcast_data (PodcastData *data)
 {
   g_free (data->image);
   g_free (data->desc);
+  g_free (data->published);
   g_slice_free (PodcastData, data);
 }
 
@@ -982,7 +986,8 @@ parse_podcast_data (xmlDocPtr doc, xmlXPathObjectPtr xpathObj)
   /* Loop through the podcast data (we skip the "item" tags, since
      the podcast entries will be parsed later on */
 
-  /* At the moment we are only interested in 'image' and 'description' tags */
+  /* At the moment we are only interested in
+     'image', 'description' and 'pubDate' tags */
   podcast_data = g_slice_new0 (PodcastData);
   node = nodes->nodeTab[0]->xmlChildrenNode;
   while (node && xmlStrcmp (node->name, (const xmlChar *) "item")) {
@@ -997,6 +1002,9 @@ parse_podcast_data (xmlDocPtr doc, xmlXPathObjectPtr xpathObj)
       }
     } else if (!xmlStrcmp (node->name, (const xmlChar *) "description")) {
       podcast_data->desc =
+	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "pubDate")) {
+      podcast_data->published =
 	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
     }
     node = node->next;
@@ -1167,6 +1175,7 @@ parse_entry_idle (gpointer user_data)
 static void
 parse_feed (OperationSpec *os, const gchar *str, GError **error)
 {
+  GrlPodcastsSource *source;
   GrlMedia *podcast = NULL;
   xmlDocPtr doc = NULL;
   xmlXPathContextPtr xpathCtx = NULL;
@@ -1175,6 +1184,8 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   PodcastData *podcast_data = NULL;
 
   GRL_DEBUG ("parse_feed");
+
+  source = GRL_PODCASTS_SOURCE (os->source);
 
   doc = xmlParseDoc ((xmlChar *) str);
   if (!doc) {
@@ -1205,8 +1216,27 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   
   podcast_data = parse_podcast_data (doc, xpathObj);
   xmlXPathFreeObject (xpathObj);
+  xpathObj = NULL;
 
-  /* Check podcast items */
+  /* Check podcast pubDate (if available), if it has not been updated
+     recently then we can use the cache and avoid parsing the feed */
+  if (podcast_data->published != NULL) {
+    time_t pub_time =
+      g_mime_utils_header_decode_date (podcast_data->published, NULL);
+    if (pub_time == 0) {
+      GRL_DEBUG ("Invalid podcast pubDate: '%s'", podcast_data->published);
+      /* We will parse the feed again just in case */
+    } else if (os->last_refreshed >= pub_time) {
+      GRL_DEBUG ("Podcast feed is up-to-date");
+      /* We do not need to parse again, we already have the contents in cache */
+      produce_podcast_contents_from_db (os);
+      g_slice_free (OperationSpec, os);
+      goto free_resources;
+    }
+  }
+
+  /* The podcast has been updated since the last time
+     we processed it, we have to parse it again */
 
   xpathObj = xmlXPathEvalExpression ((xmlChar *) "/rss/channel/item",
 				     xpathCtx);
@@ -1220,17 +1250,14 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   /* Feed is ok, let's process it */
 
   /* First, remove old entries for this podcast */
-  remove_podcast_streams (GRL_PODCASTS_SOURCE (os->source)->priv->db,
-			  os->media_id, error);
+  remove_podcast_streams (source->priv->db,  os->media_id, error);
   if (*error) {
     (*error)->code = os->error_code;
     goto free_resources;
   }
 
   /* Then update the podcast data, including the last_refreshed date */
-  touch_podcast (GRL_PODCASTS_SOURCE (os->source)->priv->db,
-                 os->media_id,
-                 podcast_data);
+  touch_podcast (source->priv->db, os->media_id, podcast_data);
 
   /* If the feed contains no streams, notify and bail out */
   stream_count = xpathObj->nodesetval ? xpathObj->nodesetval->nodeNr : 0;
@@ -1356,6 +1383,7 @@ produce_podcast_contents (OperationSpec *os)
     lr_str = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_LAST_REFRESHED);
     GRL_DEBUG ("Podcast last-refreshed: '%s'", lr_str);
     g_time_val_from_iso8601 (lr_str ? lr_str : "", &lr);
+    os->last_refreshed = lr.tv_sec;
     g_get_current_time (&now);
     now.tv_sec -= GRL_PODCASTS_SOURCE (os->source)->priv->cache_time;
     if (now.tv_sec >= lr.tv_sec) {
@@ -1378,7 +1406,6 @@ produce_podcast_contents (OperationSpec *os)
     g_error_free (error);
     g_slice_free (OperationSpec, os);
   }
-
 }
 
 static void

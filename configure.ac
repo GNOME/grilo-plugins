@@ -338,12 +338,8 @@ AC_ARG_ENABLE(youtube,
                 esac
         ],
         [
-                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
-                   if test "x$HAVE_GDATA" = "xyes"; then
-                     enable_youtube=yes
-                   else
-                     enable_youtube=no
-                   fi
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_GDATA" = "xyes"; then
+                   enable_youtube=yes
                 else
                    enable_youtube=no
                 fi
@@ -468,12 +464,8 @@ AC_ARG_ENABLE(bookmarks,
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes"; then
-                   if test "x$HAVE_SQLITE" = "xyes"; then
-                     enable_bookmarks=yes
-                   else
-                     enable_bookmarks=no
-                   fi
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_SQLITE" = "xyes"; then
+                   enable_bookmarks=yes
                 else
                    enable_bookmarks=no
                 fi

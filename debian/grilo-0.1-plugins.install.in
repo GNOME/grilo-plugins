@@ -1,2 +1,3 @@
 debian/tmp/@GRL_PLUGINS_DIR@/*.so*
+debian/tmp/@GRL_PLUGINS_CONF_DIR@/*.xml
 

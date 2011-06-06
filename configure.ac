@@ -43,6 +43,12 @@ CFLAGS+=" ${WARN_CFLAGS} -Wmissing-declarations -std=c99 "
 
 GNOME_MAINTAINER_MODE_DEFINES
 
+# Give parameters a default value
+
+if test "x$prefix" = xNONE; then
+   prefix="${ac_default_prefix}"
+fi
+
 # ----------------------------------------------------------
 # UNINSTALLED SUPPORT
 # ----------------------------------------------------------
@@ -97,6 +103,10 @@ AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 # Plugins configuration directory
 
 GRL_PLUGINS_CONF_DIR="${datadir}/${GRL_NAME}/plugins"
+eval GRL_PLUGINS_CONF_DIR=`eval echo "$GRL_PLUGINS_CONF_DIR"`
+AC_DEFINE_UNQUOTED(GRL_PLUGINS_CONF_DIR,
+        "$GRL_PLUGINS_CONF_DIR",
+        [Plugins configuration directory])
 AC_SUBST(GRL_PLUGINS_CONF_DIR)
 
 # ----------------------------------------------------------

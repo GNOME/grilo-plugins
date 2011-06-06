@@ -1,3 +1,9 @@
+grilo-0.1-plugins (0.1.15-2) unstable; urgent=high
+
+  * Include plugin configuration files in package
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Mon, 06 Jun 2011 10:25:07 +0200
+
 grilo-0.1-plugins (0.1.15-1) unstable; urgency=low
 
   * LastFM Album Art plugin: plugged some leaks

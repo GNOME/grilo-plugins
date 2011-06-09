@@ -498,7 +498,7 @@ resolve_video (GrlMetadataSource *source,
     0 : FLAG_VIDEO_TITLE;
   miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_SHOW) ?
     0 : FLAG_VIDEO_SHOWNAME;
-  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_DATE) ?
+  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_PUBLICATION_DATE) ?
     0 : FLAG_VIDEO_DATE;
   miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_SEASON) ?
     0 : FLAG_VIDEO_SEASON;
@@ -536,9 +536,7 @@ resolve_video (GrlMetadataSource *source,
 
   if (date) {
     if (fill_flags & FLAG_VIDEO_DATE) {
-      gchar *str_date = g_date_time_format (date, "%F");
-      grl_data_set_string (data, GRL_METADATA_KEY_DATE, str_date);
-      g_free (str_date);
+      grl_data_set_boxed (data, GRL_METADATA_KEY_PUBLICATION_DATE, date);
     }
     g_date_time_unref (date);
   }
@@ -622,7 +620,7 @@ get_resolution_flags (GList *keys)
       flags |= FLAG_VIDEO_TITLE;
     else if (key == GRL_METADATA_KEY_SHOW)
       flags |= FLAG_VIDEO_SHOWNAME;
-    else if (key == GRL_METADATA_KEY_DATE)
+    else if (key == GRL_METADATA_KEY_PUBLICATION_DATE)
       flags |= FLAG_VIDEO_DATE;
     else if (key == GRL_METADATA_KEY_SEASON)
       flags |= FLAG_VIDEO_SEASON;
@@ -647,7 +645,7 @@ grl_local_metadata_source_supported_keys (GrlMetadataSource *source)
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL,
                                       GRL_METADATA_KEY_TITLE,
                                       GRL_METADATA_KEY_SHOW,
-                                      GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_PUBLICATION_DATE,
                                       GRL_METADATA_KEY_SEASON,
                                       GRL_METADATA_KEY_EPISODE,
                                       NULL);
@@ -676,7 +674,7 @@ grl_local_metadata_source_may_resolve (GrlMetadataSource *source,
       if (priv->guess_video &&
           (key_id == GRL_METADATA_KEY_TITLE ||
            key_id == GRL_METADATA_KEY_SHOW ||
-           key_id == GRL_METADATA_KEY_DATE ||
+           key_id == GRL_METADATA_KEY_PUBLICATION_DATE ||
            key_id == GRL_METADATA_KEY_SEASON ||
            key_id == GRL_METADATA_KEY_EPISODE))
         return TRUE;

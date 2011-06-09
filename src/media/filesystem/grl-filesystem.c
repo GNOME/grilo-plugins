@@ -450,11 +450,11 @@ create_content (GrlMedia *content,
 
     /* Date */
     GTimeVal time;
-    gchar *time_str;
+    GDateTime *date_time;
     g_file_info_get_modification_time (info, &time);
-    time_str = g_time_val_to_iso8601 (&time);
-    grl_media_set_date (media, time_str);
-    g_free (time_str);
+    date_time = g_date_time_new_from_timeval_utc (&time);
+    grl_media_set_modification_date (media, date_time);
+    g_date_time_unref (date_time);
 
     /* Thumbnail */
     gboolean thumb_failed =
@@ -1113,7 +1113,7 @@ grl_filesystem_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_TITLE,
                                       GRL_METADATA_KEY_URL,
                                       GRL_METADATA_KEY_MIME,
-                                      GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_MODIFICATION_DATE,
                                       GRL_METADATA_KEY_CHILDCOUNT,
                                       NULL);
   }

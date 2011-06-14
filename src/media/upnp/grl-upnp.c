@@ -547,11 +547,11 @@ setup_key_mappings (void)
   g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM), "album");
   g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_GENRE), "genre");
   g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL), "res");
-  g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DATE), "modified");
+  g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_MODIFICATION_DATE), "modified");
   g_hash_table_insert (key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TRACK_NUMBER), "originalTrackNumber");
   g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE), "title");
   g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL), "res");
-  g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DATE), "dc:date");
+  g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_CREATION_DATE), "dc:date");
   g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST), "upnp:artist");
   g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM), "upnp:album");
   g_hash_table_insert (filter_key_mapping, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_GENRE), "upnp:genre");
@@ -795,7 +795,7 @@ get_value_for_key (GrlKeyID key_id,
                                 (const xmlChar *) "duration");
   } else if (key_id == GRL_METADATA_KEY_URL && props) {
     val = (gchar *) xmlNodeGetContent ((xmlNode *) props->data);
-  } else if (key_id == GRL_METADATA_KEY_DATE && props) {
+  } else if (key_id == GRL_METADATA_KEY_MODIFICATION_DATE && props) {
     val = g_strdup (gupnp_didl_lite_object_get_date (didl));
   } else if (key_id == GRL_METADATA_KEY_THUMBNAIL && props) {
     val = g_strdup (gupnp_didl_lite_object_get_album_art (didl));
@@ -816,10 +816,11 @@ get_value_for_key (GrlKeyID key_id,
 }
 
 static void
-set_metadata_value (GrlData *data,
+set_metadata_value (GrlMedia *media,
                     GrlKeyID key_id,
                     const gchar *value)
 {
+  GrlData *data = GRL_DATA (media);
   if (key_id == GRL_METADATA_KEY_DURATION) {
     gint duration = didl_h_mm_ss_to_int (value);
     if (duration >= 0) {
@@ -829,6 +830,18 @@ set_metadata_value (GrlData *data,
     grl_data_set_int (data, GRL_METADATA_KEY_CHILDCOUNT, atoi (value));
   } else if (key_id == GRL_METADATA_KEY_TRACK_NUMBER && value) {
     grl_data_set_int (data, GRL_METADATA_KEY_TRACK_NUMBER, atoi (value));
+  } else if (key_id == GRL_METADATA_KEY_MODIFICATION_DATE) {
+    GDateTime * date= grl_date_time_from_iso8601 (value);
+    if (date) {
+      grl_media_set_modification_date (media, date);
+      g_date_time_unref (date);
+    }
+  } else if (key_id == GRL_METADATA_KEY_CREATION_DATE) {
+    GDateTime * date= grl_date_time_from_iso8601 (value);
+    if (date) {
+      grl_media_set_creation_date (media, date);
+      g_date_time_unref (date);
+    }
   } else {
     grl_data_set_string (data, key_id, value);
   }
@@ -889,7 +902,7 @@ build_media_from_didl (GrlMedia *content,
     GrlKeyID key = GRLPOINTER_TO_KEYID (iter->data);
     gchar *value = get_value_for_key (key, didl_node, didl_props);
     if (value) {
-      set_metadata_value (GRL_DATA (media), key, value);
+      set_metadata_value (media, key, value);
     }
     iter = g_list_next (iter);
   }
@@ -1067,7 +1080,8 @@ grl_upnp_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_TITLE,
                                       GRL_METADATA_KEY_URL,
                                       GRL_METADATA_KEY_MIME,
-                                      GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_MODIFICATION_DATE,
+                                      GRL_METADATA_KEY_CREATION_DATE,
                                       GRL_METADATA_KEY_DURATION,
                                       GRL_METADATA_KEY_ARTIST,
                                       GRL_METADATA_KEY_ALBUM,

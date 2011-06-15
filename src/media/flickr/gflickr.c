@@ -1194,3 +1194,18 @@ g_flickr_auth_checkToken (GFlickr *f,
   read_url_async (f, request, gfd);
   g_free (request);
 }
+
+GDateTime *
+g_flickr_parse_date (const gchar *date)
+{
+  /* See http://www.flickr.com/services/api/misc.dates.html */
+  guint year, month, day, hours, minutes;
+  gdouble seconds;
+
+  sscanf (date, "%u-%u-%u %u:%u:%lf",
+          &year, &month, &day, &hours, &minutes, &seconds);
+
+  /* The date we get from flickr is expressed in the timezone of the camera,
+   * which we cannot know, so we just go with utc */
+  return g_date_time_new_utc (year, month, day, hours, minutes, seconds);
+}

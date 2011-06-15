@@ -343,7 +343,12 @@ update_media (GrlMedia *media, GHashTable *photo)
   }
 
   if (date) {
-    grl_media_set_date (media, date);
+    GDateTime *date_time;
+    date_time = g_flickr_parse_date (date);
+    if (date_time) {
+      grl_media_set_creation_date (media, date_time);
+      g_date_time_unref (date_time);
+    }
   }
 
   if (description && description[0] != '\0') {
@@ -586,7 +591,7 @@ grl_flickr_source_supported_keys (GrlMetadataSource *source)
   static GList *keys = NULL;
   if (!keys) {
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_AUTHOR,
-                                      GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_CREATION_DATE,
                                       GRL_METADATA_KEY_DESCRIPTION,
                                       GRL_METADATA_KEY_ID,
                                       GRL_METADATA_KEY_THUMBNAIL,

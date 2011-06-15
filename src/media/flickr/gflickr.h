@@ -152,4 +152,6 @@ g_flickr_auth_checkToken (GFlickr *f,
                           GFlickrHashTableCb callback,
                           gpointer user_data);
 
+GDateTime *
+g_flickr_parse_date (const gchar *date);
 #endif /* _G_FLICKR_H_ */

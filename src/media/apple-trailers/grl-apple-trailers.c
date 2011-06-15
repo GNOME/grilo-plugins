@@ -320,6 +320,7 @@ build_media_from_movie (xmlNodePtr node, gboolean xlarge)
   gchar *movie_rating;
   gchar *movie_studio;
   gchar *movie_copyright;
+  GDateTime *date;
 
   media = grl_media_video_new ();
 
@@ -349,7 +350,11 @@ build_media_from_movie (xmlNodePtr node, gboolean xlarge)
 
   grl_media_set_id (media, movie_id);
   grl_media_set_author (media, movie_author);
-  grl_media_set_date (media, movie_date);
+  date = grl_date_time_from_iso8601 (movie_date);
+  if (date) {
+    grl_media_set_publication_date (media, date);
+    g_date_time_unref (date);
+  }
   grl_media_set_description (media, movie_description);
   grl_media_set_duration (media, runtime_to_seconds (movie_duration));
   grl_media_set_title (media, movie_title);
@@ -549,7 +554,7 @@ grl_apple_trailers_source_supported_keys (GrlMetadataSource *source)
   static GList *keys = NULL;
   if (!keys) {
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_AUTHOR,
-                                      GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_PUBLICATION_DATE,
                                       GRL_METADATA_KEY_DESCRIPTION,
                                       GRL_METADATA_KEY_DURATION,
                                       GRL_METADATA_KEY_GENRE,

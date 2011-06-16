@@ -607,8 +607,14 @@ build_media (GrlMedia *content,
     }
 
     grl_media_set_id (media, url);
-    if (date)
-      grl_media_set_date (media, date);
+    if (date) {
+      time_t t;
+      GDateTime *date_time;
+      t = g_mime_utils_header_decode_date (date, NULL);
+      date_time = g_date_time_new_from_unix_utc (t);
+      grl_media_set_publication_date (media, date_time);
+      g_date_time_unref (date_time);
+    }
     if (desc)
       grl_media_set_description (media, desc);
     if (mime)

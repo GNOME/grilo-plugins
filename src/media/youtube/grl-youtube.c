@@ -564,16 +564,16 @@ build_media_from_entry (GrlYoutubeSource *source,
                                  gdata_media_thumbnail_get_uri (thumbnail));
         thumb_list = g_list_next (thumb_list);
       }
-    } else if (key == GRL_METADATA_KEY_DATE) {
+    } else if (key == GRL_METADATA_KEY_PUBLICATION_DATE) {
       GTimeVal date;
-      gchar *date_str;
       gint64 published = gdata_entry_get_published (entry);
       date.tv_sec = (glong) published;
       date.tv_usec = 0;
       if (date.tv_sec != 0 || date.tv_usec != 0) {
-        date_str = g_time_val_to_iso8601 (&date);
-        grl_media_set_date (media, date_str);
-        g_free (date_str);
+        GDateTime *date_time;
+        date_time = g_date_time_new_from_timeval_utc (&date);
+        grl_media_set_publication_date (media, date_time);
+        g_date_time_unref (date_time);
       }
     } else if (key == GRL_METADATA_KEY_DURATION) {
       grl_media_set_duration (media, gdata_youtube_video_get_duration (video));
@@ -1297,7 +1297,7 @@ grl_youtube_source_supported_keys (GrlMetadataSource *source)
 				      GRL_METADATA_KEY_EXTERNAL_URL,
                                       GRL_METADATA_KEY_DESCRIPTION,
                                       GRL_METADATA_KEY_DURATION,
-                                      GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_PUBLICATION_DATE,
                                       GRL_METADATA_KEY_THUMBNAIL,
                                       GRL_METADATA_KEY_MIME,
                                       GRL_METADATA_KEY_CHILDCOUNT,

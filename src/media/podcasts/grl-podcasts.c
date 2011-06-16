@@ -1386,7 +1386,7 @@ produce_podcast_contents (OperationSpec *os)
     os->last_refreshed = lr.tv_sec;
     g_get_current_time (&now);
     now.tv_sec -= GRL_PODCASTS_SOURCE (os->source)->priv->cache_time;
-    if (now.tv_sec >= lr.tv_sec) {
+    if (lr_str == NULL || now.tv_sec >= lr.tv_sec) {
       /* We have to read the podcast feed again */
       GRL_DEBUG ("Refreshing podcast '%s'...", os->media_id);
       url = g_strdup ((gchar *) sqlite3_column_text (sql_stmt, PODCAST_URL));

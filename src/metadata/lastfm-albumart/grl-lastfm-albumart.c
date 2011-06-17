@@ -204,9 +204,7 @@ read_done_cb (GObject *source_object,
   gchar *image = NULL;
 
   /* Get rid of stored operation data */
-  cancellable =
-    grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (rs->source),
-                                            rs->resolve_id);
+  cancellable = grl_operation_get_data (rs->resolve_id);
   if (cancellable) {
     g_object_unref (cancellable);
   }
@@ -285,7 +283,7 @@ read_url_async (GrlMetadataSource *source,
     wc = grl_net_wc_new ();
 
   cancellable = g_cancellable_new ();
-  grl_metadata_source_set_operation_data (source, rs->resolve_id, cancellable);
+  grl_operation_set_data (rs->resolve_id, cancellable);
 
   GRL_DEBUG ("Opening '%s'", url);
   grl_net_wc_request_async (wc, url, cancellable, read_done_cb, rs);
@@ -395,8 +393,7 @@ grl_lastfm_albumart_source_cancel (GrlMetadataSource *source,
                                    guint operation_id)
 {
   GCancellable *cancellable =
-    (GCancellable *) grl_metadata_source_get_operation_data (source,
-                                                             operation_id);
+    (GCancellable *) grl_operation_get_data (operation_id);
 
   if (cancellable) {
     g_cancellable_cancel (cancellable);

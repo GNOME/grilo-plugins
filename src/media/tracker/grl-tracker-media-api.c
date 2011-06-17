@@ -227,8 +227,8 @@ fill_grilo_media_from_sparql (GrlTrackerMedia    *source,
 }
 
 /* I can haz templatze ?? */
-#define TRACKER_QUERY_CB(spec_type,name)                             \
-                                                                     \
+#define TRACKER_QUERY_CB(spec_type,name)                                \
+                                                                        \
   static void                                                           \
   tracker_##name##_result_cb (GObject      *source_object,              \
                               GAsyncResult *result,                     \

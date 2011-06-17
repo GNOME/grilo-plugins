@@ -416,8 +416,7 @@ static void
 release_operation_data (GrlMetadataSource *source,
                         guint operation_id)
 {
-  GCancellable *cancellable = grl_metadata_source_get_operation_data (source,
-                                                                      operation_id);
+  GCancellable *cancellable = grl_operation_get_data (operation_id);
 
   if (cancellable) {
     g_object_unref (cancellable);
@@ -828,8 +827,7 @@ metadata_cb (GObject *object,
     build_media_from_entry (GRL_YOUTUBE_SOURCE (ms->source),
                             ms->media,
                             video,
-                            grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (ms->source),
-                                                                    ms->metadata_id),
+                            grl_operation_get_data (ms->metadata_id),
                             ms->keys,
 			    build_media_from_entry_metadata_cb,
                             ms);
@@ -1128,9 +1126,7 @@ produce_from_feed (OperationSpec *os)
   operation_spec_ref (os);
 
   os->cancellable = g_cancellable_new ();
-  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (os->source),
-                                          os->operation_id,
-                                          os->cancellable);
+  grl_operation_set_data (os->operation_id, os->cancellable);
 
   service = GRL_YOUTUBE_SOURCE (os->source)->priv->service;
   query = gdata_query_new_with_limits (NULL , os->skip, os->count);
@@ -1256,8 +1252,7 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
     build_media_from_entry (GRL_YOUTUBE_SOURCE (mfus->source),
                             NULL,
                             video,
-                            grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (mfus->source),
-                                                                    mfus->media_from_uri_id),
+                            grl_operation_get_data (mfus->media_from_uri_id),
                             mfus->keys,
 			    build_media_from_entry_media_from_uri_cb,
 			    mfus);
@@ -1327,9 +1322,7 @@ grl_youtube_source_search (GrlMediaSource *source,
   /* Look for OPERATION_SPEC_REF_RATIONALE for details */
   operation_spec_ref (os);
 
-  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
-                                          ss->search_id,
-                                          os->cancellable);
+  grl_operation_set_data (ss->search_id, os->cancellable);
 
   query = gdata_query_new_with_limits (ss->text, os->skip, os->count);
   gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (source)->priv->service),
@@ -1451,9 +1444,7 @@ grl_youtube_source_metadata (GrlMediaSource *source,
   case YOUTUBE_MEDIA_TYPE_VIDEO:
   default:
     cancellable = g_cancellable_new ();
-    grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
-                                            ms->metadata_id,
-                                            cancellable);
+    grl_operation_set_data (ms->metadata_id, cancellable);
 #ifdef GDATA_API_SUBJECT_TO_CHANGE
     {
       gchar *entryid = g_strconcat ("tag:youtube.com,2008:video:", id, NULL);
@@ -1523,9 +1514,7 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
   service = GRL_YOUTUBE_SOURCE (source)->priv->service;
 
   cancellable = g_cancellable_new ();
-  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
-                                          mfus->media_from_uri_id,
-                                          cancellable);
+  grl_operation_set_data (mfus->media_from_uri_id, cancellable);
 #ifdef GDATA_API_SUBJECT_TO_CHANGE
   gchar *entry_id = g_strconcat ("tag:youtube.com,2008:video:", video_id, NULL);
   gdata_service_query_single_entry_async (service,
@@ -1553,8 +1542,7 @@ grl_youtube_source_cancel (GrlMetadataSource *source,
   GRL_DEBUG (__FUNCTION__);
 
   GCancellable *cancellable =
-    (GCancellable *) grl_metadata_source_get_operation_data (source,
-                                                              operation_id);
+    (GCancellable *) grl_operation_get_data (operation_id);
 
   if (cancellable) {
     g_cancellable_cancel (cancellable);

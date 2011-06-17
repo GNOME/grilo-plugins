@@ -654,8 +654,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
     data->genre = g_strdup (container_id);
   }
 
-  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
-                                          bs->browse_id, data);
+  grl_operation_set_data (bs->browse_id, data);
 
   read_url_async (url, data);
 
@@ -695,8 +694,7 @@ grl_shoutcast_source_search (GrlMediaSource *source,
   data->user_data = ss->user_data;
   data->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
 
-  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
-                                          ss->search_id, data);
+  grl_operation_set_data (ss->search_id, data);
 
   url = g_strdup_printf (SHOUTCAST_SEARCH_RADIOS,
                          ss->text,
@@ -718,8 +716,7 @@ grl_shoutcast_source_cancel (GrlMetadataSource *source, guint operation_id)
     g_cancellable_cancel (cancellable);
   cancellable = NULL;
 
-  op_data =
-    (OperationData *) grl_metadata_source_get_operation_data (source, operation_id);
+  op_data = (OperationData *) grl_operation_get_data (operation_id);
 
   if (op_data) {
     op_data->cancelled = TRUE;

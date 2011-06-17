@@ -426,9 +426,7 @@ got_file_info (GFile *file, GAsyncResult *result,
   GRL_DEBUG ("got_file_info");
 
   /* Free stored operation data */
-  cancellable =
-    grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (rs->source),
-                                            rs->resolve_id);
+  cancellable = grl_operation_get_data (rs->resolve_id);
 
   if (cancellable) {
     g_object_unref (cancellable);
@@ -568,7 +566,7 @@ resolve_image (GrlMetadataSource *source,
     file = g_file_new_for_uri (grl_media_get_url (rs->media));
 
     cancellable = g_cancellable_new ();
-    grl_metadata_source_set_operation_data (source, rs->resolve_id, cancellable);
+    grl_operation_set_data (rs->resolve_id, cancellable);
     g_file_query_info_async (file, G_FILE_ATTRIBUTE_THUMBNAIL_PATH,
                              G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT, cancellable,
                              (GAsyncReadyCallback)got_file_info, rs);
@@ -742,8 +740,7 @@ grl_local_metadata_source_cancel (GrlMetadataSource *source,
                                   guint operation_id)
 {
   GCancellable *cancellable =
-    (GCancellable *) grl_metadata_source_get_operation_data (source,
-                                                             operation_id);
+          (GCancellable *) grl_operation_get_data (operation_id);
 
   if (cancellable) {
     g_cancellable_cancel (cancellable);

@@ -1208,8 +1208,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
   xpe->offset = page_offset;
   xpe->spec.bs = bs;
 
-  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
-                                          bs->browse_id, xpe);
+  grl_operation_set_data (bs->browse_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
@@ -1288,8 +1287,7 @@ grl_jamendo_source_query (GrlMediaSource *source,
   xpe->offset = page_offset;
   xpe->spec.qs = qs;
 
-  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
-                                          qs->query_id, xpe);
+  grl_operation_set_data (qs->query_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
@@ -1342,8 +1340,7 @@ grl_jamendo_source_search (GrlMediaSource *source,
   xpe->offset = page_offset;
   xpe->spec.ss = ss;
 
-  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
-                                          ss->search_id, xpe);
+  grl_operation_set_data (ss->search_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (jamendo_keys);
@@ -1369,8 +1366,7 @@ grl_jamendo_source_cancel (GrlMetadataSource *source, guint operation_id)
 
   GRL_DEBUG ("grl_jamendo_source_cancel");
 
-  xpe =
-    (XmlParseEntries *) grl_metadata_source_get_operation_data (source, operation_id);
+  xpe = (XmlParseEntries *) grl_operation_get_data (operation_id);
 
   if (xpe) {
     xpe->cancelled = TRUE;

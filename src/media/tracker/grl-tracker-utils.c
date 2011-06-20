@@ -353,7 +353,7 @@ grl_tracker_media_get_select_string (const GList *keys)
                           assoc->sparql_key_name);
 
   while (key != NULL) {
-    assoc_list = get_mapping_from_grl (GPOINTER_TO_UINT (key->data));
+    assoc_list = get_mapping_from_grl (GRLPOINTER_TO_KEYID (key->data));
     while (assoc_list != NULL) {
       assoc = (tracker_grl_sparql_t *) assoc_list->data;
       if (assoc != NULL) {

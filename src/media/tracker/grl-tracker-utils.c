@@ -71,6 +71,23 @@ set_orientation (TrackerSparqlCursor *cursor,
     grl_data_set_int (GRL_DATA (media), key, 270);
 }
 
+static void
+set_date (TrackerSparqlCursor *cursor,
+          gint                 column,
+          GrlMedia            *media,
+          GrlKeyID             key)
+{
+  const gchar *str = tracker_sparql_cursor_get_string (cursor, column, NULL);
+  if (key == GRL_METADATA_KEY_CREATION_DATE
+      || key == GRL_METADATA_KEY_MODIFICATION_DATE) {
+    GDateTime *date = grl_date_time_from_iso8601 (str);
+    if (date) {
+      grl_data_set_boxed (GRL_DATA (media), key, date);
+      g_date_time_unref (date);
+    }
+  }
+}
+
 static tracker_grl_sparql_t *
 insert_key_mapping (GrlKeyID     grl_key,
                     const gchar *sparql_key_attr,
@@ -179,10 +196,11 @@ grl_tracker_setup_key_mappings (void)
                       "nfo:entryCounter(?urn)",
                       "directory");
 
-  insert_key_mapping (GRL_METADATA_KEY_DATE,
-                      "nfo:fileLastModified",
-                      "nfo:fileLastModified(?urn)",
-                      "file");
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_MODIFICATION_DATE,
+                                  "nfo:fileLastModified",
+                                  "nfo:fileLastModified(?urn)",
+                                  "file",
+                                  set_date);
 
   insert_key_mapping (GRL_METADATA_KEY_DURATION,
                       "nfo:duration",
@@ -248,10 +266,11 @@ grl_tracker_setup_key_mappings (void)
                       "nmm:episodeNumber(?urn)",
                       "video");
 
-  insert_key_mapping (GRL_METADATA_KEY_CREATION_DATE,
-                      "nie:contentCreated",
-                      "nie:contentCreated(?urn)",
-                      "image");
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_CREATION_DATE,
+                                  "nie:contentCreated",
+                                  "nie:contentCreated(?urn)",
+                                  "image",
+                                  set_date);
 
   insert_key_mapping (GRL_METADATA_KEY_CAMERA_MODEL,
                       NULL,

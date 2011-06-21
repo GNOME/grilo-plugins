@@ -124,6 +124,8 @@ PKG_CHECK_MODULES(QUVI, libquvi >= 0.2.15, HAVE_QUVI=yes, HAVE_QUVI=no)
 
 PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4, HAVE_LIBSOUP=yes, HAVE_LIBSOUP=no)
 
+PKG_CHECK_MODULES(LIBREST, rest-0.7, HAVE_REST=yes, HAVE_REST=no)
+
 AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
@@ -700,6 +702,41 @@ AC_SUBST(TRACKER_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([TRACKER_PLUGIN_ID], ["$TRACKER_PLUGIN_ID"], [Tracker plugin ID])
 
 # ----------------------------------------------------------
+# BUILD BLIP.TV PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(bliptv,
+        AC_HELP_STRING([--enable-bliptv],
+                [enable Blip.tv plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_REST" = "xno"; then
+                           AC_MSG_ERROR([librest not found, install it or use --disable-bliptv])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_REST" = "xyes"; then
+                   enable_bliptv=yes
+                else
+                   enable_bliptv=no
+                fi
+        ])
+
+AM_CONDITIONAL([BLIPTV_PLUGIN], [test "x$enable_bliptv" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL blip.tv"
+if test "x$enable_bliptv" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED blip.tv"
+fi
+
+BLIPTV_PLUGIN_ID="grl-bliptv"
+AC_SUBST(BLIPTV_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([BLIPTV_PLUGIN_ID], ["$BLIPTV_PLUGIN_ID"], [Blip.tv plugin ID])
+
+# ----------------------------------------------------------
 # BUILD LOCAL METADATA PLUGIN
 # ----------------------------------------------------------
 
@@ -771,6 +808,7 @@ AC_CONFIG_FILES([
   src/media/shoutcast/Makefile
   src/media/flickr/Makefile
   src/media/filesystem/Makefile
+  src/media/bliptv/Makefile
   src/media/Makefile
   src/media/apple-trailers/Makefile
   src/metadata/metadata-store/Makefile

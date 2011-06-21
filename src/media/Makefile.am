@@ -52,9 +52,13 @@ if TRACKER_PLUGIN
 SUBDIRS += tracker
 endif
 
+if BLIPTV_PLUGIN
+SUBDIRS += bliptv
+endif
+
 DIST_SUBDIRS =									\
 	filesystem jamendo upnp youtube flickr podcasts bookmarks shoutcast	\
-	apple-trailers vimeo tracker
+	apple-trailers vimeo tracker bliptv
 
 MAINTAINERCLEANFILES =	\
         *.in		\

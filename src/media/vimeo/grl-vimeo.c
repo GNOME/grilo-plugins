@@ -30,6 +30,7 @@
 #include <grilo.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
 
 #include "grl-vimeo.h"
@@ -194,27 +195,19 @@ str_to_gint (gchar *str)
   return 0;
 }
 
-static gchar *
-str_to_iso8601 (gchar *str)
+static GDateTime *
+parse_date (const gchar *date)
 {
-  gchar **date;
-  gchar *iso8601_date;
+  /* code duplicated from the flickr plugin until we find a better place for
+   * it.*/
+  guint year, month, day, hours, minutes;
+  gdouble seconds;
 
-  date = g_strsplit (str, " ", -1);
-  if (date[0]) {
-    if (date[1]) {
-      iso8601_date = g_strdup_printf ("%sT%sZ", date[0], date[1]);
-    } else {
-      iso8601_date = g_strdup_printf ("%sT", date[0]);
-    }
-  } else {
-    iso8601_date = NULL;
-  }
-  g_strfreev (date);
+  sscanf (date, "%u-%u-%u %u:%u:%lf",
+          &year, &month, &day, &hours, &minutes, &seconds);
 
-  return iso8601_date;
+  return g_date_time_new_utc (year, month, day, hours, minutes, seconds);
 }
-
 
 static void
 update_media (GrlMedia *media, GHashTable *video)
@@ -254,10 +247,10 @@ update_media (GrlMedia *media, GHashTable *video)
   str = g_hash_table_lookup (video, VIMEO_VIDEO_UPLOAD_DATE);
   if (str)
   {
-    gchar *date = str_to_iso8601(str);
+    GDateTime *date = parse_date (str);
     if (date) {
-      grl_media_set_date (media, date);
-      g_free (date);
+      grl_media_set_publication_date (media, date);
+      g_date_time_unref (date);
     }
   }
 
@@ -367,7 +360,7 @@ grl_vimeo_source_supported_keys (GrlMetadataSource *source)
 				      GRL_METADATA_KEY_DESCRIPTION,
 				      GRL_METADATA_KEY_URL,
 				      GRL_METADATA_KEY_AUTHOR,
-                                      GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_PUBLICATION_DATE,
 				      GRL_METADATA_KEY_THUMBNAIL,
 				      GRL_METADATA_KEY_DURATION,
 				      GRL_METADATA_KEY_WIDTH,

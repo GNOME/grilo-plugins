@@ -119,6 +119,8 @@ PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
 
 PKG_CHECK_MODULES(GDATA, libgdata >= 0.4.0, HAVE_GDATA=yes, HAVE_GDATA=no)
 
+PKG_CHECK_MODULES(QUVI, libquvi >= 0.2.15, HAVE_QUVI=yes, HAVE_QUVI=no)
+
 PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4, HAVE_LIBSOUP=yes, HAVE_LIBSOUP=no)
 
 AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
@@ -334,11 +336,14 @@ AC_ARG_ENABLE(youtube,
                         if test "x$HAVE_GDATA" = "xno"; then
                            AC_MSG_ERROR([libgdata not found, install it or use --disable-youtube])
                         fi
+                        if test "x$HAVE_QUVI" = "xno"; then
+                           AC_MSG_ERROR([libquvi not found, install it or use --disable-youtube])
+                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_GDATA" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_GDATA" = "xyes" -a "x$HAVE_QUVI" = "xyes"; then
                    enable_youtube=yes
                 else
                    enable_youtube=no

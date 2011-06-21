@@ -28,6 +28,7 @@
 #include <grilo.h>
 #include <net/grl-net.h>
 #include <gdata/gdata.h>
+#include <quvi/quvi.h>
 #include <string.h>
 
 #include "grl-youtube.h"
@@ -168,6 +169,7 @@ typedef enum {
 
 struct _GrlYoutubeSourcePriv {
   GDataService *service;
+  quvi_t quvi_handle;
 
   GrlNetWc *wc;
 };
@@ -321,6 +323,14 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
                                              "yt-service", service,
 					     NULL));
 
+  /* Set up quvi */
+  if (quvi_init (&(source->priv->quvi_handle)) != QUVI_OK) {
+    source->priv->quvi_handle = NULL;
+  } else {
+    quvi_setopt (source->priv->quvi_handle, QUVIOPT_FORMAT, "mp4_360p");
+    quvi_setopt (source->priv->quvi_handle, QUVIOPT_NOVERIFY);
+  }
+
   ytsrc = source;
 
   return source;
@@ -393,6 +403,9 @@ grl_youtube_source_finalize (GObject *object)
 
   if (self->priv->service)
     g_object_unref (self->priv->service);
+
+  if (self->priv->quvi_handle)
+    quvi_close (&(self->priv->quvi_handle));
 
   G_OBJECT_CLASS (grl_youtube_source_parent_class)->finalize (object);
 }
@@ -498,126 +511,21 @@ read_url_async (const gchar *url,
 }
 
 static void
-set_media_url_async_read_cb (gchar *data, gpointer user_data)
-{
-  SetMediaUrlAsyncReadCb *cb_data = (SetMediaUrlAsyncReadCb *) user_data;
-  gchar *url = NULL;
-  GMatchInfo *match_info = NULL;
-  static GRegex *regex = NULL;
-
-  if (!data) {
-    goto done;
-  }
-
-  if (regex == NULL) {
-    regex = g_regex_new (".*&fmt_url_map=([^&]+)&", G_REGEX_OPTIMIZE, 0, NULL);
-  }
-
-  /* Check if we find the url mapping */
-  g_regex_match (regex, data, 0, &match_info);
-  if (g_match_info_matches (match_info) == TRUE) {
-    gchar *url_map_escaped, *url_map;
-    gchar **mappings;
-
-    url_map_escaped = g_match_info_fetch (match_info, 1);
-    url_map = g_uri_unescape_string (url_map_escaped, NULL);
-    g_free (url_map_escaped);
-
-    mappings = g_strsplit (url_map, ",", 0);
-    g_free (url_map);
-
-    if (mappings != NULL) {
-      /* TODO: We get the URL from the first format available.
-       * We should provide the list of available urls or let the user
-       * configure preferred formats
-       */
-      gchar **mapping = g_strsplit (mappings[0], "|", 2);
-      url = g_strdup (mapping[1]);
-      g_strfreev (mapping);
-    }
-  } else {
-    GRL_DEBUG ("Format array not found, using token workaround");
-    gchar *token_start;
-    gchar *token_end;
-    gchar *token;
-    const gchar *video_id;
-
-    token_start = g_strrstr (data, "&token=");
-    if (!token_start) {
-      goto done;
-    }
-    token_start += 7;
-    token_end = strstr (token_start, "&");
-    token = g_strndup (token_start, token_end - token_start);
-
-    video_id = grl_media_get_id (cb_data->media);
-    url = g_strdup_printf (YOUTUBE_VIDEO_URL, video_id, token);
-    g_free (token);
-  }
-
- done:
-  if (url) {
-    grl_media_set_url (cb_data->media, url);
-    g_free (url);
-  }
-
-  cb_data->callback (cb_data->media, cb_data->user_data);
-
-  g_free (cb_data);
-}
-
-static void
-set_media_url (GrlMedia *media,
-               GCancellable *cancellable,
-	       BuildMediaFromEntryCbFunc callback,
-	       gpointer user_data)
-{
-  const gchar *video_id;
-  gchar *video_info_url;
-  SetMediaUrlAsyncReadCb *set_media_url_async_read_data;
-
-  /* The procedure to get the video url is:
-   * 1) Read the video info URL using the video id (async operation)
-   * 2) In the video info page, there should be an array of supported formats
-   *    and their corresponding URLs, right now we just use the first one we get.
-   *    (see set_media_url_async_read_cb).
-   *    TODO: we should be able to provide various urls or at least
-   *          select preferred formats via configuration
-   *    TODO: we should set mime-type accordingly to the format selected
-   * 3) As a workaround in case no format array is found we get the video token
-   *    and figure out the url of the video using the video id and the token.
-   */
-
-  video_id = grl_media_get_id (media);
-  video_info_url = g_strdup_printf (YOUTUBE_VIDEO_INFO_URL, video_id);
-
-  set_media_url_async_read_data = g_new0 (SetMediaUrlAsyncReadCb, 1);
-  set_media_url_async_read_data->media = media;
-  set_media_url_async_read_data->cancellable = cancellable;
-  set_media_url_async_read_data->callback = callback;
-  set_media_url_async_read_data->user_data = user_data;
-
-  read_url_async (video_info_url,
-                  cancellable,
-		  set_media_url_async_read_cb,
-		  set_media_url_async_read_data);
-
-  g_free (video_info_url);
-}
-
-static void
-build_media_from_entry (GrlMedia *content,
-			GDataEntry *entry,
+build_media_from_entry (GrlYoutubeSource *source,
+                        GrlMedia *content,
+                        GDataEntry *entry,
                         GCancellable *cancellable,
-			const GList *keys,
-			BuildMediaFromEntryCbFunc callback,
-			gpointer user_data)
+                        const GList *keys,
+                        BuildMediaFromEntryCbFunc callback,
+                        gpointer user_data)
 {
   GDataYouTubeVideo *video;
   GDataMediaThumbnail *thumbnail;
   GrlMedia *media;
   GList *iter;
-  gboolean need_url = FALSE;
+  quvi_media_t v;
+  QUVIcode rc;
+  gchar *url;
 
   if (!content) {
     media = grl_media_video_new ();
@@ -677,9 +585,17 @@ build_media_from_entry (GrlMedia *content,
       gdouble average;
       gdata_youtube_video_get_rating (video, NULL, NULL, NULL, &average);
       grl_media_set_rating (media, average, 5.00);
-    } else if (key == GRL_METADATA_KEY_URL) {
-      /* This needs another query and will be resolved asynchronously p Q*/
-      need_url = TRUE;
+    } else if (key == GRL_METADATA_KEY_URL && source->priv->quvi_handle) {
+      rc = quvi_parse (source->priv->quvi_handle,
+                       (char *) gdata_youtube_video_get_player_uri (video),
+                       &v);
+      if (rc == QUVI_OK) {
+        rc = quvi_getprop (v, QUVIPROP_MEDIAURL, &url);
+        if (rc == QUVI_OK) {
+          grl_media_set_url (media, url);
+        }
+        quvi_parse_close (&v);
+      }
     } else if (key == GRL_METADATA_KEY_EXTERNAL_PLAYER) {
       GDataYouTubeContent *youtube_content;
       youtube_content =
@@ -694,12 +610,7 @@ build_media_from_entry (GrlMedia *content,
     iter = g_list_next (iter);
   }
 
-  if (need_url) {
-    /* URL resolution is async */
-    set_media_url (media, cancellable, callback, user_data);
-  } else {
-    callback (media, user_data);
-  }
+  callback (media, user_data);
 }
 
 static void
@@ -915,7 +826,8 @@ metadata_cb (GObject *object,
     ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
     g_error_free (error);
   } else {
-    build_media_from_entry (ms->media,
+    build_media_from_entry (GRL_YOUTUBE_SOURCE (ms->source),
+                            ms->media,
                             video,
                             grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (ms->source),
                                                                     ms->metadata_id),
@@ -950,8 +862,13 @@ search_progress_cb (GDataEntry *entry,
      * we have to check if we got as many results as we requested or
      * not, and handle that situation properly */
     os->matches++;
-    build_media_from_entry (NULL, entry, os->cancellable, os->keys,
-			    build_media_from_entry_search_cb, os);
+    build_media_from_entry (GRL_YOUTUBE_SOURCE (os->source),
+                            NULL,
+                            entry,
+                            os->cancellable,
+                            os->keys,
+                            build_media_from_entry_search_cb,
+                            os);
   } else {
     GRL_WARNING ("Invalid index/count received grom libgdata, ignoring result");
   }
@@ -1337,7 +1254,8 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
     mfus->callback (mfus->source, mfus->media_from_uri_id, NULL, mfus->user_data, error);
     g_error_free (error);
   } else {
-    build_media_from_entry (NULL,
+    build_media_from_entry (GRL_YOUTUBE_SOURCE (mfus->source),
+                            NULL,
                             video,
                             grl_metadata_source_get_operation_data (GRL_METADATA_SOURCE (mfus->source),
                                                                     mfus->media_from_uri_id),

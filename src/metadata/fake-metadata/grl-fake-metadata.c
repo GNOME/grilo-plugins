@@ -135,9 +135,11 @@ fill_metadata (GrlMedia *media, GrlKeyID key_id)
     grl_media_set_description (media, "fake description");
   } else if (key_id == GRL_METADATA_KEY_DURATION) {
     grl_media_set_duration (media, 99);
-  } else if (key_id == GRL_METADATA_KEY_DATE) {
-    grl_data_set_string (GRL_DATA (media),
-                         GRL_METADATA_KEY_DATE, "01/01/1970");
+  } else if (key_id == GRL_METADATA_KEY_PUBLICATION_DATE) {
+    GDateTime *date;
+    date = g_date_time_new_from_unix_utc (0);
+    grl_media_set_publication_date (media, date);
+    g_date_time_unref (date);
   } else if (key_id == GRL_METADATA_KEY_THUMBNAIL) {
     grl_media_set_thumbnail (media,
                                   "http://fake.thumbnail.com/fake-image.jpg");
@@ -158,7 +160,7 @@ grl_fake_metadata_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_GENRE,
                                       GRL_METADATA_KEY_DESCRIPTION,
                                       GRL_METADATA_KEY_DURATION,
-                                      GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_PUBLICATION_DATE,
                                       GRL_METADATA_KEY_THUMBNAIL,
                                       NULL);
   }
@@ -177,7 +179,7 @@ grl_fake_metadata_source_may_resolve (GrlMetadataSource *source,
           key_id == GRL_METADATA_KEY_GENRE ||
           key_id == GRL_METADATA_KEY_DESCRIPTION ||
           key_id == GRL_METADATA_KEY_DURATION ||
-          key_id == GRL_METADATA_KEY_DATE ||
+          key_id == GRL_METADATA_KEY_PUBLICATION_DATE ||
           key_id == GRL_METADATA_KEY_THUMBNAIL);
 }
 

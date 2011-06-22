@@ -204,11 +204,11 @@ grl_fake_metadata_source_resolve (GrlMetadataSource *source,
 
   iter = rs->keys;
   while (iter) {
-    fill_metadata (GRL_MEDIA (rs->media), iter->data);
+    fill_metadata (GRL_MEDIA (rs->media), GRLPOINTER_TO_KEYID (iter->data));
     iter = g_list_next (iter);
   }
 
-  rs->callback (source, rs->media, rs->user_data, NULL);
+  rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
 }
 
 static void

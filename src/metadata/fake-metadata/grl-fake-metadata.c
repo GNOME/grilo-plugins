@@ -208,7 +208,7 @@ grl_fake_metadata_source_resolve (GrlMetadataSource *source,
     iter = g_list_next (iter);
   }
 
-  rs->callback (source, rs->media, rs->user_data, NULL);
+  rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
 }
 
 static void

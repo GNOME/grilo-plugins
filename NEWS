@@ -1,3 +1,50 @@
+NEW in 0.1.16
+=============
+
+  * General
+    * Do not install test programs
+    * Fixed gdata flags for libgdata >= 0.7
+    * Missed configuration keys are not warnings any more
+    * Small fixes in build system
+    * Use the new cancellation API
+
+  * Fake Metadata plugin
+    * Updated for latest changes in core
+
+  * Filesystem plugin
+    * Do not replace already existant identifiers
+
+  * Jamendo plugin
+    * Small fixes
+    * Fixed feed identifier
+
+  * Podcasts plugin
+    * Several fixes
+    * Included thumbnail in podcasts
+    * Made cache time configurable
+
+  * Shoutcast plugin
+    * Do not use deprecated functions
+
+  * Tracker plugin
+    * Fixed registering keys when re-loading the plugin
+
+  * Vimeo plugin
+    * Handled wrong dates
+
+  * Youtube plugin
+    * Fixed BGO#650679 - Youtube plugin shouldn't load the categories on start      * Added quvi supported
+
+  * Contributors to this release:
+    Alberto Garcia <agarcia@igalia.com>
+    Guillaume Emont <guijemont@igalia.com>
+    Iago Toral Quiroga <itoral@igalia.com>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+    Philippe Normand <pnormand@igalia.com>
+    Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+
+
 NEW in 0.1.15
 =============
 

@@ -68,10 +68,11 @@ GRLNET_NAME=grilo-net-${GRL_VERSION}
 
 AC_ARG_ENABLE(debug,
         AC_HELP_STRING([--enable-debug],
-                [include debug symbols (default: no)]),,
+        [include debug symbols (default: no)]),,
         [enable_debug=no])
 
 if test "x$enable_debug" = "xyes"; then
+   AC_MSG_WARN("Configuring with debugging options enabled!")
 	CFLAGS="$CFLAGS -g3 -O0"
 fi
 

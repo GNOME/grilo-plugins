@@ -570,6 +570,7 @@ resolve_image (GrlMetadataSource *source,
     g_file_query_info_async (file, G_FILE_ATTRIBUTE_THUMBNAIL_PATH,
                              G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT, cancellable,
                              (GAsyncReadyCallback)got_file_info, rs);
+    g_object_unref (file);
   }
 }
 

@@ -160,6 +160,10 @@ if test "x$HAVE_GDATA" = "xyes"; then
    if test $gdata_version_major -eq 0 -a $gdata_version_minor -ge 7; then
       GDATA_CFLAGS="$GDATA_CFLAGS -DGDATA_API_SUBJECT_TO_CHANGE"
    fi
+
+   if `$PKG_CONFIG --atleast-version=0.9.1 libgdata`; then
+      AC_DEFINE(HAVE_LIBGDATA_0_9, 1, [libgdata is 0.9.1 or higher])
+   fi
 fi
 
 # ----------------------------------------------------------

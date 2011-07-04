@@ -605,9 +605,9 @@ build_media_from_entry (GrlYoutubeSource *source,
 	gdata_youtube_video_look_up_content (video,
 					     "application/x-shockwave-flash");
       if (youtube_content != NULL) {
-	GDataMediaContent *content = GDATA_MEDIA_CONTENT (youtube_content);
-	grl_media_set_external_player (media,
-				       gdata_media_content_get_uri (content));
+        const gchar *uri =
+          gdata_media_content_get_uri (GDATA_MEDIA_CONTENT (youtube_content));
+	grl_media_set_external_player (media, uri);
       }
     }
     iter = g_list_next (iter);

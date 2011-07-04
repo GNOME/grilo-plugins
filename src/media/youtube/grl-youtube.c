@@ -424,7 +424,7 @@ release_operation_data (GrlMetadataSource *source,
 }
 
 static OperationSpec *
-operation_spec_new ()
+operation_spec_new (void)
 {
   OperationSpec *os;
 
@@ -457,7 +457,7 @@ operation_spec_ref (OperationSpec *os)
 }
 
 inline static GrlNetWc *
-get_wc ()
+get_wc (void)
 {
   if (ytsrc && !ytsrc->priv->wc)
     ytsrc->priv->wc = grl_net_wc_new ();

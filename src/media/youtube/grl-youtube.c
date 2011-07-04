@@ -1431,6 +1431,7 @@ grl_youtube_source_browse (GrlMediaSource *source,
     case YOUTUBE_MEDIA_TYPE_CATEGORY:
       produce_from_category (os);
       break;
+    case YOUTUBE_MEDIA_TYPE_VIDEO:
     default:
       g_assert_not_reached ();
       break;

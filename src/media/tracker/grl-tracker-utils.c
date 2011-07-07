@@ -538,13 +538,14 @@ grl_tracker_build_grilo_media (const gchar *rdf_type)
       media = grl_media_box_new ();
     } else if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_FOLDER)) {
       media = grl_media_box_new ();
-    } else {
-      media = grl_media_new ();
     }
     i--;
   }
 
   g_strfreev (rdf_single_type);
+
+  if (!media)
+    media = grl_media_new ();
 
   return media;
 }

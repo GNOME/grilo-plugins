@@ -127,7 +127,11 @@ AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
-PKG_CHECK_MODULES(GMIME, gmime-2.4, HAVE_GMIME=yes, HAVE_GMIME=no)
+PKG_CHECK_MODULES(GMIME, gmime-2.6,
+                         HAVE_GMIME=yes,
+                         [PKG_CHECK_MODULES(GMIME, gmime-2.4,
+                                                   HAVE_GMIME=yes,
+                                                   HAVE_GMIME=no)])
 
 PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.11,
                                   HAVE_TRACKER_SPARQL=yes,

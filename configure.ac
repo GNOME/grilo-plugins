@@ -130,11 +130,13 @@ PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
 PKG_CHECK_MODULES(GMIME, gmime-2.4, HAVE_GMIME=yes, HAVE_GMIME=no)
 
-PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
+PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.11,
                                   HAVE_TRACKER_SPARQL=yes,
-                                  [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
+                                  [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
                                                                      HAVE_TRACKER_SPARQL=yes,
-                                                                     HAVE_TRACKER_SPARQL=no)])
+                                                                     [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
+                                                                                                        HAVE_TRACKER_SPARQL=yes,
+                                                                                                        HAVE_TRACKER_SPARQL=no)])])
 
 PKG_CHECK_MODULES(TRACKER_0_10_5,
         tracker-sparql-0.10 >= 0.10.5,

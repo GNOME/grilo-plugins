@@ -132,20 +132,9 @@ PKG_CHECK_MODULES(GMIME, gmime-2.4, HAVE_GMIME=yes, HAVE_GMIME=no)
 
 PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.11,
                                   HAVE_TRACKER_SPARQL=yes,
-                                  [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
+                                  [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10 >= 0.10.5,
                                                                      HAVE_TRACKER_SPARQL=yes,
-                                                                     [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
-                                                                                                        HAVE_TRACKER_SPARQL=yes,
-                                                                                                        HAVE_TRACKER_SPARQL=no)])])
-
-PKG_CHECK_MODULES(TRACKER_0_10_5,
-        tracker-sparql-0.10 >= 0.10.5,
-        TRACKER_0_10_5=yes,
-        [AC_MSG_WARN([nfo:lastPlayedPosition not defined])])
-
-if test "x$TRACKER_0_10_5" = "xyes"; then
-   AC_DEFINE_UNQUOTED([TRACKER_0_10_5], [1], [Tracker >= 0.10.5])
-fi
+                                                                     HAVE_TRACKER_SPARQL=no)])
 
 PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
                              HAVE_GLIB_2_26=yes,
@@ -679,7 +668,7 @@ AC_ARG_ENABLE(tracker,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
-                           AC_MSG_ERROR([tracker-sparql-0.9 not found, install it or use --disable-tracker])
+                           AC_MSG_ERROR([tracker-sparql-0.10.5 or higher not found, install it or use --disable-tracker])
                         fi
                         if test "x$HAVE_GLIB_2_26" = "xno"; then
                            AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-tracker])

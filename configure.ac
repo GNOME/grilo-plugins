@@ -118,7 +118,7 @@ PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0 >= 0.5, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=n
 
 PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
 
-PKG_CHECK_MODULES(GDATA, libgdata >= 0.4.0, HAVE_GDATA=yes, HAVE_GDATA=no)
+PKG_CHECK_MODULES(GDATA, libgdata >= 0.7.0, HAVE_GDATA=yes, HAVE_GDATA=no)
 
 PKG_CHECK_MODULES(QUVI, libquvi >= 0.2.15, HAVE_QUVI=yes, HAVE_QUVI=no)
 
@@ -154,13 +154,6 @@ PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
 # ----------------------------------------------------------
 
 if test "x$HAVE_GDATA" = "xyes"; then
-   gdata_version=`${PKG_CONFIG} --modversion libgdata`
-   gdata_version_major=`echo $gdata_version | awk -F. '{ print $1 }'`
-   gdata_version_minor=`echo $gdata_version | awk -F. '{ print $2 }'`
-   if test $gdata_version_major -eq 0 -a $gdata_version_minor -ge 7; then
-      GDATA_CFLAGS="$GDATA_CFLAGS -DGDATA_API_SUBJECT_TO_CHANGE"
-   fi
-
    if `$PKG_CONFIG --atleast-version=0.9.1 libgdata`; then
       AC_DEFINE(HAVE_LIBGDATA_0_9, 1, [libgdata is 0.9.1 or higher])
    fi

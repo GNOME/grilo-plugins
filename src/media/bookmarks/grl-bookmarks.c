@@ -116,6 +116,8 @@ GRL_LOG_DOMAIN_STATIC(bookmarks_log_domain);
 #define SOURCE_NAME "Bookmarks"
 #define SOURCE_DESC "A source for organizing media bookmarks"
 
+GrlKeyID GRL_BOOKMARKS_KEY_BOOKMARK_TIME = 0;
+
 enum {
   BOOKMARK_TYPE_CATEGORY = 0,
   BOOKMARK_TYPE_STREAM,
@@ -183,9 +185,29 @@ static gboolean grl_bookmarks_source_notify_change_stop (GrlMediaSource *source,
                             const GrlPluginInfo *plugin,
                             GList *configs)
  {
+   GParamSpec *spec;
    GRL_LOG_DOMAIN_INIT (bookmarks_log_domain, "bookmarks");
 
    GRL_DEBUG ("grl_bookmarks_plugin_init");
+
+   spec = g_param_spec_boxed ("bookmark-date",
+                              "Bookmark date",
+                              "When the media was bookmarked",
+                              G_TYPE_DATE_TIME,
+                              G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
+   GRL_BOOKMARKS_KEY_BOOKMARK_TIME =
+       grl_plugin_registry_register_metadata_key (registry, spec, NULL);
+   /* If key was not registered, could be that it is already registered. If so,
+      check if type is the expected one, and reuse it */
+   if (GRL_BOOKMARKS_KEY_BOOKMARK_TIME == GRL_METADATA_KEY_INVALID) {
+     g_param_spec_unref (spec);
+     GRL_BOOKMARKS_KEY_BOOKMARK_TIME =
+         grl_plugin_registry_lookup_metadata_key (registry, "bookmark-date");
+     if (grl_metadata_key_get_type (GRL_BOOKMARKS_KEY_BOOKMARK_TIME)
+         != G_TYPE_DATE_TIME) {
+       GRL_BOOKMARKS_KEY_BOOKMARK_TIME = GRL_METADATA_KEY_INVALID;
+     }
+   }
 
    GrlBookmarksSource *source = grl_bookmarks_source_new ();
    grl_plugin_registry_register_source (registry,
@@ -361,8 +383,15 @@ build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
   if (desc) {
     grl_media_set_description (media, desc);
   }
+
   if (date) {
-    grl_media_set_date (media, date);
+    GDateTime *date_time = grl_date_time_from_iso8601 (date);
+    if (date_time) {
+      grl_data_set_boxed (GRL_DATA (media),
+                          GRL_BOOKMARKS_KEY_BOOKMARK_TIME,
+                          date_time);
+      g_date_time_unref (date_time);
+    }
   }
 
   if (type == BOOKMARK_TYPE_CATEGORY) {
@@ -693,7 +722,7 @@ grl_bookmarks_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_URL,
                                       GRL_METADATA_KEY_CHILDCOUNT,
                                       GRL_METADATA_KEY_DESCRIPTION,
-                                      GRL_METADATA_KEY_DATE,
+                                      GRL_BOOKMARKS_KEY_BOOKMARK_TIME,
                                       NULL);
   }
   return keys;

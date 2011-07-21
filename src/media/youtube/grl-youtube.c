@@ -567,13 +567,9 @@ build_media_from_entry (GrlYoutubeSource *source,
     } else if (key == GRL_METADATA_KEY_DATE) {
       GTimeVal date;
       gchar *date_str;
-#ifdef GDATA_API_SUBJECT_TO_CHANGE
       gint64 published = gdata_entry_get_published (entry);
       date.tv_sec = (glong) published;
       date.tv_usec = 0;
-#else
-      gdata_entry_get_published (entry, &date);
-#endif
       if (date.tv_sec != 0 || date.tv_usec != 0) {
         date_str = g_time_val_to_iso8601 (&date);
         grl_media_set_date (media, date_str);
@@ -820,13 +816,8 @@ metadata_cb (GObject *object,
   source = GRL_YOUTUBE_SOURCE (ms->source);
   service = GDATA_SERVICE (source->priv->service);
 
-#ifdef GDATA_API_SUBJECT_TO_CHANGE
   video = gdata_service_query_single_entry_finish (service, result, &error);
-#else
-  video =
-    GDATA_ENTRY (gdata_youtube_service_query_single_video_finish
-                   (GDATA_YOUTUBE_SERVICE (service), result, &error));
-#endif
+
   if (error) {
     release_operation_data (GRL_METADATA_SOURCE (ms->source), ms->metadata_id);
     error->code = GRL_CORE_ERROR_METADATA_FAILED;
@@ -1271,13 +1262,7 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
   source = GRL_YOUTUBE_SOURCE (mfus->source);
   service = GDATA_SERVICE (source->priv->service);
 
-#ifdef GDATA_API_SUBJECT_TO_CHANGE
   video = gdata_service_query_single_entry_finish (service, result, &error);
-#else
-  video =
-    GDATA_ENTRY (gdata_youtube_service_query_single_video_finish
-		 (GDATA_YOUTUBE_SERVICE (service), result, &error));
-#endif
 
   if (error) {
     error->code = GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED;
@@ -1495,9 +1480,7 @@ grl_youtube_source_metadata (GrlMediaSource *source,
   default:
     cancellable = g_cancellable_new ();
     grl_operation_set_data (ms->metadata_id, cancellable);
-#ifdef GDATA_API_SUBJECT_TO_CHANGE
-    {
-      gchar *entryid = g_strconcat ("tag:youtube.com,2008:video:", id, NULL);
+    gchar *entryid = g_strconcat ("tag:youtube.com,2008:video:", id, NULL);
 
 #ifdef HAVE_LIBGDATA_0_9
       gdata_service_query_single_entry_async (service,
@@ -1519,16 +1502,7 @@ grl_youtube_source_metadata (GrlMediaSource *source,
 #endif /* !HAVE_LIBGDATA_0_9 */
 
       g_free (entryid);
-    }
-#else
-    gdata_youtube_service_query_single_video_async (GDATA_YOUTUBE_SERVICE (service),
-                                                    NULL,
-                                                    id,
-                                                    cancellable,
-                                                    metadata_cb,
-                                                    ms);
-#endif
-    break;
+      break;
   }
 
   if (error) {
@@ -1561,9 +1535,7 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
   GError *error;
   GCancellable *cancellable;
   GDataService *service;
-#ifdef GDATA_API_SUBJECT_TO_CHANGE
   gchar *entry_id;
-#endif /* GDATA_API_SUBJECT_TO_CHANGE */
 
   GRL_DEBUG ("grl_youtube_get_media_from_uri");
 
@@ -1581,7 +1553,6 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
 
   cancellable = g_cancellable_new ();
   grl_operation_set_data (mfus->media_from_uri_id, cancellable);
-#ifdef GDATA_API_SUBJECT_TO_CHANGE
   entry_id = g_strconcat ("tag:youtube.com,2008:video:", video_id, NULL);
 
 #ifdef HAVE_LIBGDATA_0_9
@@ -1604,14 +1575,6 @@ grl_youtube_get_media_from_uri (GrlMediaSource *source,
 #endif /* !HAVE_LIBGDATA_0_9 */
 
   g_free (entry_id);
-#else
-  gdata_youtube_service_query_single_video_async (GDATA_YOUTUBE_SERVICE (service),
-						  NULL,
-						  video_id,
-						  cancellable,
-						  media_from_uri_cb,
-						  mfus);
-#endif
 }
 
 static void

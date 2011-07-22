@@ -29,8 +29,8 @@ libgrlyoutube_la_LDFLAGS = \
 
 libgrlyoutube_la_SOURCES = grl-youtube.c grl-youtube.h
 
-libdir = $(GRL_PLUGINS_DIR)
-youtubexmldir	= $(GRL_PLUGINS_CONF_DIR)
+libdir				= $(GRL_PLUGINS_DIR)
+youtubexmldir		= $(GRL_PLUGINS_DIR)
 youtubexml_DATA	= $(YOUTUBE_PLUGIN_ID).xml
 
 EXTRA_DIST = $(youtubexml_DATA)

@@ -4,6 +4,7 @@
 # Author: Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
 #
 # Copyright (C) 2011 Intel Corporation.
+# Copyright (C) 2011 Igalia S.L.
 
 lib_LTLIBRARIES		 = libgrlbliptv.la
 
@@ -25,8 +26,8 @@ libgrlbliptv_la_SOURCES = 		\
 	grl-bliptv.c			\
 	grl-bliptv.h
 
-libdir = $(GRL_PLUGINS_DIR)
-bliptvxmldir = $(GRL_PLUGINS_CONF_DIR)
+libdir 			= $(GRL_PLUGINS_DIR)
+bliptvxmldir 	= $(GRL_PLUGINS_DIR)
 bliptvxml_DATA	= $(BLIPTV_PLUGIN_ID).xml
 
 EXTRA_DIST = $(bliptvxml_DATA)

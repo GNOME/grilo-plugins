@@ -21,8 +21,8 @@ libgrllocalmetadata_la_LDFLAGS = \
 
 libgrllocalmetadata_la_SOURCES = grl-local-metadata.c grl-local-metadata.h
 
-libdir=$(GRL_PLUGINS_DIR)
-localmetadataxmldir	= $(GRL_PLUGINS_CONF_DIR)
+libdir						= $(GRL_PLUGINS_DIR)
+localmetadataxmldir		= $(GRL_PLUGINS_DIR)
 localmetadataxml_DATA	= $(LOCALMETADATA_PLUGIN_ID).xml
 
 EXTRA_DIST = $(localmetadataxml_DATA)

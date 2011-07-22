@@ -25,8 +25,8 @@ libgrlbliptv_la_SOURCES = 		\
 	grl-bliptv.c			\
 	grl-bliptv.h
 
-libdir = $(GRL_PLUGINS_DIR)
-bliptvxmldir = $(GRL_PLUGINS_CONF_DIR)
+libdir			= $(GRL_PLUGINS_DIR)
+bliptvxmldir 	= $(GRL_PLUGINS_DIR)
 bliptvxml_DATA	= $(BLIPTV_PLUGIN_ID).xml
 
 EXTRA_DIST = $(bliptvxml_DATA)

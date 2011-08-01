@@ -100,13 +100,13 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
   }
 
   if (!configs) {
-    GRL_WARNING ("Missing configuration");
+    GRL_INFO ("Configuration not provided! Plugin not loaded");
     return FALSE;
   }
 
   config_count = g_list_length (configs);
   if (config_count > 1) {
-    GRL_WARNING ("Provided %d configs, but will only use one", config_count);
+    GRL_INFO ("Provided %d configs, but will only use one", config_count);
   }
 
   config = GRL_CONFIG (configs->data);
@@ -115,7 +115,8 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
   vimeo_secret = grl_config_get_api_secret (config);
 
   if (!vimeo_key || !vimeo_secret) {
-    GRL_WARNING ("Required configuration keys not set up");
+    GRL_INFO ("Required API key or secret configuration not provided."
+              " Plugin not loaded");
     goto go_out;
   }
 
@@ -200,7 +201,15 @@ str_to_iso8601 (gchar *str)
   gchar *iso8601_date;
 
   date = g_strsplit (str, " ", -1);
-  iso8601_date = g_strdup_printf ("%sT%sZ", date[0], date[1]);
+  if (date[0]) {
+    if (date[1]) {
+      iso8601_date = g_strdup_printf ("%sT%sZ", date[0], date[1]);
+    } else {
+      iso8601_date = g_strdup_printf ("%sT", date[0]);
+    }
+  } else {
+    iso8601_date = NULL;
+  }
   g_strfreev (date);
 
   return iso8601_date;
@@ -246,8 +255,10 @@ update_media (GrlMedia *media, GHashTable *video)
   if (str)
   {
     gchar *date = str_to_iso8601(str);
-    grl_media_set_date (media, date);
-    g_free (date);
+    if (date) {
+      grl_media_set_date (media, date);
+      g_free (date);
+    }
   }
 
   str = g_hash_table_lookup (video, VIMEO_VIDEO_THUMBNAIL);

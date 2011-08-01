@@ -31,6 +31,7 @@
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <string.h>
+#include <errno.h>
 
 #include "grl-jamendo.h"
 
@@ -38,6 +39,8 @@
 
 #define GRL_LOG_DOMAIN_DEFAULT jamendo_log_domain
 GRL_LOG_DOMAIN_STATIC(jamendo_log_domain);
+
+#define GRL_TRACE(x) GRL_DEBUG(__PRETTY_FUNCTION__)
 
 #define JAMENDO_ID_SEP    "/"
 #define JAMENDO_ROOT_NAME "Jamendo"
@@ -198,7 +201,7 @@ grl_jamendo_plugin_init (GrlPluginRegistry *registry,
 {
   GRL_LOG_DOMAIN_INIT (jamendo_log_domain, "jamendo");
 
-  GRL_DEBUG ("jamendo_plugin_init");
+  GRL_TRACE ();
 
   GrlJamendoSource *source = grl_jamendo_source_new ();
   grl_plugin_registry_register_source (registry,
@@ -217,7 +220,7 @@ GRL_PLUGIN_REGISTER (grl_jamendo_plugin_init,
 static GrlJamendoSource *
 grl_jamendo_source_new (void)
 {
-  GRL_DEBUG ("grl_jamendo_source_new");
+  GRL_TRACE();
   return g_object_new (GRL_JAMENDO_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
@@ -390,7 +393,6 @@ static Entry *
 xml_parse_entry (xmlDocPtr doc, xmlNodePtr entry)
 {
   xmlNodePtr node;
-  xmlNs *ns;
   Entry *data = g_slice_new0 (Entry);
 
   if (strcmp ((gchar *) entry->name, JAMENDO_ARTIST) == 0) {
@@ -406,8 +408,6 @@ xml_parse_entry (xmlDocPtr doc, xmlNodePtr entry)
   node = entry->xmlChildrenNode;
 
   while (node) {
-    ns = node->ns;
-
     if (!xmlStrcmp (node->name, (const xmlChar *) "id")) {
       data->id =
         (gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
@@ -584,7 +584,7 @@ xml_parse_entries_idle (gpointer user_data)
   Entry *entry;
   gint remaining = 0;
 
-  GRL_DEBUG ("xml_parse_entries_idle");
+  GRL_TRACE ();
 
   parse_more = (xpe->cancelled == FALSE && xpe->node);
 
@@ -858,11 +858,12 @@ update_media_from_feed (GrlMedia *media, int i)
 {
   char *id;
 
-  id = g_strdup_printf("%d/%d", JAMENDO_FEEDS_CAT, i);
+  id = g_strdup_printf("%d" JAMENDO_ID_SEP "%d", JAMENDO_FEEDS_CAT, i);
   grl_media_set_id (media, id);
   g_free (id);
 
   grl_media_set_title (media, feeds[i].name);
+
 }
 
 static void
@@ -968,7 +969,7 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
   GError *error = NULL;
   JamendoCategory category;
 
-  GRL_DEBUG ("grl_jamendo_source_metadata");
+  GRL_TRACE ();
 
   if (!ms->media ||
       !grl_data_has_key (GRL_DATA (ms->media),
@@ -1039,7 +1040,16 @@ grl_jamendo_source_metadata (GrlMediaSource *source,
       if (id_split[1]) {
         int i;
 
-        i = atoi (id_split[0]);
+        errno = 0;
+        i = strtol (id_split[1], NULL, 0);
+        if (errno != 0 || (i <= 0 && i > G_N_ELEMENTS (feeds))) {
+          error = g_error_new (GRL_CORE_ERROR,
+                               GRL_CORE_ERROR_METADATA_FAILED,
+                               "Invalid cat id: '%s'", id_split[1]);
+          g_strfreev (id_split);
+          goto send_error;
+        }
+
         update_media_from_feed (ms->media, i);
       } else {
         update_media_from_feeds (ms->media);
@@ -1092,7 +1102,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
   guint page_number;
   guint page_offset;
 
-  GRL_DEBUG ("grl_jamendo_source_browse");
+  GRL_TRACE ();
 
   container_id = grl_media_get_id (bs->container);
 
@@ -1198,8 +1208,7 @@ grl_jamendo_source_browse (GrlMediaSource *source,
   xpe->offset = page_offset;
   xpe->spec.bs = bs;
 
-  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
-                                          bs->browse_id, xpe);
+  grl_operation_set_data (bs->browse_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
@@ -1233,7 +1242,7 @@ grl_jamendo_source_query (GrlMediaSource *source,
   guint page_number;
   guint page_offset;
 
-  GRL_DEBUG ("grl_jamendo_source_query");
+  GRL_TRACE ();
 
   if (!parse_query (qs->query, &category, &term)) {
     error = g_error_new (GRL_CORE_ERROR,
@@ -1278,8 +1287,7 @@ grl_jamendo_source_query (GrlMediaSource *source,
   xpe->offset = page_offset;
   xpe->spec.qs = qs;
 
-  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
-                                          qs->query_id, xpe);
+  grl_operation_set_data (qs->query_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
@@ -1303,7 +1311,7 @@ grl_jamendo_source_search (GrlMediaSource *source,
   guint page_number;
   guint page_offset;
 
-  GRL_DEBUG ("grl_jamendo_source_search");
+  GRL_TRACE ();
 
   jamendo_keys = get_jamendo_keys (JAMENDO_TRACK_CAT);
 
@@ -1332,8 +1340,7 @@ grl_jamendo_source_search (GrlMediaSource *source,
   xpe->offset = page_offset;
   xpe->spec.ss = ss;
 
-  grl_metadata_source_set_operation_data (GRL_METADATA_SOURCE (source),
-                                          ss->search_id, xpe);
+  grl_operation_set_data (ss->search_id, xpe);
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (jamendo_keys);
@@ -1359,8 +1366,7 @@ grl_jamendo_source_cancel (GrlMetadataSource *source, guint operation_id)
 
   GRL_DEBUG ("grl_jamendo_source_cancel");
 
-  xpe =
-    (XmlParseEntries *) grl_metadata_source_get_operation_data (source, operation_id);
+  xpe = (XmlParseEntries *) grl_operation_get_data (operation_id);
 
   if (xpe) {
     xpe->cancelled = TRUE;

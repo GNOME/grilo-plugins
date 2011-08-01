@@ -125,16 +125,23 @@ insert_key_mapping_with_setter (GrlKeyID                       grl_key,
 void
 grl_tracker_setup_key_mappings (void)
 {
-  grl_metadata_key_tracker_urn =
-    grl_plugin_registry_register_metadata_key (grl_plugin_registry_get_default (),
-                                               g_param_spec_string ("tracker-urn",
-                                                                    "Tracker URN",
-                                                                    "Universal resource number in Tracker's store",
-                                                                    NULL,
-                                                                    G_PARAM_STATIC_STRINGS |
-                                                                    G_PARAM_READWRITE),
-                                               NULL);
+  GrlPluginRegistry *registry = grl_plugin_registry_get_default ();
 
+  /* Check if "tracker-urn" is registered; if not, then register it */
+  grl_metadata_key_tracker_urn =
+    grl_plugin_registry_lookup_metadata_key (registry, "tracker-urn");
+
+  if (grl_metadata_key_tracker_urn == NULL) {
+    grl_metadata_key_tracker_urn =
+      grl_plugin_registry_register_metadata_key (grl_plugin_registry_get_default (),
+                                                 g_param_spec_string ("tracker-urn",
+                                                                      "Tracker URN",
+                                                                      "Universal resource number in Tracker's store",
+                                                                      NULL,
+                                                                      G_PARAM_STATIC_STRINGS |
+                                                                      G_PARAM_READWRITE),
+                                                 NULL);
+  }
 
   grl_to_sparql_mapping = g_hash_table_new (g_direct_hash, g_direct_equal);
   sparql_to_grl_mapping = g_hash_table_new (g_str_hash, g_str_equal);

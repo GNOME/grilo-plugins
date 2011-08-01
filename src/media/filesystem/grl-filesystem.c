@@ -410,6 +410,7 @@ create_content (GrlMedia *content,
                  error->message);
     if (!media) {
       media = grl_media_new ();
+      grl_media_set_id (media,  root_dir ? NULL : path);
     }
 
     /* Title */
@@ -436,6 +437,7 @@ create_content (GrlMedia *content,
 	  media = grl_media_new ();
 	}
       }
+      grl_media_set_id (media,  root_dir ? NULL : path);
     }
 
     if (!GRL_IS_MEDIA_BOX (media)) {
@@ -473,8 +475,6 @@ create_content (GrlMedia *content,
 
     g_object_unref (info);
   }
-
-  grl_media_set_id (media,  root_dir ? NULL : path);
 
   /* URL */
   str = g_file_get_uri (file);

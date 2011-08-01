@@ -1,3 +1,21 @@
+grilo-0.1-plugins (0.1.16-1) unstable; urgency=low
+
+  * General: do not install test programs, fixed gdata flags for
+    libgdata >= 0.7, missed configuration keys are not warnings any more,
+    small fixes in build system, use the new cancellation API
+  * Fake Metadata plugin: updated for latest changes in core
+  * Filesystem plugin: do not replace already existant identifiers
+  * Jamendo plugin: small fixes, fixed feed identifier
+  * Podcasts plugin: several fixes, included thumbnail in podcasts,
+    made cache time configurable
+  * Shoutcast plugin: do not use deprecated functions
+  * Tracker plugin: fixed registering keys when re-loading the plugin
+  * Vimeo plugin: handled wrong dates
+  * Youtube plugin: fixed BGO#650679 - Youtube plugin shouldn't load the,
+    categories on start, added quvi supported
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Mon, 01 Aug 2011 09:20:58 +0200
+
 grilo-0.1-plugins (0.1.15-2) unstable; urgent=high
 
   * Include plugin configuration files in package

@@ -11,13 +11,15 @@ libgrlpodcasts_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
 	$(GRLNET_CFLAGS)	\
 	$(XML_CFLAGS)		\
-	$(SQLITE_CFLAGS)
+	$(SQLITE_CFLAGS) 	\
+	$(GMIME_CFLAGS)
 
 libgrlpodcasts_la_LIBADD =	\
 	$(DEPS_LIBS)		\
 	$(GRLNET_LIBS)		\
 	$(XML_LIBS)		\
-	$(SQLITE_LIBS)
+	$(SQLITE_LIBS) 		\
+	$(GMIME_LIBS)
 
 libgrlpodcasts_la_LDFLAGS = \
 	-module		    \

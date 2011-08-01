@@ -29,6 +29,7 @@
 #include <libxml/xpath.h>
 #include <sqlite3.h>
 #include <string.h>
+#include <gmime/gmime-utils.h>
 
 #include "grl-podcasts.h"
 
@@ -54,7 +55,8 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
   "title TEXT,"                                 \
   "url   TEXT,"                                 \
   "desc  TEXT,"                                 \
-  "last_refreshed DATE)"
+  "last_refreshed DATE,"                        \
+  "image TEXT)"
 
 #define GRL_SQL_CREATE_TABLE_STREAMS		 \
   "CREATE TABLE IF NOT EXISTS streams ( "        \
@@ -64,7 +66,8 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
   "length  INTEGER, "                            \
   "mime    TEXT, "                               \
   "date    TEXT, "                               \
-  "desc    TEXT)"
+  "desc    TEXT, "                               \
+  "image   TEXT)"
 
 #define GRL_SQL_GET_PODCASTS				\
   "SELECT p.*, count(s.podcast <> '') "			\
@@ -99,10 +102,10 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
   "DELETE FROM streams "                        \
   "WHERE url='%s'"
 
-#define GRL_SQL_STORE_STREAM                            \
-  "INSERT INTO streams "                                \
-  "(podcast, url, title, length, mime, date, desc) "    \
-  "VALUES (?, ?, ?, ?, ?, ?, ?)"
+#define GRL_SQL_STORE_STREAM                                    \
+  "INSERT INTO streams "                                        \
+  "(podcast, url, title, length, mime, date, desc, image) "     \
+  "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 
 #define GRL_SQL_DELETE_PODCAST_STREAMS          \
   "DELETE FROM streams WHERE podcast='%s'"
@@ -131,12 +134,14 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
 
 #define GRL_SQL_TOUCH_PODCAST			\
   "UPDATE podcasts "				\
-  "SET last_refreshed='%s' "			\
-  "WHERE id='%s'"
+  "SET last_refreshed=?, "			\
+  "    desc=?, "                                \
+  "    image=? "                                \
+  "WHERE id=?"
 
 /* --- Other --- */
 
-#define CACHE_DURATION (24 * 60 * 60)
+#define DEFAULT_CACHE_TIME (24 * 60 * 60)
 
 /* --- Plugin information --- */
 
@@ -152,6 +157,7 @@ enum {
   PODCAST_URL,
   PODCAST_DESC,
   PODCAST_LAST_REFRESHED,
+  PODCAST_IMAGE,
   PODCAST_LAST,
 };
 
@@ -163,6 +169,7 @@ enum {
   STREAM_MIME,
   STREAM_DATE,
   STREAM_DESC,
+  STREAM_IMAGE,
 };
 
 typedef void (*AsyncReadCbFunc) (gchar *data, gpointer user_data);
@@ -174,6 +181,12 @@ typedef struct {
 } AsyncReadCb;
 
 typedef struct {
+  gchar *image;
+  gchar *desc;
+  gchar *published;
+} PodcastData;
+
+typedef struct {
   gchar *id;
   gchar *url;
   gchar *title;
@@ -181,12 +194,14 @@ typedef struct {
   gchar *duration;
   gchar *summary;
   gchar *mime;
+  gchar *image;
 } Entry;
 
 struct _GrlPodcastsPrivate {
   sqlite3 *db;
   GrlNetWc *wc;
   gboolean notify_changes;
+  gint cache_time;
 };
 
 typedef struct {
@@ -199,6 +214,7 @@ typedef struct {
   GrlMediaSourceResultCb callback;
   guint error_code;
   gboolean is_query;
+  time_t last_refreshed;
   gpointer user_data;
 } OperationSpec;
 
@@ -243,6 +259,10 @@ grl_podcasts_plugin_init (GrlPluginRegistry *registry,
                           const GrlPluginInfo *plugin,
                           GList *configs)
 {
+  GrlConfig *config;
+  gint config_count;
+  gint cache_time;
+
   GRL_LOG_DOMAIN_INIT (podcasts_log_domain, "podcasts");
 
   GRL_DEBUG ("podcasts_plugin_init");
@@ -252,6 +272,30 @@ grl_podcasts_plugin_init (GrlPluginRegistry *registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source),
                                        NULL);
+
+  source->priv->cache_time = DEFAULT_CACHE_TIME;
+  if (!configs || !configs->data) {
+    return TRUE;
+  }
+
+  config_count = g_list_length (configs);
+  if (config_count > 1) {
+    GRL_INFO ("Provided %d configs, but will only use one", config_count);
+  }
+
+  config = GRL_CONFIG (configs->data);
+
+  cache_time = grl_config_get_int (config, "cache-time");
+  if (cache_time <= 0) {
+    /* Disable cache */
+    source->priv->cache_time = 0;
+    GRL_INFO ("Disabling cache");
+  } else {
+    /* Cache time in seconds */
+    source->priv->cache_time = cache_time;
+    GRL_INFO ("Setting cache time to %d seconds", cache_time);
+  }
+
   return TRUE;
 }
 
@@ -390,6 +434,16 @@ free_entry (Entry *entry)
   g_free (entry->summary);
   g_free (entry->url);
   g_free (entry->mime);
+  g_slice_free (Entry, entry);
+}
+
+static void
+free_podcast_data (PodcastData *data)
+{
+  g_free (data->image);
+  g_free (data->desc);
+  g_free (data->published);
+  g_slice_free (PodcastData, data);
 }
 
 static void
@@ -521,6 +575,7 @@ build_media (GrlMedia *content,
 	     const gchar *desc,
 	     const gchar *mime,
 	     const gchar *date,
+             const gchar *image,
 	     guint duration,
 	     guint childcount)
 {
@@ -565,6 +620,8 @@ build_media (GrlMedia *content,
 
   grl_media_set_title (media, title);
   grl_media_set_url (media, url);
+  if (image)
+    grl_media_add_thumbnail (media, image);
 
   site = get_site_from_url (url);
   if (site) {
@@ -585,7 +642,7 @@ build_media_from_entry (Entry *entry)
   media = build_media (NULL, FALSE,
 		       entry->url, entry->title, entry->url,
 		       entry->summary, entry->mime, entry->published,
-		       duration, 0);
+		       entry->image, duration, 0);
   return media;
 }
 
@@ -601,6 +658,7 @@ build_media_from_stmt (GrlMedia *content,
   gchar *desc;
   gchar *mime;
   gchar *date;
+  gchar *image;
   guint duration;
   guint childcount;
 
@@ -609,9 +667,10 @@ build_media_from_stmt (GrlMedia *content,
     title = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_TITLE);
     url = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_URL);
     desc = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_DESC);
+    image = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_IMAGE);
     childcount = (guint) sqlite3_column_int (sql_stmt, PODCAST_LAST);
-    media = build_media (content, is_podcast,
-			 id, title, url, desc, NULL, NULL, 0, childcount);
+    media = build_media (content, is_podcast, id,
+                         title, url, desc, NULL, NULL, image, 0, childcount);
   } else {
     mime = (gchar *) sqlite3_column_text (sql_stmt, STREAM_MIME);
     url = (gchar *) sqlite3_column_text (sql_stmt, STREAM_URL);
@@ -619,8 +678,9 @@ build_media_from_stmt (GrlMedia *content,
     date = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DATE);
     desc = (gchar *) sqlite3_column_text (sql_stmt, STREAM_DESC);
     duration = sqlite3_column_int (sql_stmt, STREAM_LENGTH);
-    media = build_media (content, is_podcast,
-			 url, title, url, desc, mime, date, duration, 0);
+    image = (gchar *) sqlite3_column_text (sql_stmt, STREAM_IMAGE);
+    media = build_media (content, is_podcast, url,
+                         title, url, desc, mime, date, image, duration, 0);
   }
 
   return media;
@@ -899,6 +959,7 @@ store_stream (sqlite3 *db, const gchar *podcast_id, Entry *entry)
   sqlite3_bind_text (sql_stmt, 5, entry->mime, -1, SQLITE_STATIC);
   sqlite3_bind_text (sql_stmt, 6, entry->published, -1, SQLITE_STATIC);
   sqlite3_bind_text (sql_stmt, 7, entry->summary, -1, SQLITE_STATIC);
+  sqlite3_bind_text (sql_stmt, 8, entry->image, -1, SQLITE_STATIC);
 
   while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
 
@@ -908,6 +969,48 @@ store_stream (sqlite3 *db, const gchar *podcast_id, Entry *entry)
   }
 
   sqlite3_finalize (sql_stmt);
+}
+
+static PodcastData *
+parse_podcast_data (xmlDocPtr doc, xmlXPathObjectPtr xpathObj)
+{
+  xmlNodeSetPtr nodes;
+  xmlNodePtr node;
+  PodcastData *podcast_data = NULL;
+
+  nodes = xpathObj->nodesetval;
+  if (!nodes || !nodes->nodeTab) {
+    return NULL;
+  }
+
+  /* Loop through the podcast data (we skip the "item" tags, since
+     the podcast entries will be parsed later on */
+
+  /* At the moment we are only interested in
+     'image', 'description' and 'pubDate' tags */
+  podcast_data = g_slice_new0 (PodcastData);
+  node = nodes->nodeTab[0]->xmlChildrenNode;
+  while (node && xmlStrcmp (node->name, (const xmlChar *) "item")) {
+    if (!xmlStrcmp (node->name, (const xmlChar *) "image")) {
+      xmlNodePtr imgNode = node->xmlChildrenNode;
+      while (imgNode && xmlStrcmp (imgNode->name, (const xmlChar *) "url")) {
+        imgNode = imgNode->next;
+      }
+      if (imgNode) {
+        podcast_data->image =
+          (gchar *) xmlNodeListGetString (doc, imgNode->xmlChildrenNode, 1);
+      }
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "description")) {
+      podcast_data->desc =
+	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "pubDate")) {
+      podcast_data->published =
+	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+    }
+    node = node->next;
+  }
+
+  return podcast_data;
 }
 
 static void
@@ -932,34 +1035,59 @@ parse_entry (xmlDocPtr doc, xmlNodePtr entry, Entry *data)
     } else if (!xmlStrcmp (node->name, (const xmlChar *) "duration")) {
       data->duration =
 	(gchar *) xmlNodeListGetString (doc, node->xmlChildrenNode, 1);
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "image")) {
+      if (!data->image) {
+        data->image = (gchar *) xmlGetProp (node, (xmlChar *) "href");
+      }
+    } else if (!xmlStrcmp (node->name, (const xmlChar *) "thumbnail")) {
+      if (data->image)
+        g_free (data->image);
+      data->image = (gchar *) xmlGetProp (node, (xmlChar *) "url");
     }
     node = node->next;
   }
 }
 
 static void
-touch_podcast (sqlite3 *db, const gchar *podcast_id)
+touch_podcast (sqlite3 *db, const gchar *podcast_id, PodcastData *data)
 {
   gint r;
-  gchar *sql, *sql_error;
+  sqlite3_stmt *sql_stmt = NULL;
   GTimeVal now;
   gchar *now_str;
+  gchar *img;
+  gchar *desc;
 
   GRL_DEBUG ("touch_podcast");
 
   g_get_current_time (&now);
   now_str = g_time_val_to_iso8601 (&now);
+  desc = data->desc ? data->desc : "";
+  img = data->image ? data->image : "";
 
-  sql = g_strdup_printf (GRL_SQL_TOUCH_PODCAST, now_str, podcast_id);
-  GRL_DEBUG ("%s", sql);
-  r = sqlite3_exec (db, sql, NULL, NULL, &sql_error);
-  g_free (sql);
-
+  r = sqlite3_prepare_v2 (db,
+			  GRL_SQL_TOUCH_PODCAST,
+			  strlen (GRL_SQL_TOUCH_PODCAST),
+			  &sql_stmt, NULL);
   if (r != SQLITE_OK) {
-    GRL_WARNING ("Failed to touch podcast, '%s': %s", podcast_id, sql_error);
-    sqlite3_free (sql_error);
-    return;
+    GRL_WARNING ("Failed to touch podcast '%s': %s",
+                 podcast_id, sqlite3_errmsg (db));
+  } else {
+    sqlite3_bind_text (sql_stmt, 1, now_str, -1, SQLITE_STATIC);
+    sqlite3_bind_text (sql_stmt, 2, desc, -1, SQLITE_STATIC);
+    sqlite3_bind_text (sql_stmt, 3, img, -1, SQLITE_STATIC);
+    sqlite3_bind_text (sql_stmt, 4, podcast_id, -1, SQLITE_STATIC);
+
+    while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
+    if (r != SQLITE_DONE) {
+      GRL_WARNING ("Failed to touch podcast '%s': %s", podcast_id,
+                   sqlite3_errmsg (db));
+    }
+
+    sqlite3_finalize (sql_stmt);
   }
+
+  g_free (now_str);
 }
 
 static gboolean
@@ -1047,13 +1175,17 @@ parse_entry_idle (gpointer user_data)
 static void
 parse_feed (OperationSpec *os, const gchar *str, GError **error)
 {
+  GrlPodcastsSource *source;
   GrlMedia *podcast = NULL;
   xmlDocPtr doc = NULL;
   xmlXPathContextPtr xpathCtx = NULL;
   xmlXPathObjectPtr xpathObj = NULL;
   guint stream_count;
+  PodcastData *podcast_data = NULL;
 
   GRL_DEBUG ("parse_feed");
+
+  source = GRL_PODCASTS_SOURCE (os->source);
 
   doc = xmlParseDoc ((xmlChar *) str);
   if (!doc) {
@@ -1071,7 +1203,41 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
 			  "Failed to parse podcast contents");
     goto free_resources;
   }
+
+  /* Check podcast data */
+  xpathObj = xmlXPathEvalExpression ((xmlChar *) "/rss/channel",
+				     xpathCtx);
+  if(xpathObj == NULL) {
+    *error = g_error_new (GRL_CORE_ERROR,
+			  os->error_code,
+			  "Failed to parse podcast contents");
+    goto free_resources;
+  }
   
+  podcast_data = parse_podcast_data (doc, xpathObj);
+  xmlXPathFreeObject (xpathObj);
+  xpathObj = NULL;
+
+  /* Check podcast pubDate (if available), if it has not been updated
+     recently then we can use the cache and avoid parsing the feed */
+  if (podcast_data->published != NULL) {
+    time_t pub_time =
+      g_mime_utils_header_decode_date (podcast_data->published, NULL);
+    if (pub_time == 0) {
+      GRL_DEBUG ("Invalid podcast pubDate: '%s'", podcast_data->published);
+      /* We will parse the feed again just in case */
+    } else if (os->last_refreshed >= pub_time) {
+      GRL_DEBUG ("Podcast feed is up-to-date");
+      /* We do not need to parse again, we already have the contents in cache */
+      produce_podcast_contents_from_db (os);
+      g_slice_free (OperationSpec, os);
+      goto free_resources;
+    }
+  }
+
+  /* The podcast has been updated since the last time
+     we processed it, we have to parse it again */
+
   xpathObj = xmlXPathEvalExpression ((xmlChar *) "/rss/channel/item",
 				     xpathCtx);
   if(xpathObj == NULL) {
@@ -1084,15 +1250,14 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   /* Feed is ok, let's process it */
 
   /* First, remove old entries for this podcast */
-  remove_podcast_streams (GRL_PODCASTS_SOURCE (os->source)->priv->db,
-			  os->media_id, error);
+  remove_podcast_streams (source->priv->db,  os->media_id, error);
   if (*error) {
     (*error)->code = os->error_code;
     goto free_resources;
   }
 
-  /* Then update the last_refreshed date of the podcast */
-  touch_podcast (GRL_PODCASTS_SOURCE (os->source)->priv->db, os->media_id);
+  /* Then update the podcast data, including the last_refreshed date */
+  touch_podcast (source->priv->db, os->media_id, podcast_data);
 
   /* If the feed contains no streams, notify and bail out */
   stream_count = xpathObj->nodesetval ? xpathObj->nodesetval->nodeNr : 0;
@@ -1128,6 +1293,8 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   return;
 
  free_resources:
+  if (podcast_data)
+    free_podcast_data (podcast_data);
   if (xpathObj)
     xmlXPathFreeObject (xpathObj);
   if (xpathCtx)
@@ -1216,9 +1383,10 @@ produce_podcast_contents (OperationSpec *os)
     lr_str = (gchar *) sqlite3_column_text (sql_stmt, PODCAST_LAST_REFRESHED);
     GRL_DEBUG ("Podcast last-refreshed: '%s'", lr_str);
     g_time_val_from_iso8601 (lr_str ? lr_str : "", &lr);
+    os->last_refreshed = lr.tv_sec;
     g_get_current_time (&now);
-    now.tv_sec -= CACHE_DURATION;
-    if (now.tv_sec >= lr.tv_sec) {
+    now.tv_sec -= GRL_PODCASTS_SOURCE (os->source)->priv->cache_time;
+    if (lr_str == NULL || now.tv_sec >= lr.tv_sec) {
       /* We have to read the podcast feed again */
       GRL_DEBUG ("Refreshing podcast '%s'...", os->media_id);
       url = g_strdup ((gchar *) sqlite3_column_text (sql_stmt, PODCAST_URL));
@@ -1238,7 +1406,6 @@ produce_podcast_contents (OperationSpec *os)
     g_error_free (error);
     g_slice_free (OperationSpec, os);
   }
-
 }
 
 static void

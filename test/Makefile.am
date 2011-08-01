@@ -7,7 +7,7 @@
 
 INCLUDES = @DEPS_CFLAGS@
 
-bin_PROGRAMS = test test_local_metadata
+noinst_PROGRAMS = test test_local_metadata
 
 test_SOURCES =	\
 	main.c

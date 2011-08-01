@@ -17,6 +17,8 @@ BuildRequires:  gupnp-av-devel >= 0.5.0
 BuildRequires:  sqlite-devel
 BuildRequires:  libgdata-devel
 BuildRequires:  tracker-devel >= 0.9.0
+BuildRequires:  gmime-devel >= 2.4.0
+BuildRequires:  quvi-devel >= 0.2.15
 
 Requires:       grilo >= @VERSION@
 Requires:       gupnp >= 0.13.0
@@ -48,22 +50,22 @@ Youtube
 %setup -q
 
 %build
-%configure				\
-	--disable-fakemetadata		\
-	--disable-shoutcast		\
-	--enable-apple-trailers		\
-	--enable-bookmarks		\
-	--enable-filesystem		\
-	--enable-flickr			\
-        --enable-gravatar               \
-	--enable-jamendo		\
-	--enable-lastfm-albumart	\
-        --enable-localmetadata          \
-        --enable-metadata-store         \
-	--enable-podcasts		\
-	--enable-tracker		\
-	--enable-upnp			\
-        --enable-vimeo                  \
+%configure                      \
+	--disable-fakemetadata       \
+	--disable-shoutcast          \
+	--enable-apple-trailers      \
+	--enable-bookmarks           \
+	--enable-filesystem          \
+	--enable-flickr              \
+   --enable-gravatar            \
+	--enable-jamendo             \
+	--enable-lastfm-albumart     \
+   --enable-localmetadata       \
+   --enable-metadata-store      \
+	--enable-podcasts            \
+	--enable-tracker             \
+	--enable-upnp                \
+   --enable-vimeo               \
 	--enable-youtube
 
 make %{?_smp_mflags}
@@ -88,6 +90,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/grilo-0.1/plugins/*.xml
 
 %changelog
+* Mon Aug 01 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.16-1
+- General: do not install test programs, fixed gdata flags for libgdata >= 0.7, missed configuration keys are not warnings any more, small fixes in build system, use the new cancellation API
+- Fake Metadata plugin: updated for latest changes in core
+- Filesystem plugin: do not replace already existant identifiers
+- Jamendo plugin: small fixes, fixed feed identifier
+- Podcasts plugin: several fixes, included thumbnail in podcasts, made cache time configurable
+- Shoutcast plugin: do not use deprecated functions
+- Tracker plugin: fixed registering keys when re-loading the plugin
+- Vimeo plugin: handled wrong dates
+- Youtube plugin: fixed BGO#650679 - Youtube plugin shouldn't load the, categories on start, added quvi supported
+
 * Wed Apr 20 2011 Juan A. Suarez Romero <jasuarez@igalia.com> - 0.1.15-1
 - LastFM Album Art plugin: plugged some leaks
 - Local Metadata plugin: plugged some leaks

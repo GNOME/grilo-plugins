@@ -584,8 +584,8 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
   }
 
   /* Apply skip and count */
-  skip = bs->skip;
-  count = bs->count;
+  skip = grl_operation_options_get_skip (bs->options);
+  count = grl_operation_options_get_count (bs->options);
   iter = entries;
   while (iter) {
     gboolean remove;
@@ -613,8 +613,9 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
   if (entries) {
     /* Use the idle loop to avoid blocking for too long */
     BrowseIdleData *idle_data = g_slice_new (BrowseIdleData);
+    gint global_count = grl_operation_options_get_count (bs->options);
     idle_data->spec = bs;
-    idle_data->remaining = bs->count - count - 1;
+    idle_data->remaining = global_count - count - 1;
     idle_data->path = path;
     idle_data->entries = entries;
     idle_data->current = entries;
@@ -936,8 +937,9 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
 
     /* FIXME: both file_is_valid_content() and create_content() are likely to block */
     if (file_is_valid_content (path, FALSE)) {
-      if (ss->skip) {
-        ss->skip--;
+      guint skip = grl_operation_options_get_skip (ss->options);
+      if (skip) {
+        grl_operation_options_set_skip (ss->options, skip - 1);
       } else {
         media = create_content (NULL, path,
                                 grl_operation_options_get_flags (ss->options)
@@ -949,8 +951,10 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
     g_object_unref (file);
 
     if (media) {
-      ss->count--;
-      if (ss->count == 0) {
+      gint count = grl_operation_options_get_count (ss->options);
+      count--;
+      grl_operation_options_set_count (ss->options, count);
+      if (count == 0) {
         remaining = 0;
       }
       ss->callback (ss->source, ss->search_id, media, remaining, ss->user_data, NULL);

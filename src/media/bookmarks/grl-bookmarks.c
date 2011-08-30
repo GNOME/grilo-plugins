@@ -178,6 +178,9 @@ static gboolean grl_bookmarks_source_notify_change_start (GrlMediaSource *source
 static gboolean grl_bookmarks_source_notify_change_stop (GrlMediaSource *source,
                                                          GError **error);
 
+static GrlCaps * grl_bookmarks_source_get_caps (GrlMetadataSource *source,
+                                                GrlSupportedOps operation);
+
  /* =================== Bookmarks Plugin  =============== */
 
  static gboolean
@@ -256,6 +259,7 @@ static gboolean grl_bookmarks_source_notify_change_stop (GrlMediaSource *source,
    source_class->notify_change_stop = grl_bookmarks_source_notify_change_stop;
 
   metadata_class->supported_keys = grl_bookmarks_source_supported_keys;
+  metadata_class->get_caps = grl_bookmarks_source_get_caps;
 
   g_type_class_add_private (klass, sizeof (GrlBookmarksPrivate));
 }
@@ -753,8 +757,8 @@ grl_bookmarks_source_browse (GrlMediaSource *source,
   os->source = bs->source;
   os->operation_id = bs->browse_id;
   os->media_id = grl_media_get_id (bs->container);
-  os->count = bs->count;
-  os->skip = bs->skip;
+  os->count = grl_operation_options_get_count (bs->options);
+  os->skip = grl_operation_options_get_skip (bs->options);
   os->callback = bs->callback;
   os->user_data = bs->user_data;
   os->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
@@ -786,8 +790,8 @@ grl_bookmarks_source_search (GrlMediaSource *source,
   os = g_slice_new0 (OperationSpec);
   os->source = ss->source;
   os->operation_id = ss->search_id;
-  os->count = ss->count;
-  os->skip = ss->skip;
+  os->count = grl_operation_options_get_count (ss->options);
+  os->skip = grl_operation_options_get_skip (ss->options);
   os->callback = ss->callback;
   os->user_data = ss->user_data;
   os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
@@ -818,8 +822,8 @@ grl_bookmarks_source_query (GrlMediaSource *source,
   os = g_slice_new0 (OperationSpec);
   os->source = qs->source;
   os->operation_id = qs->query_id;
-  os->count = qs->count;
-  os->skip = qs->skip;
+  os->count = grl_operation_options_get_count (qs->options);
+  os->skip = grl_operation_options_get_skip (qs->options);
   os->callback = qs->callback;
   os->user_data = qs->user_data;
   os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
@@ -907,4 +911,16 @@ grl_bookmarks_source_notify_change_stop (GrlMediaSource *source,
   bookmarks_source->priv->notify_changes = FALSE;
 
   return TRUE;
+}
+
+static GrlCaps *
+grl_bookmarks_source_get_caps (GrlMetadataSource *source,
+                               GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL)
+    caps = grl_caps_new ();
+
+  return caps;
 }

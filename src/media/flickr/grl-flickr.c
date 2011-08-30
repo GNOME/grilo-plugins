@@ -99,6 +99,9 @@ gboolean grl_flickr_plugin_init (GrlPluginRegistry *registry,
 
 static const GList *grl_flickr_source_supported_keys (GrlMetadataSource *source);
 
+static GrlCaps * grl_flickr_source_get_caps (GrlMetadataSource *source,
+                                             GrlSupportedOps operation);
+
 static void grl_flickr_source_browse (GrlMediaSource *source,
                                       GrlMediaSourceBrowseSpec *bs);
 
@@ -219,6 +222,7 @@ grl_flickr_source_class_init (GrlFlickrSourceClass * klass)
   source_class->metadata = grl_flickr_source_metadata;
   source_class->search = grl_flickr_source_search;
   metadata_class->supported_keys = grl_flickr_source_supported_keys;
+  metadata_class->get_caps = grl_flickr_source_get_caps;
 
   g_type_class_add_private (klass, sizeof (GrlFlickrSourcePrivate));
 }
@@ -448,10 +452,11 @@ photosetslist_cb (GFlickr *f, GList *photosets, gpointer user_data)
   GrlMedia *media;
   GrlMediaSourceBrowseSpec *bs = (GrlMediaSourceBrowseSpec *) user_data;
   gchar *value;
-  gint count;
+  gint count, desired_count;
 
   /* Go to offset element */
-  photosets = g_list_nth (photosets, bs->skip);
+  photosets = g_list_nth (photosets,
+                          grl_operation_options_get_skip (bs->options));
 
   /* No more elements can be sent */
   if (!photosets) {
@@ -466,8 +471,9 @@ photosetslist_cb (GFlickr *f, GList *photosets, gpointer user_data)
 
   /* Send data */
   count = g_list_length (photosets);
-  if (count > bs->count) {
-    count = bs->count;
+  desired_count = grl_operation_options_get_count (bs->options);
+  if (count > desired_count) {
+    count = desired_count;
   }
 
   while (photosets && count > 0) {
@@ -553,7 +559,7 @@ gettags_cb (GFlickr *f, GList *taglist, gpointer user_data)
   gint count;
 
   /* Go to offset element */
-  taglist = g_list_nth (taglist, bs->skip);
+  taglist = g_list_nth (taglist, grl_operation_options_get_skip (bs->options));
 
   /* No more elements can be sent */
   if (!taglist) {
@@ -610,22 +616,24 @@ grl_flickr_source_public_browse (GrlMediaSource *source,
   const gchar *container_id;
   guint per_page;
   gint request_size;
+  guint skip = grl_operation_options_get_skip (bs->options);
+  gint count = grl_operation_options_get_count (bs->options);
 
   container_id = grl_media_get_id (bs->container);
 
   if (!container_id) {
     /* Get hot tags list. List is limited up to HOTLIST_MAX tags */
-    if (bs->skip >= HOTLIST_MAX) {
+    if (skip >= HOTLIST_MAX) {
       bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, NULL);
     } else {
-      request_size = CLAMP (bs->skip + bs->count, 1, HOTLIST_MAX);
+      request_size = CLAMP (skip + count, 1, HOTLIST_MAX);
       g_flickr_tags_getHotList (f, request_size, gettags_cb, bs);
     }
   } else {
     OperationData *od = g_slice_new (OperationData);
 
-    grl_paging_translate (bs->skip,
-                          bs->count,
+    grl_paging_translate (skip,
+                          count,
                           SEARCH_MAX,
                           &per_page,
                           &(od->page),
@@ -638,7 +646,7 @@ grl_flickr_source_public_browse (GrlMediaSource *source,
     od->tags = (gchar *) container_id;
     od->text = NULL;
     od->user_data = bs->user_data;
-    od->count = bs->count;
+    od->count = count;
     od->operation_id = bs->browse_id;
     g_flickr_photos_search (f,
                             od->user_id,
@@ -658,6 +666,8 @@ grl_flickr_source_personal_browse (GrlMediaSource *source,
   OperationData *od;
   const gchar *container_id;
   guint per_page;
+  guint skip = grl_operation_options_get_skip (bs->options);
+  gint count = grl_operation_options_get_count (bs->options);
 
   container_id = grl_media_get_id (bs->container);
 
@@ -668,8 +678,8 @@ grl_flickr_source_personal_browse (GrlMediaSource *source,
     od = g_slice_new (OperationData);
 
     /* Compute items per page and page offset */
-    grl_paging_translate (bs->skip,
-                          bs->count,
+    grl_paging_translate (skip,
+                          count,
                           SEARCH_MAX,
                           &per_page,
                           &(od->page),
@@ -680,7 +690,7 @@ grl_flickr_source_personal_browse (GrlMediaSource *source,
     od->tags = NULL;
     od->text = (gchar *) container_id;
     od->user_data = bs->user_data;
-    od->count = bs->count;
+    od->count = count;
     od->operation_id = bs->browse_id;
 
     g_flickr_photosets_getPhotos (f, container_id, od->page, photosetsphotos_cb, od);
@@ -722,10 +732,12 @@ grl_flickr_source_search (GrlMediaSource *source,
   GFlickr *f = GRL_FLICKR_SOURCE (source)->priv->flickr;
   guint per_page;
   OperationData *od = g_slice_new (OperationData);
+  guint skip = grl_operation_options_get_skip (ss->options);
+  gint count = grl_operation_options_get_count (ss->options);
 
   /* Compute items per page and page offset */
-  grl_paging_translate (ss->skip,
-                        ss->count,
+  grl_paging_translate (skip,
+                        count,
                         SEARCH_MAX,
                         &per_page,
                         &(od->page),
@@ -738,7 +750,7 @@ grl_flickr_source_search (GrlMediaSource *source,
   od->tags = NULL;
   od->text = ss->text;
   od->user_data = ss->user_data;
-  od->count = ss->count;
+  od->count = count;
   od->operation_id = ss->search_id;
 
   if (od->user_id || od->text) {
@@ -755,4 +767,16 @@ grl_flickr_source_search (GrlMediaSource *source,
                                search_cb,
                                od);
   }
+}
+
+static GrlCaps *
+grl_flickr_source_get_caps (GrlMetadataSource *source,
+                            GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL)
+    caps = grl_caps_new ();
+
+  return caps;
 }

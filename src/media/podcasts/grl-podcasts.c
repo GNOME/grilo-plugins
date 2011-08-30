@@ -235,6 +235,9 @@ static void grl_podcasts_source_finalize (GObject *plugin);
 
 static const GList *grl_podcasts_source_supported_keys (GrlMetadataSource *source);
 
+static GrlCaps * grl_podcasts_source_get_caps (GrlMetadataSource *source,
+                                               GrlSupportedOps operation);
+
 static void grl_podcasts_source_browse (GrlMediaSource *source,
                                         GrlMediaSourceBrowseSpec *bs);
 static void grl_podcasts_source_search (GrlMediaSource *source,
@@ -335,6 +338,7 @@ grl_podcasts_source_class_init (GrlPodcastsSourceClass * klass)
   source_class->notify_change_stop = grl_podcasts_source_notify_change_stop;
 
   metadata_class->supported_keys = grl_podcasts_source_supported_keys;
+  metadata_class->get_caps = grl_podcasts_source_get_caps;
 
   g_type_class_add_private (klass, sizeof (GrlPodcastsPrivate));
 }
@@ -1627,8 +1631,8 @@ grl_podcasts_source_browse (GrlMediaSource *source,
   os->source = bs->source;
   os->operation_id = bs->browse_id;
   os->media_id = grl_media_get_id (bs->container);
-  os->count = bs->count;
-  os->skip = bs->skip;
+  os->count = grl_operation_options_get_count (bs->options);
+  os->skip = grl_operation_options_get_skip (bs->options);
   os->callback = bs->callback;
   os->user_data = bs->user_data;
   os->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
@@ -1670,8 +1674,8 @@ grl_podcasts_source_search (GrlMediaSource *source,
   os->source = ss->source;
   os->operation_id = ss->search_id;
   os->text = ss->text;
-  os->count = ss->count;
-  os->skip = ss->skip;
+  os->count = grl_operation_options_get_count (ss->options);
+  os->skip = grl_operation_options_get_skip (ss->options);
   os->callback = ss->callback;
   os->user_data = ss->user_data;
   os->is_query = TRUE;
@@ -1704,8 +1708,8 @@ grl_podcasts_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
   os->source = qs->source;
   os->operation_id = qs->query_id;
   os->text = qs->query;
-  os->count = qs->count;
-  os->skip = qs->skip;
+  os->count = grl_operation_options_get_count (qs->options);
+  os->skip = grl_operation_options_get_skip (qs->options);
   os->callback = qs->callback;
   os->user_data = qs->user_data;
   os->is_query = TRUE;
@@ -1802,4 +1806,16 @@ grl_podcasts_source_notify_change_stop (GrlMediaSource *source,
   podcasts_source->priv->notify_changes = FALSE;
 
   return TRUE;
+}
+
+static GrlCaps *
+grl_podcasts_source_get_caps (GrlMetadataSource *source,
+                              GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL)
+    caps = grl_caps_new ();
+
+  return caps;
 }

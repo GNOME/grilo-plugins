@@ -106,6 +106,9 @@ static void grl_upnp_source_finalize (GObject *plugin);
 
 static const GList *grl_upnp_source_supported_keys (GrlMetadataSource *source);
 
+static GrlCaps * grl_upnp_source_get_caps (GrlMetadataSource *source,
+                                           GrlSupportedOps operation);
+
 static void grl_upnp_source_browse (GrlMediaSource *source,
                                     GrlMediaSourceBrowseSpec *bs);
 
@@ -219,6 +222,7 @@ grl_upnp_source_class_init (GrlUpnpSourceClass * klass)
 
   metadata_class->supported_keys = grl_upnp_source_supported_keys;
   metadata_class->supported_operations = grl_upnp_source_supported_operations;
+  metadata_class->get_caps = grl_upnp_source_get_caps;
 
   source_class->browse = grl_upnp_source_browse;
   source_class->search = grl_upnp_source_search;
@@ -1094,8 +1098,8 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
   os->source = bs->source;
   os->operation_id = bs->browse_id;
   os->keys = bs->keys;
-  os->skip = bs->skip;
-  os->count = bs->count;
+  os->skip = grl_operation_options_get_skip (bs->options);
+  os->count = grl_operation_options_get_count (bs->options);
   os->callback = bs->callback;
   os->user_data = bs->user_data;
 
@@ -1115,9 +1119,9 @@ grl_upnp_source_browse (GrlMediaSource *source, GrlMediaSourceBrowseSpec *bs)
 				      "Filter", G_TYPE_STRING,
                                       upnp_filter,
 				      "StartingIndex", G_TYPE_UINT,
-                                      bs->skip,
+                                      os->skip,
 				      "RequestedCount", G_TYPE_UINT,
-                                      bs->count,
+                                      os->count,
 				      "SortCriteria", G_TYPE_STRING,
                                       "",
 				      NULL);
@@ -1154,8 +1158,8 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   os->source = ss->source;
   os->operation_id = ss->search_id;
   os->keys = ss->keys;
-  os->skip = ss->skip;
-  os->count = ss->count;
+  os->skip = grl_operation_options_get_skip (ss->options);
+  os->count = grl_operation_options_get_count (ss->options);
   os->callback = ss->callback;
   os->user_data = ss->user_data;
 
@@ -1170,9 +1174,9 @@ grl_upnp_source_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
 				      "Filter", G_TYPE_STRING,
                                       upnp_filter,
 				      "StartingIndex", G_TYPE_UINT,
-                                      ss->skip,
+                                      os->skip,
 				      "RequestedCount", G_TYPE_UINT,
-                                      ss->count,
+                                      os->count,
 				      "SortCriteria", G_TYPE_STRING,
                                       "",
 				      NULL);
@@ -1218,8 +1222,8 @@ grl_upnp_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
   os->source = qs->source;
   os->operation_id = qs->query_id;
   os->keys = qs->keys;
-  os->skip = qs->skip;
-  os->count = qs->count;
+  os->skip = grl_operation_options_get_skip (qs->options);
+  os->count = grl_operation_options_get_count (qs->options);
   os->callback = qs->callback;
   os->user_data = qs->user_data;
 
@@ -1233,9 +1237,9 @@ grl_upnp_source_query (GrlMediaSource *source, GrlMediaSourceQuerySpec *qs)
 				      "Filter", G_TYPE_STRING,
 				      upnp_filter,
 				      "StartingIndex", G_TYPE_UINT,
-				      qs->skip,
+				      os->skip,
 				      "RequestedCount", G_TYPE_UINT,
-				      qs->count,
+				      os->count,
 				      "SortCriteria", G_TYPE_STRING,
 				      "",
 				      NULL);
@@ -1355,4 +1359,16 @@ grl_upnp_source_notify_change_stop (GrlMediaSource *source,
                                      source);
 
   return TRUE;
+}
+
+static GrlCaps *
+grl_upnp_source_get_caps (GrlMetadataSource *source,
+                          GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL)
+    caps = grl_caps_new ();
+
+  return caps;
 }

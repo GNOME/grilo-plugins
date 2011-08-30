@@ -177,6 +177,9 @@ gboolean grl_jamendo_plugin_init (GrlPluginRegistry *registry,
 
 static const GList *grl_jamendo_source_supported_keys (GrlMetadataSource *source);
 
+static GrlCaps * grl_jamendo_source_get_caps (GrlMetadataSource *source,
+                                              GrlSupportedOps operation);
+
 static void grl_jamendo_source_metadata (GrlMediaSource *source,
                                          GrlMediaSourceMetadataSpec *ms);
 
@@ -258,6 +261,7 @@ grl_jamendo_source_class_init (GrlJamendoSourceClass * klass)
   source_class->search = grl_jamendo_source_search;
   metadata_class->cancel = grl_jamendo_source_cancel;
   metadata_class->supported_keys = grl_jamendo_source_supported_keys;
+  metadata_class->get_caps = grl_jamendo_source_get_caps;
   g_class->finalize = grl_jamendo_source_finalize;
 
   g_type_class_add_private (klass, sizeof (GrlJamendoSourcePriv));
@@ -823,16 +827,18 @@ send_toplevel_categories (GrlMediaSourceBrowseSpec *bs)
 {
   GrlMedia *media;
   gint remaining;
+  guint skip = grl_operation_options_get_skip (bs->options);
+  gint count = grl_operation_options_get_count (bs->options);
 
   /* Check if all elements must be skipped */
-  if (bs->skip > 1 || bs->count == 0) {
+  if (skip > 1 || count == 0) {
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, NULL);
     return;
   }
 
-  remaining = bs->count;
+  remaining = count;
 
-  if (bs->skip == 0) {
+  if (skip == 0) {
     media = grl_media_box_new ();
     update_media_from_artists (media);
     remaining--;
@@ -871,9 +877,11 @@ send_feeds (GrlMediaSourceBrowseSpec *bs)
 {
   int i;
   int remaining;
+  gint count = grl_operation_options_get_count (bs->options);
+  guint skip = grl_operation_options_get_skip (bs->options);
 
-  remaining = MIN (bs->count, G_N_ELEMENTS (feeds));
-  for (i = bs->skip; remaining > 0 && i < G_N_ELEMENTS (feeds); i++) {
+  remaining = MIN (count, G_N_ELEMENTS (feeds));
+  for (i = skip; remaining > 0 && i < G_N_ELEMENTS (feeds); i++) {
     GrlMedia *media;
 
     media = grl_media_box_new ();
@@ -1101,6 +1109,8 @@ grl_jamendo_source_browse (GrlMediaSource *source,
   guint page_size;
   guint page_number;
   guint page_offset;
+  gint count = grl_operation_options_get_count (bs->options);
+  guint skip = grl_operation_options_get_skip (bs->options);
 
   GRL_TRACE ();
 
@@ -1121,8 +1131,8 @@ grl_jamendo_source_browse (GrlMediaSource *source,
                          container_id);
   } else {
     category = atoi (container_split[0]);
-    grl_paging_translate (bs->skip,
-                          bs->count,
+    grl_paging_translate (skip,
+                          count,
                           0,
                           &page_size,
                           &page_number,
@@ -1241,6 +1251,8 @@ grl_jamendo_source_query (GrlMediaSource *source,
   guint page_size;
   guint page_number;
   guint page_offset;
+  gint count = grl_operation_options_get_count (qs->options);
+  guint skip = grl_operation_options_get_skip (qs->options);
 
   GRL_TRACE ();
 
@@ -1267,8 +1279,8 @@ grl_jamendo_source_query (GrlMediaSource *source,
     g_return_if_reached ();
   }
 
-  grl_paging_translate (qs->skip,
-                        qs->count,
+  grl_paging_translate (skip,
+                        count,
                         0,
                         &page_size,
                         &page_number,
@@ -1310,13 +1322,15 @@ grl_jamendo_source_search (GrlMediaSource *source,
   guint page_size;
   guint page_number;
   guint page_offset;
+  gint count = grl_operation_options_get_count (ss->options);
+  guint skip = grl_operation_options_get_skip (ss->options);
 
   GRL_TRACE ();
 
   jamendo_keys = get_jamendo_keys (JAMENDO_TRACK_CAT);
 
-  grl_paging_translate (ss->skip,
-                        ss->count,
+  grl_paging_translate (skip,
+                        count,
                         0,
                         &page_size,
                         &page_number,
@@ -1371,4 +1385,16 @@ grl_jamendo_source_cancel (GrlMetadataSource *source, guint operation_id)
   if (xpe) {
     xpe->cancelled = TRUE;
   }
+}
+
+static GrlCaps *
+grl_jamendo_source_get_caps (GrlMetadataSource *source,
+                             GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL)
+    caps = grl_caps_new ();
+
+  return caps;
 }

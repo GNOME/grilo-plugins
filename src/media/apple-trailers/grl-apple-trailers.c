@@ -94,6 +94,9 @@ static void grl_apple_trailers_source_browse (GrlMediaSource *source,
 static void grl_apple_trailers_source_cancel (GrlMetadataSource *source,
                                               guint operation_id);
 
+static GrlCaps *grl_apple_trailers_source_get_caps (GrlMetadataSource *source,
+                                                    GrlSupportedOps operation);
+
 /* =================== Apple Trailers Plugin  =============== */
 
 gboolean
@@ -218,6 +221,7 @@ grl_apple_trailers_source_class_init (GrlAppleTrailersSourceClass * klass)
   source_class->browse = grl_apple_trailers_source_browse;
   metadata_class->cancel = grl_apple_trailers_source_cancel;
   metadata_class->supported_keys = grl_apple_trailers_source_supported_keys;
+  metadata_class->get_caps = grl_apple_trailers_source_get_caps;
   g_class->finalize = grl_apple_trailers_source_finalize;
   g_class->set_property = grl_apple_trailers_source_set_property;
 
@@ -404,12 +408,12 @@ send_movie_info (OperationData *op_data)
   } else {
     GrlAppleTrailersSource *source =
       GRL_APPLE_TRAILERS_SOURCE (op_data->bs->source);
+    gint count = grl_operation_options_get_count (op_data->bs->options);
 
     media = build_media_from_movie (op_data->xml_entries,
                                     source->priv->large_poster);
     last =
-      !op_data->xml_entries->next  ||
-      op_data->bs->count == 1;
+      !op_data->xml_entries->next || count == 1;
 
     op_data->bs->callback (op_data->bs->source,
                            op_data->bs->browse_id,
@@ -419,7 +423,7 @@ send_movie_info (OperationData *op_data)
                            NULL);
     op_data->xml_entries = op_data->xml_entries->next;
     if (!last)
-      op_data->bs->count--;
+      grl_operation_options_set_count (op_data->bs->options, count - 1);
   }
 
   if (last) {
@@ -435,8 +439,10 @@ xml_parse_result (const gchar *str, OperationData *op_data)
 {
   GError *error = NULL;
   xmlNodePtr node;
+  guint skip = grl_operation_options_get_skip (op_data->bs->options);
 
-  if (op_data->cancelled || op_data->bs->count == 0) {
+  if (op_data->cancelled ||
+      grl_operation_options_get_count (op_data->bs->options) == 0) {
     goto finalize;
   }
 
@@ -460,10 +466,11 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   node = node->xmlChildrenNode;
 
   /* Skip elements */
-  while (node && op_data->bs->skip > 0) {
+  while (node && skip > 0) {
     node = node->next;
-    op_data->bs->skip--;
+    skip--;
   }
+  grl_operation_options_set_skip (op_data->bs->options, skip);
 
   if (!node) {
     goto finalize;
@@ -611,4 +618,16 @@ grl_apple_trailers_source_cancel (GrlMetadataSource *source, guint operation_id)
   if (op_data) {
     op_data->cancelled = TRUE;
   }
+}
+
+static GrlCaps *
+grl_apple_trailers_source_get_caps (GrlMetadataSource *source,
+                                    GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL)
+    caps = grl_caps_new ();
+
+  return caps;
 }

@@ -100,6 +100,9 @@ gboolean grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
 
 static const GList *grl_shoutcast_source_supported_keys (GrlMetadataSource *source);
 
+static GrlCaps * grl_shoutcast_source_get_caps (GrlMetadataSource *source,
+                                                GrlSupportedOps operation);
+
 static void grl_shoutcast_source_metadata (GrlMediaSource *source,
                                            GrlMediaSourceMetadataSpec *ms);
 
@@ -199,6 +202,7 @@ grl_shoutcast_source_class_init (GrlShoutcastSourceClass * klass)
 
   metadata_class->cancel = grl_shoutcast_source_cancel;
   metadata_class->supported_keys = grl_shoutcast_source_supported_keys;
+  metadata_class->get_caps = grl_shoutcast_source_get_caps;
 
   gobject_class->finalize = grl_shoutcast_source_finalize;
 
@@ -712,8 +716,8 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
   data->source = source;
   data->operation_id = bs->browse_id;
   data->result_cb = bs->callback;
-  data->skip = bs->skip;
-  data->count = bs->count;
+  data->skip = grl_operation_options_get_skip (bs->options);
+  data->count = grl_operation_options_get_count (bs->options);
   data->user_data = bs->user_data;
   data->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
 
@@ -728,7 +732,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
     url = g_strdup_printf (SHOUTCAST_GET_RADIOS,
                            shoutcast_source->priv->dev_key,
                            container_id,
-                           bs->skip + bs->count);
+                           data->skip + data->count);
     data->genre = g_strdup (container_id);
   }
 
@@ -768,8 +772,8 @@ grl_shoutcast_source_search (GrlMediaSource *source,
   data->source = source;
   data->operation_id = ss->search_id;
   data->result_cb = ss->callback;
-  data->skip = ss->skip;
-  data->count = ss->count;
+  data->skip = grl_operation_options_get_skip (ss->options);
+  data->count = grl_operation_options_get_count (ss->options);
   data->user_data = ss->user_data;
   data->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
 
@@ -778,7 +782,7 @@ grl_shoutcast_source_search (GrlMediaSource *source,
   url = g_strdup_printf (SHOUTCAST_SEARCH_RADIOS,
                          shoutcast_source->priv->dev_key,
                          ss->text,
-                         ss->skip + ss->count);
+                         data->skip + data->count);
 
   read_url_async (GRL_SHOUTCAST_SOURCE (source), url, data);
 
@@ -805,4 +809,16 @@ grl_shoutcast_source_cancel (GrlMetadataSource *source, guint operation_id)
   if (op_data) {
     op_data->cancelled = TRUE;
   }
+}
+
+static GrlCaps *
+grl_shoutcast_source_get_caps (GrlMetadataSource *source,
+                               GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL)
+    caps = grl_caps_new ();
+
+  return caps;
 }

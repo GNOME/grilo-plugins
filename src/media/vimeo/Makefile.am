@@ -11,13 +11,15 @@ libgrlvimeo_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
 	$(XML_CFLAGS)		\
 	$(GTHREAD_CFLAGS)	\
-	$(LIBSOUP_CFLAGS)
+	$(LIBSOUP_CFLAGS)	\
+	$(LIBGCRYPT_CFLAGS)
 
 libgrlvimeo_la_LIBADD =	\
 	$(DEPS_LIBS)		\
 	$(XML_LIBS)		\
 	$(GTHREAD_LIBS)		\
-	$(LIBSOUP_LIBS)
+	$(LIBSOUP_LIBS)		\
+	$(LIBGCRYPT_LIBS)
 
 libgrlvimeo_la_LDFLAGS = \
 	-module		 \

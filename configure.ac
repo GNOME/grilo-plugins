@@ -125,8 +125,6 @@ PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4, HAVE_LIBSOUP=yes, HAVE_LIBSOUP=no)
 
 PKG_CHECK_MODULES(LIBREST, rest-0.7, HAVE_REST=yes, HAVE_REST=no)
 
-AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
-
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
 PKG_CHECK_MODULES(GMIME, gmime-2.6,
@@ -144,6 +142,8 @@ PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.11,
 PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
                              HAVE_GLIB_2_26=yes,
                              HAVE_GLIB_2_26=no)
+
+AM_PATH_LIBGCRYPT(,HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
 # ----------------------------------------------------------
 # GDATA VERSION

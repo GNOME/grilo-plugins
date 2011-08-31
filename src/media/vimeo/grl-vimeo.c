@@ -72,6 +72,9 @@ gboolean grl_vimeo_plugin_init (GrlPluginRegistry *registry,
 
 static const GList *grl_vimeo_source_supported_keys (GrlMetadataSource *source);
 
+static GrlCaps * grl_vimeo_source_get_caps (GrlMetadataSource *source,
+                                            GrlSupportedOps operation);
+
 static void grl_vimeo_source_metadata (GrlMediaSource *source,
 				       GrlMediaSourceMetadataSpec *ss);
 
@@ -167,6 +170,7 @@ grl_vimeo_source_class_init (GrlVimeoSourceClass * klass)
   source_class->metadata = grl_vimeo_source_metadata;
   source_class->search = grl_vimeo_source_search;
   metadata_class->supported_keys = grl_vimeo_source_supported_keys;
+  metadata_class->get_caps = grl_vimeo_source_get_caps;
 
   g_type_class_add_private (klass, sizeof (GrlVimeoSourcePrivate));
 }
@@ -279,7 +283,7 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
 {
   GrlMedia *media = NULL;
   SearchData *sd = (SearchData *) user_data;
-  gint count = sd->ss->count;
+  gint count = grl_operation_options_get_count (sd->ss->options);
   gchar *media_type;
 
   /* Go to offset element */
@@ -310,14 +314,14 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
       sd->ss->callback (sd->ss->source,
 			sd->ss->search_id,
 			media,
-			sd->ss->count == 1? 0: -1,
+			count == 1? 0: -1,
 			sd->ss->user_data,
 			NULL);
     }
     video_list = g_list_next (video_list);
 
     if (--count)
-      sd->ss->count = count;
+      grl_operation_options_set_count (sd->ss->options, count);
 
     media = NULL;
   }
@@ -404,6 +408,8 @@ grl_vimeo_source_search (GrlMediaSource *source,
   GError *error;
   gint per_page;
   GVimeo *vimeo = GRL_VIMEO_SOURCE (source)->priv->vimeo;
+  guint skip = grl_operation_options_get_skip (ss->options);
+  gint count = grl_operation_options_get_count (ss->options);
 
   if (!ss->text) {
     /* Vimeo does not support searching all */
@@ -417,13 +423,25 @@ grl_vimeo_source_search (GrlMediaSource *source,
   }
 
   /* Compute items per page and page offset */
-  per_page = CLAMP (1 + ss->skip + ss->count, 0, 100);
+  per_page = CLAMP (1 + skip + count, 0, 100);
   g_vimeo_set_per_page (vimeo, per_page);
 
   sd = g_slice_new (SearchData);
-  sd->page = 1 + (ss->skip / per_page);
-  sd->offset = ss->skip % per_page;
+  sd->page = 1 + (skip / per_page);
+  sd->offset = skip % per_page;
   sd->ss = ss;
 
   g_vimeo_videos_search (vimeo, ss->text, sd->page, search_cb, sd);
+}
+
+static GrlCaps *
+grl_vimeo_source_get_caps (GrlMetadataSource *source,
+                            GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL)
+    caps = grl_caps_new ();
+
+  return caps;
 }

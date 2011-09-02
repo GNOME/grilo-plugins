@@ -193,6 +193,9 @@ static const GList *grl_youtube_source_supported_keys (GrlMetadataSource *source
 
 static const GList *grl_youtube_source_slow_keys (GrlMetadataSource *source);
 
+static GrlCaps * grl_youtube_source_get_caps (GrlMetadataSource *source,
+                                              GrlSupportedOps operation);
+
 static void grl_youtube_source_search (GrlMediaSource *source,
                                        GrlMediaSourceSearchSpec *ss);
 
@@ -353,6 +356,7 @@ grl_youtube_source_class_init (GrlYoutubeSourceClass * klass)
   source_class->media_from_uri = grl_youtube_get_media_from_uri;
   metadata_class->supported_keys = grl_youtube_source_supported_keys;
   metadata_class->slow_keys = grl_youtube_source_slow_keys;
+  metadata_class->get_caps = grl_youtube_source_get_caps;
   metadata_class->cancel = grl_youtube_source_cancel;
   gobject_class->set_property = grl_youtube_source_set_property;
   gobject_class->finalize = grl_youtube_source_finalize;
@@ -1327,15 +1331,17 @@ grl_youtube_source_search (GrlMediaSource *source,
   OperationSpec *os;
   GDataQuery *query;
 
-  GRL_DEBUG ("grl_youtube_source_search (%u, %u)", ss->skip, ss->count);
+  GRL_DEBUG ("grl_youtube_source_search (%u, %d)",
+             grl_operation_options_get_skip (ss->options),
+             grl_operation_options_get_count (ss->options));
 
   os = operation_spec_new ();
   os->source = source;
   os->cancellable = g_cancellable_new ();
   os->operation_id = ss->search_id;
   os->keys = ss->keys;
-  os->skip = ss->skip + 1;
-  os->count = ss->count;
+  os->skip = grl_operation_options_get_skip (ss->options) + 1;
+  os->count = grl_operation_options_get_count (ss->options);
   os->callback = ss->callback;
   os->user_data = ss->user_data;
   os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
@@ -1385,9 +1391,9 @@ grl_youtube_source_browse (GrlMediaSource *source,
   os->operation_id = bs->browse_id;
   os->container_id = container_id;
   os->keys = bs->keys;
-  os->flags = bs->flags;
-  os->skip = bs->skip + 1;
-  os->count = bs->count;
+  os->flags = grl_operation_options_get_flags (bs->options);
+  os->skip = grl_operation_options_get_skip (bs->options) + 1;
+  os->count = grl_operation_options_get_count (bs->options);
   os->callback = bs->callback;
   os->user_data = bs->user_data;
   os->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
@@ -1590,4 +1596,16 @@ grl_youtube_source_cancel (GrlMetadataSource *source,
   if (cancellable) {
     g_cancellable_cancel (cancellable);
   }
+}
+
+static GrlCaps *
+grl_youtube_source_get_caps (GrlMetadataSource *source,
+                             GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL)
+    caps = grl_caps_new ();
+
+  return caps;
 }

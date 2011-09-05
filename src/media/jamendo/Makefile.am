@@ -25,8 +25,8 @@ libgrljamendo_la_SOURCES = 	\
 	grl-jamendo.c 		\
 	grl-jamendo.h
 
-libdir = $(GRL_PLUGINS_DIR)
-jamendoxmldir = $(GRL_PLUGINS_CONF_DIR)
+libdir				= $(GRL_PLUGINS_DIR)
+jamendoxmldir		= $(GRL_PLUGINS_DIR)
 jamendoxml_DATA	= $(JAMENDO_PLUGIN_ID).xml
 
 EXTRA_DIST = $(jamendoxml_DATA)

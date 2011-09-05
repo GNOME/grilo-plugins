@@ -11,13 +11,15 @@ libgrlvimeo_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
 	$(XML_CFLAGS)		\
 	$(GTHREAD_CFLAGS)	\
-	$(LIBSOUP_CFLAGS)
+	$(LIBSOUP_CFLAGS)	\
+	$(LIBGCRYPT_CFLAGS)
 
 libgrlvimeo_la_LIBADD =	\
 	$(DEPS_LIBS)		\
 	$(XML_LIBS)		\
 	$(GTHREAD_LIBS)		\
-	$(LIBSOUP_LIBS)
+	$(LIBSOUP_LIBS)		\
+	$(LIBGCRYPT_LIBS)
 
 libgrlvimeo_la_LDFLAGS = \
 	-module		 \
@@ -29,8 +31,8 @@ libgrlvimeo_la_SOURCES =	\
 	gvimeo.c		\
 	gvimeo.h
 
-libdir=$(GRL_PLUGINS_DIR)
-vimeoxmldir	= $(GRL_PLUGINS_CONF_DIR)
+libdir			= $(GRL_PLUGINS_DIR)
+vimeoxmldir		= $(GRL_PLUGINS_DIR)
 vimeoxml_DATA	= $(VIMEO_PLUGIN_ID).xml
 
 EXTRA_DIST = $(vimeoxml_DATA)

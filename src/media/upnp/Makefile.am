@@ -33,8 +33,8 @@ libgrlupnp_la_LIBADD +=	\
 
 libgrlupnp_la_SOURCES = grl-upnp.c grl-upnp.h
 
-libdir = $(GRL_PLUGINS_DIR)
-upnpxmldir	= $(GRL_PLUGINS_CONF_DIR)
+libdir			= $(GRL_PLUGINS_DIR)
+upnpxmldir		= $(GRL_PLUGINS_DIR)
 upnpxml_DATA	= $(UPNP_PLUGIN_ID).xml
 
 EXTRA_DIST = $(upnpxml_DATA)

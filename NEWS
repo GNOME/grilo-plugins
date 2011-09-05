@@ -1,3 +1,42 @@
+NEW in 0.1.17
+=============
+
+  * General
+    * Do not generate static libraries
+    * Install XML files in the same place as libraries plugins.
+
+  * Blip.TV plugin
+    * Added new plugin
+
+  * Bookmarks plugin
+    * Minor changes
+
+  * Local Metadata plugin
+    * Plugged memory leak
+
+  * Podcasts plugin
+    * Fixed BGO#653937 - Doesn't support gmime 2.5.x
+
+  * Tracker plugin
+    * Minor fixes
+    * Fixed BGO#654248 - tracker-sparql-0.11 support
+    * Removed code for tracker < 0.10.5
+
+  * Vimeo plugin
+    * Correctly links against libgcrypt
+
+  * Youtube plugin
+    * Minor fixes
+    * Added support for libgdata >= 0.9.0
+    * Removed code for libdata < 0.7
+
+  * Contributors to this release:
+    Cedric Bosdonnat <cedric.bosdonnat@gmail.com>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+    Philip Withnall <philip@tecnocode.co.uk>
+
+
 NEW in 0.1.16
 =============
 

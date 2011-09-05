@@ -851,9 +851,7 @@ static GrlSupportedOps
 grl_bookmarks_source_supported_operations (GrlMetadataSource *metadata_source)
 {
   GrlSupportedOps caps;
-  GrlBookmarksSource *source;
 
-  source = GRL_BOOKMARKS_SOURCE (metadata_source);
   caps = GRL_OP_BROWSE | GRL_OP_METADATA | GRL_OP_SEARCH | GRL_OP_QUERY |
     GRL_OP_STORE | GRL_OP_STORE_PARENT | GRL_OP_REMOVE | GRL_OP_NOTIFY_CHANGE;
 

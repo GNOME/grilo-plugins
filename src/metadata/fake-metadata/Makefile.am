@@ -19,8 +19,8 @@ libgrlfakemetadata_la_LDFLAGS = \
 
 libgrlfakemetadata_la_SOURCES = grl-fake-metadata.c grl-fake-metadata.h
 
-libdir=$(GRL_PLUGINS_DIR)
-fakemetadataxmldir	= $(GRL_PLUGINS_CONF_DIR)
+libdir					= $(GRL_PLUGINS_DIR)
+fakemetadataxmldir	= $(GRL_PLUGINS_DIR)
 fakemetadataxml_DATA	= $(FAKEMETADATA_PLUGIN_ID).xml
 
 EXTRA_DIST = $(fakemetadataxml_DATA)

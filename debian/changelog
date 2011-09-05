@@ -1,3 +1,19 @@
+grilo-0.1-plugins (0.1.17-1) unstable; urgency=low
+
+  * General: do not generate static libraries, install XML files in
+    the same place as libraries plugins
+  * Blip.TV plugin: added new plugin
+  * Bookmarks plugin: minor changes
+  * Local Metadata plugin: plugged memory leak
+  * Podcasts plugin: fixed BGO#653937 - Doesn't support gmime 2.5.x
+  * Tracker plugin: minor fixes, fixed BGO#654248 -
+    tracker-sparql-0.11 support, removed code for tracker < 0.10.5
+  * Vimeo plugin: correctly links against libgcrypt
+  * Youtube plugin: minor fixes, added support for libgdata >=
+    0.9.0, removed code for libdata < 0.7
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Mon, 05 Sep 2011 14:19:51 +0200
+
 grilo-0.1-plugins (0.1.16-1) unstable; urgency=low
 
   * General: do not install test programs, fixed gdata flags for

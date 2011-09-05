@@ -12,6 +12,7 @@ DEB_CONFIGURE_EXTRA_FLAGS :=		\
 	--disable-fakemetadata		\
 	--disable-shoutcast		\
 	--enable-bookmarks		\
+	--enable-bliptv			\
 	--enable-filesystem		\
 	--enable-flickr			\
 	--enable-gravatar		\

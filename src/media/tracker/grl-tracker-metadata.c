@@ -121,6 +121,7 @@ grl_tracker_metadata_class_init (GrlTrackerMetadataClass * klass)
   metadata_class->supported_keys = grl_tracker_supported_keys;
   metadata_class->may_resolve    = grl_tracker_metadata_may_resolve;
   metadata_class->resolve        = grl_tracker_metadata_resolve;
+  metadata_class->get_caps       = grl_tracker_get_caps;
 
   g_class->finalize     = grl_tracker_metadata_finalize;
   g_class->set_property = grl_tracker_metadata_set_property;

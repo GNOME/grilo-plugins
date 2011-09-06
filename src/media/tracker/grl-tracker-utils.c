@@ -662,3 +662,15 @@ grl_tracker_supported_keys (GrlMetadataSource *source)
 
   return supported_keys;
 }
+
+GrlCaps *
+grl_tracker_get_caps (GrlMetadataSource *source,
+                      GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL)
+    caps = grl_caps_new ();
+
+  return caps;
+}

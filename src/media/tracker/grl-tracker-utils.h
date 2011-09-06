@@ -63,6 +63,9 @@ extern GrlKeyID grl_metadata_key_tracker_urn;
 
 const GList *grl_tracker_supported_keys (GrlMetadataSource *source);
 
+GrlCaps * grl_tracker_get_caps (GrlMetadataSource *source,
+                                GrlSupportedOps operation);
+
 gboolean grl_tracker_key_is_supported (const GrlKeyID key);
 
 void grl_tracker_setup_key_mappings (void);

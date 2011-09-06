@@ -552,6 +552,8 @@ grl_tracker_media_query (GrlMediaSource *source,
   gchar                *sparql_final;
   gchar                *sparql_select;
   GrlTrackerOp         *os;
+  gint count = grl_operation_options_get_count (qs->options);
+  guint skip = grl_operation_options_get_skip (qs->options);
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, qs->query_id);
 
@@ -570,8 +572,8 @@ grl_tracker_media_query (GrlMediaSource *source,
                                     sparql_select,
                                     qs->query,
                                     constraint,
-                                    qs->skip,
-                                    qs->count);
+                                    skip,
+                                    count);
     g_free (constraint);
     g_free (qs->query);
     g_free (sparql_select);
@@ -588,8 +590,8 @@ grl_tracker_media_query (GrlMediaSource *source,
                                       qs);
 
   os->keys  = qs->keys;
-  os->skip  = qs->skip;
-  os->count = qs->count;
+  os->skip  = skip;
+  os->count = count;
   os->data  = qs;
   /* os->cb.sr     = qs->callback; */
   /* os->user_data = qs->user_data; */
@@ -688,6 +690,8 @@ grl_tracker_media_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   gchar                *sparql_select;
   gchar                *sparql_final;
   GrlTrackerOp         *os;
+  gint count = grl_operation_options_get_count (ss->options);
+  guint skip = grl_operation_options_get_skip (ss->options);
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, ss->search_id);
 
@@ -696,10 +700,10 @@ grl_tracker_media_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
   if (!ss->text || ss->text[0] == '\0') {
     /* Search all */
     sparql_final = g_strdup_printf (TRACKER_SEARCH_ALL_REQUEST, sparql_select,
-                                    constraint, ss->skip, ss->count);
+                                    constraint, skip, count);
   } else {
     sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
-                                    ss->text, constraint, ss->skip, ss->count);
+                                    ss->text, constraint, skip, count);
   }
 
   GRL_IDEBUG ("\tselect: '%s'", sparql_final);
@@ -709,8 +713,8 @@ grl_tracker_media_search (GrlMediaSource *source, GrlMediaSourceSearchSpec *ss)
                                       (GAsyncReadyCallback) tracker_search_cb,
                                       ss);
   os->keys  = ss->keys;
-  os->skip  = ss->skip;
-  os->count = ss->count;
+  os->skip  = skip;
+  os->count = count;
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 
@@ -729,6 +733,8 @@ grl_tracker_media_browse_category (GrlMediaSource *source,
   GrlTrackerOp         *os;
   GrlMedia             *media;
   const gchar          *category;
+  gint count = grl_operation_options_get_count (bs->options);
+  guint skip = grl_operation_options_get_skip (bs->options);
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
 
@@ -777,7 +783,7 @@ grl_tracker_media_browse_category (GrlMediaSource *source,
                                   sparql_select,
                                   category,
                                   constraint,
-                                  bs->skip, bs->count);
+                                  skip, count);
 
   GRL_IDEBUG ("\tselect: '%s'", sparql_final);
 
@@ -786,8 +792,8 @@ grl_tracker_media_browse_category (GrlMediaSource *source,
                                       (GAsyncReadyCallback) tracker_browse_cb,
                                       bs);
   os->keys  = bs->keys;
-  os->skip  = bs->skip;
-  os->count = bs->count;
+  os->skip  = skip;
+  os->count = count;
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 
@@ -804,6 +810,8 @@ grl_tracker_media_browse_filesystem (GrlMediaSource *source,
   gchar                *sparql_select;
   gchar                *sparql_final;
   GrlTrackerOp         *os;
+  gint count = grl_operation_options_get_count (bs->options);
+  guint skip = grl_operation_options_get_skip (bs->options);
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->browse_id);
 
@@ -816,7 +824,7 @@ grl_tracker_media_browse_filesystem (GrlMediaSource *source,
                                     sparql_select,
                                     grl_tracker_show_documents? TRACKER_BROWSE_SHOW_DOCUMENTS: "",
                                     constraint,
-                                    bs->skip, bs->count);
+                                    skip, count);
 
   } else {
     sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_REQUEST,
@@ -824,7 +832,7 @@ grl_tracker_media_browse_filesystem (GrlMediaSource *source,
                                     grl_tracker_show_documents? TRACKER_BROWSE_SHOW_DOCUMENTS: "",
                                     constraint,
                                     grl_media_get_id (bs->container),
-                                    bs->skip, bs->count);
+                                    skip, count);
   }
 
   GRL_IDEBUG ("\tselect: '%s'", sparql_final);
@@ -834,8 +842,8 @@ grl_tracker_media_browse_filesystem (GrlMediaSource *source,
                                       (GAsyncReadyCallback) tracker_browse_cb,
                                       bs);
   os->keys  = bs->keys;
-  os->skip  = bs->skip;
-  os->count = bs->count;
+  os->skip  = skip;
+  os->count = count;
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 

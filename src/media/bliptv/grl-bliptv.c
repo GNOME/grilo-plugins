@@ -193,7 +193,7 @@ bliptv_setup_mapping (void)
   bliptv_insert_mapping (GRL_METADATA_KEY_ID,
                          "blip:item_id");
 
-  bliptv_insert_mapping (GRL_METADATA_KEY_DATE,
+  bliptv_insert_mapping (GRL_METADATA_KEY_PUBLICATION_DATE,
                          "blip:datestamp");
 
   bliptv_insert_mapping (GRL_METADATA_KEY_TITLE,
@@ -279,13 +279,14 @@ proxy_call_raw_async_cb (RestProxyCall *call,
                                  i + 1, assoc->exp);
 
           obj = xmlXPathEvalExpression ((xmlChar *) str, xpath);
-          g_free (str);
           if (obj)
             {
               if (obj->stringval && obj->stringval[0] != '\0')
                 {
+                  GType _type;
                   GRL_DEBUG ("\t%s -> %s", str, obj->stringval);
-                  switch (grl_metadata_key_get_type (assoc->grl_key))
+                  _type = grl_metadata_key_get_type (assoc->grl_key);
+                  switch (_type)
                     {
                     case G_TYPE_STRING:
                       grl_data_set_string (GRL_DATA (media),
@@ -306,12 +307,28 @@ proxy_call_raw_async_cb (RestProxyCall *call,
                       break;
 
                     default:
-                      GRL_DEBUG ("\tUnexpected data type");
+                      /* G_TYPE_DATE_TIME is not a constant, so this has to be
+                       * in "default:" */
+                      if (_type == G_TYPE_DATE_TIME) {
+                        GDateTime *date =
+                            grl_date_time_from_iso8601 ((gchar *) obj->stringval);
+                        GRL_DEBUG ("Setting %s to %s",
+                                   grl_metadata_key_get_name (assoc->grl_key),
+                                   g_date_time_format (date, "%F %H:%M:%S"));
+                        grl_data_set_boxed (GRL_DATA (media),
+                                            assoc->grl_key, date);
+                        g_date_time_unref (date);
+                      } else {
+                        GRL_DEBUG ("\tUnexpected data type: %s",
+                                   g_type_name (_type));
+                      }
                       break;
                     }
                 }
               xmlXPathFreeObject (obj);
             }
+
+          g_free (str);
 
           mapping = mapping->next;
         }
@@ -354,7 +371,7 @@ grl_bliptv_source_supported_keys (GrlMetadataSource *source)
   static GList *keys = NULL;
   if (!keys) {
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
-                                      GRL_METADATA_KEY_DATE,
+                                      GRL_METADATA_KEY_PUBLICATION_DATE,
                                       GRL_METADATA_KEY_TITLE,
                                       GRL_METADATA_KEY_MIME,
                                       GRL_METADATA_KEY_URL,

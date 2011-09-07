@@ -133,11 +133,21 @@ PKG_CHECK_MODULES(GMIME, gmime-2.6,
                                                    HAVE_GMIME=yes,
                                                    HAVE_GMIME=no)])
 
-PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.11,
+PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.12,
                                   HAVE_TRACKER_SPARQL=yes,
-                                  [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10 >= 0.10.5,
-                                                                     HAVE_TRACKER_SPARQL=yes,
-                                                                     HAVE_TRACKER_SPARQL=no)])
+                                  HAVE_TRACKER_SPARQL=no)
+
+if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
+   PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.11,
+                                     HAVE_TRACKER_SPARQL=yes,
+                                     HAVE_TRACKER_SPARQL=no)
+fi
+
+if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
+   PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10 >= 0.10.5,
+                                     HAVE_TRACKER_SPARQL=yes,
+                                     HAVE_TRACKER_SPARQL=no)
+fi
 
 PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
                              HAVE_GLIB_2_26=yes,

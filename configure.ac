@@ -8,7 +8,11 @@
 m4_define([prj_name],    [grilo-plugins])
 m4_define([prj_version], [0.2.0])
 
-AC_INIT([prj_name], [prj_version])
+AC_INIT([prj_name],
+        [prj_version],
+        [http://bugzilla.gnome.org/enter_bug.cgi?product=grilo;component=plugins],
+        [prj_name],
+        [http://live.gnome.org/Grilo])
 
 AM_INIT_AUTOMAKE([foreign])
 

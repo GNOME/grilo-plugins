@@ -6,7 +6,7 @@
 # Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.16])
+m4_define([prj_version], [0.1.17])
 
 AC_INIT([prj_name], [prj_version])
 
@@ -19,6 +19,7 @@ AM_CONFIG_HEADER(config.h)
 
 AC_PROG_CC
 AC_PROG_INSTALL
+AC_DISABLE_STATIC
 
 PKG_CONFIG="pkg-config"
 if test -n "$host" ; then
@@ -83,7 +84,7 @@ fi
 PKG_CHECK_MODULES([DEPS], glib-2.0      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
-			  ${GRL_NAME} = 0.1.16)
+			  ${GRL_NAME} = 0.1.17)
 
 # ----------------------------------------------------------
 # DEFINITIONS
@@ -94,11 +95,6 @@ PKG_CHECK_MODULES([DEPS], glib-2.0      \
 GRL_PLUGINS_DIR=`${PKG_CONFIG} --variable=plugindir ${GRL_NAME}`
 AC_SUBST(GRL_PLUGINS_DIR)
 AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
-
-# Plugins configuration directory
-
-GRL_PLUGINS_CONF_DIR="${datadir}/${GRL_NAME}/plugins"
-AC_SUBST(GRL_PLUGINS_CONF_DIR)
 
 # ----------------------------------------------------------
 # EXTERNAL/OPTIONAL DEPENDENCIES
@@ -118,47 +114,41 @@ PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0 >= 0.5, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=n
 
 PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
 
-PKG_CHECK_MODULES(GDATA, libgdata >= 0.4.0, HAVE_GDATA=yes, HAVE_GDATA=no)
+PKG_CHECK_MODULES(GDATA, libgdata >= 0.7.0, HAVE_GDATA=yes, HAVE_GDATA=no)
 
 PKG_CHECK_MODULES(QUVI, libquvi >= 0.2.15, HAVE_QUVI=yes, HAVE_QUVI=no)
 
 PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4, HAVE_LIBSOUP=yes, HAVE_LIBSOUP=no)
 
-AC_CHECK_HEADER([gcrypt.h], HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
+PKG_CHECK_MODULES(LIBREST, rest-0.7, HAVE_REST=yes, HAVE_REST=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
-PKG_CHECK_MODULES(GMIME, gmime-2.4, HAVE_GMIME=yes, HAVE_GMIME=no)
+PKG_CHECK_MODULES(GMIME, gmime-2.6,
+                         HAVE_GMIME=yes,
+                         [PKG_CHECK_MODULES(GMIME, gmime-2.4,
+                                                   HAVE_GMIME=yes,
+                                                   HAVE_GMIME=no)])
 
-PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10,
+PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.11,
                                   HAVE_TRACKER_SPARQL=yes,
-                                  [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.9,
+                                  [PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10 >= 0.10.5,
                                                                      HAVE_TRACKER_SPARQL=yes,
                                                                      HAVE_TRACKER_SPARQL=no)])
-
-PKG_CHECK_MODULES(TRACKER_0_10_5,
-        tracker-sparql-0.10 >= 0.10.5,
-        TRACKER_0_10_5=yes,
-        [AC_MSG_WARN([nfo:lastPlayedPosition not defined])])
-
-if test "x$TRACKER_0_10_5" = "xyes"; then
-   AC_DEFINE_UNQUOTED([TRACKER_0_10_5], [1], [Tracker >= 0.10.5])
-fi
 
 PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
                              HAVE_GLIB_2_26=yes,
                              HAVE_GLIB_2_26=no)
+
+AM_PATH_LIBGCRYPT(,HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
 # ----------------------------------------------------------
 # GDATA VERSION
 # ----------------------------------------------------------
 
 if test "x$HAVE_GDATA" = "xyes"; then
-   gdata_version=`${PKG_CONFIG} --modversion libgdata`
-   gdata_version_major=`echo $gdata_version | awk -F. '{ print $1 }'`
-   gdata_version_minor=`echo $gdata_version | awk -F. '{ print $2 }'`
-   if test $gdata_version_major -eq 0 -a $gdata_version_minor -ge 7; then
-      GDATA_CFLAGS="$GDATA_CFLAGS -DGDATA_API_SUBJECT_TO_CHANGE"
+   if `$PKG_CONFIG --atleast-version=0.9.1 libgdata`; then
+      AC_DEFINE(HAVE_LIBGDATA_0_9, 1, [libgdata is 0.9.1 or higher])
    fi
 fi
 
@@ -680,7 +670,7 @@ AC_ARG_ENABLE(tracker,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
-                           AC_MSG_ERROR([tracker-sparql-0.9 not found, install it or use --disable-tracker])
+                           AC_MSG_ERROR([tracker-sparql-0.10.5 or higher not found, install it or use --disable-tracker])
                         fi
                         if test "x$HAVE_GLIB_2_26" = "xno"; then
                            AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-tracker])
@@ -706,6 +696,41 @@ fi
 TRACKER_PLUGIN_ID="grl-tracker"
 AC_SUBST(TRACKER_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([TRACKER_PLUGIN_ID], ["$TRACKER_PLUGIN_ID"], [Tracker plugin ID])
+
+# ----------------------------------------------------------
+# BUILD BLIP.TV PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(bliptv,
+        AC_HELP_STRING([--enable-bliptv],
+                [enable Blip.tv plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_REST" = "xno"; then
+                           AC_MSG_ERROR([librest not found, install it or use --disable-bliptv])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_REST" = "xyes"; then
+                   enable_bliptv=yes
+                else
+                   enable_bliptv=no
+                fi
+        ])
+
+AM_CONDITIONAL([BLIPTV_PLUGIN], [test "x$enable_bliptv" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL blip.tv"
+if test "x$enable_bliptv" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED blip.tv"
+fi
+
+BLIPTV_PLUGIN_ID="grl-bliptv"
+AC_SUBST(BLIPTV_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([BLIPTV_PLUGIN_ID], ["$BLIPTV_PLUGIN_ID"], [Blip.tv plugin ID])
 
 # ----------------------------------------------------------
 # BUILD LOCAL METADATA PLUGIN
@@ -780,6 +805,7 @@ AC_CONFIG_FILES([
   src/media/shoutcast/Makefile
   src/media/flickr/Makefile
   src/media/filesystem/Makefile
+  src/media/bliptv/Makefile
   src/media/Makefile
   src/media/apple-trailers/Makefile
   src/metadata/metadata-store/Makefile

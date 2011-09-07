@@ -286,12 +286,10 @@ grl_tracker_setup_key_mappings (void)
                       "nie:contentAccessed(?urn)",
                       "media");
 
-#ifdef TRACKER_0_10_5
   insert_key_mapping (GRL_METADATA_KEY_LAST_POSITION,
                       "nfo:lastPlayedPosition",
                       "nfo:lastPlayedPosition(?urn)",
                       "media");
-#endif
 
   if (grl_tracker_upnp_present) {
     insert_key_mapping (GRL_METADATA_KEY_THUMBNAIL,
@@ -538,13 +536,14 @@ grl_tracker_build_grilo_media (const gchar *rdf_type)
       media = grl_media_box_new ();
     } else if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_FOLDER)) {
       media = grl_media_box_new ();
-    } else {
-      media = grl_media_new ();
     }
     i--;
   }
 
   g_strfreev (rdf_single_type);
+
+  if (!media)
+    media = grl_media_new ();
 
   return media;
 }

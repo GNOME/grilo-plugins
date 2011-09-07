@@ -21,8 +21,8 @@ libgrlbookmarks_la_LDFLAGS = \
 
 libgrlbookmarks_la_SOURCES = grl-bookmarks.c grl-bookmarks.h
 
-libdir=$(GRL_PLUGINS_DIR)
-bookmarksxmldir		= $(GRL_PLUGINS_CONF_DIR)
+libdir				= $(GRL_PLUGINS_DIR)
+bookmarksxmldir	= $(GRL_PLUGINS_DIR)
 bookmarksxml_DATA	= $(BOOKMARKS_PLUGIN_ID).xml
 
 EXTRA_DIST = $(bookmarksxml_DATA)

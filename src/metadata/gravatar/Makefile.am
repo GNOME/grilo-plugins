@@ -19,8 +19,8 @@ libgrlgravatar_la_LDFLAGS = \
 
 libgrlgravatar_la_SOURCES = grl-gravatar.c grl-gravatar.h
 
-libdir=$(GRL_PLUGINS_DIR)
-gravatarxmldir		= $(GRL_PLUGINS_CONF_DIR)
+libdir				= $(GRL_PLUGINS_DIR)
+gravatarxmldir		= $(GRL_PLUGINS_DIR)
 gravatarxml_DATA	= $(GRAVATAR_PLUGIN_ID).xml
 
 EXTRA_DIST = $(gravatarxml_DATA)

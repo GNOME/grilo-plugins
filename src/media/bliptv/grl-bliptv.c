@@ -92,6 +92,9 @@ gboolean grl_bliptv_plugin_init (GrlPluginRegistry *registry,
 
 static const GList *grl_bliptv_source_supported_keys (GrlMetadataSource *source);
 
+static GrlCaps * grl_bliptv_source_get_caps (GrlMetadataSource *source,
+                                             GrlSupportedOps operation);
+
 static void grl_bliptv_source_browse (GrlMediaSource *source,
                                       GrlMediaSourceBrowseSpec *bs);
 
@@ -166,6 +169,7 @@ grl_bliptv_source_class_init (GrlBliptvSourceClass *klass)
   source_class->cancel = grl_bliptv_source_cancel;
 
   metadata_class->supported_keys = grl_bliptv_source_supported_keys;
+  metadata_class->get_caps = grl_bliptv_source_get_caps;
 }
 
 static void
@@ -388,9 +392,10 @@ grl_bliptv_source_browse (GrlMediaSource *source,
   BliptvOperation *op = g_slice_new0 (BliptvOperation);
   GError *error = NULL;
   gchar *length;
+  gint count = grl_operation_options_get_count (bs->options);
 
   op->source       = g_object_ref (source);
-  op->count        = bs->count;
+  op->count        = count;
   op->operation_id = bs->browse_id;
   op->callback     = bs->callback;
   op->user_data    = bs->user_data;
@@ -400,7 +405,7 @@ grl_bliptv_source_browse (GrlMediaSource *source,
   op->proxy = rest_proxy_new ("http://blip.tv/posts/", FALSE);
   op->call = rest_proxy_new_call (op->proxy);
   rest_proxy_call_add_param (op->call, "skin", "rss");
-  length = g_strdup_printf ("%u", bs->count);
+  length = g_strdup_printf ("%u", count);
   rest_proxy_call_add_param (op->call, "pagelen", length);
   g_free (length);
 
@@ -430,9 +435,10 @@ grl_bliptv_source_search (GrlMediaSource *source,
   GError *error = NULL;
   GError *grl_error;
   gchar *length;
+  gint count = grl_operation_options_get_count (ss->options);
 
   op->source       = g_object_ref (source);
-  op->count        = ss->count;
+  op->count        = count;
   op->operation_id = ss->search_id;
   op->callback     = ss->callback;
   op->user_data    = ss->user_data;
@@ -443,7 +449,7 @@ grl_bliptv_source_search (GrlMediaSource *source,
   op->call = rest_proxy_new_call (op->proxy);
   rest_proxy_call_add_param (op->call, "skin", "rss");
   rest_proxy_call_add_param (op->call, "search", ss->text);
-  length = g_strdup_printf ("%u", ss->count);
+  length = g_strdup_printf ("%u", count);
   rest_proxy_call_add_param (op->call, "pagelen", length);
   g_free (length);
 
@@ -493,4 +499,16 @@ grl_bliptv_source_cancel (GrlMediaSource *source, guint operation_id)
 
   grl_operation_set_data (operation_id, NULL);
   bliptv_operation_free (op);
+}
+
+static GrlCaps *
+grl_bliptv_source_get_caps (GrlMetadataSource *source,
+                            GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL)
+    caps = grl_caps_new ();
+
+  return caps;
 }

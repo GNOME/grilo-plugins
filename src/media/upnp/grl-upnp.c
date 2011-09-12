@@ -550,6 +550,7 @@ setup_key_mappings (void)
   g_hash_table_insert (key_mapping, GRL_METADATA_KEY_GENRE, "genre");
   g_hash_table_insert (key_mapping, GRL_METADATA_KEY_URL, "res");
   g_hash_table_insert (key_mapping, GRL_METADATA_KEY_DATE, "modified");
+  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_TRACK_NUMBER, "originalTrackNumber");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_TITLE, "title");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_URL, "res");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DATE, "dc:date");
@@ -557,6 +558,7 @@ setup_key_mappings (void)
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_ALBUM, "upnp:album");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_GENRE, "upnp:genre");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DURATION, "res@duration");
+  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_TRACK_NUMBER, "upnp:originalTrackNumber");
 }
 
 static gchar *
@@ -827,6 +829,8 @@ set_metadata_value (GrlData *data,
     }
   } else if (key_id == GRL_METADATA_KEY_CHILDCOUNT && value) {
     grl_data_set_int (data, GRL_METADATA_KEY_CHILDCOUNT, atoi (value));
+  } else if (key_id == GRL_METADATA_KEY_TRACK_NUMBER && value) {
+    grl_data_set_int (data, GRL_METADATA_KEY_TRACK_NUMBER, atoi (value));
   } else {
     grl_data_set_string (data, key_id, value);
   }
@@ -1071,6 +1075,7 @@ grl_upnp_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_GENRE,
                                       GRL_METADATA_KEY_CHILDCOUNT,
                                       GRL_METADATA_KEY_THUMBNAIL,
+                                      GRL_METADATA_KEY_TRACK_NUMBER,
                                       NULL);
   }
   return keys;

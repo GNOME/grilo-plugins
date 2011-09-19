@@ -22,6 +22,7 @@ libgrlpodcasts_la_LIBADD =	\
 	$(GMIME_LIBS)
 
 libgrlpodcasts_la_LDFLAGS = \
+	-no-undefined	    \
 	-module		    \
 	-avoid-version
 

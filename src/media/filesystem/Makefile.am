@@ -16,6 +16,7 @@ libgrlfilesystem_la_LIBADD =	\
 	$(GIO_LIBS)
 
 libgrlfilesystem_la_LDFLAGS = \
+	-no-undefined	      \
 	-module		      \
 	-avoid-version
 

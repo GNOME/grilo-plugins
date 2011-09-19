@@ -16,6 +16,7 @@ libgrlbookmarks_la_LIBADD =	\
 	$(SQLITE_LIBS)
 
 libgrlbookmarks_la_LDFLAGS = \
+	-no-undefined	     \
 	-module		     \
 	-avoid-version
 

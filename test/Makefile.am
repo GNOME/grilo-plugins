@@ -16,14 +16,12 @@ test_CFLAGS =	\
 	-DPREFIX=$(prefix)
 
 test_LDADD =		\
-	-ldl -lpthread	\
 	@DEPS_LIBS@
 
 test_local_metadata_SOURCES =  \
 	test_local_metadata.c
 
 test_local_metadata_LDADD = \
-	-ldl -lpthread	\
 	@DEPS_LIBS@ \
 	@GTHREAD_LIBS@ \
 	@GIO_LIBS@

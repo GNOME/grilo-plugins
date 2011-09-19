@@ -16,6 +16,7 @@ libgrlmetadatastore_la_LIBADD =	\
 	$(SQLITE_LIBS)
 
 libgrlmetadatastore_la_LDFLAGS = \
+	-no-undefined		 \
 	-module			 \
 	-avoid-version
 

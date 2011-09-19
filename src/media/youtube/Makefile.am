@@ -24,6 +24,7 @@ libgrlyoutube_la_LIBADD =	\
 	$(QUVI_LIBS)
 
 libgrlyoutube_la_LDFLAGS = \
+	-no-undefined      \
 	-module		   \
 	-avoid-version
 

@@ -18,6 +18,7 @@ libgrlshoutcast_la_LIBADD =	\
 	$(XML_LIBS)
 
 libgrlshoutcast_la_LDFLAGS = \
+	-no-undefined	     \
 	-module		     \
 	-avoid-version
 

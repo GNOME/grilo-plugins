@@ -18,6 +18,7 @@ libgrlflickr_la_LIBADD =	\
 	$(GRLNET_LIBS)
 
 libgrlflickr_la_LDFLAGS = \
+	-no-undefined	  \
 	-module		  \
 	-avoid-version
 

@@ -22,6 +22,7 @@ libgrlvimeo_la_LIBADD =	\
 	$(LIBGCRYPT_LIBS)
 
 libgrlvimeo_la_LDFLAGS = \
+	-no-undefined    \
 	-module		 \
 	-avoid-version
 

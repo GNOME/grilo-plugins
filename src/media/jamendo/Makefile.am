@@ -18,6 +18,7 @@ libgrljamendo_la_LIBADD =	\
 	$(XML_LIBS)
 
 libgrljamendo_la_LDFLAGS = \
+	-no-undefined	   \
 	-module		   \
 	-avoid-version
 

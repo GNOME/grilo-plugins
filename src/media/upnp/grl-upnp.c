@@ -49,7 +49,6 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
 #define PLUGIN_ID   UPNP_PLUGIN_ID
 
 #define SOURCE_ID_TEMPLATE    "grl-upnp-%s"
-#define SOURCE_NAME_TEMPLATE  "UPnP - %s"
 #define SOURCE_DESC_TEMPLATE  "A source for browsing the UPnP server '%s'"
 
 /* --- Other --- */
@@ -193,18 +192,16 @@ grl_upnp_source_new (const gchar *source_id, const gchar *name)
   GrlUpnpSource *source;
 
   GRL_DEBUG ("grl_upnp_source_new");
-  source_name = g_strdup_printf (SOURCE_NAME_TEMPLATE, name);
   source_desc = g_strdup_printf (SOURCE_DESC_TEMPLATE, name);
 
   source = g_object_new (GRL_UPNP_SOURCE_TYPE,
 			 "source-id", source_id,
-			 "source-name", source_name,
+			 "source-name", name,
 			 "source-desc", source_desc,
 			 NULL);
 
   source->priv->upnp_name = g_strdup (name);
 
-  g_free (source_name);
   g_free (source_desc);
 
   return source;

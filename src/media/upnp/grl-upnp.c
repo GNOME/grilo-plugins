@@ -188,7 +188,7 @@ G_DEFINE_TYPE (GrlUpnpSource, grl_upnp_source, GRL_TYPE_MEDIA_SOURCE);
 static GrlUpnpSource *
 grl_upnp_source_new (const gchar *source_id, const gchar *name)
 {
-  gchar *source_name, *source_desc;
+  gchar *source_desc;
   GrlUpnpSource *source;
 
   GRL_DEBUG ("grl_upnp_source_new");

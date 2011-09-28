@@ -57,10 +57,11 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
 #define CONTENT_DIR_SERVICE "urn:schemas-upnp-org:service:ContentDirectory"
 #endif
 
-#define UPNP_SEARCH_SPEC				\
-  "dc:title contains \"%s\" or "			\
-  "upnp:album contains \"%s\" or "			\
-  "upnp:artist contains \"%s\""
+#define UPNP_SEARCH_SPEC                        \
+  "upnp:class derivedfrom \"object.item\" and " \
+  "(dc:title contains \"%s\" or "               \
+  "upnp:album contains \"%s\" or "              \
+  "upnp:artist contains \"%s\")"
 
 #define UPNP_SEARCH_ALL                         \
   "upnp:class derivedfrom \"object.item\""

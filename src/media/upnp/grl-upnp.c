@@ -939,7 +939,6 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
   gchar *didl = NULL;
   guint returned = 0;
   guint matches = 0;
-  gboolean result;
   struct OperationSpec *os;
   GUPnPDIDLLiteParser *didl_parser;
 
@@ -948,27 +947,19 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
   os = (struct OperationSpec *) user_data;
   didl_parser = gupnp_didl_lite_parser_new ();
 
-  result =
-    gupnp_service_proxy_end_action (service, action, &error,
-				    "Result", G_TYPE_STRING, &didl,
-				    "NumberReturned", G_TYPE_UINT, &returned,
-				    "TotalMatches", G_TYPE_UINT, &matches,
-				    NULL);
-
-  if (!result) {
-    GRL_WARNING ("Operation (browse, search or query) failed");
-    os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
-    if (error) {
-      GRL_WARNING ("  Reason: %s", error->message);
-      g_error_free (error);
-    }
-
-    goto free_resources;
-  }
+  gupnp_service_proxy_end_action (service, action, &error,
+                                  "Result", G_TYPE_STRING, &didl,
+                                  "NumberReturned", G_TYPE_UINT, &returned,
+                                  "TotalMatches", G_TYPE_UINT, &matches,
+                                  NULL);
 
   if (!didl || !returned) {
     GRL_DEBUG ("Got no results");
-    os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+    os->callback (os->source, os->operation_id,
+                  NULL, 0, os->user_data, error? error: NULL);
+    if (error) {
+      g_error_free (error);
+    }
 
     goto free_resources;
   }
@@ -1018,7 +1009,6 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
 {
   GError *error = NULL;
   gchar *didl = NULL;
-  gboolean result;
   GrlMediaSourceMetadataSpec *ms;
   GUPnPDIDLLiteParser *didl_parser;
 
@@ -1027,25 +1017,17 @@ gupnp_metadata_cb (GUPnPServiceProxy *service,
   ms = (GrlMediaSourceMetadataSpec *) user_data;
   didl_parser = gupnp_didl_lite_parser_new ();
 
-  result =
-    gupnp_service_proxy_end_action (service, action, &error,
-				    "Result", G_TYPE_STRING, &didl,
-				    NULL);
-
-  if (!result) {
-    GRL_WARNING ("Metadata operation failed");
-    ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, error);
-    if (error) {
-      GRL_WARNING ("  Reason: %s", error->message);
-      g_error_free (error);
-    }
-
-    goto free_resources;
-  }
+  gupnp_service_proxy_end_action (service, action, &error,
+                                  "Result", G_TYPE_STRING, &didl,
+                                  NULL);
 
   if (!didl) {
     GRL_DEBUG ("Got no metadata");
-    ms->callback (ms->source, ms->metadata_id, ms->media,  ms->user_data, NULL);
+    ms->callback (ms->source, ms->metadata_id,
+                  ms->media, ms->user_data, error? error: NULL);
+    if (error) {
+      g_error_free (error);
+    }
 
     goto free_resources;
   }

@@ -96,7 +96,8 @@ GRL_LOG_DOMAIN_STATIC(tracker_media_result_log_domain);
   "WHERE "                                      \
   "{ "                                          \
   "?urn a %s . "                                \
-  "?urn tracker:available ?tr . "               \
+  "?urn nie:isStoredAs ?file . "                \
+  "?file tracker:available ?tr . "              \
   "%s "                                         \
   "} "                                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
@@ -139,7 +140,8 @@ GRL_LOG_DOMAIN_STATIC(tracker_media_result_log_domain);
   "SELECT %s "                                  \
   "WHERE "                                      \
   "{ "                                          \
-  "?urn a nie:DataObject . "                    \
+  "?urn a nie:InformationElement ; "            \
+  "  nie:isStoredAs ?file . "                   \
   "FILTER (tracker:id(?urn) = %s) "             \
   "}"
 

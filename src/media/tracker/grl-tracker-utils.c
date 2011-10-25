@@ -234,7 +234,7 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_SITE,
                       "nie:url",
-                      "nie:url(?urn)",
+                      "nie:url(?file)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_TITLE,
@@ -244,12 +244,12 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_TITLE,
                       "nfo:fileName",
-                      "nfo:fileName(?urn)",
+                      "nfo:fileName(?file)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_URL,
                       "nie:url",
-                      "nie:url(?urn)",
+                      "nie:url(?file)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_WIDTH,
@@ -312,6 +312,11 @@ grl_tracker_setup_key_mappings (void)
   insert_key_mapping (GRL_METADATA_KEY_LAST_POSITION,
                       "nfo:lastPlayedPosition",
                       "nfo:lastPlayedPosition(?urn)",
+                      "media");
+
+  insert_key_mapping (GRL_METADATA_KEY_START_TIME,
+                      "nfo:audioOffset",
+                      "nfo:audioOffset(?urn)",
                       "media");
 
   if (grl_tracker_upnp_present) {

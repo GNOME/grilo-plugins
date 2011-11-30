@@ -7,17 +7,18 @@
 
 INCLUDES = @DEPS_CFLAGS@
 
-noinst_PROGRAMS = test test_local_metadata
+noinst_PROGRAMS = test_local_metadata
+#noinst_PROGRAMS += test
 
-test_SOURCES =	\
-	main.c
-
-test_CFLAGS =	\
-	-DPREFIX=$(prefix)
-
-test_LDADD =		\
-	@DEPS_LIBS@
-
+#test_SOURCES =	\
+#	main.c
+#
+#test_CFLAGS =	\
+#	-DPREFIX=$(prefix)
+#
+#test_LDADD =		\
+#	@DEPS_LIBS@
+#
 test_local_metadata_SOURCES =  \
 	test_local_metadata.c
 

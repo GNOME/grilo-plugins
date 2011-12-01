@@ -572,22 +572,200 @@ resolve_image (GrlMetadataSource *source,
   }
 }
 
+/* Taken from: http://live.gnome.org/MediaArtStorageSpec/SampleStripCodeInC */
+static gboolean
+strip_find_next_block (const gchar    *original,
+                       const gunichar  open_char,
+                       const gunichar  close_char,
+                       gint           *open_pos,
+                       gint           *close_pos)
+{
+  const gchar *p1, *p2;
+
+  if (open_pos)
+    *open_pos = -1;
+
+  if (close_pos)
+    *close_pos = -1;
+
+  p1 = g_utf8_strchr (original, -1, open_char);
+  if (p1) {
+    if (open_pos)
+      *open_pos = p1 - original;
+
+    p2 = g_utf8_strchr (g_utf8_next_char (p1), -1, close_char);
+    if (p2) {
+      if (close_pos)
+        *close_pos = p2 - original;
+
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+
+/* Taken from: http://live.gnome.org/MediaArtStorageSpec/SampleStripCodeInC
+ * strips out invalid characters in a album name or artist name before md5sum
+ * to get the unique identifier to find the album art.
+ */
+static gchar *
+albumart_strip_invalid_entities (const gchar *original)
+{
+  GString         *str_no_blocks;
+  gchar          **strv;
+  gchar           *str, *res;
+  gboolean         blocks_done = FALSE;
+  const gchar     *p;
+  const gchar     *invalid_chars = "()[]<>{}_!@#$^&*+=|\\/\"'?~";
+  const gchar     *invalid_chars_delimiter = "*";
+  const gchar     *convert_chars = "\t";
+  const gchar     *convert_chars_delimiter = " ";
+  const gunichar   blocks[5][2] = {
+      { '(', ')' },
+      { '{', '}' },
+      { '[', ']' },
+      { '<', '>' },
+      {  0,   0  }
+  };
+
+  str_no_blocks = g_string_new ("");
+
+  p = original;
+
+  while (!blocks_done) {
+    gint pos1, pos2, i;
+
+    pos1 = -1;
+    pos2 = -1;
+
+    for (i = 0; blocks[i][0] != 0; i++) {
+      gint start, end;
+
+      /* Go through blocks, find the earliest block we can */
+      if (strip_find_next_block (p, blocks[i][0], blocks[i][1], &start,
+                                 &end)) {
+        if (pos1 == -1 || start < pos1) {
+          pos1 = start;
+          pos2 = end;
+        }
+      }
+    }
+
+    /* If either are -1 we didn't find any */
+    if (pos1 == -1) {
+      /* This means no blocks were found */
+      g_string_append (str_no_blocks, p);
+      blocks_done = TRUE;
+    } else {
+      /* Append the test BEFORE the block */
+      if (pos1 > 0)
+        g_string_append_len (str_no_blocks, p, pos1);
+
+      p = g_utf8_next_char (p + pos2);
+
+      /* Do same again for position AFTER block */
+      if (*p == '\0')
+        blocks_done = TRUE;
+    }
+  }
+
+  str = g_string_free (str_no_blocks, FALSE);
+
+  /* Now strip invalid chars */
+  g_strdelimit (str, invalid_chars, *invalid_chars_delimiter);
+  strv = g_strsplit (str, invalid_chars_delimiter, -1);
+  g_free (str);
+  str = g_strjoinv (NULL, strv);
+  g_strfreev (strv);
+
+  /* Now convert chars */
+  g_strdelimit (str, convert_chars, *convert_chars_delimiter);
+  strv = g_strsplit (str, convert_chars_delimiter, -1);
+  g_free (str);
+  str = g_strjoinv (convert_chars_delimiter, strv);
+  g_strfreev (strv);
+
+  /* Now remove double spaces */
+  strv = g_strsplit (str, "  ", -1);
+  g_free (str);
+  str = g_strjoinv (" ", strv);
+  g_strfreev (strv);
+
+  /* Now strip leading/trailing white space */
+  g_strstrip (str);
+
+  res = g_utf8_strdown (str, -1);
+  g_free (str);
+
+  str = g_utf8_normalize (res, -1, G_NORMALIZE_NFKD);
+  g_free (res);
+
+  return str;
+}
+
 static void
 resolve_album_art (GrlMetadataSource *source,
                    GrlMetadataSourceResolveSpec *rs,
                    resolution_flags_t flags)
 {
-  /* FIXME: implement this, according to
-   * http://live.gnome.org/MediaArtStorageSpec
-   *
-   * When this is implemented, _may_resolve() should be modified to accept
-   * GrlMediaAudio.
+  const gchar *artist_value, *album_value;
+  gchar *artist, *album, *artist_tmp, *album_tmp,
+        *artist_md5, *album_md5, *file_path;
+
+  GRegex *regex;
+
+  artist_value = grl_media_audio_get_artist (GRL_MEDIA_AUDIO (rs->media));
+  album_value = grl_media_audio_get_album (GRL_MEDIA_AUDIO (rs->media));
+
+  if (!artist_value || !album_value)
+    return;
+
+  /* regex to find if we need to strip invalid chars
+   * ()[]<>{}_!@#$^&*+=|\\/\"'?~" and 2 or more spaces
    */
-  GError *error;
-  error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
-    "Thumbnail resolution for GrlMediaAudio not implemented in local-metadata");
-  rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, error);
-  g_error_free (error);
+
+  regex =
+    g_regex_new ("([\\(\\)\\[\\]\\<\\>\\{\\}_!@#$\\^&\\*"
+                 "\\+=\\|\\\\/\\\"\\'\?~]|\\s{2,})",
+                 0, 0, NULL);
+
+  if ((g_regex_match (regex, artist_value, 0, NULL))) {
+    artist = albumart_strip_invalid_entities (artist_value);
+  } else {
+    artist_tmp = g_utf8_strdown (artist_value, -1);
+    artist = g_utf8_normalize (artist_tmp, -1, G_NORMALIZE_NFKD);
+    g_free (artist_tmp);
+  }
+
+  if (g_regex_match (regex, album_value, 0, NULL)) {
+    album = albumart_strip_invalid_entities (album_value);
+  } else {
+    album_tmp = g_utf8_strdown (album_value, -1);
+    album = g_utf8_normalize (album_tmp, -1, G_NORMALIZE_NFKD);
+    g_free (album_tmp);
+  }
+
+  g_regex_unref (regex);
+
+  artist_md5 = g_compute_checksum_for_string (G_CHECKSUM_MD5, artist, -1);
+  album_md5 = g_compute_checksum_for_string (G_CHECKSUM_MD5, album, -1);
+
+  file_path = g_strdup_printf ("%s/media-art/album-%s-%s.jpeg",
+                               g_get_user_cache_dir (),
+                               artist_md5,
+                               album_md5);
+  g_free (album_md5);
+  g_free (artist_md5);
+
+  if (g_file_test (file_path, G_FILE_TEST_EXISTS)) {
+    gchar *thumbnail_uri = g_filename_to_uri (file_path, NULL, NULL);
+    grl_media_set_thumbnail (rs->media, thumbnail_uri);
+    g_free (thumbnail_uri);
+    g_free (file_path);
+  }
+  rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
 }
 
 static gboolean
@@ -662,6 +840,38 @@ grl_local_metadata_source_may_resolve (GrlMetadataSource *source,
   GrlLocalMetadataSourcePriv *priv =
     GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (source);
 
+  if (!media)
+    return FALSE;
+
+  if (GRL_IS_MEDIA_AUDIO (media)) {
+    gboolean have_artist = FALSE, have_album = FALSE;
+
+    if ((have_artist = grl_data_has_key (GRL_DATA (media),
+                                         GRL_METADATA_KEY_ARTIST))
+        &&
+        (have_album = grl_data_has_key (GRL_DATA (media),
+                                        GRL_METADATA_KEY_ALBUM))
+        &&
+        key_id == GRL_METADATA_KEY_THUMBNAIL) {
+      return TRUE;
+
+    } else if (missing_keys) {
+      GList *result = NULL;
+      if (!have_artist)
+        result = g_list_append (result,
+                                GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST));
+      if (!have_album)
+        result = g_list_append (result,
+                                GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM));
+
+      if (result)
+        *missing_keys = result;
+    }
+
+    return FALSE;
+  }
+
+  /* IMAGE || VIDEO case */
   if (media && grl_data_has_key (GRL_DATA (media),
                                  GRL_METADATA_KEY_URL)) {
     if (GRL_IS_MEDIA_IMAGE (media)) {
@@ -707,9 +917,10 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
    if (!flags)
      error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
                           "local-metadata cannot resolve any of the given keys");
-   else if (!has_compatible_media_url (rs->media))
+   else if (!(GRL_IS_MEDIA_AUDIO (rs->media)
+              || has_compatible_media_url (rs->media)))
      error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
-                          "local-metadata needs a url in the file:// scheme");
+                          "local-metadata needs a url in the file:// scheme for videos and images");
 
   if (error) {
     /* No can do! */

@@ -22,6 +22,7 @@ libgrlupnp_la_LIBADD =	\
 	$(XML_LIBS)
 
 libgrlupnp_la_LDFLAGS = \
+	-no-undefined   \
 	-module		\
 	-avoid-version
 

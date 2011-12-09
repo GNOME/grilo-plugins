@@ -82,6 +82,7 @@ GrlTrackerQueue *grl_tracker_queue = NULL;
 /* tracker plugin config */
 gboolean grl_tracker_per_device_source = FALSE;
 gboolean grl_tracker_browse_filesystem = FALSE;
+gboolean grl_tracker_show_documents    = FALSE;
 
 /* =================== Tracker Plugin  =============== */
 
@@ -238,6 +239,8 @@ grl_tracker_plugin_init (GrlPluginRegistry *registry,
       grl_config_get_boolean (config, "per-device-source");
     grl_tracker_browse_filesystem =
       grl_config_get_boolean (config, "browse-filesystem");
+    grl_tracker_show_documents =
+      grl_config_get_boolean (config, "show-documents");
   }
 
   tracker_sparql_connection_get_async (NULL,

@@ -1,3 +1,27 @@
+NEW in 0.1.18
+=============
+  * General
+    * Added support for Windows
+
+  * Apple trailers plugin
+    * Fixed mime-type
+
+  * Tracker plugin
+    * Fixed BGO#658448 - No tracker-sparql-0.12 support
+    * Added config option to expose documents as content (turned off by default)
+
+  * UPnP plugin
+    * Removed "UPnP -" prefix from title
+    * Fixed BGO#653759 - UPnP sends back containers on search
+    * Fixed BGO#658812 - upnp: support GRL_METADATA_KEY_TRACK_NUMBER
+
+  * Contributors to this release:
+    Damien Lespiau <damien.lespiau@intel.com>
+    Jonathan Matthew <jonathan@d14n.org>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Zeeshan Ali (Khattak) <zeeshanak@gnome.org>
+
+
 NEW in 0.1.17
 =============
 

@@ -87,6 +87,9 @@ GRL_LOG_DOMAIN_STATIC(tracker_media_result_log_domain);
   "OFFSET %i "                                  \
   "LIMIT %i"
 
+#define TRACKER_BROWSE_SHOW_DOCUMENTS           \
+  "{ ?urn a nfo:Document } UNION"
+
 #define TRACKER_BROWSE_CATEGORY_REQUEST         \
   "SELECT rdf:type(?urn) %s "                   \
   "WHERE "                                      \
@@ -103,9 +106,9 @@ GRL_LOG_DOMAIN_STATIC(tracker_media_result_log_domain);
   "SELECT DISTINCT rdf:type(?urn) %s "                  \
   "WHERE "                                              \
   "{ "                                                  \
+  "%s "                                                 \
   "{ ?urn a nfo:Folder } UNION "                        \
   "{ ?urn a nfo:Audio } UNION "                         \
-  "{ ?urn a nfo:Document } UNION "                      \
   "{ ?urn a nmm:Photo } UNION "                         \
   "{ ?urn a nmm:Video } . "                             \
   "%s "                                                 \
@@ -119,9 +122,9 @@ GRL_LOG_DOMAIN_STATIC(tracker_media_result_log_domain);
   "SELECT DISTINCT rdf:type(?urn) %s "                          \
   "WHERE "                                                      \
   "{ "                                                          \
+  "%s "                                                         \
   "{ ?urn a nfo:Folder } UNION "                                \
   "{ ?urn a nfo:Audio } UNION "                                 \
-  "{ ?urn a nfo:Document } UNION "                              \
   "{ ?urn a nmm:Photo } UNION "                                 \
   "{ ?urn a nmm:Video } . "                                     \
   "%s "                                                         \
@@ -615,7 +618,9 @@ grl_tracker_media_metadata (GrlMediaSource *source,
       constraint = grl_tracker_media_get_device_constraint (priv);
       sparql_select = grl_tracker_media_get_select_string (ms->keys);
       sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST,
-                                      sparql_select, constraint, 0, 1);
+                                      sparql_select,
+                                      grl_tracker_show_documents? TRACKER_BROWSE_SHOW_DOCUMENTS: "",
+                                      constraint, 0, 1);
     } else {
       ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
       return;
@@ -731,12 +736,14 @@ grl_tracker_media_browse_category (GrlMediaSource *source,
       !grl_data_has_key (GRL_DATA (bs->container),
                          grl_metadata_key_tracker_category)) {
     /* Hardcoded categories */
-    media = grl_media_box_new ();
-    grl_media_set_title (media, "Documents");
-    grl_data_set_string (GRL_DATA (media),
-                         grl_metadata_key_tracker_category,
-                         "nfo:Document");
-    bs->callback (bs->source, bs->browse_id, media, 3, bs->user_data, NULL);
+    if (grl_tracker_show_documents) {
+      media = grl_media_box_new ();
+      grl_media_set_title (media, "Documents");
+      grl_data_set_string (GRL_DATA (media),
+                           grl_metadata_key_tracker_category,
+                           "nfo:Document");
+      bs->callback (bs->source, bs->browse_id, media, 3, bs->user_data, NULL);
+    }
 
     media = grl_media_box_new ();
     grl_media_set_title (media, "Music");
@@ -807,12 +814,14 @@ grl_tracker_media_browse_filesystem (GrlMediaSource *source,
       !grl_media_get_id (bs->container)) {
     sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST,
                                     sparql_select,
+                                    grl_tracker_show_documents? TRACKER_BROWSE_SHOW_DOCUMENTS: "",
                                     constraint,
                                     bs->skip, bs->count);
 
   } else {
     sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_REQUEST,
                                     sparql_select,
+                                    grl_tracker_show_documents? TRACKER_BROWSE_SHOW_DOCUMENTS: "",
                                     constraint,
                                     grl_media_get_id (bs->container),
                                     bs->skip, bs->count);

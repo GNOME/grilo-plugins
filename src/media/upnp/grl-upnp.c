@@ -49,7 +49,6 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
 #define PLUGIN_ID   UPNP_PLUGIN_ID
 
 #define SOURCE_ID_TEMPLATE    "grl-upnp-%s"
-#define SOURCE_NAME_TEMPLATE  "UPnP - %s"
 #define SOURCE_DESC_TEMPLATE  "A source for browsing the UPnP server '%s'"
 
 /* --- Other --- */
@@ -58,10 +57,11 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
 #define CONTENT_DIR_SERVICE "urn:schemas-upnp-org:service:ContentDirectory"
 #endif
 
-#define UPNP_SEARCH_SPEC				\
-  "dc:title contains \"%s\" or "			\
-  "upnp:album contains \"%s\" or "			\
-  "upnp:artist contains \"%s\""
+#define UPNP_SEARCH_SPEC                        \
+  "upnp:class derivedfrom \"object.item\" and " \
+  "(dc:title contains \"%s\" or "               \
+  "upnp:album contains \"%s\" or "              \
+  "upnp:artist contains \"%s\")"
 
 #define UPNP_SEARCH_ALL                         \
   "upnp:class derivedfrom \"object.item\""
@@ -189,22 +189,20 @@ G_DEFINE_TYPE (GrlUpnpSource, grl_upnp_source, GRL_TYPE_MEDIA_SOURCE);
 static GrlUpnpSource *
 grl_upnp_source_new (const gchar *source_id, const gchar *name)
 {
-  gchar *source_name, *source_desc;
+  gchar *source_desc;
   GrlUpnpSource *source;
 
   GRL_DEBUG ("grl_upnp_source_new");
-  source_name = g_strdup_printf (SOURCE_NAME_TEMPLATE, name);
   source_desc = g_strdup_printf (SOURCE_DESC_TEMPLATE, name);
 
   source = g_object_new (GRL_UPNP_SOURCE_TYPE,
 			 "source-id", source_id,
-			 "source-name", source_name,
+			 "source-name", name,
 			 "source-desc", source_desc,
 			 NULL);
 
   source->priv->upnp_name = g_strdup (name);
 
-  g_free (source_name);
   g_free (source_desc);
 
   return source;
@@ -550,6 +548,7 @@ setup_key_mappings (void)
   g_hash_table_insert (key_mapping, GRL_METADATA_KEY_GENRE, "genre");
   g_hash_table_insert (key_mapping, GRL_METADATA_KEY_URL, "res");
   g_hash_table_insert (key_mapping, GRL_METADATA_KEY_DATE, "modified");
+  g_hash_table_insert (key_mapping, GRL_METADATA_KEY_TRACK_NUMBER, "originalTrackNumber");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_TITLE, "title");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_URL, "res");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DATE, "dc:date");
@@ -557,6 +556,7 @@ setup_key_mappings (void)
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_ALBUM, "upnp:album");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_GENRE, "upnp:genre");
   g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_DURATION, "res@duration");
+  g_hash_table_insert (filter_key_mapping, GRL_METADATA_KEY_TRACK_NUMBER, "upnp:originalTrackNumber");
 }
 
 static gchar *
@@ -827,6 +827,8 @@ set_metadata_value (GrlData *data,
     }
   } else if (key_id == GRL_METADATA_KEY_CHILDCOUNT && value) {
     grl_data_set_int (data, GRL_METADATA_KEY_CHILDCOUNT, atoi (value));
+  } else if (key_id == GRL_METADATA_KEY_TRACK_NUMBER && value) {
+    grl_data_set_int (data, GRL_METADATA_KEY_TRACK_NUMBER, atoi (value));
   } else {
     grl_data_set_string (data, key_id, value);
   }
@@ -1071,6 +1073,7 @@ grl_upnp_source_supported_keys (GrlMetadataSource *source)
                                       GRL_METADATA_KEY_GENRE,
                                       GRL_METADATA_KEY_CHILDCOUNT,
                                       GRL_METADATA_KEY_THUMBNAIL,
+                                      GRL_METADATA_KEY_TRACK_NUMBER,
                                       NULL);
   }
   return keys;

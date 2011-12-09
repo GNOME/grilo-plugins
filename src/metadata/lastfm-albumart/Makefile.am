@@ -18,6 +18,7 @@ libgrllastfm_albumart_la_LIBADD =	\
 	$(XML_LIBS)
 
 libgrllastfm_albumart_la_LDFLAGS = \
+	-no-undefined		   \
 	-module			   \
 	-avoid-version
 

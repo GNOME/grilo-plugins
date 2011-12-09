@@ -18,6 +18,7 @@ libgrlappletrailers_la_LIBADD =	\
 	$(XML_LIBS)
 
 libgrlappletrailers_la_LDFLAGS = \
+	-no-undefined		 \
 	-module			 \
 	-avoid-version
 

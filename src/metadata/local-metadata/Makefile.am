@@ -16,7 +16,8 @@ libgrllocalmetadata_la_LIBADD =	\
 	$(GIO_LIBS)
 
 libgrllocalmetadata_la_LDFLAGS = \
-	-module			\
+	-no-undefined		 \
+	-module			 \
 	-avoid-version
 
 libgrllocalmetadata_la_SOURCES = grl-local-metadata.c grl-local-metadata.h

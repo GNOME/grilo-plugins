@@ -14,6 +14,7 @@ libgrlgravatar_la_LIBADD =	\
 	$(DEPS_LIBS)
 
 libgrlgravatar_la_LDFLAGS = \
+	-no-undefined       \
 	-module		    \
 	-avoid-version
 

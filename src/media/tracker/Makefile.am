@@ -16,6 +16,7 @@ libgrltracker_la_LIBADD =	\
 	$(TRACKER_SPARQL_LIBS)
 
 libgrltracker_la_LDFLAGS = \
+	-no-undefined	   \
 	-module		   \
 	-avoid-version
 

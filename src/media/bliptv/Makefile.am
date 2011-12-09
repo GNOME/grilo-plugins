@@ -19,7 +19,8 @@ libgrlbliptv_la_LIBADD =	\
 	$(LIBREST_LIBS)
 
 libgrlbliptv_la_LDFLAGS = \
-	-module		   \
+	-no-undefined	  \
+	-module		  \
 	-avoid-version
 
 libgrlbliptv_la_SOURCES = 		\

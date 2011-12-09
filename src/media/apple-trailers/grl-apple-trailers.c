@@ -361,6 +361,8 @@ build_media_from_movie (xmlNodePtr node, gboolean xlarge)
   grl_media_set_certificate (media, movie_rating);
   grl_media_set_studio (media, movie_studio);
 
+  grl_media_set_mime (media, "video/mp4");
+
   /* FIXME: Translation */
   grl_media_set_license (media, movie_copyright);
 

@@ -1,3 +1,16 @@
+grilo-0.1-plugins (0.1.18-1) unstable; urgency=low
+
+  * General: added support for Windows
+  * Apple trailers plugin: fixed mime-type
+  * Tracker plugin: fixed BGO#658448 - No tracker-sparql-0.12
+    support, added config option to expose documents as content
+    (turned off by default)
+  * UPnP plugin: removed "UPnP -" prefix from title, fixed
+    BGO#653759 - UPnP sends back containers on search, fixed
+    BGO#658812 - upnp: support GRL_METADATA_KEY_TRACK_NUMBER
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Fri, 09 Dec 2011 16:09:02 +0100
+
 grilo-0.1-plugins (0.1.17-1) unstable; urgency=low
 
   * General: do not generate static libraries, install XML files in

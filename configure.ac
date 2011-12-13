@@ -498,7 +498,7 @@ AC_DEFINE_UNQUOTED([BOOKMARKS_PLUGIN_ID], ["$BOOKMARKS_PLUGIN_ID"], [Bookmarks p
 
 AC_ARG_ENABLE(shoutcast,
         AC_HELP_STRING([--enable-shoutcast],
-                [enable SHOUTcast plugin (default: no)]),
+                [enable SHOUTcast plugin (default: auto)]),
         [
                 case "$enableval" in
                      yes)
@@ -512,13 +512,12 @@ AC_ARG_ENABLE(shoutcast,
                 esac
         ],
         [
-                 enable_shoutcast=no
-#                Do not build SHOUTCast by default; it is broken
-#                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
-#                   enable_shoutcast=yes
-#                else
-#                   enable_shoutcast=no
-#                fi
+               Do not build SHOUTCast by default; it is broken
+               if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                  enable_shoutcast=yes
+               else
+                  enable_shoutcast=no
+               fi
         ])
 
 AM_CONDITIONAL([SHOUTCAST_PLUGIN], [test "x$enable_shoutcast" = "xyes"])

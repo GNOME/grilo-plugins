@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Igalia S.L.
+ * Copyright (C) 2010, 2011 Igalia S.L.
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
@@ -33,7 +33,14 @@
 
 #include "grl-shoutcast.h"
 
+#define GRL_SHOUTCAST_SOURCE_GET_PRIVATE(object)            \
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),                    \
+                               GRL_SHOUTCAST_SOURCE_TYPE,   \
+                               GrlShoutcastSourcePriv))
+
 #define EXPIRE_CACHE_TIMEOUT 300
+
+#define SHOUTCAST_DEV_KEY "dev-key"
 
 /* --------- Logging  -------- */
 
@@ -42,12 +49,13 @@ GRL_LOG_DOMAIN_STATIC(shoutcast_log_domain);
 
 /* ------ SHOUTcast API ------ */
 
-#define SHOUTCAST_BASE_ENTRY "http://yp.shoutcast.com"
+#define SHOUTCAST_API_BASE_ENTRY "http://api.shoutcast.com/legacy/"
+#define SHOUTCAST_YP_BASE_ENTRY  "http://yp.shoutcast.com/sbin/"
 
-#define SHOUTCAST_GET_GENRES    SHOUTCAST_BASE_ENTRY "/sbin/newxml.phtml"
-#define SHOUTCAST_GET_RADIOS    SHOUTCAST_GET_GENRES "?genre=%s&limit=%u"
-#define SHOUTCAST_SEARCH_RADIOS SHOUTCAST_GET_GENRES "?search=%s&limit=%u"
-#define SHOUTCAST_TUNE          SHOUTCAST_BASE_ENTRY "/sbin/tunein-station.pls?id=%s"
+#define SHOUTCAST_GET_GENRES    SHOUTCAST_API_BASE_ENTRY "genrelist?k=%s"
+#define SHOUTCAST_GET_RADIOS    SHOUTCAST_API_BASE_ENTRY "genresearch?k=%s&genre=%s&limit=%u"
+#define SHOUTCAST_SEARCH_RADIOS SHOUTCAST_API_BASE_ENTRY "stationsearch?k=%s&search=%s&limit=%u"
+#define SHOUTCAST_TUNE          SHOUTCAST_YP_BASE_ENTRY  "tunein-station.pls?id=%s"
 
 /* --- Plugin information --- */
 
@@ -56,6 +64,14 @@ GRL_LOG_DOMAIN_STATIC(shoutcast_log_domain);
 #define SOURCE_ID   "grl-shoutcast"
 #define SOURCE_NAME "SHOUTcast"
 #define SOURCE_DESC "A source for browsing SHOUTcast radios"
+
+struct _GrlShoutcastSourcePriv {
+  gchar *dev_key;
+  GrlNetWc *wc;
+  GCancellable *cancellable;
+  gchar *cached_page;
+  gboolean cached_page_expired;
+};
 
 typedef struct {
   GrlMedia *media;
@@ -76,12 +92,7 @@ typedef struct {
   xmlNodePtr xml_entries;
 } OperationData;
 
-static GrlNetWc *wc = NULL;
-static GCancellable *cancellable;
-static gchar *cached_page = NULL;
-static gboolean cached_page_expired = TRUE;
-
-static GrlShoutcastSource *grl_shoutcast_source_new (void);
+static GrlShoutcastSource *grl_shoutcast_source_new (const gchar *dev_key);
 
 gboolean grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
                                     const GrlPluginInfo *plugin,
@@ -101,7 +112,9 @@ static void grl_shoutcast_source_search (GrlMediaSource *source,
 static void grl_shoutcast_source_cancel (GrlMetadataSource *source,
                                          guint operation_id);
 
-static void read_url_async (const gchar *url, OperationData *op_data);
+static void read_url_async (GrlShoutcastSource *source,
+                            const gchar *url,
+                            OperationData *op_data);
 
 static void grl_shoutcast_source_finalize (GObject *object);
 
@@ -112,15 +125,40 @@ grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
                            const GrlPluginInfo *plugin,
                            GList *configs)
 {
+  gchar *dev_key;
+  GrlConfig *config;
+  gint config_count;
+  GrlShoutcastSource *source;
+
   GRL_LOG_DOMAIN_INIT (shoutcast_log_domain, "shoutcast");
 
   GRL_DEBUG ("shoutcast_plugin_init");
 
-  GrlShoutcastSource *source = grl_shoutcast_source_new ();
+  if (!configs) {
+    GRL_INFO ("Configuration not provided! Plugin not loaded");
+    return FALSE;
+  }
+
+  config_count = g_list_length (configs);
+  if (config_count > 1) {
+    GRL_INFO ("Provided %d configs, but will only use one", config_count);
+  }
+
+  config = GRL_CONFIG (configs->data);
+  dev_key = grl_config_get_string (config, SHOUTCAST_DEV_KEY);
+  if (!dev_key) {
+    GRL_INFO ("Missin API Dev Key, cannot load plugin");
+    return FALSE;
+  }
+
+  source = grl_shoutcast_source_new (dev_key);
   grl_plugin_registry_register_source (registry,
                                        plugin,
                                        GRL_MEDIA_PLUGIN (source),
                                        NULL);
+
+  g_free (dev_key);
+
   return TRUE;
 }
 
@@ -131,14 +169,21 @@ GRL_PLUGIN_REGISTER (grl_shoutcast_plugin_init,
 /* ================== SHOUTcast GObject ================ */
 
 static GrlShoutcastSource *
-grl_shoutcast_source_new (void)
+grl_shoutcast_source_new (const gchar *dev_key)
 {
+  GrlShoutcastSource *source;
+
   GRL_DEBUG ("grl_shoutcast_source_new");
-  return g_object_new (GRL_SHOUTCAST_SOURCE_TYPE,
-		       "source-id", SOURCE_ID,
-		       "source-name", SOURCE_NAME,
-		       "source-desc", SOURCE_DESC,
-		       NULL);
+
+  source =  g_object_new (GRL_SHOUTCAST_SOURCE_TYPE,
+                          "source-id", SOURCE_ID,
+                          "source-name", SOURCE_NAME,
+                          "source-desc", SOURCE_DESC,
+                          NULL);
+
+  source->priv->dev_key = g_strdup (dev_key);
+
+  return source;
 }
 
 static void
@@ -147,17 +192,24 @@ grl_shoutcast_source_class_init (GrlShoutcastSourceClass * klass)
   GrlMediaSourceClass *source_class = GRL_MEDIA_SOURCE_CLASS (klass);
   GrlMetadataSourceClass *metadata_class = GRL_METADATA_SOURCE_CLASS (klass);
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
   source_class->metadata = grl_shoutcast_source_metadata;
   source_class->browse = grl_shoutcast_source_browse;
   source_class->search = grl_shoutcast_source_search;
+
   metadata_class->cancel = grl_shoutcast_source_cancel;
   metadata_class->supported_keys = grl_shoutcast_source_supported_keys;
+
   gobject_class->finalize = grl_shoutcast_source_finalize;
+
+  g_type_class_add_private (klass, sizeof (GrlShoutcastSourcePriv));
 }
 
 static void
 grl_shoutcast_source_init (GrlShoutcastSource *source)
 {
+  source->priv = GRL_SHOUTCAST_SOURCE_GET_PRIVATE (source);
+  source->priv->cached_page_expired = TRUE;
 }
 
 G_DEFINE_TYPE (GrlShoutcastSource, grl_shoutcast_source, GRL_TYPE_MEDIA_SOURCE);
@@ -165,11 +217,22 @@ G_DEFINE_TYPE (GrlShoutcastSource, grl_shoutcast_source, GRL_TYPE_MEDIA_SOURCE);
 static void
 grl_shoutcast_source_finalize (GObject *object)
 {
-  if (wc && GRL_IS_NET_WC (wc))
-    g_object_unref (wc);
+  GrlShoutcastSource *self = GRL_SHOUTCAST_SOURCE (object);
 
-  if (cancellable && G_IS_CANCELLABLE (cancellable))
-    g_cancellable_cancel (cancellable);
+  if (self->priv->wc && GRL_IS_NET_WC (self->priv->wc))
+    g_object_unref (self->priv->wc);
+
+  if (self->priv->cancellable && G_IS_CANCELLABLE (self->priv->cancellable))
+    g_cancellable_cancel (self->priv->cancellable);
+
+  if (self->priv->cached_page) {
+    g_free (self->priv->cached_page);
+    self->priv->cached_page = NULL;
+  }
+
+  if (self->priv->dev_key) {
+    g_free (self->priv->dev_key);
+  }
 
   G_OBJECT_CLASS (grl_shoutcast_source_parent_class)->finalize (object);
 }
@@ -469,8 +532,10 @@ xml_parse_result (const gchar *str, OperationData *op_data)
 static gboolean
 expire_cache (gpointer user_data)
 {
+  GrlShoutcastSource *source = GRL_SHOUTCAST_SOURCE (user_data);
+
   GRL_DEBUG ("Cached page expired");
-  cached_page_expired = TRUE;
+  source->priv->cached_page_expired = TRUE;
   return FALSE;
 }
 
@@ -482,6 +547,7 @@ read_done_cb (GObject *source_object,
   GError *error = NULL;
   GError *wc_error = NULL;
   OperationData *op_data = (OperationData *) user_data;
+  GrlShoutcastSource *source = GRL_SHOUTCAST_SOURCE (op_data->source);
   gboolean cache;
   gchar *content = NULL;
 
@@ -509,34 +575,39 @@ read_done_cb (GObject *source_object,
 
   cache = op_data->cache;
   xml_parse_result (content, op_data);
-  if (cache && cached_page_expired) {
+  if (cache && source->priv->cached_page_expired) {
     GRL_DEBUG ("Caching page");
-    g_free (cached_page);
-    cached_page = g_strdup (content);
-    cached_page_expired = FALSE;
-    g_timeout_add_seconds (EXPIRE_CACHE_TIMEOUT, expire_cache, NULL);
+    g_free (source->priv->cached_page);
+    source->priv->cached_page = g_strdup (content);
+    source->priv->cached_page_expired = FALSE;
+    g_timeout_add_seconds (EXPIRE_CACHE_TIMEOUT, expire_cache, source);
   }
 }
 
 static gboolean
 read_cached_page (OperationData *op_data)
 {
+  gchar *cached_page = GRL_SHOUTCAST_SOURCE (op_data->source)->priv->cached_page;
   xml_parse_result (cached_page, op_data);
   return FALSE;
 }
 
 static void
-read_url_async (const gchar *url, OperationData *op_data)
+read_url_async (GrlShoutcastSource *source,
+                const gchar *url,
+                OperationData *op_data)
 {
-  if (op_data->cache && !cached_page_expired) {
+  if (op_data->cache && !source->priv->cached_page_expired) {
     GRL_DEBUG ("Using cached page");
     g_idle_add ((GSourceFunc) read_cached_page, op_data);
   } else {
-    if (!wc)
-      wc = grl_net_wc_new ();
+    if (!source->priv->wc)
+      source->priv->wc = grl_net_wc_new ();
 
-    cancellable = g_cancellable_new ();
-    grl_net_wc_request_async (wc, url, cancellable, read_done_cb, op_data);
+    source->priv->cancellable = g_cancellable_new ();
+    grl_net_wc_request_async (source->priv->wc, url,
+                              source->priv->cancellable,
+                              read_done_cb, op_data);
   }
 }
 
@@ -566,6 +637,7 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
   gchar **id_tokens;
   gchar *url = NULL;
   OperationData *data = NULL;
+  GrlShoutcastSource *shoutcast_source = GRL_SHOUTCAST_SOURCE (source);
 
   /* Unfortunately, shoutcast does not have an API to get information about a
      station.  Thus, steps done to obtain the Content must be repeated. For
@@ -598,24 +670,27 @@ grl_shoutcast_source_metadata (GrlMediaSource *source,
       /* Check if result is from a previous search */
       if (id_tokens[0][0] == '?') {
         url = g_strdup_printf (SHOUTCAST_SEARCH_RADIOS,
+                               shoutcast_source->priv->dev_key,
                                id_tokens[0]+1,
                                G_MAXINT);
       } else {
         url = g_strdup_printf (SHOUTCAST_GET_RADIOS,
+                               shoutcast_source->priv->dev_key,
                                id_tokens[0],
                                G_MAXINT);
       }
     } else {
       data->filter_entry = g_strdup (id_tokens[0]);
       data->cache = TRUE;
-      url = g_strdup (SHOUTCAST_GET_GENRES);
+      url = g_strdup_printf (SHOUTCAST_GET_GENRES,
+                             shoutcast_source->priv->dev_key);
     }
 
     g_strfreev (id_tokens);
   }
 
   if (url) {
-    read_url_async (url, data);
+    read_url_async (shoutcast_source, url, data);
     g_free (url);
   } else {
     ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
@@ -629,6 +704,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
   OperationData *data;
   const gchar *container_id;
   gchar *url;
+  GrlShoutcastSource *shoutcast_source = GRL_SHOUTCAST_SOURCE (source);
 
   GRL_DEBUG ("grl_shoutcast_source_browse");
 
@@ -646,9 +722,11 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
   /* If it's root category send list of genres; else send list of radios */
   if (!container_id) {
     data->cache = TRUE;
-    url = g_strdup (SHOUTCAST_GET_GENRES);
+    url = g_strdup_printf (SHOUTCAST_GET_GENRES,
+                           shoutcast_source->priv->dev_key);
   } else {
     url = g_strdup_printf (SHOUTCAST_GET_RADIOS,
+                           shoutcast_source->priv->dev_key,
                            container_id,
                            bs->skip + bs->count);
     data->genre = g_strdup (container_id);
@@ -656,7 +734,7 @@ grl_shoutcast_source_browse (GrlMediaSource *source,
 
   grl_operation_set_data (bs->browse_id, data);
 
-  read_url_async (url, data);
+  read_url_async (shoutcast_source, url, data);
 
   g_free (url);
 }
@@ -668,6 +746,7 @@ grl_shoutcast_source_search (GrlMediaSource *source,
   GError *error;
   OperationData *data;
   gchar *url;
+  GrlShoutcastSource *shoutcast_source = GRL_SHOUTCAST_SOURCE (source);
 
   /* Check if there is text to search */
   if (!ss->text || ss->text[0] == '\0') {
@@ -697,10 +776,11 @@ grl_shoutcast_source_search (GrlMediaSource *source,
   grl_operation_set_data (ss->search_id, data);
 
   url = g_strdup_printf (SHOUTCAST_SEARCH_RADIOS,
+                         shoutcast_source->priv->dev_key,
                          ss->text,
                          ss->skip + ss->count);
 
-  read_url_async (url, data);
+  read_url_async (GRL_SHOUTCAST_SOURCE (source), url, data);
 
   g_free (url);
 }
@@ -709,12 +789,16 @@ static void
 grl_shoutcast_source_cancel (GrlMetadataSource *source, guint operation_id)
 {
   OperationData *op_data;
+  GrlShoutcastSourcePriv *priv;
 
   GRL_DEBUG ("grl_shoutcast_source_cancel");
 
-  if (cancellable && G_IS_CANCELLABLE (cancellable))
-    g_cancellable_cancel (cancellable);
-  cancellable = NULL;
+  priv = GRL_SHOUTCAST_SOURCE_GET_PRIVATE (source);
+
+  if (priv->cancellable && G_IS_CANCELLABLE (priv->cancellable)) {
+    g_cancellable_cancel (priv->cancellable);
+  }
+  priv->cancellable = NULL;
 
   op_data = (OperationData *) grl_operation_get_data (operation_id);
 

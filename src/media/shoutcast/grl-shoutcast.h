@@ -54,11 +54,12 @@
                               GrlShoutcastSourceClass))
 
 typedef struct _GrlShoutcastSource GrlShoutcastSource;
+typedef struct _GrlShoutcastSourcePriv GrlShoutcastSourcePriv;
 
 struct _GrlShoutcastSource {
 
   GrlMediaSource parent;
-
+  GrlShoutcastSourcePriv *priv;
 };
 
 typedef struct _GrlShoutcastSourceClass GrlShoutcastSourceClass;

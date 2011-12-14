@@ -296,11 +296,16 @@ static gboolean
 file_is_valid_content (const gchar *path, gboolean fast, GrlOperationOptions *options)
 {
   const gchar *mime;
-  const gchar *mime_filter;
-  GValue *mime_filter_value;
+  const gchar *mime_filter = NULL;
+  GValue *mime_filter_value = NULL;
+  GValue *min_date_value = NULL;
+  GValue *max_date_value = NULL;
+  GDateTime *min_date = NULL;
+  GDateTime *max_date = NULL;
+  GDateTime *file_date = NULL;
   GrlTypeFilter type_filter;
   GError *error = NULL;
-  gboolean is_media;
+  gboolean is_media = TRUE;
   GFile *file;
   GFileInfo *info;
   GFileType type;
@@ -320,46 +325,93 @@ file_is_valid_content (const gchar *path, gboolean fast, GrlOperationOptions *op
     g_error_free (error);
     g_object_unref (file);
     return FALSE;
-  } else {
-    if (g_file_info_get_is_hidden (info)) {
-      is_media = FALSE;
-    } else {
-      type_filter = options? grl_operation_options_get_type_filter (options): GRL_TYPE_FILTER_ALL;
-      if (fast) {
-	/* In fast mode we do not check mime-types,
-	   any non-hidden file is accepted */
-        if (type_filter == GRL_TYPE_FILTER_NONE) {
-          is_media = FALSE;
-        } else {
-          is_media = TRUE;
-        }
-      } else {
-        mime_filter_value =
-          options? grl_operation_options_get_key_filter (options,
-                                                               GRL_METADATA_KEY_MIME): NULL;
-        if (mime_filter_value) {
-          mime_filter = g_value_get_string (mime_filter_value);
-        } else {
-          mime_filter = NULL;
-        }
-
-        mime = g_file_info_get_content_type (info);
-        if (!mime_filter || g_strcmp0 (mime, mime_filter) == 0) {
-          type = g_file_info_get_file_type (info);
-          if (type == G_FILE_TYPE_DIRECTORY || mime_is_media (mime, type_filter)) {
-            is_media = TRUE;
-          } else {
-            is_media = FALSE;
-          }
-        } else {
-          is_media = FALSE;
-        }
-      }
-    }
-    g_object_unref (info);
-    g_object_unref (file);
-    return is_media;
   }
+
+  /* Ignore hidden files */
+  if (g_file_info_get_is_hidden (info)) {
+      is_media = FALSE;
+      goto end;
+  }
+
+  type = g_file_info_get_file_type (info);
+
+  /* Directories are always accepted */
+  if (type == G_FILE_TYPE_DIRECTORY) {
+    goto end;
+  }
+
+  type_filter = options? grl_operation_options_get_type_filter (options): GRL_TYPE_FILTER_ALL;
+
+  /* In fast mode we do not check mime-types, any non-hidden file is accepted */
+  if (fast) {
+    if (type_filter == GRL_TYPE_FILTER_NONE) {
+      is_media = FALSE;
+    }
+    goto end;
+  }
+
+  /* Filter by type */
+  mime = g_file_info_get_content_type (info);
+  if (!mime_is_media (mime, type_filter)) {
+    is_media = FALSE;
+    goto end;
+  }
+
+  /* Filter by mime */
+  mime_filter_value =
+    options? grl_operation_options_get_key_filter (options,
+                                                   GRL_METADATA_KEY_MIME): NULL;
+  if (mime_filter_value) {
+    mime_filter = g_value_get_string (mime_filter_value);
+  }
+
+  if (mime_filter && g_strcmp0 (mime, mime_filter) != 0) {
+    is_media = FALSE;
+    goto end;
+  }
+
+  /* Filter by date */
+  if (options) {
+    grl_operation_options_get_key_range_filter (options,
+                                                GRL_METADATA_KEY_MODIFICATION_DATE,
+                                                &min_date_value,
+                                                &max_date_value);
+  }
+
+  if (min_date_value) {
+    min_date = g_date_time_ref (g_value_get_boxed (min_date_value));
+  }
+  if (max_date_value) {
+    max_date = g_date_time_ref (g_value_get_boxed (max_date_value));
+  }
+
+  if (min_date || max_date) {
+    GTimeVal time = {0,};
+
+    g_file_info_get_modification_time (info, &time);
+    file_date = g_date_time_new_from_timeval_utc (&time);
+  }
+
+  if (min_date && file_date && g_date_time_compare (min_date, file_date) > 0) {
+    is_media = FALSE;
+    goto end;
+  }
+
+  if (max_date && file_date && g_date_time_compare (max_date, file_date) < 0) {
+    is_media = FALSE;
+    goto end;
+  }
+
+ end:
+  g_object_unref (info);
+  g_object_unref (file);
+  if (file_date)
+    g_date_time_unref (file_date);
+  if (min_date)
+    g_date_time_unref (min_date);
+  if (max_date)
+    g_date_time_unref (max_date);
+  return is_media;
 }
 
 static void
@@ -1416,6 +1468,10 @@ grl_filesystem_source_get_caps (GrlMetadataSource *source,
    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_MIME,
                                      NULL);
    grl_caps_set_key_filter (caps, keys);
+   g_list_free (keys);
+   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_MODIFICATION_DATE,
+                                     NULL);
+   grl_caps_set_key_range_filter (caps, keys);
    g_list_free (keys);
   }
 

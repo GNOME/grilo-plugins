@@ -24,6 +24,8 @@
 #include "config.h"
 #endif
 
+#include <glib.h>
+#include <glib/gstdio.h>
 #include <grilo.h>
 #include <net/grl-net.h>
 #include <libxml/xpath.h>
@@ -47,7 +49,7 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
 
 /* --- Database --- */
 
-#define GRL_SQL_DB        ".grl-podcasts"
+#define GRL_SQL_DB "grl-podcasts.db"
 
 #define GRL_SQL_CREATE_TABLE_PODCASTS           \
   "CREATE TABLE IF NOT EXISTS podcasts ("       \
@@ -347,21 +349,26 @@ static void
 grl_podcasts_source_init (GrlPodcastsSource *source)
 {
   gint r;
-  const gchar *home;
+  gchar *path;
   gchar *db_path;
   gchar *sql_error = NULL;
 
   source->priv = GRL_PODCASTS_GET_PRIVATE (source);
 
-  home = g_getenv ("HOME");
-  if (!home) {
-    GRL_WARNING ("$HOME not set, cannot open database");
-    return;
+  path = g_strconcat (g_get_user_data_dir (),
+                      G_DIR_SEPARATOR_S, "grilo-plugins",
+                      NULL);
+
+  if (!g_file_test (path, G_FILE_TEST_IS_DIR)) {
+    g_mkdir_with_parents (path, 0775);
   }
 
   GRL_DEBUG ("Opening database connection...");
-  db_path = g_strconcat (home, G_DIR_SEPARATOR_S, GRL_SQL_DB, NULL);
+  db_path = g_strconcat (path, G_DIR_SEPARATOR_S, GRL_SQL_DB, NULL);
   r = sqlite3_open (db_path, &source->priv->db);
+  g_free (path);
+  g_free (db_path);
+
   if (r) {
     g_critical ("Failed to open database '%s': %s",
 		db_path, sqlite3_errmsg (source->priv->db));
@@ -391,8 +398,6 @@ grl_podcasts_source_init (GrlPodcastsSource *source)
     return;
   }
   GRL_DEBUG ("  OK");
-
-  g_free (db_path);
 }
 
 G_DEFINE_TYPE (GrlPodcastsSource, grl_podcasts_source, GRL_TYPE_MEDIA_SOURCE);

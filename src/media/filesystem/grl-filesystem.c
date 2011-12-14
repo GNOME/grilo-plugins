@@ -274,23 +274,26 @@ mime_is_image (const gchar *mime)
 }
 
 static gboolean
-mime_is_media (const gchar *mime)
+mime_is_media (const gchar *mime, GrlTypeFilter filter)
 {
   if (!mime)
     return FALSE;
   if (!strcmp (mime, "inode/directory"))
     return TRUE;
-  if (mime_is_audio (mime))
+  if (filter & GRL_TYPE_FILTER_AUDIO &&
+      mime_is_audio (mime))
     return TRUE;
-  if (mime_is_video (mime))
+  if (filter & GRL_TYPE_FILTER_VIDEO &&
+      mime_is_video (mime))
     return TRUE;
-  if (mime_is_image (mime))
+  if (filter & GRL_TYPE_FILTER_IMAGE &&
+      mime_is_image (mime))
     return TRUE;
   return FALSE;
 }
 
 static gboolean
-file_is_valid_content (const gchar *path, gboolean fast)
+file_is_valid_content (const gchar *path, gboolean fast, GrlTypeFilter filter)
 {
   const gchar *mime;
   GError *error = NULL;
@@ -321,11 +324,15 @@ file_is_valid_content (const gchar *path, gboolean fast)
       if (fast) {
 	/* In fast mode we do not check mime-types,
 	   any non-hidden file is accepted */
-	is_media = TRUE;
+        if (filter == GRL_TYPE_FILTER_NONE) {
+          is_media = FALSE;
+        } else {
+          is_media = TRUE;
+        }
       } else {
 	type = g_file_info_get_file_type (info);
 	mime = g_file_info_get_content_type (info);
-        if (type == G_FILE_TYPE_DIRECTORY || mime_is_media (mime)) {
+        if (type == G_FILE_TYPE_DIRECTORY || mime_is_media (mime, filter)) {
           is_media = TRUE;
         } else {
           is_media = FALSE;
@@ -341,12 +348,23 @@ file_is_valid_content (const gchar *path, gboolean fast)
 static void
 set_container_childcount (const gchar *path,
 			  GrlMedia *media,
-			  gboolean fast)
+			  gboolean fast,
+                          GrlTypeFilter filter)
 {
   GDir *dir;
   GError *error = NULL;
-  gint count;
+  gint count = 0;
   const gchar *entry_name;
+
+  /* in fast mode we don't compute  mime-types because it is slow,
+     so we can only check if the directory is totally empty (no subdirs,
+     and no files), otherwise we just say we do not know the actual
+     childcount */
+  if (fast) {
+    grl_media_box_set_childcount (GRL_MEDIA_BOX (media),
+                                  GRL_METADATA_KEY_CHILDCOUNT_UNKNOWN);
+    return;
+  }
 
   /* Open directory */
   GRL_DEBUG ("Opening directory '%s' for childcount", path);
@@ -358,6 +376,7 @@ set_container_childcount (const gchar *path,
   }
 
   /* Count valid entries */
+
   count = 0;
   while ((entry_name = g_dir_read_name (dir)) != NULL) {
     gchar *entry_path;
@@ -366,15 +385,7 @@ set_container_childcount (const gchar *path,
     } else {
       entry_path = g_strconcat (path, entry_name, NULL);
     }
-    if (file_is_valid_content (entry_path, fast)) {
-      if (fast) {
-        /* in fast mode we don't compute  mime-types because it is slow,
-           so we can only check if the directory is totally empty (no subdirs,
-           and no files), otherwise we just say we do not know the actual
-           childcount */
-        count = GRL_METADATA_KEY_CHILDCOUNT_UNKNOWN;
-        break;
-      }
+    if (file_is_valid_content (entry_path, fast, filter)) {
       count++;
     }
     g_free (entry_path);
@@ -389,7 +400,8 @@ static GrlMedia *
 create_content (GrlMedia *content,
                 const gchar *path,
                 gboolean only_fast,
-		gboolean root_dir)
+		gboolean root_dir,
+                GrlTypeFilter filter)
 {
   GrlMedia *media = NULL;
   gchar *str;
@@ -503,7 +515,7 @@ create_content (GrlMedia *content,
 
   /* Childcount */
   if (GRL_IS_MEDIA_BOX (media)) {
-    set_container_childcount (path, media, only_fast);
+    set_container_childcount (path, media, only_fast, filter);
   }
 
   g_object_unref (file);
@@ -536,13 +548,15 @@ browse_emit_idle (gpointer user_data)
   do {
     gchar *entry_path;
     GrlMedia *content;
+    GrlOperationOptions *options = idle_data->spec->options;
 
     entry_path = (gchar *) idle_data->current->data;
     content = create_content (NULL,
-			      entry_path,
-                              grl_operation_options_get_flags (idle_data->spec->options)
-                                & GRL_RESOLVE_FAST_ONLY,
-			      FALSE);
+                              entry_path,
+                              grl_operation_options_get_flags (options)
+                              & GRL_RESOLVE_FAST_ONLY,
+                              FALSE,
+                              grl_operation_options_get_type_filter (options));
     g_free (idle_data->current->data);
 
     idle_data->spec->callback (idle_data->spec->source,
@@ -571,7 +585,7 @@ finish:
 }
 
 static void
-produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
+produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path, GrlTypeFilter filter)
 {
   GDir *dir;
   GError *error = NULL;
@@ -598,7 +612,7 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
     } else {
       file = g_strconcat (path, entry, NULL);
     }
-    if (file_is_valid_content (file, FALSE)) {
+    if (file_is_valid_content (file, FALSE, filter)) {
       entries = g_list_prepend (entries, file);
     }
   }
@@ -929,6 +943,7 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
   gchar *normalized_haystack = NULL;
   GrlMediaSourceSearchSpec *ss = operation->on_file_data;
   gint remaining = -1;
+  GrlTypeFilter filter;
 
   GRL_DEBUG (__func__);
 
@@ -956,14 +971,15 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
     path = g_file_get_path (file);
 
     /* FIXME: both file_is_valid_content() and create_content() are likely to block */
-    if (file_is_valid_content (path, FALSE)) {
+    filter = grl_operation_options_get_type_filter (ss->options);
+    if (file_is_valid_content (path, FALSE, filter)) {
       guint skip = grl_operation_options_get_skip (ss->options);
       if (skip) {
         grl_operation_options_set_skip (ss->options, skip - 1);
       } else {
         media = create_content (NULL, path,
                                 grl_operation_options_get_flags (ss->options)
-                                  & GRL_RESOLVE_FAST_ONLY, FALSE);
+                                  & GRL_RESOLVE_FAST_ONLY, FALSE, filter);
       }
     }
 
@@ -1002,7 +1018,7 @@ notify_parent_change (GrlMediaSource *source, GFile *child, GrlMediaSourceChange
     parent_path = g_strdup ("/");
   }
 
-  media = create_content (NULL, parent_path, GRL_RESOLVE_FAST_ONLY, parent == NULL);
+  media = create_content (NULL, parent_path, GRL_RESOLVE_FAST_ONLY, parent == NULL, GRL_TYPE_FILTER_ALL);
   grl_media_source_notify_change (source, media, change, FALSE);
   g_object_unref (media);
 
@@ -1029,7 +1045,7 @@ directory_changed (GFileMonitor *monitor,
   if (event == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT ||
       event == G_FILE_MONITOR_EVENT_CREATED) {
     file_path = g_file_get_path (file);
-    if (file_is_valid_content (file_path, TRUE)) {
+    if (file_is_valid_content (file_path, TRUE, GRL_TYPE_FILTER_ALL)) {
       notify_parent_change (source,
                             file,
                             (event == G_FILE_MONITOR_EVENT_CREATED)? GRL_CONTENT_ADDED: GRL_CONTENT_CHANGED);
@@ -1052,7 +1068,7 @@ directory_changed (GFileMonitor *monitor,
     notify_parent_change (source, file, GRL_CONTENT_REMOVED);
   } else if (event == G_FILE_MONITOR_EVENT_MOVED) {
     other_file_path = g_file_get_path (other_file);
-    if (file_is_valid_content (other_file_path, TRUE)) {
+    if (file_is_valid_content (other_file_path, TRUE, GRL_TYPE_FILTER_ALL)) {
       file_parent = g_file_get_parent (file);
       if (file_parent) {
         file_parent_path = g_file_get_path (file_parent);
@@ -1159,13 +1175,16 @@ grl_filesystem_source_browse (GrlMediaSource *source,
     guint remaining = g_list_length (chosen_paths);
 
     if (remaining == 1) {
-        produce_from_path (bs, chosen_paths->data);
+      produce_from_path (bs, chosen_paths->data,
+                         grl_operation_options_get_type_filter (bs->options));
     } else {
       for (; chosen_paths; chosen_paths = g_list_next (chosen_paths)) {
-        GrlMedia *content = create_content (NULL,
-                                            (gchar *) chosen_paths->data,
-                                            GRL_RESOLVE_FAST_ONLY,
-                                            FALSE);
+        GrlMedia *content =
+          create_content (NULL,
+                          (gchar *) chosen_paths->data,
+                          GRL_RESOLVE_FAST_ONLY,
+                          FALSE,
+                          grl_operation_options_get_type_filter (bs->options));
 
         bs->callback (source,
                       bs->browse_id,
@@ -1176,7 +1195,8 @@ grl_filesystem_source_browse (GrlMediaSource *source,
       }
     }
   } else {
-    produce_from_path (bs, id ? id : G_DIR_SEPARATOR_S);
+    produce_from_path (bs, id ? id : G_DIR_SEPARATOR_S,
+                       grl_operation_options_get_type_filter (bs->options));
   }
 }
 
@@ -1220,7 +1240,8 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
     create_content (ms->media, path,
 		    grl_operation_options_get_flags (ms->options)
                       & GRL_RESOLVE_FAST_ONLY,
-		    !id);
+		    !id,
+                    grl_operation_options_get_type_filter (ms->options));
     ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   } else {
     GError *error = g_error_new (GRL_CORE_ERROR,
@@ -1254,7 +1275,7 @@ grl_filesystem_test_media_from_uri (GrlMediaSource *source,
     return FALSE;
   }
 
-  ret = file_is_valid_content (path, TRUE);
+  ret = file_is_valid_content (path, TRUE, GRL_TYPE_FILTER_ALL);
 
   g_free (path);
   return ret;
@@ -1297,10 +1318,12 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
 
   /* FIXME: this is a blocking call, not sure we want that in here */
   /* Note: we assume create_content() never returns NULL, which seems to be true */
-  media = create_content (NULL, path,
-                          grl_operation_options_get_flags (mfus->options)
-                            & GRL_RESOLVE_FAST_ONLY,
-                          FALSE);
+  media =
+      create_content (NULL, path,
+                      grl_operation_options_get_flags (mfus->options)
+                       & GRL_RESOLVE_FAST_ONLY,
+                      FALSE,
+                      grl_operation_options_get_type_filter (mfus->options));
   mfus->callback (source, mfus->media_from_uri_id, media, mfus->user_data, NULL);
 
 beach:

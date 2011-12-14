@@ -293,9 +293,12 @@ mime_is_media (const gchar *mime, GrlTypeFilter filter)
 }
 
 static gboolean
-file_is_valid_content (const gchar *path, gboolean fast, GrlTypeFilter filter)
+file_is_valid_content (const gchar *path, gboolean fast, GrlOperationOptions *options)
 {
   const gchar *mime;
+  const gchar *mime_filter;
+  GValue *mime_filter_value;
+  GrlTypeFilter type_filter;
   GError *error = NULL;
   gboolean is_media;
   GFile *file;
@@ -321,19 +324,33 @@ file_is_valid_content (const gchar *path, gboolean fast, GrlTypeFilter filter)
     if (g_file_info_get_is_hidden (info)) {
       is_media = FALSE;
     } else {
+      type_filter = options? grl_operation_options_get_type_filter (options): GRL_TYPE_FILTER_ALL;
       if (fast) {
 	/* In fast mode we do not check mime-types,
 	   any non-hidden file is accepted */
-        if (filter == GRL_TYPE_FILTER_NONE) {
+        if (type_filter == GRL_TYPE_FILTER_NONE) {
           is_media = FALSE;
         } else {
           is_media = TRUE;
         }
       } else {
-	type = g_file_info_get_file_type (info);
-	mime = g_file_info_get_content_type (info);
-        if (type == G_FILE_TYPE_DIRECTORY || mime_is_media (mime, filter)) {
-          is_media = TRUE;
+        mime_filter_value =
+          options? grl_operation_options_get_key_filter (options,
+                                                               GRL_METADATA_KEY_MIME): NULL;
+        if (mime_filter_value) {
+          mime_filter = g_value_get_string (mime_filter_value);
+        } else {
+          mime_filter = NULL;
+        }
+
+        mime = g_file_info_get_content_type (info);
+        if (!mime_filter || g_strcmp0 (mime, mime_filter) == 0) {
+          type = g_file_info_get_file_type (info);
+          if (type == G_FILE_TYPE_DIRECTORY || mime_is_media (mime, type_filter)) {
+            is_media = TRUE;
+          } else {
+            is_media = FALSE;
+          }
         } else {
           is_media = FALSE;
         }
@@ -349,7 +366,7 @@ static void
 set_container_childcount (const gchar *path,
 			  GrlMedia *media,
 			  gboolean fast,
-                          GrlTypeFilter filter)
+                          GrlOperationOptions *options)
 {
   GDir *dir;
   GError *error = NULL;
@@ -385,7 +402,7 @@ set_container_childcount (const gchar *path,
     } else {
       entry_path = g_strconcat (path, entry_name, NULL);
     }
-    if (file_is_valid_content (entry_path, fast, filter)) {
+    if (file_is_valid_content (entry_path, fast, options)) {
       count++;
     }
     g_free (entry_path);
@@ -401,7 +418,7 @@ create_content (GrlMedia *content,
                 const gchar *path,
                 gboolean only_fast,
 		gboolean root_dir,
-                GrlTypeFilter filter)
+                GrlOperationOptions *options)
 {
   GrlMedia *media = NULL;
   gchar *str;
@@ -515,7 +532,7 @@ create_content (GrlMedia *content,
 
   /* Childcount */
   if (GRL_IS_MEDIA_BOX (media)) {
-    set_container_childcount (path, media, only_fast, filter);
+    set_container_childcount (path, media, only_fast, options);
   }
 
   g_object_unref (file);
@@ -556,7 +573,7 @@ browse_emit_idle (gpointer user_data)
                               grl_operation_options_get_flags (options)
                               & GRL_RESOLVE_FAST_ONLY,
                               FALSE,
-                              grl_operation_options_get_type_filter (options));
+                              options);
     g_free (idle_data->current->data);
 
     idle_data->spec->callback (idle_data->spec->source,
@@ -585,7 +602,7 @@ finish:
 }
 
 static void
-produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path, GrlTypeFilter filter)
+produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path, GrlOperationOptions *options)
 {
   GDir *dir;
   GError *error = NULL;
@@ -612,7 +629,7 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path, GrlTypeFilte
     } else {
       file = g_strconcat (path, entry, NULL);
     }
-    if (file_is_valid_content (file, FALSE, filter)) {
+    if (file_is_valid_content (file, FALSE, options)) {
       entries = g_list_prepend (entries, file);
     }
   }
@@ -943,7 +960,6 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
   gchar *normalized_haystack = NULL;
   GrlMediaSourceSearchSpec *ss = operation->on_file_data;
   gint remaining = -1;
-  GrlTypeFilter filter;
 
   GRL_DEBUG (__func__);
 
@@ -971,15 +987,14 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
     path = g_file_get_path (file);
 
     /* FIXME: both file_is_valid_content() and create_content() are likely to block */
-    filter = grl_operation_options_get_type_filter (ss->options);
-    if (file_is_valid_content (path, FALSE, filter)) {
+    if (file_is_valid_content (path, FALSE, ss->options)) {
       guint skip = grl_operation_options_get_skip (ss->options);
       if (skip) {
         grl_operation_options_set_skip (ss->options, skip - 1);
       } else {
         media = create_content (NULL, path,
                                 grl_operation_options_get_flags (ss->options)
-                                  & GRL_RESOLVE_FAST_ONLY, FALSE, filter);
+                                  & GRL_RESOLVE_FAST_ONLY, FALSE, ss->options);
       }
     }
 
@@ -1018,7 +1033,7 @@ notify_parent_change (GrlMediaSource *source, GFile *child, GrlMediaSourceChange
     parent_path = g_strdup ("/");
   }
 
-  media = create_content (NULL, parent_path, GRL_RESOLVE_FAST_ONLY, parent == NULL, GRL_TYPE_FILTER_ALL);
+  media = create_content (NULL, parent_path, GRL_RESOLVE_FAST_ONLY, parent == NULL, NULL);
   grl_media_source_notify_change (source, media, change, FALSE);
   g_object_unref (media);
 
@@ -1045,7 +1060,7 @@ directory_changed (GFileMonitor *monitor,
   if (event == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT ||
       event == G_FILE_MONITOR_EVENT_CREATED) {
     file_path = g_file_get_path (file);
-    if (file_is_valid_content (file_path, TRUE, GRL_TYPE_FILTER_ALL)) {
+    if (file_is_valid_content (file_path, TRUE, NULL)) {
       notify_parent_change (source,
                             file,
                             (event == G_FILE_MONITOR_EVENT_CREATED)? GRL_CONTENT_ADDED: GRL_CONTENT_CHANGED);
@@ -1068,7 +1083,7 @@ directory_changed (GFileMonitor *monitor,
     notify_parent_change (source, file, GRL_CONTENT_REMOVED);
   } else if (event == G_FILE_MONITOR_EVENT_MOVED) {
     other_file_path = g_file_get_path (other_file);
-    if (file_is_valid_content (other_file_path, TRUE, GRL_TYPE_FILTER_ALL)) {
+    if (file_is_valid_content (other_file_path, TRUE, NULL)) {
       file_parent = g_file_get_parent (file);
       if (file_parent) {
         file_parent_path = g_file_get_path (file_parent);
@@ -1175,8 +1190,7 @@ grl_filesystem_source_browse (GrlMediaSource *source,
     guint remaining = g_list_length (chosen_paths);
 
     if (remaining == 1) {
-      produce_from_path (bs, chosen_paths->data,
-                         grl_operation_options_get_type_filter (bs->options));
+      produce_from_path (bs, chosen_paths->data, bs->options);
     } else {
       for (; chosen_paths; chosen_paths = g_list_next (chosen_paths)) {
         GrlMedia *content =
@@ -1184,19 +1198,20 @@ grl_filesystem_source_browse (GrlMediaSource *source,
                           (gchar *) chosen_paths->data,
                           GRL_RESOLVE_FAST_ONLY,
                           FALSE,
-                          grl_operation_options_get_type_filter (bs->options));
-
-        bs->callback (source,
-                      bs->browse_id,
-                      content,
-                      --remaining,
-                      bs->user_data,
-                      NULL);
+                          bs->options);
+        remaining--;
+        if (content) {
+          bs->callback (source,
+                        bs->browse_id,
+                        content,
+                        --remaining,
+                        bs->user_data,
+                        NULL);
+        }
       }
     }
   } else {
-    produce_from_path (bs, id ? id : G_DIR_SEPARATOR_S,
-                       grl_operation_options_get_type_filter (bs->options));
+    produce_from_path (bs, id ? id : G_DIR_SEPARATOR_S, bs->options);
   }
 }
 
@@ -1241,7 +1256,7 @@ grl_filesystem_source_metadata (GrlMediaSource *source,
 		    grl_operation_options_get_flags (ms->options)
                       & GRL_RESOLVE_FAST_ONLY,
 		    !id,
-                    grl_operation_options_get_type_filter (ms->options));
+                    ms->options);
     ms->callback (ms->source, ms->metadata_id, ms->media, ms->user_data, NULL);
   } else {
     GError *error = g_error_new (GRL_CORE_ERROR,
@@ -1275,7 +1290,7 @@ grl_filesystem_test_media_from_uri (GrlMediaSource *source,
     return FALSE;
   }
 
-  ret = file_is_valid_content (path, TRUE, GRL_TYPE_FILTER_ALL);
+  ret = file_is_valid_content (path, TRUE, NULL);
 
   g_free (path);
   return ret;
@@ -1323,7 +1338,7 @@ static void grl_filesystem_get_media_from_uri (GrlMediaSource *source,
                       grl_operation_options_get_flags (mfus->options)
                        & GRL_RESOLVE_FAST_ONLY,
                       FALSE,
-                      grl_operation_options_get_type_filter (mfus->options));
+                      mfus->options);
   mfus->callback (source, mfus->media_from_uri_id, media, mfus->user_data, NULL);
 
 beach:
@@ -1392,12 +1407,17 @@ static GrlCaps *
 grl_filesystem_source_get_caps (GrlMetadataSource *source,
                                 GrlSupportedOps operation)
 {
+  GList *keys;
   static GrlCaps *caps = NULL;
 
-  /* Nothing very special for now */
-
-  if (caps == NULL)
+  if (caps == NULL) {
    caps = grl_caps_new ();
+   grl_caps_set_type_filter (caps, GRL_TYPE_FILTER_ALL);
+   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_MIME,
+                                     NULL);
+   grl_caps_set_key_filter (caps, keys);
+   g_list_free (keys);
+  }
 
   return caps;
 }

@@ -7,7 +7,7 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src test
+SUBDIRS = src
 
 MAINTAINERCLEANFILES = \
         aclocal.m4 \

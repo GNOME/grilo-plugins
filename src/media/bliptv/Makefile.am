@@ -3,6 +3,7 @@
 #
 # Author: Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
 #
+# Copyright (C) 2011 Igalia S.L.
 # Copyright (C) 2011 Intel Corporation.
 
 lib_LTLIBRARIES		 = libgrlbliptv.la

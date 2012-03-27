@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES	= libgrlupnp.la
+ext_LTLIBRARIES	= libgrlupnp.la
 
 libgrlupnp_la_CFLAGS =		\
 	$(DEPS_CFLAGS)		\
@@ -34,7 +34,7 @@ libgrlupnp_la_LIBADD +=	\
 
 libgrlupnp_la_SOURCES = grl-upnp.c grl-upnp.h
 
-libdir			= $(GRL_PLUGINS_DIR)
+extdir			= $(GRL_PLUGINS_DIR)
 upnpxmldir		= $(GRL_PLUGINS_DIR)
 upnpxml_DATA	= $(UPNP_PLUGIN_ID).xml
 

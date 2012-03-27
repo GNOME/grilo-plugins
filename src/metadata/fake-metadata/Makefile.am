@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libgrlfakemetadata.la
+ext_LTLIBRARIES		 = libgrlfakemetadata.la
 
 libgrlfakemetadata_la_CFLAGS =	\
 	$(DEPS_CFLAGS)
@@ -20,7 +20,7 @@ libgrlfakemetadata_la_LDFLAGS = \
 
 libgrlfakemetadata_la_SOURCES = grl-fake-metadata.c grl-fake-metadata.h
 
-libdir					= $(GRL_PLUGINS_DIR)
+extdir					= $(GRL_PLUGINS_DIR)
 fakemetadataxmldir	= $(GRL_PLUGINS_DIR)
 fakemetadataxml_DATA	= $(FAKEMETADATA_PLUGIN_ID).xml
 

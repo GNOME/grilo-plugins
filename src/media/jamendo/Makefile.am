@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libgrljamendo.la
+ext_LTLIBRARIES		 = libgrljamendo.la
 
 libgrljamendo_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
@@ -26,7 +26,7 @@ libgrljamendo_la_SOURCES = 	\
 	grl-jamendo.c 		\
 	grl-jamendo.h
 
-libdir				= $(GRL_PLUGINS_DIR)
+extdir				= $(GRL_PLUGINS_DIR)
 jamendoxmldir		= $(GRL_PLUGINS_DIR)
 jamendoxml_DATA	= $(JAMENDO_PLUGIN_ID).xml
 

@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libgrlappletrailers.la
+ext_LTLIBRARIES		 = libgrlappletrailers.la
 
 libgrlappletrailers_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
@@ -26,7 +26,7 @@ libgrlappletrailers_la_SOURCES =	\
 	grl-apple-trailers.c		\
 	grl-apple-trailers.h
 
-libdir						= $(GRL_PLUGINS_DIR)
+extdir						= $(GRL_PLUGINS_DIR)
 appletrailersxmldir		= $(GRL_PLUGINS_DIR)
 appletrailersxml_DATA	= $(APPLE_TRAILERS_PLUGIN_ID).xml
 

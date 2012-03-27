@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES = libgrlbookmarks.la
+ext_LTLIBRARIES = libgrlbookmarks.la
 
 libgrlbookmarks_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
@@ -22,7 +22,7 @@ libgrlbookmarks_la_LDFLAGS = \
 
 libgrlbookmarks_la_SOURCES = grl-bookmarks.c grl-bookmarks.h
 
-libdir				= $(GRL_PLUGINS_DIR)
+extdir				= $(GRL_PLUGINS_DIR)
 bookmarksxmldir	= $(GRL_PLUGINS_DIR)
 bookmarksxml_DATA	= $(BOOKMARKS_PLUGIN_ID).xml
 

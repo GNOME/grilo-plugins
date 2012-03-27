@@ -6,7 +6,7 @@
 # Copyright (C) 2011 Intel Corporation.
 # Copyright (C) 2011 Igalia S.L.
 
-lib_LTLIBRARIES		 = libgrlbliptv.la
+ext_LTLIBRARIES		 = libgrlbliptv.la
 
 libgrlbliptv_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
@@ -27,7 +27,7 @@ libgrlbliptv_la_SOURCES = 		\
 	grl-bliptv.c			\
 	grl-bliptv.h
 
-libdir 			= $(GRL_PLUGINS_DIR)
+extdir 			= $(GRL_PLUGINS_DIR)
 bliptvxmldir 	= $(GRL_PLUGINS_DIR)
 bliptvxml_DATA	= $(BLIPTV_PLUGIN_ID).xml
 

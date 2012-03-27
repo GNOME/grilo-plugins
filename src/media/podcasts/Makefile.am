@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES = libgrlpodcasts.la
+ext_LTLIBRARIES = libgrlpodcasts.la
 
 libgrlpodcasts_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
@@ -28,7 +28,7 @@ libgrlpodcasts_la_LDFLAGS = \
 
 libgrlpodcasts_la_SOURCES = grl-podcasts.c grl-podcasts.h
 
-libdir				= $(GRL_PLUGINS_DIR)
+extdir				= $(GRL_PLUGINS_DIR)
 podcastsxmldir		= $(GRL_PLUGINS_DIR)
 podcastsxml_DATA	= $(PODCASTS_PLUGIN_ID).xml
 

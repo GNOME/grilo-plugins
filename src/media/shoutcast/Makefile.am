@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libgrlshoutcast.la
+ext_LTLIBRARIES		 = libgrlshoutcast.la
 
 libgrlshoutcast_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
@@ -24,7 +24,7 @@ libgrlshoutcast_la_LDFLAGS = \
 
 libgrlshoutcast_la_SOURCES	 = grl-shoutcast.c grl-shoutcast.h
 
-libdir				= $(GRL_PLUGINS_DIR)
+extdir				= $(GRL_PLUGINS_DIR)
 shoutcastxmldir	= $(GRL_PLUGINS_DIR)
 shoutcastxml_DATA	= $(SHOUTCAST_PLUGIN_ID).xml
 

@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libgrlmetadatastore.la
+ext_LTLIBRARIES		 = libgrlmetadatastore.la
 
 libgrlmetadatastore_la_CFLAGS =	\
 	$(DEPS_CFLAGS) \
@@ -22,7 +22,7 @@ libgrlmetadatastore_la_LDFLAGS = \
 
 libgrlmetadatastore_la_SOURCES = grl-metadata-store.c grl-metadata-store.h
 
-libdir						= $(GRL_PLUGINS_DIR)
+extdir						= $(GRL_PLUGINS_DIR)
 metadatastorexmldir		= $(GRL_PLUGINS_DIR)
 metadatastorexml_DATA	= $(METADATA_STORE_PLUGIN_ID).xml
 

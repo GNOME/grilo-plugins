@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES = libgrllastfm-albumart.la
+ext_LTLIBRARIES = libgrllastfm-albumart.la
 
 libgrllastfm_albumart_la_CFLAGS =	\
 	$(DEPS_CFLAGS) 			\
@@ -24,7 +24,7 @@ libgrllastfm_albumart_la_LDFLAGS = \
 
 libgrllastfm_albumart_la_SOURCES = grl-lastfm-albumart.c grl-lastfm-albumart.h
 
-libdir						= $(GRL_PLUGINS_DIR)
+extdir						= $(GRL_PLUGINS_DIR)
 lastfmalbumartxmldir		= $(GRL_PLUGINS_DIR)
 lastfmalbumartxml_DATA	= $(LASTFM_ALBUMART_PLUGIN_ID).xml
 

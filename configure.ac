@@ -132,28 +132,17 @@ PKG_CHECK_MODULES(GMIME, gmime-2.6,
                          [PKG_CHECK_MODULES(GMIME, gmime-2.4,
                                                    HAVE_GMIME=yes,
                                                    HAVE_GMIME=no)])
+# Search available Tracker version
+trackerpkg="tracker-sparql-0.10"
+m4_foreach([VERSION], [[0.10], [0.11], [0.12], [0.14]],
+                      [PKG_CHECK_EXISTS([tracker-sparql-VERSION >= 0.10.5],
+                                        [ trackerpkg="tracker-sparql-VERSION" ])
+                      ])
 
-PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.14,
-                                  HAVE_TRACKER_SPARQL=yes,
-                                  HAVE_TRACKER_SPARQL=no)
+PKG_CHECK_MODULES([TRACKER_SPARQL], [ ${trackerpkg} ],
+                                    HAVE_TRACKER_SPARQL=yes,
+                                    HAVE_TRACKER_SPARQL=no)
 
-if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
-   PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.12,
-                                     HAVE_TRACKER_SPARQL=yes,
-                                     HAVE_TRACKER_SPARQL=no)
-fi
-
-if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
-   PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.11,
-                                     HAVE_TRACKER_SPARQL=yes,
-                                     HAVE_TRACKER_SPARQL=no)
-fi
-
-if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
-   PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10 >= 0.10.5,
-                                     HAVE_TRACKER_SPARQL=yes,
-                                     HAVE_TRACKER_SPARQL=no)
-fi
 
 PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
                              HAVE_GLIB_2_26=yes,

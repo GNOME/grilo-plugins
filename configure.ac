@@ -507,7 +507,6 @@ AC_ARG_ENABLE(shoutcast,
                 esac
         ],
         [
-               Do not build SHOUTCast by default; it is broken
                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                   enable_shoutcast=yes
                else

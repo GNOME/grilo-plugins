@@ -929,18 +929,21 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
   resolution_flags_t flags;
   GrlLocalMetadataSourcePriv *priv =
     GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (source);
+  gboolean can_access;
 
   GRL_DEBUG ("grl_local_metadata_source_resolve");
+
+  /* Can we access the media through gvfs? */
+  can_access = has_compatible_media_url (rs->media);
 
   flags = get_resolution_flags (rs->keys);
 
    if (!flags)
      error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
                           "local-metadata cannot resolve any of the given keys");
-   else if (!(GRL_IS_MEDIA_AUDIO (rs->media)
-              || has_compatible_media_url (rs->media)))
+   if (GRL_IS_MEDIA_IMAGE (rs->media) && can_access == FALSE)
      error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
-                          "local-metadata needs a url in the file:// scheme for videos and images");
+                          "local-metadata needs a GIO supported URL for images");
 
   if (error) {
     /* No can do! */
@@ -954,7 +957,8 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
   if (GRL_IS_MEDIA_VIDEO (rs->media)) {
     if (priv->guess_video)
       resolve_video (source, rs, flags);
-    resolve_image (source, rs, flags);
+    if (can_access)
+      resolve_image (source, rs, flags);
   } else if (GRL_IS_MEDIA_IMAGE (rs->media)) {
     resolve_image (source, rs, flags);
   } else if (GRL_IS_MEDIA_AUDIO (rs->media)) {

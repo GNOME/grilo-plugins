@@ -798,6 +798,16 @@ has_compatible_media_url (GrlMedia *media)
   const gchar *url;
   gchar *scheme;
 
+  /* HACK: Cheat slightly, we don't want to use UPnP URLs */
+  if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_SOURCE)) {
+    const char *source;
+
+    source = grl_data_get_string (GRL_DATA (media), GRL_METADATA_KEY_SOURCE);
+
+    if (g_str_has_prefix (source, "grl-upnp-uuid:"))
+      return FALSE;
+  }
+
   url = grl_media_get_url (media);
   scheme = g_uri_parse_scheme (url);
 

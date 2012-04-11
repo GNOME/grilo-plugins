@@ -902,30 +902,48 @@ grl_local_metadata_source_may_resolve (GrlMetadataSource *source,
     return FALSE;
   }
 
-  /* IMAGE || VIDEO case */
-  if (media && grl_data_has_key (GRL_DATA (media),
-                                 GRL_METADATA_KEY_URL)) {
-    if (GRL_IS_MEDIA_IMAGE (media)) {
-      if (has_compatible_media_url (media) &&
-          (key_id == GRL_METADATA_KEY_THUMBNAIL))
-        return TRUE;
-    }
+  if (GRL_IS_MEDIA_IMAGE (media)) {
+    if (key_id != GRL_METADATA_KEY_THUMBNAIL)
+      return FALSE;
+    if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL))
+      goto missing_url;
+    if (!has_compatible_media_url (media))
+      return FALSE;
+    return TRUE;
+  }
 
-    if (GRL_IS_MEDIA_VIDEO (media)) {
-      if (priv->guess_video &&
-          (key_id == GRL_METADATA_KEY_TITLE ||
-           key_id == GRL_METADATA_KEY_SHOW ||
-           key_id == GRL_METADATA_KEY_PUBLICATION_DATE ||
-           key_id == GRL_METADATA_KEY_SEASON ||
-           key_id == GRL_METADATA_KEY_EPISODE))
+  if (GRL_IS_MEDIA_VIDEO (media)) {
+    switch (key_id) {
+    case GRL_METADATA_KEY_TITLE:
+    case GRL_METADATA_KEY_SHOW:
+    case GRL_METADATA_KEY_PUBLICATION_DATE:
+    case GRL_METADATA_KEY_SEASON:
+    case GRL_METADATA_KEY_EPISODE:
+      if (!priv->guess_video)
+        return FALSE;
+      if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL) &&
+          has_compatible_media_url (media))
         return TRUE;
-      if (has_compatible_media_url (media)) {
-        if (key_id == GRL_METADATA_KEY_THUMBNAIL)
-          return TRUE;
-      }
+      if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_TITLE))
+        goto missing_title;
+      return TRUE;
+    case GRL_METADATA_KEY_THUMBNAIL:
+      if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL) == FALSE)
+        goto missing_url;
+      return has_compatible_media_url (media);
     }
   }
 
+missing_title:
+  if (missing_keys) {
+    if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL) == FALSE)
+      *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, GRL_METADATA_KEY_URL, NULL);
+    else
+      *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, NULL);
+  }
+  return FALSE;
+
+missing_url:
   if (missing_keys)
     *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_URL, NULL);
 

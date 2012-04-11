@@ -551,7 +551,7 @@ resolve_video (GrlMetadataSource *source,
   }
 }
 
-static void
+static gboolean
 resolve_image (GrlMetadataSource *source,
                GrlMetadataSourceResolveSpec *rs,
                resolution_flags_t flags)
@@ -570,7 +570,11 @@ resolve_image (GrlMetadataSource *source,
                              G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT, cancellable,
                              (GAsyncReadyCallback)got_file_info, rs);
     g_object_unref (file);
+
+    return FALSE;
   }
+
+  return TRUE;
 }
 
 /* Taken from: http://live.gnome.org/MediaArtStorageSpec/SampleStripCodeInC */
@@ -706,7 +710,7 @@ albumart_strip_invalid_entities (const gchar *original)
   return str;
 }
 
-static void
+static gboolean
 resolve_album_art (GrlMetadataSource *source,
                    GrlMetadataSourceResolveSpec *rs,
                    resolution_flags_t flags)
@@ -721,7 +725,7 @@ resolve_album_art (GrlMetadataSource *source,
   album_value = grl_media_audio_get_album (GRL_MEDIA_AUDIO (rs->media));
 
   if (!artist_value || !album_value)
-    return;
+    return TRUE;
 
   /* regex to find if we need to strip invalid chars
    * ()[]<>{}_!@#$^&*+=|\\/\"'?~" and 2 or more spaces
@@ -767,6 +771,8 @@ resolve_album_art (GrlMetadataSource *source,
     g_free (file_path);
   }
   rs->callback (rs->source, rs->resolve_id, rs->media, rs->user_data, NULL);
+
+  return FALSE;
 }
 
 static gboolean
@@ -959,6 +965,7 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
   GrlLocalMetadataSourcePriv *priv =
     GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (source);
   gboolean can_access;
+  gboolean done;
 
   GRL_DEBUG ("grl_local_metadata_source_resolve");
 
@@ -983,19 +990,24 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
 
   GRL_DEBUG ("\ttrying to resolve for: %s", grl_media_get_url (rs->media));
 
+  done = FALSE;
+
   if (GRL_IS_MEDIA_VIDEO (rs->media)) {
+    done = TRUE;
     if (priv->guess_video)
       resolve_video (source, rs, can_access ? GRL_METADATA_KEY_URL : GRL_METADATA_KEY_TITLE, flags);
     if (can_access)
-      resolve_image (source, rs, flags);
+      done = resolve_image (source, rs, flags);
   } else if (GRL_IS_MEDIA_IMAGE (rs->media)) {
-    resolve_image (source, rs, flags);
+    done = resolve_image (source, rs, flags);
   } else if (GRL_IS_MEDIA_AUDIO (rs->media)) {
-    resolve_album_art (source, rs, flags);
-  } else {
-    /* What's that media type? */
-    rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
+    done = resolve_album_art (source, rs, flags);
   }
+
+  /* Only call the callback if there are no async jobs left-over,
+   * such as resolve_image() checking for thumbnails */
+  if (done)
+    rs->callback (source, rs->resolve_id, rs->media, rs->user_data, NULL);
 }
 
 static void

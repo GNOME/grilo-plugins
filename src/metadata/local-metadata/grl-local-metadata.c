@@ -771,6 +771,27 @@ resolve_album_art (GrlMetadataSource *source,
 }
 
 static gboolean
+is_supported_scheme (const char *scheme)
+{
+  GVfs *vfs;
+  const gchar * const * schemes;
+  guint i;
+
+  if (scheme == NULL)
+    return FALSE;
+
+  vfs = g_vfs_get_default ();
+  schemes = g_vfs_get_supported_uri_schemes (vfs);
+
+  for (i = 0; schemes[i] != NULL; i++) {
+    if (g_str_equal (schemes[i], scheme))
+      return TRUE;
+  }
+
+  return FALSE;
+}
+
+static gboolean
 has_compatible_media_url (GrlMedia *media)
 {
   gboolean ret = FALSE;
@@ -780,10 +801,9 @@ has_compatible_media_url (GrlMedia *media)
   url = grl_media_get_url (media);
   scheme = g_uri_parse_scheme (url);
 
-  ret = 0 == g_strcmp0 (scheme, "file");
+  ret = is_supported_scheme (scheme);
 
-  if (scheme)
-    g_free (scheme);
+  g_free (scheme);
 
   return ret;
 }

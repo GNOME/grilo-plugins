@@ -477,6 +477,7 @@ exit:
 static void
 resolve_video (GrlMetadataSource *source,
                GrlMetadataSourceResolveSpec *rs,
+               GrlKeyID key,
                resolution_flags_t flags)
 {
   gchar *title, *showname;
@@ -510,7 +511,7 @@ resolve_video (GrlMetadataSource *source,
   if (!fill_flags)
     return;
 
-  video_guess_values_from_uri (grl_media_get_url (rs->media),
+  video_guess_values_from_uri (grl_data_get_string (GRL_DATA (rs->media), key),
                                &title, &showname, &date,
                                &season, &episode);
 
@@ -965,7 +966,7 @@ grl_local_metadata_source_resolve (GrlMetadataSource *source,
 
   if (GRL_IS_MEDIA_VIDEO (rs->media)) {
     if (priv->guess_video)
-      resolve_video (source, rs, flags);
+      resolve_video (source, rs, can_access ? GRL_METADATA_KEY_URL : GRL_METADATA_KEY_TITLE, flags);
     if (can_access)
       resolve_image (source, rs, flags);
   } else if (GRL_IS_MEDIA_IMAGE (rs->media)) {

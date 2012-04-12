@@ -59,7 +59,7 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
 
 #define GRL_SQL_GET_METADATA				\
   "SELECT * FROM store "				\
-  "WHERE source_id='%s' AND media_id='%s' "		\
+  "WHERE source_id=? AND media_id=? "			\
   "LIMIT 1"
 
 #define GRL_SQL_UPDATE_METADATA			\
@@ -215,21 +215,21 @@ query_metadata_store (sqlite3 *db,
 		      const gchar *source_id,
 		      const gchar *media_id)
 {
-  gint r;
+  gint r, idx;
   sqlite3_stmt *sql_stmt = NULL;
-  gchar *sql;
 
   GRL_DEBUG ("get_metadata");
 
-  sql = g_strdup_printf (GRL_SQL_GET_METADATA, source_id, media_id);
-  GRL_DEBUG ("%s", sql);
-  r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
-  g_free (sql);
+  r = sqlite3_prepare_v2 (db, GRL_SQL_GET_METADATA, -1, &sql_stmt, NULL);
 
   if (r != SQLITE_OK) {
     GRL_WARNING ("Failed to get metadata: %s", sqlite3_errmsg (db));
     return NULL;
   }
+
+  idx = 0;
+  sqlite3_bind_text(sql_stmt, ++idx, source_id, -1, SQLITE_STATIC);
+  sqlite3_bind_text(sql_stmt, ++idx, media_id, -1, SQLITE_STATIC);
 
   return sql_stmt;
 }

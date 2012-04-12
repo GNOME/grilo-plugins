@@ -56,9 +56,13 @@ if BLIPTV_PLUGIN
 SUBDIRS += bliptv
 endif
 
+if OPTICAL_MEDIA_PLUGIN
+SUBDIRS += optical-media
+endif
+
 DIST_SUBDIRS =									\
 	filesystem jamendo upnp youtube flickr podcasts bookmarks shoutcast	\
-	apple-trailers vimeo tracker bliptv
+	apple-trailers vimeo tracker bliptv optical-media
 
 MAINTAINERCLEANFILES =	\
         *.in		\

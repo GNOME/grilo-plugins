@@ -127,6 +127,8 @@ PKG_CHECK_MODULES(LIBREST, rest-0.7, HAVE_REST=yes, HAVE_REST=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
+PKG_CHECK_MODULES(TOTEM_PL_PARSER, totem-plparser >= 3.4.1, HAVE_TOTEM_PL_PARSER=yes, HAVE_TOTEM_PL_PARSER=no)
+
 PKG_CHECK_MODULES(GMIME, gmime-2.6,
                          HAVE_GMIME=yes,
                          [PKG_CHECK_MODULES(GMIME, gmime-2.4,
@@ -199,6 +201,41 @@ fi
 FILESYSTEM_PLUGIN_ID="grl-filesystem"
 AC_SUBST(FILESYSTEM_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([FILESYSTEM_PLUGIN_ID], ["$FILESYSTEM_PLUGIN_ID"], [Filesystem plugin ID])
+
+# ----------------------------------------------------------
+# BUILD OPTICAL MEDIA PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(optical-media,
+        AC_HELP_STRING([--enable-optical-media],
+                [enable Optical Media plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_TOTEM_PL_PARSER" = "xno"; then
+                           AC_MSG_ERROR([totem-pl-parser not found, install it or use --disable-optical-media])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_TOTEM_PL_PARSER" = "xyes"; then
+                   enable_optical_media=yes
+                else
+                   enable_optical_media=no
+                fi
+        ])
+
+AM_CONDITIONAL([OPTICAL_MEDIA_PLUGIN], [test "x$enable_optical_media" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL optical-media"
+if test "x$enable_optical_media" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED optical-media"
+fi
+
+OPTICAL_MEDIA_PLUGIN_ID="grl-optical-media"
+AC_SUBST(OPTICAL_MEDIA_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([OPTICAL_MEDIA_PLUGIN_ID], ["$OPTICAL_MEDIA_PLUGIN_ID"], [Optical Media plugin ID])
 
 # ----------------------------------------------------------
 # BUILD JAMENDO PLUGIN
@@ -811,6 +848,7 @@ AC_CONFIG_FILES([
   src/media/flickr/Makefile
   src/media/filesystem/Makefile
   src/media/bliptv/Makefile
+  src/media/optical-media/Makefile
   src/media/Makefile
   src/media/apple-trailers/Makefile
   src/metadata/metadata-store/Makefile

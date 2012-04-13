@@ -912,12 +912,10 @@ grl_local_metadata_source_may_resolve (GrlMetadataSource *source,
   }
 
   if (GRL_IS_MEDIA_VIDEO (media)) {
-    switch (key_id) {
-    case GRL_METADATA_KEY_TITLE:
-    case GRL_METADATA_KEY_SHOW:
-    case GRL_METADATA_KEY_PUBLICATION_DATE:
-    case GRL_METADATA_KEY_SEASON:
-    case GRL_METADATA_KEY_EPISODE:
+    if (key_id == GRL_METADATA_KEY_TITLE ||
+        key_id == GRL_METADATA_KEY_SHOW ||
+        key_id == GRL_METADATA_KEY_SEASON ||
+        key_id == GRL_METADATA_KEY_EPISODE) {
       if (!priv->guess_video)
         return FALSE;
       if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL) &&
@@ -926,7 +924,7 @@ grl_local_metadata_source_may_resolve (GrlMetadataSource *source,
       if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_TITLE))
         goto missing_title;
       return TRUE;
-    case GRL_METADATA_KEY_THUMBNAIL:
+    } else if (key_id == GRL_METADATA_KEY_THUMBNAIL) {
       if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL) == FALSE)
         goto missing_url;
       return has_compatible_media_url (media);

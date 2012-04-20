@@ -85,7 +85,7 @@ fi
 # HARD DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([DEPS], glib-2.0      \
+PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.28      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
 			  ${GRL_NAME} = 0.1.18)
@@ -146,10 +146,6 @@ PKG_CHECK_MODULES([TRACKER_SPARQL], [ ${trackerpkg} ],
                                     HAVE_TRACKER_SPARQL=yes,
                                     HAVE_TRACKER_SPARQL=no)
 
-
-PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
-                             HAVE_GLIB_2_26=yes,
-                             HAVE_GLIB_2_26=no)
 
 AM_PATH_LIBGCRYPT(,HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
@@ -716,14 +712,11 @@ AC_ARG_ENABLE(tracker,
                         if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
                            AC_MSG_ERROR([tracker-sparql-0.10.5 or higher not found, install it or use --disable-tracker])
                         fi
-                        if test "x$HAVE_GLIB_2_26" = "xno"; then
-                           AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-tracker])
-                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_TRACKER_SPARQL" = "xyes" -a "x$HAVE_GLIB_2_26" = "xyes"; then
+                if test "x$HAVE_TRACKER_SPARQL" = "xyes"; then
                    enable_tracker=yes
                 else
                    enable_tracker=no
@@ -789,14 +782,11 @@ AC_ARG_ENABLE(localmetadata,
                         if test "x$HAVE_GIO" = "xno"; then
                            AC_MSG_ERROR([gio-2.0 not found, install it or use --disable-localmetadata])
                         fi
-                        if test "x$HAVE_GLIB_2_26" = "xno"; then
-                           AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-localmetadata])
-                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_GLIB_2_26" = "xyes"; then
+                if test "x$HAVE_GIO" = "xyes"; then
                    enable_localmetadata=yes
                 else
                    enable_localmetadata=no

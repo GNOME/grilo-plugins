@@ -610,8 +610,7 @@ get_tracker_volume_name (const gchar *uri,
 
       mount = mount->next;
     }
-    g_list_foreach (mounts, (GFunc) g_object_unref, NULL);
-    g_list_free (mounts);
+    g_list_free_full (mounts, g_object_unref);
     g_object_unref (G_OBJECT (file));
     g_object_unref (G_OBJECT (volume_monitor));
   } else {

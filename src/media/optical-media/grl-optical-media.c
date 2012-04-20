@@ -447,8 +447,7 @@ resolve_disc_urls (BrowseData *data)
     /* If we got cancelled, there's still some media
      * to resolve here */
     if (data->media_list) {
-      g_list_foreach (data->media_list, (GFunc) g_object_unref, NULL);
-      g_list_free (data->media_list);
+      g_list_free_full (data->media_list, g_object_unref);
     }
     /* No media left, we're done */
     data->bs->callback (data->bs->source,

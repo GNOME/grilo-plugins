@@ -240,8 +240,7 @@ static void
 grl_filesystem_source_finalize (GObject *object)
 {
   GrlFilesystemSource *filesystem_source = GRL_FILESYSTEM_SOURCE (object);
-  g_list_foreach (filesystem_source->priv->chosen_paths, (GFunc) g_free, NULL);
-  g_list_free (filesystem_source->priv->chosen_paths);
+  g_list_free_full (filesystem_source->priv->chosen_paths, g_free);
   g_hash_table_unref (filesystem_source->priv->cancellables);
   G_OBJECT_CLASS (grl_filesystem_source_parent_class)->finalize (object);
 }
@@ -1059,10 +1058,7 @@ cancel_monitors (GrlFilesystemSource *fs_source)
   g_list_foreach (fs_source->priv->monitors,
                   (GFunc) g_file_monitor_cancel,
                   NULL);
-  g_list_foreach (fs_source->priv->monitors,
-                  (GFunc) g_object_unref,
-                  NULL);
-  g_list_free (fs_source->priv->monitors);
+  g_list_free_full (fs_source->priv->monitors, g_object_unref);
   fs_source->priv->monitors = NULL;
 }
 

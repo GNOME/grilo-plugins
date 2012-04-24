@@ -24,6 +24,8 @@
 #include "config.h"
 #endif
 
+#include <glib.h>
+#include <glib/gstdio.h>
 #include <grilo.h>
 #include <sqlite3.h>
 #include <string.h>
@@ -44,7 +46,8 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
 #define SOURCE_NAME "Metadata Store"
 #define SOURCE_DESC "A plugin for storing extra metadata information"
 
-#define GRL_SQL_DB        ".grl-metadata-store"
+#define GRL_SQL_OLD_DB   ".grl-metadata-store"
+#define GRL_SQL_DB       "grl-metadata-store.db"
 
 #define GRL_SQL_CREATE_TABLE_STORE			 \
   "CREATE TABLE IF NOT EXISTS store ("			 \
@@ -157,24 +160,46 @@ static void
 grl_metadata_store_source_init (GrlMetadataStoreSource *source)
 {
   gint r;
-  const gchar *home;
+  gchar *path;
   gchar *db_path;
+  const gchar *home;
+  gchar *old_db_path;
   gchar *sql_error = NULL;
 
   source->priv = GRL_METADATA_STORE_GET_PRIVATE (source);
 
-  home = g_getenv ("HOME");
-  if (!home) {
-    GRL_WARNING ("$HOME not set, cannot open database");
-    return;
+  path = g_strconcat (g_get_user_data_dir (),
+                      G_DIR_SEPARATOR_S, "grilo-plugins",
+                      NULL);
+
+  if (!g_file_test (path, G_FILE_TEST_IS_DIR)) {
+    g_mkdir_with_parents (path, 0775);
+  }
+
+  db_path = g_strconcat (path, G_DIR_SEPARATOR_S, GRL_SQL_DB, NULL);
+  if (!g_file_test (db_path, G_FILE_TEST_EXISTS)) {
+    home = g_get_home_dir ();
+    if (home) {
+      old_db_path = g_strconcat (home, G_DIR_SEPARATOR_S, GRL_SQL_OLD_DB, NULL);
+      if (g_file_test (old_db_path, G_FILE_TEST_IS_REGULAR)) {
+        if (g_rename (old_db_path, db_path) == 0) {
+          GRL_DEBUG ("Database moved to the new location");
+        } else {
+          GRL_WARNING ("Failed to move the database to the new location");
+        }
+      }
+      g_free (old_db_path);
+    }
   }
 
   GRL_DEBUG ("Opening database connection...");
-  db_path = g_strconcat (home, G_DIR_SEPARATOR_S, GRL_SQL_DB, NULL);
   r = sqlite3_open (db_path, &source->priv->db);
+  g_free (path);
+  g_free (db_path);
+
   if (r) {
     g_critical ("Failed to open database '%s': %s",
-		db_path, sqlite3_errmsg (source->priv->db));
+                db_path, sqlite3_errmsg (source->priv->db));
     sqlite3_close (source->priv->db);
     return;
   }
@@ -196,8 +221,6 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
     return;
   }
   GRL_DEBUG ("  OK");
-
-  g_free (db_path);
 }
 
 G_DEFINE_TYPE (GrlMetadataStoreSource, grl_metadata_store_source,

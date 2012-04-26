@@ -389,6 +389,7 @@ create_content (GrlMedia *content,
 {
   GrlMedia *media = NULL;
   gchar *str;
+  gchar *extension;
   const gchar *mime;
   GError *error = NULL;
 
@@ -413,12 +414,20 @@ create_content (GrlMedia *content,
     }
 
     /* Title */
-    str = g_strrstr (path, G_DIR_SEPARATOR_S);
+    str = g_strdup (g_strrstr (path, G_DIR_SEPARATOR_S));
     if (!str) {
-      str = (gchar *) path;
+      str = g_strdup (path);
     }
+
+    /* Remove file extension */
+    extension = g_strrstr (str, ".");
+    if (extension) {
+      *extension = '\0';
+    }
+
     grl_media_set_title (media, str);
     g_error_free (error);
+    g_free (str);
   } else {
     mime = g_file_info_get_content_type (info);
 
@@ -444,8 +453,16 @@ create_content (GrlMedia *content,
     }
 
     /* Title */
-    str = (gchar *) g_file_info_get_display_name (info);
+    str = g_strdup (g_file_info_get_display_name (info));
+
+    /* Remove file extension */
+    extension = g_strrstr (str, ".");
+    if (extension) {
+      *extension = '\0';
+    }
+
     grl_media_set_title (media, str);
+    g_free (str);
 
     /* Date */
     GTimeVal time;

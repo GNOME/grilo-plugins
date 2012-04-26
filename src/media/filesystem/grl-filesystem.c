@@ -309,8 +309,8 @@ file_is_valid_content (const gchar *path, gboolean fast)
   file = g_file_new_for_path (path);
   info = g_file_query_info (file, spec, 0, NULL, &error);
   if (error) {
-    GRL_WARNING ("Failed to get attributes for file '%s': %s",
-                 path, error->message);
+    GRL_DEBUG ("Failed to get attributes for file '%s': %s",
+               path, error->message);
     g_error_free (error);
     g_object_unref (file);
     return FALSE;
@@ -352,7 +352,7 @@ set_container_childcount (const gchar *path,
   GRL_DEBUG ("Opening directory '%s' for childcount", path);
   dir = g_dir_open (path, 0, &error);
   if (error) {
-    GRL_WARNING ("Failed to open directory '%s': %s", path, error->message);
+    GRL_DEBUG ("Failed to open directory '%s': %s", path, error->message);
     g_error_free (error);
     return;
   }
@@ -410,8 +410,8 @@ create_content (GrlMedia *content,
   }
 
   if (error) {
-    GRL_WARNING ("Failed to get info for file '%s': %s", path,
-                 error->message);
+    GRL_DEBUG ("Failed to get info for file '%s': %s", path,
+               error->message);
     if (!media) {
       media = grl_media_new ();
       grl_media_set_id (media,  root_dir ? NULL : path);
@@ -584,7 +584,7 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
   GRL_DEBUG ("Opening directory '%s'", path);
   dir = g_dir_open (path, 0, &error);
   if (error) {
-    GRL_WARNING ("Failed to open directory '%s': %s", path, error->message);
+    GRL_DEBUG ("Failed to open directory '%s': %s", path, error->message);
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
     return;

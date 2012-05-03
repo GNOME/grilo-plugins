@@ -89,7 +89,7 @@ GRL_LOG_DOMAIN_STATIC(jamendo_log_domain);
 
 #define SOURCE_ID   "grl-jamendo"
 #define SOURCE_NAME "Jamendo"
-#define SOURCE_DESC "A source for browsing and searching Jamendo videos"
+#define SOURCE_DESC "A source for browsing and searching Jamendo music"
 
 enum {
   METADATA,

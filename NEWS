@@ -1,3 +1,47 @@
+NEW in 0.1.19
+=============
+
+  * General
+    * Fixed BGO#641115 - grilo plugins do not store private data in right places
+    * Fixed BGO#641357 - Remove libdir= from all Makefile.am
+    * Fixed BGO#667855 - Support tracker 0.13/0.14
+
+  * Filesystem plugin
+    * Do not show file extension in the media title
+
+  * Jamendo plugin
+    * Fix small typo
+
+  * Local Metadata plugin
+    * Several fixes and improvements
+    * Use user's cache to get album art
+    * Fixed BGO#673916 - local-metadata: Support all GIO supported schemes
+    * Fixed BGO#673936 - local-metadata: Don't leave unfinished calls
+
+  * Optical Media plugin
+    * New plugin that provides content from DVD and Blu-ray disks (BGO#672929)
+
+  * SHOUTCast plugin
+    * Use the new API 2.0
+
+  * Tracker plugin
+    * Fixed BGO#662748 - tracker plugin: support multiple resources in a larger file
+
+  * UPnP plugin
+    * Fixed BGO#653756 - Empty results on UPnP shows error
+
+  * Youtube plugin
+    * Request quvi 0.4.0
+
+  * Contributors to this release:
+    Antía Puentes <apuentes@igalia.com>
+    Bastien Nocera <hadess@hadess.net>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Michael Wood <michael.g.wood@linux.intel.com>
+    Sam Thursfield <sam.thursfield@codethink.co.uk>
+    Vincent Untz <vuntz@gnome.org>
+
+
 NEW in 0.1.18
 =============
   * General

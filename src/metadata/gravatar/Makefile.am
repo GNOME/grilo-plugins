@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES = libgrlgravatar.la
+ext_LTLIBRARIES = libgrlgravatar.la
 
 libgrlgravatar_la_CFLAGS =	\
 	$(DEPS_CFLAGS)
@@ -20,7 +20,7 @@ libgrlgravatar_la_LDFLAGS = \
 
 libgrlgravatar_la_SOURCES = grl-gravatar.c grl-gravatar.h
 
-libdir				= $(GRL_PLUGINS_DIR)
+extdir				= $(GRL_PLUGINS_DIR)
 gravatarxmldir		= $(GRL_PLUGINS_DIR)
 gravatarxml_DATA	= $(GRAVATAR_PLUGIN_ID).xml
 

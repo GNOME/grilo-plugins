@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Igalia S.L.
+ * Copyright (C) 2010, 2011 Igalia S.L.
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
@@ -352,8 +352,7 @@ process_video_search_result (const gchar *xml_result, gpointer user_data)
     }
 
     data->search_cb (data->vimeo, g_list_reverse (video_list), data->user_data);
-    g_list_foreach (video_list, (GFunc) g_hash_table_unref, NULL);
-    g_list_free (video_list);
+    g_list_free_full (video_list, (GDestroyNotify) g_hash_table_unref);
   }
   g_slice_free (GVimeoVideoSearchData, data);
   xmlFreeDoc (doc);

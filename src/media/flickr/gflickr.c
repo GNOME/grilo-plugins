@@ -446,8 +446,7 @@ process_photolist_result (const gchar *xml_result, gpointer user_data)
     }
 
     data->list_cb (data->flickr, g_list_reverse (photolist), data->user_data);
-    g_list_foreach (photolist, (GFunc) g_hash_table_unref, NULL);
-    g_list_free (photolist);
+    g_list_free_full (photolist, (GDestroyNotify) g_hash_table_unref);
   }
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
@@ -480,8 +479,7 @@ process_taglist_result (const gchar *xml_result, gpointer user_data)
     }
 
     data->list_cb (data->flickr, g_list_reverse (taglist), data->user_data);
-    g_list_foreach (taglist, (GFunc) g_free, NULL);
-    g_list_free (taglist);
+    g_list_free_full (taglist, g_free);
   }
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
@@ -514,8 +512,7 @@ process_photosetslist_result (const gchar *xml_result, gpointer user_data)
     }
 
     data->list_cb (data->flickr, g_list_reverse (photosets), data->user_data);
-    g_list_foreach (photosets, (GFunc) g_hash_table_unref, NULL);
-    g_list_free (photosets);
+    g_list_free_full (photosets, (GDestroyNotify) g_hash_table_unref);
   }
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
@@ -548,8 +545,7 @@ process_photosetsphotos_result (const gchar *xml_result, gpointer user_data)
     }
 
     data->list_cb (data->flickr, g_list_reverse (list), data->user_data);
-    g_list_foreach (list, (GFunc) g_hash_table_unref, NULL);
-    g_list_free (list);
+    g_list_free_full (list, (GDestroyNotify) g_hash_table_unref);
   }
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);

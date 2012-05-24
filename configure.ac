@@ -6,7 +6,7 @@
 # Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.1.18])
+m4_define([prj_version], [0.1.19])
 
 AC_INIT([prj_name],
         [prj_version],
@@ -91,10 +91,10 @@ fi
 # HARD DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([DEPS], glib-2.0      \
+PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.28      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
-			  ${GRL_NAME} = 0.1.18)
+			  ${GRL_NAME} = 0.1.19)
 
 # ----------------------------------------------------------
 # DEFINITIONS
@@ -126,7 +126,7 @@ PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
 
 PKG_CHECK_MODULES(GDATA, libgdata >= 0.7.0, HAVE_GDATA=yes, HAVE_GDATA=no)
 
-PKG_CHECK_MODULES(QUVI, libquvi >= 0.2.15, HAVE_QUVI=yes, HAVE_QUVI=no)
+PKG_CHECK_MODULES(QUVI, libquvi >= 0.4.0, HAVE_QUVI=yes, HAVE_QUVI=no)
 
 PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4, HAVE_LIBSOUP=yes, HAVE_LIBSOUP=no)
 
@@ -134,31 +134,24 @@ PKG_CHECK_MODULES(LIBREST, rest-0.7, HAVE_REST=yes, HAVE_REST=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
+PKG_CHECK_MODULES(TOTEM_PL_PARSER, totem-plparser >= 3.4.1, HAVE_TOTEM_PL_PARSER=yes, HAVE_TOTEM_PL_PARSER=no)
+
 PKG_CHECK_MODULES(GMIME, gmime-2.6,
                          HAVE_GMIME=yes,
                          [PKG_CHECK_MODULES(GMIME, gmime-2.4,
                                                    HAVE_GMIME=yes,
                                                    HAVE_GMIME=no)])
+# Search available Tracker version
+trackerpkg="tracker-sparql-0.10"
+m4_foreach([VERSION], [[0.10], [0.11], [0.12], [0.14]],
+                      [PKG_CHECK_EXISTS([tracker-sparql-VERSION >= 0.10.5],
+                                        [ trackerpkg="tracker-sparql-VERSION" ])
+                      ])
 
-PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.12,
-                                  HAVE_TRACKER_SPARQL=yes,
-                                  HAVE_TRACKER_SPARQL=no)
+PKG_CHECK_MODULES([TRACKER_SPARQL], [ ${trackerpkg} ],
+                                    HAVE_TRACKER_SPARQL=yes,
+                                    HAVE_TRACKER_SPARQL=no)
 
-if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
-   PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.11,
-                                     HAVE_TRACKER_SPARQL=yes,
-                                     HAVE_TRACKER_SPARQL=no)
-fi
-
-if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
-   PKG_CHECK_MODULES(TRACKER_SPARQL, tracker-sparql-0.10 >= 0.10.5,
-                                     HAVE_TRACKER_SPARQL=yes,
-                                     HAVE_TRACKER_SPARQL=no)
-fi
-
-PKG_CHECK_MODULES(GLIB_2_26, glib-2.0 >= 2.26.0,
-                             HAVE_GLIB_2_26=yes,
-                             HAVE_GLIB_2_26=no)
 
 AM_PATH_LIBGCRYPT(,HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
 
@@ -211,6 +204,41 @@ fi
 FILESYSTEM_PLUGIN_ID="grl-filesystem"
 AC_SUBST(FILESYSTEM_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([FILESYSTEM_PLUGIN_ID], ["$FILESYSTEM_PLUGIN_ID"], [Filesystem plugin ID])
+
+# ----------------------------------------------------------
+# BUILD OPTICAL MEDIA PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(optical-media,
+        AC_HELP_STRING([--enable-optical-media],
+                [enable Optical Media plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_TOTEM_PL_PARSER" = "xno"; then
+                           AC_MSG_ERROR([totem-pl-parser not found, install it or use --disable-optical-media])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_TOTEM_PL_PARSER" = "xyes"; then
+                   enable_optical_media=yes
+                else
+                   enable_optical_media=no
+                fi
+        ])
+
+AM_CONDITIONAL([OPTICAL_MEDIA_PLUGIN], [test "x$enable_optical_media" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL optical-media"
+if test "x$enable_optical_media" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED optical-media"
+fi
+
+OPTICAL_MEDIA_PLUGIN_ID="grl-optical-media"
+AC_SUBST(OPTICAL_MEDIA_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([OPTICAL_MEDIA_PLUGIN_ID], ["$OPTICAL_MEDIA_PLUGIN_ID"], [Optical Media plugin ID])
 
 # ----------------------------------------------------------
 # BUILD JAMENDO PLUGIN
@@ -504,7 +532,7 @@ AC_DEFINE_UNQUOTED([BOOKMARKS_PLUGIN_ID], ["$BOOKMARKS_PLUGIN_ID"], [Bookmarks p
 
 AC_ARG_ENABLE(shoutcast,
         AC_HELP_STRING([--enable-shoutcast],
-                [enable SHOUTcast plugin (default: no)]),
+                [enable SHOUTcast plugin (default: auto)]),
         [
                 case "$enableval" in
                      yes)
@@ -518,13 +546,11 @@ AC_ARG_ENABLE(shoutcast,
                 esac
         ],
         [
-                 enable_shoutcast=no
-#                Do not build SHOUTCast by default; it is broken
-#                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
-#                   enable_shoutcast=yes
-#                else
-#                   enable_shoutcast=no
-#                fi
+               if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                  enable_shoutcast=yes
+               else
+                  enable_shoutcast=no
+               fi
         ])
 
 AM_CONDITIONAL([SHOUTCAST_PLUGIN], [test "x$enable_shoutcast" = "xyes"])
@@ -692,14 +718,11 @@ AC_ARG_ENABLE(tracker,
                         if test "x$HAVE_TRACKER_SPARQL" = "xno"; then
                            AC_MSG_ERROR([tracker-sparql-0.10.5 or higher not found, install it or use --disable-tracker])
                         fi
-                        if test "x$HAVE_GLIB_2_26" = "xno"; then
-                           AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-tracker])
-                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_TRACKER_SPARQL" = "xyes" -a "x$HAVE_GLIB_2_26" = "xyes"; then
+                if test "x$HAVE_TRACKER_SPARQL" = "xyes"; then
                    enable_tracker=yes
                 else
                    enable_tracker=no
@@ -765,14 +788,11 @@ AC_ARG_ENABLE(localmetadata,
                         if test "x$HAVE_GIO" = "xno"; then
                            AC_MSG_ERROR([gio-2.0 not found, install it or use --disable-localmetadata])
                         fi
-                        if test "x$HAVE_GLIB_2_26" = "xno"; then
-                           AC_MSG_ERROR([glib-2.26.0 or above not found, install it or use --disable-localmetadata])
-                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_GLIB_2_26" = "xyes"; then
+                if test "x$HAVE_GIO" = "xyes"; then
                    enable_localmetadata=yes
                 else
                    enable_localmetadata=no
@@ -825,6 +845,7 @@ AC_CONFIG_FILES([
   src/media/flickr/Makefile
   src/media/filesystem/Makefile
   src/media/bliptv/Makefile
+  src/media/optical-media/Makefile
   src/media/Makefile
   src/media/apple-trailers/Makefile
   src/metadata/metadata-store/Makefile

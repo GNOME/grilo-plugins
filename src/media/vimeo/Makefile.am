@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libgrlvimeo.la
+ext_LTLIBRARIES		 = libgrlvimeo.la
 
 libgrlvimeo_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
@@ -32,7 +32,7 @@ libgrlvimeo_la_SOURCES =	\
 	gvimeo.c		\
 	gvimeo.h
 
-libdir			= $(GRL_PLUGINS_DIR)
+extdir			= $(GRL_PLUGINS_DIR)
 vimeoxmldir		= $(GRL_PLUGINS_DIR)
 vimeoxml_DATA	= $(VIMEO_PLUGIN_ID).xml
 

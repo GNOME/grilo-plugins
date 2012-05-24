@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libgrltracker.la
+ext_LTLIBRARIES		 = libgrltracker.la
 
 libgrltracker_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
@@ -39,7 +39,7 @@ libgrltracker_la_SOURCES = 		\
 	grl-tracker-utils.c		\
 	grl-tracker-utils.h
 
-libdir				= $(GRL_PLUGINS_DIR)
+extdir				= $(GRL_PLUGINS_DIR)
 trackerxmldir		= $(GRL_PLUGINS_DIR)
 trackerxml_DATA	= $(TRACKER_PLUGIN_ID).xml
 

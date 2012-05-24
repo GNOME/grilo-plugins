@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2011 Igalia S.L.
  * Copyright (C) 2011 Intel Corporation.
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
@@ -212,7 +213,7 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_SITE,
                       "nie:url",
-                      "nie:url(?urn)",
+                      "nie:url(?file)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_TITLE,
@@ -222,12 +223,12 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_TITLE,
                       "nfo:fileName",
-                      "nfo:fileName(?urn)",
+                      "nfo:fileName(?file)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_URL,
                       "nie:url",
-                      "nie:url(?urn)",
+                      "nie:url(?file)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_WIDTH,
@@ -289,6 +290,11 @@ grl_tracker_setup_key_mappings (void)
   insert_key_mapping (GRL_METADATA_KEY_LAST_POSITION,
                       "nfo:lastPlayedPosition",
                       "nfo:lastPlayedPosition(?urn)",
+                      "media");
+
+  insert_key_mapping (GRL_METADATA_KEY_START_TIME,
+                      "nfo:audioOffset",
+                      "nfo:audioOffset(?urn)",
                       "media");
 
   if (grl_tracker_upnp_present) {
@@ -579,8 +585,7 @@ get_tracker_volume_name (const gchar *uri,
 
       mount = mount->next;
     }
-    g_list_foreach (mounts, (GFunc) g_object_unref, NULL);
-    g_list_free (mounts);
+    g_list_free_full (mounts, g_object_unref);
     g_object_unref (G_OBJECT (file));
     g_object_unref (G_OBJECT (volume_monitor));
   } else {

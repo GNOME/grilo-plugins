@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES		 = libgrlfilesystem.la
+ext_LTLIBRARIES		 = libgrlfilesystem.la
 
 libgrlfilesystem_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
@@ -22,7 +22,7 @@ libgrlfilesystem_la_LDFLAGS = \
 
 libgrlfilesystem_la_SOURCES = grl-filesystem.c grl-filesystem.h
 
-libdir					= $(GRL_PLUGINS_DIR)
+extdir					= $(GRL_PLUGINS_DIR)
 filesystemxmldir		= $(GRL_PLUGINS_DIR)
 filesystemxml_DATA	= $(FILESYSTEM_PLUGIN_ID).xml
 

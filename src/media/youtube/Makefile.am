@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
-lib_LTLIBRARIES = libgrlyoutube.la
+ext_LTLIBRARIES = libgrlyoutube.la
 
 libgrlyoutube_la_CFLAGS =	\
 	$(DEPS_CFLAGS)		\
@@ -30,7 +30,7 @@ libgrlyoutube_la_LDFLAGS = \
 
 libgrlyoutube_la_SOURCES = grl-youtube.c grl-youtube.h
 
-libdir				= $(GRL_PLUGINS_DIR)
+extdir				= $(GRL_PLUGINS_DIR)
 youtubexmldir		= $(GRL_PLUGINS_DIR)
 youtubexml_DATA	= $(YOUTUBE_PLUGIN_ID).xml
 

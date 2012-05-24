@@ -240,8 +240,7 @@ static void
 grl_filesystem_source_finalize (GObject *object)
 {
   GrlFilesystemSource *filesystem_source = GRL_FILESYSTEM_SOURCE (object);
-  g_list_foreach (filesystem_source->priv->chosen_paths, (GFunc) g_free, NULL);
-  g_list_free (filesystem_source->priv->chosen_paths);
+  g_list_free_full (filesystem_source->priv->chosen_paths, g_free);
   g_hash_table_unref (filesystem_source->priv->cancellables);
   G_OBJECT_CLASS (grl_filesystem_source_parent_class)->finalize (object);
 }
@@ -306,8 +305,8 @@ file_is_valid_content (const gchar *path, gboolean fast)
   file = g_file_new_for_path (path);
   info = g_file_query_info (file, spec, 0, NULL, &error);
   if (error) {
-    GRL_WARNING ("Failed to get attributes for file '%s': %s",
-                 path, error->message);
+    GRL_DEBUG ("Failed to get attributes for file '%s': %s",
+               path, error->message);
     g_error_free (error);
     g_object_unref (file);
     return FALSE;
@@ -349,7 +348,7 @@ set_container_childcount (const gchar *path,
   GRL_DEBUG ("Opening directory '%s' for childcount", path);
   dir = g_dir_open (path, 0, &error);
   if (error) {
-    GRL_WARNING ("Failed to open directory '%s': %s", path, error->message);
+    GRL_DEBUG ("Failed to open directory '%s': %s", path, error->message);
     g_error_free (error);
     return;
   }
@@ -390,6 +389,7 @@ create_content (GrlMedia *content,
 {
   GrlMedia *media = NULL;
   gchar *str;
+  gchar *extension;
   const gchar *mime;
   GError *error = NULL;
 
@@ -406,20 +406,28 @@ create_content (GrlMedia *content,
   }
 
   if (error) {
-    GRL_WARNING ("Failed to get info for file '%s': %s", path,
-                 error->message);
+    GRL_DEBUG ("Failed to get info for file '%s': %s", path,
+               error->message);
     if (!media) {
       media = grl_media_new ();
       grl_media_set_id (media,  root_dir ? NULL : path);
     }
 
     /* Title */
-    str = g_strrstr (path, G_DIR_SEPARATOR_S);
+    str = g_strdup (g_strrstr (path, G_DIR_SEPARATOR_S));
     if (!str) {
-      str = (gchar *) path;
+      str = g_strdup (path);
     }
+
+    /* Remove file extension */
+    extension = g_strrstr (str, ".");
+    if (extension) {
+      *extension = '\0';
+    }
+
     grl_media_set_title (media, str);
     g_error_free (error);
+    g_free (str);
   } else {
     mime = g_file_info_get_content_type (info);
 
@@ -445,8 +453,16 @@ create_content (GrlMedia *content,
     }
 
     /* Title */
-    str = (gchar *) g_file_info_get_display_name (info);
+    str = g_strdup (g_file_info_get_display_name (info));
+
+    /* Remove file extension */
+    extension = g_strrstr (str, ".");
+    if (extension) {
+      *extension = '\0';
+    }
+
     grl_media_set_title (media, str);
+    g_free (str);
 
     /* Date */
     GTimeVal time;
@@ -563,7 +579,7 @@ produce_from_path (GrlMediaSourceBrowseSpec *bs, const gchar *path)
   GRL_DEBUG ("Opening directory '%s'", path);
   dir = g_dir_open (path, 0, &error);
   if (error) {
-    GRL_WARNING ("Failed to open directory '%s': %s", path, error->message);
+    GRL_DEBUG ("Failed to open directory '%s': %s", path, error->message);
     bs->callback (bs->source, bs->browse_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
     return;
@@ -1059,10 +1075,7 @@ cancel_monitors (GrlFilesystemSource *fs_source)
   g_list_foreach (fs_source->priv->monitors,
                   (GFunc) g_file_monitor_cancel,
                   NULL);
-  g_list_foreach (fs_source->priv->monitors,
-                  (GFunc) g_object_unref,
-                  NULL);
-  g_list_free (fs_source->priv->monitors);
+  g_list_free_full (fs_source->priv->monitors, g_object_unref);
   fs_source->priv->monitors = NULL;
 }
 

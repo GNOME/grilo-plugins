@@ -1,3 +1,25 @@
+grilo-0.1-plugins (0.1.19-1) unstable; urgency=low
+
+  * General: fixed BGO#641115 - grilo plugins do not store private
+    data in right places, fixed BGO#641357 - Remove libdir= from all
+    Makefile.am, fixed BGO#667855 - Support tracker 0.13/0.14
+  * Filesystem plugin: do not show file extension in the media title
+  * Jamendo plugin: fix small typo
+  * Local Metadata plugin: several fixes and improvements, use
+    user's cache to get album art, fixed BGO#673916 - local-metadata:
+    Support all GIO supported schemes, fixed BGO#673936 -
+    local-metadata: Don't leave unfinished calls
+  * Optical Media plugin: new plugin that provides content from DVD
+    and Blu-ray disks (BGO#672929)
+  * SHOUTCast plugin: use the new API 2.0
+  * Tracker plugin: fixed BGO#662748 - tracker plugin: support
+     multiple resources in a larger file
+  * UPnP plugin: fixed BGO#653756 - Empty results on UPnP shows
+    error
+  * Youtube plugin: request quvi 0.4.0
+
+ -- Juan A. Suarez Romero <jasuarez@igalia.com>  Thu, 24 May 2012 10:59:48 +0200
+
 grilo-0.1-plugins (0.1.18-1) unstable; urgency=low
 
   * General: added support for Windows

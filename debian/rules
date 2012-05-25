@@ -8,22 +8,22 @@ include /usr/share/cdbs/1/class/autotools.mk
 
 DEB_CONFIGURE_SCRIPT := ./autogen.sh
 
-DEB_CONFIGURE_EXTRA_FLAGS :=		\
+DEB_CONFIGURE_EXTRA_FLAGS :=	\
 	--disable-fakemetadata		\
-	--disable-shoutcast		\
 	--enable-apple-trailers		\
-	--enable-bliptv			\
-	--enable-bookmarks		\
-	--enable-filesystem		\
-	--enable-flickr			\
-	--enable-gravatar		\
-	--enable-jamendo		\
+	--enable-bliptv				\
+	--enable-bookmarks			\
+	--enable-filesystem			\
+	--enable-flickr				\
+	--enable-gravatar				\
+	--enable-jamendo				\
 	--enable-lastfm-albumart	\
 	--enable-localmetadata		\
 	--enable-metadata-store		\
-	--enable-podcasts		\
-	--enable-tracker		\
-	--enable-upnp			\
-	--enable-vimeo			\
+	--enable-podcasts				\
+	--enable-shoutcast			\
+	--enable-tracker				\
+	--enable-upnp					\
+	--enable-vimeo					\
 	--enable-youtube
 

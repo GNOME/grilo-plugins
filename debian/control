@@ -2,11 +2,12 @@ Source: grilo-0.1-plugins
 Section: libs
 Priority: extra
 Maintainer: Juan A. Suarez Romero <jasuarez@igalia.com>
-Build-Depends: cdbs, debhelper (>= 5), libgrilo-0.1-dev (>= 0.1.18),
- gnome-common, libglib2.0-dev (>= 2.26.0), libxml2-dev,
+Build-Depends: cdbs, debhelper (>= 5), libgrilo-0.1-dev (>= 0.1.19),
+ gnome-common, libglib2.0-dev (>= 2.28.0), libxml2-dev,
  libgupnp-1.0-dev (>= 0.13.0), libgupnp-av-1.0-dev (>= 0.5.0), libsqlite3-dev,
- libgdata-dev, libgcrypt11-dev, libgmime-2.6-dev, libquvi-dev (>= 0.2.15),
- librest-dev (>=0.7.0), libtracker-sparql-0.14-dev
+ libgdata-dev, libgcrypt11-dev, libgmime-2.6-dev, libquvi-dev (>= 0.4.0),
+ librest-dev (>=0.7.0), libtracker-sparql-0.14-dev,
+ libtotem-plparser-dev (>= 3.4.1)
 Standards-Version: 3.7.2
 Homepage: http://gitorious.org/grilo
 
@@ -29,7 +30,9 @@ Description: Grilo framework plugins
   - Last.fm (for album arts)
   - Local metadata (album arts and thumbnails)
   - Metadata Store
+  - Optical Media
   - Podcasts
+  - SHOUTCast
   - Tracker
   - UPnP
   - Vimeo

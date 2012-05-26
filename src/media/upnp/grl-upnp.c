@@ -153,10 +153,12 @@ grl_upnp_plugin_init (GrlPluginRegistry *registry,
 
   GRL_DEBUG ("grl_upnp_plugin_init");
 
+#if !GLIB_CHECK_VERSION(2,32,0)
   /* libsoup needs this */
   if (!g_thread_supported()) {
     g_thread_init (NULL);
   }
+#endif
 
   context_manager = gupnp_context_manager_new (NULL, 0);
   g_signal_connect (context_manager,

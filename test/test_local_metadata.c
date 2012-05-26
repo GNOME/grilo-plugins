@@ -293,7 +293,9 @@ int
 main(int argc, char **argv)
 {
   grl_init (&argc, &argv);
+#if !GLIB_CHECK_VERSION(2,32,0)
   g_thread_init (NULL);
+#endif
 
   loop = g_main_loop_new (g_main_context_default (), TRUE);
 

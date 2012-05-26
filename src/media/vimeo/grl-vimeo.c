@@ -99,9 +99,11 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
 
   GRL_DEBUG ("vimeo_plugin_init");
 
+#if !GLIB_CHECK_VERSION(2,32,0)
   if (!g_thread_supported ()) {
     g_thread_init (NULL);
   }
+#endif
 
   if (!configs) {
     GRL_INFO ("Configuration not provided! Plugin not loaded");

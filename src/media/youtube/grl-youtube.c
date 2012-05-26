@@ -276,10 +276,12 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
     return FALSE;
   }
 
+#if !GLIB_CHECK_VERSION(2,32,0)
   /* libgdata needs this */
   if (!g_thread_supported()) {
     g_thread_init (NULL);
   }
+#endif
 
   source = grl_youtube_source_new (api_key, YOUTUBE_CLIENT_ID);
 

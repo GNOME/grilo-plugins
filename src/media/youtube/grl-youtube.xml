@@ -2,7 +2,7 @@
   <info>
     <name>YouTube</name>
     <module>libgrlyoutube</module>
-    <description>A plugin for browsing and searching Youtube videos</description>
+    <description>A plugin for browsing and searching YouTube videos</description>
     <author>Igalia S.L.</author>
     <license>LGPL</license>
     <site>http://www.igalia.com</site>

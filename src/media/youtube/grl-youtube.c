@@ -50,7 +50,7 @@ GRL_LOG_DOMAIN_STATIC(youtube_log_domain);
 
 /* ----- Root categories ---- */
 
-#define YOUTUBE_ROOT_NAME       "Youtube"
+#define YOUTUBE_ROOT_NAME       "YouTube"
 
 #define ROOT_DIR_FEEDS_INDEX      0
 #define ROOT_DIR_CATEGORIES_INDEX 1
@@ -112,8 +112,8 @@ GRL_LOG_DOMAIN_STATIC(youtube_log_domain);
 #define PLUGIN_ID   YOUTUBE_PLUGIN_ID
 
 #define SOURCE_ID   "grl-youtube"
-#define SOURCE_NAME "Youtube"
-#define SOURCE_DESC "A source for browsing and searching Youtube videos"
+#define SOURCE_NAME "YouTube"
+#define SOURCE_DESC "A source for browsing and searching YouTube videos"
 
 /* --- Data types --- */
 
@@ -243,7 +243,7 @@ CategoryInfo *categories_dir = NULL;
 
 static GrlYoutubeSource *ytsrc = NULL;
 
-/* =================== Youtube Plugin  =============== */
+/* =================== YouTube Plugin  =============== */
 
 gboolean
 grl_youtube_plugin_init (GrlPluginRegistry *registry,
@@ -299,7 +299,7 @@ GRL_PLUGIN_REGISTER (grl_youtube_plugin_init,
                      NULL,
                      PLUGIN_ID);
 
-/* ================== Youtube GObject ================ */
+/* ================== YouTube GObject ================ */
 
 G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_MEDIA_SOURCE);
 
@@ -321,7 +321,7 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
     return NULL;
   }
 
-  /* Use auto-split mode because Youtube fails for queries
+  /* Use auto-split mode because YouTube fails for queries
      that request more than YOUTUBE_MAX_CHUNK results */
   source = GRL_YOUTUBE_SOURCE (g_object_new (GRL_YOUTUBE_SOURCE_TYPE,
 					     "source-id", SOURCE_ID,
@@ -926,7 +926,7 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
     if (!error) {
       error = g_error_new (GRL_CORE_ERROR,
 			   os->error_code,
-			   "Failed to obtain feed from Youtube");
+			   "Failed to obtain feed from YouTube");
     } else {
       error->code = os->error_code;
     }
@@ -1055,7 +1055,7 @@ produce_from_directory (CategoryInfo *dir, gint dir_size, OperationSpec *os)
 
   GRL_DEBUG ("produce_from_directory");
 
-  /* Youtube's first index is 1, but the directories start at 0 */
+  /* YouTube's first index is 1, but the directories start at 0 */
   os->skip--;
 
   if (os->skip >= dir_size) {

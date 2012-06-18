@@ -355,7 +355,7 @@ AC_DEFINE_UNQUOTED([UPNP_PLUGIN_ID], ["$UPNP_PLUGIN_ID"], [UPnP plugin ID])
 
 AC_ARG_ENABLE(youtube,
         AC_HELP_STRING([--enable-youtube],
-                [enable Youtube plugin (default: auto)]),
+                [enable YouTube plugin (default: auto)]),
         [
                 case "$enableval" in
                      yes)

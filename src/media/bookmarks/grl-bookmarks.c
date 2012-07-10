@@ -337,13 +337,13 @@ grl_bookmarks_source_finalize (GObject *object)
 static gboolean
 mime_is_video (const gchar *mime)
 {
-  return mime && strstr (mime, "video") != NULL;
+  return mime && g_str_has_prefix (mime, "video/") != NULL;
 }
 
 static gboolean
 mime_is_audio (const gchar *mime)
 {
-  return mime && strstr (mime, "audio") != NULL;
+  return mime && g_str_has_prefix (mime, "audio/") != NULL;
 }
 
 static GrlMedia *

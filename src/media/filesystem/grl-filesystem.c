@@ -884,7 +884,6 @@ recursive_operation_got_entry (GFile *directory, GAsyncResult *res, RecursiveOpe
   if (error) {
     GRL_WARNING ("Got error: %s", error->message);
     g_error_free (error);
-    g_object_unref (enumerator);
     /* we couldn't get the children of this directory, but we probably have
      * other directories to try */
     recursive_entry_free (g_queue_pop_head (operation->directories));

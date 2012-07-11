@@ -20,6 +20,10 @@ if BOOKMARKS_PLUGIN
 SUBDIRS += bookmarks
 endif
 
+if DMAP_PLUGIN
+SUBDIRS += dmap
+endif
+
 if FAKEMETADATA_PLUGIN
 SUBDIRS += fake-metadata
 endif
@@ -81,8 +85,8 @@ SUBDIRS += youtube
 endif
 
 DIST_SUBDIRS = \
-	apple-trailers bliptv bookmarks fake-metadata filesystem flickr	\
-	gravatar jamendo lastfm-albumart local-metadata metadata-store		\
+	apple-trailers bliptv bookmarks dmap fake-metadata filesystem flickr	\
+	gravatar jamendo lastfm-albumart local-metadata metadata-store			\
 	optical-media podcasts shoutcast tracker upnp vimeo youtube
 
 MAINTAINERCLEANFILES =	\

@@ -1,0 +1,10 @@
+<plugin>
+  <info>
+    <name>DMAP</name>
+    <module>libgrldmap</module>
+    <description>A plugin for browsing DMAP servers</description>
+    <author>W. Michael Petullo</author>
+    <license>LGPL</license>
+    <site>http://www.flyn.org</site>
+  </info>
+</plugin>

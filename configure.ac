@@ -115,6 +115,8 @@ PKG_CHECK_MODULES(GUPNP, gupnp-1.0 >= 0.13, HAVE_GUPNP=yes, HAVE_GUPNP=no)
 
 PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0 >= 0.5, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=no)
 
+PKG_CHECK_MODULES(DMAP, libdmapsharing-3.0 >= 2.9.12, HAVE_DMAP=yes, HAVE_DMAP=no)
+
 PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
 
 PKG_CHECK_MODULES(GDATA, libgdata >= 0.7.0, HAVE_GDATA=yes, HAVE_GDATA=no)
@@ -804,6 +806,43 @@ AC_SUBST(LOCALMETADATA_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([LOCALMETADATA_PLUGIN_ID], ["$LOCALMETADATA_PLUGIN_ID"], [Local metadata plugin ID])
 
 # ----------------------------------------------------------
+# BUILD DMAP PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(dmap,
+        AC_HELP_STRING([--enable-dmap],
+                [enable DMAP plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_DMAP" = "xno"; then
+                           AC_MSG_ERROR([DMAP not found, install it or use --disable-dmap])
+                        fi
+                        if test "$xHAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-dmap])
+                        fi
+                esac
+        ],
+        [
+                if test "x$HAVE_DMAP" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                        enable_dmap=yes
+                else
+                        enable_dmap=no
+                fi
+        ])
+
+AM_CONDITIONAL([DMAP_PLUGIN], [test "x$enable_dmap" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL dmap"
+if test "x$enable_dmap" = "xyes"
+then
+       GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED dmap"
+fi
+
+DMAP_PLUGIN_ID="grl-dmap"
+AC_SUBST(DMAP_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([DMAP_PLUGIN_ID], ["$DMAP_PLUGIN_ID"], [DMAP plugin ID])
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -830,6 +869,7 @@ AC_CONFIG_FILES([
   src/apple-trailers/Makefile
   src/bliptv/Makefile
   src/bookmarks/Makefile
+  src/dmap/Makefile
   src/fake-metadata/Makefile
   src/filesystem/Makefile
   src/flickr/Makefile

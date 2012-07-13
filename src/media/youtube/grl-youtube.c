@@ -1223,7 +1223,7 @@ get_video_id_from_url (const gchar *url)
     return NULL;
   }
 
-  marker = g_str_has_prefix (url, YOUTUBE_WATCH_URL);
+  marker = strstr (url, YOUTUBE_WATCH_URL);
   if (!marker) {
     return NULL;
   }

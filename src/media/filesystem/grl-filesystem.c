@@ -258,19 +258,19 @@ static void cancel_monitors (GrlFilesystemSource *fs_source);
 static gboolean
 mime_is_video (const gchar *mime)
 {
-  return g_str_has_prefix (mime, "video/") != NULL;
+  return g_str_has_prefix (mime, "video/");
 }
 
 static gboolean
 mime_is_audio (const gchar *mime)
 {
-  return g_str_has_prefix (mime, "audio/") != NULL;
+  return g_str_has_prefix (mime, "audio/");
 }
 
 static gboolean
 mime_is_image (const gchar *mime)
 {
-  return g_str_has_prefix (mime, "image/") != NULL;
+  return g_str_has_prefix (mime, "image/");
 }
 
 static gboolean

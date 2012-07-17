@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Igalia S.L.
+ * Copyright (C) 2011-2012 Igalia S.L.
  * Copyright (C) 2011 Intel Corporation.
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
@@ -32,10 +32,9 @@
 #include <tracker-sparql.h>
 
 #include "grl-tracker.h"
-#include "grl-tracker-media.h"
-#include "grl-tracker-media-api.h"
-#include "grl-tracker-media-notif.h"
-#include "grl-tracker-metadata.h"
+#include "grl-tracker-source.h"
+#include "grl-tracker-source-api.h"
+#include "grl-tracker-source-notif.h"
 #include "grl-tracker-request-queue.h"
 #include "grl-tracker-utils.h"
 
@@ -94,10 +93,9 @@ init_sources (void)
   grl_tracker_queue = grl_tracker_queue_new ();
 
   if (grl_tracker_connection != NULL) {
-    grl_tracker_media_dbus_start_watch ();
+    grl_tracker_source_dbus_start_watch ();
 
-    grl_tracker_metadata_source_init ();
-    grl_tracker_media_sources_init ();
+    grl_tracker_source_sources_init ();
   }
 }
 
@@ -189,7 +187,6 @@ tracker_get_connection_cb (GObject      *object,
                            GrlPlugin    *plugin)
 {
   GError *error = NULL;
-  /* GrlTrackerMedia *source; */
 
   GRL_DEBUG ("%s", __FUNCTION__);
 
@@ -219,9 +216,8 @@ grl_tracker_plugin_init (GrlPluginRegistry *registry,
   gint config_count;
 
   GRL_LOG_DOMAIN_INIT (tracker_general_log_domain, "tracker-general");
-  grl_tracker_media_init_notifs ();
-  grl_tracker_media_init_requests ();
-  grl_tracker_metadata_init_requests ();
+  grl_tracker_source_init_notifs ();
+  grl_tracker_source_init_requests ();
 
   grl_tracker_plugin = plugin;
 

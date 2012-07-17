@@ -351,7 +351,7 @@ grl_tracker_key_is_supported (const GrlKeyID key)
 /**/
 
 gchar *
-grl_tracker_media_get_device_constraint (GrlTrackerMediaPriv *priv)
+grl_tracker_source_get_device_constraint (GrlTrackerSourcePriv *priv)
 {
   if (priv->tracker_datasource == NULL ||
       priv->tracker_datasource[0] == '\0')
@@ -362,7 +362,7 @@ grl_tracker_media_get_device_constraint (GrlTrackerMediaPriv *priv)
 }
 
 gchar *
-grl_tracker_media_get_select_string (const GList *keys)
+grl_tracker_source_get_select_string (const GList *keys)
 {
   const GList *key = keys;
   GString *gstr = g_string_new ("");
@@ -627,10 +627,10 @@ get_tracker_upnp_name (const gchar *datasource_name)
 }
 
 gchar *
-grl_tracker_get_media_name (const gchar *rdf_type,
-                            const gchar *uri,
-                            const gchar *datasource,
-                            const gchar *datasource_name)
+grl_tracker_get_source_name (const gchar *rdf_type,
+                             const gchar *uri,
+                             const gchar *datasource,
+                             const gchar *datasource_name)
 {
   gchar *source_name = NULL;
   gchar **rdf_single_type;
@@ -666,16 +666,4 @@ grl_tracker_supported_keys (GrlSource *source)
   }
 
   return supported_keys;
-}
-
-GrlCaps *
-grl_tracker_get_caps (GrlSource *source,
-                      GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  if (caps == NULL)
-    caps = grl_caps_new ();
-
-  return caps;
 }

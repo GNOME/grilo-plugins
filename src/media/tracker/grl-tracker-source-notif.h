@@ -1,9 +1,11 @@
 /*
  * Copyright (C) 2011 Intel Corporation.
+ * Copyright (C) 2011-2012 Igalia S.L.
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
  * Authors: Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+ *          Juan A. Suarez Romero <jasuarez@igalia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -22,10 +24,10 @@
  *
  */
 
-#ifndef _GRL_TRACKER_MEDIA_NOTIF_H_
-#define _GRL_TRACKER_MEDIA_NOTIF_H_
+#ifndef _GRL_TRACKER_SOURCE_NOTIF_H_
+#define _GRL_TRACKER_SOURCE_NOTIF_H_
 
-#include "grl-tracker-media.h"
+#include "grl-tracker-source.h"
 
 /* ------- Definitions ------- */
 
@@ -47,8 +49,8 @@
 
 /**/
 
-void grl_tracker_media_dbus_start_watch (void);
+void grl_tracker_source_dbus_start_watch (void);
 
-void grl_tracker_media_init_notifs (void);
+void grl_tracker_source_init_notifs (void);
 
-#endif /* _GRL_TRACKER_MEDIA_NOTIF_H_ */
+#endif /* _GRL_TRACKER_SOURCE_NOTIF_H_ */

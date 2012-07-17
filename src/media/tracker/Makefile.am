@@ -20,23 +20,21 @@ libgrltracker_la_LDFLAGS = \
 	-module		   \
 	-avoid-version
 
-libgrltracker_la_SOURCES = 		\
-	grl-tracker.c			\
-	grl-tracker.h			\
-	grl-tracker-media.c		\
-	grl-tracker-media.h		\
-	grl-tracker-media-api.c		\
-	grl-tracker-media-api.h		\
-	grl-tracker-media-cache.c	\
-	grl-tracker-media-cache.h	\
-	grl-tracker-media-notif.c	\
-	grl-tracker-media-notif.h	\
-	grl-tracker-media-priv.h	\
-	grl-tracker-metadata.c		\
-	grl-tracker-metadata.h		\
+libgrltracker_la_SOURCES =	 		\
+	grl-tracker.c						\
+	grl-tracker.h						\
+	grl-tracker-source.c				\
+	grl-tracker-source.h				\
+	grl-tracker-source-api.c		\
+	grl-tracker-source-api.h		\
+	grl-tracker-source-cache.c		\
+	grl-tracker-source-cache.h		\
+	grl-tracker-source-notif.c		\
+	grl-tracker-source-notif.h		\
+	grl-tracker-source-priv.h		\
 	grl-tracker-request-queue.c	\
 	grl-tracker-request-queue.h	\
-	grl-tracker-utils.c		\
+	grl-tracker-utils.c				\
 	grl-tracker-utils.h
 
 extdir				= $(GRL_PLUGINS_DIR)

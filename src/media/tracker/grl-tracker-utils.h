@@ -26,7 +26,7 @@
 #ifndef _GRL_TRACKER_UTILS_H_
 #define _GRL_TRACKER_UTILS_H_
 
-#include "grl-tracker-media-priv.h"
+#include "grl-tracker-source-priv.h"
 
 /* ------- Definitions ------- */
 
@@ -64,9 +64,6 @@ extern GrlKeyID grl_metadata_key_tracker_urn;
 
 const GList *grl_tracker_supported_keys (GrlSource *source);
 
-GrlCaps * grl_tracker_get_caps (GrlSource *source,
-                                GrlSupportedOps operation);
-
 gboolean grl_tracker_key_is_supported (const GrlKeyID key);
 
 void grl_tracker_setup_key_mappings (void);
@@ -75,9 +72,9 @@ tracker_grl_sparql_t *grl_tracker_get_mapping_from_sparql (const gchar *key);
 
 GrlMedia *grl_tracker_build_grilo_media (const gchar *rdf_type);
 
-gchar *grl_tracker_media_get_device_constraint (GrlTrackerMediaPriv *priv);
+gchar *grl_tracker_source_get_device_constraint (GrlTrackerSourcePriv *priv);
 
-gchar *grl_tracker_media_get_select_string (const GList *keys);
+gchar *grl_tracker_source_get_select_string (const GList *keys);
 
 gchar *grl_tracker_tracker_get_insert_string (GrlMedia *media,
                                               const GList *keys);
@@ -87,9 +84,9 @@ gchar *grl_tracker_get_delete_string (const GList *keys);
 gchar *grl_tracker_get_delete_conditional_string (const gchar *urn,
                                                   const GList *keys);
 
-gchar *grl_tracker_get_media_name (const gchar *rdf_type,
-                                   const gchar *uri,
-                                   const gchar *datasource,
-                                   const gchar *datasource_name);
+gchar *grl_tracker_get_source_name (const gchar *rdf_type,
+                                    const gchar *uri,
+                                    const gchar *datasource,
+                                    const gchar *datasource_name);
 
 #endif /* _GRL_TRACKER_UTILS_H_ */

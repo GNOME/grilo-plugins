@@ -1,9 +1,11 @@
 /*
  * Copyright (C) 2011 Intel Corporation.
+ * Copyright (C) 2011 Igalia S.L.
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
  * Authors: Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+ *          Juan A. Suarez Romero <jasuarez@igalia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -24,10 +26,10 @@
 
 #include <glib.h>
 
-#include "grl-tracker-media-cache.h"
+#include "grl-tracker-source-cache.h"
 
 typedef struct {
-  GrlTrackerMedia *source;
+  GrlTrackerSource *source;
 
   GHashTable *id_table;
 } GrlTrackerCacheSource;
@@ -42,7 +44,7 @@ struct _GrlTrackerCache {
 };
 
 static GrlTrackerCacheSource *
-grl_tracker_cache_media_new (GrlTrackerMedia *source)
+grl_tracker_cache_source_new (GrlTrackerSource *source)
 {
   GrlTrackerCacheSource *csource = g_slice_new0 (GrlTrackerCacheSource);
 
@@ -53,7 +55,7 @@ grl_tracker_cache_media_new (GrlTrackerMedia *source)
 }
 
 static void
-grl_tracker_cache_media_free (GrlTrackerCacheSource *csource)
+grl_tracker_cache_source_free (GrlTrackerCacheSource *csource)
 {
   g_hash_table_destroy (csource->id_table);
 
@@ -63,7 +65,7 @@ grl_tracker_cache_media_free (GrlTrackerCacheSource *csource)
 /**/
 
 GrlTrackerCache *
-grl_tracker_media_cache_new (gsize size)
+grl_tracker_source_cache_new (gsize size)
 {
   GrlTrackerCache *cache;
 
@@ -82,7 +84,7 @@ grl_tracker_media_cache_new (gsize size)
 }
 
 void
-grl_tracker_media_cache_free (GrlTrackerCache *cache)
+grl_tracker_source_cache_free (GrlTrackerCache *cache)
 {
   GHashTableIter iter;
   gpointer key, value;
@@ -91,7 +93,7 @@ grl_tracker_media_cache_free (GrlTrackerCache *cache)
 
   g_hash_table_iter_init (&iter, cache->source_table);
   while (g_hash_table_iter_next (&iter, &key, &value)) {
-    grl_tracker_media_cache_del_source (cache, key);
+    grl_tracker_source_cache_del_source (cache, key);
   }
 
   if (cache->id_list) {
@@ -105,9 +107,9 @@ grl_tracker_media_cache_free (GrlTrackerCache *cache)
 }
 
 void
-grl_tracker_media_cache_add_item (GrlTrackerCache *cache,
-                                  guint id,
-                                  GrlTrackerMedia *source)
+grl_tracker_source_cache_add_item (GrlTrackerCache *cache,
+                                   guint id,
+                                   GrlTrackerSource *source)
 {
   GList *lid;
   GrlTrackerCacheSource *csource;
@@ -120,7 +122,7 @@ grl_tracker_media_cache_add_item (GrlTrackerCache *cache,
   csource = g_hash_table_lookup (cache->source_table, source);
 
   if (!csource) {
-    csource = grl_tracker_cache_media_new (source);
+    csource = grl_tracker_cache_source_new (source);
     g_hash_table_insert (cache->source_table, source, csource);
   }
 
@@ -144,8 +146,8 @@ grl_tracker_media_cache_add_item (GrlTrackerCache *cache,
 }
 
 void
-grl_tracker_media_cache_del_source (GrlTrackerCache *cache,
-                                    GrlTrackerMedia *source)
+grl_tracker_source_cache_del_source (GrlTrackerCache *cache,
+                                     GrlTrackerSource *source)
 {
   GrlTrackerCacheSource *csource;
   GHashTableIter iter;
@@ -167,11 +169,11 @@ grl_tracker_media_cache_del_source (GrlTrackerCache *cache,
   }
 
   g_hash_table_remove (cache->source_table, source);
-  grl_tracker_cache_media_free (csource);
+  grl_tracker_cache_source_free (csource);
 }
 
-GrlTrackerMedia *
-grl_tracker_media_cache_get_source (GrlTrackerCache *cache, guint id)
+GrlTrackerSource *
+grl_tracker_source_cache_get_source (GrlTrackerCache *cache, guint id)
 {
   GrlTrackerCacheSource *csource;
 

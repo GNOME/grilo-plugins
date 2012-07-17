@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010, 2011 Igalia S.L.
+ * Copyright (C) 2012 Canonical Ltd.
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
@@ -169,11 +170,11 @@ register_gravatar_key (GrlRegistry *registry,
                               G_PARAM_READWRITE);
 
   key = grl_registry_register_metadata_key (registry, spec, NULL);
+  g_param_spec_unref (spec);
 
   /* If key was not registered, could be that it is already registered. If so,
      check if type is the expected one, and reuse it */
   if (key == GRL_METADATA_KEY_INVALID) {
-    g_param_spec_unref (spec);
     key = grl_registry_lookup_metadata_key (registry, name);
     if (grl_metadata_key_get_type (key) != G_TYPE_STRING) {
       key = GRL_METADATA_KEY_INVALID;

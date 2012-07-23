@@ -143,16 +143,16 @@ static gboolean
 setup (void)
 {
   gboolean ret;
-  GrlPluginRegistry *registry;
+  GrlRegistry *registry;
   ret = install_thumbnail (TEST_IMAGE1);
   if (!ret)
     goto finish;
 
-  registry = grl_plugin_registry_get_default ();
-  grl_plugin_registry_load_all (registry, NULL);
+  registry = grl_registry_get_default ();
+  grl_registry_load_all (registry, NULL);
   local_source =
-    GRL_SOURCE (grl_plugin_registry_lookup_source (registry,
-                                                   LOCAL_SOURCE_ID));
+    GRL_SOURCE (grl_registry_lookup_source (registry,
+                                            LOCAL_SOURCE_ID));
 
 finish:
   return ret;

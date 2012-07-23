@@ -57,12 +57,12 @@ static gboolean grl_gravatar_source_may_resolve (GrlSource *source,
                                                  GrlKeyID key_id,
                                                  GList **missing_keys);
 
-static GrlKeyID register_gravatar_key (GrlPluginRegistry *registry,
+static GrlKeyID register_gravatar_key (GrlRegistry *registry,
                                        const gchar *name,
                                        const gchar *nick,
                                        const gchar *blurb);
 
-gboolean grl_gravatar_source_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_gravatar_source_plugin_init (GrlRegistry *registry,
                                           GrlPlugin *plugin,
                                           GList *configs);
 
@@ -72,7 +72,7 @@ GrlKeyID GRL_METADATA_KEY_AUTHOR_AVATAR = 0;
 /* =================== Gravatar Plugin  =============== */
 
 gboolean
-grl_gravatar_source_plugin_init (GrlPluginRegistry *registry,
+grl_gravatar_source_plugin_init (GrlRegistry *registry,
                                  GrlPlugin *plugin,
                                  GList *configs)
 {
@@ -99,19 +99,19 @@ grl_gravatar_source_plugin_init (GrlPluginRegistry *registry,
   }
 
   /* Create relationship */
-  grl_plugin_registry_register_metadata_key_relation (registry,
-                                                      GRL_METADATA_KEY_ARTIST,
-                                                      GRL_METADATA_KEY_ARTIST_AVATAR);
+  grl_registry_register_metadata_key_relation (registry,
+                                               GRL_METADATA_KEY_ARTIST,
+                                               GRL_METADATA_KEY_ARTIST_AVATAR);
 
-  grl_plugin_registry_register_metadata_key_relation (registry,
-                                                      GRL_METADATA_KEY_AUTHOR,
-                                                      GRL_METADATA_KEY_AUTHOR_AVATAR);
+  grl_registry_register_metadata_key_relation (registry,
+                                               GRL_METADATA_KEY_AUTHOR,
+                                               GRL_METADATA_KEY_AUTHOR_AVATAR);
 
   GrlGravatarSource *source = grl_gravatar_source_new ();
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
   return TRUE;
 }
 
@@ -154,7 +154,7 @@ G_DEFINE_TYPE (GrlGravatarSource,
 /* ======================= Utilities ==================== */
 
 static GrlKeyID
-register_gravatar_key (GrlPluginRegistry *registry,
+register_gravatar_key (GrlRegistry *registry,
                        const gchar *name,
                        const gchar *nick,
                        const gchar *blurb)
@@ -168,13 +168,13 @@ register_gravatar_key (GrlPluginRegistry *registry,
                               NULL,
                               G_PARAM_READWRITE);
 
-  key = grl_plugin_registry_register_metadata_key (registry, spec, NULL);
+  key = grl_registry_register_metadata_key (registry, spec, NULL);
 
   /* If key was not registered, could be that it is already registered. If so,
      check if type is the expected one, and reuse it */
   if (key == GRL_METADATA_KEY_INVALID) {
     g_param_spec_unref (spec);
-    key = grl_plugin_registry_lookup_metadata_key (registry, name);
+    key = grl_registry_lookup_metadata_key (registry, name);
     if (grl_metadata_key_get_type (key) != G_TYPE_STRING) {
       key = GRL_METADATA_KEY_INVALID;
     }

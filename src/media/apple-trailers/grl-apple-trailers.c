@@ -82,7 +82,7 @@ struct _GrlAppleTrailersSourcePriv {
 static GrlAppleTrailersSource *grl_apple_trailers_source_new (gboolean hd,
                                                               gboolean xlarge);
 
-gboolean grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_apple_trailers_plugin_init (GrlRegistry *registry,
                                          GrlPlugin *plugin,
                                          GList *configs);
 
@@ -100,7 +100,7 @@ static GrlCaps *grl_apple_trailers_source_get_caps (GrlSource *source,
 /* =================== Apple Trailers Plugin  =============== */
 
 gboolean
-grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
+grl_apple_trailers_plugin_init (GrlRegistry *registry,
                                 GrlPlugin *plugin,
                                 GList *configs)
 {
@@ -139,10 +139,10 @@ grl_apple_trailers_plugin_init (GrlPluginRegistry *registry,
   }
 
   source = grl_apple_trailers_source_new (hd, xlarge);
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
   return TRUE;
 }
 

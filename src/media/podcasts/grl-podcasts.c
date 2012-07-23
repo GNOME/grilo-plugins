@@ -267,7 +267,7 @@ static gboolean grl_podcasts_source_notify_change_stop (GrlSource *source,
 /* =================== Podcasts Plugin  =============== */
 
 static gboolean
-grl_podcasts_plugin_init (GrlPluginRegistry *registry,
+grl_podcasts_plugin_init (GrlRegistry *registry,
                           GrlPlugin *plugin,
                           GList *configs)
 {
@@ -280,10 +280,10 @@ grl_podcasts_plugin_init (GrlPluginRegistry *registry,
   GRL_DEBUG ("podcasts_plugin_init");
 
   GrlPodcastsSource *source = grl_podcasts_source_new ();
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
 
   source->priv->cache_time = DEFAULT_CACHE_TIME;
   if (!configs || !configs->data) {

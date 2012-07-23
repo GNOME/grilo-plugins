@@ -98,7 +98,7 @@ static gchar *build_source_id (const gchar *udn);
 
 static GrlUpnpSource *grl_upnp_source_new (const gchar *id, const gchar *name);
 
-gboolean grl_upnp_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_upnp_plugin_init (GrlRegistry *registry,
                                GrlPlugin *plugin,
                                GList *configs);
 
@@ -148,7 +148,7 @@ static GUPnPContextManager *context_manager = NULL;
 /* =================== UPnP Plugin  =============== */
 
 gboolean
-grl_upnp_plugin_init (GrlPluginRegistry *registry,
+grl_upnp_plugin_init (GrlRegistry *registry,
                       GrlPlugin *plugin,
                       GList *configs)
 {
@@ -318,7 +318,7 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
   gchar *name;
   GrlUpnpSource *source;
   gchar *source_id;
-  GrlPluginRegistry *registry;
+  GrlRegistry *registry;
   struct SourceInfo *source_info;
   gboolean result;
 
@@ -338,8 +338,8 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
   name = source_info->source_name;
   source_id = source_info->source_id;
 
-  registry = grl_plugin_registry_get_default ();
-  if (grl_plugin_registry_lookup_source (registry, source_id)) {
+  registry = grl_registry_get_default ();
+  if (grl_registry_lookup_source (registry, source_id)) {
     GRL_DEBUG ("A source with id '%s' is already registered. Skipping...",
                source_id);
     goto free_resources;
@@ -358,10 +358,10 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
     GRL_DEBUG ("Setting search disabled for source '%s'", name );
   }
 
-  grl_plugin_registry_register_source (registry,
-                                       source_info->plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                source_info->plugin,
+                                GRL_SOURCE (source),
+                                NULL);
 
  free_resources:
   g_free (caps);
@@ -403,7 +403,7 @@ device_available_cb (GUPnPControlPoint *cp,
   const gchar* udn;
   const char *type;
   GUPnPServiceInfo *service;
-  GrlPluginRegistry *registry;
+  GrlRegistry *registry;
   gchar *source_id;
 
   GRL_DEBUG ("device_available_cb");
@@ -424,9 +424,9 @@ device_available_cb (GUPnPControlPoint *cp,
   name = gupnp_device_info_get_friendly_name (GUPNP_DEVICE_INFO (device));
   GRL_DEBUG ("  name: %s", name);
 
-  registry = grl_plugin_registry_get_default ();
+  registry = grl_registry_get_default ();
   source_id = build_source_id (udn);
-  if (grl_plugin_registry_lookup_source (registry, source_id)) {
+  if (grl_registry_lookup_source (registry, source_id)) {
     GRL_DEBUG ("A source with id '%s' is already registered. Skipping...",
                source_id);
     g_free (name);
@@ -450,11 +450,11 @@ device_available_cb (GUPnPControlPoint *cp,
     GrlUpnpSource *source = grl_upnp_source_new (source_id, name);
     GRL_WARNING ("Failed to start GetCapabilitiesSearch action");
     GRL_DEBUG ("Setting search disabled for source '%s'", name );
-    registry = grl_plugin_registry_get_default ();
-    grl_plugin_registry_register_source (registry,
-                                         source_info->plugin,
-                                         GRL_SOURCE (source),
-                                         NULL);
+    registry = grl_registry_get_default ();
+    grl_registry_register_source (registry,
+                                  source_info->plugin,
+                                  GRL_SOURCE (source),
+                                  NULL);
     free_source_info (source_info);
   }
 
@@ -470,7 +470,7 @@ device_unavailable_cb (GUPnPControlPoint *cp,
 {
   const gchar* udn;
   GrlSource *source;
-  GrlPluginRegistry *registry;
+  GrlRegistry *registry;
   gchar *source_id;
 
   GRL_DEBUG ("device_unavailable_cb");
@@ -478,13 +478,13 @@ device_unavailable_cb (GUPnPControlPoint *cp,
   udn = gupnp_device_info_get_udn (GUPNP_DEVICE_INFO (device));
   GRL_DEBUG ("   udn: %s ", udn);
 
-  registry = grl_plugin_registry_get_default ();
+  registry = grl_registry_get_default ();
   source_id = build_source_id (udn);
-  source = grl_plugin_registry_lookup_source (registry, source_id);
+  source = grl_registry_lookup_source (registry, source_id);
   if (!source) {
     GRL_DEBUG ("No source registered with id '%s', ignoring", source_id);
   } else {
-    grl_plugin_registry_unregister_source (registry, source, NULL);
+    grl_registry_unregister_source (registry, source, NULL);
   }
 
   g_free (source_id);

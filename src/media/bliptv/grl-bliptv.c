@@ -87,7 +87,7 @@ static void bliptv_setup_mapping (void);
 
 static GrlBliptvSource *grl_bliptv_source_new (void);
 
-gboolean grl_bliptv_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_bliptv_plugin_init (GrlRegistry *registry,
                                  GrlPlugin *plugin,
                                  GList *configs);
 
@@ -108,7 +108,7 @@ static void grl_bliptv_source_cancel (GrlSource *source,
 /**/
 
 gboolean
-grl_bliptv_plugin_init (GrlPluginRegistry *registry,
+grl_bliptv_plugin_init (GrlRegistry *registry,
                         GrlPlugin *plugin,
                         GList *configs)
 {
@@ -117,10 +117,10 @@ grl_bliptv_plugin_init (GrlPluginRegistry *registry,
   bliptv_setup_mapping ();
 
   GrlBliptvSource *source = grl_bliptv_source_new ();
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
   return TRUE;
 }
 

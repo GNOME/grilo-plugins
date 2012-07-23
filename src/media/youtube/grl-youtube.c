@@ -185,7 +185,7 @@ static void grl_youtube_source_set_property (GObject *object,
                                              GParamSpec *pspec);
 static void grl_youtube_source_finalize (GObject *object);
 
-gboolean grl_youtube_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_youtube_plugin_init (GrlRegistry *registry,
                                   GrlPlugin *plugin,
                                   GList *configs);
 
@@ -246,7 +246,7 @@ static GrlYoutubeSource *ytsrc = NULL;
 /* =================== YouTube Plugin  =============== */
 
 gboolean
-grl_youtube_plugin_init (GrlPluginRegistry *registry,
+grl_youtube_plugin_init (GrlRegistry *registry,
                          GrlPlugin *plugin,
                          GList *configs)
 {
@@ -285,10 +285,10 @@ grl_youtube_plugin_init (GrlPluginRegistry *registry,
 
   source = grl_youtube_source_new (api_key, YOUTUBE_CLIENT_ID);
 
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
 
   g_free (api_key);
 

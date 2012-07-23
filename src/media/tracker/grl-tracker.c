@@ -67,7 +67,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_general_log_domain);
 
 /* --- Other --- */
 
-gboolean grl_tracker_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_tracker_plugin_init (GrlRegistry *registry,
                                   GrlPlugin *plugin,
                                   GList *configs);
 
@@ -208,7 +208,7 @@ tracker_get_connection_cb (GObject      *object,
 }
 
 gboolean
-grl_tracker_plugin_init (GrlPluginRegistry *registry,
+grl_tracker_plugin_init (GrlRegistry *registry,
                          GrlPlugin *plugin,
                          GList *configs)
 {

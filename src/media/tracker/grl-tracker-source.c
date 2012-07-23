@@ -229,10 +229,10 @@ grl_tracker_add_source (GrlTrackerSource *source)
                          (gpointer) grl_tracker_source_get_tracker_source (source),
                          source);
     priv->state = GRL_TRACKER_SOURCE_STATE_RUNNING;
-    grl_plugin_registry_register_source (grl_plugin_registry_get_default (),
-                                         grl_tracker_plugin,
-                                         GRL_SOURCE (source),
-                                         NULL);
+    grl_registry_register_source (grl_registry_get_default (),
+                                  grl_tracker_plugin,
+                                  GRL_SOURCE (source),
+                                  NULL);
   }
 }
 
@@ -254,9 +254,9 @@ grl_tracker_del_source (GrlTrackerSource *source)
                          grl_tracker_source_get_tracker_source (source));
     grl_tracker_source_cache_del_source (grl_tracker_item_cache, source);
     priv->state = GRL_TRACKER_SOURCE_STATE_DELETED;
-    grl_plugin_registry_unregister_source (grl_plugin_registry_get_default (),
-                                           GRL_SOURCE (source),
-                                           NULL);
+    grl_registry_unregister_source (grl_registry_get_default (),
+                                    GRL_SOURCE (source),
+                                    NULL);
   }
 }
 

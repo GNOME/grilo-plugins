@@ -186,7 +186,7 @@ static GrlCaps * grl_bookmarks_source_get_caps (GrlSource *source,
  /* =================== Bookmarks Plugin  =============== */
 
  static gboolean
- grl_bookmarks_plugin_init (GrlPluginRegistry *registry,
+ grl_bookmarks_plugin_init (GrlRegistry *registry,
                             GrlPlugin *plugin,
                             GList *configs)
  {
@@ -201,13 +201,13 @@ static GrlCaps * grl_bookmarks_source_get_caps (GrlSource *source,
                               G_TYPE_DATE_TIME,
                               G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
    GRL_BOOKMARKS_KEY_BOOKMARK_TIME =
-       grl_plugin_registry_register_metadata_key (registry, spec, NULL);
+       grl_registry_register_metadata_key (registry, spec, NULL);
    /* If key was not registered, could be that it is already registered. If so,
       check if type is the expected one, and reuse it */
    if (GRL_BOOKMARKS_KEY_BOOKMARK_TIME == GRL_METADATA_KEY_INVALID) {
      g_param_spec_unref (spec);
      GRL_BOOKMARKS_KEY_BOOKMARK_TIME =
-         grl_plugin_registry_lookup_metadata_key (registry, "bookmark-date");
+         grl_registry_lookup_metadata_key (registry, "bookmark-date");
      if (grl_metadata_key_get_type (GRL_BOOKMARKS_KEY_BOOKMARK_TIME)
          != G_TYPE_DATE_TIME) {
        GRL_BOOKMARKS_KEY_BOOKMARK_TIME = GRL_METADATA_KEY_INVALID;
@@ -215,10 +215,10 @@ static GrlCaps * grl_bookmarks_source_get_caps (GrlSource *source,
    }
 
    GrlBookmarksSource *source = grl_bookmarks_source_new ();
-   grl_plugin_registry_register_source (registry,
-                                        plugin,
-                                        GRL_SOURCE (source),
-                                        NULL);
+   grl_registry_register_source (registry,
+                                 plugin,
+                                 GRL_SOURCE (source),
+                                 NULL);
    return TRUE;
  }
 

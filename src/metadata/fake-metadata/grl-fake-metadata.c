@@ -54,7 +54,7 @@ static gboolean grl_fake_metadata_source_may_resolve (GrlSource *source,
 
 static const GList *grl_fake_metadata_source_writable_keys (GrlSource *source);
 
-gboolean grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_fake_metadata_source_plugin_init (GrlRegistry *registry,
                                                GrlPlugin *plugin,
                                                GList *configs);
 
@@ -62,7 +62,7 @@ gboolean grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
 /* =================== GrlFakeMetadata Plugin  =============== */
 
 gboolean
-grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
+grl_fake_metadata_source_plugin_init (GrlRegistry *registry,
                                       GrlPlugin *plugin,
                                       GList *configs)
 {
@@ -71,10 +71,10 @@ grl_fake_metadata_source_plugin_init (GrlPluginRegistry *registry,
   GRL_DEBUG ("grl_fake_metadata_source_plugin_init");
 
   GrlFakeMetadataSource *source = grl_fake_metadata_source_new ();
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
   return TRUE;
 }
 

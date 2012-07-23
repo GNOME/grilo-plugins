@@ -94,7 +94,7 @@ typedef struct {
 
 static GrlShoutcastSource *grl_shoutcast_source_new (const gchar *dev_key);
 
-gboolean grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_shoutcast_plugin_init (GrlRegistry *registry,
                                     GrlPlugin *plugin,
                                     GList *configs);
 
@@ -124,7 +124,7 @@ static void grl_shoutcast_source_finalize (GObject *object);
 /* =================== SHOUTcast Plugin  =============== */
 
 gboolean
-grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
+grl_shoutcast_plugin_init (GrlRegistry *registry,
                            GrlPlugin *plugin,
                            GList *configs)
 {
@@ -155,10 +155,10 @@ grl_shoutcast_plugin_init (GrlPluginRegistry *registry,
   }
 
   source = grl_shoutcast_source_new (dev_key);
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
 
   g_free (dev_key);
 

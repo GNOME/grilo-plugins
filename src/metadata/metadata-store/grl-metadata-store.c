@@ -101,7 +101,7 @@ static const GList *grl_metadata_store_source_supported_keys (GrlSource *source)
 
 static const GList *grl_metadata_store_source_writable_keys (GrlSource *source);
 
-gboolean grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_metadata_store_source_plugin_init (GrlRegistry *registry,
                                                 GrlPlugin *plugin,
                                                 GList *configs);
 
@@ -109,7 +109,7 @@ gboolean grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
 /* =================== GrlMetadataStore Plugin  =============== */
 
 gboolean
-grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
+grl_metadata_store_source_plugin_init (GrlRegistry *registry,
                                        GrlPlugin *plugin,
                                        GList *configs)
 {
@@ -118,10 +118,10 @@ grl_metadata_store_source_plugin_init (GrlPluginRegistry *registry,
   GRL_DEBUG ("grl_metadata_store_source_plugin_init");
 
   GrlMetadataStoreSource *source = grl_metadata_store_source_new ();
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
   return TRUE;
 }
 

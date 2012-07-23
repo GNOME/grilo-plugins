@@ -75,7 +75,7 @@ static gboolean grl_lastfm_albumart_source_may_resolve (GrlSource *source,
 static void grl_lastfm_albumart_source_cancel (GrlSource *source,
                                                guint operation_id);
 
-gboolean grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_lastfm_albumart_source_plugin_init (GrlRegistry *registry,
                                                  GrlPlugin *plugin,
                                                  GList *configs);
 
@@ -83,7 +83,7 @@ gboolean grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
 /* =================== Last.FM-AlbumArt Plugin  =============== */
 
 gboolean
-grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
+grl_lastfm_albumart_source_plugin_init (GrlRegistry *registry,
                                         GrlPlugin *plugin,
                                         GList *configs)
 {
@@ -92,10 +92,10 @@ grl_lastfm_albumart_source_plugin_init (GrlPluginRegistry *registry,
   GRL_DEBUG ("grl_lastfm_albumart_source_plugin_init");
 
   GrlLastfmAlbumartSource *source = grl_lastfm_albumart_source_new ();
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
   return TRUE;
 }
 

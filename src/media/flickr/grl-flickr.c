@@ -92,7 +92,7 @@ static void grl_flickr_source_personal_new (GrlPlugin *plugin,
 
 static void grl_flickr_source_finalize (GObject *object);
 
-gboolean grl_flickr_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_flickr_plugin_init (GrlRegistry *registry,
                                  GrlPlugin *plugin,
                                  GList *configs);
 
@@ -114,7 +114,7 @@ static void grl_flickr_source_search (GrlSource *source,
 /* =================== Flickr Plugin  =============== */
 
 gboolean
-grl_flickr_plugin_init (GrlPluginRegistry *registry,
+grl_flickr_plugin_init (GrlRegistry *registry,
                         GrlPlugin *plugin,
                         GList *configs)
 {
@@ -153,10 +153,10 @@ grl_flickr_plugin_init (GrlPluginRegistry *registry,
     } else {
       GrlFlickrSource *source = grl_flickr_source_public_new (flickr_key, flickr_secret);
       public_source_created = TRUE;
-      grl_plugin_registry_register_source (registry,
-                                           plugin,
-                                           GRL_SOURCE (source),
-                                           NULL);
+      grl_registry_register_source (registry,
+                                    plugin,
+                                    GRL_SOURCE (source),
+                                    NULL);
     }
 
     if (flickr_key != NULL)
@@ -258,7 +258,7 @@ token_info_cb (GFlickr *f,
 {
   GrlFlickrSource *source;
   GrlPlugin *plugin = (GrlPlugin *) user_data;
-  GrlPluginRegistry *registry;
+  GrlRegistry *registry;
   gchar *fullname;
   gchar *source_desc;
   gchar *source_id;
@@ -271,7 +271,7 @@ token_info_cb (GFlickr *f,
     return;
   }
 
-  registry = grl_plugin_registry_get_default ();
+  registry = grl_registry_get_default ();
 
   username = g_hash_table_lookup (info, "user_username");
   fullname = g_hash_table_lookup (info, "user_fullname");
@@ -281,7 +281,7 @@ token_info_cb (GFlickr *f,
   source_desc = g_strdup_printf (PERSONAL_SOURCE_DESC, fullname);
 
   /* Check if source is already registered */
-  if (grl_plugin_registry_lookup_source (registry, source_id)) {
+  if (grl_registry_lookup_source (registry, source_id)) {
     GRL_DEBUG ("A source with id '%s' is already registered. Skipping...",
                source_id);
     g_object_unref (f);
@@ -293,10 +293,10 @@ token_info_cb (GFlickr *f,
                            NULL);
     source->priv->flickr = f;
     source->priv->user_id = g_strdup (g_hash_table_lookup (info, "user_nsid"));
-    grl_plugin_registry_register_source (registry,
-                                         plugin,
-                                         GRL_SOURCE (source),
-                                         NULL);
+    grl_registry_register_source (registry,
+                                  plugin,
+                                  GRL_SOURCE (source),
+                                  NULL);
   }
 
   g_free (source_id);

@@ -171,7 +171,7 @@ struct _GrlJamendoSourcePriv {
 
 static GrlJamendoSource *grl_jamendo_source_new (void);
 
-gboolean grl_jamendo_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_jamendo_plugin_init (GrlRegistry *registry,
                                   GrlPlugin *plugin,
                                   GList *configs);
 
@@ -198,7 +198,7 @@ static void grl_jamendo_source_cancel (GrlSource *source,
 /* =================== Jamendo Plugin  =============== */
 
 gboolean
-grl_jamendo_plugin_init (GrlPluginRegistry *registry,
+grl_jamendo_plugin_init (GrlRegistry *registry,
                          GrlPlugin *plugin,
                          GList *configs)
 {
@@ -207,10 +207,10 @@ grl_jamendo_plugin_init (GrlPluginRegistry *registry,
   GRL_TRACE ();
 
   GrlJamendoSource *source = grl_jamendo_source_new ();
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
   return TRUE;
 }
 

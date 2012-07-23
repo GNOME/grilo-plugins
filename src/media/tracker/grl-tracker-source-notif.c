@@ -290,8 +290,8 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
     return;
   }
 
-  sources = grl_plugin_registry_get_sources (grl_plugin_registry_get_default (),
-					     FALSE);
+  sources = grl_registry_get_sources (grl_registry_get_default (),
+                                      FALSE);
 
   request_str = g_string_new ("");
   subjects = g_hash_table_get_keys (evt->orphan_items);

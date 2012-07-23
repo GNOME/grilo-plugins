@@ -67,7 +67,7 @@ struct _GrlVimeoSourcePrivate {
 
 static GrlVimeoSource *grl_vimeo_source_new (void);
 
-gboolean grl_vimeo_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_vimeo_plugin_init (GrlRegistry *registry,
                                 GrlPlugin *plugin,
                                 GList *configs);
 
@@ -85,7 +85,7 @@ static void grl_vimeo_source_search (GrlSource *source,
 /* =================== Vimeo Plugin  =============== */
 
 gboolean
-grl_vimeo_plugin_init (GrlPluginRegistry *registry,
+grl_vimeo_plugin_init (GrlRegistry *registry,
                        GrlPlugin *plugin,
                        GList *configs)
 {
@@ -130,10 +130,10 @@ grl_vimeo_plugin_init (GrlPluginRegistry *registry,
   source = grl_vimeo_source_new ();
   source->priv->vimeo = g_vimeo_new (vimeo_key, vimeo_secret);
 
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
   init_result = TRUE;
 
  go_out:

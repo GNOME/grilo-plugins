@@ -114,7 +114,7 @@ static gboolean grl_local_metadata_source_may_resolve (GrlSource *source,
                                                        GrlKeyID key_id,
                                                        GList **missing_keys);
 
-gboolean grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_local_metadata_source_plugin_init (GrlRegistry *registry,
                                                 GrlPlugin *plugin,
                                                 GList *configs);
 
@@ -123,7 +123,7 @@ gboolean grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
 /* =================== GrlLocalMetadata Plugin  =============== */
 
 gboolean
-grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
+grl_local_metadata_source_plugin_init (GrlRegistry *registry,
                                        GrlPlugin *plugin,
                                        GList *configs)
 {
@@ -149,10 +149,10 @@ grl_local_metadata_source_plugin_init (GrlPluginRegistry *registry,
   }
 
   GrlLocalMetadataSource *source = grl_local_metadata_source_new (guess_video);
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
   return TRUE;
 }
 

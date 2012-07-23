@@ -219,91 +219,91 @@ main (void)
 
   GRL_DEBUG ("loading plugins");
 
-  GrlPluginRegistry *registry = grl_plugin_registry_get_default ();
+  GrlRegistry *registry = grl_registry_get_default ();
 
   GrlConfig *config = grl_config_new ("grl-youtube", NULL);
   grl_config_set_api_key (config, YOUTUBE_KEY);
-  grl_plugin_registry_add_config (registry, config, NULL);
+  grl_registry_add_config (registry, config, NULL);
 
-  grl_plugin_registry_load (registry,
-                            "../src/media/youtube/.libs/libgrlyoutube.so",
-                            NULL);
-  grl_plugin_registry_load (registry,
-                            "../src/media/filesystem/.libs/libgrlfilesystem.so",
-                            NULL);
-  grl_plugin_registry_load (registry,
-                            "../src/media/jamendo/.libs/libgrljamendo.so",
-                            NULL);
-  grl_plugin_registry_load (registry,
-                            "../src/media/shoutcast/.libs/libgrlshoutcast.so",
-                            NULL);
-  grl_plugin_registry_load (registry,
-                            "../src/media/apple-trailers/.libs/libgrlappletrailers.so",
-                            NULL);
-  grl_plugin_registry_load (registry,
-                            "../src/metadata/fake-metadata/.libs/libgrlfakemetadata.so",
-                            NULL);
-  grl_plugin_registry_load (registry,
-                            "../src/metadata/lastfm-albumart/.libs/libgrllastfm-albumart.so",
-                            NULL);
-  grl_plugin_registry_load (registry,
-                            "../src/media/flickr/.libs/libgrlflickr.so",
-                            NULL);
-  grl_plugin_registry_load (registry,
-                            "../src/metadata/metadata-store/.libs/libgrlmetadatastore.so",
-                            NULL);
-  grl_plugin_registry_load (registry,
-                            "../src/media/bookmarks/.libs/libgrlbookmarks.so",
-                            NULL);
-  grl_plugin_registry_load (registry,
-                            "../src/media/podcasts/.libs/libgrlpodcasts.so",
-                            NULL);
+  grl_registry_load (registry,
+                     "../src/media/youtube/.libs/libgrlyoutube.so",
+                     NULL);
+  grl_registry_load (registry,
+                     "../src/media/filesystem/.libs/libgrlfilesystem.so",
+                     NULL);
+  grl_registry_load (registry,
+                     "../src/media/jamendo/.libs/libgrljamendo.so",
+                     NULL);
+  grl_registry_load (registry,
+                     "../src/media/shoutcast/.libs/libgrlshoutcast.so",
+                     NULL);
+  grl_registry_load (registry,
+                     "../src/media/apple-trailers/.libs/libgrlappletrailers.so",
+                     NULL);
+  grl_registry_load (registry,
+                     "../src/metadata/fake-metadata/.libs/libgrlfakemetadata.so",
+                     NULL);
+  grl_registry_load (registry,
+                     "../src/metadata/lastfm-albumart/.libs/libgrllastfm-albumart.so",
+                     NULL);
+  grl_registry_load (registry,
+                     "../src/media/flickr/.libs/libgrlflickr.so",
+                     NULL);
+  grl_registry_load (registry,
+                     "../src/metadata/metadata-store/.libs/libgrlmetadatastore.so",
+                     NULL);
+  grl_registry_load (registry,
+                     "../src/media/bookmarks/.libs/libgrlbookmarks.so",
+                     NULL);
+  grl_registry_load (registry,
+                     "../src/media/podcasts/.libs/libgrlpodcasts.so",
+                     NULL);
 
   GRL_DEBUG ("Obtaining sources");
 
   GrlSource *youtube =
-    grl_plugin_registry_lookup_source (registry,
-                                       "grl-youtube");
+    grl_registry_lookup_source (registry,
+                                "grl-youtube");
 
   GrlSource *fs =
-    grl_plugin_registry_lookup_source (registry,
-                                       "grl-filesystem");
+    grl_registry_lookup_source (registry,
+                                "grl-filesystem");
 
   GrlSource *flickr =
-    grl_plugin_registry_lookup_source (registry,
-                                       "grl-flickr");
+    grl_registry_lookup_source (registry,
+                                "grl-flickr");
 
   GrlSource *jamendo =
-    grl_plugin_registry_lookup_source (registry,
-                                       "grl-jamendo");
+    grl_registry_lookup_source (registry,
+                                "grl-jamendo");
 
   GrlSource *shoutcast =
-    grl_plugin_registry_lookup_source (registry,
-                                       "grl-shoutcast");
+    grl_registry_lookup_source (registry,
+                                "grl-shoutcast");
 
   GrlSource *apple_trailers =
-    grl_plugin_registry_lookup_source (registry,
-                                       "grl-apple-trailers");
+    grl_registry_lookup_source (registry,
+                                "grl-apple-trailers");
 
   GrlSource *fake =
-    grl_plugin_registry_lookup_source (registry,
-                                       "grl-fake-metadata");
+    grl_registry_lookup_source (registry,
+                                "grl-fake-metadata");
 
   GrlSource *lastfm =
-    grl_plugin_registry_lookup_source (registry,
-                                       "grl-lastfm-albumart");
+    grl_registry_lookup_source (registry,
+                                "grl-lastfm-albumart");
 
   GrlSource *metadata_store =
-    grl_plugin_registry_lookup_source (registry,
-                                       "grl-metadata-store");
+    grl_registry_lookup_source (registry,
+                                "grl-metadata-store");
 
   GrlSource *bookmarks =
-    grl_plugin_registry_lookup_source (registry,
-                                       "grl-bookmarks");
+    grl_registry_lookup_source (registry,
+                                "grl-bookmarks");
 
   GrlSource *podcasts =
-    grl_plugin_registry_lookup_source (registry,
-                                       "grl-podcasts");
+    grl_registry_lookup_source (registry,
+                                "grl-podcasts");
 
   g_assert (youtube);
   g_assert (fs);

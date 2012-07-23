@@ -119,7 +119,7 @@ static GrlFilesystemSource *grl_filesystem_source_new (void);
 
 static void grl_filesystem_source_finalize (GObject *object);
 
-gboolean grl_filesystem_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_filesystem_plugin_init (GrlRegistry *registry,
                                      GrlPlugin *plugin,
                                      GList *configs);
 
@@ -154,7 +154,7 @@ static gboolean grl_filesystem_source_notify_change_stop (GrlSource *source,
 /* =================== Filesystem Plugin  =============== */
 
 gboolean
-grl_filesystem_plugin_init (GrlPluginRegistry *registry,
+grl_filesystem_plugin_init (GrlRegistry *registry,
                             GrlPlugin *plugin,
                             GList *configs)
 {
@@ -182,10 +182,10 @@ grl_filesystem_plugin_init (GrlPluginRegistry *registry,
   source->priv->chosen_paths = chosen_paths;
   source->priv->max_search_depth = max_search_depth;
 
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
 
   return TRUE;
 }

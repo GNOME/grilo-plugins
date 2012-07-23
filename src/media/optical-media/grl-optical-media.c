@@ -65,7 +65,7 @@ static GrlOpticalMediaSource *grl_optical_media_source_new (void);
 
 static void grl_optical_media_source_finalize (GObject *object);
 
-gboolean grl_optical_media_plugin_init (GrlPluginRegistry *registry,
+gboolean grl_optical_media_plugin_init (GrlRegistry *registry,
                                         GrlPlugin *plugin,
                                         GList *configs);
 
@@ -88,7 +88,7 @@ on_g_volume_monitor_event (GVolumeMonitor *monitor,
 /* =================== OpticalMedia Plugin  =============== */
 
 gboolean
-grl_optical_media_plugin_init (GrlPluginRegistry *registry,
+grl_optical_media_plugin_init (GrlRegistry *registry,
                                GrlPlugin *plugin,
                                GList *configs)
 {
@@ -98,10 +98,10 @@ grl_optical_media_plugin_init (GrlPluginRegistry *registry,
 
   GrlOpticalMediaSource *source = grl_optical_media_source_new ();
 
-  grl_plugin_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
 
   return TRUE;
 }

@@ -149,7 +149,7 @@ setup (void)
     goto finish;
 
   registry = grl_registry_get_default ();
-  grl_registry_load_all (registry, NULL);
+  grl_registry_load_all_plugins (registry, NULL);
   local_source =
     GRL_SOURCE (grl_registry_lookup_source (registry,
                                             LOCAL_SOURCE_ID));

@@ -536,7 +536,7 @@ produce_bookmarks_by_query (OperationSpec *os, const gchar *query)
   gchar *sql;
   GRL_DEBUG ("produce_bookmarks_by_query");
   sql = g_strdup_printf (GRL_SQL_GET_BOOKMARKS_BY_QUERY,
-			 query, os->count, os->skip);    
+			 query, os->count, os->skip);
   produce_bookmarks_from_sql (os, sql);
   g_free (sql);
 }
@@ -561,7 +561,7 @@ produce_bookmarks_from_category (OperationSpec *os, const gchar *category_id)
   gchar *sql;
   GRL_DEBUG ("produce_bookmarks_from_category");
   sql = g_strdup_printf (GRL_SQL_GET_BOOKMARKS_BY_PARENT,
-			 category_id, os->count, os->skip);    
+			 category_id, os->count, os->skip);
   produce_bookmarks_from_sql (os, sql);
   g_free (sql);
 }

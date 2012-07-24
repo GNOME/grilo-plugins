@@ -1246,7 +1246,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
 			  "Failed to parse podcast contents");
     goto free_resources;
   }
-  
+
   podcast_data = parse_podcast_data (doc, xpathObj);
   xmlXPathFreeObject (xpathObj);
   xpathObj = NULL;

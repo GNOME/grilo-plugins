@@ -827,27 +827,24 @@ AC_SUBST([builddir])
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
-  src/media/upnp/Makefile
-  src/media/vimeo/Makefile
-  src/media/bookmarks/Makefile
-  src/media/tracker/Makefile
-  src/media/podcasts/Makefile
-  src/media/jamendo/Makefile
-  src/media/youtube/Makefile
-  src/media/shoutcast/Makefile
-  src/media/flickr/Makefile
-  src/media/filesystem/Makefile
-  src/media/bliptv/Makefile
-  src/media/optical-media/Makefile
-  src/media/Makefile
-  src/media/apple-trailers/Makefile
-  src/metadata/metadata-store/Makefile
-  src/metadata/gravatar/Makefile
-  src/metadata/lastfm-albumart/Makefile
-  src/metadata/fake-metadata/Makefile
-  src/metadata/Makefile
-  src/metadata/local-metadata/Makefile
-  test/Makefile
+  src/apple-trailers/Makefile
+  src/bliptv/Makefile
+  src/bookmarks/Makefile
+  src/fake-metadata/Makefile
+  src/filesystem/Makefile
+  src/flickr/Makefile
+  src/gravatar/Makefile
+  src/jamendo/Makefile
+  src/lastfm-albumart/Makefile
+  src/local-metadata/Makefile
+  src/metadata-store/Makefile
+  src/optical-media/Makefile
+  src/podcasts/Makefile
+  src/shoutcast/Makefile
+  src/tracker/Makefile
+  src/upnp/Makefile
+  src/vimeo/Makefile
+  src/youtube/Makefile
 ])
 
 AC_OUTPUT

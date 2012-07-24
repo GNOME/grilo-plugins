@@ -489,7 +489,7 @@ write_keys (sqlite3 *db,
 			       col_names,
 			       sms->keys,
 			       sms->media);
-    
+
   if (!r) {
     GRL_WARNING ("Failed to update metadata for '%s - %s': %s",
                      source_id, media_id, sqlite3_errmsg (db));
@@ -499,8 +499,8 @@ write_keys (sqlite3 *db,
                           GRL_CORE_ERROR_STORE_METADATA_FAILED,
                           "Failed to update metadata");
     goto done;
-  } 
-  
+  }
+
   if (sqlite3_changes (db) == 0) {
     /* We have to create the row */
     r = prepare_and_exec_insert (db,
@@ -520,7 +520,7 @@ write_keys (sqlite3 *db,
                           GRL_CORE_ERROR_STORE_METADATA_FAILED,
                           "Failed to update metadata");
     goto done;
-  } 
+  }
 
  done:
   g_list_free (col_names);
@@ -654,7 +654,7 @@ grl_metadata_store_source_store_metadata (GrlSource *source,
     if (!media_id) {
       media_id = "";
     }
-    
+
     failed_keys = write_keys (GRL_METADATA_STORE_SOURCE (source)->priv->db,
 			      source_id, media_id, sms, &error);
   }

@@ -1,3 +1,19 @@
+NEW in 0.1.20
+=============
+
+  * General
+    * Remove g_thread_init() call (deprecated)
+    * Use g_str_has_prefix() instead of strrstr() (performance reasons)
+
+  * Gravatar plugin
+    * Fixed BGO#680435 - Don't leak GParamSpec
+
+  * Contributors to this release:
+    Jens Georg <jensg@openismus.com>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Mathias Hasselmann <mathias@openismus.com>
+
+
 NEW in 0.1.19
 =============
 

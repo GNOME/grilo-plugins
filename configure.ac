@@ -6,7 +6,7 @@
 # Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.2.0])
+m4_define([prj_version], [0.3.1])
 
 AC_INIT([prj_name],
         [prj_version],
@@ -61,7 +61,7 @@ if test "x$enable_uninstalled" = "xyes"; then
         AC_MSG_WARN("Configuring for running uninstalled!")
 	GRL_VERSION=uninstalled
 else
-	GRL_VERSION=0.2
+	GRL_VERSION=0.3
 fi
 
 GRL_NAME=grilo-${GRL_VERSION}
@@ -87,7 +87,7 @@ fi
 PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.28      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
-			  ${GRL_NAME} = 0.2.0)
+			  ${GRL_NAME} >= 0.3.1)
 
 # ----------------------------------------------------------
 # DEFINITIONS
@@ -103,7 +103,7 @@ AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 # EXTERNAL/OPTIONAL DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} >= 0.2.0],
+PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} >= 0.3.1],
 			    HAVE_GRLNET=yes,
 			    HAVE_GRLNET=no)
 

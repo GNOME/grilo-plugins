@@ -1,3 +1,76 @@
+NEW in 0.2.0
+============
+
+  * General
+    * Use the new API 0.2.0
+    * Added support for Windows
+    * Removed g_thread_init() call (deprecated)
+    * Use g_str_has_prefix() instead of strrstr() (performance reasons)
+    * BGO#641115 - grilo plugins do not store private data in right places
+    * BGO#641357 - Remove libdir= from all Makefile.am
+    * BGO#667855 - Support tracker 0.13/0.14
+
+  * Apple trailers plugin
+    * Fixed mime-type
+
+  * Filesystem plugin
+    * Do not show file extension in the media title
+    * Added filtering by key capability
+    * Added filtering by media type capability
+
+  * Gravatar plugin
+    * BGO#680435 - Don't leak GParamSpec
+
+  * Jamendo plugin
+    * Fix small typo
+
+  * Local Metadata plugin
+    * Several fixes and improvements
+    * Use user's cache to get album art
+    * BGO#673916 - local-metadata: Support all GIO supported schemes
+    * BGO#673936 - local-metadata: Don't leave unfinished calls
+
+  * Optical Media plugin
+    * New plugin that provides content from DVD and Blu-ray disks (BGO#672929)
+
+  * SHOUTCast plugin
+    * Use the new API 2.0
+
+  * Tracker plugin
+    * Added config option to expose documents as content (turned off by default)
+    * Merged Tracker Media Source and Tracker Metadata Source in one Tracker Source
+    * BGO#658448 - No tracker-sparql-0.12 support
+    * BGO#662748 - tracker plugin: support multiple resources in a larger file
+
+  * UPnP plugin
+    * Removed "UPnP -" prefix from title
+    * BGO#653756 - Empty results on UPnP shows error
+    * BGO#653759 - UPnP sends back containers on search
+    * BGO#658812 - upnp: support GRL_METADATA_KEY_TRACK_NUMBER
+
+  * YouTube plugin
+    * Request quvi 0.4.0
+
+  * Contributors to this release:
+    Alberto Garcia <agarcia@igalia.com>
+    Bastien Nocera <hadess@hadess.net>
+    Cedric Bosdonnat <cedric.bosdonnat@gmail.com>
+    Damien Lespiau <damien.lespiau@intel.com>
+    Guillaume Emont <gemont@igalia.com>
+    Iago Toral Quiroga <itoral@igalia.com>
+    Jens Georg <jensg@openismus.com>
+    Jonathan Matthew <jonathan@d14n.org>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+    Mathias Hasselmann <mathias@openismus.com>
+    Michael Wood <michael.g.wood@linux.intel.com>
+    Philip Withnall <philip@tecnocode.co.uk>
+    Piotr Drąg <piotrdrag@gmail.com>
+    Sam Thursfield <sam.thursfield@codethink.co.uk>
+    Vincent Untz <vuntz@gnome.org>
+    Zeeshan Ali (Khattak) <zeeshanak@gnome.org>
+
+
 NEW in 0.1.17
 =============
 

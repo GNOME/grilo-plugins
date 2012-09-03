@@ -789,6 +789,10 @@ is_supported_scheme (const char *scheme)
   vfs = g_vfs_get_default ();
   schemes = g_vfs_get_supported_uri_schemes (vfs);
 
+  if (!schemes) {
+    return FALSE;
+  }
+
   for (i = 0; schemes[i] != NULL; i++) {
     if (g_str_equal (schemes[i], scheme))
       return TRUE;

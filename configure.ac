@@ -87,7 +87,7 @@ fi
 PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.28      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
-			  ${GRL_NAME} >= 0.3.1)
+			  ${GRL_NAME})
 
 # ----------------------------------------------------------
 # DEFINITIONS
@@ -103,7 +103,7 @@ AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 # EXTERNAL/OPTIONAL DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} >= 0.3.1],
+PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME}],
 			    HAVE_GRLNET=yes,
 			    HAVE_GRLNET=no)
 

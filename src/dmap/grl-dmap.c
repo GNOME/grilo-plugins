@@ -66,6 +66,7 @@ typedef struct _ResultCbAndArgs {
   GrlSourceResultCb callback;
   GrlSource *source;
   guint op_id;
+  gint code_error;
   GHRFunc predicate;
   gchar *predicate_data;
   guint skip;
@@ -291,7 +292,16 @@ add_filtered_media_from_service (ResultCbAndArgsAndDb *cb_and_db)
                                    hash_table);
 
   cb_and_db->cb.remaining = g_hash_table_size (hash_table);
-  g_hash_table_foreach (hash_table, (GHFunc) add_media_from_service, &cb_and_db->cb);
+  if (cb_and_db->cb.remaining > 0) {
+    g_hash_table_foreach (hash_table, (GHFunc) add_media_from_service, &cb_and_db->cb);
+  } else {
+    cb_and_db->cb.callback (cb_and_db->cb.source,
+                            cb_and_db->cb.op_id,
+                            NULL,
+                            0,
+                            cb_and_db->cb.user_data,
+                            NULL);
+  }
   g_hash_table_destroy (hash_table);
   g_free (cb_and_db);
 }
@@ -302,8 +312,23 @@ connected_cb (DMAPConnection       *connection,
               const char           *reason,
               ResultCbAndArgsAndDb *cb_and_db)
 {
+  GError *error;
+
   // NOTE: connection argument is required by API but ignored in this case.
-  add_filtered_media_from_service (cb_and_db);
+  if (!result) {
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 cb_and_db->cb.code_error,
+                                 reason);
+    cb_and_db->cb.callback (cb_and_db->cb.source,
+                            cb_and_db->cb.op_id,
+                            NULL,
+                            0,
+                            cb_and_db->cb.user_data,
+                            error);
+    g_error_free (error);
+  } else {
+    add_filtered_media_from_service (cb_and_db);
+  }
 }
 
 static void
@@ -400,6 +425,7 @@ grl_dmap_source_browse (GrlSource *source,
   cb_and_db->cb.callback       = bs->callback;
   cb_and_db->cb.source         = bs->source;
   cb_and_db->cb.op_id          = bs->operation_id;
+  cb_and_db->cb.code_error     = GRL_CORE_ERROR_BROWSE_FAILED;
   cb_and_db->cb.predicate      = always_true;
   cb_and_db->cb.predicate_data = NULL;
   cb_and_db->cb.skip           = grl_operation_options_get_skip (bs->options);
@@ -439,6 +465,7 @@ static void grl_dmap_source_search (GrlSource *source,
   cb_and_db->cb.callback       = ss->callback;
   cb_and_db->cb.source         = ss->source;
   cb_and_db->cb.op_id          = ss->operation_id;
+  cb_and_db->cb.code_error     = GRL_CORE_ERROR_SEARCH_FAILED;
   cb_and_db->cb.predicate      = (GHRFunc) match;
   cb_and_db->cb.predicate_data = ss->text;
   cb_and_db->cb.skip           = grl_operation_options_get_skip (ss->options);

@@ -234,7 +234,7 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_SITE,
                       "nie:url",
-                      "nie:url(?file)",
+                      "nie:url(?urn)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_TITLE,
@@ -244,12 +244,12 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_TITLE,
                       "nfo:fileName",
-                      "nfo:fileName(?file)",
+                      "nfo:fileName(?urn)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_URL,
                       "nie:url",
-                      "nie:url(?file)",
+                      "nie:url(?urn)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_WIDTH,

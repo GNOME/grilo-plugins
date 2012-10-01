@@ -606,6 +606,10 @@ build_media_from_entry (GrlYoutubeSource *source,
         }
         quvi_parse_close (&v);
       }
+      else {
+	GRL_WARNING ("Failed to get video URL. libquvi error '%s'",
+		     quvi_strerror (source->priv->quvi_handle, rc));
+      }
     } else if (key == GRL_METADATA_KEY_EXTERNAL_PLAYER) {
       GDataYouTubeContent *youtube_content;
       youtube_content =

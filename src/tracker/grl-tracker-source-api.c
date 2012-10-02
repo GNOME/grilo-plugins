@@ -61,8 +61,8 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "SELECT rdf:type(?urn) %s "                   \
   "WHERE { %s . %s } "                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
-  "OFFSET %i "                                  \
-  "LIMIT %i"
+  "OFFSET %u "                                  \
+  "LIMIT %u"
 
 #define TRACKER_SEARCH_REQUEST                  \
   "SELECT rdf:type(?urn) %s "                   \
@@ -74,8 +74,8 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "%s "                                         \
   "} "                                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
-  "OFFSET %i "                                  \
-  "LIMIT %i"
+  "OFFSET %u "                                  \
+  "LIMIT %u"
 
 #define TRACKER_SEARCH_ALL_REQUEST              \
   "SELECT rdf:type(?urn) %s "                   \
@@ -86,8 +86,8 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "%s "                                         \
   "} "                                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
-  "OFFSET %i "                                  \
-  "LIMIT %i"
+  "OFFSET %u "                                  \
+  "LIMIT %u"
 
 #define TRACKER_BROWSE_SHOW_DOCUMENTS           \
   "{ ?urn a nfo:Document } UNION"
@@ -102,8 +102,8 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "%s "                                         \
   "} "                                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
-  "OFFSET %i "                                  \
-  "LIMIT %i"
+  "OFFSET %u "                                  \
+  "LIMIT %u"
 
 #define TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST          \
   "SELECT DISTINCT rdf:type(?urn) %s "                  \
@@ -118,8 +118,8 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "FILTER (!bound(nfo:belongsToContainer(?urn))) "      \
   "} "                                                  \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "          \
-  "OFFSET %i "                                          \
-  "LIMIT %i"
+  "OFFSET %u "                                          \
+  "LIMIT %u"
 
 #define TRACKER_BROWSE_FILESYSTEM_REQUEST                       \
   "SELECT DISTINCT rdf:type(?urn) %s "                          \
@@ -134,8 +134,8 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "FILTER(tracker:id(nfo:belongsToContainer(?urn)) = %s) "      \
   "} "                                                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "                  \
-  "OFFSET %i "                                                  \
-  "LIMIT %i"
+  "OFFSET %u "                                                  \
+  "LIMIT %u"
 
 #define TRACKER_RESOLVE_REQUEST                 \
   "SELECT %s "                                  \

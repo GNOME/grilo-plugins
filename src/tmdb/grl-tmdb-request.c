@@ -1,0 +1,585 @@
+/*
+ * Copyright (C) 2012 Canonical Ltd.
+ *
+ * Author: Jens Georg <jensg@openismus.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <string.h>
+
+#include <grilo.h>
+#include <net/grl-net.h>
+#include <libsoup/soup.h>
+#include <json-glib/json-glib.h>
+
+#include "grl-tmdb-request.h"
+
+/* URIs for TMDb.org API V3 */
+#define TMDB_BASE_URI "http://api.themoviedb.org/3/"
+#define TMDB_API_CALL_CONFIGURATION "configuration"
+#define TMDB_API_CALL_SEARCH_MOVIE "search/movie"
+#define TMDB_API_CALL_MOVIE_INFO "movie/%"G_GUINT64_FORMAT
+#define TMDB_API_CALL_MOVIE_CAST TMDB_API_CALL_MOVIE_INFO"/casts"
+#define TMDB_API_CALL_MOVIE_IMAGES TMDB_API_CALL_MOVIE_INFO"/images"
+#define TMDB_API_CALL_MOVIE_KEYWORDS TMDB_API_CALL_MOVIE_INFO"/keywords"
+#define TMDB_API_CALL_MOVIE_RELEASE_INFO TMDB_API_CALL_MOVIE_INFO"/releases"
+
+struct _FilterClosure {
+  GrlTmdbRequestFilterFunc filter;
+  GList *list;
+};
+
+typedef struct _FilterClosure FilterClosure;
+
+/* GObject setup functions */
+static void grl_tmdb_request_class_init (GrlTmdbRequestClass * klass);
+static void grl_tmdb_request_init (GrlTmdbRequest *self);
+
+/* GObject vfuncs */
+static void grl_tmdb_request_set_property (GObject *object,
+                                           guint property_id,
+                                           const GValue *value,
+                                           GParamSpec *pspec);
+static void grl_tmdb_request_finalize (GObject *object);
+
+static void grl_tmdb_request_constructed (GObject *object);
+
+enum {
+  PROP_0,
+  PROP_URI,
+  PROP_API_KEY,
+  PROP_ARGS
+};
+
+struct _GrlTmdbRequestPrivate {
+  char *uri;
+  char *api_key;
+  GHashTable *args;
+  SoupURI *base;
+  GSimpleAsyncResult *simple;
+  JsonParser *parser;
+  GrlTmdbRequestDetail detail;
+};
+
+G_DEFINE_TYPE (GrlTmdbRequest, grl_tmdb_request, G_TYPE_OBJECT);
+
+/* Implementation */
+
+/* GObject functions */
+
+/* GObject setup functions */
+
+static void
+grl_tmdb_request_class_init (GrlTmdbRequestClass * klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  g_type_class_add_private (klass, sizeof (GrlTmdbRequestPrivate));
+
+  gobject_class->set_property = grl_tmdb_request_set_property;
+  gobject_class->finalize = grl_tmdb_request_finalize;
+  gobject_class->constructed = grl_tmdb_request_constructed;
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_URI,
+                                   g_param_spec_string ("uri",
+                                                        "uri",
+                                                        "URI used for the request",
+                                                        NULL,
+                                                        G_PARAM_WRITABLE
+                                                        | G_PARAM_CONSTRUCT_ONLY
+                                                        | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_API_KEY,
+                                   g_param_spec_string ("api-key",
+                                                        "api-key",
+                                                        "TMDb API key",
+                                                        NULL,
+                                                        G_PARAM_WRITABLE
+                                                        | G_PARAM_CONSTRUCT_ONLY
+                                                        | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class,
+                                   PROP_ARGS,
+                                   g_param_spec_boxed ("args",
+                                                       "args",
+                                                       "HTTP GET arguments",
+                                                       G_TYPE_HASH_TABLE,
+                                                       G_PARAM_WRITABLE
+                                                       | G_PARAM_CONSTRUCT_ONLY
+                                                       | G_PARAM_STATIC_STRINGS));
+}
+
+static void
+grl_tmdb_request_init (GrlTmdbRequest *self)
+{
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self,
+                                            GRL_TMDB_REQUEST_TYPE,
+                                            GrlTmdbRequestPrivate);
+  self->priv->base = soup_uri_new (TMDB_BASE_URI);
+  self->priv->parser = json_parser_new ();
+  self->priv->detail = GRL_TMDB_REQUEST_DETAIL_COUNT;
+}
+
+/* GObject vfuncs */
+static void
+grl_tmdb_request_set_property (GObject *object,
+                               guint property_id,
+                               const GValue *value,
+                               GParamSpec *pspec)
+{
+  GrlTmdbRequest *self = GRL_TMDB_REQUEST (object);
+
+  switch (property_id) {
+    case PROP_API_KEY:
+      self->priv->api_key = g_value_dup_string (value);
+      break;
+    case PROP_URI:
+      self->priv->uri = g_value_dup_string (value);
+      break;
+    case PROP_ARGS:
+      self->priv->args = g_value_dup_boxed (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+  }
+}
+
+static void
+grl_tmdb_request_finalize (GObject *object)
+{
+  GrlTmdbRequest *self = GRL_TMDB_REQUEST (object);
+
+  if (self->priv->api_key != NULL) {
+    g_free (self->priv->api_key);
+    self->priv->api_key = NULL;
+  }
+
+  if (self->priv->uri != NULL) {
+    g_free (self->priv->uri);
+    self->priv->uri = NULL;
+  }
+
+  if (self->priv->args != NULL) {
+    g_hash_table_unref (self->priv->args);
+    self->priv->args = NULL;
+  }
+
+  if (self->priv->base != NULL) {
+    soup_uri_free (self->priv->base);
+    self->priv->base = NULL;
+  }
+
+  if (self->priv->parser != NULL) {
+    g_object_unref (self->priv->parser);
+    self->priv->parser = NULL;
+  }
+
+  G_OBJECT_CLASS (grl_tmdb_request_parent_class)->finalize (object);
+}
+
+static void
+grl_tmdb_request_constructed (GObject *object)
+{
+  GrlTmdbRequest *self = GRL_TMDB_REQUEST (object);
+  if (self->priv->args == NULL) {
+    self->priv->args = g_hash_table_new_full (g_str_hash,
+                                              g_str_equal,
+                                              NULL,
+                                              g_free);
+  }
+  g_hash_table_insert (self->priv->args, "api_key", g_strdup (self->priv->api_key));
+
+  G_OBJECT_CLASS (grl_tmdb_request_parent_class)->constructed (object);
+}
+
+
+/* Private functions */
+static void
+fill_string_list_filtered (JsonArray *array,
+                           guint index_,
+                           JsonNode *element,
+                           gpointer user_data)
+{
+  FilterClosure *closure = (FilterClosure *) user_data;
+  char *result;
+
+  if (closure->filter == NULL) {
+    closure->list = g_list_prepend (closure->list,
+                                    g_strdup (json_node_get_string (element)));
+    return;
+  }
+
+  result = closure->filter (element);
+  if (result != NULL) {
+    closure->list = g_list_prepend (closure->list, result);
+  }
+}
+
+/* Callbacks */
+static void
+on_wc_request (GrlNetWc *wc,
+               GAsyncResult *res,
+               gpointer user_data)
+{
+  GrlTmdbRequest *self = GRL_TMDB_REQUEST (user_data);
+  char *content;
+  gsize length = 0;
+  GError *error = NULL;
+
+  if (!grl_net_wc_request_finish (wc, res, &content, &length, &error)) {
+    g_simple_async_result_set_from_error (self->priv->simple, error);
+
+    goto out;
+  }
+
+  if (!json_parser_load_from_data (self->priv->parser, content, length, &error)) {
+    GRL_WARNING ("Could not parse JSON: %s", error->message);
+    g_simple_async_result_set_from_error (self->priv->simple, error);
+
+    goto out;
+  }
+
+out:
+  g_simple_async_result_complete_in_idle (self->priv->simple);
+  g_object_unref (self->priv->simple);
+}
+
+/* Public functions */
+/**
+ * grl_tmdb_request_new:
+ * @api_key: TMDb.org API key to use for this request
+ * @uri: URI fragment for API call, i.e. /configuration or /movie/11
+ * @args: (allow-none) (element-type utf8 utf8): Optional arguments to pass to
+ * the function call
+ * Returns: (transfer full): A new instance of GrlTmdbRequest
+ *
+ * Generic constructor for the convenience class to handle the async API HTTP
+ * requests and JSON parsing of the result.
+ */
+GrlTmdbRequest *
+grl_tmdb_request_new (const char *api_key, const char *uri, GHashTable *args)
+{
+  return g_object_new (GRL_TMDB_REQUEST_TYPE,
+                       "api-key", api_key,
+                       "uri", uri,
+                       "args", args,
+                       NULL);
+}
+
+
+/**
+ * grl_tmdb_request_new_search:
+ * @api_key: TMDb.org API key to use for this request
+ * @needle: The term to search for
+ * Returns: (transfer full): A new instance of #GrlTmdbRequest
+ *
+ * Convenience function to create a #GrlTmdbRequest that performs a movie search
+ */
+GrlTmdbRequest *
+grl_tmdb_request_new_search (const char *api_key, const char *needle)
+{
+  GHashTable *args;
+  GrlTmdbRequest *result;
+
+  args = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_free);
+  g_hash_table_insert (args, "query", g_strdup (needle));
+
+  result = g_object_new (GRL_TMDB_REQUEST_TYPE,
+                         "api-key", api_key,
+                         "uri", TMDB_API_CALL_SEARCH_MOVIE,
+                         "args", args,
+                         NULL);
+  g_hash_table_unref (args);
+
+  return result;
+}
+
+/**
+ * grl_tmdb_request_new_details:
+ * @api_key: TMDb.org API key to use for this request
+ * @detail: The detailed information to request for the movie @id
+ * @id: TMDb.org identifier of the movie.
+ * Returns: (transfer full): A new instance of #GrlTmdbRequest
+ *
+ * Convenience function to create a #GrlTmdbRequest that gets detailed
+ * information about a movie.
+ */
+GrlTmdbRequest *
+grl_tmdb_request_new_details (const char *api_key,
+                              GrlTmdbRequestDetail detail,
+                              guint64 id)
+{
+  GrlTmdbRequest *result;
+  char *uri;
+  const char *template;
+
+  switch (detail) {
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE:
+      template = TMDB_API_CALL_MOVIE_INFO;
+      break;
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST:
+      template = TMDB_API_CALL_MOVIE_CAST;
+      break;
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES:
+      template = TMDB_API_CALL_MOVIE_IMAGES;
+      break;
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_KEYWORDS:
+      template = TMDB_API_CALL_MOVIE_KEYWORDS;
+      break;
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_RELEASE_INFO:
+      template = TMDB_API_CALL_MOVIE_RELEASE_INFO;
+      break;
+    default:
+      g_assert_not_reached ();
+      break;
+  }
+
+  uri = g_strdup_printf (template, id);
+  result = g_object_new (GRL_TMDB_REQUEST_TYPE,
+                         "api-key", api_key,
+                         "uri", uri,
+                         "args", NULL,
+                         NULL);
+  result->priv->detail = detail;
+  g_free (uri);
+
+  return result;
+}
+
+GrlTmdbRequest *
+grl_tmdb_request_new_configuration (const char *api_key)
+{
+  return g_object_new (GRL_TMDB_REQUEST_TYPE,
+                       "api-key", api_key,
+                       "uri", TMDB_API_CALL_CONFIGURATION,
+                       "args", NULL,
+                       NULL);
+}
+
+/**
+ * grl_tmdb_request_run_async:
+ * @self: Instance of GrlTmdbRequest
+ * @callback: Callback to notify after the request is complete
+ * @cancellable: (allow-none): An optional cancellable to cancel this operation
+ * @user_data: User data to pass on to @callback.
+ *
+ * Schedule the request for execution.
+ */
+void
+grl_tmdb_request_run_async (GrlTmdbRequest *self,
+                            GrlNetWc *wc,
+                            GAsyncReadyCallback callback,
+                            GCancellable *cancellable,
+                            gpointer user_data)
+{
+  SoupURI *uri;
+  char *call;
+  GHashTable *headers;
+
+  uri = soup_uri_new_with_base (self->priv->base, self->priv->uri);
+  soup_uri_set_query_from_form (uri, self->priv->args);
+  call = soup_uri_to_string (uri, FALSE);
+  soup_uri_free (uri);
+
+  self->priv->simple = g_simple_async_result_new (G_OBJECT (self),
+                                                  callback,
+                                                  user_data,
+                                                  (gpointer) grl_tmdb_request_run_async);
+
+  GRL_DEBUG ("Requesting %s", call);
+
+  headers = g_hash_table_new (g_str_hash, g_str_equal);
+  g_hash_table_insert (headers, "Accept", "application/json");
+
+  grl_net_wc_request_with_headers_hash_async (wc,
+                                              call,
+                                              headers,
+                                              cancellable,
+                                              (GAsyncReadyCallback) on_wc_request,
+                                              self);
+  g_hash_table_unref (headers);
+}
+
+/**
+ * grl_tmdb_request_run_finish:
+ * @self: Instance of GrlTmdbRequest
+ * @result: #GAsyncResult of the operation
+ * @error: (allow-none): Return location for a possible error
+ * @returns: %TRUE if the request succeeded, %FALSE otherwise.
+ *
+ * Finalize a request previously scheduled with grl_tmdb_request_run_async().
+ * Usually called from the call-back passed to this function. After this
+ * grl_tmdb_request_run_finish() returned %TRUE, grl_tmdb_request_get() should
+ * return proper data.
+ */
+gboolean
+grl_tmdb_request_run_finish (GrlTmdbRequest *self,
+                             GAsyncResult *result,
+                             GError **error)
+{
+  GSimpleAsyncResult *simple;
+
+  if (!g_simple_async_result_is_valid (result,
+                                       G_OBJECT (self),
+                                       (gpointer) grl_tmdb_request_run_async)) {
+    return FALSE;
+  }
+
+  simple = (GSimpleAsyncResult *) result;
+  if (g_simple_async_result_propagate_error (simple, error)) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * grl_tmdb_request_get:
+ * @self: Instance of GrlTmdbRequest
+ * @path: JSONPath to get
+ * @returns: (transfer full): %NULL if the key cannot be found or
+ * the request is otherwise in error or the value of the key.
+ *
+ * Get a value from the API call represented by this instance.
+ */
+GValue *
+grl_tmdb_request_get (GrlTmdbRequest *self,
+                      const char *path)
+{
+  JsonNode *node;
+  GError *error = NULL;
+  GValue *value = NULL;
+  JsonArray *values;
+
+  value = g_new0 (GValue, 1);
+
+  node = json_path_query (path,
+                          json_parser_get_root (self->priv->parser),
+                          &error);
+  if (error != NULL) {
+    GRL_DEBUG ("Failed to get %s: %s", path, error->message);
+    g_error_free (error);
+
+    return NULL;
+  }
+
+  values = json_node_get_array (node);
+  json_node_get_value (json_array_get_element (values, 0), value);
+
+  json_node_free (node);
+
+  return value;
+}
+
+/**
+ * grl_tmdb_request_get_string_list:
+ * @self: Instance of GrlTmdbRequest
+ * @path: JSONPath to get
+ * Returns: (transfer full) (element-type utf-8): %NULL if the path cannot be
+ * found or a #GList containing strings matching the path.
+ */
+GList *
+grl_tmdb_request_get_string_list (GrlTmdbRequest *self,
+                                  const char *path)
+{
+  return grl_tmdb_request_get_string_list_with_filter (self, path, NULL);
+}
+
+/**
+ * grl_tmdb_request_get_string_list_with_filter:
+ * @self: Instance of #GrlTmdbRequest
+ * @path: JSONPath to get
+ * @filter: A #GrlTmdbRequestFilterFunc to match on a #JsonNode
+ * Returns: (transfer full) (element-type utf-8): %NULL if the path cannot be
+ * found or no node matched the filter or a #GList containing strings matching
+ * the path and are accepted by the filter.
+ */
+GList *
+grl_tmdb_request_get_string_list_with_filter (GrlTmdbRequest *self,
+                                              const char *path,
+                                              GrlTmdbRequestFilterFunc filter)
+{
+  JsonNode *node, *element;
+  GError *error = NULL;
+  JsonArray *values;
+  FilterClosure closure;
+
+  node = json_path_query (path,
+                          json_parser_get_root (self->priv->parser),
+                          &error);
+  if (error != NULL) {
+    GRL_DEBUG ("Failed to get %s: %s", path, error->message);
+    g_error_free (error);
+    return NULL;
+  }
+
+  if (!JSON_NODE_HOLDS_ARRAY (node)) {
+    json_node_free (node);
+    return NULL;
+  }
+
+  values = json_node_get_array (node);
+  if (json_array_get_length (values) == 0) {
+    json_node_free (node);
+    return NULL;
+  }
+
+  /* Check if we have array in array */
+  element = json_array_get_element (values, 0);
+  if (JSON_NODE_HOLDS_ARRAY (element)) {
+    values = json_node_get_array (element);
+  }
+
+  closure.list = NULL;
+  closure.filter = filter;
+
+  json_array_foreach_element (values, fill_string_list_filtered, &closure);
+
+  json_node_free (node);
+
+  return closure.list;
+}
+
+/**
+ * grl_tmdb_request_get_detail:
+ * @self: Instance of #GrlTmdbRequest
+ * Returns: An id of #GrlTmdbRequestDetail or #GRL_TMDB_REQUEST_DETAIL_NONE if
+ * the request is not a detail request.
+ */
+GrlTmdbRequestDetail
+grl_tmdb_request_get_detail (GrlTmdbRequest *self)
+{
+  return self->priv->detail;
+}
+
+/**
+ * grl_tmdb_request_get_uri:
+ * @self: Instance of #GrlTmdbRequest
+ * Returns: The URI for the request. Mostly useful for debugging or error
+ * messages
+ */
+const char *
+grl_tmdb_request_get_uri (GrlTmdbRequest *self)
+{
+  return self->priv->uri;
+}

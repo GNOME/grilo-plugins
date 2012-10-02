@@ -131,6 +131,8 @@ PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
 PKG_CHECK_MODULES(TOTEM_PL_PARSER, totem-plparser >= 3.4.1, HAVE_TOTEM_PL_PARSER=yes, HAVE_TOTEM_PL_PARSER=no)
 
+PKG_CHECK_MODULES([JSON], [json-glib-1.0], HAVE_JSON_GLIB=yes, HAVE_JSON_GLIB=no)
+
 PKG_CHECK_MODULES(GMIME, gmime-2.6,
                          HAVE_GMIME=yes,
                          [PKG_CHECK_MODULES(GMIME, gmime-2.4,
@@ -843,6 +845,35 @@ AC_SUBST(DMAP_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([DMAP_PLUGIN_ID], ["$DMAP_PLUGIN_ID"], [DMAP plugin ID])
 
 # ----------------------------------------------------------
+# BUILD TMDB PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE([tmdb],
+        AC_HELP_STRING([--enable-tmdb],
+                       [enable TMDb metadata plugin (default: auto)]),
+        [
+         AS_IF([test "x$enableval" = "xyes"],
+               [AS_IF([test "x$HAVE_JSON_GLIB" = "xno"],
+                      [AC_MSG_ERROR([json-glib-1.0 not found, install it or use --disable-tmdb])
+                      ])
+               ])],
+        [
+         AS_IF([test "x$HAVE_JSON_GLIB" = "xyes"],
+               [enable_tmdb=yes],
+               [enable_tmdb=no])
+        ]
+)
+
+AM_CONDITIONAL([TMDB_PLUGIN], [test "x$enable_tmdb" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL tmdb"
+AS_IF([test "x$enable_tmdb" = "xyes"],
+      [GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED tmdb"])
+
+TMDB_PLUGIN_ID="grl-tmdb"
+AC_SUBST(TMDB_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([TMDB_PLUGIN_ID], ["$TMDB_PLUGIN_ID"], [TMDb plugin ID])
+
+# ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
 
@@ -881,6 +912,7 @@ AC_CONFIG_FILES([
   src/optical-media/Makefile
   src/podcasts/Makefile
   src/shoutcast/Makefile
+  src/tmdb/Makefile
   src/tracker/Makefile
   src/upnp/Makefile
   src/vimeo/Makefile

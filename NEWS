@@ -1,3 +1,24 @@
+NEW in 0.2.1
+============
+
+  * DMAP plugin
+    * New plugin providing content from DMAP protocol (BGO#652516)
+
+  * Local Metadata plugin
+    * Fixed segmentation fault
+
+  * Tracker plugin
+    * Several fixes
+
+  * YouTube plugin
+    * BGO#685235 - Better error reporting for youtube plugin when quvi fails
+
+  * Contributors to this release:
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Mohammed Hassan <mohammed.hassan@jollamobile.com>
+    * W. Michael Petullo <mike@flyn.org>
+
+
 NEW in 0.2.0
 ============
 

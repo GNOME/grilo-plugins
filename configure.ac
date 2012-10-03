@@ -6,7 +6,7 @@
 # Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.3.1])
+m4_define([prj_version], [0.2.1])
 
 AC_INIT([prj_name],
         [prj_version],
@@ -61,7 +61,7 @@ if test "x$enable_uninstalled" = "xyes"; then
         AC_MSG_WARN("Configuring for running uninstalled!")
 	GRL_VERSION=uninstalled
 else
-	GRL_VERSION=0.3
+	GRL_VERSION=0.2
 fi
 
 GRL_NAME=grilo-${GRL_VERSION}

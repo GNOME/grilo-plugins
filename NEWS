@@ -1,3 +1,13 @@
+NEW in 0.2.2
+============
+
+  * TMDb plugin
+    * Added new plugin that gets information from TMDb.
+
+  * Contributors to this release:
+    * Jens Georg <jensg@openismus.com>
+
+
 NEW in 0.2.1
 ============
 

@@ -111,6 +111,8 @@ PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 
 PKG_CHECK_MODULES(GIO, gio-2.0, HAVE_GIO=yes, HAVE_GIO=no)
 
+PKG_CHECK_MODULES(GSSDP, gssdp-1.0, HAVE_GSSDP=yes, HAVE_GSSDP=no)
+
 PKG_CHECK_MODULES(GUPNP, gupnp-1.0 >= 0.13, HAVE_GUPNP=yes, HAVE_GUPNP=no)
 
 PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0 >= 0.5, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=no)
@@ -323,6 +325,9 @@ AC_ARG_ENABLE(upnp,
         [
                 case "$enableval" in
                      yes)
+                        if test "x$HAVE_GSSDP" = "xno"; then
+                           AC_MSG_ERROR([gssdp not found, install it or use --disable-upnp])
+                        fi
                         if test "x$HAVE_GUPNP" = "xno"; then
                            AC_MSG_ERROR([gupnp not found, install it or use --disable-upnp])
                         fi
@@ -335,7 +340,7 @@ AC_ARG_ENABLE(upnp,
                 esac
         ],
         [
-                if test "x$HAVE_GUPNP" = "xyes" -a "x$HAVE_GUPNPAV" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GSSDP" = "xyes" -a "x$HAVE_GUPNP" = "xyes" -a "x$HAVE_GUPNPAV" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                         enable_upnp=yes
                 else
                         enable_upnp=no

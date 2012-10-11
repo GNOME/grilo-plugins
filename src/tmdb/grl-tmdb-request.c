@@ -33,6 +33,9 @@
 
 #include "grl-tmdb-request.h"
 
+#define GRL_LOG_DOMAIN_DEFAULT tmdb_log_domain
+GRL_LOG_DOMAIN_EXTERN(tmdb_log_domain);
+
 /* URIs for TMDb.org API V3 */
 #define TMDB_BASE_URI "http://api.themoviedb.org/3/"
 #define TMDB_API_CALL_CONFIGURATION "configuration"

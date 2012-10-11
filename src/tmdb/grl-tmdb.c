@@ -35,7 +35,7 @@
 #include "grl-tmdb-request.h"
 
 #define GRL_LOG_DOMAIN_DEFAULT tmdb_log_domain
-GRL_LOG_DOMAIN_STATIC(tmdb_log_domain);
+GRL_LOG_DOMAIN(tmdb_log_domain);
 
 #define PLUGIN_ID   TMDB_PLUGIN_ID
 

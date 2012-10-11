@@ -411,7 +411,7 @@ resolve_closure_callback (ResolveClosure *closure,
   if (outer_error && outer_error->domain != GRL_CORE_ERROR) {
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_RESOLVE_FAILED,
-                                 error->message);
+                                 outer_error->message);
     g_error_free (outer_error);
   }
 

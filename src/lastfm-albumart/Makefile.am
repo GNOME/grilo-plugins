@@ -8,14 +8,10 @@
 ext_LTLIBRARIES = libgrllastfm-albumart.la
 
 libgrllastfm_albumart_la_CFLAGS =	\
-	$(DEPS_CFLAGS) 			\
-	$(GRLNET_CFLAGS) 		\
-	$(XML_CFLAGS)
+	$(DEPS_LASTFM_ALBUMART_CFLAGS)
 
 libgrllastfm_albumart_la_LIBADD =	\
-	$(DEPS_LIBS)			\
-	$(GRLNET_LIBS)			\
-	$(XML_LIBS)
+	$(DEPS_LASTFM_ALBUMART_LIBS)
 
 libgrllastfm_albumart_la_LDFLAGS = \
 	-no-undefined		   \

@@ -8,12 +8,10 @@
 ext_LTLIBRARIES		 = libgrlmetadatastore.la
 
 libgrlmetadatastore_la_CFLAGS =	\
-	$(DEPS_CFLAGS) \
-	$(SQLITE_CFLAGS)
+	$(DEPS_METADATA_STORE_CFLAGS)
 
 libgrlmetadatastore_la_LIBADD =	\
-	$(DEPS_LIBS) \
-	$(SQLITE_LIBS)
+	$(DEPS_METADATA_STORE_LIBS)
 
 libgrlmetadatastore_la_LDFLAGS = \
 	-no-undefined		 \

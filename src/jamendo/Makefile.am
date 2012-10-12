@@ -8,14 +8,10 @@
 ext_LTLIBRARIES		 = libgrljamendo.la
 
 libgrljamendo_la_CFLAGS =	\
-	$(DEPS_CFLAGS)		\
-	$(GRLNET_CFLAGS)	\
-	$(XML_CFLAGS)
+	$(DEPS_JAMENDO_CFLAGS)
 
 libgrljamendo_la_LIBADD =	\
-	$(DEPS_LIBS)		\
-	$(GRLNET_LIBS)		\
-	$(XML_LIBS)
+	$(DEPS_JAMENDO_LIBS)
 
 libgrljamendo_la_LDFLAGS = \
 	-no-undefined	   \

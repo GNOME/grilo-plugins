@@ -177,7 +177,8 @@ struct _GrlYoutubeSourcePriv {
 #define YOUTUBE_CLIENT_ID "grilo"
 
 static GrlYoutubeSource *grl_youtube_source_new (const gchar *api_key,
-						 const gchar *client_id);
+						 const gchar *client_id,
+						 const gchar *format);
 
 static void grl_youtube_source_set_property (GObject *object,
                                              guint propid,
@@ -251,6 +252,7 @@ grl_youtube_plugin_init (GrlRegistry *registry,
                          GList *configs)
 {
   gchar *api_key;
+  gchar *format;
   GrlConfig *config;
   gint config_count;
   GrlYoutubeSource *source;
@@ -275,6 +277,7 @@ grl_youtube_plugin_init (GrlRegistry *registry,
     GRL_INFO ("Missing API Key, cannot load plugin");
     return FALSE;
   }
+  format = grl_config_get_string (config, "format");
 
 #if !GLIB_CHECK_VERSION(2,32,0)
   /* libgdata needs this */
@@ -283,7 +286,7 @@ grl_youtube_plugin_init (GrlRegistry *registry,
   }
 #endif
 
-  source = grl_youtube_source_new (api_key, YOUTUBE_CLIENT_ID);
+  source = grl_youtube_source_new (api_key, YOUTUBE_CLIENT_ID, format);
 
   grl_registry_register_source (registry,
                                 plugin,
@@ -291,6 +294,7 @@ grl_youtube_plugin_init (GrlRegistry *registry,
                                 NULL);
 
   g_free (api_key);
+  g_free (format);
 
   return TRUE;
 }
@@ -304,7 +308,7 @@ GRL_PLUGIN_REGISTER (grl_youtube_plugin_init,
 G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_SOURCE);
 
 static GrlYoutubeSource *
-grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
+grl_youtube_source_new (const gchar *api_key, const gchar *client_id, const gchar *format)
 {
   GrlYoutubeSource *source;
   GDataYouTubeService *service;
@@ -336,7 +340,10 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id)
   if (quvi_init (&(source->priv->quvi_handle)) != QUVI_OK) {
     source->priv->quvi_handle = NULL;
   } else {
-    quvi_setopt (source->priv->quvi_handle, QUVIOPT_FORMAT, "mp4_360p");
+    if (format)
+      quvi_setopt (source->priv->quvi_handle, QUVIOPT_FORMAT, format);
+    else
+      quvi_setopt (source->priv->quvi_handle, QUVIOPT_FORMAT, "mp4_360p");
     quvi_setopt (source->priv->quvi_handle, QUVIOPT_NOVERIFY);
   }
 

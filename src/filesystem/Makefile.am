@@ -8,12 +8,10 @@
 ext_LTLIBRARIES		 = libgrlfilesystem.la
 
 libgrlfilesystem_la_CFLAGS =	\
-	$(DEPS_CFLAGS)		\
-	$(GIO_CFLAGS)
+	$(DEPS_FILESYSTEM_CFLAGS)
 
 libgrlfilesystem_la_LIBADD =	\
-	$(DEPS_LIBS)		\
-	$(GIO_LIBS)
+	$(DEPS_FILESYSTEM_LIBS)
 
 libgrlfilesystem_la_LDFLAGS = \
 	-no-undefined	      \

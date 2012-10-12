@@ -8,16 +8,10 @@
 ext_LTLIBRARIES		 = libgrloptical-media.la
 
 libgrloptical_media_la_CFLAGS =	\
-	$(DEPS_CFLAGS)		\
-	$(GIO_CFLAGS)		\
-	$(GTK_CFLAGS)		\
-	$(TOTEM_PL_PARSER_CFLAGS)
+	$(DEPS_OPTICAL_MEDIA_STORE_CFLAGS)
 
 libgrloptical_media_la_LIBADD =	\
-	$(DEPS_LIBS)	\
-	$(GIO_LIBS)		\
-	$(GTK_LIBS)		\
-	$(TOTEM_PL_PARSER_LIBS)
+	$(DEPS_OPTICAL_MEDIA_STORE_LIBS)
 
 libgrloptical_media_la_LDFLAGS = \
 	-no-undefined	      \

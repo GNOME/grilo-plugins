@@ -9,14 +9,10 @@
 ext_LTLIBRARIES		 = libgrlbliptv.la
 
 libgrlbliptv_la_CFLAGS =	\
-	$(DEPS_CFLAGS)		\
-	$(LIBXML_CFLAGS)	\
-	$(LIBREST_CFLAGS)
+	$(DEPS_BLIPTV_CFLAGS)
 
 libgrlbliptv_la_LIBADD =	\
-	$(DEPS_LIBS)		\
-	$(LIBXML_LIBS)		\
-	$(LIBREST_LIBS)
+	$(DEPS_BLIPTV_LIBS)
 
 libgrlbliptv_la_LDFLAGS = \
 	-no-undefined	  \

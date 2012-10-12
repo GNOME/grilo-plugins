@@ -8,14 +8,10 @@
 libplugin_LTLIBRARIES	= libgrlflickr.la
 
 libgrlflickr_la_CFLAGS =	\
-	$(DEPS_CFLAGS)		\
-	$(XML_CFLAGS)		\
-	$(GRLNET_CFLAGS)
+	$(DEPS_FLICKR_CFLAGS)
 
 libgrlflickr_la_LIBADD =	\
-	$(DEPS_LIBS)		\
-	$(XML_LIBS)		\
-	$(GRLNET_LIBS)
+	$(DEPS_FLICKR_LIBS)
 
 libgrlflickr_la_LDFLAGS = \
 	-no-undefined	  \

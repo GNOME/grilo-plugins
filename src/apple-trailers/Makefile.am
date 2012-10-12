@@ -8,14 +8,10 @@
 ext_LTLIBRARIES		 = libgrlappletrailers.la
 
 libgrlappletrailers_la_CFLAGS =	\
-	$(DEPS_CFLAGS)		\
-	$(GRLNET_CFLAGS)	\
-	$(XML_CFLAGS)
+	$(DEPS_APPLE_TRAILERS_CFLAGS)
 
 libgrlappletrailers_la_LIBADD =	\
-	$(DEPS_LIBS)		\
-	$(GRLNET_LIBS)		\
-	$(XML_LIBS)
+	$(DEPS_APPLE_TRAILERS_LIBS)
 
 libgrlappletrailers_la_LDFLAGS = \
 	-no-undefined		 \

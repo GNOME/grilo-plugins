@@ -54,6 +54,7 @@ enum {
 static GrlKeyID GRL_TMDB_METADATA_KEY_BACKDROPS = GRL_METADATA_KEY_INVALID;
 static GrlKeyID GRL_TMDB_METADATA_KEY_POSTERS = GRL_METADATA_KEY_INVALID;
 static GrlKeyID GRL_TMDB_METADATA_KEY_IMDB_ID = GRL_METADATA_KEY_INVALID;
+static GrlKeyID GRL_TMDB_METADATA_KEY_TMDB_ID = GRL_METADATA_KEY_INVALID;
 static GrlKeyID GRL_TMDB_METADATA_KEY_KEYWORDS = GRL_METADATA_KEY_INVALID;
 static GrlKeyID GRL_TMDB_METADATA_KEY_PERFORMER = GRL_METADATA_KEY_INVALID;
 static GrlKeyID GRL_TMDB_METADATA_KEY_PRODUCER = GRL_METADATA_KEY_INVALID;
@@ -161,6 +162,12 @@ grl_tmdb_source_plugin_init (GrlRegistry *registry,
                            "tmdb-imdb-id",
                            "tmdb-imdb-id",
                            "ID of this movie at imdb.org");
+
+  GRL_TMDB_METADATA_KEY_TMDB_ID =
+    register_metadata_key (registry,
+                           "tmdb-id",
+                           "tmdb-id",
+                           "ID of this movie at tmdb.org");
 
   GRL_TMDB_METADATA_KEY_KEYWORDS =
     register_metadata_key (registry,
@@ -272,6 +279,8 @@ grl_tmdb_source_init (GrlTmdbSource *self)
                     GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_POSTERS));
   g_hash_table_add (self->priv->supported_keys,
                     GINT_TO_POINTER (GRL_METADATA_KEY_PUBLICATION_DATE));
+  g_hash_table_add (self->priv->supported_keys,
+                    GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_TMDB_ID));
 
   /* Slow keys */
   g_hash_table_add (self->priv->slow_keys,
@@ -829,6 +838,15 @@ on_search_ready (GObject *source,
     resolve_closure_free (closure);
     return;
   }
+
+  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_TMDB_ID)) {
+    char *tmdb_id = g_strdup_printf ("%" G_GINT64_FORMAT,
+                                     g_value_get_int64 (value));
+    grl_data_set_string (GRL_DATA (closure->rs->media),
+                         GRL_TMDB_METADATA_KEY_TMDB_ID, tmdb_id);
+    g_free (tmdb_id);
+  }
+
   closure->id = g_value_get_int64 (value);
   g_value_unset (value);
 

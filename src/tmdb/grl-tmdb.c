@@ -44,7 +44,7 @@ GRL_LOG_DOMAIN(tmdb_log_domain);
 #define SOURCE_DESC "A source for movie metadata from themoviedb.org"
 
 #define SHOULD_RESOLVE(key) \
-    g_hash_table_contains (closure->keys, GINT_TO_POINTER ((key)))
+    g_hash_table_contains (closure->keys, GRLKEYID_TO_POINTER ((key)))
 
 enum {
   PROP_0,
@@ -270,41 +270,41 @@ grl_tmdb_source_init (GrlTmdbSource *self)
 
   /* Fast keys */
   g_hash_table_add (self->priv->supported_keys,
-                    GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_BACKDROPS));
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_BACKDROPS));
   g_hash_table_add (self->priv->supported_keys,
-                    GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_ORIGINAL_TITLE));
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_ORIGINAL_TITLE));
   g_hash_table_add (self->priv->supported_keys,
-                    GINT_TO_POINTER (GRL_METADATA_KEY_RATING));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_RATING));
   g_hash_table_add (self->priv->supported_keys,
-                    GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_POSTERS));
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_POSTERS));
   g_hash_table_add (self->priv->supported_keys,
-                    GINT_TO_POINTER (GRL_METADATA_KEY_PUBLICATION_DATE));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_PUBLICATION_DATE));
   g_hash_table_add (self->priv->supported_keys,
-                    GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_TMDB_ID));
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_TMDB_ID));
 
   /* Slow keys */
   g_hash_table_add (self->priv->slow_keys,
-                    GINT_TO_POINTER (GRL_METADATA_KEY_SITE));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_SITE));
   g_hash_table_add (self->priv->slow_keys,
-                    GINT_TO_POINTER (GRL_METADATA_KEY_GENRE));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_GENRE));
   g_hash_table_add (self->priv->slow_keys,
-                    GINT_TO_POINTER (GRL_METADATA_KEY_STUDIO));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_STUDIO));
   g_hash_table_add (self->priv->slow_keys,
-                    GINT_TO_POINTER (GRL_METADATA_KEY_DESCRIPTION));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DESCRIPTION));
   g_hash_table_add (self->priv->slow_keys,
-                    GINT_TO_POINTER (GRL_METADATA_KEY_CERTIFICATE));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_CERTIFICATE));
   g_hash_table_add (self->priv->slow_keys,
-                    GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_IMDB_ID));
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_IMDB_ID));
   g_hash_table_add (self->priv->slow_keys,
-                    GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_KEYWORDS));
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_KEYWORDS));
   g_hash_table_add (self->priv->slow_keys,
-                    GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_PERFORMER));
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_PERFORMER));
   g_hash_table_add (self->priv->slow_keys,
-                    GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_PRODUCER));
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_PRODUCER));
   g_hash_table_add (self->priv->slow_keys,
-                    GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_DIRECTOR));
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_DIRECTOR));
   g_hash_table_add (self->priv->slow_keys,
-                    GINT_TO_POINTER (GRL_TMDB_METADATA_KEY_AGE_CERTIFICATES));
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_AGE_CERTIFICATES));
 
   self->priv->wc = grl_net_wc_new ();
   grl_net_wc_set_throttling (self->priv->wc, 1);
@@ -1076,9 +1076,9 @@ grl_tmdb_source_may_resolve (GrlSource *source,
   GrlTmdbSource *self = GRL_TMDB_SOURCE (source);
 
   if (!g_hash_table_contains (self->priv->supported_keys,
-                             GINT_TO_POINTER (key_id)) &&
+                             GRLKEYID_TO_POINTER (key_id)) &&
       !g_hash_table_contains (self->priv->slow_keys,
-                             GINT_TO_POINTER (key_id)))
+                             GRLKEYID_TO_POINTER (key_id)))
     return FALSE;
 
   /* We can only entertain videos */

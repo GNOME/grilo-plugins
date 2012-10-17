@@ -383,7 +383,7 @@ prepare_and_exec_update (sqlite3 *db,
     gchar *col_name = (gchar *) iter_names->data;
     if (col_name) {
       if (count > 0) {
-	g_string_append (sql_buf, " AND ");
+	g_string_append (sql_buf, " , ");
       }
       g_string_append_printf (sql_buf, "%s=?", col_name);
       count++;

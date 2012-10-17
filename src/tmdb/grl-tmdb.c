@@ -413,7 +413,7 @@ register_metadata_key (GrlRegistry *registry,
 
 static void
 resolve_closure_callback (ResolveClosure *closure,
-                          GError *outer_error)
+                          const GError *outer_error)
 {
   GError *error = NULL;
 
@@ -421,7 +421,6 @@ resolve_closure_callback (ResolveClosure *closure,
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_RESOLVE_FAILED,
                                  outer_error->message);
-    g_error_free (outer_error);
   }
 
   closure->rs->callback (GRL_SOURCE (closure->self),
@@ -817,6 +816,7 @@ on_search_ready (GObject *source,
                                     &error)) {
     resolve_closure_callback (closure, error);
     resolve_closure_free (closure);
+    g_error_free (error);
     return;
   }
 
@@ -836,6 +836,7 @@ on_search_ready (GObject *source,
                                  "Remote data did not contain valid ID");
     resolve_closure_callback (closure, error);
     resolve_closure_free (closure);
+    g_error_free (error);
     return;
   }
 
@@ -1005,6 +1006,8 @@ on_configuration_ready (GObject *source,
       resolve_closure_callback (pending_closure, error);
       resolve_closure_free (pending_closure);
     }
+
+    g_error_free (error);
     return;
   }
 

@@ -75,7 +75,8 @@ enum _GrlTmdbRequestDetail {
 };
 typedef enum _GrlTmdbRequestDetail GrlTmdbRequestDetail;
 
-typedef char *(*GrlTmdbRequestFilterFunc) (JsonNode *element);
+typedef gboolean (*GrlTmdbRequestFilterFunc) (JsonNode *element);
+typedef char *(*GrlTmdbRequestStringFilterFunc) (JsonNode *element);
 
 GType grl_tmdb_request_get_type (void);
 
@@ -120,7 +121,13 @@ grl_tmdb_request_get_string_list (GrlTmdbRequest *request,
                                   const char *path);
 
 GList *
+grl_tmdb_request_get_list_with_filter (GrlTmdbRequest *self,
+                                       const char *path,
+                                       GrlTmdbRequestFilterFunc filter);
+
+GList *
 grl_tmdb_request_get_string_list_with_filter (GrlTmdbRequest *self,
                                               const char *path,
-                                              GrlTmdbRequestFilterFunc filter);
+                                              GrlTmdbRequestStringFilterFunc filter);
+
 #endif /* _GRL_TMDB_REQUEST_H_ */

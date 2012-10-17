@@ -47,7 +47,9 @@ GRL_LOG_DOMAIN_EXTERN(tmdb_log_domain);
 #define TMDB_API_CALL_MOVIE_RELEASE_INFO TMDB_API_CALL_MOVIE_INFO"/releases"
 
 struct _FilterClosure {
+  JsonArrayForeach callback;
   GrlTmdbRequestFilterFunc filter;
+  GrlTmdbRequestStringFilterFunc string_filter;
   GList *list;
 };
 
@@ -218,6 +220,19 @@ grl_tmdb_request_constructed (GObject *object)
 
 /* Private functions */
 static void
+fill_list_filtered (JsonArray *array,
+                    guint index_,
+                    JsonNode *element,
+                    gpointer user_data)
+{
+  FilterClosure *closure = (FilterClosure *) user_data;
+
+  if (closure->filter == NULL || closure->filter (element)) {
+    closure->list = g_list_prepend (closure->list, element);
+  }
+}
+
+static void
 fill_string_list_filtered (JsonArray *array,
                            guint index_,
                            JsonNode *element,
@@ -226,16 +241,60 @@ fill_string_list_filtered (JsonArray *array,
   FilterClosure *closure = (FilterClosure *) user_data;
   char *result;
 
-  if (closure->filter == NULL) {
+  if (closure->string_filter == NULL) {
     closure->list = g_list_prepend (closure->list,
                                     g_strdup (json_node_get_string (element)));
     return;
   }
 
-  result = closure->filter (element);
+  result = closure->string_filter (element);
   if (result != NULL) {
     closure->list = g_list_prepend (closure->list, result);
   }
+}
+
+static GList *
+get_list_with_filter (GrlTmdbRequest *self,
+                      const char *path,
+                      FilterClosure *closure)
+{
+  JsonNode *node, *element;
+  GError *error = NULL;
+  JsonArray *values;
+
+  node = json_path_query (path,
+                          json_parser_get_root (self->priv->parser),
+                          &error);
+  if (error != NULL) {
+    GRL_DEBUG ("Failed to get %s: %s", path, error->message);
+    g_error_free (error);
+    return NULL;
+  }
+
+  if (!JSON_NODE_HOLDS_ARRAY (node)) {
+    json_node_free (node);
+    return NULL;
+  }
+
+  values = json_node_get_array (node);
+  if (json_array_get_length (values) == 0) {
+    json_node_free (node);
+    return NULL;
+  }
+
+  /* Check if we have array in array */
+  element = json_array_get_element (values, 0);
+  if (JSON_NODE_HOLDS_ARRAY (element)) {
+    values = json_node_get_array (element);
+  }
+
+  closure->list = NULL;
+
+  json_array_foreach_element (values, closure->callback, closure);
+
+  json_node_free (node);
+
+  return closure->list;
 }
 
 /* Callbacks */
@@ -509,10 +568,35 @@ grl_tmdb_request_get_string_list (GrlTmdbRequest *self,
 }
 
 /**
- * grl_tmdb_request_get_string_list_with_filter:
+ * grl_tmdb_request_get_list_with_filter:
  * @self: Instance of #GrlTmdbRequest
  * @path: JSONPath to get
  * @filter: A #GrlTmdbRequestFilterFunc to match on a #JsonNode
+ * Returns: (transfer container) (element-type JsonNode): %NULL if the path
+ * cannot be found or no node matched the filter or a #GList containing #JsNode
+ * instances matching the path and are accepted by the filter.
+ */
+GList *
+grl_tmdb_request_get_list_with_filter (GrlTmdbRequest *self,
+                                       const char *path,
+                                       GrlTmdbRequestFilterFunc filter)
+{
+  FilterClosure closure;
+
+  closure.list = NULL;
+  closure.filter = filter;
+  closure.callback = fill_list_filtered;
+
+  get_list_with_filter (self, path, &closure);
+
+  return closure.list;
+}
+
+/**
+ * grl_tmdb_request_get_string_list_with_filter:
+ * @self: Instance of #GrlTmdbRequest
+ * @path: JSONPath to get
+ * @filter: A #GrlTmdbRequestStringFilterFunc to match on a #JsonNode
  * Returns: (transfer full) (element-type utf-8): %NULL if the path cannot be
  * found or no node matched the filter or a #GList containing strings matching
  * the path and are accepted by the filter.
@@ -520,45 +604,15 @@ grl_tmdb_request_get_string_list (GrlTmdbRequest *self,
 GList *
 grl_tmdb_request_get_string_list_with_filter (GrlTmdbRequest *self,
                                               const char *path,
-                                              GrlTmdbRequestFilterFunc filter)
+                                              GrlTmdbRequestStringFilterFunc filter)
 {
-  JsonNode *node, *element;
-  GError *error = NULL;
-  JsonArray *values;
   FilterClosure closure;
 
-  node = json_path_query (path,
-                          json_parser_get_root (self->priv->parser),
-                          &error);
-  if (error != NULL) {
-    GRL_DEBUG ("Failed to get %s: %s", path, error->message);
-    g_error_free (error);
-    return NULL;
-  }
-
-  if (!JSON_NODE_HOLDS_ARRAY (node)) {
-    json_node_free (node);
-    return NULL;
-  }
-
-  values = json_node_get_array (node);
-  if (json_array_get_length (values) == 0) {
-    json_node_free (node);
-    return NULL;
-  }
-
-  /* Check if we have array in array */
-  element = json_array_get_element (values, 0);
-  if (JSON_NODE_HOLDS_ARRAY (element)) {
-    values = json_node_get_array (element);
-  }
-
   closure.list = NULL;
-  closure.filter = filter;
+  closure.string_filter = filter;
+  closure.callback = fill_string_list_filtered;
 
-  json_array_foreach_element (values, fill_string_list_filtered, &closure);
-
-  json_node_free (node);
+  get_list_with_filter (self, path, &closure);
 
   return closure.list;
 }

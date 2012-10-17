@@ -45,6 +45,8 @@ GRL_LOG_DOMAIN(tmdb_log_domain);
 
 #define SHOULD_RESOLVE(key) \
     g_hash_table_contains (closure->keys, GRLKEYID_TO_POINTER ((key)))
+#define SHOULD_RESOLVE_SLOW(key) \
+    (closure->slow && SHOULD_RESOLVE (key))
 
 enum {
   PROP_0,
@@ -59,7 +61,6 @@ static GrlKeyID GRL_TMDB_METADATA_KEY_KEYWORDS = GRL_METADATA_KEY_INVALID;
 static GrlKeyID GRL_TMDB_METADATA_KEY_PERFORMER = GRL_METADATA_KEY_INVALID;
 static GrlKeyID GRL_TMDB_METADATA_KEY_PRODUCER = GRL_METADATA_KEY_INVALID;
 static GrlKeyID GRL_TMDB_METADATA_KEY_DIRECTOR = GRL_METADATA_KEY_INVALID;
-static GrlKeyID GRL_TMDB_METADATA_KEY_AGE_CERTIFICATES = GRL_METADATA_KEY_INVALID;
 static GrlKeyID GRL_TMDB_METADATA_KEY_ORIGINAL_TITLE = GRL_METADATA_KEY_INVALID;
 
 struct _GrlTmdbSourcePrivate {
@@ -193,12 +194,6 @@ grl_tmdb_source_plugin_init (GrlRegistry *registry,
                            "tmdb-director",
                            "Director of the movie");
 
-  GRL_TMDB_METADATA_KEY_AGE_CERTIFICATES =
-    register_metadata_key (registry,
-                           "tmdb-age-certificates",
-                           "tmdb-age-certificates",
-                           "Semicolon-separated list of all age certificates");
-
   GRL_TMDB_METADATA_KEY_ORIGINAL_TITLE =
     register_metadata_key (registry,
                            "tmdb-original-title",
@@ -294,6 +289,8 @@ grl_tmdb_source_init (GrlTmdbSource *self)
   g_hash_table_add (self->priv->slow_keys,
                     GRLKEYID_TO_POINTER (GRL_METADATA_KEY_CERTIFICATE));
   g_hash_table_add (self->priv->slow_keys,
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_REGION));
+  g_hash_table_add (self->priv->slow_keys,
                     GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_IMDB_ID));
   g_hash_table_add (self->priv->slow_keys,
                     GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_KEYWORDS));
@@ -303,8 +300,6 @@ grl_tmdb_source_init (GrlTmdbSource *self)
                     GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_PRODUCER));
   g_hash_table_add (self->priv->slow_keys,
                     GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_DIRECTOR));
-  g_hash_table_add (self->priv->slow_keys,
-                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_AGE_CERTIFICATES));
 
   self->priv->wc = grl_net_wc_new ();
   grl_net_wc_set_throttling (self->priv->wc, 1);
@@ -481,43 +476,18 @@ director_filter (JsonNode *element)
   return g_strdup (json_object_get_string_member (object, "name"));
 }
 
-static char *
-us_release_filter (JsonNode *node)
+static GDateTime *
+parse_date (const gchar *iso8601_string)
 {
-  JsonObject *object;
-  const char *country;
+  char *padded_date;
+  GDateTime *date;
+  GTimeVal tv;
 
-  if (!JSON_NODE_HOLDS_OBJECT (node)) {
-    return NULL;
-  }
-
-  object = json_node_get_object (node);
-  country = json_object_get_string_member (object, "iso_3166_1");
-  if (g_ascii_strcasecmp (country, "US") == 0) {
-    return g_strdup (json_object_get_string_member (object, "certification"));
-  }
-
-  return NULL;
-}
-
-static char *
-all_releases_filter (JsonNode *node)
-{
-  JsonObject *object;
-  const char *country, *cert;
-
-  if (!JSON_NODE_HOLDS_OBJECT (node)) {
-    return NULL;
-  }
-
-  object = json_node_get_object (node);
-  country = json_object_get_string_member (object, "iso_3166_1");
-  cert = json_object_get_string_member (object, "certification");
-  if (cert == NULL || strlen (cert) == 0) {
-    /* This is only a release date, no age cert */
-    return NULL;
-  }
-  return g_strconcat (country, ":", cert, NULL);
+  padded_date = g_strconcat (iso8601_string, "T00:00:00Z", NULL);
+  g_time_val_from_iso8601 (padded_date, &tv);
+  date = g_date_time_new_from_timeval_utc (&tv);
+  g_free (padded_date);
+  return date;
 }
 
 static char *
@@ -727,38 +697,30 @@ static void on_request_ready (GObject *source,
     break;
     case GRL_TMDB_REQUEST_DETAIL_MOVIE_RELEASE_INFO:
     {
-      GString *string;
+      if (SHOULD_RESOLVE (GRL_METADATA_KEY_REGION) ||
+              SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE) ||
+              SHOULD_RESOLVE_SLOW (GRL_METADATA_KEY_PUBLICATION_DATE)) {
+        values = grl_tmdb_request_get_list_with_filter (request,
+                                                        "$.countries[*]",
+                                                        NULL);
 
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE)) {
-        values = grl_tmdb_request_get_string_list_with_filter (request,
-                                                               "$.countries[*]",
-                                                               us_release_filter);
-        if (values != NULL) {
-          grl_media_set_certificate (closure->rs->media,
-                                     (char *) values->data);
-          g_list_free_full (values, g_free);
-        }
-      }
+        for (iter = values; iter != NULL; iter = iter->next) {
+          const char *region, *cert, *date;
+          GDateTime *pubdate;
+          JsonObject *object;
 
-      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_AGE_CERTIFICATES)) {
-        values = grl_tmdb_request_get_string_list_with_filter (request,
-                                                               "$.countries[*]",
-                                                               all_releases_filter);
-        iter = values;
-        string = g_string_new (NULL);
-        while (iter != NULL) {
-          g_string_append (string, (char *) iter->data);
-          iter = iter->next;
-          if (iter != NULL) {
-            g_string_append_c (string, ';');
-          }
+          object = json_node_get_object (iter->data);
+          region = json_object_get_string_member (object, "iso_3166_1");
+          cert = json_object_get_string_member (object, "certification");
+          date = json_object_get_string_member (object, "release_date");
+          pubdate = parse_date (date);
+
+          grl_media_add_region_data (closure->rs->media, region, pubdate, cert);
+
+          g_date_time_unref (pubdate);
         }
-        if (string->str != NULL) {
-          grl_data_set_string (GRL_DATA (closure->rs->media),
-                               GRL_TMDB_METADATA_KEY_AGE_CERTIFICATES,
-                               string->str);
-        }
-        g_string_free (string, TRUE);
+
+        g_list_free (values);
       }
     }
     break;
@@ -808,7 +770,6 @@ on_search_ready (GObject *source,
   GrlTmdbSource *self = closure->self;
   GValue *value;
   GError *error = NULL;
-  char *padded_date;
 
   GRL_DEBUG ("Initial search ready...");
   if (!grl_tmdb_request_run_finish (GRL_TMDB_REQUEST (source),
@@ -854,16 +815,9 @@ on_search_ready (GObject *source,
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_PUBLICATION_DATE)) {
     value = grl_tmdb_request_get (request, "$.results[0].release_date");
     if (value != NULL) {
-      GDateTime *pubdate;
-      GTimeVal tv;
-      padded_date = g_strconcat (g_value_get_string (value), "T00:00:00Z", NULL);
-      g_time_val_from_iso8601 (padded_date, &tv);
-      pubdate = g_date_time_new_from_timeval_utc (&tv);
-
-      grl_media_set_publication_date (closure->rs->media,
-                                      pubdate);
+      GDateTime *pubdate = parse_date (g_value_get_string (value));
+      grl_media_set_publication_date (closure->rs->media, pubdate);
       g_date_time_unref (pubdate);
-      g_free (padded_date);
       g_value_unset (value);
     }
   }
@@ -919,12 +873,11 @@ on_search_ready (GObject *source,
     }
   }
 
-  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_ORIGINAL_TITLE)) {
-    value = grl_tmdb_request_get (request, "$.results[0].original_title");
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE)) {
+    value = grl_tmdb_request_get (request, "$.results[0].adult");
     if (value != NULL) {
-      grl_data_set_string (GRL_DATA (closure->rs->media),
-                           GRL_TMDB_METADATA_KEY_ORIGINAL_TITLE,
-                           g_value_get_string (value));
+      if (g_value_get_boolean (value))
+        grl_media_set_certificate (closure->rs->media, "adult");
       g_value_unset (value);
     }
   }
@@ -972,8 +925,9 @@ on_search_ready (GObject *source,
                                                closure,
                                                GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST));
 
-  if (SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE) ||
-      SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_AGE_CERTIFICATES))
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_REGION) ||
+          SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE) ||
+          SHOULD_RESOLVE_SLOW (GRL_METADATA_KEY_PUBLICATION_DATE))
     g_queue_push_tail (closure->pending_requests,
                        create_and_run_request (self,
                                                closure,
@@ -1146,11 +1100,15 @@ grl_tmdb_source_resolve (GrlSource *source,
   /* Copy keys to list for faster lookup */
   while (it) {
     g_hash_table_add (closure->keys, it->data);
+
+    /* Enable slow resolution if slow keys are requested */
     closure->slow |= g_hash_table_contains (self->priv->slow_keys,
                                             it->data);
     it = it->next;
   }
 
+  /* Disable slow resolution if slow keys where requested, but the operation
+   * options explicitly ask for fast resolving only. */
   if (grl_operation_options_get_flags (rs->options) & GRL_RESOLVE_FAST_ONLY)
     closure->slow = FALSE;
 

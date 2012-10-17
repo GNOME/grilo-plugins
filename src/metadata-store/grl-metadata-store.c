@@ -55,7 +55,12 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
   "play_count INTEGER,"					 \
   "rating REAL,"					 \
   "last_position INTEGER,"				 \
-  "last_played DATE)"
+  "last_played DATE,"                                    \
+  "favourite INTEGER)"
+
+#define GRL_SQL_ALTER_TABLE_STORE			 \
+  "ALTER TABLE store ADD COLUMN "                        \
+  "favourite INTEGER"
 
 #define GRL_SQL_GET_METADATA				\
   "SELECT * FROM store "				\
@@ -82,6 +87,7 @@ enum {
   STORE_RATING,
   STORE_LAST_POSITION,
   STORE_LAST_PLAYED,
+  STORE_FAVOURITE,
 };
 
 static GrlMetadataStoreSource *grl_metadata_store_source_new (void);
@@ -203,6 +209,11 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
     sqlite3_close (source->priv->db);
     return;
   }
+
+  // For backwards compatibility, add newer columns if they don't exist
+  // in the old database.
+  sqlite3_exec (source->priv->db, GRL_SQL_ALTER_TABLE_STORE,
+                NULL, NULL, &sql_error);
   GRL_DEBUG ("  OK");
 }
 
@@ -240,7 +251,7 @@ static void
 fill_metadata (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
 {
   GList *iter;
-  gint play_count, last_position;
+  gint play_count, last_position, favourite;
   gdouble rating;
   gchar *last_played;
   gint r;
@@ -268,6 +279,9 @@ fill_metadata (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
     } else if (key == GRL_METADATA_KEY_LAST_POSITION) {
       last_position = sqlite3_column_int (stmt, STORE_LAST_POSITION);
       grl_media_set_last_position (media, last_position);
+    } else if (key == GRL_METADATA_KEY_FAVOURITE) {
+      favourite = sqlite3_column_int (stmt, STORE_FAVOURITE);
+      grl_media_set_favourite (media, (gboolean) favourite);
     }
     iter = g_list_next (iter);
   }
@@ -279,7 +293,7 @@ static const gchar *
 get_column_name_from_key_id (GrlKeyID key_id)
 {
   static const gchar *col_names[] = {"rating", "last_played", "last_position",
-				     "play_count"};
+				     "play_count", "favourite"};
   if (key_id == GRL_METADATA_KEY_RATING) {
     return col_names[0];
   } else if (key_id == GRL_METADATA_KEY_LAST_PLAYED) {
@@ -288,6 +302,8 @@ get_column_name_from_key_id (GrlKeyID key_id)
     return col_names[2];
   } else if (key_id == GRL_METADATA_KEY_PLAY_COUNT) {
     return col_names[3];
+  } else if (key_id == GRL_METADATA_KEY_FAVOURITE) {
+    return col_names[4];
   } else {
     return NULL;
   }
@@ -340,6 +356,9 @@ bind_and_exec (sqlite3 *db,
       } else if (key == GRL_METADATA_KEY_LAST_PLAYED) {
 	char_value = grl_media_get_last_played (media);
 	sqlite3_bind_text (stmt, count, char_value, -1, SQLITE_STATIC);
+      } else if (key == GRL_METADATA_KEY_FAVOURITE) {
+        int_value = (gint) grl_media_get_favourite (media);
+        sqlite3_bind_int (stmt, count, int_value);
       }
       count++;
     }
@@ -538,6 +557,7 @@ grl_metadata_store_source_supported_keys (GrlSource *source)
                                       GRL_METADATA_KEY_PLAY_COUNT,
                                       GRL_METADATA_KEY_LAST_PLAYED,
                                       GRL_METADATA_KEY_LAST_POSITION,
+                                      GRL_METADATA_KEY_FAVOURITE,
                                       NULL);
   }
   return keys;
@@ -552,6 +572,7 @@ grl_metadata_store_source_writable_keys (GrlSource *source)
                                       GRL_METADATA_KEY_PLAY_COUNT,
                                       GRL_METADATA_KEY_LAST_PLAYED,
                                       GRL_METADATA_KEY_LAST_POSITION,
+                                      GRL_METADATA_KEY_FAVOURITE,
                                       NULL);
   }
   return keys;
@@ -566,13 +587,18 @@ grl_metadata_store_source_may_resolve (GrlSource *source,
   if (!(key_id == GRL_METADATA_KEY_RATING
         || key_id == GRL_METADATA_KEY_PLAY_COUNT
         || key_id == GRL_METADATA_KEY_LAST_PLAYED
-        || key_id == GRL_METADATA_KEY_LAST_POSITION))
+        || key_id == GRL_METADATA_KEY_LAST_POSITION
+        || key_id == GRL_METADATA_KEY_FAVOURITE))
     return FALSE;
 
 
   if (media) {
-    if (!(GRL_IS_MEDIA_VIDEO (media) || GRL_IS_MEDIA_AUDIO (media)))
-      /* the keys we handle for now only make sense for audio and video */
+    if (!(GRL_IS_MEDIA_VIDEO (media) ||
+          GRL_IS_MEDIA_AUDIO (media) ||
+          key_id == GRL_METADATA_KEY_FAVOURITE))
+      /* the keys we handle for now only make sense for audio and video,
+         with exception of the 'favourite' key, valid as well for pictures
+         and boxes */
       return FALSE;
 
     if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_ID))

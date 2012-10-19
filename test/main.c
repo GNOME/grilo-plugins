@@ -181,7 +181,10 @@ main (void)
 {
   GList *keys;
 
+#if !GLIB_CHECK_VERSION(2,35,0)
   g_type_init ();
+#endif
+
   grl_init (NULL, NULL);
 
   GRL_LOG_DOMAIN_INIT (test_main_log_domain, "test-main");

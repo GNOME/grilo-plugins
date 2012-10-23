@@ -53,15 +53,10 @@ enum {
   PROP_API_KEY
 };
 
-static GrlKeyID GRL_TMDB_METADATA_KEY_BACKDROPS = GRL_METADATA_KEY_INVALID;
-static GrlKeyID GRL_TMDB_METADATA_KEY_POSTERS = GRL_METADATA_KEY_INVALID;
+static GrlKeyID GRL_TMDB_METADATA_KEY_BACKDROP = GRL_METADATA_KEY_INVALID;
+static GrlKeyID GRL_TMDB_METADATA_KEY_POSTER = GRL_METADATA_KEY_INVALID;
 static GrlKeyID GRL_TMDB_METADATA_KEY_IMDB_ID = GRL_METADATA_KEY_INVALID;
 static GrlKeyID GRL_TMDB_METADATA_KEY_TMDB_ID = GRL_METADATA_KEY_INVALID;
-static GrlKeyID GRL_TMDB_METADATA_KEY_KEYWORDS = GRL_METADATA_KEY_INVALID;
-static GrlKeyID GRL_TMDB_METADATA_KEY_PERFORMER = GRL_METADATA_KEY_INVALID;
-static GrlKeyID GRL_TMDB_METADATA_KEY_PRODUCER = GRL_METADATA_KEY_INVALID;
-static GrlKeyID GRL_TMDB_METADATA_KEY_DIRECTOR = GRL_METADATA_KEY_INVALID;
-static GrlKeyID GRL_TMDB_METADATA_KEY_ORIGINAL_TITLE = GRL_METADATA_KEY_INVALID;
 
 struct _GrlTmdbSourcePrivate {
   char *api_key;
@@ -146,13 +141,13 @@ grl_tmdb_source_plugin_init (GrlRegistry *registry,
     return FALSE;
   }
 
-  GRL_TMDB_METADATA_KEY_BACKDROPS =
+  GRL_TMDB_METADATA_KEY_BACKDROP =
     register_metadata_key (registry,
-                           "tmdb-backdrops",
-                           "tmdb-backdrops",
+                           "tmdb-backdrop",
+                           "tmdb-backdrop",
                            "A list of URLs for movie backdrops");
 
-  GRL_TMDB_METADATA_KEY_POSTERS =
+  GRL_TMDB_METADATA_KEY_POSTER =
     register_metadata_key (registry,
                            "tmdb-poster",
                            "tmdb-poster",
@@ -169,36 +164,6 @@ grl_tmdb_source_plugin_init (GrlRegistry *registry,
                            "tmdb-id",
                            "tmdb-id",
                            "ID of this movie at tmdb.org");
-
-  GRL_TMDB_METADATA_KEY_KEYWORDS =
-    register_metadata_key (registry,
-                           "tmdb-keywords",
-                           "tmdb-keywords",
-                           "A list of keywords about the movie");
-
-  GRL_TMDB_METADATA_KEY_PERFORMER =
-    register_metadata_key (registry,
-                           "tmdb-performer",
-                           "tmdb-performer",
-                           "A list of actors taking part in the movie");
-
-  GRL_TMDB_METADATA_KEY_PRODUCER =
-    register_metadata_key (registry,
-                           "tmdb-producer",
-                           "tmdb-producer",
-                           "A list of producers of the movie");
-
-  GRL_TMDB_METADATA_KEY_DIRECTOR =
-    register_metadata_key (registry,
-                           "tmdb-director",
-                           "tmdb-director",
-                           "Director of the movie");
-
-  GRL_TMDB_METADATA_KEY_ORIGINAL_TITLE =
-    register_metadata_key (registry,
-                           "tmdb-original-title",
-                           "tmdb-original-title",
-                           "Original title of a movie");
 
   GrlTmdbSource *source = grl_tmdb_source_new (api_key);
   grl_registry_register_source (registry,
@@ -265,13 +230,15 @@ grl_tmdb_source_init (GrlTmdbSource *self)
 
   /* Fast keys */
   g_hash_table_add (self->priv->supported_keys,
-                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_BACKDROPS));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_THUMBNAIL));
   g_hash_table_add (self->priv->supported_keys,
-                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_ORIGINAL_TITLE));
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_BACKDROP));
+  g_hash_table_add (self->priv->supported_keys,
+                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_POSTER));
+  g_hash_table_add (self->priv->supported_keys,
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ORIGINAL_TITLE));
   g_hash_table_add (self->priv->supported_keys,
                     GRLKEYID_TO_POINTER (GRL_METADATA_KEY_RATING));
-  g_hash_table_add (self->priv->supported_keys,
-                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_POSTERS));
   g_hash_table_add (self->priv->supported_keys,
                     GRLKEYID_TO_POINTER (GRL_METADATA_KEY_PUBLICATION_DATE));
   g_hash_table_add (self->priv->supported_keys,
@@ -293,13 +260,13 @@ grl_tmdb_source_init (GrlTmdbSource *self)
   g_hash_table_add (self->priv->slow_keys,
                     GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_IMDB_ID));
   g_hash_table_add (self->priv->slow_keys,
-                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_KEYWORDS));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_KEYWORD));
   g_hash_table_add (self->priv->slow_keys,
-                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_PERFORMER));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_PERFORMER));
   g_hash_table_add (self->priv->slow_keys,
-                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_PRODUCER));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_PRODUCER));
   g_hash_table_add (self->priv->slow_keys,
-                    GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_DIRECTOR));
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DIRECTOR));
 
   self->priv->wc = grl_net_wc_new ();
   grl_net_wc_set_throttling (self->priv->wc, 1);
@@ -511,9 +478,29 @@ neutral_backdrop_filter (JsonNode *node)
   return NULL;
 }
 
-static void on_request_ready (GObject *source,
-                              GAsyncResult *result,
-                              gpointer user_data) {
+static void
+add_image (GrlTmdbSource *self,
+           GrlMedia      *media,
+           GrlKeyID       detail_key,
+           const char    *image_path)
+{
+    SoupURI *uri;
+    char *str;
+
+    str = g_strconcat ("original", image_path, NULL);
+    uri = soup_uri_new_with_base (self->priv->image_base_uri, str);
+    g_free (str);
+
+    str = soup_uri_to_string (uri, FALSE);
+    grl_media_add_thumbnail (media, str);
+    grl_data_add_string (GRL_DATA (media), detail_key, str);
+    g_free (str);
+}
+
+static void
+on_request_ready (GObject *source,
+                  GAsyncResult *result,
+                  gpointer user_data) {
   ResolveClosure *closure = (ResolveClosure *) user_data;
   GrlTmdbRequest *request = GRL_TMDB_REQUEST (source);
   GError *error = NULL;
@@ -538,8 +525,7 @@ static void on_request_ready (GObject *source,
         iter = values = grl_tmdb_request_get_string_list (request, "$.genres..name");
         while (iter != NULL) {
           grl_data_add_string (GRL_DATA (closure->rs->media),
-                               GRL_METADATA_KEY_GENRE,
-                               (char *) iter->data);
+                               GRL_METADATA_KEY_GENRE, iter->data);
           iter = iter->next;
         }
         g_list_free_full (values, g_free);
@@ -549,8 +535,7 @@ static void on_request_ready (GObject *source,
         iter = values = grl_tmdb_request_get_string_list (request, "$.production_companies..name");
         while (iter != NULL) {
           grl_data_add_string (GRL_DATA (closure->rs->media),
-                               GRL_METADATA_KEY_STUDIO,
-                               (char *) iter->data);
+                               GRL_METADATA_KEY_STUDIO, iter->data);
           iter = iter->next;
         }
         g_list_free_full (values, g_free);
@@ -586,50 +571,31 @@ static void on_request_ready (GObject *source,
     break;
     case GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES:
     {
-      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROPS)) {
+      /* Add posters first and backdrops later.
+       * Posters more likely make a good thumbnail than backdrops.
+       */
+      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER)) {
         iter = values = grl_tmdb_request_get_string_list_with_filter (request,
-                                                                      "$.backdrops",
+                                                                      "$.posters",
                                                                       neutral_backdrop_filter);
         while (iter != NULL) {
-          SoupURI *backdrop_uri;
-          char *path;
-
-          path = g_strconcat ("original", (char *) iter->data, NULL);
-
-          backdrop_uri = soup_uri_new_with_base (closure->self->priv->image_base_uri,
-                                                 path);
-          g_free (path);
-          path = soup_uri_to_string (backdrop_uri, FALSE);
-
-          grl_data_add_string (GRL_DATA (closure->rs->media),
-                               GRL_TMDB_METADATA_KEY_BACKDROPS,
-                               path);
-          g_free (path);
+          add_image (closure->self, closure->rs->media,
+                     GRL_TMDB_METADATA_KEY_POSTER,
+                     iter->data);
 
           iter = iter->next;
         }
         g_list_free_full (values, g_free);
       }
 
-      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTERS)) {
+      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROP)) {
         iter = values = grl_tmdb_request_get_string_list_with_filter (request,
-                                                                      "$.posters",
+                                                                      "$.backdrops",
                                                                       neutral_backdrop_filter);
         while (iter != NULL) {
-          SoupURI *backdrop_uri;
-          char *path;
-
-          path = g_strconcat ("original", (char *) iter->data, NULL);
-
-          backdrop_uri = soup_uri_new_with_base (closure->self->priv->image_base_uri,
-                                                 path);
-          g_free (path);
-          path = soup_uri_to_string (backdrop_uri, FALSE);
-
-          grl_data_add_string (GRL_DATA (closure->rs->media),
-                               GRL_TMDB_METADATA_KEY_POSTERS,
-                               path);
-          g_free (path);
+          add_image (closure->self, closure->rs->media,
+                     GRL_TMDB_METADATA_KEY_BACKDROP,
+                     iter->data);
 
           iter = iter->next;
         }
@@ -639,13 +605,11 @@ static void on_request_ready (GObject *source,
     break;
     case GRL_TMDB_REQUEST_DETAIL_MOVIE_KEYWORDS:
     {
-      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_KEYWORDS)) {
+      if (SHOULD_RESOLVE (GRL_METADATA_KEY_KEYWORD)) {
         iter = values = grl_tmdb_request_get_string_list (request,
                                                           "$.keywords..name");
         while (iter != NULL) {
-          grl_data_add_string (GRL_DATA (closure->rs->media),
-                               GRL_TMDB_METADATA_KEY_KEYWORDS,
-                               (char *) iter->data);
+          grl_media_add_keyword (closure->rs->media, iter->data);
           iter = iter->next;
         }
         g_list_free_full (values, g_free);
@@ -654,41 +618,38 @@ static void on_request_ready (GObject *source,
     break;
     case GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST:
     {
-      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_PERFORMER)) {
+      if (SHOULD_RESOLVE (GRL_METADATA_KEY_PERFORMER)) {
         values = grl_tmdb_request_get_string_list (request, "$.cast..name");
         iter = values;
         while (iter != NULL) {
-          grl_data_add_string (GRL_DATA (closure->rs->media),
-                               GRL_TMDB_METADATA_KEY_PERFORMER,
-                               (char *) iter->data);
+          grl_media_video_add_performer (GRL_MEDIA_VIDEO (closure->rs->media),
+                                         iter->data);
           iter = iter->next;
         }
         g_list_free_full (values, g_free);
       }
 
-      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_PRODUCER)) {
+      if (SHOULD_RESOLVE (GRL_METADATA_KEY_PRODUCER)) {
         values = grl_tmdb_request_get_string_list_with_filter (request,
                                                                "$.crew[*]",
                                                                producer_filter);
         iter = values;
         while (iter != NULL) {
-          grl_data_add_string (GRL_DATA (closure->rs->media),
-                               GRL_TMDB_METADATA_KEY_PRODUCER,
-                               (char *) iter->data);
+            grl_media_video_add_producer (GRL_MEDIA_VIDEO (closure->rs->media),
+                                          iter->data);
           iter = iter->next;
         }
         g_list_free_full (values, g_free);
       }
 
-      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_DIRECTOR)) {
+      if (SHOULD_RESOLVE (GRL_METADATA_KEY_DIRECTOR)) {
         values = grl_tmdb_request_get_string_list_with_filter (request,
                                                                "$.crew[*]",
                                                                director_filter);
         iter = values;
         while (iter != NULL) {
-          grl_data_add_string (GRL_DATA (closure->rs->media),
-                               GRL_TMDB_METADATA_KEY_DIRECTOR,
-                               (char *) iter->data);
+          grl_media_video_add_director (GRL_MEDIA_VIDEO (closure->rs->media),
+                                        iter->data);
           iter = iter->next;
         }
         g_list_free_full (values, g_free);
@@ -832,44 +793,29 @@ on_search_ready (GObject *source,
     }
   }
 
-  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROPS)) {
-    value = grl_tmdb_request_get (request, "$.results[0].backdrop_path");
+  /* Add posters first and backdrops later.
+   * Posters more likely make a good thumbnail than backdrops.
+   */
+  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER)) {
+    value = grl_tmdb_request_get (request, "$.results[0].poster_path");
     if (value != NULL) {
-      SoupURI *backdrop_uri;
-      char *path;
+        add_image (closure->self, closure->rs->media,
+                   GRL_TMDB_METADATA_KEY_POSTER,
+                   g_value_get_string (value));
 
-      path = g_strconcat ("original", g_value_get_string (value), NULL);
+        g_value_unset (value);
 
-      backdrop_uri = soup_uri_new_with_base (closure->self->priv->image_base_uri,
-                                             path);
-      g_free (path);
-      path = soup_uri_to_string (backdrop_uri, FALSE);
-
-      grl_data_add_string (GRL_DATA (closure->rs->media),
-                           GRL_TMDB_METADATA_KEY_BACKDROPS,
-                           path);
-      g_free (path);
-      g_value_unset (value);
     }
   }
 
-  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTERS)) {
-    value = grl_tmdb_request_get (request, "$.results[0].poster_path");
+  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROP)) {
+    value = grl_tmdb_request_get (request, "$.results[0].backdrop_path");
     if (value != NULL) {
-      SoupURI *backdrop_uri;
-      char *path;
+      add_image (closure->self, closure->rs->media,
+                 GRL_TMDB_METADATA_KEY_BACKDROP,
+                 g_value_get_string (value));
 
-      path = g_strconcat ("original", g_value_get_string (value), NULL);
-
-      backdrop_uri = soup_uri_new_with_base (closure->self->priv->image_base_uri,
-                                             path);
-      g_free (path);
-      path = soup_uri_to_string (backdrop_uri, FALSE);
-
-      grl_data_add_string (GRL_DATA (closure->rs->media),
-                           GRL_TMDB_METADATA_KEY_POSTERS,
-                           path);
-      g_free (path);
+      g_value_unset (value);
     }
   }
 
@@ -894,8 +840,8 @@ on_search_ready (GObject *source,
 
   /* We need to do additional requests. Check if we should have resolved
    * images and try to get some more */
-  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROPS) ||
-      SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTERS))
+  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROP) ||
+      SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER))
     g_queue_push_tail (closure->pending_requests,
                        create_and_run_request (self,
                                                closure,
@@ -911,15 +857,15 @@ on_search_ready (GObject *source,
                                                closure,
                                                GRL_TMDB_REQUEST_DETAIL_MOVIE));
 
-  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_KEYWORDS))
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_KEYWORD))
     g_queue_push_tail (closure->pending_requests,
                        create_and_run_request (self,
                                                closure,
                                                GRL_TMDB_REQUEST_DETAIL_MOVIE_KEYWORDS));
 
-  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_PERFORMER) ||
-      SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_PRODUCER) ||
-      SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_DIRECTOR))
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_PERFORMER) ||
+      SHOULD_RESOLVE (GRL_METADATA_KEY_PRODUCER) ||
+      SHOULD_RESOLVE (GRL_METADATA_KEY_DIRECTOR))
     g_queue_push_tail (closure->pending_requests,
                        create_and_run_request (self,
                                                closure,

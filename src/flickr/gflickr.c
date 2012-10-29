@@ -44,9 +44,10 @@
   "&api_sig=%s"                                         \
   "&method=" FLICKR_PHOTOS_SEARCH_METHOD                \
   "&user_id=%s"                                         \
-  "&extras=media,date_taken,owner_name,url_o,url_t"     \
+  "&extras=date_taken,owner_name,url_o,url_t"           \
   "&per_page=%d"                                        \
   "&page=%d"                                            \
+  "&media=photos"                                       \
   "&tags=%s"                                            \
   "&text=%s"                                            \
   "%s"
@@ -56,7 +57,7 @@
   "api_key=%s"                                          \
   "&api_sig=%s"                                         \
   "&method=" FLICKR_PHOTOS_GETRECENT_METHOD             \
-  "&extras=media,date_taken,owner_name,url_o,url_t"     \
+  "&extras=date_taken,owner_name,url_o,url_t"           \
   "&per_page=%d"                                        \
   "&page=%d"                                            \
   "%s"
@@ -75,9 +76,10 @@
   "&api_sig=%s"                                         \
   "&method=" FLICKR_PHOTOSETS_GETPHOTOS_METHOD          \
   "&photoset_id=%s"                                     \
-  "&extras=media,date_taken,owner_name,url_o,url_t"     \
+  "&extras=date_taken,owner_name,url_o,url_t"           \
   "&per_page=%d"                                        \
   "&page=%d"                                            \
+  "&media=photos"                                       \
   "%s"
 
 #define FLICKR_TAGS_GETHOTLIST                          \
@@ -704,7 +706,8 @@ g_flickr_photos_search (GFlickr *f,
   gchar *api_sig =
     get_api_sig (f->priv->auth_secret,
                  "api_key", f->priv->api_key,
-                 "extras", "media,date_taken,owner_name,url_o,url_t",
+                 "extras", "date_taken,owner_name,url_o,url_t",
+                 "media", "photos",
                  "method", FLICKR_PHOTOS_SEARCH_METHOD,
                  "user_id", user_id,
                  "page", strpage,
@@ -761,7 +764,8 @@ g_flickr_photos_getRecent (GFlickr *f,
   gchar *api_sig =
     get_api_sig (f->priv->auth_secret,
                  "api_key", f->priv->api_key,
-                 "extras", "media,date_taken,owner_name,url_o,url_t",
+                 "extras", "date_taken,owner_name,url_o,url_t",
+                 "media", "photos",
                  "method", FLICKR_PHOTOS_GETRECENT_METHOD,
                  "page", strpage,
                  "per_page", strperpage,
@@ -999,7 +1003,8 @@ g_flickr_photosets_getPhotos (GFlickr *f,
     get_api_sig (f->priv->auth_secret,
                  "api_key", f->priv->api_key,
                  "photoset_id", photoset_id,
-                 "extras", "media,date_taken,owner_name,url_o,url_t",
+                 "extras", "date_taken,owner_name,url_o,url_t",
+                 "media", "photos",
                  "method", FLICKR_PHOTOSETS_GETPHOTOS_METHOD,
                  "page", strpage,
                  "per_page", strperpage,

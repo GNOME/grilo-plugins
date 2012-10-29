@@ -394,7 +394,6 @@ search_cb (GFlickr *f, GList *photolist, gpointer user_data)
 {
   GrlMedia *media;
   OperationData *od = (OperationData *) user_data;
-  gchar *media_type;
 
   /* Go to offset element */
   photolist = g_list_nth (photolist, od->offset);
@@ -412,12 +411,7 @@ search_cb (GFlickr *f, GList *photolist, gpointer user_data)
   }
 
   while (photolist && od->count) {
-    media_type = g_hash_table_lookup (photolist->data, "photo_media");
-    if (strcmp (media_type, "photo") == 0) {
-      media = grl_media_image_new ();
-    } else {
-      media = grl_media_video_new ();
-    }
+    media = grl_media_image_new ();
     update_media (media, photolist->data);
     od->callback (od->source,
                   od->operation_id,

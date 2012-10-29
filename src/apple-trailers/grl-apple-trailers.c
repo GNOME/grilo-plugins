@@ -162,6 +162,7 @@ grl_apple_trailers_source_new (gboolean high_definition,
                          "source-id", SOURCE_ID,
                          "source-name", SOURCE_NAME,
                          "source-desc", SOURCE_DESC,
+                         "supported-media", GRL_MEDIA_TYPE_VIDEO,
                          "high-definition", high_definition,
 			 "large-poster", xlarge,
                          NULL);

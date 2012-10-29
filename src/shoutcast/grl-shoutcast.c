@@ -179,6 +179,7 @@ grl_shoutcast_source_new (const gchar *dev_key)
                           "source-id", SOURCE_ID,
                           "source-name", SOURCE_NAME,
                           "source-desc", SOURCE_DESC,
+                          "supported-media", GRL_MEDIA_TYPE_AUDIO,
                           NULL);
 
   source->priv->dev_key = g_strdup (dev_key);

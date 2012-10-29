@@ -189,6 +189,7 @@ grl_flickr_source_public_new (const gchar *flickr_api_key,
                          "source-id", PUBLIC_SOURCE_ID,
                          "source-name", PUBLIC_SOURCE_NAME,
                          "source-desc", PUBLIC_SOURCE_DESC,
+                         "supported-media", GRL_MEDIA_TYPE_IMAGE,
                          NULL);
   source->priv->flickr = g_flickr_new (flickr_api_key, flickr_secret, NULL);
 

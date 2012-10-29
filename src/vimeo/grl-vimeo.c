@@ -158,6 +158,7 @@ grl_vimeo_source_new (void)
                        "source-id", SOURCE_ID,
                        "source-name", SOURCE_NAME,
                        "source-desc", SOURCE_DESC,
+                       "supported-media", GRL_MEDIA_TYPE_VIDEO,
                        NULL);
 }
 

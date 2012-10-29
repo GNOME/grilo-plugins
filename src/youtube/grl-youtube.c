@@ -331,6 +331,7 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id, const gcha
 					     "auto-split-threshold",
 					     YOUTUBE_MAX_CHUNK,
                                              "yt-service", service,
+                                             "supported-media", GRL_MEDIA_TYPE_VIDEO,
 					     NULL));
 
   /* Set up quvi */

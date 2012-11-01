@@ -180,9 +180,6 @@ static gboolean grl_bookmarks_source_notify_change_start (GrlSource *source,
 static gboolean grl_bookmarks_source_notify_change_stop (GrlSource *source,
                                                          GError **error);
 
-static GrlCaps * grl_bookmarks_source_get_caps (GrlSource *source,
-                                                GrlSupportedOps operation);
-
  /* =================== Bookmarks Plugin  =============== */
 
  static gboolean
@@ -249,7 +246,6 @@ static GrlCaps * grl_bookmarks_source_get_caps (GrlSource *source,
 
    source_class->supported_operations = grl_bookmarks_source_supported_operations;
    source_class->supported_keys = grl_bookmarks_source_supported_keys;
-   source_class->get_caps = grl_bookmarks_source_get_caps;
    source_class->browse = grl_bookmarks_source_browse;
    source_class->search = grl_bookmarks_source_search;
    source_class->query = grl_bookmarks_source_query;
@@ -931,16 +927,4 @@ grl_bookmarks_source_notify_change_stop (GrlSource *source,
   bookmarks_source->priv->notify_changes = FALSE;
 
   return TRUE;
-}
-
-static GrlCaps *
-grl_bookmarks_source_get_caps (GrlSource *source,
-                               GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  if (caps == NULL)
-    caps = grl_caps_new ();
-
-  return caps;
 }

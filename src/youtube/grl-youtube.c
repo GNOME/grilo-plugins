@@ -194,9 +194,6 @@ static const GList *grl_youtube_source_supported_keys (GrlSource *source);
 
 static const GList *grl_youtube_source_slow_keys (GrlSource *source);
 
-static GrlCaps * grl_youtube_source_get_caps (GrlSource *source,
-                                              GrlSupportedOps operation);
-
 static void grl_youtube_source_search (GrlSource *source,
                                        GrlSourceSearchSpec *ss);
 
@@ -363,7 +360,6 @@ grl_youtube_source_class_init (GrlYoutubeSourceClass * klass)
 
   source_class->supported_keys = grl_youtube_source_supported_keys;
   source_class->slow_keys = grl_youtube_source_slow_keys;
-  source_class->get_caps = grl_youtube_source_get_caps;
   source_class->cancel = grl_youtube_source_cancel;
 
   source_class->search = grl_youtube_source_search;
@@ -1610,16 +1606,4 @@ grl_youtube_source_cancel (GrlSource *source,
   if (cancellable) {
     g_cancellable_cancel (cancellable);
   }
-}
-
-static GrlCaps *
-grl_youtube_source_get_caps (GrlSource *source,
-                             GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  if (caps == NULL)
-    caps = grl_caps_new ();
-
-  return caps;
 }

@@ -93,9 +93,6 @@ gboolean grl_bliptv_plugin_init (GrlRegistry *registry,
 
 static const GList *grl_bliptv_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_bliptv_source_get_caps (GrlSource *source,
-                                             GrlSupportedOps operation);
-
 static void grl_bliptv_source_browse (GrlSource *source,
                                       GrlSourceBrowseSpec *bs);
 
@@ -165,7 +162,6 @@ grl_bliptv_source_class_init (GrlBliptvSourceClass *klass)
   object_class->finalize = grl_bliptv_source_finalize;
 
   source_class->supported_keys = grl_bliptv_source_supported_keys;
-  source_class->get_caps = grl_bliptv_source_get_caps;
   source_class->cancel = grl_bliptv_source_cancel;
   source_class->browse = grl_bliptv_source_browse;
   source_class->search = grl_bliptv_source_search;
@@ -498,16 +494,4 @@ grl_bliptv_source_cancel (GrlSource *source, guint operation_id)
 
   grl_operation_set_data (operation_id, NULL);
   bliptv_operation_free (op);
-}
-
-static GrlCaps *
-grl_bliptv_source_get_caps (GrlSource *source,
-                            GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  if (caps == NULL)
-    caps = grl_caps_new ();
-
-  return caps;
 }

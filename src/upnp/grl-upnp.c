@@ -108,9 +108,6 @@ static const GList *grl_upnp_source_supported_keys (GrlSource *source);
 
 static GrlSupportedOps grl_upnp_source_supported_operations (GrlSource *source);
 
-static GrlCaps * grl_upnp_source_get_caps (GrlSource *source,
-                                           GrlSupportedOps operation);
-
 static void grl_upnp_source_browse (GrlSource *source,
                                     GrlSourceBrowseSpec *bs);
 
@@ -223,7 +220,6 @@ grl_upnp_source_class_init (GrlUpnpSourceClass * klass)
 
   source_class->supported_keys = grl_upnp_source_supported_keys;
   source_class->supported_operations = grl_upnp_source_supported_operations;
-  source_class->get_caps = grl_upnp_source_get_caps;
   source_class->browse = grl_upnp_source_browse;
   source_class->search = grl_upnp_source_search;
   source_class->query = grl_upnp_source_query;
@@ -1361,16 +1357,4 @@ grl_upnp_source_notify_change_stop (GrlSource *source,
                                      source);
 
   return TRUE;
-}
-
-static GrlCaps *
-grl_upnp_source_get_caps (GrlSource *source,
-                          GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  if (caps == NULL)
-    caps = grl_caps_new ();
-
-  return caps;
 }

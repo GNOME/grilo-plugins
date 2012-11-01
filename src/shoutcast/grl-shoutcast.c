@@ -100,9 +100,6 @@ gboolean grl_shoutcast_plugin_init (GrlRegistry *registry,
 
 static const GList *grl_shoutcast_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_shoutcast_source_get_caps (GrlSource *source,
-                                                GrlSupportedOps operation);
-
 static void grl_shoutcast_source_resolve (GrlSource *source,
                                           GrlSourceResolveSpec *rs);
 
@@ -199,7 +196,6 @@ grl_shoutcast_source_class_init (GrlShoutcastSourceClass * klass)
 
   source_class->cancel = grl_shoutcast_source_cancel;
   source_class->supported_keys = grl_shoutcast_source_supported_keys;
-  source_class->get_caps = grl_shoutcast_source_get_caps;
   source_class->resolve = grl_shoutcast_source_resolve;
   source_class->browse = grl_shoutcast_source_browse;
   source_class->search = grl_shoutcast_source_search;
@@ -807,16 +803,4 @@ grl_shoutcast_source_cancel (GrlSource *source, guint operation_id)
   if (op_data) {
     op_data->cancelled = TRUE;
   }
-}
-
-static GrlCaps *
-grl_shoutcast_source_get_caps (GrlSource *source,
-                               GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  if (caps == NULL)
-    caps = grl_caps_new ();
-
-  return caps;
 }

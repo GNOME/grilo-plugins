@@ -99,9 +99,6 @@ gboolean grl_flickr_plugin_init (GrlRegistry *registry,
 
 static const GList *grl_flickr_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_flickr_source_get_caps (GrlSource *source,
-                                             GrlSupportedOps operation);
-
 static void grl_flickr_source_browse (GrlSource *source,
                                       GrlSourceBrowseSpec *bs);
 
@@ -219,7 +216,6 @@ grl_flickr_source_class_init (GrlFlickrSourceClass * klass)
   gobject_class->finalize = grl_flickr_source_finalize;
 
   source_class->supported_keys = grl_flickr_source_supported_keys;
-  source_class->get_caps = grl_flickr_source_get_caps;
   source_class->browse = grl_flickr_source_browse;
   source_class->resolve = grl_flickr_source_resolve;
   source_class->search = grl_flickr_source_search;
@@ -760,16 +756,4 @@ grl_flickr_source_search (GrlSource *source,
                                search_cb,
                                od);
   }
-}
-
-static GrlCaps *
-grl_flickr_source_get_caps (GrlSource *source,
-                            GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  if (caps == NULL)
-    caps = grl_caps_new ();
-
-  return caps;
 }

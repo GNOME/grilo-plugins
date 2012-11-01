@@ -237,9 +237,6 @@ static void grl_podcasts_source_finalize (GObject *plugin);
 
 static const GList *grl_podcasts_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_podcasts_source_get_caps (GrlSource *source,
-                                               GrlSupportedOps operation);
-
 static void grl_podcasts_source_browse (GrlSource *source,
                                         GrlSourceBrowseSpec *bs);
 
@@ -337,7 +334,6 @@ grl_podcasts_source_class_init (GrlPodcastsSourceClass * klass)
   gobject_class->finalize = grl_podcasts_source_finalize;
 
   source_class->supported_keys = grl_podcasts_source_supported_keys;
-  source_class->get_caps = grl_podcasts_source_get_caps;
   source_class->browse = grl_podcasts_source_browse;
   source_class->search = grl_podcasts_source_search;
   source_class->query = grl_podcasts_source_query;
@@ -1840,16 +1836,4 @@ grl_podcasts_source_notify_change_stop (GrlSource *source,
   podcasts_source->priv->notify_changes = FALSE;
 
   return TRUE;
-}
-
-static GrlCaps *
-grl_podcasts_source_get_caps (GrlSource *source,
-                              GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  if (caps == NULL)
-    caps = grl_caps_new ();
-
-  return caps;
 }

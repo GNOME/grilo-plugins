@@ -94,9 +94,6 @@ static void grl_apple_trailers_source_browse (GrlSource *source,
 static void grl_apple_trailers_source_cancel (GrlSource *source,
                                               guint operation_id);
 
-static GrlCaps *grl_apple_trailers_source_get_caps (GrlSource *source,
-                                                    GrlSupportedOps operation);
-
 /* =================== Apple Trailers Plugin  =============== */
 
 gboolean
@@ -224,7 +221,6 @@ grl_apple_trailers_source_class_init (GrlAppleTrailersSourceClass * klass)
   source_class->cancel = grl_apple_trailers_source_cancel;
   source_class->supported_keys = grl_apple_trailers_source_supported_keys;
   source_class->browse = grl_apple_trailers_source_browse;
-  source_class->get_caps = grl_apple_trailers_source_get_caps;
 
   g_object_class_install_property (g_class,
                                    PROP_HD,
@@ -619,16 +615,4 @@ grl_apple_trailers_source_cancel (GrlSource *source, guint operation_id)
   if (op_data) {
     op_data->cancelled = TRUE;
   }
-}
-
-static GrlCaps *
-grl_apple_trailers_source_get_caps (GrlSource *source,
-                                    GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  if (caps == NULL)
-    caps = grl_caps_new ();
-
-  return caps;
 }

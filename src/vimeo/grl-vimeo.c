@@ -73,9 +73,6 @@ gboolean grl_vimeo_plugin_init (GrlRegistry *registry,
 
 static const GList *grl_vimeo_source_supported_keys (GrlSource *source);
 
-static GrlCaps * grl_vimeo_source_get_caps (GrlSource *source,
-                                            GrlSupportedOps operation);
-
 static void grl_vimeo_source_resolve (GrlSource *source,
                                       GrlSourceResolveSpec *rs);
 
@@ -170,7 +167,6 @@ grl_vimeo_source_class_init (GrlVimeoSourceClass * klass)
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
 
   source_class->supported_keys = grl_vimeo_source_supported_keys;
-  source_class->get_caps = grl_vimeo_source_get_caps;
   source_class->resolve = grl_vimeo_source_resolve;
   source_class->search = grl_vimeo_source_search;
 
@@ -431,16 +427,4 @@ grl_vimeo_source_search (GrlSource *source,
   sd->ss = ss;
 
   g_vimeo_videos_search (vimeo, ss->text, sd->page, search_cb, sd);
-}
-
-static GrlCaps *
-grl_vimeo_source_get_caps (GrlSource *source,
-                           GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  if (caps == NULL)
-    caps = grl_caps_new ();
-
-  return caps;
 }

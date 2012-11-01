@@ -71,9 +71,6 @@ gboolean grl_optical_media_plugin_init (GrlRegistry *registry,
 
 static const GList *grl_optical_media_source_supported_keys (GrlSource *source);
 
-static GrlCaps *grl_optical_media_source_get_caps (GrlSource *source,
-                                                   GrlSupportedOps operation);
-
 static void grl_optical_media_source_browse (GrlSource *source,
                                              GrlSourceBrowseSpec *bs);
 
@@ -139,7 +136,6 @@ grl_optical_media_source_class_init (GrlOpticalMediaSourceClass * klass)
 
   source_class->supported_keys = grl_optical_media_source_supported_keys;
   source_class->cancel = grl_optical_media_source_cancel;
-  source_class->get_caps = grl_optical_media_source_get_caps;
   source_class->browse = grl_optical_media_source_browse;
 
   g_type_class_add_private (klass, sizeof (GrlOpticalMediaSourcePrivate));
@@ -550,19 +546,4 @@ grl_optical_media_source_cancel (GrlSource *source, guint operation_id)
   if (cancellable) {
     g_cancellable_cancel (cancellable);
   }
-}
-
-static GrlCaps *
-grl_optical_media_source_get_caps (GrlSource *source,
-                                   GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  /* Nothing very special for now */
-
-  if (caps == NULL) {
-    caps = grl_caps_new ();
-  }
-
-  return caps;
 }

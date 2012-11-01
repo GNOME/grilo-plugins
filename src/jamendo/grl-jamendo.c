@@ -177,9 +177,6 @@ gboolean grl_jamendo_plugin_init (GrlRegistry *registry,
 
 static const GList *grl_jamendo_source_supported_keys (GrlSource *source);
 
-static GrlCaps *grl_jamendo_source_get_caps (GrlSource *source,
-                                             GrlSupportedOps operation);
-
 static void grl_jamendo_source_resolve (GrlSource *source,
                                         GrlSourceResolveSpec *rs);
 
@@ -259,7 +256,6 @@ grl_jamendo_source_class_init (GrlJamendoSourceClass * klass)
 
   source_class->cancel = grl_jamendo_source_cancel;
   source_class->supported_keys = grl_jamendo_source_supported_keys;
-  source_class->get_caps = grl_jamendo_source_get_caps;
   source_class->resolve = grl_jamendo_source_resolve;
   source_class->browse = grl_jamendo_source_browse;
   source_class->query = grl_jamendo_source_query;
@@ -1362,16 +1358,4 @@ grl_jamendo_source_cancel (GrlSource *source, guint operation_id)
   if (xpe) {
     xpe->cancelled = TRUE;
   }
-}
-
-static GrlCaps *
-grl_jamendo_source_get_caps (GrlSource *source,
-                             GrlSupportedOps operation)
-{
-  static GrlCaps *caps = NULL;
-
-  if (caps == NULL)
-    caps = grl_caps_new ();
-
-  return caps;
 }

@@ -1032,6 +1032,7 @@ AC_CONFIG_FILES([
   src/youtube/Makefile
   doc/Makefile
   doc/grilo-plugins/Makefile
+  examples/Makefile
 ])
 
 AC_OUTPUT

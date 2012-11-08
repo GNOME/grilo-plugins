@@ -25,7 +25,28 @@
  * SECTION:grl-tmdb
  * @short_description: A Grilo Plugin for TMDb
  *
+ * The TMDb plugin retrieves information about movies from the
+ * TMDb online service at themoviedb.org, which is a 
+ * community-maintained movie database.
  *
+ * Before using this plugin, you should set the TMDB API Key with
+ * grl_config_set_api_key().
+ *
+ * You may then use grl_source_resolve() to discover details about
+ * an existing GrlMediaItem.
+ *
+ * This plugin does not support search via grl_source_search() 
+ * or queries via grl_source_query().
+ *
+ * Here is a simple example of the use of the Grilo TMDb plugin: 
+ *
+ * <informalexample id="grilo-tmdb">
+ * <programlisting language="c">
+ * <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" parse="text" href="../../../examples/example-tmdb.c">
+ *  <xi:fallback>FIXME: MISSING XINCLUDE CONTENT</xi:fallback>
+ * </xi:include>
+ * </programlisting>
+ * </informalexample>
  */
 
 #ifdef HAVE_CONFIG_H

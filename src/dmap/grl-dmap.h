@@ -47,7 +47,7 @@
   (G_TYPE_CHECK_CLASS_TYPE((klass),                \
                            GRL_DMAP_SOURCE_TYPE))
 
-#define GRL_UPNP_SOURCE_GET_CLASS(obj)                \
+#define GRL_DMAP_SOURCE_GET_CLASS(obj)                \
   (G_TYPE_INSTANCE_GET_CLASS ((obj),                  \
                               GRL_DMAP_SOURCE_TYPE,   \
                               GrlDmapSourceClass))

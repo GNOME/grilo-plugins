@@ -23,6 +23,13 @@
  *
  */
 
+/**
+ * SECTION:grl-bliptv
+ * @short_description: A Grilo Plugin for BlipTV
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

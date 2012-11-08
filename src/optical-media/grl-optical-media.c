@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * SECTION:grl-optical-media
+ * @short_description: A Grilo Plugin for Optical Media
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

@@ -23,6 +23,13 @@
  *
  */
 
+/**
+ * SECTION:grl-gravatar
+ * @short_description: A Grilo Plugin for Gravatar
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

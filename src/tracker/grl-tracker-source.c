@@ -23,6 +23,13 @@
  *
  */
 
+/**
+ * SECTION:grl-tracker
+ * @short_description: A Grilo Plugin for Tracker
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

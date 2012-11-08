@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * SECTION:grl-bookmarks
+ * @short_description: A Grilo Plugin for bookmarks
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

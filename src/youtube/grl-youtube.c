@@ -21,6 +21,14 @@
  *
  */
 
+/**
+ * SECTION:grl-youtube
+ * @short_description: A Grilo Plugin for YouTube
+ *
+ *
+ */
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

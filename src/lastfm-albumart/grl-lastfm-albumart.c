@@ -22,6 +22,13 @@
  *
  */
 
+/**
+ * SECTION:grl-lastfm-albumart
+ * @short_description: A Grilo Plugin for LastFM album art
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

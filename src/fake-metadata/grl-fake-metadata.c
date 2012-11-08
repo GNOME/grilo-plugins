@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * SECTION:grl-fake-metadata
+ * @short_description: A Grilo Plugin for fake metadata
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

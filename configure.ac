@@ -978,6 +978,14 @@ AC_SUBST(DEPS_TMDB_CFLAGS)
 DEPS_TMDB_LIBS="$DEPS_LIBS $LIBSOUP_LIBS $GRLNET_LIBS $JSON_LIBS"
 AC_SUBST(DEPS_TMDB_LIBS)
 
+
+# ----------------------------------------------------------
+# GTK-DOC
+# ----------------------------------------------------------
+
+GTK_DOC_CHECK([1.10],[--flavour no-tmpl])
+
+
 # ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
@@ -1022,6 +1030,8 @@ AC_CONFIG_FILES([
   src/upnp/Makefile
   src/vimeo/Makefile
   src/youtube/Makefile
+  doc/Makefile
+  doc/grilo-plugins/Makefile
 ])
 
 AC_OUTPUT

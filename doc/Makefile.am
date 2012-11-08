@@ -1,0 +1,1 @@
+SUBDIRS = grilo-plugins

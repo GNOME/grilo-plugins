@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * SECTION:grl-podcasts
+ * @short_description: A Grilo Plugin for podcasts
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

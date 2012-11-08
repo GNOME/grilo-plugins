@@ -21,6 +21,13 @@
  *
  */
 
+/**
+ * SECTION:grl-dmap
+ * @short_description: A Grilo Plugin for DMap
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

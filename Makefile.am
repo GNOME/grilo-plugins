@@ -7,7 +7,7 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src
+SUBDIRS = src doc
 
 MAINTAINERCLEANFILES = \
         aclocal.m4 \
@@ -29,6 +29,8 @@ MAINTAINERCLEANFILES = \
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)
 
 EXTRA_DIST = ./m4/grilo.m4
+
+DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
 
 distclean-local:
 	-rm -rf autom4te.cache

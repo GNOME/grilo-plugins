@@ -21,6 +21,13 @@
  *
  */
 
+/**
+ * SECTION:grl-filesystem
+ * @short_description: A Grilo Plugin for the filesystem
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

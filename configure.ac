@@ -1022,6 +1022,7 @@ AC_CONFIG_FILES([
   src/upnp/Makefile
   src/vimeo/Makefile
   src/youtube/Makefile
+  examples/Makefile
   test/Makefile
 ])
 

@@ -1,8 +1,45 @@
+NEW in 0.2.3
+============
+
+  * General:
+    * BGO#673491 - Remove "default" get_caps implemetations
+    * Sources report the type of medias they support
+
+  * DMAP plugin:
+    * Fixed typo in GObject macro
+
+  * Flickr plugin:
+    * Handle only photos
+
+  * Metadata Store plugin:
+    * BGO#686282 - metadata-store: updates don't work properly
+    * BGO#686288 - metadata-store: add support for GRL_METADATA_KEY_FAVOURITE
+
+  * TMDb plugin
+    * Several fixes
+
+  * UPnP plugin
+    * Link it to libgssdp
+
+  * YouTube plugin
+    * Added "format" parameter
+
+  * Contributors to this release:
+    * Andreas Henriksson <andreas@fatal.se>
+    * Antía Puentes <apuentes@igalia.com>
+    * Bastien Nocera <hadess@hadess.net>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Mathias Hasselmann <mathias@openismus.com>
+    * Murray Cumming <murrayc@murrayc.com>
+
+
 NEW in 0.2.2
 ============
 
   * TMDb plugin
     * Added new plugin that gets information from TMDb.
+    * Moved some keys to Grilo core.
+    * BGO#679686 - GRL_METADATA_KEY_CERTIFICATE doesn't consider regional ratings
 
   * Contributors to this release:
     * Jens Georg <jensg@openismus.com>

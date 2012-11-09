@@ -8,10 +8,14 @@
 ext_LTLIBRARIES		 = libgrlshoutcast.la
 
 libgrlshoutcast_la_CFLAGS =	\
-	$(DEPS_SHOUTCAST_CFLAGS)
+	$(DEPS_CFLAGS)		\
+	$(GRLNET_CFLAGS)	\
+	$(XML_CFLAGS)
 
 libgrlshoutcast_la_LIBADD =	\
-	$(DEPS_SHOUTCAST_LIBS)
+	$(DEPS_LIBS)		\
+	$(GRLNET_LIBS)		\
+	$(XML_LIBS)
 
 libgrlshoutcast_la_LDFLAGS = \
 	-no-undefined	     \

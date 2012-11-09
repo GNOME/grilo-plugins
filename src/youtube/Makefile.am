@@ -8,10 +8,20 @@
 ext_LTLIBRARIES = libgrlyoutube.la
 
 libgrlyoutube_la_CFLAGS =	\
-	$(DEPS_YOUTUBE_CFLAGS)
+	$(DEPS_CFLAGS)		\
+	$(GRLNET_CFLAGS)	\
+	$(XML_CFLAGS) 		\
+	$(GTHREAD_CFLAGS)	\
+	$(GDATA_CFLAGS)	\
+	$(QUVI_CFLAGS)
 
 libgrlyoutube_la_LIBADD =	\
-	$(DEPS_YOUTUBE_LIBS)
+	$(DEPS_LIBS)		\
+	$(GRLNET_LIBS)		\
+	$(XML_LIBS) 		\
+	$(GTHREAD_LIBS)	\
+	$(GDATA_LIBS)		\
+	$(QUVI_LIBS)
 
 libgrlyoutube_la_LDFLAGS = \
 	-no-undefined      \

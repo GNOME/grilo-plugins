@@ -8,10 +8,12 @@
 ext_LTLIBRARIES = libgrlbookmarks.la
 
 libgrlbookmarks_la_CFLAGS =	\
-	$(DEPS_BOOKMARKS_CFLAGS)
+	$(DEPS_CFLAGS)		\
+	$(SQLITE_CFLAGS)
 
 libgrlbookmarks_la_LIBADD =	\
-	$(DEPS_BOOKMARKS_LIBS)
+	$(DEPS_LIBS)		\
+	$(SQLITE_LIBS)
 
 libgrlbookmarks_la_LDFLAGS = \
 	-no-undefined	     \

@@ -8,10 +8,12 @@
 ext_LTLIBRARIES		 = libgrllocalmetadata.la
 
 libgrllocalmetadata_la_CFLAGS =	\
-	$(DEPS_LOCALMETADATA_CFLAGS)
+	$(DEPS_CFLAGS) \
+	$(GIO_CFLAGS)
 
 libgrllocalmetadata_la_LIBADD =	\
-	$(DEPS_LOCALMETADATA_LIBS)
+	$(DEPS_LIBS) \
+	$(GIO_LIBS)
 
 libgrllocalmetadata_la_LDFLAGS = \
 	-no-undefined		 \

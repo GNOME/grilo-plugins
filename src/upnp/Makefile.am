@@ -8,10 +8,20 @@
 ext_LTLIBRARIES	= libgrlupnp.la
 
 libgrlupnp_la_CFLAGS =		\
-	$(DEPS_UPNP_CFLAGS)
+	$(DEPS_CFLAGS)		\
+	$(GSSDP_CFLAGS)		\
+	$(GUPNP_CFLAGS)		\
+	$(GUPNPAV_CFLAGS)	\
+	$(GTHREAD_CFLAGS)	\
+	$(XML_CFLAGS)
 
 libgrlupnp_la_LIBADD =	\
-	$(DEPS_UPNP_LIBS)
+	$(DEPS_LIBS)	\
+	$(GSSDP_LIBS)	\
+	$(GUPNP_LIBS)	\
+	$(GUPNPAV_LIBS)	\
+	$(GTHREAD_LIBS)	\
+	$(XML_LIBS)
 
 libgrlupnp_la_LDFLAGS = \
 	-no-undefined   \

@@ -8,10 +8,10 @@
 ext_LTLIBRARIES = libgrlgravatar.la
 
 libgrlgravatar_la_CFLAGS =	\
-	$(DEPS_GRAVATAR_CFLAGS)
+	$(DEPS_CFLAGS)
 
 libgrlgravatar_la_LIBADD =	\
-	$(DEPS_GRAVATAR_LIBS)
+	$(DEPS_LIBS)
 
 libgrlgravatar_la_LDFLAGS = \
 	-no-undefined       \

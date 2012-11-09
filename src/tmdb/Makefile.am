@@ -7,9 +7,17 @@
 
 ext_LTLIBRARIES		 = libgrltmdb.la
 
-libgrltmdb_la_CFLAGS = $(DEPS_TMDB_CFLAGS)
+libgrltmdb_la_CFLAGS =	\
+	$(DEPS_CFLAGS) \
+	$(LIBSOUP_CFLAGS) \
+	$(GRLNET_CFLAGS) \
+	$(JSON_CFLAGS)
 
-libgrltmdb_la_LIBADD = $(DEPS_TMDB_LIBS)
+libgrltmdb_la_LIBADD =	\
+	$(DEPS_LIBS) \
+	$(LIBSOUP_LIBS) \
+	$(GRLNET_LIBS) \
+	$(JSON_LIBS)
 
 libgrltmdb_la_LDFLAGS = \
 	-no-undefined		\

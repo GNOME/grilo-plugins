@@ -8,10 +8,12 @@
 ext_LTLIBRARIES		 = libgrltracker.la
 
 libgrltracker_la_CFLAGS =	\
-	$(DEPS_TRACKER_CFLAGS)
+	$(DEPS_CFLAGS)		\
+	$(TRACKER_SPARQL_CFLAGS)
 
 libgrltracker_la_LIBADD =	\
-	$(DEPS_TRACKER_LIBS)
+	$(DEPS_LIBS)		\
+	$(TRACKER_SPARQL_LIBS)
 
 libgrltracker_la_LDFLAGS = \
 	-no-undefined	   \

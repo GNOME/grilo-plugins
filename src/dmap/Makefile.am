@@ -8,10 +8,14 @@
 ext_LTLIBRARIES	= libgrldmap.la
 
 libgrldmap_la_CFLAGS =	\
-	$(DEPS_DMAP_CFLAGS)
+	$(DEPS_CFLAGS)			\
+	$(DMAP_CFLAGS)			\
+	$(XML_CFLAGS)
 
 libgrldmap_la_LIBADD =	\
-	$(DEPS_DMAP_LIBS)
+	$(DEPS_LIBS)			\
+	$(DMAP_LIBS)			\
+	$(XML_LIBS)
 
 libgrldmap_la_LDFLAGS =	\
 	-no-undefined			\

@@ -8,10 +8,10 @@
 ext_LTLIBRARIES		 = libgrlfakemetadata.la
 
 libgrlfakemetadata_la_CFLAGS =	\
-	$(DEPS_FAKEMETADATA_CFLAGS)
+	$(DEPS_CFLAGS)
 
 libgrlfakemetadata_la_LIBADD =	\
-	$(DEPS_FAKEMETADATA_LIBS)
+	$(DEPS_LIBS)
 
 libgrlfakemetadata_la_LDFLAGS = \
 	-no-undefined		\

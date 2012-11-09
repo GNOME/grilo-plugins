@@ -22,13 +22,6 @@
  *
  */
 
-/**
- * SECTION:grl-shoutcast
- * @short_description: A Grilo Plugin for Shoutcast
- *
- *
- */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

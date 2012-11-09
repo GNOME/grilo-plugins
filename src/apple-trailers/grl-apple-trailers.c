@@ -23,13 +23,6 @@
  *
  */
 
-/**
- * SECTION:grl-apple-trailers
- * @short_description: A Grilo Plugin for Apple Trailers
- *
- *
- */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

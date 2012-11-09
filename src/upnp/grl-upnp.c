@@ -23,14 +23,6 @@
  *
  */
 
-/**
- * SECTION:grl-upnp
- * @short_description: A Grilo Plugin for UPnP
- *
- *
- */
-
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

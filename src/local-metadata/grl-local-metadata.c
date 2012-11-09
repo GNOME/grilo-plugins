@@ -20,13 +20,6 @@
  *
  */
 
-/**
- * SECTION:grl-local-metadata
- * @short_description: A Grilo Plugin for local metadata.
- *
- *
- */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

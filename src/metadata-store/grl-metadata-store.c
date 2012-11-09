@@ -20,14 +20,6 @@
  *
  */
 
-
-/**
- * SECTION:grl-metadata-store
- * @short_description: A Grilo Plugin for metadata store
- *
- *
- */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

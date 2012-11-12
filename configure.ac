@@ -995,6 +995,9 @@ AC_SUBST(DEPS_TMDB_LIBS)
 AC_SUBST([abs_top_builddir])
 AC_SUBST([builddir])
 
+GNOME_DOC_INIT([0.9.0],,
+  [AC_MSG_WARN([[gnome-doc-utils not found: tutorial will not be built.]])])
+
 # ----------------------------------------------------------
 # OUTPUT
 # ----------------------------------------------------------
@@ -1022,6 +1025,7 @@ AC_CONFIG_FILES([
   src/upnp/Makefile
   src/vimeo/Makefile
   src/youtube/Makefile
+  doc/Makefile
   examples/Makefile
   test/Makefile
 ])

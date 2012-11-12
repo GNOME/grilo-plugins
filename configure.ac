@@ -978,14 +978,6 @@ AC_SUBST(DEPS_TMDB_CFLAGS)
 DEPS_TMDB_LIBS="$DEPS_LIBS $LIBSOUP_LIBS $GRLNET_LIBS $JSON_LIBS"
 AC_SUBST(DEPS_TMDB_LIBS)
 
-
-# ----------------------------------------------------------
-# GTK-DOC
-# ----------------------------------------------------------
-
-GTK_DOC_CHECK([1.10],[--flavour no-tmpl])
-
-
 # ----------------------------------------------------------
 # GETTEXT
 # ----------------------------------------------------------
@@ -1002,6 +994,9 @@ GTK_DOC_CHECK([1.10],[--flavour no-tmpl])
 
 AC_SUBST([abs_top_builddir])
 AC_SUBST([builddir])
+
+GNOME_DOC_INIT([0.9.0],,
+  [AC_MSG_WARN([[gnome-doc-utils not found: tutorial will not be built.]])])
 
 # ----------------------------------------------------------
 # OUTPUT
@@ -1031,7 +1026,6 @@ AC_CONFIG_FILES([
   src/vimeo/Makefile
   src/youtube/Makefile
   doc/Makefile
-  doc/grilo-plugins/Makefile
   examples/Makefile
 ])
 

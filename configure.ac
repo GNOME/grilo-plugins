@@ -922,6 +922,7 @@ AC_CONFIG_FILES([
   src/upnp/Makefile
   src/vimeo/Makefile
   src/youtube/Makefile
+  test/Makefile
 ])
 
 AC_OUTPUT

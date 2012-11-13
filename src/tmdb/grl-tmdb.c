@@ -828,6 +828,15 @@ on_search_ready (GObject *source,
     }
   }
 
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_ORIGINAL_TITLE)) {
+    value = grl_tmdb_request_get (request, "$.results[0].original_title");
+    if (value != NULL) {
+      grl_media_video_set_original_title (GRL_MEDIA_VIDEO (closure->rs->media),
+                                          g_value_get_string (value));
+      g_value_unset (value);
+    }
+  }
+
   g_queue_pop_head (closure->pending_requests);
   g_object_unref (source);
 

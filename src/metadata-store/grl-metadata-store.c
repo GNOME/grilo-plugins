@@ -56,7 +56,7 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
   "rating REAL,"					 \
   "last_position INTEGER,"				 \
   "last_played DATE,"                                    \
-  "favourite INTEGER)"
+  "favourite INTEGER DEFAULT 0)"
 
 #define GRL_SQL_ALTER_TABLE_STORE			 \
   "ALTER TABLE store ADD COLUMN "                        \
@@ -75,6 +75,15 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
   "INSERT INTO store "				\
   "(%s source_id, media_id) VALUES "		\
   "(%s ?, ?)"
+
+#define GRL_SQL_SEARCH                          \
+  "SELECT * FROM store "                        \
+  "LIMIT %u OFFSET %u"
+
+#define GRL_SQL_SEARCH_FILTER                   \
+  "SELECT * FROM store "                        \
+  "WHERE favourite=? "                          \
+  "LIMIT %u OFFSET %u"
 
 struct _GrlMetadataStorePrivate {
   sqlite3 *db;
@@ -106,6 +115,12 @@ static gboolean grl_metadata_store_source_may_resolve (GrlSource *source,
 static const GList *grl_metadata_store_source_supported_keys (GrlSource *source);
 
 static const GList *grl_metadata_store_source_writable_keys (GrlSource *source);
+
+static GrlCaps *grl_metadata_store_source_get_caps (GrlSource *source,
+                                                    GrlSupportedOps operation);
+
+static void grl_metadata_store_source_search (GrlSource *source,
+                                              GrlSourceSearchSpec *ss);
 
 gboolean grl_metadata_store_source_plugin_init (GrlRegistry *registry,
                                                 GrlPlugin *plugin,
@@ -155,6 +170,8 @@ grl_metadata_store_source_class_init (GrlMetadataStoreSourceClass * klass)
 
   source_class->supported_keys = grl_metadata_store_source_supported_keys;
   source_class->writable_keys = grl_metadata_store_source_writable_keys;
+  source_class->get_caps = grl_metadata_store_source_get_caps;
+  source_class->search = grl_metadata_store_source_search;
   source_class->may_resolve = grl_metadata_store_source_may_resolve;
   source_class->resolve = grl_metadata_store_source_resolve;
   source_class->store_metadata = grl_metadata_store_source_store_metadata;
@@ -248,21 +265,12 @@ query_metadata_store (sqlite3 *db,
 }
 
 static void
-fill_metadata (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
+fill_metadata_from_stmt (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
 {
   GList *iter;
   gint play_count, last_position, favourite;
   gdouble rating;
   gchar *last_played;
-  gint r;
-
-  while ((r = sqlite3_step (stmt)) == SQLITE_BUSY);
-
-  if (r != SQLITE_ROW) {
-    /* No info in DB for this item, bail out silently */
-    sqlite3_finalize (stmt);
-    return;
-  }
 
   iter = keys;
   while (iter) {
@@ -285,6 +293,22 @@ fill_metadata (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
     }
     iter = g_list_next (iter);
   }
+}
+
+static void
+fill_metadata (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
+{
+  gint r;
+
+  while ((r = sqlite3_step (stmt)) == SQLITE_BUSY);
+
+  if (r != SQLITE_ROW) {
+    /* No info in DB for this item, bail out silently */
+    sqlite3_finalize (stmt);
+    return;
+  }
+
+  fill_metadata_from_stmt (media, keys, stmt);
 
   sqlite3_finalize (stmt);
 }
@@ -546,6 +570,21 @@ write_keys (sqlite3 *db,
   return failed_keys;
 }
 
+static GrlMedia *
+create_media (sqlite3_stmt * stmt, GList *keys)
+{
+  GrlMedia *media;
+
+  media = grl_media_new ();
+  grl_media_set_source (media,
+                    (const gchar *) sqlite3_column_text (stmt, STORE_SOURCE_ID));
+  grl_media_set_id (media,
+                    (const gchar *) sqlite3_column_text (stmt, STORE_MEDIA_ID));
+  fill_metadata_from_stmt (media, keys, stmt);
+
+  return media;
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -576,6 +615,24 @@ grl_metadata_store_source_writable_keys (GrlSource *source)
                                       NULL);
   }
   return keys;
+}
+
+static GrlCaps *
+grl_metadata_store_source_get_caps (GrlSource *source,
+                                    GrlSupportedOps operation)
+{
+  static GrlCaps *caps = NULL;
+  GList * keys;
+
+  if (caps == NULL) {
+      caps = grl_caps_new ();
+      keys = grl_metadata_key_list_new (GRL_METADATA_KEY_FAVOURITE,
+                                        GRL_METADATA_KEY_INVALID);
+      grl_caps_set_key_filter (caps, keys);
+      g_list_free (keys);
+  }
+
+  return caps;
 }
 
 static gboolean
@@ -691,4 +748,95 @@ grl_metadata_store_source_store_metadata (GrlSource *source,
     g_error_free (error);
   }
   g_list_free (failed_keys);
+}
+
+static void
+grl_metadata_store_source_search (GrlSource *source,
+                                  GrlSourceSearchSpec *ss)
+{
+  sqlite3_stmt *sql_stmt = NULL;
+  sqlite3 *db;
+  gchar *sql;
+  gint r;
+  GError *error = NULL;
+  GrlMedia *media;
+  GList *iter, *medias = NULL;
+  GValue *filter_val;
+  guint count = 0;
+
+  GRL_DEBUG (__FUNCTION__);
+
+  db = GRL_METADATA_STORE_SOURCE (source)->priv->db;
+  if (!db) {
+    GRL_WARNING ("Can't execute operation: no database connection.");
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_QUERY_FAILED,
+                         "No database connection");
+    ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
+    g_error_free (error);
+    return;
+  }
+
+  filter_val = grl_operation_options_get_key_filter (ss->options,
+                                                     GRL_METADATA_KEY_FAVOURITE);
+  sql = g_strdup_printf (filter_val? GRL_SQL_SEARCH_FILTER: GRL_SQL_SEARCH,
+                         grl_operation_options_get_count (ss->options),
+                         grl_operation_options_get_skip (ss->options));
+
+  r = sqlite3_prepare_v2 (db, sql, -1, &sql_stmt, NULL);
+
+  g_free (sql);
+
+  if (r != SQLITE_OK) {
+    GRL_WARNING ("Failed to search in the metadata store: %s", sqlite3_errmsg (db));
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_SEARCH_FAILED,
+                         "Failed to search in the metadata store");
+    ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
+    g_error_free (error);
+    return;
+  }
+
+  if (filter_val) {
+    sqlite3_bind_int (sql_stmt, 1, (gint) g_value_get_boolean (filter_val));
+  }
+
+  while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
+
+  while (r == SQLITE_ROW) {
+    media = create_media (sql_stmt, ss->keys);
+    medias = g_list_prepend (medias, media);
+    count++;
+    r = sqlite3_step (sql_stmt);
+  }
+
+  if (r != SQLITE_DONE) {
+    GRL_WARNING ("Failed to search in the metadata store: %s", sqlite3_errmsg (db));
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_SEARCH_FAILED,
+                         "Failed to search in the metadata store");
+    ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
+    g_error_free (error);
+    sqlite3_finalize (sql_stmt);
+    return;
+  }
+
+  sqlite3_finalize (sql_stmt);
+
+  if (count > 0) {
+    iter = medias;
+    while (iter) {
+      media = GRL_MEDIA (iter->data);
+      ss->callback (ss->source,
+                    ss->operation_id,
+                    media,
+                    --count,
+                    ss->user_data,
+                    NULL);
+      iter = g_list_next (iter);
+    }
+    g_list_free (medias);
+  } else {
+    ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, NULL);
+  }
 }

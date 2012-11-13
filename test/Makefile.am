@@ -7,7 +7,7 @@
 
 INCLUDES = @DEPS_CFLAGS@
 
-noinst_PROGRAMS = test_local_metadata
+noinst_PROGRAMS = test_local_metadata test_tmdb
 #noinst_PROGRAMS += test
 
 #test_SOURCES =	\
@@ -31,6 +31,15 @@ test_local_metadata_CFLAGS = \
 	-DPREFIX=$(prefix) \
 	@GTHREAD_CFLAGS@ \
 	@GIO_CFLAGS@
+
+test_tmdb_SOURCES = \
+	test_tmdb.c
+
+test_tmdb_LDADD = \
+	@DEPS_LIBS@
+
+test_tmdb_CFLAGS = \
+	-DPREFIX=$(prefix)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

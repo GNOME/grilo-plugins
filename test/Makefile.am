@@ -7,11 +7,16 @@
 
 INCLUDES = @DEPS_CFLAGS@
 
-noinst_PROGRAMS = test_local_metadata \
-	test_tmdb_preconditions \
+check_tests = test_tmdb_preconditions \
 	test_tmdb_missing_configuration \
 	test_tmdb_fast_resolution \
 	test_tmdb_full_resolution
+
+# TODO: Add test_local_metadata to check_tests when it runs without errors.
+check_PROGRAMS = test_local_metadata \
+	$(check_tests)
+TESTS =	$(check_tests)
+
 #noinst_PROGRAMS += test
 
 #test_SOURCES =	\

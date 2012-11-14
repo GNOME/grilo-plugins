@@ -41,9 +41,15 @@ test_local_metadata_CFLAGS = \
 	@GTHREAD_CFLAGS@ \
 	@GIO_CFLAGS@
 
-# Let the .c source code know about this path,
+# Let the .c source code know about these paths,
 # even when sourcedir!=builddir, such as during make distcheck:
-test_tmdb_defines = -DGRILO_PLUGINS_TESTS_TMDB_DATA_PATH=\""$(abs_top_srcdir)/test/test_data/tmdb/"\"
+#
+# We could set GRL_PLUGIN_PATH here in TESTS_ENVIRONMENT, specifying all the paths (separated by :) to all the plugins,
+# but it is cleaner to restrict the test to just one plugin by doing it in the code.
+# Note that the tmdb plugin Makefile.am copies the .xml file into .libs so we can use the plugin.
+test_tmdb_defines = \
+	-DGRILO_PLUGINS_TESTS_TMDB_PLUGIN_PATH=\""$(abs_top_srcdir)/src/tmdb/.libs/"\" \
+	-DGRILO_PLUGINS_TESTS_TMDB_DATA_PATH=\""$(abs_top_srcdir)/test/test_data/tmdb/"\"
 
 test_tmdb_preconditions_SOURCES = \
 	test_tmdb_preconditions.c \

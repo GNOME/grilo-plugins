@@ -33,7 +33,9 @@ const char *iso_date (const GDateTime *date, char **strbuf);
  * A simple == will fail on values that are effectively the same,
  * due to rounding issues.
  */
-static gboolean compare_floats (gfloat a, gfloat b)
+
+static gboolean
+compare_floats(gfloat a, gfloat b)
 {
   return fabs(a - b) < DBL_EPSILON;
 }
@@ -44,6 +46,33 @@ const char *iso_date (const GDateTime *date, char **strbuf)
     g_free (*strbuf);
 
   return (*strbuf = g_date_time_format ((GDateTime *) date, "%F"));
+}
+
+static const gchar*
+get_region_certificate (GrlMedia *media, const gchar *region)
+{
+  guint count = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_REGION);
+  for (guint i = 0; i < count; ++i) {
+    const GDateTime* publication_date = NULL;
+    const gchar *certificate = NULL;
+    const gchar *this_region =
+    grl_media_get_region_data_nth (media, i,
+      &publication_date, &certificate);
+
+    /* printf("idnex=%d, region=%s, cert=%s\n", i, this_region, certificate); */
+
+    if(g_strcmp0 (region, this_region) == 0)
+      return certificate;
+  }
+
+  return NULL;
+}
+
+static void
+test_region_certificate (GrlMedia *media, const gchar *region, const gchar *expected_certificate)
+{
+  const gchar *certificate = get_region_certificate (media, region);
+  g_assert_cmpstr(certificate, ==, expected_certificate);
 }
 
 #define DESCRIPTION \
@@ -57,9 +86,6 @@ test (void)
   GrlKeyID backdrop, posters, imdb_id;
   GrlOperationOptions *options = NULL;
   GrlMedia *media = NULL;
-  const GDateTime *date;
-  const char *cert;
-  char *tmp = NULL;
 
   test_setup_tmdb ();
 
@@ -116,32 +142,16 @@ test (void)
   g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_DIRECTOR), ==, 1);
   g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), GRL_METADATA_KEY_DIRECTOR), ==, "Guy Ritchie");
 
-  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_REGION), ==, 8);
-
-  g_assert_cmpstr (grl_media_get_region_data_nth (media, 0, &date, &cert), ==, "GB");
-  g_assert_cmpstr (iso_date (date, &tmp), ==, "2009-12-26");
-  g_assert_cmpstr (cert, ==, "12A");
-  g_assert_cmpstr (grl_media_get_region_data_nth (media, 1, &date, &cert), ==, "NL");
-  g_assert_cmpstr (iso_date (date, &tmp), ==, "2010-01-07");
-  g_assert_cmpstr (cert, ==, "12");
-  g_assert_cmpstr (grl_media_get_region_data_nth (media, 2, &date, &cert), ==, "BG");
-  g_assert_cmpstr (iso_date (date, &tmp), ==, "2010-01-01");
-  g_assert_cmpstr (cert, ==, "C");
-  g_assert_cmpstr (grl_media_get_region_data_nth (media, 3, &date, &cert), ==, "HU");
-  g_assert_cmpstr (iso_date (date, &tmp), ==, "2010-01-07");
-  g_assert_cmpstr (cert, ==, "16");
-  g_assert_cmpstr (grl_media_get_region_data_nth (media, 4, &date, &cert), ==, "DE");
-  g_assert_cmpstr (iso_date (date, &tmp), ==, "2010-01-28");
-  g_assert_cmpstr (cert, ==, "12");
-  g_assert_cmpstr (grl_media_get_region_data_nth (media, 5, &date, &cert), ==, "FR");
-  g_assert_cmpstr (iso_date (date, &tmp), ==, "2010-02-03");
-  g_assert_cmpstr (cert, ==, "");
-  g_assert_cmpstr (grl_media_get_region_data_nth (media, 6, &date, &cert), ==, "DK");
-  g_assert_cmpstr (iso_date (date, &tmp), ==, "2009-12-25");
-  g_assert_cmpstr (cert, ==, "15");
-  g_assert_cmpstr (grl_media_get_region_data_nth (media, 7, &date, &cert), ==, "US");
-  g_assert_cmpstr (iso_date (date, &tmp), ==, "2009-12-25");
-  g_assert_cmpstr (cert, ==, "PG-13");
+  guint count = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_REGION);
+  g_assert_cmpint (count, ==, 8);
+  test_region_certificate (media, "GB", "12A");
+  test_region_certificate (media, "FR", ""); /* TODO: Should this be here? */
+  test_region_certificate (media, "NL", "12");
+  test_region_certificate (media, "BG", "C");
+  test_region_certificate (media, "HU", "16");
+  test_region_certificate (media, "DE", "12");
+  test_region_certificate (media, "DK", "15");
+  test_region_certificate (media, "US", "PG-13");
 
   g_object_unref (media);
   media = NULL;

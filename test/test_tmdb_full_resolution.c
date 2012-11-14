@@ -106,7 +106,7 @@ test (void)
                            grl_source_supported_keys (source),
                            options,
                            &error);
-  g_assert (error == NULL);
+  g_assert_no_error (error);
 
   /* Check if we got everything we need for the fast resolution */
   g_assert (compare_floats (grl_media_get_rating (media), 3.8f));

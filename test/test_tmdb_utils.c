@@ -43,10 +43,10 @@ test_setup_tmdb (void)
 
   registry = grl_registry_get_default ();
   grl_registry_add_config (registry, config, &error);
-  g_assert (error == NULL);
+  g_assert_no_error (error);
 
   grl_registry_load_plugin_by_id (registry, TMDB_PLUGIN_ID, &error);
-  g_assert (error == NULL);
+  g_assert_no_error (error);
 
   source = GRL_SOURCE (grl_registry_lookup_source (registry, TMDB_PLUGIN_ID));
   g_assert (source != NULL);
@@ -67,6 +67,6 @@ test_shutdown_tmdb (void)
 
   registry = grl_registry_get_default ();
   grl_registry_unload_plugin (registry, TMDB_PLUGIN_ID, &error);
-  g_assert (error == NULL);
+  g_assert_no_error (error);
 }
 

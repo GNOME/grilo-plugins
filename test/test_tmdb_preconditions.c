@@ -51,7 +51,7 @@ test (void)
 
   /* Check that the plugin didn't even try to resolve data, otherwise the mock
    * file would have resulted in an error */
-  g_assert (error == NULL);
+  g_assert_no_error (error);
 
   g_object_unref (local_media);
 
@@ -76,7 +76,7 @@ test (void)
                            grl_source_supported_keys (source),
                            options,
                            &error);
-  g_assert (error == NULL);
+  g_assert_no_error (error);
 
   g_object_unref (media);
   media = NULL;

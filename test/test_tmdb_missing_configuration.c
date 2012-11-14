@@ -53,7 +53,7 @@ test (void)
 
   /* Check that the plugin didn't even try to resolve data, otherwise the mock
    * file would have resulted in an error */
-  g_assert_no_error (error);
+  g_assert (error != NULL);
 
   g_object_unref (media);
   media = NULL;

@@ -28,6 +28,10 @@ TESTS =	$(check_tests)
 #test_LDADD =		\
 #	@DEPS_LIBS@
 #
+
+test_local_metadata_defines = \
+	-DGRILO_PLUGINS_TESTS_LOCAL_METADATA_PLUGIN_PATH=\""$(abs_top_srcdir)/src/local-metadata/.libs/"\"
+
 test_local_metadata_SOURCES =  \
 	test_local_metadata.c
 
@@ -37,7 +41,7 @@ test_local_metadata_LDADD = \
 	@GIO_LIBS@
 
 test_local_metadata_CFLAGS = \
-	-DPREFIX=$(prefix) \
+	-DPREFIX=$(prefix) $(test_local_metadata_defines) \
 	@GTHREAD_CFLAGS@ \
 	@GIO_CFLAGS@
 

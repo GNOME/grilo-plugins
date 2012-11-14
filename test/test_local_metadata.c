@@ -149,7 +149,11 @@ setup (void)
     goto finish;
 
   registry = grl_registry_get_default ();
-  grl_registry_load_all_plugins (registry, NULL);
+
+  GError *error = NULL;
+  grl_registry_load_all_plugins (registry, &error);
+  g_assert_no_error (error);
+
   local_source =
     GRL_SOURCE (grl_registry_lookup_source (registry,
                                             LOCAL_SOURCE_ID));
@@ -292,6 +296,9 @@ finish:
 int
 main(int argc, char **argv)
 {
+  g_setenv ("GRL_PLUGIN_PATH", GRILO_PLUGINS_TESTS_LOCAL_METADATA_PLUGIN_PATH, TRUE);
+  g_setenv ("GRL_PLUGIN_LIST", LOCAL_SOURCE_ID, TRUE);
+
   grl_init (&argc, &argv);
 #if !GLIB_CHECK_VERSION(2,32,0)
   g_thread_init (NULL);

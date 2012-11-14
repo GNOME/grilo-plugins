@@ -70,7 +70,7 @@ test (void)
                            &error);
 
   /* Fast resolution must not result in an error if the details are missing */
-  g_assert (error == NULL);
+  g_assert_no_error (error);
 
   /* Check if we have everything we need */
   g_assert (compare_floats (grl_media_get_rating (media), 3.8f));

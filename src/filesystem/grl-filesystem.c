@@ -762,7 +762,7 @@ recursive_entry_free (RecursiveEntry *entry)
 }
 
 static RecursiveOperation *
-recursive_operation_new ()
+recursive_operation_new (void)
 {
   RecursiveOperation *operation;
 

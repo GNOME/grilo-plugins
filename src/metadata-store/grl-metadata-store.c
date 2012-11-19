@@ -201,14 +201,16 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
   db_path = g_strconcat (path, G_DIR_SEPARATOR_S, GRL_SQL_DB, NULL);
   r = sqlite3_open (db_path, &source->priv->db);
   g_free (path);
-  g_free (db_path);
 
   if (r) {
     g_critical ("Failed to open database '%s': %s",
                 db_path, sqlite3_errmsg (source->priv->db));
     sqlite3_close (source->priv->db);
+    g_free (db_path);
     return;
   }
+  g_free (db_path);
+
   GRL_DEBUG ("  OK");
 
   GRL_DEBUG ("Checking database tables...");

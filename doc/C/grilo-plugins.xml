@@ -162,12 +162,12 @@
 </sect1>
 
 <sect1 id="sec-plugin-vimeo">
-<title>UPnP</title>
+<title>Vimeo</title>
 <para>This is a Grilo plugin for Vimeo. Its plugin ID is <literal>"grl-vimeo"</literal></para>
 </sect1>
 
 <sect1 id="sec-plugin-youtube">
-<title>UPnP</title>
+<title>YouTube</title>
 <para>This is a Grilo plugin for YouTube. Its plugin ID is <literal>"grl-youtube"</literal></para>
 </sect1>
 

@@ -849,24 +849,31 @@ update_media_from_feed (GrlMedia *media, int i)
 static void
 send_feeds (GrlSourceBrowseSpec *bs)
 {
-  int i;
-  int remaining;
   gint count = grl_operation_options_get_count (bs->options);
   guint skip = grl_operation_options_get_skip (bs->options);
 
-  remaining = MIN (count, G_N_ELEMENTS (feeds));
-  for (i = skip; remaining > 0 && i < G_N_ELEMENTS (feeds); i++) {
-    GrlMedia *media;
+  if( skip >= G_N_ELEMENTS (feeds) )
+  {
+    //Signal "no results"
+    bs->callback (bs->source, bs->operation_id,
+                  NULL, 0, bs->user_data, NULL);
+  } else {
+    int remaining = MIN (count, G_N_ELEMENTS (feeds));
+    int i;
 
-    media = grl_media_box_new ();
-    update_media_from_feed (media, i);
-    remaining--;
-    bs->callback (bs->source,
-                  bs->operation_id,
-                  media,
-                  remaining,
-                  bs->user_data,
-                  NULL);
+    for (i = skip; remaining > 0 && i < G_N_ELEMENTS (feeds); i++) {
+      GrlMedia *media;
+
+      media = grl_media_box_new ();
+      update_media_from_feed (media, i);
+      remaining--;
+      bs->callback (bs->source,
+                    bs->operation_id,
+                    media,
+                    remaining,
+                    bs->user_data,
+                    NULL);
+    }
   }
 }
 

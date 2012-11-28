@@ -44,8 +44,10 @@ GRL_LOG_DOMAIN_STATIC(bliptv_log_domain);
 
 /* ----------- API ---------- */
 
+#define MAX_ELEMENTS 100
+
 #define BLIPTV_BACKEND "http://blip.tv"
-#define BLIPTV_BROWSE  BLIPTV_BACKEND "/posts?skin=rss&pagelen=%u"
+#define BLIPTV_BROWSE  BLIPTV_BACKEND "/posts?skin=rss&page=%u"
 #define BLIPTV_SEARCH  BLIPTV_BROWSE "&search=%s"
 
 /* --- Plugin information --- */
@@ -74,6 +76,7 @@ typedef struct
   GrlSource *source;
   guint      operation_id;
   guint      count;
+  guint      skip;
 
   GrlSourceResultCb callback;
   gpointer          user_data;
@@ -190,6 +193,8 @@ grl_bliptv_source_init (GrlBliptvSource *self)
   self->priv = BLIPTV_SOURCE_PRIVATE (self);
 
   self->priv->wc = grl_net_wc_new ();
+
+  grl_source_set_auto_split_threshold (GRL_SOURCE (self), MAX_ELEMENTS);
 }
 
 /**/
@@ -287,10 +292,10 @@ call_raw_async_cb (GObject *     source_object,
       xmlXPathFreeObject (obj);
     }
 
-  if (nb_items < op->count)
-    op->count = nb_items;
+  if (nb_items < (op->count + op->skip))
+    op->count = nb_items - op->skip;
 
-  for (i = 0; i < nb_items; i++)
+  for (i = op->skip; i < nb_items; i++)
     {
       GList *mapping = bliptv_mappings;
       GrlMedia *media = grl_media_video_new ();
@@ -413,17 +418,27 @@ grl_bliptv_source_browse (GrlSource *source,
   BliptvOperation *op = g_slice_new0 (BliptvOperation);
   gchar *url;
   gint count = grl_operation_options_get_count (bs->options);
+  guint page_number;
+  guint page_offset;
+
+  grl_paging_translate (grl_operation_options_get_skip (bs->options),
+                        count,
+                        MAX_ELEMENTS,
+                        NULL,
+                        &page_number,
+                        &page_offset);
 
   op->source       = g_object_ref (source);
   op->cancellable  = g_cancellable_new ();
   op->count        = count;
+  op->skip         = page_offset;
   op->operation_id = bs->operation_id;
   op->callback     = bs->callback;
   op->user_data    = bs->user_data;
 
   grl_operation_set_data (bs->operation_id, op);
 
-  url = g_strdup_printf (BLIPTV_BROWSE, count);
+  url = g_strdup_printf (BLIPTV_BROWSE, page_number + 1);
 
   GRL_DEBUG ("Starting browse request for id=%u", bs->operation_id);
 
@@ -442,17 +457,28 @@ grl_bliptv_source_search (GrlSource *source,
   BliptvOperation *op = g_slice_new0 (BliptvOperation);
   gchar *url;
   gint count = grl_operation_options_get_count (ss->options);
+  guint page_number;
+  guint page_offset;
+
+  grl_paging_translate (grl_operation_options_get_skip (ss->options),
+                        count,
+                        MAX_ELEMENTS,
+                        NULL,
+                        &page_number,
+                        &page_offset);
 
   op->source       = g_object_ref (source);
   op->cancellable  = g_cancellable_new ();
   op->count        = count;
+  op->skip         = page_offset;
   op->operation_id = ss->operation_id;
   op->callback     = ss->callback;
   op->user_data    = ss->user_data;
 
+
   grl_operation_set_data (ss->operation_id, op);
 
-  url = g_strdup_printf (BLIPTV_SEARCH, count, ss->text);
+  url = g_strdup_printf (BLIPTV_SEARCH, page_number + 1, ss->text);
 
   GRL_DEBUG ("Starting search request for id=%u : '%s'",
              ss->operation_id, ss->text);

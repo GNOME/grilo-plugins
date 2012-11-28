@@ -832,14 +832,17 @@ AC_ARG_ENABLE(bliptv,
         [
                 case "$enableval" in
                      yes)
-                        if test "x$HAVE_REST" = "xno"; then
-                           AC_MSG_ERROR([librest not found, install it or use --disable-bliptv])
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-bliptv])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-bliptv])
                         fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_REST" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                    enable_bliptv=yes
                 else
                    enable_bliptv=no
@@ -857,9 +860,9 @@ BLIPTV_PLUGIN_ID="grl-bliptv"
 AC_SUBST(BLIPTV_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([BLIPTV_PLUGIN_ID], ["$BLIPTV_PLUGIN_ID"], [Blip.tv plugin ID])
 
-DEPS_BLIPTV_CFLAGS="$DEPS_CFLAGS $LIBXML_CFLAGS $LIBREST_CFLAGS"
+DEPS_BLIPTV_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS"
 AC_SUBST(DEPS_BLIPTV_CFLAGS)
-DEPS_BLIPTV_LIBS="$DEPS_LIBS $LIBXML_LIBS $LIBREST_LIBS"
+DEPS_BLIPTV_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS"
 AC_SUBST(DEPS_BLIPTV_LIBS)
 
 # ----------------------------------------------------------

@@ -27,17 +27,26 @@
 #include "config.h"
 #endif
 
+#include "grl-bliptv.h"
+
+#include <net/grl-net.h>
+
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
-#include <rest/rest-proxy.h>
 
-#include "grl-bliptv.h"
 
 /* --------- Logging  -------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT bliptv_log_domain
 GRL_LOG_DOMAIN_STATIC(bliptv_log_domain);
+
+
+/* ----------- API ---------- */
+
+#define BLIPTV_BACKEND "http://blip.tv"
+#define BLIPTV_BROWSE  BLIPTV_BACKEND "/posts?skin=rss&pagelen=%u"
+#define BLIPTV_SEARCH  BLIPTV_BROWSE "&search=%s"
 
 /* --- Plugin information --- */
 
@@ -57,7 +66,7 @@ G_DEFINE_TYPE (GrlBliptvSource, grl_bliptv_source, GRL_TYPE_SOURCE)
 
 struct _GrlBliptvSourcePrivate
 {
-  guint not_used;
+  GrlNetWc *wc;
 };
 
 typedef struct
@@ -69,8 +78,7 @@ typedef struct
   GrlSourceResultCb callback;
   gpointer          user_data;
 
-  RestProxy     *proxy;
-  RestProxyCall *call;
+  GCancellable *cancellable;
 } BliptvOperation;
 
 typedef struct
@@ -142,6 +150,14 @@ grl_bliptv_source_new (void)
 static void
 grl_bliptv_source_dispose (GObject *object)
 {
+  GrlBliptvSource *self;
+
+  self= GRL_BLIPTV_SOURCE (object);
+  if (self->priv->wc) {
+    g_object_unref (self->priv->wc);
+    self->priv->wc = NULL;
+  }
+
   G_OBJECT_CLASS (grl_bliptv_source_parent_class)->dispose (object);
 }
 
@@ -172,6 +188,8 @@ static void
 grl_bliptv_source_init (GrlBliptvSource *self)
 {
   self->priv = BLIPTV_SOURCE_PRIVATE (self);
+
+  self->priv->wc = grl_net_wc_new ();
 }
 
 /**/
@@ -212,34 +230,41 @@ bliptv_setup_mapping (void)
 static void
 bliptv_operation_free (BliptvOperation *op)
 {
-  if (op->call)
-    g_object_unref (op->call);
-  if (op->proxy)
-    g_object_unref (op->proxy);
+  if (op->cancellable)
+    g_object_unref (op->cancellable);
   if (op->source)
     g_object_unref (op->source);
   g_slice_free (BliptvOperation, op);
 }
 
 static void
-proxy_call_raw_async_cb (RestProxyCall *call,
-                         const GError  *error,
-                         GObject       *weak_object,
-                         gpointer       data)
+call_raw_async_cb (GObject *     source_object,
+                   GAsyncResult *res,
+                   gpointer      data)
 {
   BliptvOperation    *op = (BliptvOperation *) data;
   xmlDocPtr           doc = NULL;
   xmlXPathContextPtr  xpath = NULL;
   xmlXPathObjectPtr   obj = NULL;
   gint i, nb_items = 0;
+  gchar *content = NULL;
+  gint length;
 
   GRL_DEBUG ("Response id=%u", op->operation_id);
 
-  doc = xmlParseMemory (rest_proxy_call_get_payload (call),
-                        rest_proxy_call_get_payload_length (call));
+  if (g_cancellable_is_cancelled (op->cancellable)) {
+    goto finalize;
+  }
 
-  g_object_unref (op->call);
-  op->call = NULL;
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                                  res,
+                                  &content,
+                                  (gsize *) &length,
+                                  NULL)) {
+    goto finalize;
+  }
+
+  doc = xmlParseMemory (content, length);
 
   if (!doc)
     goto finalize;
@@ -250,7 +275,7 @@ proxy_call_raw_async_cb (RestProxyCall *call,
 
   xmlXPathRegisterNs (xpath,
                       (xmlChar *) "blip",
-                      (xmlChar *) "http://blip.tv/dtd/blip/1.0");
+                      (xmlChar *) BLIPTV_BACKEND "/dtd/blip/1.0");
   xmlXPathRegisterNs (xpath,
                       (xmlChar *) "media",
                       (xmlChar *) "http://search.yahoo.com/mrss/");
@@ -386,11 +411,11 @@ grl_bliptv_source_browse (GrlSource *source,
                           GrlSourceBrowseSpec *bs)
 {
   BliptvOperation *op = g_slice_new0 (BliptvOperation);
-  GError *error = NULL;
-  gchar *length;
+  gchar *url;
   gint count = grl_operation_options_get_count (bs->options);
 
   op->source       = g_object_ref (source);
+  op->cancellable  = g_cancellable_new ();
   op->count        = count;
   op->operation_id = bs->operation_id;
   op->callback     = bs->callback;
@@ -398,29 +423,16 @@ grl_bliptv_source_browse (GrlSource *source,
 
   grl_operation_set_data (bs->operation_id, op);
 
-  op->proxy = rest_proxy_new ("http://blip.tv/posts/", FALSE);
-  op->call = rest_proxy_new_call (op->proxy);
-  rest_proxy_call_add_param (op->call, "skin", "rss");
-  length = g_strdup_printf ("%u", count);
-  rest_proxy_call_add_param (op->call, "pagelen", length);
-  g_free (length);
+  url = g_strdup_printf (BLIPTV_BROWSE, count);
 
   GRL_DEBUG ("Starting browse request for id=%u", bs->operation_id);
 
-  if (!rest_proxy_call_async (op->call,
-                              proxy_call_raw_async_cb,
-                              NULL,
-                              op,
-                              &error))
-    {
-      if (error)
-        {
-          GRL_WARNING ("Could not start search request : %s", error->message);
-          g_error_free (error);
-        }
-      bs->callback (source, bs->operation_id, NULL, 0, bs->user_data, NULL);
-      bliptv_operation_free (op);
-    }
+  grl_net_wc_request_async (GRL_BLIPTV_SOURCE (source)->priv->wc,
+                            url,
+                            op->cancellable,
+                            call_raw_async_cb,
+                            op);
+  g_free (url);
 }
 
 static void
@@ -428,12 +440,11 @@ grl_bliptv_source_search (GrlSource *source,
                           GrlSourceSearchSpec *ss)
 {
   BliptvOperation *op = g_slice_new0 (BliptvOperation);
-  GError *error = NULL;
-  GError *grl_error;
-  gchar *length;
+  gchar *url;
   gint count = grl_operation_options_get_count (ss->options);
 
   op->source       = g_object_ref (source);
+  op->cancellable  = g_cancellable_new ();
   op->count        = count;
   op->operation_id = ss->operation_id;
   op->callback     = ss->callback;
@@ -441,36 +452,17 @@ grl_bliptv_source_search (GrlSource *source,
 
   grl_operation_set_data (ss->operation_id, op);
 
-  op->proxy = rest_proxy_new ("http://blip.tv/posts/", FALSE);
-  op->call = rest_proxy_new_call (op->proxy);
-  rest_proxy_call_add_param (op->call, "skin", "rss");
-  rest_proxy_call_add_param (op->call, "search", ss->text);
-  length = g_strdup_printf ("%u", count);
-  rest_proxy_call_add_param (op->call, "pagelen", length);
-  g_free (length);
+  url = g_strdup_printf (BLIPTV_SEARCH, count, ss->text);
 
   GRL_DEBUG ("Starting search request for id=%u : '%s'",
              ss->operation_id, ss->text);
 
-  if (!rest_proxy_call_async (op->call,
-                              proxy_call_raw_async_cb,
-                              NULL,
-                              op,
-                              &error))
-    {
-      if (error)
-        {
-          GRL_WARNING ("Could not start search request : %s", error->message);
-          g_error_free (error);
-        }
-      grl_error = g_error_new (GRL_CORE_ERROR,
-                               GRL_CORE_ERROR_SEARCH_FAILED,
-                               "Unable to search '%s'",
-                               ss->text? ss->text: "");
-      ss->callback (source, ss->operation_id, NULL, 0, ss->user_data, grl_error);
-      g_error_free (grl_error);
-      bliptv_operation_free (op);
-    }
+  grl_net_wc_request_async (GRL_BLIPTV_SOURCE (source)->priv->wc,
+                            url,
+                            op->cancellable,
+                            call_raw_async_cb,
+                            op);
+  g_free (url);
 }
 
 static void
@@ -485,14 +477,7 @@ grl_bliptv_source_cancel (GrlSource *source, guint operation_id)
       GRL_WARNING ("\tNo such operation id=%u", operation_id);
     }
 
-  if (op->call)
-    {
-      if (!rest_proxy_call_cancel (op->call))
-        {
-          GRL_WARNING ("\tCannot cancel rest call id=%u", operation_id);
-        }
-    }
-
-  grl_operation_set_data (operation_id, NULL);
-  bliptv_operation_free (op);
+  if (op->cancellable) {
+    g_cancellable_cancel (op->cancellable);
+  }
 }

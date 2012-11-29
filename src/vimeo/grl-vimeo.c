@@ -102,6 +102,7 @@ grl_vimeo_plugin_init (GrlRegistry *registry,
 {
   gchar *vimeo_key;
   gchar *vimeo_secret;
+  gchar *format;
   GrlConfig *config;
   gint config_count;
   gboolean init_result = FALSE;
@@ -140,6 +141,12 @@ grl_vimeo_plugin_init (GrlRegistry *registry,
 
   source = grl_vimeo_source_new ();
   source->priv->vimeo = g_vimeo_new (vimeo_key, vimeo_secret);
+
+  format = grl_config_get_string (config, "format");
+  if (format) {
+    g_object_set (source->priv->vimeo, "quvi-format", format, NULL);
+    g_free (format);
+  }
 
   grl_registry_register_source (registry,
                                 plugin,

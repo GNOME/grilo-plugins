@@ -58,6 +58,11 @@
   "&per_page=%d"						\
   "&query=%s"
 
+enum {
+  PROP_0,
+  PROP_QUVI_FORMAT
+};
+
 typedef struct {
   GVimeo *vimeo;
   GVimeoVideoSearchCb search_cb;
@@ -100,6 +105,10 @@ static VideoInfo video_info[] = {{SIMPLE, VIMEO_VIDEO_TITLE},
 
 static void g_vimeo_finalize (GObject *object);
 static void g_vimeo_dispose (GObject *object);
+static void g_vimeo_set_property (GObject *object,
+                                  guint propid,
+                                  const GValue *value,
+                                  GParamSpec *spc);
 static gchar * encode_uri (const gchar *uri);
 
 /* -------------------- GOBJECT -------------------- */
@@ -112,6 +121,17 @@ g_vimeo_class_init (GVimeoClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize = g_vimeo_finalize;
   gobject_class->dispose = g_vimeo_dispose;
+  gobject_class->set_property = g_vimeo_set_property;
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_QUVI_FORMAT,
+                                   g_param_spec_string ("quvi-format",
+                                                        "quvi-format",
+                                                        "URL requested format",
+                                                        NULL,
+                                                        G_PARAM_WRITABLE |
+                                                        G_PARAM_CONSTRUCT_ONLY |
+                                                        G_PARAM_STATIC_NAME));
 
   g_type_class_add_private (klass, sizeof (GVimeoPrivate));
 }
@@ -164,6 +184,23 @@ g_vimeo_new (const gchar *api_key, const gchar *auth_secret)
   vimeo->priv->auth_secret = g_strdup (auth_secret);
 
   return vimeo;
+}
+
+static void
+g_vimeo_set_property (GObject *object,
+                      guint propid,
+                      const GValue *value,
+                      GParamSpec *pspec)
+{
+  switch (propid) {
+  case PROP_QUVI_FORMAT:
+    quvi_setopt (G_VIMEO (object)->priv->quvi_handler,
+                 QUVIOPT_FORMAT,
+                 g_value_get_string (value));
+    break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, propid, pspec);
+  }
 }
 
 /* -------------------- PRIVATE API -------------------- */

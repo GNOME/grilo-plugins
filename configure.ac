@@ -714,23 +714,20 @@ AC_ARG_ENABLE(vimeo,
         [
                 case "$enableval" in
                      yes)
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-vimeo])
+                        fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-vimeo])
                         fi
-                        if test "x$HAVE_LIBSOUP" = "xno"; then
-                           AC_MSG_ERROR([libsoup not found, install it or use --disable-vimeo])
-                        fi
 			if test "x$HAVE_GCRYPT" = "xno"; then
                            AC_MSG_ERROR([libgcrypt not found, install it or use --disable-vimeo])
-                        fi
-			if test "x$HAVE_GTHREAD" = "xno"; then
-                           AC_MSG_ERROR([gthread not found, install it or use --disable-vimeo])
                         fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_XML" = "xyes" -a "x$HAVE_LIBSOUP" = "xyes" -a "x$HAVE_GCRYPT" = "xyes" -a "x$HAVE_GTHREAD" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_GCRYPT" = "xyes"; then
                    enable_vimeo=yes
                 else
                    enable_vimeo=no
@@ -748,9 +745,9 @@ VIMEO_PLUGIN_ID="grl-vimeo"
 AC_SUBST(VIMEO_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([VIMEO_PLUGIN_ID], ["$VIMEO_PLUGIN_ID"], [Vimeo plugin ID])
 
-DEPS_VIMEO_CFLAGS="$DEPS_CFLAGS $XML_CFLAGS $GTHREAD_CFLAGS $LIBSOUP_CFLAGS $LIBGCRYPT_CFLAGS"
+DEPS_VIMEO_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS $LIBGCRYPT_CFLAGS"
 AC_SUBST(DEPS_VIMEO_CFLAGS)
-DEPS_VIMEO_LIBS="$DEPS_LIBS $XML_LIBS $GTHREAD_LIBS $LIBSOUP_LIBS $LIBGCRYPT_LIBS"
+DEPS_VIMEO_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS $LIBGCRYPT_LIBS"
 AC_SUBST(DEPS_VIMEO_LIBS)
 
 # ----------------------------------------------------------

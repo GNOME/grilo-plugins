@@ -22,9 +22,10 @@
  *
  */
 
-#include <gcrypt.h>
-#include <libsoup/soup.h>
 #include "gvimeo.h"
+
+#include <gcrypt.h>
+#include <net/grl-net.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 
@@ -73,7 +74,7 @@ struct _GVimeoPrivate {
   gchar *auth_token;
   gchar *auth_secret;
   gint per_page;
-  SoupSession *async_session;
+  GrlNetWc *wc;
 };
 
 enum InfoType {SIMPLE, EXTENDED};
@@ -95,6 +96,7 @@ static VideoInfo video_info[] = {{SIMPLE, VIMEO_VIDEO_TITLE},
 				 {EXTENDED, VIMEO_VIDEO_OWNER}};
 
 static void g_vimeo_finalize (GObject *object);
+static void g_vimeo_dispose (GObject *object);
 static gchar * encode_uri (const gchar *uri);
 
 /* -------------------- GOBJECT -------------------- */
@@ -106,6 +108,7 @@ g_vimeo_class_init (GVimeoClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize = g_vimeo_finalize;
+  gobject_class->dispose = g_vimeo_dispose;
 
   g_type_class_add_private (klass, sizeof (GVimeoPrivate));
 }
@@ -115,7 +118,21 @@ g_vimeo_init (GVimeo *vimeo)
 {
   vimeo->priv = G_VIMEO_GET_PRIVATE (vimeo);
   vimeo->priv->per_page = 50;
-  vimeo->priv->async_session = soup_session_async_new ();
+  vimeo->priv->wc = grl_net_wc_new ();
+  g_object_set (vimeo->priv->wc, "user-agent", PLUGIN_USER_AGENT, NULL);
+}
+
+static void
+g_vimeo_dispose (GObject *object)
+{
+  GVimeo *vimeo = G_VIMEO (object);
+
+  if (vimeo->priv->wc) {
+    g_object_unref (vimeo->priv->wc);
+    vimeo->priv->wc = NULL;
+  }
+
+  G_OBJECT_CLASS (g_vimeo_parent_class)->dispose (object);
 }
 
 static void
@@ -124,7 +141,6 @@ g_vimeo_finalize (GObject *object)
   GVimeo *vimeo = G_VIMEO (object);
   g_free (vimeo->priv->api_key);
   g_free (vimeo->priv->auth_secret);
-  g_object_unref (vimeo->priv->async_session);
 
   G_OBJECT_CLASS (g_vimeo_parent_class)->finalize (object);
 }
@@ -359,12 +375,20 @@ process_video_search_result (const gchar *xml_result, gpointer user_data)
 }
 
 static void
-search_videos_complete_cb (SoupSession *session,
-			   SoupMessage *message,
-			   gpointer *data)
+search_videos_complete_cb (GObject *source_object,
+                           GAsyncResult *res,
+                           gpointer data)
 {
+  gchar *content = NULL;
+
   GVimeoVideoSearchCb *search_data = (GVimeoVideoSearchCb *) data;
-  process_video_search_result (message->response_body->data, search_data);
+  grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                             res,
+                             &content,
+                             NULL,
+                             NULL);
+
+  process_video_search_result (content, search_data);
 }
 
 static gchar *
@@ -392,29 +416,34 @@ get_play_url_from_vimeo_xml (const gchar *xml, gint video_id)
 }
 
 static void
-get_video_play_url_complete_cb (SoupSession *session,
-				SoupMessage *message,
-				gpointer *data)
+get_video_play_url_complete_cb (GObject *source_object,
+                                GAsyncResult *res,
+                                gpointer data)
 {
   GVimeoVideoURLData *url_data;
-  gchar *url;
-
-  if (message->response_body == NULL)
-  {
-    return;
-  }
+  gchar *url = NULL;
+  gchar *content = NULL;
 
   url_data = (GVimeoVideoURLData *) data;
-  url =  get_play_url_from_vimeo_xml (message->response_body->data,
-				      url_data->video_id);
+
+  if (grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                                 res,
+                                 &content,
+                                 NULL,
+                                 NULL)) {
+    url =  get_play_url_from_vimeo_xml (content,
+                                        url_data->video_id);
+  }
+
   url_data->callback (url, url_data->user_data);
+
   g_slice_free (GVimeoVideoURLData, url_data);
 }
 
 static gchar *
 encode_uri (const gchar *uri)
 {
-  return soup_uri_encode (uri, "%!*'();:@&=+$,/?#[] ");
+  return g_uri_escape_string (uri, NULL, TRUE);
 }
 
 static gchar *
@@ -468,7 +497,6 @@ g_vimeo_videos_search (GVimeo *vimeo,
 		       GVimeoVideoSearchCb callback,
 		       gpointer user_data)
 {
-  SoupMessage *message;
   GVimeoVideoSearchData *search_data;
   gchar *request;
 
@@ -480,11 +508,11 @@ g_vimeo_videos_search (GVimeo *vimeo,
   search_data->search_cb = callback;
   search_data->user_data = user_data;
 
-  message = soup_message_new ("GET", request);
-  soup_session_queue_message (vimeo->priv->async_session,
-			      message,
-			      (SoupSessionCallback) search_videos_complete_cb,
-			      search_data);
+  grl_net_wc_request_async (vimeo->priv->wc,
+                            request,
+                            NULL,
+                            search_videos_complete_cb,
+                            search_data);
   g_free (request);
 }
 
@@ -498,9 +526,6 @@ g_vimeo_video_get_play_url (GVimeo *vimeo,
   gchar *url = g_strdup_printf ("%s%d",
 				VIMEO_VIDEO_LOAD_URL,
 				id);
-  SoupMessage *message = soup_message_new ("GET", url);
-  SoupMessageHeaders *headers = message->request_headers;
-  soup_message_headers_append (headers, "User-Agent", PLUGIN_USER_AGENT);
 
   data = g_slice_new (GVimeoVideoURLData);
   data->video_id = id;
@@ -508,9 +533,10 @@ g_vimeo_video_get_play_url (GVimeo *vimeo,
   data->callback = callback;
   data->user_data = user_data;
 
-  soup_session_queue_message (vimeo->priv->async_session,
-			      message,
-			      (SoupSessionCallback) get_video_play_url_complete_cb,
-			      data);
+  grl_net_wc_request_async (vimeo->priv->wc,
+                            url,
+                            NULL,
+                            get_video_play_url_complete_cb,
+                            data);
   g_free (url);
 }

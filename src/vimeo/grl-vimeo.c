@@ -55,6 +55,8 @@ GRL_LOG_DOMAIN_STATIC(vimeo_log_domain);
 #define SOURCE_NAME "Vimeo"
 #define SOURCE_DESC "A source for browsing and searching Vimeo videos"
 
+#define MAX_ELEMENTS 50
+
 typedef struct {
   GrlSourceSearchSpec *ss;
   gint offset;
@@ -178,6 +180,8 @@ static void
 grl_vimeo_source_init (GrlVimeoSource *source)
 {
   source->priv = GRL_VIMEO_SOURCE_GET_PRIVATE (source);
+
+  grl_source_set_auto_split_threshold (GRL_SOURCE (source), MAX_ELEMENTS);
 }
 
 G_DEFINE_TYPE (GrlVimeoSource, grl_vimeo_source, GRL_TYPE_SOURCE);
@@ -418,13 +422,17 @@ grl_vimeo_source_search (GrlSource *source,
     return;
   }
 
-  /* Compute items per page and page offset */
-  per_page = CLAMP (1 + skip + count, 0, 100);
-  g_vimeo_set_per_page (vimeo, per_page);
-
   sd = g_slice_new (SearchData);
-  sd->page = 1 + (skip / per_page);
-  sd->offset = skip % per_page;
+
+  /* Compute items per page and page offset */
+  grl_paging_translate (skip,
+                        count,
+                        MAX_ELEMENTS,
+                        (guint *) &per_page,
+                        (guint *) &(sd->page),
+                        (guint *) &(sd->offset));
+
+  g_vimeo_set_per_page (vimeo, per_page);
   sd->ss = ss;
 
   g_vimeo_videos_search (vimeo, ss->text, sd->page, search_cb, sd);

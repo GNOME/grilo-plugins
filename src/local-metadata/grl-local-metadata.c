@@ -819,6 +819,9 @@ has_compatible_media_url (GrlMedia *media)
   }
 
   url = grl_media_get_url (media);
+  if (!url) {
+    return FALSE;
+  }
   scheme = g_uri_parse_scheme (url);
 
   ret = is_supported_scheme (scheme);

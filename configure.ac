@@ -720,14 +720,17 @@ AC_ARG_ENABLE(vimeo,
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-vimeo])
                         fi
-			if test "x$HAVE_GCRYPT" = "xno"; then
+			               if test "x$HAVE_GCRYPT" = "xno"; then
                            AC_MSG_ERROR([libgcrypt not found, install it or use --disable-vimeo])
+                        fi
+                        if test "x$HAVE_QUVI" = "xno"; then
+                           AC_MSG_ERROR([libquvi not found, install it or use --disable-vimeo])
                         fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_GCRYPT" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_GCRYPT" = "xyes" -a "x$HAVE_QUVI" = "xyes"; then
                    enable_vimeo=yes
                 else
                    enable_vimeo=no
@@ -745,9 +748,9 @@ VIMEO_PLUGIN_ID="grl-vimeo"
 AC_SUBST(VIMEO_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([VIMEO_PLUGIN_ID], ["$VIMEO_PLUGIN_ID"], [Vimeo plugin ID])
 
-DEPS_VIMEO_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS $LIBGCRYPT_CFLAGS"
+DEPS_VIMEO_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS $LIBGCRYPT_CFLAGS $QUVI_CFLAGS"
 AC_SUBST(DEPS_VIMEO_CFLAGS)
-DEPS_VIMEO_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS $LIBGCRYPT_LIBS"
+DEPS_VIMEO_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS $LIBGCRYPT_LIBS $QUVI_LIBS"
 AC_SUBST(DEPS_VIMEO_LIBS)
 
 # ----------------------------------------------------------

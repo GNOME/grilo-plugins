@@ -343,7 +343,7 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
 }
 
 static void
-video_get_play_url_cb (gchar *url, gpointer user_data)
+video_get_play_url_cb (const gchar *url, gpointer user_data)
 {
   GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) user_data;
 

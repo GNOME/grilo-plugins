@@ -90,7 +90,7 @@ typedef void (*GVimeoVideoSearchCb) (GVimeo *vimeo,
 				     GList *videolist,
 				     gpointer user_data);
 
-typedef void (*GVimeoURLCb) (gchar *url, gpointer user_data);
+typedef void (*GVimeoURLCb) (const gchar *url, gpointer user_data);
 
 GType g_vimeo_get_type (void);
 

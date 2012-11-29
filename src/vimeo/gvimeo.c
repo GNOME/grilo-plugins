@@ -28,6 +28,7 @@
 #include <net/grl-net.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
+#include <quvi/quvi.h>
 
 #define G_VIMEO_GET_PRIVATE(object)             \
   (G_TYPE_INSTANCE_GET_PRIVATE((object),        \
@@ -36,9 +37,10 @@
 
 #define PLUGIN_USER_AGENT             "Grilo Vimeo Plugin"
 
-#define VIMEO_ENDPOINT                "http://vimeo.com/api/rest/v2"
-#define VIMEO_VIDEO_LOAD_URL          "http://vimeo.com/moogaloop/load/clip:"
-#define VIMEO_VIDEO_PLAY_URL          "http://vimeo.com/moogaloop/play/clip:"
+#define VIMEO_HOST                    "http://vimeo.com"
+#define VIMEO_ENDPOINT                VIMEO_HOST "/api/rest/v2"
+#define VIMEO_VIDEO_LOAD_URL          VIMEO_HOST "/moogaloop/load/clip:"
+#define VIMEO_VIDEO_PLAY_URL          VIMEO_HOST "/moogaloop/play/clip:"
 
 #define VIMEO_VIDEO_SEARCH_METHOD     "vimeo.videos.search"
 #define VIMEO_API_OAUTH_SIGN_METHOD   "HMAC-SHA1"
@@ -64,7 +66,7 @@ typedef struct {
 
 typedef struct {
   GVimeo *vimeo;
-  gint video_id;
+  gchar *vimeo_url;
   GVimeoURLCb callback;
   gpointer user_data;
 } GVimeoVideoURLData;
@@ -74,6 +76,7 @@ struct _GVimeoPrivate {
   gchar *auth_token;
   gchar *auth_secret;
   gint per_page;
+  quvi_t quvi_handler;
   GrlNetWc *wc;
 };
 
@@ -118,6 +121,11 @@ g_vimeo_init (GVimeo *vimeo)
 {
   vimeo->priv = G_VIMEO_GET_PRIVATE (vimeo);
   vimeo->priv->per_page = 50;
+  if (quvi_init (&(vimeo->priv->quvi_handler)) != QUVI_OK) {
+    vimeo->priv->quvi_handler = NULL;
+  } else {
+    quvi_setopt (vimeo->priv->quvi_handler, QUVIOPT_NOVERIFY);
+  }
   vimeo->priv->wc = grl_net_wc_new ();
   g_object_set (vimeo->priv->wc, "user-agent", PLUGIN_USER_AGENT, NULL);
 }
@@ -141,6 +149,9 @@ g_vimeo_finalize (GObject *object)
   GVimeo *vimeo = G_VIMEO (object);
   g_free (vimeo->priv->api_key);
   g_free (vimeo->priv->auth_secret);
+  if (vimeo->priv->quvi_handler) {
+    quvi_close (&(vimeo->priv->quvi_handler));
+  }
 
   G_OBJECT_CLASS (g_vimeo_parent_class)->finalize (object);
 }
@@ -272,21 +283,6 @@ xpath_get_node (xmlXPathContextPtr context, gchar *xpath_expr)
   return node;
 }
 
-static gchar *
-get_node_text (xmlXPathContextPtr context, gchar *xpath_expr)
-{
-  xmlNodePtr node;
-  gchar *node_text = NULL;
-
-  node = xpath_get_node (context, xpath_expr);
-  if (node)
-  {
-    node_text = (gchar *) xmlNodeGetContent (node);
-  }
-
-  return node_text;
-}
-
 static GHashTable *
 get_video (xmlNodePtr node)
 {
@@ -391,53 +387,33 @@ search_videos_complete_cb (GObject *source_object,
   process_video_search_result (content, search_data);
 }
 
-static gchar *
-get_play_url_from_vimeo_xml (const gchar *xml, gint video_id)
+static gboolean
+get_video_play_url_cb (GVimeoVideoURLData *url_data)
 {
-  xmlDocPtr doc = xmlRecoverDoc ((xmlChar *) xml);
-  xmlXPathContextPtr context = xmlXPathNewContext (doc);
-  gchar *request_signature = get_node_text (context,
-					    "/xml/request_signature[1]");
-  gchar *signature_expires = get_node_text (context,
-					    "/xml/request_signature_expires[1]");
-
-  gchar *url = g_strdup_printf ("%s%d/%s/%s/?q=sd",
-				VIMEO_VIDEO_PLAY_URL,
-			        video_id,
-				request_signature,
-				signature_expires);
-
-  g_free (request_signature);
-  g_free (signature_expires);
-  xmlXPathFreeContext (context);
-  xmlFreeDoc (doc);
-
-  return url;
-}
-
-static void
-get_video_play_url_complete_cb (GObject *source_object,
-                                GAsyncResult *res,
-                                gpointer data)
-{
-  GVimeoVideoURLData *url_data;
+  QUVIcode rc;
   gchar *url = NULL;
-  gchar *content = NULL;
+  quvi_media_t v;
 
-  url_data = (GVimeoVideoURLData *) data;
-
-  if (grl_net_wc_request_finish (GRL_NET_WC (source_object),
-                                 res,
-                                 &content,
-                                 NULL,
-                                 NULL)) {
-    url =  get_play_url_from_vimeo_xml (content,
-                                        url_data->video_id);
+  if (url_data->vimeo->priv->quvi_handler) {
+    rc = quvi_parse (url_data->vimeo->priv->quvi_handler,
+                     url_data->vimeo_url,
+                     &v);
+    if (rc == QUVI_OK) {
+      rc = quvi_getprop (v, QUVIPROP_MEDIAURL, &url);
+      url_data->callback (url, url_data->user_data);
+      quvi_parse_close (&v);
+    } else {
+      url_data->callback (NULL, url_data->user_data);
+    }
+  } else {
+    url_data->callback (NULL, url_data->user_data);
   }
 
-  url_data->callback (url, url_data->user_data);
-
+  g_object_unref (url_data->vimeo);
+  g_free (url_data->vimeo_url);
   g_slice_free (GVimeoVideoURLData, url_data);
+
+  return FALSE;
 }
 
 static gchar *
@@ -523,20 +499,12 @@ g_vimeo_video_get_play_url (GVimeo *vimeo,
 			    gpointer user_data)
 {
   GVimeoVideoURLData *data;
-  gchar *url = g_strdup_printf ("%s%d",
-				VIMEO_VIDEO_LOAD_URL,
-				id);
 
   data = g_slice_new (GVimeoVideoURLData);
-  data->video_id = id;
-  data->vimeo = vimeo;
+  data->vimeo = g_object_ref (vimeo);
+  data->vimeo_url = g_strdup_printf (VIMEO_HOST "/%d", id);
   data->callback = callback;
   data->user_data = user_data;
 
-  grl_net_wc_request_async (vimeo->priv->wc,
-                            url,
-                            NULL,
-                            get_video_play_url_complete_cb,
-                            data);
-  g_free (url);
+  g_idle_add ((GSourceFunc) get_video_play_url_cb, data);
 }

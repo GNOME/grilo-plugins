@@ -7,7 +7,7 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src doc examples test
+SUBDIRS = src help examples test
 
 MAINTAINERCLEANFILES = \
         aclocal.m4 \
@@ -26,7 +26,7 @@ MAINTAINERCLEANFILES = \
 	mkinstalldirs \
 	*~
 
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
+DISTCLEANFILES = $(MAINTAINERCLEANFILES) gnome-doc-utils.make
 
 EXTRA_DIST = ./m4/grilo.m4
 
@@ -34,6 +34,7 @@ EXTRA_DIST = ./m4/grilo.m4
 # when creating tarball releases,
 # and make sure that we enable all plugins needed by the documentation.
 DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc \
+                            --disable-scrollkeeper \
                             --enable-apple-trailers \
                             --enable-bliptv \
                             --enable-bookmarks \

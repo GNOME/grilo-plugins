@@ -59,9 +59,19 @@ GRL_LOG_DOMAIN_STATIC(vimeo_log_domain);
 
 typedef struct {
   GrlSourceSearchSpec *ss;
+  GVimeo *vimeo;
+  GQueue *queue;
   gint offset;
   gint page;
+  gboolean get_url;
 } SearchData;
+
+typedef struct {
+  GrlMedia *media;
+  SearchData *sd;
+  gint index;
+  gboolean computed;
+} AddMediaUrlData;
 
 struct _GrlVimeoSourcePrivate {
   GVimeo *vimeo;
@@ -74,6 +84,8 @@ gboolean grl_vimeo_plugin_init (GrlRegistry *registry,
                                 GList *configs);
 
 static const GList *grl_vimeo_source_supported_keys (GrlSource *source);
+
+static const GList *grl_vimeo_source_slow_keys (GrlSource *source);
 
 static void grl_vimeo_source_resolve (GrlSource *source,
                                       GrlSourceResolveSpec *rs);
@@ -170,6 +182,7 @@ grl_vimeo_source_class_init (GrlVimeoSourceClass * klass)
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
 
   source_class->supported_keys = grl_vimeo_source_supported_keys;
+  source_class->slow_keys = grl_vimeo_source_slow_keys;
   source_class->resolve = grl_vimeo_source_resolve;
   source_class->search = grl_vimeo_source_search;
 
@@ -280,14 +293,49 @@ update_media (GrlMedia *media, GHashTable *video)
   }
 }
 
+static void
+add_url_media_cb (const gchar *url, gpointer user_data)
+{
+  AddMediaUrlData *amud = (AddMediaUrlData *) user_data;
+  SearchData *sd = amud->sd;
+
+  if (url) {
+    grl_media_set_url (amud->media, url);
+  }
+
+  amud->computed = TRUE;
+
+  /* Try to send in order all the processed elements */
+  while ((amud = g_queue_peek_tail (sd->queue)) &&
+         amud != NULL &&
+         amud->computed) {
+    sd->ss->callback (sd->ss->source,
+                      sd->ss->operation_id,
+                      amud->media,
+                      amud->index,
+                      sd->ss->user_data,
+                      NULL);
+    g_queue_pop_tail (sd->queue);
+    g_slice_free (AddMediaUrlData, amud);
+  }
+
+  /* If there are still elements not processed let's wait for them */
+  if (amud == NULL) {
+    g_queue_free (sd->queue);
+    g_slice_free (SearchData, sd);
+  }
+}
 
 static void
 search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
 {
   GrlMedia *media = NULL;
+  AddMediaUrlData *amud;
   SearchData *sd = (SearchData *) user_data;
   gint count = grl_operation_options_get_count (sd->ss->options);
+  gint id;
   gchar *media_type;
+  gint video_list_size;
 
   /* Go to offset element */
   video_list = g_list_nth (video_list, sd->offset);
@@ -304,40 +352,52 @@ search_cb (GVimeo *vimeo, GList *video_list, gpointer user_data)
     return;
   }
 
+  video_list_size = g_list_length (video_list);
+  if (count > video_list_size) {
+    count = video_list_size;
+  }
+
+  if (sd->get_url) {
+    sd->queue = g_queue_new ();
+  }
+
   while (video_list && count)
   {
     media_type = g_hash_table_lookup (video_list->data, "title");
     if (media_type) {
       media = grl_media_video_new ();
+    } else {
+      media = NULL;
     }
 
     if (media)
     {
       update_media (media, video_list->data);
-      sd->ss->callback (sd->ss->source,
-			sd->ss->operation_id,
-			media,
-			count == 1? 0: -1,
-			sd->ss->user_data,
-			NULL);
+      if (sd->get_url) {
+        amud = g_slice_new (AddMediaUrlData);
+        amud->computed = FALSE;
+        amud->media = media;
+        amud->index = --count;
+        amud->sd = sd;
+        g_queue_push_head (sd->queue, amud);
+        id = (gint) g_ascii_strtod (grl_media_get_id (media), NULL);
+        g_vimeo_video_get_play_url (sd->vimeo,
+                                    id,
+                                    add_url_media_cb,
+                                    amud);
+      } else {
+        sd->ss->callback (sd->ss->source,
+                          sd->ss->operation_id,
+                          media,
+                          --count,
+                          sd->ss->user_data,
+                          NULL);
+      }
     }
     video_list = g_list_next (video_list);
-
-    if (--count)
-      grl_operation_options_set_count (sd->ss->options, count);
-
-    media = NULL;
   }
 
-  /* Get more elements */
-  if (count)
-  {
-    sd->offset = 0;
-    sd->page++;
-    g_vimeo_videos_search (vimeo, sd->ss->text, sd->page, search_cb, sd);
-  }
-  else
-  {
+  if (!sd->get_url) {
     g_slice_free (SearchData, sd);
   }
 }
@@ -366,12 +426,23 @@ grl_vimeo_source_supported_keys (GrlSource *source)
 				      GRL_METADATA_KEY_DESCRIPTION,
 				      GRL_METADATA_KEY_URL,
 				      GRL_METADATA_KEY_AUTHOR,
-                      GRL_METADATA_KEY_PUBLICATION_DATE,
+                  GRL_METADATA_KEY_PUBLICATION_DATE,
 				      GRL_METADATA_KEY_THUMBNAIL,
 				      GRL_METADATA_KEY_DURATION,
 				      GRL_METADATA_KEY_WIDTH,
 				      GRL_METADATA_KEY_HEIGHT,
-				      NULL);
+				      GRL_METADATA_KEY_INVALID);
+  }
+  return keys;
+}
+
+static const GList *
+grl_vimeo_source_slow_keys (GrlSource *source)
+{
+  static GList *keys = NULL;
+  if (!keys) {
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_URL,
+                                      GRL_METADATA_KEY_INVALID);
   }
   return keys;
 }
@@ -384,20 +455,30 @@ grl_vimeo_source_resolve (GrlSource *source,
   const gchar *id_str;
 
   if (!rs->media || (id_str = grl_media_get_id (rs->media)) == NULL) {
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
-    return;
+    goto send_unchanged;
   }
 
-  errno = 0;
-  id = (gint) g_ascii_strtod (id_str, NULL);
-  if (errno != 0) {
-    return;
+  /* As all the keys are added always, except URL, the only case is missing URL */
+  if (g_list_find (rs->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL)) != NULL &&
+      grl_media_get_url (rs->media) == NULL) {
+    errno = 0;
+    id = (gint) g_ascii_strtod (id_str, NULL);
+    if (errno != 0) {
+      goto send_unchanged;
+    }
+
+    g_vimeo_video_get_play_url (GRL_VIMEO_SOURCE (source)->priv->vimeo,
+                                id,
+                                video_get_play_url_cb,
+                                rs);
+  } else {
+    goto send_unchanged;
   }
 
-  g_vimeo_video_get_play_url (GRL_VIMEO_SOURCE (source)->priv->vimeo,
-                              id,
-                              video_get_play_url_cb,
-                              rs);
+  return;
+
+ send_unchanged:
+  rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
 }
 
 static void
@@ -422,7 +503,10 @@ grl_vimeo_source_search (GrlSource *source,
     return;
   }
 
-  sd = g_slice_new (SearchData);
+  sd = g_slice_new0 (SearchData);
+  sd->vimeo = vimeo;
+  sd->get_url = (g_list_find (ss->keys,
+                              GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL)) != NULL);
 
   /* Compute items per page and page offset */
   grl_paging_translate (skip,

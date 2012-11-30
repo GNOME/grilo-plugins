@@ -1,3 +1,51 @@
+NEW in 0.2.4
+============
+  * General
+    * Improved build system
+    * Added plugins documentation
+    * BGO#685473 - grl_source_query(): Does not hint at the query syntaxes
+
+  * Blip.TV plugin
+    * Use GrlNet instead of librest
+    * Fixed backend API usage
+
+  * Filesystem plugin
+    * Fixed a warning
+
+  * Jamendo plugin
+    * BGO#689125 - jamendo: return no result when browsing out of range feeds
+  * Local Metadata plugin
+    * Check URL in resolve
+
+  * Metadata Store plugin
+    * Fixed crash with freed variable
+    * BGO#687788 - metadata-store: Add 'search' with filtering by 'favourite'
+
+  * TMDb plugin
+    * Added documentation
+    * Added example of use
+    * Restored original-title key
+    * BGO#688245 - Add tmdb plugin tests
+
+  * Tracker plugin
+    * Added support for Tracker 0.15
+  * Vimeo plugin
+    * Use GrlNet
+    * Use quvi to get the URL video
+    * Set up URL key as slow key
+    * Added "format" parameter
+    * BGO#688821 - Vimeo plugin is broken
+
+  * Contributors to this release:
+    * Andrzej Bieniek <andyhelp@gmail.com>
+    * Antía Puentes <apuentes@igalia.com>
+    * Jens Georg <jensg@openismus.com>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Mathias Hasselmann <mathias@openismus.com>
+    * Murray Cumming <murrayc@murrayc.com>
+    * Murray Cumming <murrayc@openismus.com>
+
+
 NEW in 0.2.3
 ============
 

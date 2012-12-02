@@ -864,6 +864,49 @@ DEPS_BLIPTV_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS"
 AC_SUBST(DEPS_BLIPTV_LIBS)
 
 # ----------------------------------------------------------
+# BUILD RAI.TV PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(raitv,
+        AC_HELP_STRING([--enable-raitv],
+                [enable Rai.tv plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-raitv])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([xml2 not found, install it or use --disable-raitv])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                   enable_raitv=yes
+                else
+                   enable_raitv=no
+                fi
+        ])
+
+AM_CONDITIONAL([RAITV_PLUGIN], [test "x$enable_raitv" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL rai.tv"
+if test "x$enable_raitv" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED rai.tv"
+fi
+
+RAITV_PLUGIN_ID="grl-raitv"
+AC_SUBST(RAITV_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([RAITV_PLUGIN_ID], ["$RAITV_PLUGIN_ID"], [Rai.tv plugin ID])
+
+DEPS_RAITV_CFLAGS="$DEPS_CFLAGS $LIBXML_CFLAGS $GRLNET_CFLAGS"
+AC_SUBST(DEPS_RAITV_CFLAGS)
+DEPS_RAITV_LIBS="$DEPS_LIBS $LIBXML_LIBS $GRLNET_LIBS"
+AC_SUBST(DEPS_RAITV_LIBS)
+
+# ----------------------------------------------------------
 # BUILD LOCAL METADATA PLUGIN
 # ----------------------------------------------------------
 
@@ -1022,6 +1065,7 @@ AC_CONFIG_FILES([
   src/metadata-store/Makefile
   src/optical-media/Makefile
   src/podcasts/Makefile
+  src/raitv/Makefile
   src/shoutcast/Makefile
   src/tmdb/Makefile
   src/tracker/Makefile

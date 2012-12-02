@@ -1,0 +1,10 @@
+<plugin>
+  <info>
+    <name>Rai.tv</name>
+    <module>libgrlraitv</module>
+    <description>A plugin for searching multimedia content using Rai.tv</description>
+    <author>Marco Piazza</author>
+    <license>LGPL</license>
+    <site>http://live.gnome.org/Grilo</site>
+  </info>
+</plugin>

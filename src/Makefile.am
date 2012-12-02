@@ -64,6 +64,10 @@ if PODCASTS_PLUGIN
 SUBDIRS += podcasts
 endif
 
+if RAITV_PLUGIN
+SUBDIRS += raitv
+endif
+
 if SHOUTCAST_PLUGIN
 SUBDIRS += shoutcast
 endif

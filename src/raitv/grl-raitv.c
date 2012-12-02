@@ -1,0 +1,1264 @@
+/*
+ *
+ * Author: Marco Piazza <mpiazza@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <libxml/parser.h>
+#include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
+#include <libxml/HTMLparser.h>
+#include <string.h>
+#include <net/grl-net.h>
+
+#include "grl-raitv.h"
+
+/* --------- Logging  -------- */
+
+#define GRL_LOG_DOMAIN_DEFAULT raitv_log_domain
+GRL_LOG_DOMAIN_STATIC(raitv_log_domain);
+
+/* ----- Root categories ---- */
+
+#define RAITV_ROOT_NAME       "Rai.tv"
+
+#define ROOT_DIR_POPULARS_INDEX	0
+#define ROOT_DIR_RECENTS_INDEX 	1
+
+#define RAITV_POPULARS_ID	"most-popular"
+#define RAITV_POPULARS_NAME	"Most Popular"
+
+#define RAITV_RECENTS_ID	"recent"
+#define RAITV_RECENTS_NAME	"Recent"
+
+#define RAITV_POPULARS_THEME_ID	"theme-popular"
+#define RAITV_RECENTS_THEME_ID	"theme-recent"
+
+#define RAITV_VIDEO_SEARCH                      \
+  "http://www.ricerca.rai.it/search?"           \
+  "q=%s"                                        \
+  "&num=50"                                     \
+  "&start=%s"                                   \
+  "&getfields=*"                                \
+  "&site=raitv"                                 \
+  "&filter=0"
+
+
+#define RAITV_VIDEO_POPULAR                        \
+  "http://www.rai.it//StatisticheProxy/proxy.jsp?" \
+  "action=mostVisited"                             \
+  "&domain=RaiTv"                                  \
+  "&days=7"                                        \
+  "&state=1"                                       \
+  "&records=%s"                                    \
+  "&type=Video"                                    \
+  "&excludeTags=%s"                                \
+  "&tags=%s"
+
+#define RAITV_VIDEO_RECENT                            \
+  "http://www.rai.it/StatisticheProxy/proxyPost.jsp?" \
+  "action=getLastContentByTag"                        \
+  "&domain=RaiTv"                                     \
+  "&numContents=%s"                                   \
+  "&type=Video"                                       \
+  "&tags=%s"                                          \
+  "&excludeTags=%s"
+
+
+
+/* --- Plugin information --- */
+
+#define PLUGIN_ID   RAITV_PLUGIN_ID
+
+#define SOURCE_ID   "grl-raitv"
+#define SOURCE_NAME "Rai.tv"
+#define SOURCE_DESC "A source for browsing and searching Rai.tv videos"
+
+
+G_DEFINE_TYPE (GrlRaitvSource, grl_raitv_source, GRL_TYPE_SOURCE)
+
+#define RAITV_SOURCE_PRIVATE(o)                          \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((o),                     \
+                                GRL_TYPE_RAITV_SOURCE,   \
+                                GrlRaitvSourcePrivate))
+
+typedef enum {
+  RAITV_MEDIA_TYPE_ROOT,
+  RAITV_MEDIA_TYPE_POPULARS,
+  RAITV_MEDIA_TYPE_RECENTS,
+  RAITV_MEDIA_TYPE_POPULAR_THEME,
+  RAITV_MEDIA_TYPE_RECENT_THEME,
+  RAITV_MEDIA_TYPE_VIDEO,
+} RaitvMediaType;
+
+typedef struct {
+  gchar *id;
+  gchar *name;
+  guint count;
+  gchar *tags;
+  gchar *excludeTags;
+} CategoryInfo;
+
+
+typedef struct
+{
+  GrlSource *source;
+  guint      operation_id;
+  const gchar *container_id;
+  guint      count;
+  guint      length;
+  guint      offset;
+  guint      skip;
+
+  GrlSourceResultCb 	callback;
+  GrlSourceResolveCb 	resolveCb;
+  gpointer      user_data;
+  gchar*	text;
+
+  CategoryInfo 	*category_info;
+  GrlMedia	*media;
+
+  GCancellable *cancellable;
+} RaitvOperation;
+
+typedef struct
+{
+  GrlKeyID     grl_key;
+  const gchar *exp;
+} RaitvAssoc;
+
+
+
+
+
+/* ==================== Private Data  ================= */
+
+struct _GrlRaitvSourcePrivate
+{
+  GrlNetWc *wc;
+
+  GList *raitv_search_mappings;
+  GList *raitv_browse_mappings;
+};
+
+
+guint root_dir_size = 2;
+CategoryInfo root_dir[] = {
+  {RAITV_POPULARS_ID,    RAITV_POPULARS_NAME,      23},
+  {RAITV_RECENTS_ID, 	RAITV_RECENTS_NAME,	 23},
+  {NULL, NULL, 0}
+};
+
+CategoryInfo themes_dir[] = {
+  {"all","All",-1,"","Tematica:News^Tematica:ntz"},
+  {"bianco_nero","Bianco e Nero",-1,"Tematica:Bianco e Nero",""},
+  {"cinema","Cinema",-1,"Tematica:Cinema",""},
+  {"comici","Comici",-1,"Tematica:Comici",""},
+  {"cronaca","Cronaca",-1,"Tematica:Cronaca",""},
+  {"cultura","Cultura",-1,"Tematica:Cultura",""},
+  {"economia","Economia",-1,"Tematica:Economia",""},
+  {"fiction","Fiction",-1,"Tematica:Fiction",""},
+  {"junior","Junior",-1,"Tematica:Junior",""},
+  {"inchieste","Inchieste",-1,"Tematica:Inchieste",""},
+  {"interviste","Interviste",-1,"Tematica:Interviste",""},
+  {"musica","Musica",-1,"Tematica:Musica",""},
+  {"news","News",-1,"Tematica:News",""},
+  {"salute","Salute",-1,"Tematica:Salute",""},
+  {"satira","Satira",-1,"Tematica:Satira",""},
+  {"scienza","Scienza",-1,"Tematica:Scienza",""},
+  {"societa","Societa",-1,"Tematica:Societa",""},
+  {"spettacolo","Spettacolo",-1,"Tematica:Spettacolo",""},
+  {"sport","Sport",-1,"Tematica:Sport",""},
+  {"storia","Storia",-1,"Tematica:Storia",""},
+  {"politica","Politica",-1,"Tematica:Politica",""},
+  {"tempo_libero","Tempo libero",-1,"Tematica:Tempo libero",""},
+  {"viaggi","Viaggi",-1,"Tematica:Viaggi",""},
+  {NULL, NULL, 0}
+};
+
+
+/**/
+
+static GrlRaitvSource *grl_raitv_source_new (void);
+
+gboolean grl_raitv_plugin_init (GrlRegistry *registry,
+                                GrlPlugin *plugin,
+                                GList *configs);
+
+static const GList *grl_raitv_source_supported_keys (GrlSource *source);
+static const GList *grl_raitv_source_slow_keys (GrlSource *source);
+
+static void grl_raitv_source_browse (GrlSource *source,
+                                     GrlSourceBrowseSpec *bs);
+
+static void grl_raitv_source_search (GrlSource *source,
+                                     GrlSourceSearchSpec *ss);
+
+static void grl_raitv_source_resolve (GrlSource *source,
+                                      GrlSourceResolveSpec *ss);
+
+static void g_raitv_videos_search(RaitvOperation *op);
+
+static void produce_from_popular_theme (RaitvOperation *op);
+static void produce_from_recent_theme (RaitvOperation *op);
+
+static void grl_raitv_source_cancel (GrlSource *source,
+                                     guint operation_id);
+
+static RaitvMediaType classify_media_id (const gchar *media_id);
+
+
+/**/
+
+gboolean
+grl_raitv_plugin_init (GrlRegistry *registry,
+                       GrlPlugin *plugin,
+                       GList *configs)
+{
+  GRL_LOG_DOMAIN_INIT (raitv_log_domain, "raitv");
+
+  GrlRaitvSource *source = grl_raitv_source_new ();
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
+  return TRUE;
+}
+
+GRL_PLUGIN_REGISTER (grl_raitv_plugin_init,
+                     NULL,
+                     PLUGIN_ID);
+
+
+/* ================== Rai.tv GObject ================ */
+
+static GrlRaitvSource *
+grl_raitv_source_new (void)
+{
+  return g_object_new (GRL_TYPE_RAITV_SOURCE,
+                       "source-id", SOURCE_ID,
+                       "source-name", SOURCE_NAME,
+                       "source-desc", SOURCE_DESC,
+                       "supported-media", GRL_MEDIA_TYPE_VIDEO,
+                       NULL);
+}
+
+static void
+grl_raitv_source_dispose (GObject *object)
+{
+  G_OBJECT_CLASS (grl_raitv_source_parent_class)->dispose (object);
+}
+
+static void
+grl_raitv_source_finalize (GObject *object)
+{
+  GrlRaitvSource *source = GRL_RAITV_SOURCE (object);
+
+  if (source->priv->wc != NULL) {
+    g_object_unref (source->priv->wc);
+    source->priv->wc = NULL;
+  }
+
+  if (source->priv->raitv_search_mappings != NULL) {
+    g_object_unref (source->priv->raitv_search_mappings);
+    source->priv->raitv_search_mappings = NULL;
+  }
+
+  if (source->priv->raitv_browse_mappings != NULL) {
+    g_object_unref (source->priv->raitv_browse_mappings);
+    source->priv->raitv_browse_mappings = NULL;
+  }
+
+
+  G_OBJECT_CLASS (grl_raitv_source_parent_class)->finalize (object);
+}
+
+static void
+grl_raitv_source_class_init (GrlRaitvSourceClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+
+  g_type_class_add_private (klass, sizeof (GrlRaitvSourcePrivate));
+
+  object_class->dispose = grl_raitv_source_dispose;
+  object_class->finalize = grl_raitv_source_finalize;
+
+  source_class->supported_keys = grl_raitv_source_supported_keys;
+  source_class->slow_keys = grl_raitv_source_slow_keys;
+
+  source_class->cancel = grl_raitv_source_cancel;
+  source_class->browse = grl_raitv_source_browse;
+  source_class->search = grl_raitv_source_search;
+  source_class->resolve = grl_raitv_source_resolve;
+
+}
+
+static RaitvAssoc *
+raitv_build_mapping (GrlKeyID grl_key, const gchar *exp)
+{
+  RaitvAssoc *assoc = g_new (RaitvAssoc, 1);
+
+  assoc->grl_key = grl_key;
+  assoc->exp     = exp;
+
+  return assoc;
+}
+
+static void
+grl_raitv_source_init (GrlRaitvSource *self)
+{
+  self->priv = RAITV_SOURCE_PRIVATE (self);
+
+  self->priv->wc = grl_net_wc_new ();
+  grl_net_wc_set_throttling (self->priv->wc, 1);
+
+  //Insert search mapping
+  self->priv->raitv_search_mappings = g_list_append (self->priv->raitv_search_mappings,
+                                                     raitv_build_mapping(GRL_METADATA_KEY_ID, "HAS/C/@CID"));
+
+  self->priv->raitv_search_mappings = g_list_append (self->priv->raitv_search_mappings,
+                                                     raitv_build_mapping(GRL_METADATA_KEY_PUBLICATION_DATE, "MT[@N='itemDate']/@V"));
+
+  self->priv->raitv_search_mappings = g_list_append (self->priv->raitv_search_mappings,
+                                                     raitv_build_mapping(GRL_METADATA_KEY_TITLE, "MT[@N='title\']/@V"));
+
+  self->priv->raitv_search_mappings = g_list_append (self->priv->raitv_search_mappings,
+                                                     raitv_build_mapping(GRL_METADATA_KEY_URL, "MT[@N='videourl']/@V"));
+
+  self->priv->raitv_search_mappings = g_list_append (self->priv->raitv_search_mappings,
+                                                     raitv_build_mapping(GRL_METADATA_KEY_THUMBNAIL, "MT[@N='vod-image']/@V"));
+
+
+  //Insert browse mapping
+  self->priv->raitv_browse_mappings = g_list_append (self->priv->raitv_browse_mappings,
+                                                     raitv_build_mapping(GRL_METADATA_KEY_ID, "localid"));
+  self->priv->raitv_browse_mappings = g_list_append (self->priv->raitv_browse_mappings,
+                                                     raitv_build_mapping(GRL_METADATA_KEY_PUBLICATION_DATE, "datacreazione"));
+  self->priv->raitv_browse_mappings = g_list_append (self->priv->raitv_browse_mappings,
+                                                     raitv_build_mapping(GRL_METADATA_KEY_TITLE, "titolo"));
+  self->priv->raitv_browse_mappings = g_list_append (self->priv->raitv_browse_mappings,
+                                                     raitv_build_mapping(GRL_METADATA_KEY_URL, "h264"));
+  self->priv->raitv_browse_mappings = g_list_append (self->priv->raitv_browse_mappings,
+                                                     raitv_build_mapping(GRL_METADATA_KEY_THUMBNAIL, "pathImmagine"));
+
+}
+
+
+static void
+raitv_operation_free (RaitvOperation *op)
+{
+  if (op->cancellable)
+    g_object_unref (op->cancellable);
+  if (op->source)
+    g_object_unref (op->source);
+  g_slice_free (RaitvOperation, op);
+}
+
+
+/* ================== Callbacks ================ */
+
+static void
+proxy_call_search_grlnet_async_cb (GObject *source_object,
+                                   GAsyncResult *res,
+                                   gpointer user_data)
+{
+  RaitvOperation    *op = (RaitvOperation *) user_data;
+  xmlDocPtr           doc = NULL;
+  xmlXPathContextPtr  xpath = NULL;
+  xmlXPathObjectPtr   obj = NULL;
+  gint i, nb_items = 0;
+  gint length;
+
+  GRL_DEBUG ("Response id=%u", op->operation_id);
+
+  GError *wc_error = NULL;
+  GError *error = NULL;
+  gchar *content = NULL;
+
+  if (g_cancellable_is_cancelled (op->cancellable)) {
+    goto finalize;
+  }
+
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                                  res,
+                                  &content,
+                                  (gsize *) &length,
+                                  &wc_error)) {
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_SEARCH_FAILED,
+                         "Failed to search Rait.tv: '%s'",
+                         wc_error->message);
+
+    op->callback (op->source,
+                  op->operation_id,
+                  NULL,
+                  0,
+                  op->user_data,
+                  error);
+
+   g_error_free (wc_error);
+    g_error_free (error);
+
+    return;
+  }
+
+  doc = xmlParseMemory (content, length);
+
+  if (!doc) {
+    GRL_DEBUG ("Doc failed");
+    goto finalize;
+  }
+
+  xpath = xmlXPathNewContext (doc);
+  if (!xpath) {
+    GRL_DEBUG ("Xpath failed");
+    goto finalize;
+  }
+  obj = xmlXPathEvalExpression ((xmlChar *) "/GSP/RES/R", xpath);
+  if (obj)
+    {
+      nb_items = xmlXPathNodeSetGetLength (obj->nodesetval);
+      xmlXPathFreeObject (obj);
+    }
+
+  gboolean g_bVideoNotFound = TRUE;
+
+  for (i = 0; i < nb_items; i++)
+    {
+      //Search only videos
+      gchar *str;
+      str = g_strdup_printf ("string(/GSP/RES/R[%i]/MT[@N='videourl']/@V)",
+                             i + 1);
+      obj = xmlXPathEvalExpression ((xmlChar *) str, xpath);
+      if (obj->stringval && obj->stringval[0] == '\0')
+        continue;
+      if(op->skip>0) {
+        op->skip--;
+        continue;
+      }
+
+      GrlRaitvSource *source = GRL_RAITV_SOURCE (op->source);
+      GList *mapping = source->priv->raitv_search_mappings;
+      GrlMedia *media = grl_media_video_new ();
+      g_bVideoNotFound = FALSE;
+      GRL_DEBUG ("Mappings count: %d",g_list_length(mapping));
+      while (mapping)
+        {
+          RaitvAssoc *assoc = (RaitvAssoc *) mapping->data;
+          str = g_strdup_printf ("string(/GSP/RES/R[%i]/%s)",
+                                 i + 1, assoc->exp);
+
+          GRL_DEBUG ("Xquery %s", str);
+          gchar *strvalue;
+
+          obj = xmlXPathEvalExpression ((xmlChar *) str, xpath);
+          if (obj)
+            {
+              if (obj->stringval && obj->stringval[0] != '\0')
+                {
+                  strvalue = 	g_strdup((gchar *) obj->stringval);
+                  //Sometimes GRL_METADATA_KEY_THUMBNAIL doesn't report complete url
+                  if(assoc->grl_key == GRL_METADATA_KEY_THUMBNAIL && !g_str_has_prefix(strvalue,"http://www.rai.tv")) {
+                    strvalue = g_strdup_printf("http://www.rai.tv%s",obj->stringval);
+                  }
+
+                  GType _type;
+                  GRL_DEBUG ("\t%s -> %s", str, obj->stringval);
+                  _type = grl_metadata_key_get_type (assoc->grl_key);
+                  switch (_type)
+                    {
+                    case G_TYPE_STRING:
+                      grl_data_set_string (GRL_DATA (media),
+                                           assoc->grl_key,
+                                           strvalue);
+                      break;
+
+                    case G_TYPE_INT:
+                      grl_data_set_int (GRL_DATA (media),
+                                        assoc->grl_key,
+                                        (gint) atoi (strvalue));
+                      break;
+
+                    case G_TYPE_FLOAT:
+                      grl_data_set_float (GRL_DATA (media),
+                                          assoc->grl_key,
+                                          (gfloat) atof (strvalue));
+                      break;
+
+                    default:
+                      /* G_TYPE_DATE_TIME is not a constant, so this has to be
+                       * in "default:" */
+                      if (_type == G_TYPE_DATE_TIME) {
+                        int year,month,day;
+                        sscanf((const char*)obj->stringval, "%02d/%02d/%04d", &day, &month, &year);
+                        GDateTime *date = g_date_time_new_local (year, month, day, 0, 0, 0);
+                        GRL_DEBUG ("Setting %s to %s",
+                                   grl_metadata_key_get_name (assoc->grl_key),
+                                   g_date_time_format (date, "%F %H:%M:%S"));
+                        grl_data_set_boxed (GRL_DATA (media),
+                                            assoc->grl_key, date);
+                        if(date) g_date_time_unref (date);
+                      } else {
+                        GRL_DEBUG ("\tUnexpected data type: %s",
+                                   g_type_name (_type));
+                      }
+                      break;
+                    }
+                  g_free (strvalue);
+                }
+              xmlXPathFreeObject (obj);
+            }
+
+          g_free (str);
+
+          mapping = mapping->next;
+        }
+
+      op->callback (op->source,
+                    op->operation_id,
+                    media,
+                    --op->count,
+                    op->user_data,
+                    NULL);
+
+      if (op->count == 0)
+        break;
+    }
+
+ finalize:
+
+  if (xpath)
+    xmlXPathFreeContext (xpath);
+  if (doc)
+    xmlFreeDoc (doc);
+
+  /* Signal the last element if it was not already signaled */
+  if (nb_items == 0 || g_bVideoNotFound) {
+    op->callback (op->source,
+                  op->operation_id,
+                  NULL,
+                  0,
+                  op->user_data,
+                  NULL);
+    raitv_operation_free (op);
+  }
+  else {
+    //Continue the search
+    if(op->count>0) {
+		op->offset +=  nb_items;
+		g_raitv_videos_search(op);
+    }
+  }
+
+}
+
+
+
+static void
+proxy_call_browse_grlnet_async_cb (GObject *source_object,
+                                   GAsyncResult *res,
+                                   gpointer user_data)
+{
+  RaitvOperation    *op = (RaitvOperation *) user_data;
+  xmlDocPtr           doc = NULL;
+  xmlXPathContextPtr  xpath = NULL;
+  xmlXPathObjectPtr   obj = NULL;
+  gint i, nb_items = 0;
+  gint length;
+
+
+  GRL_DEBUG ("Response id=%u", op->operation_id);
+
+  GError *wc_error = NULL;
+  GError *error = NULL;
+  gchar *content = NULL;
+
+  if (g_cancellable_is_cancelled (op->cancellable)) {
+    goto finalize;
+  }
+
+
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                                  res,
+                                  &content,
+                                  (gsize *) &length,
+                                  &wc_error)) {
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_SEARCH_FAILED,
+                         "Failed to browse Rait.tv: '%s'",
+                         wc_error->message);
+
+    op->callback (op->source,
+                  op->operation_id,
+                  NULL,
+                  0,
+                  op->user_data,
+                  error);
+
+    g_error_free (wc_error);
+    g_error_free (error);
+
+    return;
+  }
+
+  doc = xmlRecoverMemory (content, length);
+
+  if (!doc) {
+    GRL_DEBUG ("Doc failed");
+    goto finalize;
+  }
+
+  xpath = xmlXPathNewContext (doc);
+  if (!xpath) {
+    GRL_DEBUG ("Xpath failed");
+    goto finalize;
+  }
+
+  gchar* xquery=NULL;
+  switch (classify_media_id (op->container_id))
+    {
+    case RAITV_MEDIA_TYPE_POPULAR_THEME:
+      xquery = "/CLASSIFICAVISTI/content";
+      break;
+    case RAITV_MEDIA_TYPE_RECENT_THEME:
+      xquery = "/INFORMAZIONICONTENTS/content";
+      break;
+    default:
+      goto finalize;
+    }
+
+  obj = xmlXPathEvalExpression ((xmlChar *) xquery, xpath);
+  if (obj)
+    {
+      nb_items = xmlXPathNodeSetGetLength (obj->nodesetval);
+      xmlXPathFreeObject (obj);
+    }
+
+  if (nb_items < op->count)
+    op->count = nb_items;
+
+  op->category_info->count = nb_items;
+
+  for (i = 0; i < nb_items; i++)
+    {
+
+      //Skip
+      if(op->skip>0) {
+        op->skip--;
+        continue;
+      }
+
+      GrlRaitvSource *source = GRL_RAITV_SOURCE (op->source);
+      GList *mapping = source->priv->raitv_browse_mappings;
+      GrlMedia *media = grl_media_video_new ();
+
+      while (mapping)
+        {
+          gchar *str;
+          gchar *strvalue;
+
+          RaitvAssoc *assoc = (RaitvAssoc *) mapping->data;
+          str = g_strdup_printf ("string(%s[%i]/%s)",
+                                 xquery,i + 1, assoc->exp);
+
+
+          obj = xmlXPathEvalExpression ((xmlChar *) str, xpath);
+          if (obj)
+            {
+              if (obj->stringval && obj->stringval[0] != '\0')
+                {
+                  strvalue = 	g_strdup((gchar *) obj->stringval);
+                  //Sometimes GRL_METADATA_KEY_THUMBNAIL doesn't report complete url
+                  if(assoc->grl_key == GRL_METADATA_KEY_THUMBNAIL && !g_str_has_prefix(strvalue,"http://www.rai.tv/")) {
+                    strvalue = g_strdup_printf("http://www.rai.tv%s",obj->stringval);
+                  }
+
+                  GType _type;
+                  _type = grl_metadata_key_get_type (assoc->grl_key);
+                  switch (_type)
+                    {
+                    case G_TYPE_STRING:
+                      grl_data_set_string (GRL_DATA (media),
+                                           assoc->grl_key,
+                                           strvalue);
+                      break;
+
+                    case G_TYPE_INT:
+                      grl_data_set_int (GRL_DATA (media),
+                                        assoc->grl_key,
+                                        (gint) atoi (strvalue));
+                      break;
+
+                    case G_TYPE_FLOAT:
+                      grl_data_set_float (GRL_DATA (media),
+                                          assoc->grl_key,
+                                          (gfloat) atof (strvalue));
+                      break;
+
+                    default:
+                      /* G_TYPE_DATE_TIME is not a constant, so this has to be
+                       * in "default:" */
+                      if (_type == G_TYPE_DATE_TIME) {
+                        int year,month,day,hour,minute,seconds;
+                        sscanf((const char*)obj->stringval, "%02d/%02d/%04d %02d:%02d:%02d",
+                               &day, &month, &year, &hour,&minute, &seconds);
+                        GDateTime *date = g_date_time_new_local (year, month, day, hour,minute, seconds);
+                        grl_data_set_boxed (GRL_DATA (media),
+                                            assoc->grl_key, date);
+                        if(date) g_date_time_unref (date);
+                      } else {
+                        GRL_DEBUG ("\tUnexpected data type: %s",
+                                   g_type_name (_type));
+                      }
+                      break;
+                    }
+                  g_free (strvalue);
+                }
+              xmlXPathFreeObject (obj);
+            }
+
+          g_free (str);
+
+          mapping = mapping->next;
+        }
+
+      op->callback (op->source,
+                    op->operation_id,
+                    media,
+                    --op->count,
+                    op->user_data,
+                    NULL);
+
+      if (op->count == 0) {
+        break;
+      }
+    }
+
+ finalize:
+  //g_free (body);
+
+  if (xpath)
+    xmlXPathFreeContext (xpath);
+  if (doc)
+    xmlFreeDoc (doc);
+
+  /* Signal the last element if it was not already signaled */
+  if (nb_items == 0) {
+    op->callback (op->source,
+                  op->operation_id,
+                  NULL,
+                  0,
+                  op->user_data,
+                  NULL);
+    raitv_operation_free (op);
+  }
+  else {
+    //Continue the search
+    if(op->count>0) {
+      //Skip the ones already read
+      op->skip +=  nb_items;
+      op->offset +=  nb_items;
+      switch (classify_media_id (op->container_id))
+		  {
+        case RAITV_MEDIA_TYPE_POPULAR_THEME:
+          produce_from_popular_theme(op);
+          break;
+        case RAITV_MEDIA_TYPE_RECENT_THEME:
+          produce_from_recent_theme(op);
+          break;
+        default:
+          g_assert_not_reached ();
+          break;
+		  }
+
+    }
+  }
+
+}
+
+
+
+static void
+proxy_call_resolve_grlnet_async_cb (GObject *source_object,
+                                    GAsyncResult *res,
+                                    gpointer user_data)
+{
+  RaitvOperation    *op = (RaitvOperation *) user_data;
+  xmlDocPtr           doc = NULL;
+  xmlXPathContextPtr  xpath = NULL;
+  xmlXPathObjectPtr   obj = NULL;
+
+  GRL_DEBUG ("Response id=%u", op->operation_id);
+
+  GError *wc_error = NULL;
+  GError *error = NULL;
+  gchar *content = NULL;
+  gint length;
+
+  if (g_cancellable_is_cancelled (op->cancellable)) {
+    goto finalize;
+  }
+
+
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                                  res,
+                                  &content,
+                                  (gsize *) &length,
+                                  &wc_error)) {
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_SEARCH_FAILED,
+                         "Failed to resolve Rait.tv: '%s'",
+                         wc_error->message);
+
+    op->resolveCb (op->source,
+                   op->operation_id,
+                   op->media,
+                   op->user_data,
+                   error);
+
+    g_error_free (wc_error);
+    g_error_free (error);
+
+    return;
+  }
+
+  doc = xmlRecoverMemory (content, length);
+
+  if (!doc) {
+    GRL_DEBUG ("Doc failed");
+    goto finalize;
+  }
+
+  xpath = xmlXPathNewContext (doc);
+  if (!xpath) {
+    GRL_DEBUG ("Xpath failed");
+    goto finalize;
+  }
+
+  gchar* xquery="/html/head/meta[@name='videourl']";
+
+  obj = xmlXPathEvalExpression ((xmlChar *) xquery, xpath);
+  if(obj!=NULL) {
+    xmlNodePtr curNode = NULL;
+    xmlChar	*szValue = NULL;
+    xmlNodeSetPtr nodeset = obj->nodesetval;
+    for (int i = 0; i < nodeset->nodeNr; i++)
+      {
+        curNode = nodeset->nodeTab[i];
+        if(curNode != NULL)
+          {
+            szValue = xmlGetProp(curNode,BAD_CAST "content");
+            if (szValue != NULL)
+              {
+                grl_media_set_url(op->media,(gchar*)szValue);
+                xmlFree(szValue);
+              }
+          }
+      }
+  }
+
+  op->resolveCb (op->source,
+                 op->operation_id,
+                 op->media,
+                 op->user_data,
+                 NULL);
+
+ finalize:
+  if (xpath)
+    xmlXPathFreeContext (xpath);
+
+  if (doc)
+    xmlFreeDoc (doc);
+
+}
+
+
+
+static gint
+get_theme_index_from_id (const gchar *category_id)
+{
+  gint i;
+
+  for (i=0; i<root_dir[ROOT_DIR_POPULARS_INDEX].count; i++) {
+    if (g_strrstr (category_id, themes_dir[i].id)) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+static gboolean
+is_popular_container (const gchar *container_id)
+{
+  return g_str_has_prefix (container_id, RAITV_POPULARS_THEME_ID "/");
+}
+
+static gboolean
+is_recent_container (const gchar *container_id)
+{
+  return g_str_has_prefix (container_id, RAITV_RECENTS_THEME_ID "/");
+}
+
+static RaitvMediaType
+classify_media_id (const gchar *media_id)
+{
+  if (!media_id) {
+    return RAITV_MEDIA_TYPE_ROOT;
+  } else if (!strcmp (media_id, RAITV_POPULARS_ID)) {
+    return RAITV_MEDIA_TYPE_POPULARS;
+  } else if (!strcmp (media_id, RAITV_RECENTS_ID)) {
+    return RAITV_MEDIA_TYPE_RECENTS;
+  } else if (is_popular_container (media_id)) {
+    return RAITV_MEDIA_TYPE_POPULAR_THEME;
+  } else if (is_recent_container (media_id)) {
+    return RAITV_MEDIA_TYPE_RECENT_THEME;
+  } else {
+    return RAITV_MEDIA_TYPE_VIDEO;
+  }
+}
+
+
+static GrlMedia *
+produce_container_from_directory (GrlMedia *media,
+                                  CategoryInfo *dir,
+                                  guint index,
+                                  RaitvMediaType type)
+{
+  GrlMedia *content;
+  gchar* mediaid=NULL;
+
+  if (!media) {
+    content = grl_media_box_new ();
+  } else {
+    content = media;
+  }
+
+  if (!dir) {
+    grl_media_set_id (content, NULL);
+    grl_media_set_title (content, RAITV_ROOT_NAME);
+  } else {
+
+    switch(type)
+      {
+      case RAITV_MEDIA_TYPE_ROOT :
+      case RAITV_MEDIA_TYPE_POPULARS :
+      case RAITV_MEDIA_TYPE_RECENTS :
+        mediaid = g_strdup_printf("%s",dir[index].id);
+        break;
+      case RAITV_MEDIA_TYPE_POPULAR_THEME :
+        mediaid = g_strdup_printf("%s/%s", RAITV_POPULARS_THEME_ID, dir[index].id);
+        break;
+      case RAITV_MEDIA_TYPE_RECENT_THEME :
+        mediaid = g_strdup_printf("%s/%s", RAITV_RECENTS_THEME_ID, dir[index].id);
+        break;
+      default: break;
+      }
+
+    GRL_DEBUG ("MediaId=%s, Type:%d, Titolo:%s",mediaid, type, dir[index].name);
+
+    grl_media_set_id (content, mediaid);
+    grl_media_set_title (content, dir[index].name);
+    g_free(mediaid);
+  }
+
+  return content;
+}
+
+static void
+produce_from_directory (CategoryInfo *dir, gint dir_size, RaitvOperation *os,
+                        RaitvMediaType type)
+{
+  guint index, remaining;
+
+  GRL_DEBUG ("Produce_from_directory. Size=%d",dir_size);
+
+  if (os->skip >= dir_size) {
+    /* No results */
+    os->callback (os->source,
+                  os->operation_id,
+                  NULL,
+                  0,
+                  os->user_data,
+                  NULL);
+  } else {
+    index = os->skip;
+    remaining = MIN (dir_size - os->skip, os->count);
+
+    do {
+      GrlMedia *content =
+        produce_container_from_directory (NULL, dir, index,type );
+
+      remaining--;
+      index++;
+
+      os->callback (os->source,
+                    os->operation_id,
+                    content,
+                    remaining,
+                    os->user_data,
+                    NULL);
+
+    } while (remaining > 0);
+  }
+}
+
+static void
+produce_from_popular_theme (RaitvOperation *op)
+{
+  gint category_index;
+  gchar	*start = NULL;
+  gchar	*url = NULL;
+
+  GrlRaitvSource *source = GRL_RAITV_SOURCE (op->source);
+  start = g_strdup_printf ("%u", op->offset+op->length);
+
+  category_index = get_theme_index_from_id (op->container_id);
+  GRL_DEBUG ("produce_from_popular_theme (container_id=%s, category_index=%d",op->container_id,category_index);
+
+  op->category_info = &themes_dir[category_index];
+  url = g_strdup_printf (RAITV_VIDEO_POPULAR, start, op->category_info->tags, op->category_info->excludeTags);
+
+  GRL_DEBUG ("Starting browse request for popular theme (%s)", url);
+  grl_net_wc_request_async (source->priv->wc,
+                            url,
+                            op->cancellable,
+                            proxy_call_browse_grlnet_async_cb,
+                            op);
+
+  g_free (url);
+}
+
+
+
+static void
+produce_from_recent_theme (RaitvOperation *op)
+{
+  gint category_index;
+  gchar	*start = NULL;
+  gchar	*url = NULL;
+
+  GrlRaitvSource *source = GRL_RAITV_SOURCE (op->source);
+
+  category_index = get_theme_index_from_id (op->container_id);
+  GRL_DEBUG ("produce_from_recent_theme (container_id=%s, category_index=%d",op->container_id,category_index);
+
+  start = g_strdup_printf ("%u", op->offset+op->length);
+
+  op->category_info = &themes_dir[category_index];
+  url = g_strdup_printf (RAITV_VIDEO_RECENT, start, op->category_info->tags, op->category_info->excludeTags);
+
+  GRL_DEBUG ("Starting browse request for recent theme (%s)", url);
+  grl_net_wc_request_async (source->priv->wc,
+                            url,
+                            op->cancellable,
+                            proxy_call_browse_grlnet_async_cb,
+                            op);
+
+  g_free (url);
+}
+
+
+/* ================== API Implementation ================ */
+
+static const GList *
+grl_raitv_source_supported_keys (GrlSource *source)
+{
+  static GList *keys = NULL;
+  if (!keys) {
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
+                                      GRL_METADATA_KEY_PUBLICATION_DATE,
+                                      GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_URL,
+                                      GRL_METADATA_KEY_THUMBNAIL,
+                                      NULL);
+  }
+  return keys;
+}
+
+static const GList *
+grl_raitv_source_slow_keys (GrlSource *source)
+{
+  static GList *keys = NULL;
+  if (!keys) {
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_URL,
+                                      NULL);
+  }
+  return keys;
+}
+
+
+static void
+grl_raitv_source_browse (GrlSource *source,
+                         GrlSourceBrowseSpec *bs)
+{
+  RaitvOperation *op = g_slice_new0 (RaitvOperation);
+
+  const gchar *container_id;
+  GRL_DEBUG ("%s: %s", __FUNCTION__, grl_media_get_id (bs->container));
+  container_id = grl_media_get_id (bs->container);
+
+  op->source       = g_object_ref (source);
+  op->cancellable  = g_cancellable_new ();
+  op->length        = grl_operation_options_get_count (bs->options);
+  op->operation_id = bs->operation_id;
+  op->container_id = container_id;
+  op->callback     = bs->callback;
+  op->user_data    = bs->user_data;
+  op->skip	   = grl_operation_options_get_skip (bs->options);
+  op->count	   = op->length;
+  op->offset       = 0;
+
+  grl_operation_set_data (bs->operation_id, op);
+
+  RaitvMediaType type = classify_media_id (container_id);
+  switch (type)
+    {
+    case RAITV_MEDIA_TYPE_ROOT:
+      produce_from_directory (root_dir, root_dir_size, op, type);
+      break;
+    case RAITV_MEDIA_TYPE_POPULARS:
+      produce_from_directory (themes_dir,
+                              root_dir[ROOT_DIR_POPULARS_INDEX].count, op, RAITV_MEDIA_TYPE_POPULAR_THEME);
+      break;
+    case RAITV_MEDIA_TYPE_RECENTS:
+      produce_from_directory (themes_dir,
+                              root_dir[ROOT_DIR_RECENTS_INDEX].count, op, RAITV_MEDIA_TYPE_RECENT_THEME);
+      break;
+    case RAITV_MEDIA_TYPE_POPULAR_THEME:
+      produce_from_popular_theme (op);
+      break;
+    case RAITV_MEDIA_TYPE_RECENT_THEME:
+      produce_from_recent_theme (op);
+      break;
+    case RAITV_MEDIA_TYPE_VIDEO:
+    default:
+      g_assert_not_reached ();
+      break;
+    }
+
+}
+
+static void
+grl_raitv_source_search (GrlSource *source,
+                         GrlSourceSearchSpec *ss)
+{
+  RaitvOperation *op = g_slice_new0 (RaitvOperation);
+
+  op->source       = g_object_ref (source);
+  op->cancellable  = g_cancellable_new ();
+  op->length        = grl_operation_options_get_count (ss->options);
+  op->operation_id = ss->operation_id;
+  op->callback     = ss->callback;
+  op->user_data    = ss->user_data;
+  op->skip	   = grl_operation_options_get_skip (ss->options);
+  op->count	   = op->length;
+  op->offset       = 0;
+  op->text	   = ss->text;
+
+  grl_operation_set_data (ss->operation_id, op);
+
+  g_raitv_videos_search(op);
+}
+
+static void
+g_raitv_videos_search(RaitvOperation *op) {
+
+  gchar *start;
+  gchar *url = NULL;
+
+  GrlRaitvSource *source = GRL_RAITV_SOURCE (op->source);
+
+  start = g_strdup_printf ("%u", op->offset);
+
+  url = g_strdup_printf (RAITV_VIDEO_SEARCH, op->text, start);
+
+  GRL_DEBUG ("Starting search request (%s)", url);
+  grl_net_wc_request_async (source->priv->wc,
+                            url,
+                            op->cancellable,
+                            proxy_call_search_grlnet_async_cb,
+                            op);
+  g_free (start);
+  g_free (url);
+
+}
+
+
+static void
+grl_raitv_source_resolve (GrlSource *source,
+                          GrlSourceResolveSpec *rs)
+{
+  gchar *urltarget;
+
+  GRL_DEBUG ("Starting resolve source: url=%s",grl_media_get_url (rs->media));
+
+  if (!GRL_IS_MEDIA_VIDEO (rs->media))
+    return;
+
+  if ( grl_media_get_url (rs->media) != NULL) {
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+    return;
+  }
+
+  RaitvOperation *op = g_slice_new0 (RaitvOperation);
+  op->source       = g_object_ref (source);
+  op->cancellable  = g_cancellable_new ();
+  op->operation_id = rs->operation_id;
+  op->resolveCb     = rs->callback;
+  op->user_data    = rs->user_data;
+  op->media	   = rs->media;
+
+  grl_operation_set_data (rs->operation_id, op);
+
+  urltarget = g_strdup_printf("%s/%s.html","http://www.rai.tv/dl/RaiTV/programmi/media",grl_media_get_id(rs->media));
+
+  GRL_DEBUG ("Opening '%s'", urltarget);
+
+  GrlRaitvSource *self = GRL_RAITV_SOURCE (op->source);
+
+  grl_net_wc_request_async (self->priv->wc,
+                            urltarget,
+                            op->cancellable,
+                            proxy_call_resolve_grlnet_async_cb,
+                            op);
+
+  g_free(urltarget);
+}
+
+
+static void
+grl_raitv_source_cancel (GrlSource *source, guint operation_id)
+{
+  RaitvOperation *op = grl_operation_get_data (operation_id);
+
+  GRL_WARNING ("Cancelling id=%u", operation_id);
+
+  if (!op)
+    {
+      GRL_WARNING ("\tNo such operation id=%u", operation_id);
+    }
+
+  if (op->cancellable) {
+    g_cancellable_cancel (op->cancellable);
+  }
+}

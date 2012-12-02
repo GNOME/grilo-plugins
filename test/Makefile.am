@@ -7,13 +7,19 @@
 
 INCLUDES = @DEPS_CFLAGS@
 
+link_tmdb_plugin:
+	ln -sf $(top_srcdir)/src/tmdb/.libs/libgrltmdb.so && \
+	ln -sf $(top_srcdir)/src/tmdb/grl-tmdb.xml
+
 check_tests = test_tmdb_preconditions \
 	test_tmdb_missing_configuration \
 	test_tmdb_fast_resolution \
 	test_tmdb_full_resolution
 
 # TODO: Add test_local_metadata to check_tests when it runs without errors.
-check_PROGRAMS = test_local_metadata \
+check_PROGRAMS = \
+	link_tmdb_plugin \
+	test_local_metadata \
 	$(check_tests)
 TESTS =	$(check_tests)
 

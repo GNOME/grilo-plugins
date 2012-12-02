@@ -69,6 +69,7 @@ int
 main(int argc, char **argv)
 {
   g_setenv ("GRL_PLUGIN_LIST", TMDB_PLUGIN_ID, TRUE);
+  g_setenv ("GRL_PLUGIN_PATH", g_getenv ("PWD"), TRUE);
 
   /* We must set this before calling grl_init.
    * See https://bugzilla.gnome.org/show_bug.cgi?id=685967#c17

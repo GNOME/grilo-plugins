@@ -45,8 +45,6 @@ GRL_LOG_DOMAIN(tmdb_log_domain);
 
 #define SHOULD_RESOLVE(key) \
     g_hash_table_contains (closure->keys, GRLKEYID_TO_POINTER ((key)))
-#define SHOULD_RESOLVE_SLOW(key) \
-    (closure->slow && SHOULD_RESOLVE (key))
 
 enum {
   PROP_0,
@@ -240,8 +238,6 @@ grl_tmdb_source_init (GrlTmdbSource *self)
   g_hash_table_add (self->priv->supported_keys,
                     GRLKEYID_TO_POINTER (GRL_METADATA_KEY_RATING));
   g_hash_table_add (self->priv->supported_keys,
-                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_PUBLICATION_DATE));
-  g_hash_table_add (self->priv->supported_keys,
                     GRLKEYID_TO_POINTER (GRL_TMDB_METADATA_KEY_TMDB_ID));
 
   /* Slow keys */
@@ -267,6 +263,14 @@ grl_tmdb_source_init (GrlTmdbSource *self)
                     GRLKEYID_TO_POINTER (GRL_METADATA_KEY_PRODUCER));
   g_hash_table_add (self->priv->slow_keys,
                     GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DIRECTOR));
+
+  /* The publication date is both available as fast key in the movie details,
+   * but also as more detailed information as regional release date. To avoid
+   * confusion in clients that do a fast resolve first and merge slow data
+   * later we hide the fast version.
+   */
+  g_hash_table_add (self->priv->slow_keys,
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_PUBLICATION_DATE));
 
   self->priv->wc = grl_net_wc_new ();
   grl_net_wc_set_throttling (self->priv->wc, 1);
@@ -660,7 +664,7 @@ on_request_ready (GObject *source,
     {
       if (SHOULD_RESOLVE (GRL_METADATA_KEY_REGION) ||
               SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE) ||
-              SHOULD_RESOLVE_SLOW (GRL_METADATA_KEY_PUBLICATION_DATE)) {
+              SHOULD_RESOLVE (GRL_METADATA_KEY_PUBLICATION_DATE)) {
         values = grl_tmdb_request_get_list_with_filter (request,
                                                         "$.countries[*]",
                                                         NULL);
@@ -773,16 +777,6 @@ on_search_ready (GObject *source,
   closure->id = g_value_get_int64 (value);
   g_value_unset (value);
 
-  if (SHOULD_RESOLVE (GRL_METADATA_KEY_PUBLICATION_DATE)) {
-    value = grl_tmdb_request_get (request, "$.results[0].release_date");
-    if (value != NULL) {
-      GDateTime *pubdate = parse_date (g_value_get_string (value));
-      grl_media_set_publication_date (closure->rs->media, pubdate);
-      g_date_time_unref (pubdate);
-      g_value_unset (value);
-    }
-  }
-
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_RATING)) {
     value = grl_tmdb_request_get (request, "$.results[0].vote_average");
     if (value != NULL) {
@@ -882,7 +876,7 @@ on_search_ready (GObject *source,
 
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_REGION) ||
           SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE) ||
-          SHOULD_RESOLVE_SLOW (GRL_METADATA_KEY_PUBLICATION_DATE))
+          SHOULD_RESOLVE (GRL_METADATA_KEY_PUBLICATION_DATE))
     g_queue_push_tail (closure->pending_requests,
                        create_and_run_request (self,
                                                closure,

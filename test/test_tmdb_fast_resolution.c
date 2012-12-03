@@ -41,7 +41,6 @@ test (void)
 {
   GrlKeyID backdrop, posters;
   GrlRegistry *registry;
-  GDateTime *date, *orig;
   GrlOperationOptions *options = NULL;
   GrlMedia *media = NULL;
   GError *error = NULL;
@@ -83,10 +82,8 @@ test (void)
 
   g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), posters), ==,
                    "http://cf2.imgobject.com/t/p/original/22ngurXbLqab7Sko6aTSdwOCe5W.jpg");
-  orig = g_date_time_new_utc (2009, 12, 25, 0, 0, 0.0);
-  date = grl_media_get_publication_date (media);
-  g_assert_cmpint (g_date_time_compare (orig, date), ==, 0);
-  g_date_time_unref (orig);
+
+  g_assert (grl_media_get_publication_date (media) == NULL);
 
   g_object_unref (media);
   media = NULL;

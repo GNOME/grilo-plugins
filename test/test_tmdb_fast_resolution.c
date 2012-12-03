@@ -39,7 +39,7 @@ static gboolean compare_floats(gfloat a, gfloat b)
 static void
 test (void)
 {
-  GrlKeyID backdrop, original_title, posters;
+  GrlKeyID backdrop, posters;
   GrlRegistry *registry;
   GDateTime *date, *orig;
   GrlOperationOptions *options = NULL;
@@ -51,7 +51,6 @@ test (void)
   registry = grl_registry_get_default ();
   backdrop = grl_registry_lookup_metadata_key (registry, "tmdb-backdrop");
   g_assert_cmpint (backdrop, !=, GRL_METADATA_KEY_INVALID);
-  original_title = GRL_METADATA_KEY_ORIGINAL_TITLE;
   posters = grl_registry_lookup_metadata_key (registry, "tmdb-poster");
   g_assert_cmpint (posters, !=, GRL_METADATA_KEY_INVALID);
 
@@ -76,7 +75,7 @@ test (void)
 
   /* Check if we have everything we need */
   g_assert (compare_floats (grl_media_get_rating (media), 3.8f));
-  g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), original_title), ==,
+  g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), GRL_METADATA_KEY_ORIGINAL_TITLE), ==,
                    "Sherlock Holmes");
   /* There's only one poster/backdrop in the search result */
   g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), backdrop), ==,

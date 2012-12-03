@@ -44,8 +44,7 @@ test (void)
 {
   GError *error = NULL;
   GrlRegistry *registry;
-  GrlKeyID backdrop, posters, imdb_id, keywords, performer, producer;
-  GrlKeyID director, original_title;
+  GrlKeyID backdrop, posters, imdb_id;
   GrlOperationOptions *options = NULL;
   GrlMedia *media = NULL;
   GDateTime *date, *orig;
@@ -59,11 +58,6 @@ test (void)
   g_assert_cmpint (posters, !=, GRL_METADATA_KEY_INVALID);
   imdb_id = grl_registry_lookup_metadata_key (registry, "tmdb-imdb-id");
   g_assert_cmpint (imdb_id, !=, GRL_METADATA_KEY_INVALID);
-  keywords = GRL_METADATA_KEY_KEYWORD;
-  performer = GRL_METADATA_KEY_PERFORMER;
-  producer = GRL_METADATA_KEY_PRODUCER;
-  director = GRL_METADATA_KEY_DIRECTOR;
-  original_title = GRL_METADATA_KEY_ORIGINAL_TITLE;
 
   media = grl_media_video_new ();
   g_assert (media != NULL);
@@ -82,7 +76,7 @@ test (void)
 
   /* Check if we got everything we need for the fast resolution */
   g_assert (compare_floats (grl_media_get_rating (media), 3.8f));
-  g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), original_title), ==,
+  g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), GRL_METADATA_KEY_ORIGINAL_TITLE), ==,
                    "Sherlock Holmes");
   /* There's only one poster/backdrop in the search result */
   g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), backdrop), ==,
@@ -108,14 +102,14 @@ test (void)
   */
 
   g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), imdb_id), ==, "tt0988045");
-  g_assert_cmpint (grl_data_length (GRL_DATA (media), keywords), ==, 15);
+  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_KEYWORD), ==, 15);
 
-  g_assert_cmpint (grl_data_length (GRL_DATA (media), performer), ==, 10);
+  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_PERFORMER), ==, 10);
 
-  g_assert_cmpint (grl_data_length (GRL_DATA (media), producer), ==, 9);
+  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_PRODUCER), ==, 9);
 
-  g_assert_cmpint (grl_data_length (GRL_DATA (media), director), ==, 1);
-  g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), director), ==, "Guy Ritchie");
+  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_DIRECTOR), ==, 1);
+  g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), GRL_METADATA_KEY_DIRECTOR), ==, "Guy Ritchie");
 
   /* TODO: See https://bugzilla.gnome.org/show_bug.cgi?id=679686#c13
   g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), age_certs), ==,

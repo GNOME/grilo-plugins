@@ -30,7 +30,7 @@ TESTS =	$(check_tests)
 #
 
 test_local_metadata_defines = \
-	-DGRILO_PLUGINS_TESTS_LOCAL_METADATA_PLUGIN_PATH=\""$(abs_top_srcdir)/src/local-metadata/.libs/"\"
+	-DGRILO_PLUGINS_TESTS_LOCAL_METADATA_PLUGIN_PATH=\""$(abs_top_builddir)/src/local-metadata/.libs/"\"
 
 test_local_metadata_SOURCES =  \
 	test_local_metadata.c
@@ -52,7 +52,7 @@ test_local_metadata_CFLAGS = \
 # but it is cleaner to restrict the test to just one plugin by doing it in the code.
 # Note that the tmdb plugin Makefile.am copies the .xml file into .libs so we can use the plugin.
 test_tmdb_defines = \
-	-DGRILO_PLUGINS_TESTS_TMDB_PLUGIN_PATH=\""$(abs_top_srcdir)/src/tmdb/.libs/"\" \
+	-DGRILO_PLUGINS_TESTS_TMDB_PLUGIN_PATH=\""$(abs_top_builddir)/src/tmdb/.libs/"\" \
 	-DGRILO_PLUGINS_TESTS_TMDB_DATA_PATH=\""$(abs_top_srcdir)/test/test_data/tmdb/"\"
 
 test_tmdb_preconditions_SOURCES = \

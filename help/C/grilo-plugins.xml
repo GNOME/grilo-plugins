@@ -147,7 +147,7 @@
 
 <para>File: <ulink url="&url_examples_base;example-tmdb.c"><filename>example-tmdb.c</filename></ulink></para>
 <programlisting>
-<xi:include  href="../../examples/example-tmdb.c" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include  href="../examples/example-tmdb.c" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 </programlisting>
 
 </sect1>

@@ -1,9 +1,11 @@
+SUBDIRS = examples
+
 include $(top_srcdir)/gnome-doc-utils.make
 dist-hook: doc-dist-hook
 
 DOC_MODULE = grilo-plugins
 DOC_ENTITIES = legal.xml
-DOC_INCLUDES = ../../examples/example-tmdb.c
+DOC_INCLUDES = ../examples/example-tmdb.c
 DOC_FIGURES =
 
 DOC_LINGUAS =

@@ -40,7 +40,7 @@ compare_floats(gfloat a, gfloat b)
   return fabs(a - b) < DBL_EPSILON;
 }
 
-const char *iso_date (const GDateTime *date, char **strbuf)
+static const char *iso_date (const GDateTime *date, char **strbuf)
 {
   if (*strbuf)
     g_free (*strbuf);

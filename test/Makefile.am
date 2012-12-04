@@ -10,6 +10,7 @@ INCLUDES = @DEPS_CFLAGS@
 check_tests = test_tmdb_preconditions \
 	test_tmdb_missing_configuration \
 	test_tmdb_fast_resolution \
+	test_tmdb_fast_resolution_by_id \
 	test_tmdb_full_resolution
 
 # TODO: Add test_local_metadata to check_tests when it runs without errors.
@@ -77,6 +78,14 @@ test_tmdb_fast_resolution_SOURCES = \
 test_tmdb_fast_resolution_LDADD = \
 	@DEPS_LIBS@
 test_tmdb_fast_resolution_CFLAGS = \
+	-DPREFIX=$(prefix) $(test_tmdb_defines)
+
+test_tmdb_fast_resolution_by_id_SOURCES = \
+	test_tmdb_fast_resolution_by_id.c \
+	test_tmdb_utils.h test_tmdb_utils.c
+test_tmdb_fast_resolution_by_id_LDADD = \
+	@DEPS_LIBS@
+test_tmdb_fast_resolution_by_id_CFLAGS = \
 	-DPREFIX=$(prefix) $(test_tmdb_defines)
 
 test_tmdb_full_resolution_SOURCES = \

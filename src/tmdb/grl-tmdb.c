@@ -25,6 +25,7 @@
 #endif
 
 #include <string.h>
+#include <stdlib.h>
 
 #include <grilo.h>
 #include <net/grl-net.h>
@@ -76,7 +77,13 @@ struct _ResolveClosure {
   gboolean slow;
 };
 
+struct _PendingRequest {
+  GrlTmdbRequest *request;
+  GAsyncReadyCallback callback;
+};
+
 typedef struct _ResolveClosure ResolveClosure;
+typedef struct _PendingRequest PendingRequest;
 
 static GrlTmdbSource *grl_tmdb_source_new (const char *api_key);
 
@@ -112,6 +119,8 @@ register_metadata_key (GrlRegistry *registry,
                        const char *blurb);
 
 static void resolve_closure_free (ResolveClosure *closure);
+static void resolve_slow_details (ResolveClosure *closure);
+
 /* =================== GrlTmdbMetadata Plugin  =============== */
 
 
@@ -227,6 +236,8 @@ grl_tmdb_source_init (GrlTmdbSource *self)
   self->priv->slow_keys = g_hash_table_new (g_direct_hash, g_direct_equal);
 
   /* Fast keys */
+  g_hash_table_add (self->priv->supported_keys,
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE));
   g_hash_table_add (self->priv->supported_keys,
                     GRLKEYID_TO_POINTER (GRL_METADATA_KEY_THUMBNAIL));
   g_hash_table_add (self->priv->supported_keys,
@@ -398,11 +409,71 @@ resolve_closure_callback (ResolveClosure *closure,
     g_error_free (error);
 }
 
+static void queue_request (ResolveClosure *closure,
+                           GrlTmdbRequest *request,
+                           GAsyncReadyCallback callback)
+{
+  PendingRequest *pending_request;
+
+  pending_request = g_slice_new0 (PendingRequest);
+  pending_request->request = request;
+  pending_request->callback = callback;
+
+  g_queue_push_tail (closure->pending_requests, pending_request);
+}
+
+static int run_pending_requests (ResolveClosure *closure,
+                                 int max_num_request)
+{
+  int num_requests = 0;
+  GList *it;
+
+  for (it = closure->pending_requests->head; it; it = it->next) {
+    if (num_requests >= max_num_request)
+      break;
+
+    PendingRequest *const pending_request = it->data;
+
+    grl_tmdb_request_run_async (pending_request->request,
+                                closure->self->priv->wc,
+                                pending_request->callback,
+                                NULL,
+                                closure);
+
+    ++num_requests;
+  }
+
+  return num_requests;
+}
+
+static void pending_request_free (gpointer data)
+{
+  PendingRequest *const pending_request = data;
+  g_object_unref (pending_request->request);
+  g_slice_free (PendingRequest, pending_request);
+}
+
+static void remove_request (ResolveClosure *closure,
+                            GrlTmdbRequest *request)
+{
+  GList *it;
+
+  for (it = closure->pending_requests->head; it; it = it->next) {
+    PendingRequest *const pending_request = it->data;
+
+    if (pending_request->request == request) {
+      g_queue_unlink (closure->pending_requests, it);
+      pending_request_free (pending_request);
+      break;
+    }
+  }
+}
+
 static void
 resolve_closure_free (ResolveClosure *closure)
 {
   g_object_unref (closure->self);
-  g_queue_free_full (closure->pending_requests, g_object_unref);
+  g_queue_free_full (closure->pending_requests, pending_request_free);
   g_hash_table_destroy (closure->keys);
   g_slice_free (ResolveClosure, closure);
 }
@@ -583,6 +654,60 @@ on_request_ready (GObject *source,
           g_value_unset (value);
         }
       }
+
+      if (SHOULD_RESOLVE (GRL_METADATA_KEY_RATING)) {
+        value = grl_tmdb_request_get (request, "$.vote_average");
+        if (value != NULL) {
+          grl_media_set_rating (closure->rs->media,
+                                (float) g_value_get_double (value),
+                                10.0f);
+          g_value_unset (value);
+        }
+      }
+
+      if (SHOULD_RESOLVE (GRL_METADATA_KEY_ORIGINAL_TITLE)) {
+        value = grl_tmdb_request_get (request, "$.original_title");
+        if (value != NULL) {
+          grl_media_video_set_original_title (GRL_MEDIA_VIDEO (closure->rs->media),
+                                              g_value_get_string (value));
+          g_value_unset (value);
+        }
+      }
+
+      if (SHOULD_RESOLVE (GRL_METADATA_KEY_TITLE)) {
+        value = grl_tmdb_request_get (request, "$.title");
+        if (value != NULL) {
+          grl_media_set_title (closure->rs->media, g_value_get_string (value));
+          g_value_unset (value);
+        }
+      }
+
+      if (!closure->slow) {
+        /* Add posters first and backdrops later.
+         * Posters more likely make a good thumbnail than backdrops.
+         */
+        if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER)) {
+          value = grl_tmdb_request_get (request, "$.poster_path");
+          if (value != NULL) {
+              add_image (closure->self, closure->rs->media,
+                         GRL_TMDB_METADATA_KEY_POSTER,
+                         g_value_get_string (value));
+
+              g_value_unset (value);
+          }
+        }
+
+        if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROP)) {
+          value = grl_tmdb_request_get (request, "$.backdrop_path");
+          if (value != NULL) {
+            add_image (closure->self, closure->rs->media,
+                       GRL_TMDB_METADATA_KEY_BACKDROP,
+                       g_value_get_string (value));
+
+            g_value_unset (value);
+          }
+        }
+      }
     }
     break;
     case GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES:
@@ -709,32 +834,13 @@ out:
   if (error != NULL) {
     g_error_free (error);
   }
-  g_queue_remove (closure->pending_requests, request);
-  g_object_unref (request);
+
+  remove_request (closure, request);
 
   if (g_queue_is_empty (closure->pending_requests)) {
     resolve_closure_callback (closure, NULL);
     resolve_closure_free (closure);
   }
-}
-
-static GrlTmdbRequest *
-create_and_run_request (GrlTmdbSource *self,
-                        ResolveClosure *closure,
-                        GrlTmdbRequestDetail id)
-{
-  GrlTmdbRequest *request;
-
-  request = grl_tmdb_request_new_details (self->priv->api_key,
-                                          id,
-                                          closure->id);
-  grl_tmdb_request_run_async (request,
-                              self->priv->wc,
-                              on_request_ready,
-                              NULL,
-                              closure);
-
-  return request;
 }
 
 static void
@@ -744,7 +850,6 @@ on_search_ready (GObject *source,
 {
   ResolveClosure *closure = (ResolveClosure *) user_data;
   GrlTmdbRequest *request = GRL_TMDB_REQUEST (source);
-  GrlTmdbSource *self = closure->self;
   GValue *value;
   GError *error = NULL;
 
@@ -797,6 +902,7 @@ on_search_ready (GObject *source,
                             10.0f);
       g_value_unset (value);
     }
+    g_hash_table_remove (closure->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_RATING));
   }
 
   /* Add posters first and backdrops later.
@@ -810,7 +916,6 @@ on_search_ready (GObject *source,
                    g_value_get_string (value));
 
         g_value_unset (value);
-
     }
   }
 
@@ -825,15 +930,6 @@ on_search_ready (GObject *source,
     }
   }
 
-  if (SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE)) {
-    value = grl_tmdb_request_get (request, "$.results[0].adult");
-    if (value != NULL) {
-      if (g_value_get_boolean (value))
-        grl_media_set_certificate (closure->rs->media, "adult");
-      g_value_unset (value);
-    }
-  }
-
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_ORIGINAL_TITLE)) {
     value = grl_tmdb_request_get (request, "$.results[0].original_title");
     if (value != NULL) {
@@ -841,58 +937,62 @@ on_search_ready (GObject *source,
                                           g_value_get_string (value));
       g_value_unset (value);
     }
+    g_hash_table_remove (closure->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ORIGINAL_TITLE));
   }
 
-  g_queue_pop_head (closure->pending_requests);
-  g_object_unref (source);
+  remove_request (closure, request);
 
-  /* No need to do additional requests */
-  if (!closure->slow) {
-    resolve_closure_callback (closure, NULL);
-    resolve_closure_free (closure);
-    return;
+  /* Check if we need to do additional requests. */
+  if (closure->slow) {
+    resolve_slow_details (closure);
+
+    if (run_pending_requests (closure, G_MAXINT) > 0)
+      return;
   }
 
-  /* We need to do additional requests. Check if we should have resolved
-   * images and try to get some more */
+  resolve_closure_callback (closure, NULL);
+  resolve_closure_free (closure);
+}
+
+static void queue_detail_request (ResolveClosure *closure,
+                                  GrlTmdbRequestDetail detail)
+{
+  GrlTmdbRequest *request;
+
+  request = grl_tmdb_request_new_details (closure->self->priv->api_key,
+                                          detail, closure->id);
+
+  queue_request (closure, request, on_request_ready);
+}
+
+static void resolve_slow_details (ResolveClosure *closure)
+{
   if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROP) ||
       SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER))
-    g_queue_push_tail (closure->pending_requests,
-                       create_and_run_request (self,
-                                               closure,
-                                               GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES));
+    queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES);
 
-  if (SHOULD_RESOLVE (GRL_METADATA_KEY_GENRE) ||
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_RATING) ||
+      SHOULD_RESOLVE (GRL_METADATA_KEY_ORIGINAL_TITLE) ||
+      SHOULD_RESOLVE (GRL_METADATA_KEY_TITLE) ||
+      SHOULD_RESOLVE (GRL_METADATA_KEY_GENRE) ||
       SHOULD_RESOLVE (GRL_METADATA_KEY_STUDIO) ||
       SHOULD_RESOLVE (GRL_METADATA_KEY_SITE) ||
       SHOULD_RESOLVE (GRL_METADATA_KEY_DESCRIPTION) ||
       SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_IMDB_ID))
-    g_queue_push_tail (closure->pending_requests,
-                       create_and_run_request (self,
-                                               closure,
-                                               GRL_TMDB_REQUEST_DETAIL_MOVIE));
+    queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE);
 
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_KEYWORD))
-    g_queue_push_tail (closure->pending_requests,
-                       create_and_run_request (self,
-                                               closure,
-                                               GRL_TMDB_REQUEST_DETAIL_MOVIE_KEYWORDS));
+    queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE_KEYWORDS);
 
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_PERFORMER) ||
       SHOULD_RESOLVE (GRL_METADATA_KEY_PRODUCER) ||
       SHOULD_RESOLVE (GRL_METADATA_KEY_DIRECTOR))
-    g_queue_push_tail (closure->pending_requests,
-                       create_and_run_request (self,
-                                               closure,
-                                               GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST));
+    queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST);
 
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_REGION) ||
           SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE) ||
           SHOULD_RESOLVE (GRL_METADATA_KEY_PUBLICATION_DATE))
-    g_queue_push_tail (closure->pending_requests,
-                       create_and_run_request (self,
-                                               closure,
-                                               GRL_TMDB_REQUEST_DETAIL_MOVIE_RELEASE_INFO));
+    queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE_RELEASE_INFO);
 }
 
 static void
@@ -905,6 +1005,8 @@ on_configuration_ready (GObject *source,
   GrlTmdbSource *self = closure->self;
   GError *error = NULL;
   GValue *value;
+
+  GRL_DEBUG ("Configuration request ready...");
 
   if (!grl_tmdb_request_run_finish (GRL_TMDB_REQUEST (source),
                                     result,
@@ -926,7 +1028,8 @@ on_configuration_ready (GObject *source,
     return;
   }
 
-  self->priv->configuration = g_queue_pop_head (closure->pending_requests);
+  self->priv->configuration = g_object_ref (request);
+  remove_request (closure, request);
 
   value = grl_tmdb_request_get (request, "$.images.base_url");
   if (value != NULL) {
@@ -941,11 +1044,7 @@ on_configuration_ready (GObject *source,
     ResolveClosure *pending_closure;
 
     pending_closure = g_queue_pop_head (self->priv->pending_resolves);
-    grl_tmdb_request_run_async (g_queue_peek_head (pending_closure->pending_requests),
-                                self->priv->wc,
-                                on_search_ready,
-                                NULL,
-                                pending_closure);
+    run_pending_requests (pending_closure, G_MAXINT);
   }
 }
 
@@ -1011,8 +1110,9 @@ grl_tmdb_source_may_resolve (GrlSource *source,
     return FALSE;
   }
 
-  /* We can do nothing without a title */
-  if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_TITLE)) {
+  /* We can do nothing without a title or the movie-id */
+  if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_TITLE) &&
+          !grl_data_has_key (GRL_DATA (media), GRL_TMDB_METADATA_KEY_TMDB_ID)) {
     if (!missing_keys)
       *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, NULL);
 
@@ -1028,9 +1128,10 @@ grl_tmdb_source_resolve (GrlSource *source,
 {
   ResolveClosure *closure;
   GrlTmdbRequest *request;
-  GAsyncReadyCallback callback;
-  const char *title;
+  const char *title = NULL;
+  const char *str_movie_id;
   GrlTmdbSource *self = GRL_TMDB_SOURCE (source);
+  guint64 movie_id = 0;
   GList *it;
 
   if (!GRL_IS_MEDIA_VIDEO (rs->media)) {
@@ -1039,9 +1140,19 @@ grl_tmdb_source_resolve (GrlSource *source,
     return;
   }
 
-  title = grl_media_get_title (rs->media);
-  if (title == NULL) {
-    /* Can't search for anything without a title ... */
+  /* Prefer resolving by movie-id: This is more reliable and saves the search query. */
+  str_movie_id = grl_data_get_string (GRL_DATA (rs->media),
+                                      GRL_TMDB_METADATA_KEY_TMDB_ID);
+
+  if (str_movie_id)
+    movie_id = strtoull (str_movie_id, NULL, 10);
+
+  /* Try title if no movie-id could be found. */
+  if (movie_id == 0)
+    title = grl_media_get_title (rs->media);
+
+  if (movie_id == 0 && title == NULL) {
+    /* Can't search for anything without a title or the movie-id ... */
     rs->callback (source, rs->operation_id, rs->media, rs->user_data, NULL);
     return;
   }
@@ -1054,8 +1165,8 @@ grl_tmdb_source_resolve (GrlSource *source,
   closure->pending_requests = g_queue_new ();
   closure->keys = g_hash_table_new (g_direct_hash, g_direct_equal);
   closure->slow = FALSE;
-  request = grl_tmdb_request_new_search (closure->self->priv->api_key, title);
-  g_queue_push_tail (closure->pending_requests, request);
+  closure->id = movie_id;
+
   it = rs->keys;
 
   /* Copy keys to list for faster lookup */
@@ -1085,17 +1196,24 @@ grl_tmdb_source_resolve (GrlSource *source,
     GRL_DEBUG ("Fetching TMDb configuration...");
     /* We need to fetch TMDb's configuration for the image paths */
     request = grl_tmdb_request_new_configuration (closure->self->priv->api_key);
-    g_queue_push_head (closure->pending_requests, request);
-    callback = on_configuration_ready;
+    g_assert (g_queue_is_empty (closure->pending_requests));
+    queue_request (closure, request, on_configuration_ready);
     self->priv->config_pending = TRUE;
-  } else {
-    GRL_DEBUG ("Running initial search...");
-    callback = on_search_ready;
   }
 
-  grl_tmdb_request_run_async (g_queue_peek_head (closure->pending_requests),
-                              closure->self->priv->wc,
-                              callback,
-                              NULL,
-                              closure);
+  if (title) {
+    GRL_DEBUG ("Running initial search...");
+    request = grl_tmdb_request_new_search (closure->self->priv->api_key, title);
+    queue_request (closure, request, on_search_ready);
+  } else {
+    GRL_DEBUG ("Running lookup by id...");
+
+    if (closure->slow) {
+      resolve_slow_details (closure);
+    } else {
+      queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE);
+    }
+  }
+
+  run_pending_requests (closure, 1);
 }

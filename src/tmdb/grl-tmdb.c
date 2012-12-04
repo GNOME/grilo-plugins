@@ -488,17 +488,29 @@ add_image (GrlTmdbSource *self,
            GrlKeyID       detail_key,
            const char    *image_path)
 {
-    SoupURI *uri;
-    char *str;
+  SoupURI *uri;
+  char *str;
+  int i, l;
 
-    str = g_strconcat ("original", image_path, NULL);
-    uri = soup_uri_new_with_base (self->priv->image_base_uri, str);
-    g_free (str);
+  str = g_strconcat ("original", image_path, NULL);
+  uri = soup_uri_new_with_base (self->priv->image_base_uri, str);
+  g_free (str);
 
-    str = soup_uri_to_string (uri, FALSE);
+  str = soup_uri_to_string (uri, FALSE);
+
+  l = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_THUMBNAIL);
+
+  for (i = 0; i < l; ++i) {
+    if (g_strcmp0 (grl_media_get_thumbnail_nth (media, i), str) == 0)
+      break;
+  }
+
+  if (i == l) {
     grl_media_add_thumbnail (media, str);
     grl_data_add_string (GRL_DATA (media), detail_key, str);
-    g_free (str);
+  }
+
+  g_free (str);
 }
 
 static void

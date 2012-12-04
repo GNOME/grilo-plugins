@@ -28,7 +28,7 @@ tmdbxml_DATA	= $(TMDB_PLUGIN_ID).xml
 # because grilo expects the .so and .xml files to be in 
 # the same directory:
 copy-xml-to-libs-dir: libgrltmdb.la
-	cp $(tmdbxml_DATA) $(builddir)/.libs/
+	cp $(srcdir)/$(tmdbxml_DATA) $(builddir)/.libs/
 
 all-local: copy-xml-to-libs-dir
 

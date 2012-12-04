@@ -85,10 +85,7 @@ struct OperationSpec {
 };
 
 struct SourceInfo {
-  gchar *source_id;
-  gchar *source_name;
-  GUPnPDeviceProxy* device;
-  GUPnPServiceProxy* service;
+  GrlUpnpSource *source;
   GrlPlugin *plugin;
 };
 
@@ -141,6 +138,7 @@ static void device_unavailable_cb (GUPnPControlPoint *cp,
 static GHashTable *key_mapping = NULL;
 static GHashTable *filter_key_mapping = NULL;
 static GUPnPContextManager *context_manager = NULL;
+static GList *pending_sources = NULL;
 
 /* =================== UPnP Plugin  =============== */
 
@@ -265,10 +263,7 @@ build_source_id (const gchar *udn)
 static void
 free_source_info (struct SourceInfo *info)
 {
-  g_free (info->source_id);
-  g_free (info->source_name);
-  g_object_unref (info->device);
-  g_object_unref (info->service);
+  g_object_unref (info->source);
   g_object_unref (info->plugin);
   g_slice_free (struct SourceInfo, info);
 }
@@ -311,10 +306,7 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
 {
   GError *error = NULL;
   gchar *caps = NULL;
-  gchar *name;
-  GrlUpnpSource *source;
-  gchar *source_id;
-  GrlRegistry *registry;
+  GrlSource *source;
   struct SourceInfo *source_info;
   gboolean result;
 
@@ -331,33 +323,29 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
   }
 
   source_info = (struct SourceInfo *) user_data;
-  name = source_info->source_name;
-  source_id = source_info->source_id;
 
-  registry = grl_registry_get_default ();
-  if (grl_registry_lookup_source (registry, source_id)) {
-    GRL_DEBUG ("A source with id '%s' is already registered. Skipping...",
-               source_id);
+  /* Check if source has been removed (UPnP device not available) */
+  if (!g_list_find (pending_sources, source_info->source)) {
     goto free_resources;
   }
+  pending_sources = g_list_remove (pending_sources, source_info->source);
 
-  source = grl_upnp_source_new (source_id, name);
-  source->priv->device = g_object_ref (source_info->device);
-  source->priv->service = g_object_ref (source_info->service);
-
-  GRL_DEBUG ("Search caps for source '%s': '%s'", name, caps);
+  source = GRL_SOURCE (source_info->source);
 
   if (caps && caps[0] != '\0') {
-    GRL_DEBUG ("Setting search enabled for source '%s'", name );
-    source->priv->search_enabled = TRUE;
+    GRL_DEBUG ("Setting search enabled for source '%s'",
+               grl_source_get_name (source));
+    source_info->source->priv->search_enabled = TRUE;
   } else {
-    GRL_DEBUG ("Setting search disabled for source '%s'", name );
+    GRL_DEBUG ("Setting search disabled for source '%s'",
+               grl_source_get_name (source));
   }
 
-  grl_registry_register_source (registry,
+  grl_registry_register_source (grl_registry_get_default (),
                                 source_info->plugin,
-                                GRL_SOURCE (source),
+                                source,
                                 NULL);
+
 
  free_resources:
   g_free (caps);
@@ -431,19 +419,23 @@ device_available_cb (GUPnPControlPoint *cp,
 
   /* We got a valid UPnP source */
   /* Now let's check if it supports search operations before registering */
+  GrlUpnpSource *source = grl_upnp_source_new (source_id, name);
+  source->priv->device = g_object_ref (device);
+  source->priv->service = g_object_ref (service);
+
   struct SourceInfo *source_info = g_slice_new0 (struct SourceInfo);
-  source_info->source_id = g_strdup (source_id);
-  source_info->source_name = name;
-  source_info->device = g_object_ref (device);
-  source_info->service = g_object_ref (service);
+  source_info->source = g_object_ref (source);
   source_info->plugin = g_object_ref ((GrlPlugin *) user_data);
+
+  pending_sources = g_list_prepend (pending_sources, source);
 
   if (!gupnp_service_proxy_begin_action (GUPNP_SERVICE_PROXY (service),
 					 "GetSearchCapabilities",
 					 gupnp_search_caps_cb,
 					 source_info,
 					 NULL)) {
-    GrlUpnpSource *source = grl_upnp_source_new (source_id, name);
+    pending_sources = g_list_remove (pending_sources, source);
+    free_source_info (source_info);
     GRL_WARNING ("Failed to start GetCapabilitiesSearch action");
     GRL_DEBUG ("Setting search disabled for source '%s'", name );
     registry = grl_registry_get_default ();
@@ -451,12 +443,18 @@ device_available_cb (GUPnPControlPoint *cp,
                                   source_info->plugin,
                                   GRL_SOURCE (source),
                                   NULL);
-    free_source_info (source_info);
   }
 
  free_resources:
   g_object_unref (service);
   g_free (source_id);
+}
+
+static gint
+source_matches_id (GrlSource *source,
+                   const gchar *source_id)
+{
+  return strcmp (grl_source_get_id (source), source_id);
 }
 
 static void
@@ -468,6 +466,7 @@ device_unavailable_cb (GUPnPControlPoint *cp,
   GrlSource *source;
   GrlRegistry *registry;
   gchar *source_id;
+  GList *source_node;
 
   GRL_DEBUG ("device_unavailable_cb");
 
@@ -476,11 +475,17 @@ device_unavailable_cb (GUPnPControlPoint *cp,
 
   registry = grl_registry_get_default ();
   source_id = build_source_id (udn);
+  /* Check first if source is registered */
   source = grl_registry_lookup_source (registry, source_id);
-  if (!source) {
-    GRL_DEBUG ("No source registered with id '%s', ignoring", source_id);
-  } else {
-    grl_registry_unregister_source (registry, source, NULL);
+  if (source) {
+    GRL_DEBUG ("Unregistered source %s", source_id);
+    g_free (source_id);
+    return;
+  }
+
+  source_node = g_list_find_custom (pending_sources, source_id, (GCompareFunc) source_matches_id);
+  if (source_node) {
+    pending_sources = g_list_delete_link (pending_sources, source_node);
   }
 
   g_free (source_id);

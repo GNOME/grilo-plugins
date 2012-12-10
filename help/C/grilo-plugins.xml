@@ -3,7 +3,7 @@
   "http://docbook.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY legal SYSTEM "legal.xml">
   <!ENTITY url_refdocs_base "http://developer.gnome.org/grilo/unstable/">
-  <!ENTITY url_examples_base "http://git.gnome.org/browse/grilo-plugins/tree/examples/">
+  <!ENTITY url_examples_base "http://git.gnome.org/browse/grilo-plugins/tree/help/examples/">
   <!ENTITY uuml "&#252;" >
   <!ENTITY szlig "&#223;" >
   <!ENTITY verbar "&#124;" >

@@ -1,3 +1,27 @@
+NEW in 0.2.5
+============
+
+  * General
+    * Moved examples/ into help/
+    * Fixed typo in documentation
+    * BGO#689577 - autogen.sh does not pass all arguments correctly to
+      gnome-autogen.sh
+
+  * TMDb plugin
+    * Do not require plugin installed to run the tests
+    * Several fixes and improvements in tests
+    * Publication date is a slow key
+
+  * UPnP plugin
+    * Fixed race condition when creating the sources
+
+  * Contributors to this release:
+    * Evan Nemerson <evan@coeus-group.com>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Mathias Hasselmann <mathias@openismus.com>
+    * Murray Cumming <murrayc@murrayc.com>
+
+
 NEW in 0.2.4
 ============
   * General

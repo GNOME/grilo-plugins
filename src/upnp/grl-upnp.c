@@ -58,13 +58,22 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
 #endif
 
 #define UPNP_SEARCH_SPEC                        \
-  "upnp:class derivedfrom \"object.item\" and " \
+  "%s and "                                     \
   "(dc:title contains \"%s\" or "               \
   "upnp:album contains \"%s\" or "              \
   "upnp:artist contains \"%s\")"
 
-#define UPNP_SEARCH_ALL                         \
+#define UPNP_TYPE_FILTER_ALL                    \
   "upnp:class derivedfrom \"object.item\""
+
+#define UPNP_TYPE_FILTER_AUDIO                        \
+  "upnp:class derivedfrom \"object.item.audioItem\""
+
+#define UPNP_TYPE_FILTER_VIDEO                        \
+  "upnp:class derivedfrom \"object.item.videoItem\""
+
+#define UPNP_TYPE_FILTER_IMAGE                        \
+  "upnp:class derivedfrom \"object.item.imageItem\""
 
 struct _GrlUpnpPrivate {
   GUPnPDeviceProxy* device;
@@ -116,6 +125,9 @@ static void grl_upnp_source_query (GrlSource *source,
 
 static void grl_upnp_source_resolve (GrlSource *source,
                                      GrlSourceResolveSpec *rs);
+
+static GrlCaps *grl_upnp_source_get_caps (GrlSource *source,
+                                          GrlSupportedOps operation);
 
 static gboolean grl_upnp_source_notify_change_start (GrlSource *source,
                                                      GError **error);
@@ -222,6 +234,7 @@ grl_upnp_source_class_init (GrlUpnpSourceClass * klass)
   source_class->search = grl_upnp_source_search;
   source_class->query = grl_upnp_source_query;
   source_class->resolve = grl_upnp_source_resolve;
+  source_class->get_caps = grl_upnp_source_get_caps;
   source_class->notify_change_start = grl_upnp_source_notify_change_start;
   source_class->notify_change_stop = grl_upnp_source_notify_change_stop;
 
@@ -530,13 +543,58 @@ get_upnp_filter (const GList *keys)
 }
 
 static gchar *
-get_upnp_search (const gchar *text)
+get_upnp_type_filter (GrlTypeFilter type_filter)
 {
-  if (text) {
-    return g_strdup_printf (UPNP_SEARCH_SPEC, text, text, text);
-  } else {
-    return g_strdup (UPNP_SEARCH_ALL);
+  GString *filter;
+  gboolean append_or = FALSE;
+
+  if (type_filter == GRL_TYPE_FILTER_ALL) {
+    return g_strdup (UPNP_TYPE_FILTER_ALL);
   }
+
+  filter = g_string_new ("( ");
+
+  if (type_filter & GRL_TYPE_FILTER_AUDIO) {
+    filter = g_string_append (filter, UPNP_TYPE_FILTER_AUDIO);
+    append_or = TRUE;
+  }
+
+  if (type_filter & GRL_TYPE_FILTER_VIDEO) {
+    if (append_or) {
+      filter = g_string_append (filter, " or ");
+    }
+    filter = g_string_append (filter, UPNP_TYPE_FILTER_VIDEO);
+    append_or = TRUE;
+  }
+
+  if (type_filter & GRL_TYPE_FILTER_IMAGE) {
+    if (append_or) {
+      filter = g_string_append (filter, " or ");
+    }
+    filter = g_string_append (filter, UPNP_TYPE_FILTER_IMAGE);
+  }
+
+  filter = g_string_append (filter, " )");
+
+  return g_string_free (filter, FALSE);
+}
+
+static gchar *
+get_upnp_search (GrlTypeFilter type_filter, const gchar *text)
+{
+  gchar *type_filter_string;
+  gchar *full_filter;
+
+  type_filter_string = get_upnp_type_filter (type_filter);
+
+  if (text) {
+    full_filter = g_strdup_printf (UPNP_SEARCH_SPEC, type_filter_string, text, text, text);
+    g_free (type_filter_string);
+  } else {
+    full_filter = type_filter_string;
+  }
+
+  return full_filter;
 }
 
 static void
@@ -1154,7 +1212,8 @@ grl_upnp_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
   upnp_filter = get_upnp_filter (ss->keys);
   GRL_DEBUG ("filter: '%s'", upnp_filter);
 
-  upnp_search = get_upnp_search (ss->text);
+  upnp_search = get_upnp_search (grl_operation_options_get_type_filter (ss->options),
+                                 ss->text);
   GRL_DEBUG ("search: '%s'", upnp_search);
 
   os = g_slice_new0 (struct OperationSpec);
@@ -1324,6 +1383,32 @@ grl_upnp_source_supported_operations (GrlSource *source)
 
   return caps;
 }
+
+static GrlCaps *
+grl_upnp_source_get_caps (GrlSource *source,
+                          GrlSupportedOps operation)
+{
+  static GrlCaps *default_caps = NULL;
+  static GrlCaps *search_caps = NULL;
+
+  if (!default_caps) {
+    default_caps = grl_caps_new ();
+  }
+
+  if (!search_caps) {
+    search_caps = grl_caps_new();
+    if (GRL_UPNP_SOURCE (source)->priv->search_enabled) {
+      grl_caps_set_type_filter (search_caps, GRL_TYPE_FILTER_ALL);
+    }
+  }
+
+  if (operation == GRL_OP_SEARCH) {
+    return search_caps;
+  } else {
+    return default_caps;
+  }
+}
+
 
 static gboolean
 grl_upnp_source_notify_change_start (GrlSource *source,

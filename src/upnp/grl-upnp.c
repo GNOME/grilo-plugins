@@ -85,6 +85,7 @@ struct _GrlUpnpPrivate {
   GUPnPServiceProxy* service;
   GUPnPControlPoint *cp;
   gboolean search_enabled;
+  gboolean browse_filtered_enabled;
   gchar *upnp_name;
 };
 
@@ -350,12 +351,31 @@ gupnp_search_caps_cb (GUPnPServiceProxy *service,
 
   source = GRL_SOURCE (source_info->source);
 
-  if (caps && caps[0] != '\0') {
+  if (caps) {
+    if (g_strcmp0 (caps, "*") == 0) {
+      source_info->source->priv->search_enabled = TRUE;
+      source_info->source->priv->browse_filtered_enabled = TRUE;
+    } else {
+      if (g_strstr_len (caps, -1, "upnp:class")) {
+        if (g_strstr_len (caps, -1, "dc:title") ||
+            g_strstr_len (caps, -1, "upnp:album") ||
+            g_strstr_len (caps, -1, "upnp_artist")) {
+          source_info->source->priv->search_enabled = TRUE;
+        }
+        if (g_strstr_len (caps, -1, "@parentID")) {
+          source_info->source->priv->browse_filtered_enabled = TRUE;
+        }
+      }
+    }
+  }
+
+  if (source_info->source->priv->search_enabled) {
     GRL_DEBUG ("Setting search enabled for source '%s'",
                grl_source_get_name (source));
-    source_info->source->priv->search_enabled = TRUE;
-  } else {
-    GRL_DEBUG ("Setting search disabled for source '%s'",
+  }
+
+  if (source_info->source->priv->browse_filtered_enabled) {
+    GRL_DEBUG ("Setting filtered browse enabled for source '%s'",
                grl_source_get_name (source));
   }
 
@@ -1426,17 +1446,28 @@ static GrlCaps *
 grl_upnp_source_get_caps (GrlSource *source,
                           GrlSupportedOps operation)
 {
-  static GrlCaps *caps = NULL;
+  static GrlCaps *search_caps = NULL;
+  static GrlCaps *browse_caps = NULL;
 
-  if (!caps) {
-    caps = grl_caps_new ();
-
+  if (!search_caps) {
+    search_caps = grl_caps_new ();
     if (GRL_UPNP_SOURCE (source)->priv->search_enabled) {
-      grl_caps_set_type_filter (caps, GRL_TYPE_FILTER_ALL);
+      grl_caps_set_type_filter (search_caps, GRL_TYPE_FILTER_ALL);
     }
   }
 
-  return caps;
+  if (!browse_caps) {
+    browse_caps = grl_caps_new ();
+    if (GRL_UPNP_SOURCE (source)->priv->browse_filtered_enabled) {
+      grl_caps_set_type_filter (browse_caps, GRL_TYPE_FILTER_ALL);
+    }
+  }
+
+  if (operation == GRL_OP_BROWSE) {
+    return browse_caps;
+  } else {
+    return search_caps;
+  }
 }
 
 

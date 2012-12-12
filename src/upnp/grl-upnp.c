@@ -63,6 +63,11 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
   "upnp:album contains \"%s\" or "              \
   "upnp:artist contains \"%s\")"
 
+#define UPNP_BROWSE_SPEC                                 \
+  "( %s or "                                             \
+  "upnp:class derivedfrom \"object.container\" ) and "   \
+  "@parentID = \"%s\""                                   \
+
 #define UPNP_TYPE_FILTER_ALL                    \
   "upnp:class derivedfrom \"object.item\""
 
@@ -593,6 +598,20 @@ get_upnp_search (GrlTypeFilter type_filter, const gchar *text)
   } else {
     full_filter = type_filter_string;
   }
+
+  return full_filter;
+}
+
+
+static gchar *
+get_upnp_browse (GrlTypeFilter type_filter, const gchar *container_id)
+{
+  gchar *type_filter_string;
+  gchar *full_filter;
+
+  type_filter_string = get_upnp_type_filter (type_filter);
+  full_filter = g_strdup_printf (UPNP_BROWSE_SPEC, type_filter_string, container_id);
+  g_free (type_filter_string);
 
   return full_filter;
 }
@@ -1145,7 +1164,9 @@ grl_upnp_source_browse (GrlSource *source,
                         GrlSourceBrowseSpec *bs)
 {
   GUPnPServiceProxyAction* action;
+  GrlTypeFilter filter;
   gchar *upnp_filter;
+  gchar *upnp_browse;
   gchar *container_id;
   GError *error = NULL;
   struct OperationSpec *os;
@@ -1154,6 +1175,7 @@ grl_upnp_source_browse (GrlSource *source,
 
   upnp_filter = get_upnp_filter (bs->keys);
   GRL_DEBUG ("filter: '%s'", upnp_filter);
+
 
   os = g_slice_new0 (struct OperationSpec);
   os->source = bs->source;
@@ -1169,23 +1191,38 @@ grl_upnp_source_browse (GrlSource *source,
     container_id = "0";
   }
 
-  action =
-    gupnp_service_proxy_begin_action (GRL_UPNP_SOURCE (source)->priv->service,
-				      "Browse", gupnp_browse_cb,
-                                      os,
-				      "ObjectID", G_TYPE_STRING,
-                                      container_id,
-				      "BrowseFlag", G_TYPE_STRING,
-                                      "BrowseDirectChildren",
-				      "Filter", G_TYPE_STRING,
-                                      upnp_filter,
-				      "StartingIndex", G_TYPE_UINT,
-                                      os->skip,
-				      "RequestedCount", G_TYPE_UINT,
-                                      os->count,
-				      "SortCriteria", G_TYPE_STRING,
-                                      "",
-				      NULL);
+  /* Check if we need to use underlaying search or browse */
+  filter = grl_operation_options_get_type_filter (bs->options);
+  if (filter != GRL_TYPE_FILTER_ALL) {
+    upnp_browse = get_upnp_browse (filter, container_id);
+  } else {
+    upnp_browse = NULL;
+  }
+
+  if (upnp_browse) {
+    action =
+      gupnp_service_proxy_begin_action (GRL_UPNP_SOURCE (source)->priv->service,
+                                        "Search", gupnp_browse_cb, os,
+                                        "ContainerID", G_TYPE_STRING, container_id,
+                                        "SearchCriteria", G_TYPE_STRING, upnp_browse,
+                                        "Filter", G_TYPE_STRING, upnp_filter,
+                                        "StartingIndex", G_TYPE_UINT, os->skip,
+                                        "RequestedCount", G_TYPE_UINT, os->count,
+                                        "SortCriteria", G_TYPE_STRING, "",
+                                        NULL);
+  } else {
+    action =
+      gupnp_service_proxy_begin_action (GRL_UPNP_SOURCE (source)->priv->service,
+                                        "Browse", gupnp_browse_cb, os,
+                                        "ObjectID", G_TYPE_STRING, container_id,
+                                        "BrowseFlag", G_TYPE_STRING, "BrowseDirectChildren",
+                                        "Filter", G_TYPE_STRING, upnp_filter,
+                                        "StartingIndex", G_TYPE_UINT, os->skip,
+                                        "RequestedCount", G_TYPE_UINT, os->count,
+                                        "SortCriteria", G_TYPE_STRING, "",
+                                        NULL);
+  }
+
   if (!action) {
     error = g_error_new (GRL_CORE_ERROR,
 			 GRL_CORE_ERROR_BROWSE_FAILED,
@@ -1196,6 +1233,7 @@ grl_upnp_source_browse (GrlSource *source,
   }
 
   g_free (upnp_filter);
+  g_free (upnp_browse);
 }
 
 static void
@@ -1388,25 +1426,17 @@ static GrlCaps *
 grl_upnp_source_get_caps (GrlSource *source,
                           GrlSupportedOps operation)
 {
-  static GrlCaps *default_caps = NULL;
-  static GrlCaps *search_caps = NULL;
+  static GrlCaps *caps = NULL;
 
-  if (!default_caps) {
-    default_caps = grl_caps_new ();
-  }
+  if (!caps) {
+    caps = grl_caps_new ();
 
-  if (!search_caps) {
-    search_caps = grl_caps_new();
     if (GRL_UPNP_SOURCE (source)->priv->search_enabled) {
-      grl_caps_set_type_filter (search_caps, GRL_TYPE_FILTER_ALL);
+      grl_caps_set_type_filter (caps, GRL_TYPE_FILTER_ALL);
     }
   }
 
-  if (operation == GRL_OP_SEARCH) {
-    return search_caps;
-  } else {
-    return default_caps;
-  }
+  return caps;
 }
 
 

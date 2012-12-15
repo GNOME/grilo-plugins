@@ -529,11 +529,10 @@ grl_tmdb_request_get (GrlTmdbRequest *self,
                       const char *path)
 {
   JsonNode *node;
+  JsonNode *element;
   GError *error = NULL;
   GValue *value = NULL;
   JsonArray *values;
-
-  value = g_new0 (GValue, 1);
 
   node = json_path_query (path,
                           json_parser_get_root (self->priv->parser),
@@ -546,7 +545,12 @@ grl_tmdb_request_get (GrlTmdbRequest *self,
   }
 
   values = json_node_get_array (node);
-  json_node_get_value (json_array_get_element (values, 0), value);
+  element = json_array_get_element (values, 0);
+
+  if (JSON_NODE_HOLDS_VALUE (element)) {
+    value = g_new0 (GValue, 1);
+    json_node_get_value (element, value);
+  }
 
   json_node_free (node);
 

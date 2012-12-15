@@ -71,8 +71,8 @@ GRL_LOG_DOMAIN_STATIC(raitv_log_domain);
   "&state=1"                                       \
   "&records=%s"                                    \
   "&type=Video"                                    \
-  "&excludeTags=%s"                                \
-  "&tags=%s"
+  "&tags=%s"                                       \
+  "&excludeTags=%s"
 
 #define RAITV_VIDEO_RECENT                            \
   "http://www.rai.it/StatisticheProxy/proxyPost.jsp?" \

@@ -63,4 +63,7 @@ gboolean grl_tracker_source_change_start (GrlSource *source,
 gboolean grl_tracker_source_change_stop (GrlSource *source,
                                          GError **error);
 
+GrlCaps *grl_tracker_source_get_caps (GrlSource *source,
+                                      GrlSupportedOps operation);
+
 #endif /* _GRL_TRACKER_SOURCE_API_H_ */

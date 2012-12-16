@@ -68,7 +68,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "SELECT rdf:type(?urn) %s "                   \
   "WHERE "                                      \
   "{ "                                          \
-  "?urn a nfo:Media . "                         \
+  "%s "                                         \
   "?urn tracker:available ?tr . "               \
   "?urn fts:match '*%s*' . "                    \
   "%s "                                         \
@@ -81,7 +81,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "SELECT rdf:type(?urn) %s "                   \
   "WHERE "                                      \
   "{ "                                          \
-  "?urn a nfo:Media . "                         \
+  "%s "                                         \
   "?urn tracker:available ?tr . "               \
   "%s "                                         \
   "} "                                          \
@@ -110,10 +110,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "WHERE "                                              \
   "{ "                                                  \
   "%s "                                                 \
-  "{ ?urn a nfo:Folder } UNION "                        \
-  "{ ?urn a nfo:Audio } UNION "                         \
-  "{ ?urn a nmm:Photo } UNION "                         \
-  "{ ?urn a nmm:Video } . "                             \
+  "{ ?urn a nfo:Folder } %s "                           \
   "%s "                                                 \
   "FILTER (!bound(nfo:belongsToContainer(?urn))) "      \
   "} "                                                  \
@@ -125,11 +122,8 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "SELECT DISTINCT rdf:type(?urn) %s "                          \
   "WHERE "                                                      \
   "{ "                                                          \
-  "%s "                                                         \
-  "{ ?urn a nfo:Folder } UNION "                                \
-  "{ ?urn a nfo:Audio } UNION "                                 \
-  "{ ?urn a nmm:Photo } UNION "                                 \
-  "{ ?urn a nmm:Video } . "                                     \
+    "%s "                                                       \
+  "{ ?urn a nfo:Folder } %s "                                   \
   "%s "                                                         \
   "FILTER(tracker:id(nfo:belongsToContainer(?urn)) = %s) "      \
   "} "                                                          \
@@ -239,6 +233,48 @@ fill_grilo_media_from_sparql (GrlTrackerSource    *source,
         break;
     }
   }
+}
+
+static gchar *
+get_sparql_type_filter (GrlOperationOptions *options,
+                        gboolean prepend_union)
+{
+  GrlTypeFilter filter = grl_operation_options_get_type_filter (options);
+  GString *sparql_filter = g_string_new ("");
+
+  if (filter & GRL_TYPE_FILTER_AUDIO) {
+    if (prepend_union) {
+      sparql_filter = g_string_append (sparql_filter,
+                                       "UNION { ?urn a nfo:Audio } ");
+    } else {
+      sparql_filter = g_string_append (sparql_filter,
+                                       "{ ?urn a nfo:Audio } ");
+      prepend_union = TRUE;
+    }
+  }
+  if (filter & GRL_TYPE_FILTER_VIDEO) {
+    if (prepend_union) {
+      sparql_filter = g_string_append (sparql_filter,
+                                       "UNION { ?urn a nmm:Video } ");
+    } else {
+      sparql_filter = g_string_append (sparql_filter,
+                                       "{ ?urn a nmm:Video } ");
+      prepend_union = TRUE;
+    }
+  }
+  if (filter & GRL_TYPE_FILTER_IMAGE) {
+    if (prepend_union) {
+      sparql_filter = g_string_append (sparql_filter,
+                                       "UNION { ?urn a nmm:Photo } ");
+    } else {
+      sparql_filter = g_string_append (sparql_filter,
+                                       "{ ?urn a nmm:Photo } ");
+    }
+  }
+
+  sparql_filter = g_string_append_c (sparql_filter, '.');
+
+  return g_string_free (sparql_filter, FALSE);
 }
 
 /* I can haz templatze ?? */
@@ -623,9 +659,10 @@ void
 grl_tracker_source_resolve (GrlSource *source,
                             GrlSourceResolveSpec *rs)
 {
-  GrlTrackerSourcePriv *priv       = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *constraint = NULL, *sparql_select, *sparql_final;
-  const gchar          *url        = grl_media_get_url (rs->media);
+  GrlTrackerSourcePriv *priv               = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  gchar                *constraint         = NULL, *sparql_select, *sparql_final;
+  gchar                *sparql_type_filter = NULL;
+  const gchar          *url                = grl_media_get_url (rs->media);
   GrlTrackerOp         *os;
 
   GRL_IDEBUG ("%s: id=%i", __FUNCTION__, rs->operation_id);
@@ -636,9 +673,11 @@ grl_tracker_source_resolve (GrlSource *source,
       if (grl_tracker_per_device_source) {
         constraint = grl_tracker_source_get_device_constraint (priv);
         sparql_select = grl_tracker_source_get_select_string (rs->keys);
+        sparql_type_filter = get_sparql_type_filter (rs->options, TRUE);
         sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST,
                                         sparql_select,
                                         grl_tracker_show_documents? TRACKER_BROWSE_SHOW_DOCUMENTS: "",
+                                        sparql_type_filter,
                                         constraint, 0, 1);
       } else {
         rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
@@ -669,6 +708,8 @@ grl_tracker_source_resolve (GrlSource *source,
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 
+  if (sparql_type_filter != NULL)
+    g_free (sparql_type_filter);
   if (constraint != NULL)
     g_free (constraint);
   if (sparql_select != NULL)
@@ -745,6 +786,7 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
   gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
+  gchar                *sparql_type_filter;
   GrlTrackerOp         *os;
   gint count = grl_operation_options_get_count (ss->options);
   guint skip = grl_operation_options_get_skip (ss->options);
@@ -753,13 +795,16 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
 
   constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_select = grl_tracker_source_get_select_string (ss->keys);
+  sparql_type_filter = get_sparql_type_filter (ss->options, FALSE);
   if (!ss->text || ss->text[0] == '\0') {
     /* Search all */
     sparql_final = g_strdup_printf (TRACKER_SEARCH_ALL_REQUEST, sparql_select,
-                                    constraint, skip, count);
+                                    constraint, sparql_type_filter,
+                                    skip, count);
   } else {
     sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
-                                    ss->text, constraint, skip, count);
+                                    sparql_type_filter, ss->text,
+                                    constraint, skip, count);
   }
 
   GRL_IDEBUG ("\tselect: '%s'", sparql_final);
@@ -776,6 +821,7 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
 
   g_free (constraint);
   g_free (sparql_select);
+  g_free (sparql_type_filter);
 }
 
 static void
@@ -789,8 +835,10 @@ grl_tracker_source_browse_category (GrlSource *source,
   GrlTrackerOp         *os;
   GrlMedia             *media;
   const gchar          *category;
+  gint remaining;
   gint count = grl_operation_options_get_count (bs->options);
   guint skip = grl_operation_options_get_skip (bs->options);
+  GrlTypeFilter filter = grl_operation_options_get_type_filter (bs->options);
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->operation_id);
 
@@ -798,40 +846,86 @@ grl_tracker_source_browse_category (GrlSource *source,
       !grl_data_has_key (GRL_DATA (bs->container),
                          grl_metadata_key_tracker_category)) {
     /* Hardcoded categories */
-    if (grl_tracker_show_documents) {
-      media = grl_media_box_new ();
-      grl_media_set_title (media, "Documents");
-      grl_data_set_string (GRL_DATA (media),
-                           grl_metadata_key_tracker_category,
-                           "nfo:Document");
-      bs->callback (bs->source, bs->operation_id, media, 3, bs->user_data, NULL);
+    if (filter == GRL_TYPE_FILTER_ALL) {
+      remaining = 3;
+      if (grl_tracker_show_documents)  {
+        remaining++;
+      }
+    } else {
+      remaining = 0;
+      if (filter & GRL_TYPE_FILTER_AUDIO) {
+        remaining++;
+      }
+      if (filter & GRL_TYPE_FILTER_VIDEO) {
+        remaining++;
+      }
+      if (filter & GRL_TYPE_FILTER_IMAGE) {
+        remaining++;
+      }
     }
 
-    media = grl_media_box_new ();
-    grl_media_set_title (media, "Music");
-    grl_data_set_string (GRL_DATA (media),
-                         grl_metadata_key_tracker_category,
-                         "nmm:MusicPiece");
-    bs->callback (bs->source, bs->operation_id, media, 2, bs->user_data, NULL);
+    if (remaining == 0) {
+      bs->callback (bs->source, bs->operation_id, NULL, 0,
+                    bs->user_data, NULL);
+      return;
+    }
 
-    media = grl_media_box_new ();
-    grl_media_set_title (media, "Photos");
-    grl_data_set_string (GRL_DATA (media),
-                         grl_metadata_key_tracker_category,
-                         "nmm:Photo");
-    bs->callback (bs->source, bs->operation_id, media, 1, bs->user_data, NULL);
+    /* Special case: if everthing is filtered except one category, then skip the
+       intermediate level and go straightly to the elements */
+    if (remaining == 1) {
+      if (filter & GRL_TYPE_FILTER_AUDIO) {
+        category = "nmm:MusicPiece";
+      } else if (filter & GRL_TYPE_FILTER_IMAGE) {
+        category = "nmm:Photo";
+      } else {
+        category = "nmm:Video";
+      }
+    } else {
+      if (remaining == 4) {
+        media = grl_media_box_new ();
+        grl_media_set_title (media, "Documents");
+        grl_data_set_string (GRL_DATA (media),
+                             grl_metadata_key_tracker_category,
+                             "nfo:Document");
+        bs->callback (bs->source, bs->operation_id, media, --remaining,
+                      bs->user_data, NULL);
+      }
 
-    media = grl_media_box_new ();
-    grl_media_set_title (media, "Videos");
-    grl_data_set_string (GRL_DATA (media),
-                         grl_metadata_key_tracker_category,
-                         "nmm:Video");
-    bs->callback (bs->source, bs->operation_id, media, 0, bs->user_data, NULL);
-    return;
+      if (filter & GRL_TYPE_FILTER_AUDIO) {
+        media = grl_media_box_new ();
+        grl_media_set_title (media, "Music");
+        grl_data_set_string (GRL_DATA (media),
+                             grl_metadata_key_tracker_category,
+                             "nmm:MusicPiece");
+        bs->callback (bs->source, bs->operation_id, media, --remaining,
+                      bs->user_data, NULL);
+      }
+
+      if (filter & GRL_TYPE_FILTER_IMAGE) {
+        media = grl_media_box_new ();
+        grl_media_set_title (media, "Photos");
+        grl_data_set_string (GRL_DATA (media),
+                             grl_metadata_key_tracker_category,
+                             "nmm:Photo");
+        bs->callback (bs->source, bs->operation_id, media, --remaining,
+                      bs->user_data, NULL);
+      }
+
+      if (filter & GRL_TYPE_FILTER_VIDEO) {
+        media = grl_media_box_new ();
+        grl_media_set_title (media, "Videos");
+        grl_data_set_string (GRL_DATA (media),
+                             grl_metadata_key_tracker_category,
+                             "nmm:Video");
+        bs->callback (bs->source, bs->operation_id, media, --remaining,
+                      bs->user_data, NULL);
+      }
+      return;
+    }
+  } else {
+    category = grl_data_get_string (GRL_DATA (bs->container),
+                                    grl_metadata_key_tracker_category);
   }
-
-  category = grl_data_get_string (GRL_DATA (bs->container),
-                                  grl_metadata_key_tracker_category);
 
   constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_select = grl_tracker_source_get_select_string (bs->keys);
@@ -865,6 +959,7 @@ grl_tracker_source_browse_filesystem (GrlSource *source,
   gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
+  gchar                *sparql_type_filter;
   GrlTrackerOp         *os;
   gint count = grl_operation_options_get_count (bs->options);
   guint skip = grl_operation_options_get_skip (bs->options);
@@ -873,12 +968,14 @@ grl_tracker_source_browse_filesystem (GrlSource *source,
 
   sparql_select = grl_tracker_source_get_select_string (bs->keys);
   constraint = grl_tracker_source_get_device_constraint (priv);
+  sparql_type_filter = get_sparql_type_filter (bs->options, TRUE);
 
   if (bs->container == NULL ||
       !grl_media_get_id (bs->container)) {
     sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST,
                                     sparql_select,
                                     grl_tracker_show_documents? TRACKER_BROWSE_SHOW_DOCUMENTS: "",
+                                    sparql_type_filter,
                                     constraint,
                                     skip, count);
 
@@ -886,6 +983,7 @@ grl_tracker_source_browse_filesystem (GrlSource *source,
     sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_REQUEST,
                                     sparql_select,
                                     grl_tracker_show_documents? TRACKER_BROWSE_SHOW_DOCUMENTS: "",
+                                    sparql_type_filter,
                                     constraint,
                                     grl_media_get_id (bs->container),
                                     skip, count);
@@ -903,6 +1001,7 @@ grl_tracker_source_browse_filesystem (GrlSource *source,
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 
+  g_free (sparql_type_filter);
   g_free (constraint);
   g_free (sparql_select);
 }
@@ -978,4 +1077,18 @@ grl_tracker_source_init_requests (void)
                        "tracker-source-request");
   GRL_LOG_DOMAIN_INIT (tracker_source_result_log_domain,
                        "tracker-source-result");
+}
+
+GrlCaps *
+grl_tracker_source_get_caps (GrlSource *source,
+                             GrlSupportedOps operation)
+{
+  static GrlCaps *caps;
+
+  if (!caps) {
+    caps = grl_caps_new ();
+    grl_caps_set_type_filter (caps, GRL_TYPE_FILTER_ALL);
+  }
+
+  return caps;
 }

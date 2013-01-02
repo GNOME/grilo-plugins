@@ -590,11 +590,14 @@ on_request_ready (GObject *source,
                   gpointer user_data) {
   ResolveClosure *closure = (ResolveClosure *) user_data;
   GrlTmdbRequest *request = GRL_TMDB_REQUEST (source);
+  const GrlTmdbRequestDetail detail = grl_tmdb_request_get_detail (request);
   GError *error = NULL;
   GList *values, *iter;
   GValue *value;
 
-  GRL_DEBUG ("Detail request ready...");
+  GRL_DEBUG ("Detail request (%s) ready for movie #%" G_GUINT64_FORMAT "...",
+             grl_tmdb_request_detail_to_string (detail), closure->id);
+
   if (!grl_tmdb_request_run_finish (GRL_TMDB_REQUEST (source),
                                     result,
                                     &error)) {
@@ -605,7 +608,7 @@ on_request_ready (GObject *source,
     goto out;
   }
 
-  switch (grl_tmdb_request_get_detail (request)) {
+  switch (detail) {
     case GRL_TMDB_REQUEST_DETAIL_MOVIE:
     {
       if (SHOULD_RESOLVE (GRL_METADATA_KEY_GENRE)) {
@@ -959,6 +962,9 @@ static void queue_detail_request (ResolveClosure *closure,
 {
   GrlTmdbRequest *request;
 
+  GRL_DEBUG ("Requesting %s for movie #%" G_GUINT64_FORMAT "...",
+             grl_tmdb_request_detail_to_string (detail), closure->id);
+
   request = grl_tmdb_request_new_details (closure->self->priv->api_key,
                                           detail, closure->id);
 
@@ -1202,18 +1208,20 @@ grl_tmdb_source_resolve (GrlSource *source,
   }
 
   if (title) {
-    GRL_DEBUG ("Running initial search...");
+    GRL_DEBUG ("Running initial search for title \"%s\"...", title);
     request = grl_tmdb_request_new_search (closure->self->priv->api_key, title);
     queue_request (closure, request, on_search_ready);
+    run_pending_requests (closure, 1);
   } else {
-    GRL_DEBUG ("Running lookup by id...");
+    GRL_DEBUG ("Running %s lookup for movie #%" G_GUINT64_FORMAT "...",
+               closure->slow ? "slow" : "fast", movie_id);
 
     if (closure->slow) {
       resolve_slow_details (closure);
     } else {
       queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE);
     }
-  }
 
-  run_pending_requests (closure, 1);
+    run_pending_requests (closure, G_MAXINT);
+  }
 }

@@ -130,4 +130,7 @@ grl_tmdb_request_get_string_list_with_filter (GrlTmdbRequest *self,
                                               const char *path,
                                               GrlTmdbRequestStringFilterFunc filter);
 
+const char *
+grl_tmdb_request_detail_to_string (GrlTmdbRequestDetail detail);
+
 #endif /* _GRL_TMDB_REQUEST_H_ */

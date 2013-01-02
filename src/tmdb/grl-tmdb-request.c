@@ -644,3 +644,30 @@ grl_tmdb_request_get_uri (GrlTmdbRequest *self)
 {
   return self->priv->uri;
 }
+
+/**
+ * grl_tmdb_request_detail_to_string:
+ * @detail: A #GrlTmdbRequestDetail
+ * Returns: A description of the detail or %NULL for invalid details.
+ */
+const char *
+grl_tmdb_request_detail_to_string (GrlTmdbRequestDetail detail)
+{
+  switch (detail) {
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE:
+      return "generic details";
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST:
+      return "casts";
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES:
+      return "images";
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_KEYWORDS:
+      return "keywords";
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_RELEASE_INFO:
+      return "release information";
+    case GRL_TMDB_REQUEST_DETAIL_COUNT:
+      break;
+  }
+
+  g_warn_if_reached ();
+  return NULL;
+}

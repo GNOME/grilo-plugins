@@ -1250,7 +1250,6 @@ grl_filesystem_source_browse (GrlSource *source,
                           GRL_RESOLVE_FAST_ONLY,
                           FALSE,
                           bs->options);
-        remaining--;
         if (content) {
           bs->callback (source,
                         bs->operation_id,

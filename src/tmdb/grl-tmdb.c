@@ -274,6 +274,8 @@ grl_tmdb_source_init (GrlTmdbSource *self)
                     GRLKEYID_TO_POINTER (GRL_METADATA_KEY_PRODUCER));
   g_hash_table_add (self->priv->slow_keys,
                     GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DIRECTOR));
+  g_hash_table_add (self->priv->slow_keys,
+                    GRLKEYID_TO_POINTER (GRL_METADATA_KEY_AUTHOR));
 
   /* The publication date is both available as fast key in the movie details,
    * but also as more detailed information as regional release date. To avoid
@@ -512,6 +514,26 @@ director_filter (JsonNode *element)
 
   department = json_object_get_string_member (object, "department");
   if (g_ascii_strcasecmp (department, "Directing") != 0) {
+    return NULL;
+  }
+
+  return g_strdup (json_object_get_string_member (object, "name"));
+}
+
+static char *
+writer_filter (JsonNode *element)
+{
+  JsonObject *object;
+  const char *department;
+
+  if (!JSON_NODE_HOLDS_OBJECT (element)) {
+    return NULL;
+  }
+
+  object = json_node_get_object (element);
+
+  department = json_object_get_string_member (object, "department");
+  if (g_ascii_strcasecmp (department, "Writing") != 0) {
     return NULL;
   }
 
@@ -798,6 +820,19 @@ on_request_ready (GObject *source,
         }
         g_list_free_full (values, g_free);
       }
+
+      if (SHOULD_RESOLVE (GRL_METADATA_KEY_AUTHOR)) {
+        values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                               "$.crew[*]",
+                                                               writer_filter);
+        iter = values;
+        while (iter != NULL) {
+          grl_media_add_author (GRL_MEDIA (closure->rs->media),
+                                iter->data);
+          iter = iter->next;
+        }
+        g_list_free_full (values, g_free);
+      }
     }
     break;
     case GRL_TMDB_REQUEST_DETAIL_MOVIE_RELEASE_INFO:
@@ -992,7 +1027,8 @@ static void resolve_slow_details (ResolveClosure *closure)
 
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_PERFORMER) ||
       SHOULD_RESOLVE (GRL_METADATA_KEY_PRODUCER) ||
-      SHOULD_RESOLVE (GRL_METADATA_KEY_DIRECTOR))
+      SHOULD_RESOLVE (GRL_METADATA_KEY_DIRECTOR) ||
+      SHOULD_RESOLVE (GRL_METADATA_KEY_AUTHOR))
     queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST);
 
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_REGION) ||

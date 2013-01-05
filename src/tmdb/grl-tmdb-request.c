@@ -618,7 +618,7 @@ grl_tmdb_request_get_string_list_with_filter (GrlTmdbRequest *self,
 
   get_list_with_filter (self, path, &closure);
 
-  return closure.list;
+  return g_list_reverse (closure.list);
 }
 
 /**

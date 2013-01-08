@@ -27,8 +27,6 @@
 
 #define TMDB_PLUGIN_ID "grl-tmdb"
 
-const char *iso_date (const GDateTime *date, char **strbuf);
-
 /** Compare the floats.
  * A simple == will fail on values that are effectively the same,
  * due to rounding issues.
@@ -40,7 +38,8 @@ compare_floats(gfloat a, gfloat b)
   return fabs(a - b) < DBL_EPSILON;
 }
 
-static const char *iso_date (const GDateTime *date, char **strbuf)
+static const char*
+iso_date (const GDateTime *date, char **strbuf)
 {
   if (*strbuf)
     g_free (*strbuf);

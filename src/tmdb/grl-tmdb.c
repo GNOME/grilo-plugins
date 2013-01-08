@@ -582,6 +582,7 @@ add_image (GrlTmdbSource *self,
            const char    *image_path)
 {
   SoupURI *uri;
+  GrlRelatedKeys *related_keys;
   char *str;
   int i, l;
 
@@ -591,15 +592,15 @@ add_image (GrlTmdbSource *self,
 
   str = soup_uri_to_string (uri, FALSE);
 
-  l = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_THUMBNAIL);
+  l = grl_data_length (GRL_DATA (media), detail_key);
 
   for (i = 0; i < l; ++i) {
-    if (g_strcmp0 (grl_media_get_thumbnail_nth (media, i), str) == 0)
+    related_keys = grl_data_get_related_keys (GRL_DATA (media), detail_key, i);
+    if (g_strcmp0 (grl_related_keys_get_string (related_keys, detail_key), str) == 0)
       break;
   }
 
   if (i == l) {
-    grl_media_add_thumbnail (media, str);
     grl_data_add_string (GRL_DATA (media), detail_key, str);
   }
 
@@ -708,9 +709,20 @@ on_request_ready (GObject *source,
       }
 
       if (!closure->slow) {
-        /* Add posters first and backdrops later.
+        /* Add thumbnails first and poster and backdrops later.
          * Posters more likely make a good thumbnail than backdrops.
          */
+        if (SHOULD_RESOLVE (GRL_METADATA_KEY_THUMBNAIL)) {
+          value = grl_tmdb_request_get (request, "$.poster_path");
+          if (value != NULL) {
+              add_image (closure->self, closure->rs->media,
+                         GRL_METADATA_KEY_THUMBNAIL,
+                         g_value_get_string (value));
+
+              g_value_unset (value);
+          }
+        }
+
         if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER)) {
           value = grl_tmdb_request_get (request, "$.poster_path");
           if (value != NULL) {
@@ -737,9 +749,23 @@ on_request_ready (GObject *source,
     break;
     case GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES:
     {
-      /* Add posters first and backdrops later.
+      /* Add thumbnails first, and posters and backdrops later.
        * Posters more likely make a good thumbnail than backdrops.
        */
+      if (SHOULD_RESOLVE (GRL_METADATA_KEY_THUMBNAIL)) {
+        iter = values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                                      "$.posters",
+                                                                      neutral_backdrop_filter);
+        while (iter != NULL) {
+          add_image (closure->self, closure->rs->media,
+                     GRL_METADATA_KEY_THUMBNAIL,
+                     iter->data);
+
+          iter = iter->next;
+        }
+        g_list_free_full (values, g_free);
+      }
+
       if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER)) {
         iter = values = grl_tmdb_request_get_string_list_with_filter (request,
                                                                       "$.posters",
@@ -943,9 +969,20 @@ on_search_ready (GObject *source,
     g_hash_table_remove (closure->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_RATING));
   }
 
-  /* Add posters first and backdrops later.
+  /* Add thumbnails first, and posters and backdrops later.
    * Posters more likely make a good thumbnail than backdrops.
    */
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_THUMBNAIL)) {
+    value = grl_tmdb_request_get (request, "$.results[0].poster_path");
+    if (value != NULL) {
+        add_image (closure->self, closure->rs->media,
+                   GRL_METADATA_KEY_THUMBNAIL,
+                   g_value_get_string (value));
+
+        g_value_unset (value);
+    }
+  }
+
   if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER)) {
     value = grl_tmdb_request_get (request, "$.results[0].poster_path");
     if (value != NULL) {

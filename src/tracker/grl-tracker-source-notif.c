@@ -214,7 +214,10 @@ tracker_evt_update_orphan_item_cb (GObject              *object,
 
   GRL_DEBUG ("\tOrphan item: id=%u datasource=%s", id, datasource);
 
-  if (datasource)
+  if (!grl_tracker_per_device_source)
+    source = grl_tracker_source_find ("");
+
+  if (!source && datasource)
     source = grl_tracker_source_find (datasource);
 
   if (source && GRL_IS_TRACKER_SOURCE (source)) {

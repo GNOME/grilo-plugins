@@ -228,7 +228,7 @@ fill_list_filtered (JsonArray *array,
   FilterClosure *closure = (FilterClosure *) user_data;
 
   if (closure->filter == NULL || closure->filter (element)) {
-    closure->list = g_list_prepend (closure->list, element);
+    closure->list = g_list_prepend (closure->list, json_node_copy (element));
   }
 }
 

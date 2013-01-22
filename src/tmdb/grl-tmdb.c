@@ -825,7 +825,7 @@ on_request_ready (GObject *source,
           g_date_time_unref (pubdate);
         }
 
-        g_list_free (values);
+        g_list_free_full (values, (GDestroyNotify) json_node_free);
       }
     }
     break;

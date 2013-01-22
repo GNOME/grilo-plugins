@@ -767,7 +767,7 @@ update_media_from_artists (GrlMedia *media)
 {
   Entry entry = {
     .category = JAMENDO_ARTIST_CAT,
-    .artist_name = JAMENDO_ARTIST "s",
+    .artist_name = "Artists",
   };
 
   update_media_from_entry (media, &entry);
@@ -778,7 +778,7 @@ update_media_from_albums (GrlMedia *media)
 {
   Entry entry = {
     .category = JAMENDO_ALBUM_CAT,
-    .album_name = JAMENDO_ALBUM "s",
+    .album_name = "Albums",
   };
 
   update_media_from_entry (media, &entry);
@@ -789,7 +789,7 @@ update_media_from_feeds (GrlMedia *media)
 {
   Entry entry = {
     .category = JAMENDO_FEEDS_CAT,
-    .feed_name = "feeds",
+    .feed_name = "Feeds",
   };
 
   update_media_from_entry (media, &entry);

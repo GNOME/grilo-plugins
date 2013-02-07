@@ -56,11 +56,16 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
   "rating REAL,"					 \
   "last_position INTEGER,"				 \
   "last_played DATE,"                                    \
-  "favourite INTEGER DEFAULT 0)"
+  "favourite INTEGER DEFAULT 0,"                         \
+  "type_id INTEGER)"
 
-#define GRL_SQL_ALTER_TABLE_STORE			 \
+#define GRL_SQL_ALTER_TABLE_ADD_FAVOURITE			 \
   "ALTER TABLE store ADD COLUMN "                        \
   "favourite INTEGER"
+
+#define GRL_SQL_ALTER_TABLE_ADD_TYPE_ID			 \
+  "ALTER TABLE store ADD COLUMN "                        \
+  "type_id INTEGER"
 
 #define GRL_SQL_GET_METADATA				\
   "SELECT * FROM store "				\
@@ -73,8 +78,8 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
 
 #define GRL_SQL_INSERT_METADATA			\
   "INSERT INTO store "				\
-  "(%s source_id, media_id) VALUES "		\
-  "(%s ?, ?)"
+  "(type_id, %s source_id, media_id) VALUES "		\
+  "(?, %s ?, ?)"
 
 #define GRL_SQL_SEARCH                          \
   "SELECT * FROM store "                        \
@@ -97,6 +102,15 @@ enum {
   STORE_LAST_POSITION,
   STORE_LAST_PLAYED,
   STORE_FAVOURITE,
+  STORE_TYPE_ID
+};
+
+enum {
+  MEDIA = 0,
+  MEDIA_AUDIO,
+  MEDIA_VIDEO,
+  MEDIA_IMAGE,
+  MEDIA_BOX
 };
 
 static GrlMetadataStoreSource *grl_metadata_store_source_new (void);
@@ -231,8 +245,12 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
 
   // For backwards compatibility, add newer columns if they don't exist
   // in the old database.
-  sqlite3_exec (source->priv->db, GRL_SQL_ALTER_TABLE_STORE,
+  sqlite3_exec (source->priv->db, GRL_SQL_ALTER_TABLE_ADD_FAVOURITE,
                 NULL, NULL, &sql_error);
+
+  sqlite3_exec (source->priv->db, GRL_SQL_ALTER_TABLE_ADD_TYPE_ID,
+                NULL, NULL, &sql_error);
+
   GRL_DEBUG ("  OK");
 }
 
@@ -335,6 +353,25 @@ get_column_name_from_key_id (GrlKeyID key_id)
   }
 }
 
+static int
+get_media_type (GrlMedia *media)
+{
+  if (GRL_IS_MEDIA_AUDIO (media)) {
+    return MEDIA_AUDIO;
+  }
+  if (GRL_IS_MEDIA_VIDEO (media)) {
+    return MEDIA_VIDEO;
+  }
+  if (GRL_IS_MEDIA_IMAGE (media)) {
+    return MEDIA_IMAGE;
+  }
+  if (GRL_IS_MEDIA_BOX (media)) {
+    return MEDIA_BOX;
+  }
+
+  return MEDIA;
+}
+
 static gboolean
 bind_and_exec (sqlite3 *db,
 	       const gchar *sql,
@@ -363,8 +400,11 @@ bind_and_exec (sqlite3 *db,
     return FALSE;
   }
 
+  /* Bind media type */
+  sqlite3_bind_int (stmt, 1, get_media_type (media));
+
   /* Bind column values */
-  count = 1;
+  count = 2;
   iter_names = col_names;
   iter_keys = keys;
   while (iter_names) {
@@ -416,22 +456,16 @@ prepare_and_exec_update (sqlite3 *db,
   GList *iter_names;
   GString *sql_buf;
   gchar *sql_set;
-  guint count;
 
   GRL_DEBUG ("prepare_and_exec_update");
 
   /* Prepare sql "set" for update query */
-  count = 0;
-  sql_buf = g_string_new ("");
+  sql_buf = g_string_new ("type_id=?");
   iter_names = col_names;
   while (iter_names) {
     gchar *col_name = (gchar *) iter_names->data;
     if (col_name) {
-      if (count > 0) {
-	g_string_append (sql_buf, " , ");
-      }
-      g_string_append_printf (sql_buf, "%s=?", col_name);
-      count++;
+      g_string_append_printf (sql_buf, " , %s=?", col_name);
     }
     iter_names = g_list_next (iter_names);
   }
@@ -489,10 +523,10 @@ prepare_and_exec_insert (sqlite3 *db,
 
 static GList *
 write_keys (sqlite3 *db,
-	    const gchar *source_id,
-	    const gchar *media_id,
-	    GrlSourceStoreMetadataSpec *sms,
-	    GError **error)
+            const gchar *source_id,
+            const gchar *media_id,
+            GrlSourceStoreMetadataSpec *sms,
+            GError **error)
 {
   GList *col_names = NULL;
   GList *iter;
@@ -576,8 +610,26 @@ static GrlMedia *
 create_media (sqlite3_stmt * stmt, GList *keys)
 {
   GrlMedia *media;
+  gint media_type;
 
-  media = grl_media_new ();
+  media_type = sqlite3_column_int (stmt, STORE_TYPE_ID);
+  switch (media_type) {
+  case MEDIA_AUDIO:
+    media = grl_media_audio_new ();
+    break;
+  case MEDIA_VIDEO:
+    media = grl_media_video_new ();
+    break;
+  case MEDIA_IMAGE:
+    media = grl_media_image_new ();
+    break;
+  case MEDIA_BOX:
+    media = grl_media_box_new ();
+    break;
+  default:
+    media = grl_media_new ();
+  }
+
   grl_media_set_source (media,
                     (const gchar *) sqlite3_column_text (stmt, STORE_SOURCE_ID));
   grl_media_set_id (media,
@@ -741,7 +793,7 @@ grl_metadata_store_source_store_metadata (GrlSource *source,
     }
 
     failed_keys = write_keys (GRL_METADATA_STORE_SOURCE (source)->priv->db,
-			      source_id, media_id, sms, &error);
+                              source_id, media_id, sms, &error);
   }
 
   sms->callback (sms->source, sms->media, failed_keys, sms->user_data, error);

@@ -85,9 +85,15 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
   "SELECT * FROM store "                        \
   "LIMIT %u OFFSET %u"
 
+#define GRL_SQL_FAVOURITE_FILTER                \
+  "favourite=?"
+
+#define GRL_SQL_SOURCE_FILTER                   \
+  "source_id=?"
+
 #define GRL_SQL_SEARCH_FILTER                   \
   "SELECT * FROM store "                        \
-  "WHERE favourite=? "                          \
+  "WHERE %s "                                   \
   "LIMIT %u OFFSET %u"
 
 struct _GrlMetadataStorePrivate {
@@ -681,6 +687,7 @@ grl_metadata_store_source_get_caps (GrlSource *source,
   if (caps == NULL) {
       caps = grl_caps_new ();
       keys = grl_metadata_key_list_new (GRL_METADATA_KEY_FAVOURITE,
+                                        GRL_METADATA_KEY_SOURCE,
                                         GRL_METADATA_KEY_INVALID);
       grl_caps_set_key_filter (caps, keys);
       g_list_free (keys);
@@ -815,8 +822,10 @@ grl_metadata_store_source_search (GrlSource *source,
   GError *error = NULL;
   GrlMedia *media;
   GList *iter, *medias = NULL;
-  GValue *filter_val;
-  guint count = 0;
+  GValue *filter_favourite_val;
+  GValue *filter_source_val;
+  GString *filters;
+  guint count;
 
   GRL_DEBUG (__FUNCTION__);
 
@@ -831,15 +840,38 @@ grl_metadata_store_source_search (GrlSource *source,
     return;
   }
 
-  filter_val = grl_operation_options_get_key_filter (ss->options,
-                                                     GRL_METADATA_KEY_FAVOURITE);
-  sql = g_strdup_printf (filter_val? GRL_SQL_SEARCH_FILTER: GRL_SQL_SEARCH,
-                         grl_operation_options_get_count (ss->options),
-                         grl_operation_options_get_skip (ss->options));
+  filters = g_string_new ("");
+
+  filter_favourite_val = grl_operation_options_get_key_filter (ss->options,
+                                                               GRL_METADATA_KEY_FAVOURITE);
+  filter_source_val = grl_operation_options_get_key_filter (ss->options,
+                                                            GRL_METADATA_KEY_SOURCE);
+  if (filter_favourite_val) {
+    filters = g_string_append (filters, GRL_SQL_FAVOURITE_FILTER);
+  }
+
+  if (filter_source_val) {
+    if (filters->len > 0) {
+      filters = g_string_append (filters, " AND ");
+    }
+    filters = g_string_append (filters, GRL_SQL_SOURCE_FILTER);
+  }
+
+  if (filters->len > 0) {
+    sql = g_strdup_printf (GRL_SQL_SEARCH_FILTER,
+                           filters->str,
+                           grl_operation_options_get_count (ss->options),
+                           grl_operation_options_get_skip (ss->options));
+  } else {
+    sql = g_strdup_printf (GRL_SQL_SEARCH,
+                           grl_operation_options_get_count (ss->options),
+                           grl_operation_options_get_skip (ss->options));
+  }
 
   r = sqlite3_prepare_v2 (db, sql, -1, &sql_stmt, NULL);
 
   g_free (sql);
+  g_string_free (filters, TRUE);
 
   if (r != SQLITE_OK) {
     GRL_WARNING ("Failed to search in the metadata store: %s", sqlite3_errmsg (db));
@@ -851,12 +883,19 @@ grl_metadata_store_source_search (GrlSource *source,
     return;
   }
 
-  if (filter_val) {
-    sqlite3_bind_int (sql_stmt, 1, (gint) g_value_get_boolean (filter_val));
+  count = 1;
+
+  if (filter_favourite_val) {
+    sqlite3_bind_int (sql_stmt, count++, (gint) g_value_get_boolean (filter_favourite_val));
+  }
+
+  if (filter_source_val) {
+    sqlite3_bind_text (sql_stmt, count++, g_value_get_string (filter_source_val), -1, SQLITE_STATIC);
   }
 
   while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
 
+  count = 0;
   while (r == SQLITE_ROW) {
     media = create_media (sql_stmt, ss->keys);
     medias = g_list_prepend (medias, media);

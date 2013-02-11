@@ -146,6 +146,11 @@ typedef struct {
 } OperationSpec;
 
 typedef struct {
+  GSourceFunc callback;
+  gpointer user_data;
+} BuildCategorySpec;
+
+typedef struct {
   AsyncReadCbFunc callback;
   gchar *url;
   gpointer user_data;
@@ -632,7 +637,7 @@ build_media_from_entry (GrlYoutubeSource *source,
 }
 
 static void
-parse_categories (xmlDocPtr doc, xmlNodePtr node, OperationSpec *os)
+parse_categories (xmlDocPtr doc, xmlNodePtr node, BuildCategorySpec *bcs)
 {
   guint total = 0;
   GList *all = NULL, *iter;
@@ -669,9 +674,8 @@ parse_categories (xmlDocPtr doc, xmlNodePtr node, OperationSpec *os)
     } while (iter);
     g_list_free (all);
 
-    produce_from_directory (categories_dir,
-                            root_dir[ROOT_DIR_CATEGORIES_INDEX].count,
-                            os);
+    bcs->callback (bcs);
+    g_slice_free (BuildCategorySpec, bcs);
   }
 }
 
@@ -805,14 +809,14 @@ build_media_from_entry_search_cb (GrlMedia *media, gpointer user_data)
 }
 
 static void
-build_category_directory (OperationSpec *os)
+build_category_directory (BuildCategorySpec *bcs)
 {
   GRL_DEBUG (__FUNCTION__);
 
   read_url_async (YOUTUBE_CATEGORIES_URL,
                   NULL,
                   build_categories_directory_read_cb,
-                  os);
+                  bcs);
 }
 
 static void
@@ -1298,6 +1302,45 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
   }
 }
 
+static gboolean
+produce_from_category_cb (BuildCategorySpec *spec)
+{
+  produce_from_directory (categories_dir,
+                          root_dir[ROOT_DIR_CATEGORIES_INDEX].count,
+                          spec->user_data);
+  return FALSE;
+}
+
+static gboolean
+produce_container_from_category_cb (BuildCategorySpec *spec)
+{
+  GError *error = NULL;
+  GrlMedia *media = NULL;
+
+  GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) spec->user_data;
+  GDataService *service = GRL_YOUTUBE_SOURCE (rs->source)->priv->service;
+  const gchar *id = grl_media_get_id (rs->media);
+  gint index = get_category_index_from_id (id);
+  if (index >= 0) {
+    media = produce_container_from_directory (service,
+                                              rs->media,
+                                              categories_dir,
+                                              index);
+  } else {
+    media = rs->media;
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_RESOLVE_FAILED,
+                         "Invalid category id");
+  }
+
+  rs->callback (rs->source, rs->operation_id, media, rs->user_data, error);
+  if (error) {
+    g_error_free (error);
+  }
+
+  return FALSE;
+}
+
 /* ================== API Implementation ================ */
 
 static const GList *
@@ -1390,6 +1433,7 @@ static void
 grl_youtube_source_browse (GrlSource *source,
                            GrlSourceBrowseSpec *bs)
 {
+  BuildCategorySpec *bcs;
   OperationSpec *os;
   const gchar *container_id;
 
@@ -1420,7 +1464,10 @@ grl_youtube_source_browse (GrlSource *source,
       break;
     case YOUTUBE_MEDIA_TYPE_CATEGORIES:
       if (!categories_dir) {
-        build_category_directory (os);
+        bcs = g_slice_new0 (BuildCategorySpec);
+        bcs->callback = (GSourceFunc) produce_from_category_cb;
+        bcs->user_data = os;
+        build_category_directory (bcs);
       } else {
         produce_from_directory (categories_dir,
                                 root_dir[ROOT_DIR_CATEGORIES_INDEX].count,
@@ -1444,6 +1491,7 @@ static void
 grl_youtube_source_resolve (GrlSource *source,
                             GrlSourceResolveSpec *rs)
 {
+  BuildCategorySpec *bcs;
   YoutubeMediaType media_type;
   const gchar *id;
   GCancellable *cancellable;
@@ -1482,14 +1530,21 @@ grl_youtube_source_resolve (GrlSource *source,
     break;
   case YOUTUBE_MEDIA_TYPE_CATEGORY:
     {
-      gint index = get_category_index_from_id (id);
-      if (index >= 0) {
-        media = produce_container_from_directory (service, rs->media,
-                                                  categories_dir, index);
+      if (!categories_dir) {
+        bcs = g_slice_new0 (BuildCategorySpec);
+        bcs->callback = (GSourceFunc) produce_container_from_category_cb;
+        bcs->user_data = rs;
+        build_category_directory (bcs);
       } else {
-	error = g_error_new (GRL_CORE_ERROR,
-                        GRL_CORE_ERROR_RESOLVE_FAILED,
-                        "Invalid category id");
+        gint index = get_category_index_from_id (id);
+        if (index >= 0) {
+          media = produce_container_from_directory (service, rs->media,
+                                                    categories_dir, index);
+        } else {
+          error = g_error_new (GRL_CORE_ERROR,
+                               GRL_CORE_ERROR_RESOLVE_FAILED,
+                               "Invalid category id");
+        }
       }
     }
     break;

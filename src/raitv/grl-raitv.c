@@ -796,24 +796,56 @@ proxy_call_browse_grlnet_async_cb (GObject *source_object,
 
 }
 
+static gchar *
+eval_xquery (const gchar *xquery,
+             xmlXPathContextPtr xpath)
+{
+  int i;
+  xmlChar *szValue;
+  xmlNodePtr curNode;
+  xmlNodeSetPtr nodeset;
+  xmlXPathObjectPtr xobj;
 
+  xobj = xmlXPathEvalExpression ((xmlChar *) xquery, xpath);
+
+  if(xobj != NULL) {
+    nodeset = xobj->nodesetval;
+    for (i = 0; i < nodeset->nodeNr; i++) {
+        curNode = nodeset->nodeTab[i];
+        if(curNode != NULL)
+          {
+            szValue = xmlGetProp(curNode,BAD_CAST "content");
+            if (szValue != NULL)
+              {
+                xmlXPathFreeObject (xobj);
+                return (gchar *) szValue;
+              }
+          }
+      }
+    xmlXPathFreeObject (xobj);
+  }
+
+  return NULL;
+}
 
 static void
 proxy_call_resolve_grlnet_async_cb (GObject *source_object,
                                     GAsyncResult *res,
                                     gpointer user_data)
 {
-  RaitvOperation    *op = (RaitvOperation *) user_data;
+  RaitvOperation     *op = (RaitvOperation *) user_data;
   xmlDocPtr           doc = NULL;
   xmlXPathContextPtr  xpath = NULL;
-  xmlXPathObjectPtr   obj = NULL;
+  GError             *wc_error = NULL;
+  GError             *error = NULL;
+  gchar              *content = NULL;
+  gint                length;
+  gchar              *value;
+  gchar              *thumbnail;
+  gchar             **tokens;
+  GDateTime          *date;
 
   GRL_DEBUG ("Response id=%u", op->operation_id);
-
-  GError *wc_error = NULL;
-  GError *error = NULL;
-  gchar *content = NULL;
-  gint length;
 
   if (g_cancellable_is_cancelled (op->cancellable)) {
     goto finalize;
@@ -855,41 +887,64 @@ proxy_call_resolve_grlnet_async_cb (GObject *source_object,
     goto finalize;
   }
 
-  gchar* xquery="/html/head/meta[@name='videourl']";
-
-  obj = xmlXPathEvalExpression ((xmlChar *) xquery, xpath);
-  if(obj!=NULL) {
-    xmlNodePtr curNode = NULL;
-    xmlChar	*szValue = NULL;
-    xmlNodeSetPtr nodeset = obj->nodesetval;
-    for (int i = 0; i < nodeset->nodeNr; i++)
-      {
-        curNode = nodeset->nodeTab[i];
-        if(curNode != NULL)
-          {
-            szValue = xmlGetProp(curNode,BAD_CAST "content");
-            if (szValue != NULL)
-              {
-                grl_media_set_url(op->media,(gchar*)szValue);
-                xmlFree(szValue);
-              }
-          }
-      }
+  if (!grl_data_has_key (GRL_DATA (op->media), GRL_METADATA_KEY_URL)) {
+    value = eval_xquery ("/html/head/meta[@name='videourl']", xpath);
+    if (value) {
+      grl_media_set_url (op->media, value);
+      g_free (value);
+    }
   }
 
+  if (!grl_data_has_key (GRL_DATA (op->media), GRL_METADATA_KEY_TITLE)) {
+    value = eval_xquery ("/html/head/meta[@name='title']", xpath);
+    if (value) {
+      grl_media_set_title (op->media, value);
+      g_free (value);
+    }
+  }
+
+  if (!grl_data_has_key (GRL_DATA (op->media), GRL_METADATA_KEY_PUBLICATION_DATE)) {
+    value = eval_xquery ("/html/head/meta[@name='itemDate']", xpath);
+    if (value) {
+      tokens = g_strsplit (value, "/", -1);
+      if (g_strv_length (tokens) >= 3) {
+        date = g_date_time_new_local (atoi (tokens[2]), atoi (tokens[1]), atoi (tokens[0]), 0, 0, 0);
+        grl_media_set_publication_date (op->media, date);
+        g_date_time_unref (date);
+      }
+      g_strfreev (tokens);
+      g_free (value);
+    }
+  }
+
+  if (!grl_data_has_key (GRL_DATA (op->media), GRL_METADATA_KEY_THUMBNAIL)) {
+    value = eval_xquery ("/html/head/meta[@name='vod-image']", xpath);
+    if (value) {
+      /* Sometimes thumbnail doesn't report a complete url */
+      if (value[0] == '/') {
+        thumbnail = g_strconcat ("http://www.rai.tv", value, NULL);
+        g_free (value);
+      } else {
+        thumbnail = value;
+      }
+
+      grl_media_set_thumbnail (op->media, thumbnail);
+      g_free (thumbnail);
+    }
+  }
+
+ finalize:
   op->resolveCb (op->source,
                  op->operation_id,
                  op->media,
                  op->user_data,
                  NULL);
 
- finalize:
   if (xpath)
     xmlXPathFreeContext (xpath);
 
   if (doc)
     xmlFreeDoc (doc);
-
 }
 
 
@@ -1209,18 +1264,69 @@ grl_raitv_source_resolve (GrlSource *source,
                           GrlSourceResolveSpec *rs)
 {
   gchar *urltarget;
+  GrlRaitvSource *self = GRL_RAITV_SOURCE (source);
+  RaitvOperation *op;
+  RaitvMediaType mediatype;
 
   GRL_DEBUG ("Starting resolve source: url=%s",grl_media_get_url (rs->media));
 
-  if (!GRL_IS_MEDIA_VIDEO (rs->media))
+  if (!GRL_IS_MEDIA_VIDEO (rs->media) && !GRL_IS_MEDIA_BOX (rs->media)) {
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
     return;
+  }
+
+  mediatype = classify_media_id (grl_media_get_id (rs->media));
+  switch (mediatype) {
+  case RAITV_MEDIA_TYPE_ROOT:
+    rs->media = produce_container_from_directory (rs->media, NULL, 0, mediatype);
+    break;
+  case RAITV_MEDIA_TYPE_POPULARS:
+    rs->media = produce_container_from_directory (rs->media, root_dir, ROOT_DIR_POPULARS_INDEX, mediatype);
+    break;
+  case RAITV_MEDIA_TYPE_RECENTS:
+    rs->media = produce_container_from_directory (rs->media, root_dir, ROOT_DIR_RECENTS_INDEX, mediatype);
+    break;
+  case RAITV_MEDIA_TYPE_POPULAR_THEME:
+  case RAITV_MEDIA_TYPE_RECENT_THEME:
+    rs->media = produce_container_from_directory (rs->media,
+                                                  themes_dir,
+                                                  get_theme_index_from_id (grl_media_get_id (rs->media)),
+                                                  mediatype);
+    break;
+  case RAITV_MEDIA_TYPE_VIDEO:
+    op = g_slice_new0 (RaitvOperation);
+    op->source       = g_object_ref (source);
+    op->cancellable  = g_cancellable_new ();
+    op->operation_id = rs->operation_id;
+    op->resolveCb    = rs->callback;
+    op->user_data    = rs->user_data;
+    op->media	      = rs->media;
+
+    grl_operation_set_data (rs->operation_id, op);
+
+    urltarget = g_strdup_printf ("http://www.rai.tv/dl/RaiTV/programmi/media/%s.html",
+                                 grl_media_get_id(rs->media));
+
+    GRL_DEBUG ("Opening '%s'", urltarget);
+
+    grl_net_wc_request_async (self->priv->wc,
+                              urltarget,
+                              op->cancellable,
+                              proxy_call_resolve_grlnet_async_cb,
+                              op);
+
+    g_free(urltarget);
+    return;
+  }
+  rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+  return;
 
   if ( grl_media_get_url (rs->media) != NULL) {
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
     return;
   }
 
-  RaitvOperation *op = g_slice_new0 (RaitvOperation);
+  op = g_slice_new0 (RaitvOperation);
   op->source       = g_object_ref (source);
   op->cancellable  = g_cancellable_new ();
   op->operation_id = rs->operation_id;
@@ -1233,8 +1339,6 @@ grl_raitv_source_resolve (GrlSource *source,
   urltarget = g_strdup_printf("%s/%s.html","http://www.rai.tv/dl/RaiTV/programmi/media",grl_media_get_id(rs->media));
 
   GRL_DEBUG ("Opening '%s'", urltarget);
-
-  GrlRaitvSource *self = GRL_RAITV_SOURCE (op->source);
 
   grl_net_wc_request_async (self->priv->wc,
                             urltarget,

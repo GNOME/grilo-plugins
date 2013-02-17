@@ -541,9 +541,11 @@ create_content (GrlMedia *content,
     str = g_strdup (g_file_info_get_display_name (info));
 
     /* Remove file extension */
-    extension = g_strrstr (str, ".");
-    if (extension) {
-      *extension = '\0';
+    if (!GRL_IS_MEDIA_BOX (media)) {
+      extension = g_strrstr (str, ".");
+      if (extension) {
+        *extension = '\0';
+      }
     }
 
     grl_media_set_title (media, str);

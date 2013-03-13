@@ -25,9 +25,11 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_DISABLE_STATIC
 
-PKG_CONFIG="pkg-config"
-if test -n "$host" ; then
-	PKG_CONFIG=$host-$PKG_CONFIG
+if test -z "$PKG_CONFIG" ; then
+	PKG_CONFIG="pkg-config"
+	if test -n "$host" ; then
+		PKG_CONFIG=$host-$PKG_CONFIG
+	fi
 fi
 
 LT_PREREQ([2.2.6])

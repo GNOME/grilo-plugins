@@ -1,3 +1,58 @@
+NEW in 0.2.6
+============
+
+  * General
+    * BGO#690614 - Some plugins fail to load
+    * BGO#692118 - [PATCH] Fix build with automake 1.13
+    * BGO#695789 - grilo-plugins: don't override pkg-config if there's one
+      already set
+
+  * Filesystem plugin
+    * BGO#690710 - grl-filesystem only honours the first base-path
+    * BGO#694008 - Filesystem plugin strips "extension" from directories' title
+
+  * Jamendo plugin
+    * Capitalize root-level titles
+
+  * Metadata Store plugin
+    * Store type of media
+    * Add filter by source-id key
+
+  * Rai.tv plugin
+    * Added new plugin that provides videos from Rai TV (Radiotelevisione
+      italiana), Italy's national public radio and television.
+
+  * TMDb plugin
+    * Several fixes
+    * BGO#691196 - Values in TMDb plugin are returning in reverse order
+    * BGO#691197 - Add support for film writers in TMDb plugin
+    * BGO#691339 - tmdb: Handle thumbnail independently of poster/backdrop
+
+  * Tracker plugin
+    * Added support for Tracker 0.16
+    * Added filter by type support
+    * BGO#691717 - grilo tracker plugin doesn't notify about newly added media
+
+  * UPnP plugin
+    * Add filter by type support
+
+  * YouTube plugin
+    * Initialize correctly all the inner structures
+
+  * LastFM Album Art plugin
+    * Do not return default image
+
+  * Contributors to this release:
+    * Bastien Nocera <hadess@hadess.net>
+    * Jonny Lamb <jonnylamb@gnome.org>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Marco Piazza <mpiazza@gmail.com>
+    * Mathias Hasselmann <mathias@openismus.com>
+    * Mike Ruprecht <mike.ruprecht@collabora.co.uk>
+    * Mohammed Hassan <mohammed.hassan@jollamobile.com>
+    * Nuno Araujo <nuno.araujo@russo79.com>
+
+
 NEW in 0.2.5
 ============
 

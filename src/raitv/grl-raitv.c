@@ -394,6 +394,7 @@ proxy_call_search_grlnet_async_cb (GObject *source_object,
   GError *wc_error = NULL;
   GError *error = NULL;
   gchar *content = NULL;
+  gboolean g_bVideoNotFound = TRUE;
 
   if (g_cancellable_is_cancelled (op->cancellable)) {
     goto finalize;
@@ -440,8 +441,6 @@ proxy_call_search_grlnet_async_cb (GObject *source_object,
       nb_items = xmlXPathNodeSetGetLength (obj->nodesetval);
       xmlXPathFreeObject (obj);
     }
-
-  gboolean g_bVideoNotFound = TRUE;
 
   for (i = 0; i < nb_items; i++)
     {

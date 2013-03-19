@@ -38,15 +38,6 @@ compare_floats(gfloat a, gfloat b)
   return fabs(a - b) < DBL_EPSILON;
 }
 
-static const char*
-iso_date (const GDateTime *date, char **strbuf)
-{
-  if (*strbuf)
-    g_free (*strbuf);
-
-  return (*strbuf = g_date_time_format ((GDateTime *) date, "%F"));
-}
-
 static const gchar*
 get_region_certificate (GrlMedia *media, const gchar *region)
 {

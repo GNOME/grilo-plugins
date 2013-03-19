@@ -95,7 +95,8 @@ endif
 DIST_SUBDIRS = \
 	apple-trailers bliptv bookmarks dmap fake-metadata filesystem flickr	\
 	gravatar jamendo lastfm-albumart local-metadata metadata-store			\
-	optical-media podcasts shoutcast tmdb tracker upnp vimeo youtube
+	optical-media podcasts raitv shoutcast tmdb tracker upnp vimeo			\
+	youtube
 
 MAINTAINERCLEANFILES =	\
         *.in		\

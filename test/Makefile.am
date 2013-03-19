@@ -102,6 +102,7 @@ dist_noinst_DATA = \
 	test_data/tmdb/configuration.txt \
 	test_data/tmdb/details.txt \
 	test_data/tmdb/empty-data.ini \
+	test_data/tmdb/fast-by-id.ini \
 	test_data/tmdb/images.txt \
 	test_data/tmdb/keywords.txt \
 	test_data/tmdb/no-details.ini \

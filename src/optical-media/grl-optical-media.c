@@ -26,6 +26,7 @@
 
 #include <grilo.h>
 #include <gio/gio.h>
+#include <glib/gi18n-lib.h>
 #include <totem-pl-parser.h>
 #include <string.h>
 #include <stdlib.h>
@@ -42,8 +43,8 @@ GRL_LOG_DOMAIN_STATIC(optical_media_log_domain);
 #define PLUGIN_ID   OPTICAL_MEDIA_PLUGIN_ID
 
 #define SOURCE_ID   "grl-optical-media"
-#define SOURCE_NAME "Optical Media"
-#define SOURCE_DESC "A source for browsing optical media"
+#define SOURCE_NAME _("Optical Media")
+#define SOURCE_DESC _("A source for browsing optical media")
 
 /* --- Grilo OpticalMedia Private --- */
 
@@ -92,6 +93,10 @@ grl_optical_media_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (optical_media_log_domain, "optical_media");
 
   GRL_DEBUG ("%s", __FUNCTION__);
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   GrlOpticalMediaSource *source = grl_optical_media_source_new ();
 

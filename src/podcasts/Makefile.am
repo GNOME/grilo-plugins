@@ -8,7 +8,8 @@
 ext_LTLIBRARIES = libgrlpodcasts.la
 
 libgrlpodcasts_la_CFLAGS =	\
-	$(DEPS_PODCASTS_CFLAGS)
+	$(DEPS_PODCASTS_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlpodcasts_la_LIBADD =	\
 	$(DEPS_PODCASTS_LIBS)

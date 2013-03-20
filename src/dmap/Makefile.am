@@ -8,7 +8,8 @@
 ext_LTLIBRARIES	= libgrldmap.la
 
 libgrldmap_la_CFLAGS =	\
-	$(DEPS_DMAP_CFLAGS)
+	$(DEPS_DMAP_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrldmap_la_LIBADD =	\
 	$(DEPS_DMAP_LIBS)

@@ -30,15 +30,18 @@
 #include "grl-tracker-source.h"
 #include "grl-tracker-source-cache.h"
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <glib/gi18n-lib.h>
 #include <tracker-sparql.h>
 
 /* ---- Source information ---- */
 
 #define GRL_TRACKER_SOURCE_ID   "grl-tracker-source"
 #define GRL_TRACKER_SOURCE_NAME "Tracker"
-#define GRL_TRACKER_SOURCE_DESC                 \
-  "A plugin for searching multimedia "          \
-  "content using Tracker"
+#define GRL_TRACKER_SOURCE_DESC _("A plugin for searching multimedia content using Tracker")
 
 #define GRL_TRACKER_AUTHOR  "Igalia S.L."
 #define GRL_TRACKER_LICENSE "LGPL"

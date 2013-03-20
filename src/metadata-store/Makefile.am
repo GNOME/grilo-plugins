@@ -8,7 +8,8 @@
 ext_LTLIBRARIES		 = libgrlmetadatastore.la
 
 libgrlmetadatastore_la_CFLAGS =	\
-	$(DEPS_METADATA_STORE_CFLAGS)
+	$(DEPS_METADATA_STORE_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlmetadatastore_la_LIBADD =	\
 	$(DEPS_METADATA_STORE_LIBS)

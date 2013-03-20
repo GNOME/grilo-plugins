@@ -27,6 +27,7 @@
 
 #include <grilo.h>
 #include <gio/gio.h>
+#include <glib/gi18n-lib.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -60,8 +61,8 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 #define PLUGIN_ID   FILESYSTEM_PLUGIN_ID
 
 #define SOURCE_ID   "grl-filesystem"
-#define SOURCE_NAME "Filesystem"
-#define SOURCE_DESC "A source for browsing the filesystem"
+#define SOURCE_NAME _("Filesystem")
+#define SOURCE_DESC _("A source for browsing the filesystem")
 
 /* --- Grilo Filesystem Private --- */
 
@@ -165,6 +166,10 @@ grl_filesystem_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (filesystem_log_domain, "filesystem");
 
   GRL_DEBUG ("filesystem_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   GrlFilesystemSource *source = grl_filesystem_source_new ();
 
@@ -1313,7 +1318,7 @@ grl_filesystem_source_resolve (GrlSource *source,
   } else {
     GError *error = g_error_new (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_RESOLVE_FAILED,
-                                 "File '%s' does not exist",
+                                 _("File %s does not exist"),
                                  path);
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
@@ -1364,7 +1369,7 @@ static void grl_filesystem_get_media_from_uri (GrlSource *source,
   if (!ret) {
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
-                         "Cannot create media from '%s'", mfus->uri);
+                         _("Cannot get media from %s"), mfus->uri);
     mfus->callback (source, mfus->operation_id, NULL, mfus->user_data, error);
     g_clear_error (&error);
     return;
@@ -1374,9 +1379,9 @@ static void grl_filesystem_get_media_from_uri (GrlSource *source,
   if (error != NULL) {
     GError *new_error;
     new_error = g_error_new (GRL_CORE_ERROR,
-                         GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
-                         "Cannot create media from '%s', error message: %s",
-                         mfus->uri, error->message);
+                             GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
+                             _("Cannot get media from %s: %s"),
+                             mfus->uri, error->message);
     g_clear_error (&error);
     mfus->callback (source, mfus->operation_id, NULL, mfus->user_data, new_error);
     g_clear_error (&new_error);

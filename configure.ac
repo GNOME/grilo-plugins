@@ -1025,12 +1025,13 @@ DEPS_TMDB_LIBS="$DEPS_LIBS $LIBSOUP_LIBS $GRLNET_LIBS $JSON_LIBS"
 AC_SUBST(DEPS_TMDB_LIBS)
 
 # ----------------------------------------------------------
-# GETTEXT
+# GETTEXT/INTLTOOL
 # ----------------------------------------------------------
 
-#GETTEXT_PACKAGE=grilo
-#AC_SUBST(GETTEXT_PACKAGE)
-#AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
+IT_PROG_INTLTOOL([0.40.0])
+GETTEXT_PACKAGE=grilo-plugins
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [The domain to use with gettext])
 
 #AM_GLIB_GNU_GETTEXT
 
@@ -1052,6 +1053,8 @@ AC_CONFIG_FILES([
   Makefile
   help/Makefile
   help/examples/Makefile
+  po/Makefile.in
+  po/Makefile
   src/Makefile
   src/apple-trailers/Makefile
   src/bliptv/Makefile

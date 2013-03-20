@@ -8,7 +8,8 @@
 ext_LTLIBRARIES = libgrlgravatar.la
 
 libgrlgravatar_la_CFLAGS =	\
-	$(DEPS_GRAVATAR_CFLAGS)
+	$(DEPS_GRAVATAR_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlgravatar_la_LIBADD =	\
 	$(DEPS_GRAVATAR_LIBS)

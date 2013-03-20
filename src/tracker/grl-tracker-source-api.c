@@ -314,7 +314,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
                                                                         \
         error = g_error_new (GRL_CORE_ERROR,                            \
                              GRL_CORE_ERROR_BROWSE_FAILED,              \
-                             "Failed to start query action : %s",       \
+                             _("Failed to query: %s"),                  \
                              tracker_error->message);                   \
                                                                         \
         spec->callback (spec->source,                      \
@@ -396,7 +396,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
                                                                         \
       error = g_error_new (GRL_CORE_ERROR,                              \
                            GRL_CORE_ERROR_BROWSE_FAILED,                \
-                           "Failed to start query action : %s",         \
+                           _("Failed to query: %s"),                    \
                            tracker_error->message);                     \
                                                                         \
       spec->callback (spec->source, spec->operation_id, NULL, 0,           \
@@ -442,7 +442,7 @@ tracker_resolve_cb (GObject      *source_object,
 
     error = g_error_new (GRL_CORE_ERROR,
                         GRL_CORE_ERROR_BROWSE_FAILED,
-                        "Failed to start resolve action : %s",
+                         _("Failed to resolve: %s"),
                          tracker_error->message);
 
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
@@ -493,7 +493,7 @@ tracker_store_metadata_cb (GObject      *source_object,
 
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_STORE_METADATA_FAILED,
-                         "Failed to set metadata : %s",
+                         _("Failed to update metadata: %s"),
                          tracker_error->message);
 
     sms->callback (sms->source, sms->media, NULL, sms->user_data, error);
@@ -610,7 +610,7 @@ grl_tracker_source_query (GrlSource *source,
   if (!qs->query || qs->query[0] == '\0') {
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_QUERY_FAILED,
-                                 "Empty query");
+                                 _("Empty query"));
     goto send_error;
   }
 

@@ -28,6 +28,7 @@
 
 #include <grilo.h>
 #include <net/grl-net.h>
+#include <glib/gi18n-lib.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 
@@ -63,7 +64,7 @@ GRL_LOG_DOMAIN_STATIC(shoutcast_log_domain);
 
 #define SOURCE_ID   "grl-shoutcast"
 #define SOURCE_NAME "SHOUTcast"
-#define SOURCE_DESC "A source for browsing SHOUTcast radios"
+#define SOURCE_DESC _("A source for browsing SHOUTcast radios")
 
 struct _GrlShoutcastSourcePriv {
   gchar *dev_key;
@@ -133,6 +134,10 @@ grl_shoutcast_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (shoutcast_log_domain, "shoutcast");
 
   GRL_DEBUG ("shoutcast_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   if (!configs) {
     GRL_INFO ("Configuration not provided! Plugin not loaded");
@@ -406,17 +411,17 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   op_data->xml_doc = xmlReadMemory (str, xmlStrlen ((xmlChar*) str), NULL, NULL,
                                     XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!op_data->xml_doc) {
-    error = g_error_new (GRL_CORE_ERROR,
-                         op_data->error_code,
-                         "Failed to parse SHOUTcast's response");
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 op_data->error_code,
+                                 _("Failed to parse response"));
     goto finalize;
   }
 
   node = xmlDocGetRootElement (op_data->xml_doc);
   if  (!node) {
-    error = g_error_new (GRL_CORE_ERROR,
-                         op_data->error_code,
-                         "Empty response from SHOUTcast");
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 op_data->error_code,
+                                 _("Empty response"));
     goto finalize;
   }
 
@@ -454,7 +459,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
       } else {
         error = g_error_new (GRL_CORE_ERROR,
                              op_data->error_code,
-                             "Can not find media '%s'",
+                             _("Cannot find media %s"),
                              grl_media_get_id (op_data->media));
       }
       if (xpath_res) {
@@ -462,9 +467,9 @@ xml_parse_result (const gchar *str, OperationData *op_data)
       }
       xmlXPathFreeContext (xpath_ctx);
     } else {
-      error = g_error_new (GRL_CORE_ERROR,
-                           op_data->error_code,
-                           "Can not build xpath context");
+      error = g_error_new_literal (GRL_CORE_ERROR,
+                                   op_data->error_code,
+                                   _("Failed to parse response"));
     }
 
     op_data->resolve_cb (op_data->source,
@@ -557,7 +562,7 @@ read_done_cb (GObject *source_object,
                             &wc_error)) {
     error = g_error_new (GRL_CORE_ERROR,
                          op_data->error_code,
-                         "Failed to connect SHOUTcast: '%s'",
+                         _("Failed to connect: %s"),
                          wc_error->message);
     op_data->result_cb (op_data->source,
                         op_data->operation_id,
@@ -750,8 +755,9 @@ grl_shoutcast_source_search (GrlSource *source,
   /* Check if there is text to search */
   if (!ss->text || ss->text[0] == '\0') {
     error = g_error_new (GRL_CORE_ERROR,
-                         GRL_CORE_ERROR_SEARCH_FAILED,
-                         "Search text not specified");
+                         GRL_CORE_ERROR_SEARCH_NULL_UNSUPPORTED,
+                         _("Failed to search: %s"),
+                         _("non-NULL search text is required"));
     ss->callback (ss->source,
                   ss->operation_id,
                   NULL,

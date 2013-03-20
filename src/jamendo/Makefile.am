@@ -8,7 +8,8 @@
 ext_LTLIBRARIES		 = libgrljamendo.la
 
 libgrljamendo_la_CFLAGS =	\
-	$(DEPS_JAMENDO_CFLAGS)
+	$(DEPS_JAMENDO_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrljamendo_la_LIBADD =	\
 	$(DEPS_JAMENDO_LIBS)

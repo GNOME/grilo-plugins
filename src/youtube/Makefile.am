@@ -8,7 +8,8 @@
 ext_LTLIBRARIES = libgrlyoutube.la
 
 libgrlyoutube_la_CFLAGS =	\
-	$(DEPS_YOUTUBE_CFLAGS)
+	$(DEPS_YOUTUBE_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlyoutube_la_LIBADD =	\
 	$(DEPS_YOUTUBE_LIBS)

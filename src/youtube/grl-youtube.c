@@ -26,6 +26,7 @@
 #endif
 
 #include <grilo.h>
+#include <glib/gi18n-lib.h>
 #include <net/grl-net.h>
 #include <gdata/gdata.h>
 #include <quvi/quvi.h>
@@ -56,43 +57,43 @@ GRL_LOG_DOMAIN_STATIC(youtube_log_domain);
 #define ROOT_DIR_CATEGORIES_INDEX 1
 
 #define YOUTUBE_FEEDS_ID        "standard-feeds"
-#define YOUTUBE_FEEDS_NAME      "Standard feeds"
+#define YOUTUBE_FEEDS_NAME      N_("Standard feeds")
 
 #define YOUTUBE_CATEGORIES_ID   "categories"
-#define YOUTUBE_CATEGORIES_NAME "Categories"
+#define YOUTUBE_CATEGORIES_NAME N_("Categories")
 #define YOUTUBE_CATEGORIES_URL  "http://gdata.youtube.com/schemas/2007/categories.cat"
 
 /* ----- Feeds categories ---- */
 
 #define YOUTUBE_TOP_RATED_ID         (YOUTUBE_FEEDS_ID "/0")
-#define YOUTUBE_TOP_RATED_NAME       "Top Rated"
+#define YOUTUBE_TOP_RATED_NAME       N_("Top Rated")
 
 #define YOUTUBE_TOP_FAVS_ID          (YOUTUBE_FEEDS_ID "/1")
-#define YOUTUBE_TOP_FAVS_NAME        "Top Favorites"
+#define YOUTUBE_TOP_FAVS_NAME        N_("Top Favorites")
 
 #define YOUTUBE_MOST_VIEWED_ID       (YOUTUBE_FEEDS_ID "/2")
-#define YOUTUBE_MOST_VIEWED_NAME     "Most Viewed"
+#define YOUTUBE_MOST_VIEWED_NAME     N_("Most Viewed")
 
 #define YOUTUBE_MOST_POPULAR_ID      (YOUTUBE_FEEDS_ID "/3")
-#define YOUTUBE_MOST_POPULAR_NAME    "Most Popular"
+#define YOUTUBE_MOST_POPULAR_NAME    N_("Most Popular")
 
 #define YOUTUBE_MOST_RECENT_ID       (YOUTUBE_FEEDS_ID "/4")
-#define YOUTUBE_MOST_RECENT_NAME     "Most Recent"
+#define YOUTUBE_MOST_RECENT_NAME     N_("Most Recent")
 
 #define YOUTUBE_MOST_DISCUSSED_ID    (YOUTUBE_FEEDS_ID "/5")
-#define YOUTUBE_MOST_DISCUSSED_NAME  "Most Discussed"
+#define YOUTUBE_MOST_DISCUSSED_NAME  N_("Most Discussed")
 
 #define YOUTUBE_MOST_LINKED_ID       (YOUTUBE_FEEDS_ID "/6")
-#define YOUTUBE_MOST_LINKED_NAME     "Most Linked"
+#define YOUTUBE_MOST_LINKED_NAME     N_("Most Linked")
 
 #define YOUTUBE_MOST_RESPONDED_ID    (YOUTUBE_FEEDS_ID "/7")
-#define YOUTUBE_MOST_RESPONDED_NAME  "Most Responded"
+#define YOUTUBE_MOST_RESPONDED_NAME  N_("Most Responded")
 
 #define YOUTUBE_FEATURED_ID          (YOUTUBE_FEEDS_ID "/8")
-#define YOUTUBE_FEATURED_NAME        "Recently Featured"
+#define YOUTUBE_FEATURED_NAME        N_("Recently Featured")
 
 #define YOUTUBE_MOBILE_ID            (YOUTUBE_FEEDS_ID "/9")
-#define YOUTUBE_MOBILE_NAME          "Watch On Mobile"
+#define YOUTUBE_MOBILE_NAME          N_("Watch On Mobile")
 
 /* --- Other --- */
 
@@ -113,7 +114,7 @@ GRL_LOG_DOMAIN_STATIC(youtube_log_domain);
 
 #define SOURCE_ID   "grl-youtube"
 #define SOURCE_NAME "YouTube"
-#define SOURCE_DESC "A source for browsing and searching YouTube videos"
+#define SOURCE_DESC _("A source for browsing and searching YouTube videos")
 
 /* --- Data types --- */
 
@@ -262,6 +263,10 @@ grl_youtube_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (youtube_log_domain, "youtube");
 
   GRL_DEBUG ("youtube_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   if (!configs) {
     GRL_INFO ("Configuration not provided! Plugin not loaded");
@@ -666,7 +671,8 @@ parse_categories (xmlDocPtr doc, xmlNodePtr node, BuildCategorySpec *bcs)
     do {
       cat_info = (CategoryInfo *) iter->data;
       categories_dir[total - 1].id = cat_info->id ;
-      categories_dir[total - 1].name = cat_info->name;
+      categories_dir[total - 1].name = (gchar *) g_dgettext (GETTEXT_PACKAGE,
+                                                             cat_info->name);
       categories_dir[total - 1].count = -1;
       total--;
       g_slice_free (CategoryInfo, cat_info);
@@ -937,9 +943,9 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
     }
   } else {
     if (!error) {
-      error = g_error_new (GRL_CORE_ERROR,
-			   os->error_code,
-			   "Failed to obtain feed from YouTube");
+      error = g_error_new_literal (GRL_CORE_ERROR,
+                                   os->error_code,
+                                   _("Failed to get feed"));
     } else {
       error->code = os->error_code;
     }
@@ -1053,7 +1059,7 @@ produce_container_from_directory (GDataService *service,
     grl_media_set_title (content, YOUTUBE_ROOT_NAME);
   } else {
     grl_media_set_id (content, dir[index].id);
-    grl_media_set_title (content, dir[index].name);
+    grl_media_set_title (content, g_dgettext (GETTEXT_PACKAGE, dir[index].name));
   }
   grl_media_set_site (content, YOUTUBE_SITE_URL);
   set_category_childcount (service, GRL_MEDIA_BOX (content), dir, index);
@@ -1119,8 +1125,9 @@ produce_from_feed (OperationSpec *os)
 
   if (feed_type < 0) {
     error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_BROWSE_FAILED,
-			 "Invalid feed id: %s", os->container_id);
+                         GRL_CORE_ERROR_BROWSE_FAILED,
+                         _("Invalid feed identifier %s"),
+                         os->container_id);
     os->callback (os->source,
 		  os->operation_id,
 		  NULL,
@@ -1189,8 +1196,9 @@ produce_from_category (OperationSpec *os)
 
   if (!category_term) {
     error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_BROWSE_FAILED,
-			 "Invalid category id: %s", os->container_id);
+                         GRL_CORE_ERROR_BROWSE_FAILED,
+                         _("Invalid category identifier %s"),
+                         os->container_id);
     os->callback (os->source,
 		  os->operation_id,
 		  NULL,
@@ -1330,7 +1338,8 @@ produce_container_from_category_cb (BuildCategorySpec *spec)
     media = rs->media;
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_RESOLVE_FAILED,
-                         "Invalid category id");
+                         _("Invalid category identifier %s"),
+                         id);
   }
 
   rs->callback (rs->source, rs->operation_id, media, rs->user_data, error);
@@ -1524,7 +1533,8 @@ grl_youtube_source_resolve (GrlSource *source,
       } else {
         error = g_error_new (GRL_CORE_ERROR,
                              GRL_CORE_ERROR_RESOLVE_FAILED,
-                             "Invalid feed id");
+                             _("Invalid feed identifier %s"),
+                             id);
       }
     }
     break;
@@ -1543,7 +1553,8 @@ grl_youtube_source_resolve (GrlSource *source,
         } else {
           error = g_error_new (GRL_CORE_ERROR,
                                GRL_CORE_ERROR_RESOLVE_FAILED,
-                               "Invalid category id");
+                               _("Invalid category identifier %s"),
+                               id);
         }
       }
     }
@@ -1614,8 +1625,9 @@ grl_youtube_get_media_from_uri (GrlSource *source,
   video_id = get_video_id_from_url (mfus->uri);
   if (video_id == NULL) {
     error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
-			 "Cannot create media from '%s'", mfus->uri);
+                         GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
+                         _("Cannot get media from %s"),
+                         mfus->uri);
     mfus->callback (source, mfus->operation_id, NULL, mfus->user_data, error);
     g_error_free (error);
     return;

@@ -8,7 +8,8 @@
 libplugin_LTLIBRARIES	= libgrlflickr.la
 
 libgrlflickr_la_CFLAGS =	\
-	$(DEPS_FLICKR_CFLAGS)
+	$(DEPS_FLICKR_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlflickr_la_LIBADD =	\
 	$(DEPS_FLICKR_LIBS)

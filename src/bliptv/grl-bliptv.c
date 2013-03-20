@@ -31,6 +31,7 @@
 
 #include <net/grl-net.h>
 
+#include <glib/gi18n-lib.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
@@ -56,7 +57,7 @@ GRL_LOG_DOMAIN_STATIC(bliptv_log_domain);
 
 #define SOURCE_ID   "grl-bliptv"
 #define SOURCE_NAME "Blip.tv"
-#define SOURCE_DESC "A source for browsing and searching Blip.tv videos"
+#define SOURCE_DESC _("A source for browsing and searching Blip.tv videos")
 
 
 G_DEFINE_TYPE (GrlBliptvSource, grl_bliptv_source, GRL_TYPE_SOURCE)
@@ -121,6 +122,10 @@ grl_bliptv_plugin_init (GrlRegistry *registry,
                         GList *configs)
 {
   GRL_LOG_DOMAIN_INIT (bliptv_log_domain, "bliptv");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   bliptv_setup_mapping ();
 

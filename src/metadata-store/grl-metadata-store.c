@@ -26,6 +26,7 @@
 
 #include <glib.h>
 #include <glib/gstdio.h>
+#include <glib/gi18n-lib.h>
 #include <grilo.h>
 #include <sqlite3.h>
 #include <string.h>
@@ -43,8 +44,8 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
 #define PLUGIN_ID   METADATA_STORE_PLUGIN_ID
 
 #define SOURCE_ID   "grl-metadata-store"
-#define SOURCE_NAME "Metadata Store"
-#define SOURCE_DESC "A plugin for storing extra metadata information"
+#define SOURCE_NAME _("Metadata Store")
+#define SOURCE_DESC _("A plugin for storing extra metadata information")
 
 #define GRL_SQL_DB  "grl-metadata-store.db"
 
@@ -157,6 +158,10 @@ grl_metadata_store_source_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (metadata_store_log_domain, "metadata-store");
 
   GRL_DEBUG ("grl_metadata_store_source_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   GrlMetadataStoreSource *source = grl_metadata_store_source_new ();
   grl_registry_register_source (registry,
@@ -563,8 +568,8 @@ write_keys (sqlite3 *db,
                      "keys is writable");
     *error = g_error_new (GRL_CORE_ERROR,
                           GRL_CORE_ERROR_STORE_METADATA_FAILED,
-                          "Failed to update metadata, "
-                          "specified keys are not writable");
+                          _("Failed to update metadata: %s"),
+                          _("specified keys are not writable"));
     goto done;
   }
 
@@ -582,7 +587,8 @@ write_keys (sqlite3 *db,
     failed_keys = g_list_copy (sms->keys);
     *error = g_error_new (GRL_CORE_ERROR,
                           GRL_CORE_ERROR_STORE_METADATA_FAILED,
-                          "Failed to update metadata");
+                          _("Failed to update metadata: %s"),
+                          sqlite3_errmsg (db));
     goto done;
   }
 
@@ -601,9 +607,9 @@ write_keys (sqlite3 *db,
                      source_id, media_id, sqlite3_errmsg (db));
     g_list_free (failed_keys);
     failed_keys = g_list_copy (sms->keys);
-    *error = g_error_new (GRL_CORE_ERROR,
-                          GRL_CORE_ERROR_STORE_METADATA_FAILED,
-                          "Failed to update metadata");
+    *error = g_error_new_literal (GRL_CORE_ERROR,
+                                  GRL_CORE_ERROR_STORE_METADATA_FAILED,
+                                  _("Failed to update metadata"));
     goto done;
   }
 
@@ -746,8 +752,9 @@ grl_metadata_store_source_resolve (GrlSource *source,
   if (!source_id) {
     GRL_WARNING ("Failed to resolve metadata: source-id not available");
     error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_RESOLVE_FAILED,
-			 "source-id not available, cannot resolve metadata.");
+                         GRL_CORE_ERROR_RESOLVE_FAILED,
+                         _("Failed to resolve: %s"),
+                         _("\"source-id\" not available"));
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
     return;
@@ -765,9 +772,9 @@ grl_metadata_store_source_resolve (GrlSource *source,
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   } else {
     GRL_WARNING ("Failed to resolve metadata");
-    error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_RESOLVE_FAILED,
-			 "Failed to resolve metadata.");
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_RESOLVE_FAILED,
+                                 _("Failed to resolve"));
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
   }
@@ -791,7 +798,8 @@ grl_metadata_store_source_store_metadata (GrlSource *source,
     GRL_WARNING ("Failed to update metadata: source-id not available");
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_STORE_METADATA_FAILED,
-                         "source-id not available, cannot update metadata.");
+                         _("Failed to update metadata: %s"),
+                         _("\"source-id\" not available"));
     failed_keys = g_list_copy (sms->keys);
   } else {
     /* Special case for root categories */
@@ -832,9 +840,9 @@ grl_metadata_store_source_search (GrlSource *source,
   db = GRL_METADATA_STORE_SOURCE (source)->priv->db;
   if (!db) {
     GRL_WARNING ("Can't execute operation: no database connection.");
-    error = g_error_new (GRL_CORE_ERROR,
-                         GRL_CORE_ERROR_QUERY_FAILED,
-                         "No database connection");
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_QUERY_FAILED,
+                                 _("No database connection"));
     ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
     return;
@@ -877,7 +885,8 @@ grl_metadata_store_source_search (GrlSource *source,
     GRL_WARNING ("Failed to search in the metadata store: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_SEARCH_FAILED,
-                         "Failed to search in the metadata store");
+                         _("Failed to search: %s"),
+                         sqlite3_errmsg (db));
     ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
     return;
@@ -907,7 +916,8 @@ grl_metadata_store_source_search (GrlSource *source,
     GRL_WARNING ("Failed to search in the metadata store: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_SEARCH_FAILED,
-                         "Failed to search in the metadata store");
+                         _("Failed to search: %s"),
+                         sqlite3_errmsg (db));
     ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
     sqlite3_finalize (sql_stmt);

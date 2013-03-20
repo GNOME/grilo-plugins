@@ -27,6 +27,7 @@
 
 #include <errno.h>
 #include <grilo.h>
+#include <glib/gi18n-lib.h>
 #include <gio/gio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -47,7 +48,7 @@ GRL_LOG_DOMAIN_STATIC(dmap_log_domain);
 #define PLUGIN_ID   DMAP_PLUGIN_ID
 
 #define SOURCE_ID_TEMPLATE   "grl-dmap-%s"
-#define SOURCE_DESC_TEMPLATE "A source for browsing the DMAP server '%s'"
+#define SOURCE_DESC_TEMPLATE _("A source for browsing the DMAP server '%s'")
 
 /* --- Grilo DMAP Private --- */
 
@@ -122,6 +123,10 @@ grl_dmap_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (dmap_log_domain, "dmap");
 
   GRL_DEBUG ("dmap_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   browser     = dmap_mdns_browser_new (DMAP_MDNS_BROWSER_SERVICE_TYPE_DAAP);
   connections = g_hash_table_new (g_str_hash, g_str_equal);

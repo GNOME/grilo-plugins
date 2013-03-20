@@ -8,7 +8,8 @@
 ext_LTLIBRARIES		 = libgrlappletrailers.la
 
 libgrlappletrailers_la_CFLAGS =	\
-	$(DEPS_APPLE_TRAILERS_CFLAGS)
+	$(DEPS_APPLE_TRAILERS_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlappletrailers_la_LIBADD =	\
 	$(DEPS_APPLE_TRAILERS_LIBS)

@@ -29,6 +29,7 @@
 #endif
 
 #include <grilo.h>
+#include <glib/gi18n-lib.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -54,11 +55,13 @@ GRL_LOG_DOMAIN(flickr_log_domain);
 
 #define PUBLIC_SOURCE_ID   "grl-flickr"
 #define PUBLIC_SOURCE_NAME "Flickr"
-#define PUBLIC_SOURCE_DESC "A source for browsing and searching Flickr photos"
+#define PUBLIC_SOURCE_DESC _("A source for browsing and searching Flickr photos")
 
 #define PERSONAL_SOURCE_ID "grl-flickr-%s"
-#define PERSONAL_SOURCE_NAME "%s's Flickr"
-#define PERSONAL_SOURCE_DESC "A source for browsing and searching %s' flickr photos"
+/* "%s" is a full user name, like "John Doe" */
+#define PERSONAL_SOURCE_NAME _("%s's Flickr")
+/* "%s" is a full user name, like "John Doe" */
+#define PERSONAL_SOURCE_DESC _("A source for browsing and searching %s' flickr photos")
 
 typedef struct {
   GrlSource *source;
@@ -124,6 +127,10 @@ grl_flickr_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (flickr_log_domain, "flickr");
 
   GRL_DEBUG ("flickr_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   if (!configs) {
     GRL_INFO ("Configuration not provided! Plugin not loaded");

@@ -29,6 +29,7 @@
 
 #include <grilo.h>
 #include <gio/gio.h>
+#include <glib/gi18n-lib.h>
 
 #include "grl-local-metadata.h"
 
@@ -38,8 +39,8 @@ GRL_LOG_DOMAIN_STATIC(local_metadata_log_domain);
 #define PLUGIN_ID   LOCALMETADATA_PLUGIN_ID
 
 #define SOURCE_ID   "grl-local-metadata"
-#define SOURCE_NAME "Local Metadata Provider"
-#define SOURCE_DESC "A source providing locally available metadata"
+#define SOURCE_NAME _("Local Metadata Provider")
+#define SOURCE_DESC _("A source providing locally available metadata")
 
 /**/
 
@@ -134,6 +135,10 @@ grl_local_metadata_source_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (local_metadata_log_domain, "local-metadata");
 
   GRL_DEBUG ("grl_local_metadata_source_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   if (!configs) {
     GRL_INFO ("\tConfiguration not provided! Using default configuration.");
@@ -462,8 +467,10 @@ got_file_info (GFile *file,
 
 error:
     {
-      GError *new_error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
-                                       "Got error: %s", error->message);
+      GError *new_error = g_error_new (GRL_CORE_ERROR,
+                                       GRL_CORE_ERROR_RESOLVE_FAILED,
+                                       _("Failed to resolve: %s"),
+                                       error->message);
       rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, new_error);
 
       g_error_free (error);
@@ -983,11 +990,13 @@ grl_local_metadata_source_resolve (GrlSource *source,
   flags = get_resolution_flags (rs->keys);
 
    if (!flags)
-     error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
-                          "local-metadata cannot resolve any of the given keys");
+     error = g_error_new_literal (GRL_CORE_ERROR,
+                                  GRL_CORE_ERROR_RESOLVE_FAILED,
+                                  _("Cannot resolve any of the given keys"));
    if (GRL_IS_MEDIA_IMAGE (rs->media) && can_access == FALSE)
-     error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_RESOLVE_FAILED,
-                          "local-metadata needs a GIO supported URL for images");
+     error = g_error_new_literal (GRL_CORE_ERROR,
+                                  GRL_CORE_ERROR_RESOLVE_FAILED,
+                                  _("A GIO supported URL for images is required"));
 
   if (error) {
     /* No can do! */

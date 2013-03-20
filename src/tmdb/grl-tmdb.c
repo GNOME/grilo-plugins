@@ -31,6 +31,7 @@
 #include <net/grl-net.h>
 #include <libsoup/soup-uri.h>
 #include <json-glib/json-glib.h>
+#include <glib/gi18n-lib.h>
 
 #include "grl-tmdb.h"
 #include "grl-tmdb-request.h"
@@ -135,6 +136,10 @@ grl_tmdb_source_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (tmdb_log_domain, "tmdb");
 
   GRL_DEBUG ("grl_tmdb_source_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   if (!configs) {
     GRL_INFO ("No configuration provided. Will not load plugin");
@@ -940,7 +945,7 @@ on_search_ready (GObject *source,
     /* Cannot continue without id */
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_RESOLVE_FAILED,
-                                 "Remote data did not contain valid ID");
+                                 _("Remote data does not contain valid identifier"));
     resolve_closure_callback (closure, error);
     resolve_closure_free (closure);
     g_error_free (error);

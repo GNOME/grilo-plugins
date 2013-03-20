@@ -8,7 +8,8 @@
 ext_LTLIBRARIES		 = libgrlvimeo.la
 
 libgrlvimeo_la_CFLAGS =	\
-	$(DEPS_VIMEO_CFLAGS)
+	$(DEPS_VIMEO_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlvimeo_la_LIBADD =	\
 	$(DEPS_VIMEO_LIBS)

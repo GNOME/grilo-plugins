@@ -8,7 +8,8 @@
 ext_LTLIBRARIES = libgrllastfm-albumart.la
 
 libgrllastfm_albumart_la_CFLAGS =	\
-	$(DEPS_LASTFM_ALBUMART_CFLAGS)
+	$(DEPS_LASTFM_ALBUMART_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrllastfm_albumart_la_LIBADD =	\
 	$(DEPS_LASTFM_ALBUMART_LIBS)

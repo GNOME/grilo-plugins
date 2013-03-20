@@ -8,7 +8,9 @@
 ext_LTLIBRARIES		 = libgrllocalmetadata.la
 
 libgrllocalmetadata_la_CFLAGS =	\
-	$(DEPS_LOCALMETADATA_CFLAGS)
+	$(DEPS_LOCALMETADATA_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
+
 
 libgrllocalmetadata_la_LIBADD =	\
 	$(DEPS_LOCALMETADATA_LIBS)

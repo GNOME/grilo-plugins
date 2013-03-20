@@ -8,7 +8,8 @@
 ext_LTLIBRARIES		 = libgrlfilesystem.la
 
 libgrlfilesystem_la_CFLAGS =	\
-	$(DEPS_FILESYSTEM_CFLAGS)
+	$(DEPS_FILESYSTEM_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlfilesystem_la_LIBADD =	\
 	$(DEPS_FILESYSTEM_LIBS)

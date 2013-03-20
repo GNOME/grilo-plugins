@@ -30,6 +30,7 @@
 #include <grilo.h>
 #include <net/grl-net.h>
 #include <libxml/xpath.h>
+#include <glib/gi18n-lib.h>
 
 #include "grl-apple-trailers.h"
 
@@ -51,8 +52,8 @@ GRL_LOG_DOMAIN_STATIC(apple_trailers_log_domain);
 #define PLUGIN_ID   APPLE_TRAILERS_PLUGIN_ID
 
 #define SOURCE_ID   "grl-apple-trailers"
-#define SOURCE_NAME "Apple Movie Trailers"
-#define SOURCE_DESC "A plugin for browsing Apple Movie Trailers"
+#define SOURCE_NAME _("Apple Movie Trailers")
+#define SOURCE_DESC _("A plugin for browsing Apple Movie Trailers")
 
 typedef struct {
   GrlSourceBrowseSpec *bs;
@@ -108,6 +109,10 @@ grl_apple_trailers_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (apple_trailers_log_domain, "apple-trailers");
 
   GRL_DEBUG ("apple_trailers_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   for (; configs; configs = g_list_next (configs)) {
     GrlConfig *config;
@@ -447,17 +452,17 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   op_data->xml_doc = xmlReadMemory (str, xmlStrlen ((xmlChar*) str), NULL, NULL,
                                     XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
   if (!op_data->xml_doc) {
-    error = g_error_new (GRL_CORE_ERROR,
-                         GRL_CORE_ERROR_BROWSE_FAILED,
-                         "Failed to parse response");
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_BROWSE_FAILED,
+                                 _("Failed to parse response"));
     goto finalize;
   }
 
   node = xmlDocGetRootElement (op_data->xml_doc);
   if (!node || !node->xmlChildrenNode) {
-    error = g_error_new (GRL_CORE_ERROR,
-                         GRL_CORE_ERROR_BROWSE_FAILED,
-                         "Empty response from Apple Trailers");
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_BROWSE_FAILED,
+                                 _("Empty response"));
     goto finalize;
   }
 
@@ -515,7 +520,7 @@ read_done_cb (GObject *source_object,
                               &wc_error)) {
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_BROWSE_FAILED,
-                         "Failed to connect Apple Trailers: '%s'",
+                         _("Failed to connect: %s"),
                          wc_error->message);
     op_data->bs->callback (op_data->bs->source,
                            op_data->bs->operation_id,

@@ -33,6 +33,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <libxml/tree.h>
+#include <glib/gi18n-lib.h>
 
 #include "grl-upnp.h"
 
@@ -49,7 +50,7 @@ GRL_LOG_DOMAIN_STATIC(upnp_log_domain);
 #define PLUGIN_ID   UPNP_PLUGIN_ID
 
 #define SOURCE_ID_TEMPLATE    "grl-upnp-%s"
-#define SOURCE_DESC_TEMPLATE  "A source for browsing the UPnP server '%s'"
+#define SOURCE_DESC_TEMPLATE  _("A source for browsing the UPnP server '%s'")
 
 /* --- Other --- */
 
@@ -168,6 +169,10 @@ grl_upnp_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (upnp_log_domain, "upnp");
 
   GRL_DEBUG ("grl_upnp_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
 #if !GLIB_CHECK_VERSION(2,32,0)
   /* libsoup needs this */
@@ -1244,9 +1249,9 @@ grl_upnp_source_browse (GrlSource *source,
   }
 
   if (!action) {
-    error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_BROWSE_FAILED,
-			 "Failed to start browse action");
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_BROWSE_FAILED,
+                                 _("Failed to browse"));
     bs->callback (bs->source, bs->operation_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
     g_slice_free (struct OperationSpec, os);
@@ -1301,9 +1306,9 @@ grl_upnp_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
                                       "",
 				      NULL);
   if (!action) {
-    error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_SEARCH_FAILED,
-			 "Failed to start browse action");
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_SEARCH_FAILED,
+                                 _("Failed to browse"));
     ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
     g_slice_free (struct OperationSpec, os);
@@ -1364,9 +1369,9 @@ grl_upnp_source_query (GrlSource *source, GrlSourceQuerySpec *qs)
 				      "",
 				      NULL);
   if (!action) {
-    error = g_error_new (GRL_CORE_ERROR,
-			 GRL_CORE_ERROR_QUERY_FAILED,
-			 "Failed to start query action");
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_QUERY_FAILED,
+                                 _("Failed to query"));
     qs->callback (qs->source, qs->operation_id, NULL, 0, qs->user_data, error);
     g_error_free (error);
     g_slice_free (struct OperationSpec, os);
@@ -1414,9 +1419,9 @@ grl_upnp_source_resolve (GrlSource *source,
                                       "",
                                       NULL);
   if (!action) {
-    error = g_error_new (GRL_CORE_ERROR,
-                         GRL_CORE_ERROR_RESOLVE_FAILED,
-                         "Failed to start resolve action");
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_RESOLVE_FAILED,
+                                 _("Failed to resolve"));
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
   }
@@ -1485,7 +1490,7 @@ grl_upnp_source_notify_change_start (GrlSource *source,
     g_set_error (error,
                  GRL_CORE_ERROR,
                  GRL_CORE_ERROR_NOTIFY_CHANGED_FAILED,
-                 "Unable to listen for changes in %s",
+                 _("Unable to listen for changes in %s"),
                  grl_source_get_id (GRL_SOURCE (source)));
     return FALSE;
   }

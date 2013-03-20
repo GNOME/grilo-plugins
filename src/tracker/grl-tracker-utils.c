@@ -28,6 +28,7 @@
 #endif
 
 #include "grl-tracker-utils.h"
+#include <glib/gi18n-lib.h>
 
 /**/
 
@@ -602,7 +603,7 @@ get_tracker_volume_name (const gchar *uri,
       if (g_file_equal (m_file, file)) {
         gchar *m_name = g_mount_get_name (G_MOUNT (mount->data));
         g_object_unref (G_OBJECT (m_file));
-        source_name = g_strdup_printf ("Removable - %s", m_name);
+        source_name = g_strdup_printf (_("Removable - %s"), m_name);
         g_free (m_name);
         break;
       }
@@ -614,7 +615,7 @@ get_tracker_volume_name (const gchar *uri,
     g_object_unref (G_OBJECT (file));
     g_object_unref (G_OBJECT (volume_monitor));
   } else {
-    source_name = g_strdup ("Local files");
+    source_name = g_strdup (_("Local files"));
   }
 
   return source_name;

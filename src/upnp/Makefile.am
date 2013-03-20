@@ -7,8 +7,9 @@
 
 ext_LTLIBRARIES	= libgrlupnp.la
 
-libgrlupnp_la_CFLAGS =		\
-	$(DEPS_UPNP_CFLAGS)
+libgrlupnp_la_CFLAGS =	\
+	$(DEPS_UPNP_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlupnp_la_LIBADD =	\
 	$(DEPS_UPNP_LIBS)

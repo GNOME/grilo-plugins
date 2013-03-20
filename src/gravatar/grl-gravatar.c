@@ -29,6 +29,8 @@
 
 #include "grl-gravatar.h"
 
+#include <glib/gi18n-lib.h>
+
 /* ---------- Logging ---------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT gravatar_log_domain
@@ -43,8 +45,8 @@ GRL_LOG_DOMAIN_STATIC(gravatar_log_domain);
 #define PLUGIN_ID   GRAVATAR_PLUGIN_ID
 
 #define SOURCE_ID   PLUGIN_ID
-#define SOURCE_NAME "Avatar provider from Gravatar"
-#define SOURCE_DESC "A plugin to get avatars for artist and author fields"
+#define SOURCE_NAME _("Avatar provider from Gravatar")
+#define SOURCE_DESC _("A plugin to get avatars for artist and author fields")
 
 static GrlGravatarSource *grl_gravatar_source_new (void);
 
@@ -80,6 +82,10 @@ grl_gravatar_source_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (gravatar_log_domain, "gravatar");
 
   GRL_DEBUG ("grl_gravatar_source_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   /* Register keys */
   GRL_METADATA_KEY_ARTIST_AVATAR =

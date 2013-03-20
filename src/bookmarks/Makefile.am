@@ -8,7 +8,8 @@
 ext_LTLIBRARIES = libgrlbookmarks.la
 
 libgrlbookmarks_la_CFLAGS =	\
-	$(DEPS_BOOKMARKS_CFLAGS)
+	$(DEPS_BOOKMARKS_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlbookmarks_la_LIBADD =	\
 	$(DEPS_BOOKMARKS_LIBS)

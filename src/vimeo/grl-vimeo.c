@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <glib/gi18n-lib.h>
 
 #include "grl-vimeo.h"
 #include "gvimeo.h"
@@ -53,7 +54,7 @@ GRL_LOG_DOMAIN_STATIC(vimeo_log_domain);
 
 #define SOURCE_ID   "grl-vimeo"
 #define SOURCE_NAME "Vimeo"
-#define SOURCE_DESC "A source for browsing and searching Vimeo videos"
+#define SOURCE_DESC _("A source for browsing and searching Vimeo videos")
 
 #define MAX_ELEMENTS 50
 
@@ -111,6 +112,10 @@ grl_vimeo_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (vimeo_log_domain, "vimeo");
 
   GRL_DEBUG ("vimeo_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
 #if !GLIB_CHECK_VERSION(2,32,0)
   if (!g_thread_supported ()) {
@@ -501,10 +506,10 @@ grl_vimeo_source_search (GrlSource *source,
 
   if (!ss->text) {
     /* Vimeo does not support searching all */
-    error =
-      g_error_new_literal (GRL_CORE_ERROR,
-                           GRL_CORE_ERROR_SEARCH_NULL_UNSUPPORTED,
-                           "Unable to execute search: non NULL search text is required");
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_SEARCH_NULL_UNSUPPORTED,
+                         _("Failed to search: %s"),
+                         _("non-NULL search text is required"));
     ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
     g_error_free (error);
     return;

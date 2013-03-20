@@ -27,6 +27,7 @@
 #endif
 
 #include <net/grl-net.h>
+#include <glib/gi18n-lib.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/xpath.h>
@@ -55,8 +56,8 @@ GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 #define PLUGIN_ID   LASTFM_ALBUMART_PLUGIN_ID
 
 #define SOURCE_ID   "grl-lastfm-albumart"
-#define SOURCE_NAME "Album art Provider from Last.FM"
-#define SOURCE_DESC "A plugin for getting album arts using Last.FM as backend"
+#define SOURCE_NAME _("Album art Provider from Last.FM")
+#define SOURCE_DESC _("A plugin for getting album arts using Last.FM as backend")
 
 static GrlNetWc *wc;
 
@@ -92,6 +93,10 @@ grl_lastfm_albumart_source_plugin_init (GrlRegistry *registry,
   GRL_LOG_DOMAIN_INIT (lastfm_albumart_log_domain, "lastfm-albumart");
 
   GRL_DEBUG ("grl_lastfm_albumart_source_plugin_init");
+
+  /* Initialize i18n */
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   GrlLastfmAlbumartSource *source = grl_lastfm_albumart_source_new ();
   grl_registry_register_source (registry,
@@ -221,7 +226,7 @@ read_done_cb (GObject *source_object,
     } else {
       error = g_error_new (GRL_CORE_ERROR,
                            GRL_CORE_ERROR_RESOLVE_FAILED,
-                           "Failed to connect to Last.FM: '%s'",
+                           _("Failed to connect: %s"),
                            wc_error->message);
       g_error_free (wc_error);
     }

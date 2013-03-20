@@ -8,7 +8,8 @@
 ext_LTLIBRARIES		 = libgrlshoutcast.la
 
 libgrlshoutcast_la_CFLAGS =	\
-	$(DEPS_SHOUTCAST_CFLAGS)
+	$(DEPS_SHOUTCAST_CFLAGS)	\
+	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlshoutcast_la_LIBADD =	\
 	$(DEPS_SHOUTCAST_LIBS)

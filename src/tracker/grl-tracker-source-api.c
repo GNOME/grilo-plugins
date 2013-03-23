@@ -182,13 +182,23 @@ fill_grilo_media_from_sparql (GrlTrackerSource    *source,
     const gchar *str_val;
   } val;
 
-  if (assoc == NULL)
-    return;
+  GrlKeyID grl_key;
+
+  if (assoc == NULL) {
+    /* Maybe the user is setting the key */
+    GrlRegistry *registry = grl_registry_get_default ();
+    grl_key = grl_registry_lookup_metadata_key (registry, sparql_key);
+    if (grl_key == GRL_METADATA_KEY_INVALID) {
+      return;
+    }
+  } else {
+    grl_key = assoc->grl_key;
+  }
 
   GRL_ODEBUG ("\tSetting media prop (col=%i/var=%s/prop=%s) %s",
               column,
               sparql_key,
-              GRL_METADATA_KEY_GET_NAME (assoc->grl_key),
+              GRL_METADATA_KEY_GET_NAME (grl_key),
               tracker_sparql_cursor_get_string (cursor, column, NULL));
 
   if (tracker_sparql_cursor_is_bound (cursor, column) == FALSE) {
@@ -196,41 +206,39 @@ fill_grilo_media_from_sparql (GrlTrackerSource    *source,
     return;
   }
 
-  if (grl_data_has_key (GRL_DATA (media), assoc->grl_key)) {
+  if (grl_data_has_key (GRL_DATA (media), grl_key)) {
     GRL_ODEBUG ("\t\tDropping, already here");
     return;
   }
 
-  if (assoc->set_value) {
+  if (assoc && assoc->set_value) {
     assoc->set_value (cursor, column, media, assoc->grl_key);
   } else {
-    switch (GRL_METADATA_KEY_GET_TYPE (assoc->grl_key)) {
-      case G_TYPE_STRING:
-        /* Cache the source associated to this result. */
-        if (assoc->grl_key == GRL_METADATA_KEY_ID) {
-          grl_tracker_source_cache_add_item (grl_tracker_item_cache,
-                                             tracker_sparql_cursor_get_integer (cursor,
-                                                                                column),
-                                             source);
-        }
-        val.str_val = tracker_sparql_cursor_get_string (cursor, column, NULL);
-        if (val.str_val != NULL)
-          grl_data_set_string (GRL_DATA (media), assoc->grl_key, val.str_val);
-        break;
-
-      case G_TYPE_INT:
-        val.int_val = tracker_sparql_cursor_get_integer (cursor, column);
-        grl_data_set_int (GRL_DATA (media), assoc->grl_key, val.int_val);
-        break;
-
-      case G_TYPE_FLOAT:
-        val.double_val = tracker_sparql_cursor_get_double (cursor, column);
-        grl_data_set_float (GRL_DATA (media), assoc->grl_key, (gfloat) val.double_val);
-        break;
-
-      default:
-        GRL_ODEBUG ("\t\tUnexpected data type");
-        break;
+    GType grl_type = GRL_METADATA_KEY_GET_TYPE (grl_key);
+    if (grl_type == G_TYPE_STRING) {
+      /* Cache the source associated to this result. */
+      if (grl_key == GRL_METADATA_KEY_ID) {
+        grl_tracker_source_cache_add_item (grl_tracker_item_cache,
+                                           tracker_sparql_cursor_get_integer (cursor,
+                                                                              column),
+                                           source);
+      }
+      val.str_val = tracker_sparql_cursor_get_string (cursor, column, NULL);
+      if (val.str_val != NULL)
+        grl_data_set_string (GRL_DATA (media), grl_key, val.str_val);
+    } else if (grl_type == G_TYPE_INT) {
+      val.int_val = tracker_sparql_cursor_get_integer (cursor, column);
+      grl_data_set_int (GRL_DATA (media), grl_key, val.int_val);
+    } else if (grl_type == G_TYPE_FLOAT) {
+      val.double_val = tracker_sparql_cursor_get_double (cursor, column);
+      grl_data_set_float (GRL_DATA (media), grl_key, (gfloat) val.double_val);
+    } else if (grl_type == G_TYPE_DATE_TIME) {
+      val.str_val = tracker_sparql_cursor_get_string (cursor, column, NULL);
+      GDateTime *date_time = grl_date_time_from_iso8601 (val.str_val);
+      grl_data_set_boxed (GRL_DATA (media), grl_key, date_time);
+      g_date_time_unref (date_time);
+    } else {
+      GRL_ODEBUG ("\t\tUnexpected data type");
     }
   }
 }

@@ -57,12 +57,19 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
 
 /* ------- Definitions ------- */
 
-#define TRACKER_QUERY_REQUEST                   \
+#define TRACKER_QUERY_LIMIT                     \
+  "OFFSET %u "                                  \
+  "LIMIT %u"
+
+#define TRACKER_QUERY_PARTIAL_REQUEST           \
   "SELECT rdf:type(?urn) %s "                   \
   "WHERE { %s . %s } "                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
-  "OFFSET %u "                                  \
-  "LIMIT %u"
+  TRACKER_QUERY_LIMIT
+
+#define TRACKER_QUERY_FULL_REQUEST              \
+  "%s "                                         \
+  TRACKER_QUERY_LIMIT
 
 #define TRACKER_SEARCH_REQUEST                  \
   "SELECT rdf:type(?urn) %s "                   \
@@ -626,7 +633,7 @@ grl_tracker_source_query (GrlSource *source,
   if (g_ascii_strncasecmp (qs->query, "select ", 7) != 0) {
     constraint = grl_tracker_source_get_device_constraint (priv);
     sparql_select = grl_tracker_source_get_select_string (qs->keys);
-    sparql_final = g_strdup_printf (TRACKER_QUERY_REQUEST,
+    sparql_final = g_strdup_printf (TRACKER_QUERY_PARTIAL_REQUEST,
                                     sparql_select,
                                     qs->query,
                                     constraint,
@@ -636,11 +643,15 @@ grl_tracker_source_query (GrlSource *source,
     g_free (qs->query);
     g_free (sparql_select);
     qs->query = sparql_final;
-    grl_tracker_source_query (source, qs);
-    return;
+  } else {
+    /* Append offset and limit */
+    sparql_final = g_strdup_printf (TRACKER_QUERY_FULL_REQUEST,
+                                    qs->query,
+                                    skip,
+                                    count);
+    g_free (qs->query);
+    qs->query = sparql_final;
   }
-
-  GRL_IDEBUG ("\tselect : '%s'", qs->query);
 
   os = grl_tracker_op_initiate_query (qs->operation_id,
                                       g_strdup (qs->query),

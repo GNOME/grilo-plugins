@@ -1,0 +1,617 @@
+# Slovenian translation for grilo-plugins.
+# Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
+# This file is distributed under the same license as the grilo-plugins package.
+#
+# Matej Urbančič <mateju@svn.gnome.org>, 20132.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: grilo-plugins master\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
+"plugins&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2013-03-22 22:53+0000\n"
+"PO-Revision-Date: 2013-03-23 02:23+0100\n"
+"Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
+"Language-Team: Slovenščina <gnome-si@googlegroups.com>\n"
+"Language: sl_SI\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
+"%100==4 ? 3 : 0);\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Generator: Poedit 1.5.4\n"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:55
+#, fuzzy
+msgid "Apple Movie Trailers"
+msgstr "<b><big>Izrisovanje filma</big></b>"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:56
+msgid "A plugin for browsing Apple Movie Trailers"
+msgstr ""
+
+#: ../src/apple-trailers/grl-apple-trailers.c:457
+#: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
+#: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:472
+#, fuzzy
+msgid "Failed to parse response"
+msgstr "Napaka med razčlenjevanjem odgovora strežnika."
+
+#: ../src/apple-trailers/grl-apple-trailers.c:465
+#: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
+#: ../src/podcasts/grl-podcasts.c:1356 ../src/shoutcast/grl-shoutcast.c:424
+#, fuzzy
+msgid "Empty response"
+msgstr "Odziv brez vsebine"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:523
+#: ../src/jamendo/grl-jamendo.c:666
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:229
+#: ../src/shoutcast/grl-shoutcast.c:565
+#, fuzzy, c-format
+msgid "Failed to connect: %s"
+msgstr "Napaka med povezovanjem"
+
+#: ../src/bliptv/grl-bliptv.c:60
+msgid "A source for browsing and searching Blip.tv videos"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:119
+#, fuzzy
+msgid "Bookmarks"
+msgstr "Zaznamki"
+
+#: ../src/bookmarks/grl-bookmarks.c:120
+msgid "A source for organizing media bookmarks"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:441 ../src/bookmarks/grl-bookmarks.c:456
+#, fuzzy
+msgid "Failed to get bookmark metadata"
+msgstr "Napaka pridobivanja naslova URL strežnika."
+
+#: ../src/bookmarks/grl-bookmarks.c:486 ../src/bookmarks/grl-bookmarks.c:506
+#, fuzzy, c-format
+msgid "Failed to get bookmarks list: %s"
+msgstr "Napaka med pridobivanjem seznama virov"
+
+#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:813
+#: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
+#, fuzzy, c-format
+msgid "Failed to remove: %s"
+msgstr ""
+"Ni mogoče odstraniti '%s':\n"
+"%s"
+
+#: ../src/bookmarks/grl-bookmarks.c:660 ../src/bookmarks/grl-bookmarks.c:718
+#: ../src/podcasts/grl-podcasts.c:918 ../src/podcasts/grl-podcasts.c:951
+#: ../src/podcasts/grl-podcasts.c:1800
+#, fuzzy, c-format
+msgid "Failed to store: %s"
+msgstr ""
+"Ni mogoče odstraniti '%s':\n"
+"%s"
+
+#: ../src/bookmarks/grl-bookmarks.c:772 ../src/bookmarks/grl-bookmarks.c:807
+#: ../src/bookmarks/grl-bookmarks.c:839 ../src/bookmarks/grl-bookmarks.c:901
+#: ../src/metadata-store/grl-metadata-store.c:845
+#: ../src/podcasts/grl-podcasts.c:1656 ../src/podcasts/grl-podcasts.c:1700
+#: ../src/podcasts/grl-podcasts.c:1734 ../src/podcasts/grl-podcasts.c:1769
+#, fuzzy
+msgid "No database connection"
+msgstr "Ni določene povezave"
+
+#: ../src/dmap/grl-dmap.c:51
+#, c-format
+msgid "A source for browsing the DMAP server '%s'"
+msgstr ""
+
+#: ../src/filesystem/grl-filesystem.c:64
+#, fuzzy
+msgid "Filesystem"
+msgstr "Datotečni sistem"
+
+#: ../src/filesystem/grl-filesystem.c:65
+#, fuzzy
+msgid "A source for browsing the filesystem"
+msgstr "Vrsta vira naprave"
+
+#: ../src/filesystem/grl-filesystem.c:1321
+#, fuzzy, c-format
+msgid "File %s does not exist"
+msgstr "Datoteka %s ne obstaja."
+
+#: ../src/filesystem/grl-filesystem.c:1372 ../src/youtube/grl-youtube.c:1629
+#, fuzzy, c-format
+msgid "Cannot get media from %s"
+msgstr ""
+"Ni mogoče pridobiti sporočila %s iz mape %s\n"
+"%s"
+
+#: ../src/filesystem/grl-filesystem.c:1383
+#, fuzzy, c-format
+msgid "Cannot get media from %s: %s"
+msgstr ""
+"Ni mogoče pridobiti sporočila %s iz mape %s\n"
+"%s"
+
+#: ../src/flickr/grl-flickr.c:58
+msgid "A source for browsing and searching Flickr photos"
+msgstr ""
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:62
+#, fuzzy, c-format
+msgid "%s's Flickr"
+msgstr "Flickr"
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:64
+#, c-format
+msgid "A source for browsing and searching %s' flickr photos"
+msgstr ""
+
+#: ../src/gravatar/grl-gravatar.c:48
+#, fuzzy
+msgid "Avatar provider from Gravatar"
+msgstr "S _seznama izberite svojega ponudnika:"
+
+#: ../src/gravatar/grl-gravatar.c:49
+msgid "A plugin to get avatars for artist and author fields"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:93
+msgid "A source for browsing and searching Jamendo music"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:149
+#, fuzzy
+msgid "Albums of the week"
+msgstr "pred {0} tedni"
+
+#: ../src/jamendo/grl-jamendo.c:151
+#, fuzzy
+msgid "Tracks of the week"
+msgstr "pred {0} tedni"
+
+#: ../src/jamendo/grl-jamendo.c:153
+#, fuzzy
+msgid "New releases"
+msgstr "Primerjava objav"
+
+#: ../src/jamendo/grl-jamendo.c:155
+#, fuzzy
+msgid "Top artists"
+msgstr "Najboljši izvajalci"
+
+#: ../src/jamendo/grl-jamendo.c:157
+#, fuzzy
+msgid "Top albums"
+msgstr "Najboljši albumi izvajalca {0}"
+
+#: ../src/jamendo/grl-jamendo.c:159
+#, fuzzy
+msgid "Top tracks"
+msgstr "Najboljši posnetki"
+
+#: ../src/jamendo/grl-jamendo.c:774
+#, fuzzy
+msgid "Artists"
+msgstr "Izvajalci"
+
+#: ../src/jamendo/grl-jamendo.c:785
+#, fuzzy
+msgid "Albums"
+msgstr "Albumi"
+
+#: ../src/jamendo/grl-jamendo.c:796
+#, fuzzy
+msgid "Feeds"
+msgstr "Viri"
+
+#: ../src/jamendo/grl-jamendo.c:982 ../src/jamendo/grl-jamendo.c:1027
+#: ../src/jamendo/grl-jamendo.c:1054
+#, fuzzy, c-format
+msgid "Invalid identifier %s"
+msgstr "Neveljaven določilnik."
+
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1200
+#: ../src/youtube/grl-youtube.c:1341 ../src/youtube/grl-youtube.c:1556
+#, fuzzy, c-format
+msgid "Invalid category identifier %s"
+msgstr "Določilo obvestilnika je neveljavno "
+
+#: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
+#, fuzzy, c-format
+msgid "Invalid container identifier %s"
+msgstr "Določilo obvestilnika je neveljavno "
+
+#: ../src/jamendo/grl-jamendo.c:1186
+#, c-format
+msgid "Failed to browse: %s is a track"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:1248
+#, fuzzy, c-format
+msgid "Malformed query \"%s\""
+msgstr "Izbirna poizvedba"
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:59
+msgid "Album art Provider from Last.FM"
+msgstr ""
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
+msgid "A plugin for getting album arts using Last.FM as backend"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:42
+#, fuzzy
+msgid "Local Metadata Provider"
+msgstr "Zapisovanje ponudnika podatkov"
+
+#: ../src/local-metadata/grl-local-metadata.c:43
+msgid "A source providing locally available metadata"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:472
+#: ../src/metadata-store/grl-metadata-store.c:756 ../src/raitv/grl-raitv.c:866
+#: ../src/tracker/grl-tracker-source-api.c:445
+#, fuzzy, c-format
+msgid "Failed to resolve: %s"
+msgstr "Razreševanje naslova '%s' je spodletelo: %s\n"
+
+#: ../src/local-metadata/grl-local-metadata.c:995
+msgid "Cannot resolve any of the given keys"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:999
+msgid "A GIO supported URL for images is required"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:47
+#, fuzzy
+msgid "Metadata Store"
+msgstr "_Shrani naslov ..."
+
+#: ../src/metadata-store/grl-metadata-store.c:48
+msgid "A plugin for storing extra metadata information"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:571
+#: ../src/metadata-store/grl-metadata-store.c:590
+#: ../src/metadata-store/grl-metadata-store.c:801
+#: ../src/tracker/grl-tracker-source-api.c:496
+#, fuzzy, c-format
+msgid "Failed to update metadata: %s"
+msgstr "Posodabljanje pooblaščencev ni uspelo:"
+
+#: ../src/metadata-store/grl-metadata-store.c:572
+msgid "specified keys are not writable"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:612
+#, fuzzy
+msgid "Failed to update metadata"
+msgstr "Posodabljanje pooblaščencev ni uspelo:"
+
+#: ../src/metadata-store/grl-metadata-store.c:757
+#: ../src/metadata-store/grl-metadata-store.c:802
+#, fuzzy
+msgid "\"source-id\" not available"
+msgstr "Disk ni na voljo"
+
+#: ../src/metadata-store/grl-metadata-store.c:777 ../src/upnp/grl-upnp.c:1424
+#, fuzzy
+msgid "Failed to resolve"
+msgstr "Razreševanje naslova '%s' je spodletelo: %s\n"
+
+#: ../src/metadata-store/grl-metadata-store.c:888
+#: ../src/metadata-store/grl-metadata-store.c:919 ../src/raitv/grl-raitv.c:415
+#: ../src/shoutcast/grl-shoutcast.c:759 ../src/vimeo/grl-vimeo.c:511
+#, fuzzy, c-format
+msgid "Failed to search: %s"
+msgstr "Iskanje v '%s' je spodletelo: %s"
+
+#: ../src/optical-media/grl-optical-media.c:46
+#, fuzzy
+msgid "Optical Media"
+msgstr "Brasero optična predstavnostna knjižnica"
+
+#: ../src/optical-media/grl-optical-media.c:47
+#, fuzzy
+msgid "A source for browsing optical media"
+msgstr "Vrednost predpomnjenja za optčne nosilce (v milisekundah)."
+
+#: ../src/podcasts/grl-podcasts.c:155
+#, fuzzy
+msgid "A source for browsing podcasts"
+msgstr "Iskanje video podcastov"
+
+#: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
+#, fuzzy, c-format
+msgid "Failed to get podcast streams: %s"
+msgstr "Napaka pridobivanja naslova URL strežnika."
+
+#: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
+#: ../src/podcasts/grl-podcasts.c:1254
+#, fuzzy
+msgid "Failed to parse content"
+msgstr "Razčlenitev datoteke je spodletela: %s"
+
+#: ../src/podcasts/grl-podcasts.c:1287
+#, fuzzy
+msgid "Failed to parse podcast contents"
+msgstr "Napaka med razčlenjevanjem odgovora strežnika."
+
+#: ../src/podcasts/grl-podcasts.c:1445
+#, fuzzy
+msgid "Failed to get podcast information"
+msgstr "Pridobivanje podrobnosti strežnika je spodletelo: %s"
+
+#: ../src/podcasts/grl-podcasts.c:1485 ../src/podcasts/grl-podcasts.c:1505
+#, fuzzy, c-format
+msgid "Failed to get podcasts list: %s"
+msgstr "Napaka med pridobivanjem seznama virov"
+
+#: ../src/podcasts/grl-podcasts.c:1559 ../src/podcasts/grl-podcasts.c:1574
+msgid "Failed to get podcast stream metadata"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1612
+#, fuzzy
+msgid "Failed to get podcast metadata"
+msgstr "Napaka pridobivanja naslova URL strežnika."
+
+#: ../src/podcasts/grl-podcasts.c:1796
+msgid "Cannot create containers. Only feeds are accepted"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1801
+#, fuzzy
+msgid "URL required"
+msgstr "Zahtevani paketi:"
+
+#: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
+#, fuzzy
+msgid "Most Popular"
+msgstr "največ"
+
+#: ../src/raitv/grl-raitv.c:52
+msgid "Recent"
+msgstr "Nedavno"
+
+#: ../src/raitv/grl-raitv.c:95
+msgid "A source for browsing and searching Rai.tv videos"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:173
+msgid "All"
+msgstr "Vse"
+
+#: ../src/raitv/grl-raitv.c:174
+#, fuzzy
+msgid "Back and White"
+msgstr "_Črno-belo"
+
+#: ../src/raitv/grl-raitv.c:175
+msgid "Cinema"
+msgstr "Kino"
+
+#: ../src/raitv/grl-raitv.c:176
+msgid "Comedians"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:177
+msgid "Chronicle"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:178
+msgid "Culture"
+msgstr "Kultura"
+
+#: ../src/raitv/grl-raitv.c:179
+msgid "Economy"
+msgstr "Ekonomija"
+
+#: ../src/raitv/grl-raitv.c:180
+msgid "Fiction"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:181
+msgid "Junior"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:182
+msgid "Investigations"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:183
+msgid "Interviews"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:184
+msgid "Music"
+msgstr "Glasba"
+
+#: ../src/raitv/grl-raitv.c:185
+msgid "News"
+msgstr "Novice"
+
+#: ../src/raitv/grl-raitv.c:186
+msgid "Health"
+msgstr "Zdravje"
+
+#: ../src/raitv/grl-raitv.c:187
+msgid "Satire"
+msgstr "Satira"
+
+#: ../src/raitv/grl-raitv.c:189
+msgid "Society"
+msgstr "Družba"
+
+#: ../src/raitv/grl-raitv.c:190
+msgid "Show"
+msgstr "Pokaži"
+
+#: ../src/raitv/grl-raitv.c:191
+msgid "Sport"
+msgstr "Šport"
+
+#: ../src/raitv/grl-raitv.c:192
+msgid "History"
+msgstr "Zgodovina"
+
+#: ../src/raitv/grl-raitv.c:193
+msgid "Politics"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:194
+msgid "Leisure"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:195
+msgid "Travel"
+msgstr "Potovanja"
+
+#: ../src/raitv/grl-raitv.c:612
+#, fuzzy, c-format
+msgid "Failed to browse: %s"
+msgstr "Brskanje '%s' je spodletelo: %s\n"
+
+#: ../src/shoutcast/grl-shoutcast.c:67
+msgid "A source for browsing SHOUTcast radios"
+msgstr ""
+
+#: ../src/shoutcast/grl-shoutcast.c:462
+#, fuzzy, c-format
+msgid "Cannot find media %s"
+msgstr "Ni mogoče najti mape '%s'"
+
+#: ../src/shoutcast/grl-shoutcast.c:760 ../src/vimeo/grl-vimeo.c:512
+msgid "non-NULL search text is required"
+msgstr ""
+
+#: ../src/tmdb/grl-tmdb.c:948
+msgid "Remote data does not contain valid identifier"
+msgstr ""
+
+#. I can haz templatze ??
+#. Only emit this last one if more result than expected
+#. Schedule the next line to parse
+#: ../src/tracker/grl-tracker-source-api.c:317
+#: ../src/tracker/grl-tracker-source-api.c:399
+#, fuzzy, c-format
+msgid "Failed to query: %s"
+msgstr "Poizvedba na strežnik"
+
+#: ../src/tracker/grl-tracker-source-api.c:613
+#, fuzzy
+msgid "Empty query"
+msgstr "Prazna poizvedba:"
+
+#: ../src/tracker/grl-tracker-source-priv.h:44
+msgid "A plugin for searching multimedia content using Tracker"
+msgstr ""
+
+#: ../src/tracker/grl-tracker-utils.c:606
+#, fuzzy, c-format
+msgid "Removable - %s"
+msgstr "<b>Odstranljivo:</b>"
+
+#: ../src/tracker/grl-tracker-utils.c:618
+#, fuzzy
+msgid "Local files"
+msgstr "Krajevne datoteke"
+
+#: ../src/upnp/grl-upnp.c:53
+#, c-format
+msgid "A source for browsing the UPnP server '%s'"
+msgstr ""
+
+#: ../src/upnp/grl-upnp.c:1254 ../src/upnp/grl-upnp.c:1311
+#, fuzzy
+msgid "Failed to browse"
+msgstr "Brskanje '%s' je spodletelo: %s\n"
+
+#: ../src/upnp/grl-upnp.c:1374
+#, fuzzy
+msgid "Failed to query"
+msgstr "Poizvedba na strežnik"
+
+#: ../src/upnp/grl-upnp.c:1493
+#, c-format
+msgid "Unable to listen for changes in %s"
+msgstr ""
+
+#: ../src/vimeo/grl-vimeo.c:57
+msgid "A source for browsing and searching Vimeo videos"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:60
+#, fuzzy
+msgid "Standard feeds"
+msgstr "Viri novic"
+
+#: ../src/youtube/grl-youtube.c:63
+msgid "Categories"
+msgstr "Kategorije"
+
+#: ../src/youtube/grl-youtube.c:69
+#, fuzzy
+msgid "Top Rated"
+msgstr "Moje najboljše ocenjeno"
+
+#: ../src/youtube/grl-youtube.c:72
+#, fuzzy
+msgid "Top Favorites"
+msgstr "Nedavno priljubljeno"
+
+#: ../src/youtube/grl-youtube.c:75
+#, fuzzy
+msgid "Most Viewed"
+msgstr "Datum ogleda:"
+
+#: ../src/youtube/grl-youtube.c:81
+#, fuzzy
+msgid "Most Recent"
+msgstr "Razveljavi zadnjo spremembo"
+
+#: ../src/youtube/grl-youtube.c:84
+#, fuzzy
+msgid "Most Discussed"
+msgstr "največ"
+
+#: ../src/youtube/grl-youtube.c:87
+#, fuzzy
+msgid "Most Linked"
+msgstr "Povezani stiki"
+
+#: ../src/youtube/grl-youtube.c:90
+#, fuzzy
+msgid "Most Responded"
+msgstr "največ"
+
+#: ../src/youtube/grl-youtube.c:93
+#, fuzzy
+msgid "Recently Featured"
+msgstr "_Nedavno igrano"
+
+#: ../src/youtube/grl-youtube.c:96
+#, fuzzy
+msgid "Watch On Mobile"
+msgstr "Dokumenti na napravi Apple Mobile"
+
+#: ../src/youtube/grl-youtube.c:117
+msgid "A source for browsing and searching YouTube videos"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:948
+#, fuzzy
+msgid "Failed to get feed"
+msgstr "Pridobivanje zaklepa je spodletelo"
+
+#: ../src/youtube/grl-youtube.c:1129 ../src/youtube/grl-youtube.c:1536
+#, fuzzy, c-format
+msgid "Invalid feed identifier %s"
+msgstr "Določilo obvestilnika je neveljavno "

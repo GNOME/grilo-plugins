@@ -92,6 +92,9 @@ GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
 #define GRL_SQL_SOURCE_FILTER                   \
   "source_id=?"
 
+#define GRL_SQL_TYPE_FILTER                     \
+  "type_id IN ( ? , ? , ? )"
+
 #define GRL_SQL_SEARCH_FILTER                   \
   "SELECT * FROM store "                        \
   "WHERE %s "                                   \
@@ -697,6 +700,7 @@ grl_metadata_store_source_get_caps (GrlSource *source,
                                         GRL_METADATA_KEY_INVALID);
       grl_caps_set_key_filter (caps, keys);
       g_list_free (keys);
+      grl_caps_set_type_filter (caps, GRL_TYPE_FILTER_ALL);
   }
 
   return caps;
@@ -827,13 +831,16 @@ grl_metadata_store_source_search (GrlSource *source,
   sqlite3 *db;
   gchar *sql;
   gint r;
+  gint i;
   GError *error = NULL;
   GrlMedia *media;
   GList *iter, *medias = NULL;
   GValue *filter_favourite_val;
   GValue *filter_source_val;
+  GrlTypeFilter filter_type_val;
   GString *filters;
   guint count;
+  gint type_filter[3];
 
   GRL_DEBUG (__FUNCTION__);
 
@@ -854,6 +861,8 @@ grl_metadata_store_source_search (GrlSource *source,
                                                                GRL_METADATA_KEY_FAVOURITE);
   filter_source_val = grl_operation_options_get_key_filter (ss->options,
                                                             GRL_METADATA_KEY_SOURCE);
+  filter_type_val = grl_operation_options_get_type_filter (ss->options);
+
   if (filter_favourite_val) {
     filters = g_string_append (filters, GRL_SQL_FAVOURITE_FILTER);
   }
@@ -863,6 +872,29 @@ grl_metadata_store_source_search (GrlSource *source,
       filters = g_string_append (filters, " AND ");
     }
     filters = g_string_append (filters, GRL_SQL_SOURCE_FILTER);
+  }
+
+  if (filter_type_val != GRL_TYPE_FILTER_ALL) {
+    /* Fill the type_filter array */
+    if (filter_type_val & GRL_TYPE_FILTER_AUDIO) {
+      type_filter[0] = MEDIA_AUDIO;
+    } else {
+      type_filter[0] = -1;
+    }
+    if (filter_type_val & GRL_TYPE_FILTER_VIDEO) {
+      type_filter[1] = MEDIA_VIDEO;
+    } else {
+      type_filter[1] = -1;
+    }
+    if (filter_type_val & GRL_TYPE_FILTER_IMAGE) {
+      type_filter[2] = MEDIA_IMAGE;
+    } else {
+      type_filter[2] = -1;
+    }
+    if (filters->len > 0) {
+      filters = g_string_append (filters, " AND ");
+    }
+    filters = g_string_append (filters, GRL_SQL_TYPE_FILTER);
   }
 
   if (filters->len > 0) {
@@ -900,6 +932,12 @@ grl_metadata_store_source_search (GrlSource *source,
 
   if (filter_source_val) {
     sqlite3_bind_text (sql_stmt, count++, g_value_get_string (filter_source_val), -1, SQLITE_STATIC);
+  }
+
+  if (filter_type_val != GRL_TYPE_FILTER_ALL) {
+    for (i = 0; i < G_N_ELEMENTS (type_filter); i++) {
+      sqlite3_bind_int (sql_stmt, count++, type_filter[i]);
+    }
   }
 
   while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);

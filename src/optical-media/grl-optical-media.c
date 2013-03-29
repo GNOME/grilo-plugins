@@ -241,56 +241,6 @@ get_uri_for_gicon (GIcon *icon)
 }
 
 static GList *
-add_mount (GList *media_list,
-           GMount *mount,
-           GrlOpticalMediaSource *source)
-{
-  char *name, *icon_uri;
-  GIcon *icon;
-  GrlMedia *media;
-  char *id;
-
-  GVolume *volume;
-  GFile *root;
-
-  /* Check whether we have an archive mount */
-  volume = g_mount_get_volume (mount);
-  if (volume != NULL) {
-    g_object_unref (volume);
-    return media_list;
-  }
-
-  root = g_mount_get_root (mount);
-  if (g_file_has_uri_scheme (root, "archive") == FALSE) {
-    g_object_unref (root);
-    return media_list;
-  }
-
-  media = grl_media_video_new ();
-
-  id = g_file_get_uri (root);
-  grl_media_set_id (media, id);
-  g_free (id);
-
-  /* Work out an icon to display */
-  icon = g_mount_get_icon (mount);
-  icon_uri = get_uri_for_gicon (icon);
-  g_object_unref (icon);
-  grl_media_set_thumbnail (media, icon_uri);
-  g_free (icon_uri);
-
-  /* Get the mount's pretty name for the menu label */
-  name = g_mount_get_name (mount);
-  g_strstrip (name);
-  grl_media_set_title (media, name);
-  g_free (name);
-
-  grl_media_set_mime (media, "x-special/device-block");
-
-  return g_list_prepend (media_list, media);
-}
-
-static GList *
 add_volume (GList *media_list,
             GVolume *volume,
             GDrive *drive,
@@ -495,7 +445,7 @@ grl_optical_media_source_browse (GrlSource *source,
                                  GrlSourceBrowseSpec *bs)
 {
   GList *drives;
-  GList *mounts;
+  GList *volumes;
   GList *l;
   GrlOpticalMediaSourcePrivate *priv = GRL_OPTICAL_MEDIA_SOURCE (source)->priv;
   BrowseData *data;
@@ -515,15 +465,21 @@ grl_optical_media_source_browse (GrlSource *source,
   }
   g_list_free (drives);
 
-  /* Look for mounted archives */
-  mounts = g_volume_monitor_get_mounts (priv->monitor);
-  for (l = mounts; l != NULL; l = l->next) {
-    GMount *mount = l->data;
+  /* Look for mounted ISO images */
+  volumes = g_volume_monitor_get_volumes (priv->monitor);
+  for (l = volumes; l != NULL; l = l->next) {
+    GVolume *volume = l->data;
+    char *path;
 
-    media_list = add_mount (media_list, mount, GRL_OPTICAL_MEDIA_SOURCE (source));
-    g_object_unref (mount);
+    path = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
+
+    if (path != NULL && g_str_has_prefix (path, "/dev/loop"))
+      media_list = add_volume (media_list, volume, NULL, GRL_OPTICAL_MEDIA_SOURCE (source));
+
+    g_free (path);
+    g_object_unref (volume);
   }
-  g_list_free (mounts);
+  g_list_free (volumes);
 
   /* Got nothing? */
   if (media_list == NULL) {

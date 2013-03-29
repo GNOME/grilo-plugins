@@ -355,11 +355,25 @@ add_drive (GList *media_list,
            GrlOpticalMediaSource *source)
 {
   GList *volumes, *i;
+  GIcon *icon;
 
   if (g_drive_can_eject (drive) == FALSE ||
       g_drive_has_media (drive) == FALSE) {
     return media_list;
   }
+
+  /* Hack to avoid USB devices showing up
+   * https://bugzilla.gnome.org/show_bug.cgi?id=679624 */
+  icon = g_drive_get_icon (drive);
+  if (icon && G_IS_THEMED_ICON (icon)) {
+    const gchar * const * names;
+    names = g_themed_icon_get_names (G_THEMED_ICON (icon));
+    if (names && names[0] && !g_str_has_prefix (names[0], "drive-optical")) {
+      g_object_unref (icon);
+      return media_list;
+    }
+  }
+  g_clear_object (&icon);
 
   /* Repeat for all the drive's volumes */
   volumes = g_drive_get_volumes (drive);

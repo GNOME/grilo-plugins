@@ -535,6 +535,7 @@ grl_optical_media_source_browse (GrlSource *source,
   grl_operation_set_data (bs->operation_id, data->cancellable);
 
   data->parser = totem_pl_parser_new ();
+  g_object_set (data->parser, "recurse", FALSE, NULL);
   g_signal_connect (G_OBJECT (data->parser), "entry-parsed",
                     G_CALLBACK (entry_parsed_cb), data);
 

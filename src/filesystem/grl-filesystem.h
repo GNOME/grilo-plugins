@@ -52,7 +52,7 @@
                               GrlFilesystemSourceClass))
 
 /* --- Grilo Configuration --- */
-#define GRILO_CONF_CHOSEN_PATH "base-path"
+#define GRILO_CONF_CHOSEN_URI "base-uri"
 #define GRILO_CONF_MAX_SEARCH_DEPTH "maximum-search-depth"
 #define GRILO_CONF_MAX_SEARCH_DEPTH_DEFAULT 6
 

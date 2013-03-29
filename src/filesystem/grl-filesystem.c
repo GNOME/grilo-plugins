@@ -41,6 +41,7 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 /* -------- File info ------- */
 
 #define FILE_ATTRIBUTES                         \
+  G_FILE_ATTRIBUTE_STANDARD_NAME ","            \
   G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","    \
   G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","    \
   G_FILE_ATTRIBUTE_STANDARD_TYPE ","            \
@@ -55,6 +56,10 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 /* ---- Emission chunks ----- */
 
 #define BROWSE_IDLE_CHUNK_SIZE 5
+
+/* ---- Default root ---- */
+
+#define DEFAULT_ROOT "file:///"
 
 /* --- Plugin information --- */
 
@@ -72,7 +77,7 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 			     GrlFilesystemSourcePrivate))
 
 struct _GrlFilesystemSourcePrivate {
-  GList *chosen_paths;
+  GList *chosen_uris;
   guint max_search_depth;
   /* a mapping operation_id -> GCancellable to cancel this operation */
   GHashTable *cancellables;
@@ -92,7 +97,7 @@ typedef struct {
   GrlSourceBrowseSpec *spec;
   GList *entries;
   GList *current;
-  const gchar *path;
+  const gchar *uri;
   guint remaining;
   GCancellable *cancellable;
   guint id;
@@ -160,7 +165,7 @@ grl_filesystem_plugin_init (GrlRegistry *registry,
                             GList *configs)
 {
   GrlConfig *config;
-  GList *chosen_paths = NULL;
+  GList *chosen_uris = NULL;
   guint max_search_depth = GRILO_CONF_MAX_SEARCH_DEPTH_DEFAULT;
 
   GRL_LOG_DOMAIN_INIT (filesystem_log_domain, "filesystem");
@@ -174,17 +179,17 @@ grl_filesystem_plugin_init (GrlRegistry *registry,
   GrlFilesystemSource *source = grl_filesystem_source_new ();
 
   for (; configs; configs = g_list_next (configs)) {
-    gchar *path;
+    gchar *uri;
     config = GRL_CONFIG (configs->data);
-    path = grl_config_get_string (config, GRILO_CONF_CHOSEN_PATH);
-    if (path) {
-      chosen_paths = g_list_append (chosen_paths, path);
+    uri = grl_config_get_string (config, GRILO_CONF_CHOSEN_URI);
+    if (uri) {
+      chosen_uris = g_list_append (chosen_uris, uri);
     }
     if (grl_config_has_param (config, GRILO_CONF_MAX_SEARCH_DEPTH)) {
       max_search_depth = (guint)grl_config_get_int (config, GRILO_CONF_MAX_SEARCH_DEPTH);
     }
   }
-  source->priv->chosen_paths = chosen_paths;
+  source->priv->chosen_uris = chosen_uris;
   source->priv->max_search_depth = max_search_depth;
 
   grl_registry_register_source (registry,
@@ -250,7 +255,7 @@ static void
 grl_filesystem_source_finalize (GObject *object)
 {
   GrlFilesystemSource *filesystem_source = GRL_FILESYSTEM_SOURCE (object);
-  g_list_free_full (filesystem_source->priv->chosen_paths, g_free);
+  g_list_free_full (filesystem_source->priv->chosen_uris, g_free);
   g_hash_table_unref (filesystem_source->priv->cancellables);
   G_OBJECT_CLASS (grl_filesystem_source_parent_class)->finalize (object);
 }
@@ -299,7 +304,7 @@ mime_is_media (const gchar *mime, GrlTypeFilter filter)
 }
 
 static gboolean
-file_is_valid_content (const gchar *path, gboolean fast, GrlOperationOptions *options)
+file_is_valid_content (GFileInfo *info, gboolean fast, GrlOperationOptions *options)
 {
   const gchar *mime;
   const gchar *mime_filter = NULL;
@@ -310,28 +315,8 @@ file_is_valid_content (const gchar *path, gboolean fast, GrlOperationOptions *op
   GDateTime *max_date = NULL;
   GDateTime *file_date = NULL;
   GrlTypeFilter type_filter;
-  GError *error = NULL;
   gboolean is_media = TRUE;
-  GFile *file;
-  GFileInfo *info;
   GFileType type;
-  const gchar *spec;
-
-  if (fast) {
-    spec = FILE_ATTRIBUTES_FAST;
-  } else {
-    spec = FILE_ATTRIBUTES;
-  }
-
-  file = g_file_new_for_path (path);
-  info = g_file_query_info (file, spec, 0, NULL, &error);
-  if (error) {
-    GRL_DEBUG ("Failed to get attributes for file '%s': %s",
-               path, error->message);
-    g_error_free (error);
-    g_object_unref (file);
-    return FALSE;
-  }
 
   /* Ignore hidden files */
   if (g_file_info_get_is_hidden (info)) {
@@ -409,8 +394,6 @@ file_is_valid_content (const gchar *path, gboolean fast, GrlOperationOptions *op
   }
 
  end:
-  g_object_unref (info);
-  g_object_unref (file);
   if (file_date)
     g_date_time_unref (file_date);
   if (min_date)
@@ -421,15 +404,16 @@ file_is_valid_content (const gchar *path, gboolean fast, GrlOperationOptions *op
 }
 
 static void
-set_container_childcount (const gchar *path,
+set_container_childcount (GFile *file,
 			  GrlMedia *media,
 			  gboolean fast,
                           GrlOperationOptions *options)
 {
-  GDir *dir;
+  GFileEnumerator *e;
+  GFileInfo *info;
   GError *error = NULL;
   gint count = 0;
-  const gchar *entry_name;
+  char *uri;
 
   /* in fast mode we don't compute  mime-types because it is slow,
      so we can only check if the directory is totally empty (no subdirs,
@@ -442,39 +426,49 @@ set_container_childcount (const gchar *path,
   }
 
   /* Open directory */
-  GRL_DEBUG ("Opening directory '%s' for childcount", path);
-  dir = g_dir_open (path, 0, &error);
-  if (error) {
-    GRL_DEBUG ("Failed to open directory '%s': %s", path, error->message);
+  uri = g_file_get_uri (file);
+  GRL_DEBUG ("Opening directory '%s' for childcount", uri);
+  g_free (uri);
+  e = g_file_enumerate_children (file,
+                                 FILE_ATTRIBUTES,
+                                 G_FILE_QUERY_INFO_NONE,
+                                 NULL,
+                                 &error);
+  if (!e) {
+    GRL_DEBUG ("Failed to open directory: %s", error->message);
     g_error_free (error);
     return;
   }
 
   /* Count valid entries */
   count = 0;
-  while ((entry_name = g_dir_read_name (dir)) != NULL) {
-    gchar *entry_path;
-    if (strcmp (path, G_DIR_SEPARATOR_S)) {
-      entry_path = g_strconcat (path, G_DIR_SEPARATOR_S, entry_name, NULL);
-    } else {
-      entry_path = g_strconcat (path, entry_name, NULL);
-    }
-    if (file_is_valid_content (entry_path, fast, options)) {
+  while ((info = g_file_enumerator_next_file (e, NULL, NULL)) != NULL) {
+    if (file_is_valid_content (info, FALSE, options))
       count++;
-    }
-    g_free (entry_path);
+    g_object_unref (info);
   }
 
-  g_dir_close (dir);
+  g_object_unref (e);
 
   grl_media_box_set_childcount (GRL_MEDIA_BOX (media), count);
 }
 
+static void
+grl_media_set_id_from_file (GrlMedia *media,
+			    GFile    *file)
+{
+  char *uri;
+
+  uri = g_file_get_uri (file);
+  grl_media_set_id (media, uri);
+  g_free (uri);
+}
+
 static GrlMedia *
 create_content (GrlMedia *content,
-                const gchar *path,
+		GFile *file,
+		GFileInfo *info,
                 gboolean only_fast,
-		gboolean root_dir,
                 GrlOperationOptions *options)
 {
   GrlMedia *media = NULL;
@@ -483,31 +477,35 @@ create_content (GrlMedia *content,
   const gchar *mime;
   GError *error = NULL;
 
-  GFile *file = g_file_new_for_path (path);
-  GFileInfo *info = g_file_query_info (file,
-				       FILE_ATTRIBUTES,
-				       0,
-				       NULL,
-				       &error);
+  if (!info)
+    info = g_file_query_info (file,
+			      FILE_ATTRIBUTES,
+			      0,
+			      NULL,
+			      &error);
+  else
+    info = g_object_ref (info);
 
   /* Update mode */
   if (content) {
     media = content;
   }
 
-  if (error) {
-    GRL_DEBUG ("Failed to get info for file '%s': %s", path,
+  if (info == NULL) {
+    char *uri;
+
+    uri = g_file_get_uri (file);
+    GRL_DEBUG ("Failed to get info for file '%s': %s", uri,
                error->message);
+    g_free (uri);
+
     if (!media) {
       media = grl_media_new ();
-      grl_media_set_id (media,  root_dir ? NULL : path);
+      grl_media_set_id_from_file (media, file);
     }
 
     /* Title */
-    str = g_strdup (g_strrstr (path, G_DIR_SEPARATOR_S));
-    if (!str) {
-      str = g_strdup (path);
-    }
+    str = g_file_get_basename (file);
 
     /* Remove file extension */
     extension = g_strrstr (str, ".");
@@ -535,7 +533,7 @@ create_content (GrlMedia *content,
 	  media = grl_media_new ();
 	}
       }
-      grl_media_set_id (media,  root_dir ? NULL : path);
+      grl_media_set_id_from_file (media, file);
     }
 
     if (!GRL_IS_MEDIA_BOX (media)) {
@@ -591,10 +589,8 @@ create_content (GrlMedia *content,
 
   /* Childcount */
   if (GRL_IS_MEDIA_BOX (media)) {
-    set_container_childcount (path, media, only_fast, options);
+    set_container_childcount (file, media, only_fast, options);
   }
-
-  g_object_unref (file);
 
   return media;
 }
@@ -613,7 +609,7 @@ browse_emit_idle (gpointer user_data)
 
   if (g_cancellable_is_cancelled (idle_data->cancellable)) {
     GRL_DEBUG ("Browse operation %d (\"%s\") has been cancelled",
-               idle_data->id, idle_data->path);
+               idle_data->id, idle_data->uri);
     idle_data->spec->callback(idle_data->spec->source,
                               idle_data->id, NULL, 0,
                               idle_data->spec->user_data, NULL);
@@ -622,18 +618,22 @@ browse_emit_idle (gpointer user_data)
 
   count = 0;
   do {
-    gchar *entry_path;
+    gchar *uri;
     GrlMedia *content;
+    GFile *file;
     GrlOperationOptions *options = idle_data->spec->options;
 
-    entry_path = (gchar *) idle_data->current->data;
+    uri = (gchar *) idle_data->current->data;
+    file = g_file_new_for_uri (uri);
+    g_free (uri);
+
     content = create_content (NULL,
-                              entry_path,
+                              file,
+                              NULL,
                               grl_operation_options_get_flags (options)
                               & GRL_RESOLVE_FAST_ONLY,
-                              FALSE,
                               options);
-    g_free (idle_data->current->data);
+    g_object_unref (file);
 
     idle_data->spec->callback (idle_data->spec->source,
 			       idle_data->spec->operation_id,
@@ -661,37 +661,46 @@ finish:
 }
 
 static void
-produce_from_path (GrlSourceBrowseSpec *bs, const gchar *path, GrlOperationOptions *options)
+produce_from_uri (GrlSourceBrowseSpec *bs, const gchar *uri, GrlOperationOptions *options)
 {
-  GDir *dir;
+  GFile *file;
+  GFileEnumerator *e;
+  GFileInfo *info;
   GError *error = NULL;
-  const gchar *entry;
   guint skip, count;
   GList *entries = NULL;
   GList *iter;
 
   /* Open directory */
-  GRL_DEBUG ("Opening directory '%s'", path);
-  dir = g_dir_open (path, 0, &error);
-  if (error) {
-    GRL_DEBUG ("Failed to open directory '%s': %s", path, error->message);
+  GRL_DEBUG ("Opening directory '%s'", uri);
+  file = g_file_new_for_uri (uri);
+  e = g_file_enumerate_children (file,
+                                 FILE_ATTRIBUTES,
+                                 G_FILE_QUERY_INFO_NONE,
+                                 NULL,
+                                 &error);
+
+  if (!e) {
+    GRL_DEBUG ("Failed to open directory '%s': %s", uri, error->message);
     bs->callback (bs->source, bs->operation_id, NULL, 0, bs->user_data, error);
     g_error_free (error);
+    g_object_unref (file);
     return;
   }
 
   /* Filter out media and directories */
-  while ((entry = g_dir_read_name (dir)) != NULL) {
-    gchar *file;
-    if (strcmp (path, G_DIR_SEPARATOR_S)) {
-      file = g_strconcat (path, G_DIR_SEPARATOR_S, entry, NULL);
-    } else {
-      file = g_strconcat (path, entry, NULL);
+  while ((info = g_file_enumerator_next_file (e, NULL, NULL)) != NULL) {
+    if (file_is_valid_content (info, FALSE, options)) {
+      GFile *entry;
+      entry = g_file_get_child (file, g_file_info_get_name (info));
+      entries = g_list_prepend (entries, g_file_get_uri (entry));
+      g_object_unref (entry);
     }
-    if (file_is_valid_content (file, FALSE, options)) {
-      entries = g_list_prepend (entries, file);
-    }
+    g_object_unref (info);
   }
+
+  g_object_unref (e);
+  g_object_unref (file);
 
   /* Apply skip and count */
   skip = grl_operation_options_get_skip (bs->options);
@@ -726,7 +735,7 @@ produce_from_path (GrlSourceBrowseSpec *bs, const gchar *path, GrlOperationOptio
     gint global_count = grl_operation_options_get_count (bs->options);
     idle_data->spec = bs;
     idle_data->remaining = global_count - count - 1;
-    idle_data->path = path;
+    idle_data->uri = uri;
     idle_data->entries = entries;
     idle_data->current = entries;
     idle_data->cancellable = g_cancellable_new ();
@@ -745,8 +754,6 @@ produce_from_path (GrlSourceBrowseSpec *bs, const gchar *path, GrlOperationOptio
 		  bs->user_data,
 		  NULL);
   }
-
-  g_dir_close (dir);
 }
 
 static RecursiveEntry *
@@ -946,12 +953,12 @@ finished:
 static void
 recursive_operation_initialize (RecursiveOperation *operation, GrlFilesystemSource *source)
 {
-  GList *chosen_paths, *path;
+  GList *chosen_uris, *uri;
 
-  chosen_paths = source->priv->chosen_paths;
-  if (chosen_paths) {
-    for (path = chosen_paths; path; path = g_list_next (path)) {
-      GFile *directory = g_file_new_for_path (path->data);
+  chosen_uris = source->priv->chosen_uris;
+  if (chosen_uris) {
+    for (uri = chosen_uris; uri; uri = g_list_next (uri)) {
+      GFile *directory = g_file_new_for_uri (uri->data);
       g_queue_push_tail (operation->directories,
                          recursive_entry_new (0, directory));
       g_object_unref (directory);
@@ -960,7 +967,10 @@ recursive_operation_initialize (RecursiveOperation *operation, GrlFilesystemSour
     const gchar *home;
     GFile *directory;
 
+    /* This is necessary for GLIB < 2.36 */
     home = g_getenv ("HOME");
+    if (!home)
+      home = g_get_home_dir ();
     directory = g_file_new_for_path (home);
     g_queue_push_tail (operation->directories,
                        recursive_entry_new (0, directory));
@@ -1037,26 +1047,27 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
     GrlMedia *media = NULL;
     RecursiveEntry *entry;
     GFile *file;
-    gchar *path;
+    GFileInfo *info;
 
     entry = g_queue_peek_head (operation->directories);
     file = g_file_get_child (entry->directory,
                              g_file_info_get_name (file_info));
-    path = g_file_get_path (file);
 
-    /* FIXME: both file_is_valid_content() and create_content() are likely to block */
-    if (file_is_valid_content (path, FALSE, ss->options)) {
+    /* FIXME This is likely to block */
+    info = g_file_query_info (file, FILE_ATTRIBUTES, G_FILE_QUERY_INFO_NONE, NULL, NULL);
+
+    if (file_is_valid_content (info, FALSE, ss->options)) {
       guint skip = grl_operation_options_get_skip (ss->options);
       if (skip) {
         grl_operation_options_set_skip (ss->options, skip - 1);
       } else {
-        media = create_content (NULL, path,
+        media = create_content (NULL, file, info,
                                 grl_operation_options_get_flags (ss->options)
-                                  & GRL_RESOLVE_FAST_ONLY, FALSE, ss->options);
+                                  & GRL_RESOLVE_FAST_ONLY, ss->options);
       }
     }
 
-    g_free (path);
+    g_object_unref (info);
     g_object_unref (file);
 
     if (media) {
@@ -1082,23 +1093,16 @@ notify_parent_change (GrlSource *source, GFile *child, GrlSourceChangeType chang
 {
   GFile *parent;
   GrlMedia *media;
-  gchar *parent_path;
 
   parent = g_file_get_parent (child);
-  if (parent) {
-    parent_path = g_file_get_path (parent);
-  } else {
-    parent_path = g_strdup ("/");
-  }
 
-  media = create_content (NULL, parent_path, GRL_RESOLVE_FAST_ONLY, parent == NULL, NULL);
+  media = create_content (NULL, parent ? parent : child, NULL, GRL_RESOLVE_FAST_ONLY, NULL);
   grl_source_notify_change (source, media, change, FALSE);
   g_object_unref (media);
 
   if (parent) {
     g_object_unref (parent);
   }
-  g_free (parent_path);
 }
 
 static void
@@ -1109,63 +1113,41 @@ directory_changed (GFileMonitor *monitor,
                    gpointer data)
 {
   GrlSource *source = GRL_SOURCE (data);
-  gchar *file_path, *other_file_path;
-  gchar *file_parent_path = NULL;
-  gchar *other_file_parent_path = NULL;
   GFile *file_parent, *other_file_parent;
-  GFileInfo *file_info;
 
   if (event == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT ||
       event == G_FILE_MONITOR_EVENT_CREATED) {
-    file_path = g_file_get_path (file);
-    if (file_is_valid_content (file_path, TRUE, NULL)) {
+    GFileInfo *info;
+    info = g_file_query_info (file, FILE_ATTRIBUTES, G_FILE_QUERY_INFO_NONE, NULL, NULL);
+    if (info && file_is_valid_content (info, TRUE, NULL)) {
       notify_parent_change (source,
                             file,
                             (event == G_FILE_MONITOR_EVENT_CREATED)? GRL_CONTENT_ADDED: GRL_CONTENT_CHANGED);
       if (event == G_FILE_MONITOR_EVENT_CREATED) {
-        file_info = g_file_query_info (file,
-                                       G_FILE_ATTRIBUTE_STANDARD_TYPE,
-                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                       NULL,
-                                       NULL);
-        if (file_info) {
-          if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
-            add_monitor (GRL_FILESYSTEM_SOURCE (source), file);
-          }
-          g_object_unref (file_info);
+        if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
+          add_monitor (GRL_FILESYSTEM_SOURCE (source), file);
         }
       }
     }
-    g_free (file_path);
+    g_object_unref (info);
   } else if (event == G_FILE_MONITOR_EVENT_DELETED) {
     notify_parent_change (source, file, GRL_CONTENT_REMOVED);
   } else if (event == G_FILE_MONITOR_EVENT_MOVED) {
-    other_file_path = g_file_get_path (other_file);
-    if (file_is_valid_content (other_file_path, TRUE, NULL)) {
+    GFileInfo *info;
+    info = g_file_query_info (file, FILE_ATTRIBUTES, G_FILE_QUERY_INFO_NONE, NULL, NULL);
+    if (file_is_valid_content (info, TRUE, NULL)) {
       file_parent = g_file_get_parent (file);
-      if (file_parent) {
-        file_parent_path = g_file_get_path (file_parent);
-        g_object_unref (file_parent);
-      } else {
-        file_parent_path = NULL;
-      }
       other_file_parent = g_file_get_parent (other_file);
-      if (other_file_parent) {
-        other_file_parent_path = g_file_get_path (other_file_parent);
-        g_object_unref (other_file_parent);
-      } else {
-        other_file_parent_path = NULL;
-      }
 
-      if (g_strcmp0 (file_parent_path, other_file_parent_path) == 0) {
+      if (g_file_equal (file_parent, other_file_parent) == 0) {
         notify_parent_change (source, file, GRL_CONTENT_CHANGED);
       } else {
         notify_parent_change (source, file, GRL_CONTENT_REMOVED);
         notify_parent_change (source, other_file, GRL_CONTENT_ADDED);
       }
+      g_object_unref (file_parent);
+      g_object_unref (other_file_parent);
     }
-    g_free (file_parent_path);
-    g_free (other_file_parent_path);
   }
 }
 
@@ -1193,7 +1175,10 @@ add_monitor (GrlFilesystemSource *fs_source, GFile *dir)
                       G_CALLBACK (directory_changed),
                       fs_source);
   } else {
-    GRL_DEBUG ("Unable to set up monitor in %s\n", g_file_get_path (dir));
+    char *uri;
+    uri = g_file_get_uri (dir);
+    GRL_DEBUG ("Unable to set up monitor in %s\n", uri);
+    g_free (uri);
   }
 }
 
@@ -1238,25 +1223,30 @@ grl_filesystem_source_browse (GrlSource *source,
                               GrlSourceBrowseSpec *bs)
 {
   const gchar *id;
-  GList *chosen_paths;
+  GList *chosen_uris;
 
   GRL_DEBUG (__FUNCTION__);
 
   id = grl_media_get_id (bs->container);
-  chosen_paths = GRL_FILESYSTEM_SOURCE(source)->priv->chosen_paths;
-  if (!id && chosen_paths) {
-    guint remaining = g_list_length (chosen_paths);
+  chosen_uris = GRL_FILESYSTEM_SOURCE(source)->priv->chosen_uris;
+  if (!id && chosen_uris) {
+    guint remaining = g_list_length (chosen_uris);
 
     if (remaining == 1) {
-      produce_from_path (bs, chosen_paths->data, bs->options);
+      produce_from_uri (bs, chosen_uris->data, bs->options);
     } else {
-      for (; chosen_paths; chosen_paths = g_list_next (chosen_paths)) {
-        GrlMedia *content =
-          create_content (NULL,
-                          (gchar *) chosen_paths->data,
-                          GRL_RESOLVE_FAST_ONLY,
-                          FALSE,
-                          bs->options);
+      for (; chosen_uris; chosen_uris = g_list_next (chosen_uris)) {
+        GrlMedia *content;
+        GFile *file;
+
+        file = g_file_new_for_uri ((gchar *) chosen_uris->data);
+        content = create_content (NULL,
+                                  file,
+                                  NULL,
+                                  GRL_RESOLVE_FAST_ONLY,
+                                  bs->options);
+        g_object_unref (file);
+
         if (content) {
           bs->callback (source,
                         bs->operation_id,
@@ -1268,7 +1258,7 @@ grl_filesystem_source_browse (GrlSource *source,
       }
     }
   } else {
-    produce_from_path (bs, id ? id : G_DIR_SEPARATOR_S, bs->options);
+    produce_from_uri (bs, id ? id : DEFAULT_ROOT, bs->options);
   }
 }
 
@@ -1300,71 +1290,113 @@ static void
 grl_filesystem_source_resolve (GrlSource *source,
                                GrlSourceResolveSpec *rs)
 {
-  const gchar *path;
+  GFile *file;
   const gchar *id;
+  GList *chosen_uris;
 
   GRL_DEBUG (__FUNCTION__);
 
   id = grl_media_get_id (rs->media);
-  path = id ? id : G_DIR_SEPARATOR_S;
+  chosen_uris = GRL_FILESYSTEM_SOURCE(source)->priv->chosen_uris;
 
-  if (g_file_test (path, G_FILE_TEST_EXISTS)) {
-    create_content (rs->media, path,
+  if (!id && chosen_uris) {
+    guint len;
+
+    len = g_list_length (chosen_uris);
+    if (len == 1) {
+      file = g_file_new_for_uri (chosen_uris->data);
+    } else {
+      grl_media_set_title (rs->media, SOURCE_NAME);
+      grl_media_box_set_childcount (GRL_MEDIA_BOX (rs->media), len);
+      rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+      return;
+    }
+  } else {
+    file = g_file_new_for_uri (id ? id : DEFAULT_ROOT);
+  }
+
+  if (g_file_query_exists (file, NULL)) {
+    create_content (rs->media, file, NULL,
                     grl_operation_options_get_flags (rs->options)
                     & GRL_RESOLVE_FAST_ONLY,
-                    !id,
                     rs->options);
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   } else {
     GError *error = g_error_new (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_RESOLVE_FAILED,
                                  _("File %s does not exist"),
-                                 path);
+                                 id);
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
   }
+
+  g_object_unref (file);
+}
+
+static gboolean
+is_supported_scheme (const char *scheme)
+{
+  GVfs *vfs;
+  const gchar * const * schemes;
+  guint i;
+
+  if (g_strcmp0(scheme, "file") == 0)
+    return TRUE;
+
+  vfs = g_vfs_get_default ();
+  schemes = g_vfs_get_supported_uri_schemes (vfs);
+  for (i = 0; schemes[i] != NULL; i++) {
+    if (strcmp (schemes[i], scheme) == 0)
+      return TRUE;
+  }
+
+  return FALSE;
 }
 
 static gboolean
 grl_filesystem_test_media_from_uri (GrlSource *source,
                                     const gchar *uri)
 {
-  gchar *path, *scheme;
-  GError *error = NULL;
+  GFile *file;
+  GFileInfo *info;
+  gchar *scheme;
   gboolean ret = FALSE;
 
   GRL_DEBUG (__FUNCTION__);
 
   scheme = g_uri_parse_scheme (uri);
-  ret = (g_strcmp0(scheme, "file") == 0);
+  ret = is_supported_scheme (scheme);
   g_free (scheme);
   if (!ret)
     return ret;
 
-  path = g_filename_from_uri (uri, NULL, &error);
-  if (error != NULL) {
-    g_error_free (error);
+  file = g_file_new_for_uri (uri);
+  info = g_file_query_info (file, FILE_ATTRIBUTES_FAST, G_FILE_QUERY_INFO_NONE, NULL, NULL);
+  g_object_unref (file);
+
+  if (!info)
     return FALSE;
-  }
 
-  ret = file_is_valid_content (path, TRUE, NULL);
+  ret = file_is_valid_content (info, TRUE, NULL);
 
-  g_free (path);
+  g_object_unref (info);
+
   return ret;
 }
 
 static void grl_filesystem_get_media_from_uri (GrlSource *source,
                                                GrlSourceMediaFromUriSpec *mfus)
 {
-  gchar *path, *scheme;
+  gchar *scheme;
   GError *error = NULL;
   gboolean ret = FALSE;
   GrlMedia *media;
+  GFile *file;
 
   GRL_DEBUG (__FUNCTION__);
 
   scheme = g_uri_parse_scheme (mfus->uri);
-  ret = (g_strcmp0(scheme, "file") == 0);
+  ret = is_supported_scheme (scheme);
   g_free (scheme);
   if (!ret) {
     error = g_error_new (GRL_CORE_ERROR,
@@ -1375,31 +1407,16 @@ static void grl_filesystem_get_media_from_uri (GrlSource *source,
     return;
   }
 
-  path = g_filename_from_uri (mfus->uri, NULL, &error);
-  if (error != NULL) {
-    GError *new_error;
-    new_error = g_error_new (GRL_CORE_ERROR,
-                             GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
-                             _("Cannot get media from %s: %s"),
-                             mfus->uri, error->message);
-    g_clear_error (&error);
-    mfus->callback (source, mfus->operation_id, NULL, mfus->user_data, new_error);
-    g_clear_error (&new_error);
-    goto beach;
-  }
-
   /* FIXME: this is a blocking call, not sure we want that in here */
   /* Note: we assume create_content() never returns NULL, which seems to be true */
+  file = g_file_new_for_uri (mfus->uri);
   media =
-      create_content (NULL, path,
+      create_content (NULL, file, NULL,
                       grl_operation_options_get_flags (mfus->options)
                        & GRL_RESOLVE_FAST_ONLY,
-                      FALSE,
                       mfus->options);
+  g_object_unref (file);
   mfus->callback (source, mfus->operation_id, media, mfus->user_data, NULL);
-
-beach:
-  g_free (path);
 }
 
 static void

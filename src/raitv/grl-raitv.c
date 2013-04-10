@@ -284,12 +284,12 @@ grl_raitv_source_finalize (GObject *object)
   }
 
   if (source->priv->raitv_search_mappings != NULL) {
-    g_object_unref (source->priv->raitv_search_mappings);
+    g_list_free_full (source->priv->raitv_search_mappings, g_free);
     source->priv->raitv_search_mappings = NULL;
   }
 
   if (source->priv->raitv_browse_mappings != NULL) {
-    g_object_unref (source->priv->raitv_browse_mappings);
+    g_list_free_full (source->priv->raitv_browse_mappings, g_free);
     source->priv->raitv_browse_mappings = NULL;
   }
 

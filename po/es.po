@@ -1,0 +1,554 @@
+# Spanish translation for grilo-plugins.
+# Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
+# This file is distributed under the same license as the grilo-plugins package.
+# Miguel Rodríguez Núñez <bokerones.fritos@gmail.com>, 2013.
+# miguel rodriguez nuñez <bokerones.fritos@gmail.com>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: grilo-plugins master\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
+"plugins&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2013-04-10 17:02+0000\n"
+"PO-Revision-Date: 2013-04-10 23:46+0200\n"
+"Last-Translator: miguel rodriguez nuñez <bokerones.fritos@gmail.com>\n"
+"Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 2.91.5\n"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:55
+msgid "Apple Movie Trailers"
+msgstr ""
+
+#: ../src/apple-trailers/grl-apple-trailers.c:56
+msgid "A plugin for browsing Apple Movie Trailers"
+msgstr ""
+
+#: ../src/apple-trailers/grl-apple-trailers.c:457
+#: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
+#: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:472
+msgid "Failed to parse response"
+msgstr "Falló al analizar la respuesta"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:465
+#: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
+#: ../src/podcasts/grl-podcasts.c:1356 ../src/shoutcast/grl-shoutcast.c:424
+msgid "Empty response"
+msgstr "Respuesta vacía"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:523
+#: ../src/jamendo/grl-jamendo.c:666
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:229
+#: ../src/shoutcast/grl-shoutcast.c:565
+#, c-format
+msgid "Failed to connect: %s"
+msgstr "Falló al conectar: %s"
+
+#: ../src/bliptv/grl-bliptv.c:60
+msgid "A source for browsing and searching Blip.tv videos"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:119
+msgid "Bookmarks"
+msgstr "Marcadores"
+
+#: ../src/bookmarks/grl-bookmarks.c:120
+msgid "A source for organizing media bookmarks"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:441 ../src/bookmarks/grl-bookmarks.c:456
+msgid "Failed to get bookmark metadata"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:486 ../src/bookmarks/grl-bookmarks.c:506
+#, c-format
+msgid "Failed to get bookmarks list: %s"
+msgstr "Falló al obtener la lista de marcadores: %s"
+
+#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:813
+#: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
+#, c-format
+msgid "Failed to remove: %s"
+msgstr "Falló al eliminar: %s"
+
+#: ../src/bookmarks/grl-bookmarks.c:660 ../src/bookmarks/grl-bookmarks.c:718
+#: ../src/podcasts/grl-podcasts.c:918 ../src/podcasts/grl-podcasts.c:951
+#: ../src/podcasts/grl-podcasts.c:1800
+#, c-format
+msgid "Failed to store: %s"
+msgstr "Falló al guardar: %s"
+
+#: ../src/bookmarks/grl-bookmarks.c:772 ../src/bookmarks/grl-bookmarks.c:807
+#: ../src/bookmarks/grl-bookmarks.c:839 ../src/bookmarks/grl-bookmarks.c:901
+#: ../src/metadata-store/grl-metadata-store.c:852
+#: ../src/podcasts/grl-podcasts.c:1656 ../src/podcasts/grl-podcasts.c:1700
+#: ../src/podcasts/grl-podcasts.c:1734 ../src/podcasts/grl-podcasts.c:1769
+msgid "No database connection"
+msgstr ""
+
+#: ../src/dmap/grl-dmap.c:51
+#, c-format
+msgid "A source for browsing the DMAP server '%s'"
+msgstr ""
+
+#: ../src/filesystem/grl-filesystem.c:69
+msgid "Filesystem"
+msgstr "Sistema de archivos"
+
+#: ../src/filesystem/grl-filesystem.c:70
+msgid "A source for browsing the filesystem"
+msgstr ""
+
+#: ../src/filesystem/grl-filesystem.c:1327
+#, c-format
+msgid "File %s does not exist"
+msgstr "El archivo %s no existe"
+
+#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1629
+#, c-format
+msgid "Cannot get media from %s"
+msgstr ""
+
+#: ../src/flickr/grl-flickr.c:58
+msgid "A source for browsing and searching Flickr photos"
+msgstr "Una fuente para explorar y buscar fotos en Flickr"
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:62
+#, c-format
+msgid "%s's Flickr"
+msgstr "%s de Flickr"
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:64
+#, c-format
+msgid "A source for browsing and searching %s' flickr photos"
+msgstr "Una fuente para explorar y buscar %s fotos en flickr"
+
+#: ../src/gravatar/grl-gravatar.c:48
+msgid "Avatar provider from Gravatar"
+msgstr ""
+
+#: ../src/gravatar/grl-gravatar.c:49
+msgid "A plugin to get avatars for artist and author fields"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:93
+msgid "A source for browsing and searching Jamendo music"
+msgstr "Una fuente para explorar y buscar música en Jamendo"
+
+#: ../src/jamendo/grl-jamendo.c:149
+msgid "Albums of the week"
+msgstr "Álbumes de la semana"
+
+#: ../src/jamendo/grl-jamendo.c:151
+msgid "Tracks of the week"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:153
+msgid "New releases"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:155
+msgid "Top artists"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:157
+msgid "Top albums"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:159
+msgid "Top tracks"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:774
+msgid "Artists"
+msgstr "Artistas"
+
+#: ../src/jamendo/grl-jamendo.c:785
+msgid "Albums"
+msgstr "Álbumes"
+
+#: ../src/jamendo/grl-jamendo.c:796
+msgid "Feeds"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:982 ../src/jamendo/grl-jamendo.c:1027
+#: ../src/jamendo/grl-jamendo.c:1054
+#, c-format
+msgid "Invalid identifier %s"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1200
+#: ../src/youtube/grl-youtube.c:1341 ../src/youtube/grl-youtube.c:1556
+#, c-format
+msgid "Invalid category identifier %s"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
+#, c-format
+msgid "Invalid container identifier %s"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:1186
+#, c-format
+msgid "Failed to browse: %s is a track"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:1248
+#, c-format
+msgid "Malformed query \"%s\""
+msgstr ""
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:59
+msgid "Album art Provider from Last.FM"
+msgstr ""
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
+msgid "A plugin for getting album arts using Last.FM as backend"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:42
+msgid "Local Metadata Provider"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:43
+msgid "A source providing locally available metadata"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:472
+#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:866
+#: ../src/tracker/grl-tracker-source-api.c:460
+#, c-format
+msgid "Failed to resolve: %s"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:995
+msgid "Cannot resolve any of the given keys"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:999
+msgid "A GIO supported URL for images is required"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:47
+msgid "Metadata Store"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:48
+msgid "A plugin for storing extra metadata information"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:574
+#: ../src/metadata-store/grl-metadata-store.c:593
+#: ../src/metadata-store/grl-metadata-store.c:805
+#: ../src/tracker/grl-tracker-source-api.c:511
+#, c-format
+msgid "Failed to update metadata: %s"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:575
+msgid "specified keys are not writable"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:615
+msgid "Failed to update metadata"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:761
+#: ../src/metadata-store/grl-metadata-store.c:806
+msgid "\"source-id\" not available"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1424
+msgid "Failed to resolve"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:920
+#: ../src/metadata-store/grl-metadata-store.c:957 ../src/raitv/grl-raitv.c:415
+#: ../src/shoutcast/grl-shoutcast.c:759 ../src/vimeo/grl-vimeo.c:511
+#, c-format
+msgid "Failed to search: %s"
+msgstr "Falló al buscar: %s"
+
+#: ../src/optical-media/grl-optical-media.c:46
+msgid "Optical Media"
+msgstr "Soporte óptico"
+
+#: ../src/optical-media/grl-optical-media.c:47
+msgid "A source for browsing optical media"
+msgstr "Una fuente para explorar soportes ópticos"
+
+#: ../src/podcasts/grl-podcasts.c:155
+msgid "A source for browsing podcasts"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
+#, c-format
+msgid "Failed to get podcast streams: %s"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
+#: ../src/podcasts/grl-podcasts.c:1254
+msgid "Failed to parse content"
+msgstr "Falló al analizar el contenido"
+
+#: ../src/podcasts/grl-podcasts.c:1287
+msgid "Failed to parse podcast contents"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1445
+msgid "Failed to get podcast information"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1485 ../src/podcasts/grl-podcasts.c:1505
+#, c-format
+msgid "Failed to get podcasts list: %s"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1559 ../src/podcasts/grl-podcasts.c:1574
+msgid "Failed to get podcast stream metadata"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1612
+msgid "Failed to get podcast metadata"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1796
+msgid "Cannot create containers. Only feeds are accepted"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1801
+msgid "URL required"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
+msgid "Most Popular"
+msgstr "Más populares"
+
+#: ../src/raitv/grl-raitv.c:52
+msgid "Recent"
+msgstr "Recientes"
+
+#: ../src/raitv/grl-raitv.c:95
+msgid "A source for browsing and searching Rai.tv videos"
+msgstr "Una fuente para explorar y buscar vídeos en Rai.tv"
+
+#: ../src/raitv/grl-raitv.c:173
+msgid "All"
+msgstr "Todo"
+
+#: ../src/raitv/grl-raitv.c:174
+msgid "Back and White"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:175
+msgid "Cinema"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:176
+msgid "Comedians"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:177
+msgid "Chronicle"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:178
+msgid "Culture"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:179
+msgid "Economy"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:180
+msgid "Fiction"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:181
+msgid "Junior"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:182
+msgid "Investigations"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:183
+msgid "Interviews"
+msgstr "Entrevistas"
+
+#: ../src/raitv/grl-raitv.c:184
+msgid "Music"
+msgstr "Música"
+
+#: ../src/raitv/grl-raitv.c:185
+msgid "News"
+msgstr "Noticias"
+
+#: ../src/raitv/grl-raitv.c:186
+msgid "Health"
+msgstr "Salud"
+
+#: ../src/raitv/grl-raitv.c:187
+msgid "Satire"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:189
+msgid "Society"
+msgstr "Sociedad"
+
+#: ../src/raitv/grl-raitv.c:190
+msgid "Show"
+msgstr "Espectáculos"
+
+#: ../src/raitv/grl-raitv.c:191
+msgid "Sport"
+msgstr "Deporte"
+
+#: ../src/raitv/grl-raitv.c:192
+msgid "History"
+msgstr "Historia"
+
+#: ../src/raitv/grl-raitv.c:193
+msgid "Politics"
+msgstr "Política"
+
+#: ../src/raitv/grl-raitv.c:194
+msgid "Leisure"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:195
+msgid "Travel"
+msgstr "Viajes"
+
+#: ../src/raitv/grl-raitv.c:612
+#, c-format
+msgid "Failed to browse: %s"
+msgstr "Falló al examinar: %s"
+
+#: ../src/shoutcast/grl-shoutcast.c:67
+msgid "A source for browsing SHOUTcast radios"
+msgstr ""
+
+#: ../src/shoutcast/grl-shoutcast.c:462
+#, c-format
+msgid "Cannot find media %s"
+msgstr ""
+
+#: ../src/shoutcast/grl-shoutcast.c:760 ../src/vimeo/grl-vimeo.c:512
+msgid "non-NULL search text is required"
+msgstr ""
+
+#: ../src/tmdb/grl-tmdb.c:948
+msgid "Remote data does not contain valid identifier"
+msgstr ""
+
+#. I can haz templatze ??
+#. Only emit this last one if more result than expected
+#. Schedule the next line to parse
+#: ../src/tracker/grl-tracker-source-api.c:332
+#: ../src/tracker/grl-tracker-source-api.c:414
+#, c-format
+msgid "Failed to query: %s"
+msgstr ""
+
+#: ../src/tracker/grl-tracker-source-api.c:628
+msgid "Empty query"
+msgstr ""
+
+#: ../src/tracker/grl-tracker-source-priv.h:44
+msgid "A plugin for searching multimedia content using Tracker"
+msgstr ""
+
+#: ../src/tracker/grl-tracker-utils.c:606
+#, c-format
+msgid "Removable - %s"
+msgstr ""
+
+#: ../src/tracker/grl-tracker-utils.c:618
+msgid "Local files"
+msgstr ""
+
+#: ../src/upnp/grl-upnp.c:53
+#, c-format
+msgid "A source for browsing the UPnP server '%s'"
+msgstr ""
+
+#: ../src/upnp/grl-upnp.c:1254 ../src/upnp/grl-upnp.c:1311
+msgid "Failed to browse"
+msgstr ""
+
+#: ../src/upnp/grl-upnp.c:1374
+msgid "Failed to query"
+msgstr ""
+
+#: ../src/upnp/grl-upnp.c:1493
+#, c-format
+msgid "Unable to listen for changes in %s"
+msgstr ""
+
+#: ../src/vimeo/grl-vimeo.c:57
+msgid "A source for browsing and searching Vimeo videos"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:60
+msgid "Standard feeds"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:63
+msgid "Categories"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:69
+msgid "Top Rated"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:72
+msgid "Top Favorites"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:75
+msgid "Most Viewed"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:81
+msgid "Most Recent"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:84
+msgid "Most Discussed"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:87
+msgid "Most Linked"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:90
+msgid "Most Responded"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:93
+msgid "Recently Featured"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:96
+msgid "Watch On Mobile"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:117
+msgid "A source for browsing and searching YouTube videos"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:948
+msgid "Failed to get feed"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:1129 ../src/youtube/grl-youtube.c:1536
+#, c-format
+msgid "Invalid feed identifier %s"
+msgstr ""

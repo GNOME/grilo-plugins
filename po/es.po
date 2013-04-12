@@ -3,30 +3,31 @@
 # This file is distributed under the same license as the grilo-plugins package.
 # Miguel Rodríguez Núñez <bokerones.fritos@gmail.com>, 2013.
 # miguel rodriguez nuñez <bokerones.fritos@gmail.com>, 2013.
+# Daniel Mustieles <daniel.mustieles@gmail.com>, 2013.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-04-10 17:02+0000\n"
-"PO-Revision-Date: 2013-04-10 23:46+0200\n"
-"Last-Translator: miguel rodriguez nuñez <bokerones.fritos@gmail.com>\n"
-"Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
+"POT-Creation-Date: 2013-04-11 16:13+0000\n"
+"PO-Revision-Date: 2013-04-12 11:04+0200\n"
+"Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
+"Language-Team: Español <gnome-es-list@gnome.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "X-Generator: Gtranslator 2.91.5\n"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:55
 msgid "Apple Movie Trailers"
-msgstr ""
+msgstr "Tráiler de películas de Apple"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:56
 msgid "A plugin for browsing Apple Movie Trailers"
-msgstr ""
+msgstr "Un complemento para explorar tráilers de películas de Apple"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:457
 #: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
@@ -50,7 +51,7 @@ msgstr "Falló al conectar: %s"
 
 #: ../src/bliptv/grl-bliptv.c:60
 msgid "A source for browsing and searching Blip.tv videos"
-msgstr ""
+msgstr "Una fuente para explorar y buscar vídeos en Blip.tv"
 
 #: ../src/bookmarks/grl-bookmarks.c:119
 msgid "Bookmarks"
@@ -58,11 +59,11 @@ msgstr "Marcadores"
 
 #: ../src/bookmarks/grl-bookmarks.c:120
 msgid "A source for organizing media bookmarks"
-msgstr ""
+msgstr "Una fuente para organizar marcadores multimedia"
 
 #: ../src/bookmarks/grl-bookmarks.c:441 ../src/bookmarks/grl-bookmarks.c:456
 msgid "Failed to get bookmark metadata"
-msgstr ""
+msgstr "Falló al obtener los metadatos de los marcadores"
 
 #: ../src/bookmarks/grl-bookmarks.c:486 ../src/bookmarks/grl-bookmarks.c:506
 #, c-format
@@ -88,12 +89,12 @@ msgstr "Falló al guardar: %s"
 #: ../src/podcasts/grl-podcasts.c:1656 ../src/podcasts/grl-podcasts.c:1700
 #: ../src/podcasts/grl-podcasts.c:1734 ../src/podcasts/grl-podcasts.c:1769
 msgid "No database connection"
-msgstr ""
+msgstr "Sin conexión a la base de datos"
 
 #: ../src/dmap/grl-dmap.c:51
 #, c-format
 msgid "A source for browsing the DMAP server '%s'"
-msgstr ""
+msgstr "Una fuente para explorar el servidor DMAP «%s»"
 
 #: ../src/filesystem/grl-filesystem.c:69
 msgid "Filesystem"
@@ -101,7 +102,7 @@ msgstr "Sistema de archivos"
 
 #: ../src/filesystem/grl-filesystem.c:70
 msgid "A source for browsing the filesystem"
-msgstr ""
+msgstr "Una fuente para explorar el sistema de archivos"
 
 #: ../src/filesystem/grl-filesystem.c:1327
 #, c-format
@@ -111,7 +112,7 @@ msgstr "El archivo %s no existe"
 #: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1629
 #, c-format
 msgid "Cannot get media from %s"
-msgstr ""
+msgstr "No se pueden obtener los archivos multimedia desde %s"
 
 #: ../src/flickr/grl-flickr.c:58
 msgid "A source for browsing and searching Flickr photos"
@@ -136,6 +137,7 @@ msgstr ""
 #: ../src/gravatar/grl-gravatar.c:49
 msgid "A plugin to get avatars for artist and author fields"
 msgstr ""
+"Un complemento para obtener los avatares en los campos de artista y autor"
 
 #: ../src/jamendo/grl-jamendo.c:93
 msgid "A source for browsing and searching Jamendo music"
@@ -147,23 +149,23 @@ msgstr "Álbumes de la semana"
 
 #: ../src/jamendo/grl-jamendo.c:151
 msgid "Tracks of the week"
-msgstr ""
+msgstr "Pistas de la semana"
 
 #: ../src/jamendo/grl-jamendo.c:153
 msgid "New releases"
-msgstr ""
+msgstr "Novedades"
 
 #: ../src/jamendo/grl-jamendo.c:155
 msgid "Top artists"
-msgstr ""
+msgstr "Mejores artistas"
 
 #: ../src/jamendo/grl-jamendo.c:157
 msgid "Top albums"
-msgstr ""
+msgstr "Mejores álbumes"
 
 #: ../src/jamendo/grl-jamendo.c:159
 msgid "Top tracks"
-msgstr ""
+msgstr "Mejores pistas"
 
 #: ../src/jamendo/grl-jamendo.c:774
 msgid "Artists"
@@ -175,46 +177,47 @@ msgstr "Álbumes"
 
 #: ../src/jamendo/grl-jamendo.c:796
 msgid "Feeds"
-msgstr ""
+msgstr "Proveedores"
 
 #: ../src/jamendo/grl-jamendo.c:982 ../src/jamendo/grl-jamendo.c:1027
 #: ../src/jamendo/grl-jamendo.c:1054
 #, c-format
 msgid "Invalid identifier %s"
-msgstr ""
+msgstr "Identificador %s no válido"
 
 #: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1200
 #: ../src/youtube/grl-youtube.c:1341 ../src/youtube/grl-youtube.c:1556
 #, c-format
 msgid "Invalid category identifier %s"
-msgstr ""
+msgstr "Identificador de categoría %s no válido"
 
 #: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
 #, c-format
 msgid "Invalid container identifier %s"
-msgstr ""
+msgstr "Identificador de extensión %s no válido"
 
 #: ../src/jamendo/grl-jamendo.c:1186
 #, c-format
 msgid "Failed to browse: %s is a track"
-msgstr ""
+msgstr "Falló al examinar: %s es una pista"
 
 #: ../src/jamendo/grl-jamendo.c:1248
 #, c-format
 msgid "Malformed query \"%s\""
-msgstr ""
+msgstr "Pregunta «%s» mal formada"
 
 #: ../src/lastfm-albumart/grl-lastfm-albumart.c:59
 msgid "Album art Provider from Last.FM"
-msgstr ""
+msgstr "Carátula de álbum procedente de Last.FM"
 
 #: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
 msgid "A plugin for getting album arts using Last.FM as backend"
 msgstr ""
+"Un complemento para obtener carátulas de álbumes usando Last.FM como «backend»"
 
 #: ../src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
-msgstr ""
+msgstr "Proveedor de metadatos local"
 
 #: ../src/local-metadata/grl-local-metadata.c:43
 msgid "A source providing locally available metadata"
@@ -225,7 +228,7 @@ msgstr ""
 #: ../src/tracker/grl-tracker-source-api.c:460
 #, c-format
 msgid "Failed to resolve: %s"
-msgstr ""
+msgstr "Falló al resolver: %s"
 
 #: ../src/local-metadata/grl-local-metadata.c:995
 msgid "Cannot resolve any of the given keys"

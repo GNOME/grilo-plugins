@@ -2,23 +2,24 @@
 # Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
 # Miguel Rodríguez Núñez <bokerones.fritos@gmail.com>, 2013.
-# miguel rodriguez nuñez <bokerones.fritos@gmail.com>, 2013.
 # Daniel Mustieles <daniel.mustieles@gmail.com>, 2013.
+# miguel rodriguez nuñez <bokerones.fritos@gmail.com>, 2013.
+# Nicolás Satragno <nsatragno@gnome.org>, 2013.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-04-11 16:13+0000\n"
-"PO-Revision-Date: 2013-04-12 11:04+0200\n"
-"Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
-"Language-Team: Español <gnome-es-list@gnome.org>\n"
+"POT-Creation-Date: 2013-04-16 09:16+0000\n"
+"PO-Revision-Date: 2013-04-14 21:39+0200\n"
+"Last-Translator: Nicolás Satragno <nsatragno@gnome.org>\n"
+"Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Gtranslator 2.91.5\n"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:55
@@ -132,7 +133,7 @@ msgstr "Una fuente para explorar y buscar %s fotos en flickr"
 
 #: ../src/gravatar/grl-gravatar.c:48
 msgid "Avatar provider from Gravatar"
-msgstr ""
+msgstr "Avatar procedente de Gravatar"
 
 #: ../src/gravatar/grl-gravatar.c:49
 msgid "A plugin to get avatars for artist and author fields"
@@ -213,7 +214,8 @@ msgstr "Carátula de álbum procedente de Last.FM"
 #: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
 msgid "A plugin for getting album arts using Last.FM as backend"
 msgstr ""
-"Un complemento para obtener carátulas de álbumes usando Last.FM como «backend»"
+"Un complemento para obtener carátulas de álbumes usando Last.FM como "
+"«backend»"
 
 #: ../src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
@@ -221,7 +223,7 @@ msgstr "Proveedor de metadatos local"
 
 #: ../src/local-metadata/grl-local-metadata.c:43
 msgid "A source providing locally available metadata"
-msgstr ""
+msgstr "Una fuente que proporciona metadatos locales"
 
 #: ../src/local-metadata/grl-local-metadata.c:472
 #: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:866
@@ -232,7 +234,7 @@ msgstr "Falló al resolver: %s"
 
 #: ../src/local-metadata/grl-local-metadata.c:995
 msgid "Cannot resolve any of the given keys"
-msgstr ""
+msgstr "No se pudo resolver ninguna clave suministrada"
 
 #: ../src/local-metadata/grl-local-metadata.c:999
 msgid "A GIO supported URL for images is required"
@@ -240,11 +242,11 @@ msgstr ""
 
 #: ../src/metadata-store/grl-metadata-store.c:47
 msgid "Metadata Store"
-msgstr ""
+msgstr "Almacén de metadatos"
 
 #: ../src/metadata-store/grl-metadata-store.c:48
 msgid "A plugin for storing extra metadata information"
-msgstr ""
+msgstr "Un complemento para almacenar información adicional de metadatos"
 
 #: ../src/metadata-store/grl-metadata-store.c:574
 #: ../src/metadata-store/grl-metadata-store.c:593
@@ -252,24 +254,24 @@ msgstr ""
 #: ../src/tracker/grl-tracker-source-api.c:511
 #, c-format
 msgid "Failed to update metadata: %s"
-msgstr ""
+msgstr "Falló al actualizar los metadatos: %s"
 
 #: ../src/metadata-store/grl-metadata-store.c:575
 msgid "specified keys are not writable"
-msgstr ""
+msgstr "claves especificadas no modificables"
 
 #: ../src/metadata-store/grl-metadata-store.c:615
 msgid "Failed to update metadata"
-msgstr ""
+msgstr "Falló al actualizar los metadatos"
 
 #: ../src/metadata-store/grl-metadata-store.c:761
 #: ../src/metadata-store/grl-metadata-store.c:806
 msgid "\"source-id\" not available"
-msgstr ""
+msgstr "«source-id» no disponible"
 
 #: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1424
 msgid "Failed to resolve"
-msgstr ""
+msgstr "No se pudo resolver"
 
 #: ../src/metadata-store/grl-metadata-store.c:920
 #: ../src/metadata-store/grl-metadata-store.c:957 ../src/raitv/grl-raitv.c:415
@@ -288,12 +290,12 @@ msgstr "Una fuente para explorar soportes ópticos"
 
 #: ../src/podcasts/grl-podcasts.c:155
 msgid "A source for browsing podcasts"
-msgstr ""
+msgstr "Una fuente para explorar podcasts"
 
 #: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
 #, c-format
 msgid "Failed to get podcast streams: %s"
-msgstr ""
+msgstr "Falló al obtener los flujos del podcast: %s"
 
 #: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
 #: ../src/podcasts/grl-podcasts.c:1254
@@ -302,32 +304,32 @@ msgstr "Falló al analizar el contenido"
 
 #: ../src/podcasts/grl-podcasts.c:1287
 msgid "Failed to parse podcast contents"
-msgstr ""
+msgstr "Falló al analizar los contenidos del podcast"
 
 #: ../src/podcasts/grl-podcasts.c:1445
 msgid "Failed to get podcast information"
-msgstr ""
+msgstr "Falló al obtener la información del podcast"
 
 #: ../src/podcasts/grl-podcasts.c:1485 ../src/podcasts/grl-podcasts.c:1505
 #, c-format
 msgid "Failed to get podcasts list: %s"
-msgstr ""
+msgstr "Falló al obtener la lista de podcasts: %s"
 
 #: ../src/podcasts/grl-podcasts.c:1559 ../src/podcasts/grl-podcasts.c:1574
 msgid "Failed to get podcast stream metadata"
-msgstr ""
+msgstr "Falló al obtener los metadatos del flujo del podcast"
 
 #: ../src/podcasts/grl-podcasts.c:1612
 msgid "Failed to get podcast metadata"
-msgstr ""
+msgstr "Falló al obtener los metadatos del podcast"
 
 #: ../src/podcasts/grl-podcasts.c:1796
 msgid "Cannot create containers. Only feeds are accepted"
-msgstr ""
+msgstr "No se pueden crear contenedores. Sólo se aceptan proveedores"
 
 #: ../src/podcasts/grl-podcasts.c:1801
 msgid "URL required"
-msgstr ""
+msgstr "Se necesita el URL"
 
 #: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
 msgid "Most Popular"
@@ -346,32 +348,32 @@ msgid "All"
 msgstr "Todo"
 
 #: ../src/raitv/grl-raitv.c:174
-msgid "Back and White"
+msgid "Black and White"
 msgstr ""
 
 #: ../src/raitv/grl-raitv.c:175
 msgid "Cinema"
-msgstr ""
+msgstr "Cine"
 
 #: ../src/raitv/grl-raitv.c:176
 msgid "Comedians"
-msgstr ""
+msgstr "Humoristas"
 
 #: ../src/raitv/grl-raitv.c:177
 msgid "Chronicle"
-msgstr ""
+msgstr "Crónicas"
 
 #: ../src/raitv/grl-raitv.c:178
 msgid "Culture"
-msgstr ""
+msgstr "Cultura"
 
 #: ../src/raitv/grl-raitv.c:179
 msgid "Economy"
-msgstr ""
+msgstr "Economía"
 
 #: ../src/raitv/grl-raitv.c:180
 msgid "Fiction"
-msgstr ""
+msgstr "Ficción"
 
 #: ../src/raitv/grl-raitv.c:181
 msgid "Junior"
@@ -379,7 +381,7 @@ msgstr ""
 
 #: ../src/raitv/grl-raitv.c:182
 msgid "Investigations"
-msgstr ""
+msgstr "Investigaciones"
 
 #: ../src/raitv/grl-raitv.c:183
 msgid "Interviews"
@@ -399,7 +401,7 @@ msgstr "Salud"
 
 #: ../src/raitv/grl-raitv.c:187
 msgid "Satire"
-msgstr ""
+msgstr "Sátira"
 
 #: ../src/raitv/grl-raitv.c:189
 msgid "Society"
@@ -423,7 +425,7 @@ msgstr "Política"
 
 #: ../src/raitv/grl-raitv.c:194
 msgid "Leisure"
-msgstr ""
+msgstr "Ocio"
 
 #: ../src/raitv/grl-raitv.c:195
 msgid "Travel"
@@ -462,7 +464,7 @@ msgstr ""
 
 #: ../src/tracker/grl-tracker-source-api.c:628
 msgid "Empty query"
-msgstr ""
+msgstr "Consulta vacía"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"

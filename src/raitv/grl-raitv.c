@@ -171,7 +171,7 @@ CategoryInfo root_dir[] = {
 
 CategoryInfo themes_dir[] = {
   {"all",N_("All"),-1,"","Tematica:News^Tematica:ntz"},
-  {"bianco_nero",N_("Back and White"),-1,"Tematica:Bianco e Nero",""},
+  {"bianco_nero",N_("Black and White"),-1,"Tematica:Bianco e Nero",""},
   {"cinema",N_("Cinema"),-1,"Tematica:Cinema",""},
   {"comici",N_("Comedians"),-1,"Tematica:Comici",""},
   {"cronaca",N_("Chronicle"),-1,"Tematica:Cronaca",""},

@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-22 23:30+0100\n"
-"PO-Revision-Date: 2013-03-22 23:50+0100\n"
+"POT-Creation-Date: 2013-04-16 19:11+0200\n"
+"PO-Revision-Date: 2013-04-16 19:12+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -88,7 +88,7 @@ msgstr "Przechowanie się nie powiodło: %s"
 
 #: ../src/bookmarks/grl-bookmarks.c:772 ../src/bookmarks/grl-bookmarks.c:807
 #: ../src/bookmarks/grl-bookmarks.c:839 ../src/bookmarks/grl-bookmarks.c:901
-#: ../src/metadata-store/grl-metadata-store.c:845
+#: ../src/metadata-store/grl-metadata-store.c:852
 #: ../src/podcasts/grl-podcasts.c:1656 ../src/podcasts/grl-podcasts.c:1700
 #: ../src/podcasts/grl-podcasts.c:1734 ../src/podcasts/grl-podcasts.c:1769
 msgid "No database connection"
@@ -99,28 +99,23 @@ msgstr "Brak połączenia z bazą danych"
 msgid "A source for browsing the DMAP server '%s'"
 msgstr "Źródło do przeglądania serwera DMAP \"%s\""
 
-#: ../src/filesystem/grl-filesystem.c:64
+#: ../src/filesystem/grl-filesystem.c:69
 msgid "Filesystem"
 msgstr "System plików"
 
-#: ../src/filesystem/grl-filesystem.c:65
+#: ../src/filesystem/grl-filesystem.c:70
 msgid "A source for browsing the filesystem"
 msgstr "Źródło do przeglądania systemu plików"
 
-#: ../src/filesystem/grl-filesystem.c:1321
+#: ../src/filesystem/grl-filesystem.c:1327
 #, c-format
 msgid "File %s does not exist"
 msgstr "Plik %s nie istnieje"
 
-#: ../src/filesystem/grl-filesystem.c:1372 ../src/youtube/grl-youtube.c:1629
+#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1629
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Nie można pobrać multimediów z %s"
-
-#: ../src/filesystem/grl-filesystem.c:1383
-#, c-format
-msgid "Cannot get media from %s: %s"
-msgstr "Nie można pobrać multimediów z %s: %s"
 
 #: ../src/flickr/grl-flickr.c:58
 msgid "A source for browsing and searching Flickr photos"
@@ -232,8 +227,8 @@ msgid "A source providing locally available metadata"
 msgstr "Źródło dostarczające lokalnie dostępne metadane"
 
 #: ../src/local-metadata/grl-local-metadata.c:472
-#: ../src/metadata-store/grl-metadata-store.c:756 ../src/raitv/grl-raitv.c:866
-#: ../src/tracker/grl-tracker-source-api.c:445
+#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:866
+#: ../src/tracker/grl-tracker-source-api.c:460
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Rozwiązanie się nie powiodło: %s"
@@ -254,33 +249,33 @@ msgstr "Przechowalnia metadanych"
 msgid "A plugin for storing extra metadata information"
 msgstr "Wtyczka do przechowywania dodatkowych informacji o metadanych"
 
-#: ../src/metadata-store/grl-metadata-store.c:571
-#: ../src/metadata-store/grl-metadata-store.c:590
-#: ../src/metadata-store/grl-metadata-store.c:801
-#: ../src/tracker/grl-tracker-source-api.c:496
+#: ../src/metadata-store/grl-metadata-store.c:574
+#: ../src/metadata-store/grl-metadata-store.c:593
+#: ../src/metadata-store/grl-metadata-store.c:805
+#: ../src/tracker/grl-tracker-source-api.c:511
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Zaktualizowanie metadanych się nie powiodło: %s"
 
-#: ../src/metadata-store/grl-metadata-store.c:572
+#: ../src/metadata-store/grl-metadata-store.c:575
 msgid "specified keys are not writable"
 msgstr "podane klucze nie są zapisywalne"
 
-#: ../src/metadata-store/grl-metadata-store.c:612
+#: ../src/metadata-store/grl-metadata-store.c:615
 msgid "Failed to update metadata"
 msgstr "Zaktualizowanie metadanych się nie powiodło"
 
-#: ../src/metadata-store/grl-metadata-store.c:757
-#: ../src/metadata-store/grl-metadata-store.c:802
+#: ../src/metadata-store/grl-metadata-store.c:761
+#: ../src/metadata-store/grl-metadata-store.c:806
 msgid "\"source-id\" not available"
 msgstr "\"source-id\" jest niedostępne"
 
-#: ../src/metadata-store/grl-metadata-store.c:777 ../src/upnp/grl-upnp.c:1424
+#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1424
 msgid "Failed to resolve"
 msgstr "Rozwiązanie się nie powiodło"
 
-#: ../src/metadata-store/grl-metadata-store.c:888
-#: ../src/metadata-store/grl-metadata-store.c:919 ../src/raitv/grl-raitv.c:415
+#: ../src/metadata-store/grl-metadata-store.c:920
+#: ../src/metadata-store/grl-metadata-store.c:957 ../src/raitv/grl-raitv.c:415
 #: ../src/shoutcast/grl-shoutcast.c:759 ../src/vimeo/grl-vimeo.c:511
 #, c-format
 msgid "Failed to search: %s"
@@ -354,7 +349,7 @@ msgid "All"
 msgstr "Wszystko"
 
 #: ../src/raitv/grl-raitv.c:174
-msgid "Back and White"
+msgid "Black and White"
 msgstr "Czarno-białe"
 
 #: ../src/raitv/grl-raitv.c:175
@@ -462,13 +457,13 @@ msgstr "Zdalne dane nie zawierają prawidłowego identyfikatora"
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:317
-#: ../src/tracker/grl-tracker-source-api.c:399
+#: ../src/tracker/grl-tracker-source-api.c:332
+#: ../src/tracker/grl-tracker-source-api.c:414
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Odpytanie się nie powiodło: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:613
+#: ../src/tracker/grl-tracker-source-api.c:628
 msgid "Empty query"
 msgstr "Puste zapytanie"
 

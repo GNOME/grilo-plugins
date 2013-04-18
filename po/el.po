@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-03-29 14:49+0000\n"
-"PO-Revision-Date: 2013-04-04 09:45+0300\n"
+"POT-Creation-Date: 2013-04-16 09:16+0000\n"
+"PO-Revision-Date: 2013-04-18 13:35+0300\n"
 "Last-Translator: Dimitris Spingos (Δημήτρης Σπίγγος) <dmtrs32@gmail.com>\n"
 "Language-Team: team@gnome.gr\n"
 "Language: el\n"
@@ -95,28 +95,23 @@ msgstr "Χωρίς σύνδεση βάσης δεδομένων"
 msgid "A source for browsing the DMAP server '%s'"
 msgstr "Μια πηγή για περιήγηση του εξυπηρετητή DMAP '%s'"
 
-#: ../src/filesystem/grl-filesystem.c:64
+#: ../src/filesystem/grl-filesystem.c:69
 msgid "Filesystem"
 msgstr "Σύστημα αρχείων"
 
-#: ../src/filesystem/grl-filesystem.c:65
+#: ../src/filesystem/grl-filesystem.c:70
 msgid "A source for browsing the filesystem"
 msgstr "Μια πηγή για περιήγηση του συστήματος αρχείων"
 
-#: ../src/filesystem/grl-filesystem.c:1321
+#: ../src/filesystem/grl-filesystem.c:1327
 #, c-format
 msgid "File %s does not exist"
 msgstr "Το αρχείο %s δεν υπάρχει"
 
-#: ../src/filesystem/grl-filesystem.c:1372 ../src/youtube/grl-youtube.c:1629
+#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1629
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Αδύνατη η λήψη μέσων από το %s"
-
-#: ../src/filesystem/grl-filesystem.c:1383
-#, c-format
-msgid "Cannot get media from %s: %s"
-msgstr "Αδύνατη η λήψη μέσων από το %s: %s"
 
 #: ../src/flickr/grl-flickr.c:58
 msgid "A source for browsing and searching Flickr photos"
@@ -350,7 +345,8 @@ msgid "All"
 msgstr "Όλα"
 
 #: ../src/raitv/grl-raitv.c:174
-msgid "Back and White"
+#| msgid "Back and White"
+msgid "Black and White"
 msgstr "Ασπρόμαυρο"
 
 #: ../src/raitv/grl-raitv.c:175
@@ -560,3 +556,6 @@ msgstr "Αποτυχία λήψης τροφοδοσίας"
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Άκυρος ταυτοποιητής τροφοδοσίας %s"
+
+#~ msgid "Cannot get media from %s: %s"
+#~ msgstr "Αδύνατη η λήψη μέσων από το %s: %s"

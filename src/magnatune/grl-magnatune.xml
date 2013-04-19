@@ -1,0 +1,10 @@
+<plugin>
+  <info>
+    <name>Magnatune</name>
+    <module>libgrlmagnatune</module>
+    <description>A plugin for searching music</description>
+    <author>Victor Toso</author>
+    <license>LGPL</license>
+    <site>http://live.gnome.org/Grilo</site>
+  </info>
+</plugin>

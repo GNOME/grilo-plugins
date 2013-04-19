@@ -45,6 +45,7 @@ DISTCHECK_CONFIGURE_FLAGS = --disable-scrollkeeper \
                             --enable-jamendo \
                             --enable-lastfm-albumart \
                             --enable-localmetadata \
+                            --enable-magnatune \
                             --enable-metadata-store \
                             --enable-optical-media \
                             --enable-podcasts \

@@ -708,6 +708,46 @@ DEPS_APPLE_TRAILERS_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS"
 AC_SUBST(DEPS_APPLE_TRAILERS_LIBS)
 
 # ----------------------------------------------------------
+# BUILD MAGNATUNE PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(magnatune,
+        AC_HELP_STRING([--enable-magnatune],
+                [enable Magnatune plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_SQLITE" = "xno"; then
+                           AC_MSG_ERROR([sqlite3 not found, install it or use --disable-magnatune])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_SQLITE" = "xyes"; then
+                  enable_magnatune=yes
+                else
+                  enable_magnatune=no
+                fi
+        ])
+
+AM_CONDITIONAL([MAGNATUNE_PLUGIN], [test "x$enable_magnatune" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL magnatune"
+if test "x$enable_magnatune" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED magnatune"
+fi
+
+MAGNATUNE_PLUGIN_ID="grl-magnatune"
+AC_SUBST(MAGNATUNE_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([MAGNATUNE_PLUGIN_ID], ["$MAGNATUNE_PLUGIN_ID"], [Magnatune plugin ID])
+
+DEPS_MAGNATUNE_CFLAGS="$DEPS_CFLAGS $SQLITE_CFLAGS"
+AC_SUBST(DEPS_MAGNATUNE_CFLAGS)
+DEPS_MAGNATUNE_LIBS="$DEPS_LIBS $SQLITE_LIBS"
+AC_SUBST(DEPS_MAGNATUNE_LIBS)
+
+# ----------------------------------------------------------
 # BUILD METADATA-STORE PLUGIN
 # ----------------------------------------------------------
 
@@ -1110,6 +1150,7 @@ AC_CONFIG_FILES([
   src/jamendo/Makefile
   src/lastfm-albumart/Makefile
   src/local-metadata/Makefile
+  src/magnatune/Makefile
   src/metadata-store/Makefile
   src/optical-media/Makefile
   src/podcasts/Makefile

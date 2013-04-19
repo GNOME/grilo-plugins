@@ -52,6 +52,10 @@ if LOCALMETADATA_PLUGIN
 SUBDIRS += local-metadata
 endif
 
+if MAGNATUNE_PLUGIN
+SUBDIRS += magnatune 
+endif
+
 if METADATA_STORE_PLUGIN
 SUBDIRS += metadata-store
 endif
@@ -94,7 +98,7 @@ endif
 
 DIST_SUBDIRS = \
 	apple-trailers bliptv bookmarks dmap fake-metadata filesystem flickr	\
-	gravatar jamendo lastfm-albumart local-metadata metadata-store			\
+	gravatar jamendo lastfm-albumart local-metadata magnatune metadata-store\
 	optical-media podcasts raitv shoutcast tmdb tracker upnp vimeo			\
 	youtube
 

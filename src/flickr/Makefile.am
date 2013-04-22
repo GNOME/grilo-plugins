@@ -23,7 +23,9 @@ libgrlflickr_la_SOURCES =	\
 	grl-flickr.c		\
 	grl-flickr.h		\
 	gflickr.c		\
-	gflickr.h
+	gflickr.h   \
+	flickr-oauth.c\
+	flickr-oauth.h
 
 libplugindir		= $(GRL_PLUGINS_DIR)
 flickrlibxmldir	= $(GRL_PLUGINS_DIR)

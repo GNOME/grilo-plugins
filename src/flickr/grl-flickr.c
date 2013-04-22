@@ -91,7 +91,8 @@ static GrlFlickrSource *grl_flickr_source_public_new (const gchar *flickr_api_ke
 static void grl_flickr_source_personal_new (GrlPlugin *plugin,
                                             const gchar *flickr_api_key,
                                             const gchar *flickr_secret,
-                                            const gchar *flickr_token);
+                                            const gchar *flickr_token,
+                                            const gchar *token_secret);
 
 static void grl_flickr_source_finalize (GObject *object);
 
@@ -121,6 +122,8 @@ grl_flickr_plugin_init (GrlRegistry *registry,
   gchar *flickr_key;
   gchar *flickr_secret;
   gchar *flickr_token;
+  gchar *flickr_token_secret;
+
   GrlConfig *config;
   gboolean public_source_created = FALSE;
 
@@ -142,20 +145,23 @@ grl_flickr_plugin_init (GrlRegistry *registry,
 
     flickr_key = grl_config_get_api_key (config);
     flickr_token = grl_config_get_api_token (config);
+    flickr_token_secret = grl_config_get_api_token_secret (config);
     flickr_secret = grl_config_get_api_secret (config);
 
     if (!flickr_key || !flickr_secret) {
       GRL_INFO ("Required API key or secret configuration not provdied. "
                 " Plugin not loaded");
-    } else if (flickr_token) {
+    } else if (flickr_token && flickr_token_secret) {
       grl_flickr_source_personal_new (plugin,
                                       flickr_key,
                                       flickr_secret,
-                                      flickr_token);
+                                      flickr_token,
+                                      flickr_token_secret);
     } else if (public_source_created) {
       GRL_WARNING ("Only one public source can be created");
     } else {
-      GrlFlickrSource *source = grl_flickr_source_public_new (flickr_key, flickr_secret);
+      GrlFlickrSource *source = grl_flickr_source_public_new (flickr_key,
+                                                              flickr_secret);
       public_source_created = TRUE;
       grl_registry_register_source (registry,
                                     plugin,
@@ -198,7 +204,8 @@ grl_flickr_source_public_new (const gchar *flickr_api_key,
                          "source-desc", PUBLIC_SOURCE_DESC,
                          "supported-media", GRL_MEDIA_TYPE_IMAGE,
                          NULL);
-  source->priv->flickr = g_flickr_new (flickr_api_key, flickr_secret, NULL);
+  source->priv->flickr = g_flickr_new (flickr_api_key, flickr_secret,
+                                       NULL, NULL);
 
   return source;
 }
@@ -207,12 +214,16 @@ static void
 grl_flickr_source_personal_new (GrlPlugin *plugin,
                                 const gchar *flickr_api_key,
                                 const gchar *flickr_secret,
-                                const gchar *flickr_token)
+                                const gchar *flickr_token,
+                                const gchar *flickr_token_secret)
 {
   GFlickr *f;
 
-  f = g_flickr_new (flickr_api_key, flickr_secret, flickr_token);
-  g_flickr_auth_checkToken (f, flickr_token, token_info_cb, (gpointer) plugin);
+  f = g_flickr_new (flickr_api_key, flickr_secret,
+                    flickr_token, flickr_token_secret);
+
+  g_flickr_auth_checkToken (f, flickr_token, token_info_cb,
+                            (gpointer) plugin);
 }
 
 static void
@@ -521,7 +532,9 @@ photosetsphotos_cb (GFlickr *f, GList *photolist, gpointer user_data)
 
   while (photolist && od->count) {
     media_type = g_hash_table_lookup (photolist->data, "photo_media");
-    if (strcmp (media_type, "photo") == 0) {
+    if (media_type == NULL) {
+      media = grl_media_new ();
+    } else if (strcmp (media_type, "photo") == 0) {
       media = grl_media_image_new ();
     } else {
       media = grl_media_video_new ();
@@ -542,7 +555,8 @@ photosetsphotos_cb (GFlickr *f, GList *photolist, gpointer user_data)
   if (od->count) {
     od->offset = 0;
     od->page++;
-    g_flickr_photosets_getPhotos (f, od->text, od->page, photosetsphotos_cb, od);
+    g_flickr_photosets_getPhotos (f, od->text, od->page,
+                                  photosetsphotos_cb, od);
   } else {
     g_slice_free (OperationData, od);
   }
@@ -556,7 +570,8 @@ gettags_cb (GFlickr *f, GList *taglist, gpointer user_data)
   gint count;
 
   /* Go to offset element */
-  taglist = g_list_nth (taglist, grl_operation_options_get_skip (bs->options));
+  taglist = g_list_nth (taglist,
+                        grl_operation_options_get_skip (bs->options));
 
   /* No more elements can be sent */
   if (!taglist) {
@@ -621,7 +636,9 @@ grl_flickr_source_public_browse (GrlSource *source,
   if (!container_id) {
     /* Get hot tags list. List is limited up to HOTLIST_MAX tags */
     if (skip >= HOTLIST_MAX) {
-      bs->callback (bs->source, bs->operation_id, NULL, 0, bs->user_data, NULL);
+      bs->callback (bs->source, bs->operation_id,
+                    NULL, 0,
+                    bs->user_data, NULL);
     } else {
       request_size = CLAMP (skip + count, 1, HOTLIST_MAX);
       g_flickr_tags_getHotList (f, request_size, gettags_cb, bs);
@@ -690,7 +707,8 @@ grl_flickr_source_personal_browse (GrlSource *source,
     od->count = count;
     od->operation_id = bs->operation_id;
 
-    g_flickr_photosets_getPhotos (f, container_id, od->page, photosetsphotos_cb, od);
+    g_flickr_photosets_getPhotos (f, container_id, od->page,
+                                  photosetsphotos_cb, od);
   }
 }
 
@@ -712,7 +730,8 @@ grl_flickr_source_resolve (GrlSource *source,
   const gchar *id;
 
   if (!rs->media || (id = grl_media_get_id (rs->media)) == NULL) {
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+    rs->callback (rs->source, rs->operation_id,
+                  rs->media, rs->user_data, NULL);
     return;
   }
 

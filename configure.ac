@@ -131,6 +131,8 @@ PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4, HAVE_LIBSOUP=yes, HAVE_LIBSOUP=no)
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
+PKG_CHECK_MODULES(OAUTH, oauth, HAVE_OAUTH=yes, HAVE_OAUTH=no)
+
 PKG_CHECK_MODULES(TOTEM_PL_PARSER, totem-plparser >= 3.4.1, HAVE_TOTEM_PL_PARSER=yes, HAVE_TOTEM_PL_PARSER=no)
 
 PKG_CHECK_MODULES([JSON], [json-glib-1.0], HAVE_JSON_GLIB=yes, HAVE_JSON_GLIB=no)
@@ -453,11 +455,14 @@ AC_ARG_ENABLE(flickr,
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([xml2 not found, install it or use --disable-flickr])
                         fi
+                        if test "x$HAVE_OAUTH" = "xno"; then
+                           AC_MSG_ERROR([liboauth not found, install it or use --disable-flickr])
+                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_OAUTH" = "xyes"; then
                    enable_flickr=yes
                 else
                    enable_flickr=no
@@ -475,9 +480,9 @@ FLICKR_PLUGIN_ID="grl-flickr"
 AC_SUBST(FLICKR_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([FLICKR_PLUGIN_ID], ["$FLICKR_PLUGIN_ID"], [Flickr plugin ID])
 
-DEPS_FLICKR_CFLAGS="$DEPS_CFLAGS $XML_CFLAGS $GRLNET_CFLAGS"
+DEPS_FLICKR_CFLAGS="$DEPS_CFLAGS $XML_CFLAGS $GRLNET_CFLAGS $OAUTH_CFLAGS"
 AC_SUBST(DEPS_FLICKR_CFLAGS)
-DEPS_FLICKR_LIBS="$DEPS_LIBS $XML_LIBS $GRLNET_LIBS"
+DEPS_FLICKR_LIBS="$DEPS_LIBS $XML_LIBS $GRLNET_LIBS $OAUTH_LIBS"
 AC_SUBST(DEPS_FLICKR_LIBS)
 
 # ----------------------------------------------------------

@@ -25,6 +25,7 @@
 #ifndef _G_FLICKR_H_
 #define _G_FLICKR_H_
 
+#include "flickr-oauth.h"
 #include <glib-object.h>
 
 #define G_FLICKR_TYPE                           \
@@ -81,7 +82,10 @@ typedef void (*GFlickrCheckToken) (GFlickr *f, GHashTable *tokeninfo, gpointer u
 
 GType g_flickr_get_type (void);
 
-GFlickr *g_flickr_new (const gchar *api_key, const gchar *auth_secret, const gchar *auth_token);
+GFlickr *g_flickr_new (const gchar *consumer_key,
+                       const gchar *consumer_secret,
+                       const gchar *oauth_token,
+                       const gchar *oauth_token_secret);
 
 void g_flickr_set_per_page (GFlickr *f, gint per_page);
 
@@ -134,17 +138,6 @@ g_flickr_photosets_getPhotos (GFlickr *f,
                               GFlickrListCb callback,
                               gpointer user_data);
 
-gchar *
-g_flickr_auth_getFrob (GFlickr *f);
-
-gchar *
-g_flickr_auth_loginLink (GFlickr *f,
-                         const gchar *frob,
-                         const gchar *perm);
-
-gchar *
-g_flickr_auth_getToken (GFlickr *f,
-                        const gchar *frob);
 
 void
 g_flickr_auth_checkToken (GFlickr *f,
@@ -154,4 +147,5 @@ g_flickr_auth_checkToken (GFlickr *f,
 
 GDateTime *
 g_flickr_parse_date (const gchar *date);
+
 #endif /* _G_FLICKR_H_ */

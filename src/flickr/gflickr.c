@@ -1,4 +1,5 @@
 #include "gflickr.h"
+#include "flickr-oauth.h"
 #include "grl-flickr.h"       /* log domain */
 
 #include <libxml/xpath.h>
@@ -25,8 +26,6 @@
 #define FLICKR_PHOTO_LARGEST_URL                        \
   "http://farm%s.static.flickr.com/%s/%s_%s_b.jpg"
 
-#define FLICKR_ENDPOINT  "http://api.flickr.com/services/rest/?"
-#define FLICKR_AUTHPOINT "http://flickr.com/services/auth/?"
 
 #define FLICKR_PHOTOS_SEARCH_METHOD       "flickr.photos.search"
 #define FLICKR_PHOTOS_GETINFO_METHOD      "flickr.photos.getInfo"
@@ -34,96 +33,8 @@
 #define FLICKR_PHOTOSETS_GETLIST_METHOD   "flickr.photosets.getList"
 #define FLICKR_PHOTOSETS_GETPHOTOS_METHOD "flickr.photosets.getPhotos"
 #define FLICKR_TAGS_GETHOTLIST_METHOD     "flickr.tags.getHotList"
-#define FLICKR_AUTH_GETFROB_METHOD        "flickr.auth.getFrob"
-#define FLICKR_AUTH_GETTOKEN_METHOD       "flickr.auth.getToken"
-#define FLICKR_AUTH_CHECKTOKEN_METHOD     "flickr.auth.checkToken"
+#define FLICKR_OAUTH_CHECKTOKEN_METHOD    "flickr.auth.oauth.checkToken"
 
-#define FLICKR_PHOTOS_SEARCH                            \
-  FLICKR_ENDPOINT                                       \
-  "api_key=%s"                                          \
-  "&api_sig=%s"                                         \
-  "&method=" FLICKR_PHOTOS_SEARCH_METHOD                \
-  "&user_id=%s"                                         \
-  "&extras=date_taken,owner_name,url_o,url_t"           \
-  "&per_page=%d"                                        \
-  "&page=%d"                                            \
-  "&media=photos"                                       \
-  "&tags=%s"                                            \
-  "&text=%s"                                            \
-  "%s"
-
-#define FLICKR_PHOTOS_GETRECENT                         \
-  FLICKR_ENDPOINT                                       \
-  "api_key=%s"                                          \
-  "&api_sig=%s"                                         \
-  "&method=" FLICKR_PHOTOS_GETRECENT_METHOD             \
-  "&extras=date_taken,owner_name,url_o,url_t"           \
-  "&per_page=%d"                                        \
-  "&page=%d"                                            \
-  "%s"
-
-#define FLICKR_PHOTOSETS_GETLIST                \
-  FLICKR_ENDPOINT                               \
-  "api_key=%s"                                  \
-  "&api_sig=%s"                                 \
-  "&method=" FLICKR_PHOTOSETS_GETLIST_METHOD    \
-  "%s"                                          \
-  "%s"
-
-#define FLICKR_PHOTOSETS_GETPHOTOS                      \
-  FLICKR_ENDPOINT                                       \
-  "api_key=%s"                                          \
-  "&api_sig=%s"                                         \
-  "&method=" FLICKR_PHOTOSETS_GETPHOTOS_METHOD          \
-  "&photoset_id=%s"                                     \
-  "&extras=date_taken,owner_name,url_o,url_t"           \
-  "&per_page=%d"                                        \
-  "&page=%d"                                            \
-  "&media=photos"                                       \
-  "%s"
-
-#define FLICKR_TAGS_GETHOTLIST                          \
-  FLICKR_ENDPOINT                                       \
-  "api_key=%s"                                          \
-  "&api_sig=%s"                                         \
-  "&method=" FLICKR_TAGS_GETHOTLIST_METHOD              \
-  "&count=%d"                                           \
-  "%s"
-
-#define FLICKR_PHOTOS_GETINFO                   \
-  FLICKR_ENDPOINT                               \
-  "api_key=%s"                                  \
-  "&api_sig=%s"                                 \
-  "&method=" FLICKR_PHOTOS_GETINFO_METHOD       \
-  "&photo_id=%ld"                               \
-  "%s"
-
-#define FLICKR_AUTH_GETFROB                     \
-  FLICKR_ENDPOINT                               \
-  "api_key=%s"                                  \
-  "&api_sig=%s"                                 \
-  "&method=" FLICKR_AUTH_GETFROB_METHOD
-
-#define FLICKR_AUTH_GETTOKEN                    \
-  FLICKR_ENDPOINT                               \
-  "api_key=%s"                                  \
-  "&api_sig=%s"                                 \
-  "&method=" FLICKR_AUTH_GETTOKEN_METHOD        \
-  "&frob=%s"
-
-#define FLICKR_AUTH_CHECKTOKEN                  \
-  FLICKR_ENDPOINT                               \
-  "api_key=%s"                                  \
-  "&api_sig=%s"                                 \
-  "&method=" FLICKR_AUTH_CHECKTOKEN_METHOD      \
-  "&auth_token=%s"
-
-#define FLICKR_AUTH_LOGINLINK                   \
-  FLICKR_AUTHPOINT                              \
-  "api_key=%s"                                  \
-  "&api_sig=%s"                                 \
-  "&frob=%s"                                    \
-  "&perms=%s"
 
 typedef void (*ParseXML) (const gchar *xml_result, gpointer user_data);
 
@@ -136,9 +47,11 @@ typedef struct {
 } GFlickrData;
 
 struct _GFlickrPrivate {
-  gchar *api_key;
-  gchar *auth_secret;
-  gchar *auth_token;
+  gchar *consumer_key;
+  gchar *consumer_secret;
+  gchar *oauth_token;
+  gchar *oauth_token_secret;
+
   gint per_page;
 
   GrlNetWc *wc;
@@ -163,6 +76,12 @@ static void
 g_flickr_init (GFlickr *f)
 {
   f->priv = G_FLICKR_GET_PRIVATE (f);
+
+  f->priv->consumer_key = NULL;
+  f->priv->consumer_secret = NULL;
+  f->priv->oauth_token = NULL;
+  f->priv->oauth_token_secret = NULL;
+
   f->priv->per_page = 100;
 }
 
@@ -170,9 +89,10 @@ static void
 g_flickr_finalize (GObject *object)
 {
   GFlickr *f = G_FLICKR (object);
-  g_free (f->priv->api_key);
-  g_free (f->priv->auth_token);
-  g_free (f->priv->auth_secret);
+  g_free (f->priv->consumer_key);
+  g_free (f->priv->consumer_secret);
+  g_free (f->priv->oauth_token);
+  g_free (f->priv->oauth_token_secret);
 
   if (f->priv->wc)
     g_object_unref (f->priv->wc);
@@ -181,100 +101,47 @@ g_flickr_finalize (GObject *object)
 }
 
 GFlickr *
-g_flickr_new (const gchar *api_key, const gchar *auth_secret, const gchar *auth_token)
+g_flickr_new (const gchar *consumer_key,
+              const gchar *consumer_secret,
+              const gchar *oauth_token,
+              const gchar *oauth_token_secret)
 {
-  g_return_val_if_fail (api_key && auth_secret, NULL);
+  g_return_val_if_fail (consumer_key && consumer_secret, NULL);
 
   GFlickr *f = g_object_new (G_FLICKR_TYPE, NULL);
-  f->priv->api_key = g_strdup (api_key);
-  f->priv->auth_secret = g_strdup (auth_secret);
-  f->priv->auth_token = g_strdup (auth_token);
+  f->priv->consumer_key = g_strdup (consumer_key);
+  f->priv->consumer_secret = g_strdup (consumer_secret);
+
+  if (oauth_token != NULL) {
+    if (oauth_token_secret == NULL)
+      GRL_WARNING ("No token secret given.");
+
+    f->priv->oauth_token = g_strdup (oauth_token);
+    f->priv->oauth_token_secret = g_strdup (oauth_token_secret);
+
+   }
 
   return f;
 }
 
 /* -------------------- PRIVATE API -------------------- */
 
-static gchar *
-get_api_sig (const gchar *secret, ...)
+inline static gchar *
+create_url (GFlickr *f, gchar **params, const guint params_no)
 {
-  GHashTable *hash;
-  GList *key_iter;
-  GList *keys;
-  GString *to_sign;
-  gchar *api_sig;
-  gchar *key;
-  gchar *value;
-  gint text_size = strlen (secret);
-  va_list va_params;
-
-  hash = g_hash_table_new (g_str_hash, g_str_equal);
-
-  va_start (va_params, secret);
-  while ((key = va_arg (va_params, gchar *))) {
-    text_size += strlen (key);
-    value = va_arg (va_params, gchar *);
-    text_size += strlen (value);
-    g_hash_table_insert (hash, key, value);
-  }
-  va_end (va_params);
-
-  to_sign = g_string_sized_new (text_size);
-  g_string_append (to_sign, secret);
-
-  keys = g_hash_table_get_keys (hash);
-  keys = g_list_sort (keys, (GCompareFunc) g_strcmp0);
-  for (key_iter = keys; key_iter; key_iter = g_list_next (key_iter)) {
-    g_string_append (to_sign, key_iter->data);
-    g_string_append (to_sign, g_hash_table_lookup (hash, key_iter->data));
-  }
-
-  api_sig = g_compute_checksum_for_string (G_CHECKSUM_MD5, to_sign->str, -1);
-  g_hash_table_unref (hash);
-  g_list_free (keys);
-  g_string_free (to_sign, TRUE);
-
-  return api_sig;
+  return flickroauth_create_api_url (f->priv->consumer_key,
+                                     f->priv->consumer_secret,
+                                     f->priv->oauth_token,
+                                     f->priv->oauth_token_secret,
+                                     params, params_no);
 }
 
-static gchar *
-get_xpath_element (const gchar *content,
-                   const gchar *xpath_element)
+inline static void
+free_params (gchar **params, gint no)
 {
-  gchar *element = NULL;
-  xmlDocPtr xmldoc = NULL;
-  xmlXPathContextPtr xpath_ctx = NULL;
-  xmlXPathObjectPtr xpath_res = NULL;
-
-  xmldoc = xmlReadMemory (content, xmlStrlen ((xmlChar *) content), NULL, NULL,
-                          XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
-  if (xmldoc) {
-    xpath_ctx = xmlXPathNewContext (xmldoc);
-    if (xpath_ctx) {
-      xpath_res = xmlXPathEvalExpression ((xmlChar *) xpath_element, xpath_ctx);
-      if (xpath_res && xpath_res->nodesetval->nodeTab) {
-        element =
-          (gchar *) xmlNodeListGetString (xmldoc,
-                                          xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
-                                          1);
-      }
-    }
-  }
-
-  /* Free data */
-  if (xmldoc) {
-    xmlFreeDoc (xmldoc);
-  }
-
-  if (xpath_ctx) {
-    xmlXPathFreeContext (xpath_ctx);
-  }
-
-  if (xpath_res) {
-    xmlXPathFreeObject (xpath_res);
-  }
-
-  return element;
+  gint i = 0;
+  for (; i < no; i++)
+    g_free (params[i]);
 }
 
 static gboolean
@@ -637,34 +504,16 @@ g_flickr_photos_getInfo (GFlickr *f,
                          GFlickrHashTableCb callback,
                          gpointer user_data)
 {
-  gchar *auth;
-
   g_return_if_fail (G_IS_FLICKR (f));
 
-  gchar *str_photo_id = g_strdup_printf ("%ld", photo_id);
-  gchar *api_sig = get_api_sig (f->priv->auth_secret,
-                                "api_key", f->priv->api_key,
-                                "method", FLICKR_PHOTOS_GETINFO_METHOD,
-                                "photo_id", str_photo_id,
-                                f->priv->auth_token? "auth_token": "",
-                                f->priv->auth_token? f->priv->auth_token: "",
-                                NULL);
-  g_free (str_photo_id);
+  gchar *params[2];
 
-  /* Build the request */
-  if (f->priv->auth_token) {
-    auth = g_strdup_printf ("&auth_token=%s", f->priv->auth_token);
-  } else {
-    auth = g_strdup ("");
-  }
+  params[0] = g_strdup_printf ("photo_id=%ld", photo_id);
+  params[1] = g_strdup_printf ("method=%s", FLICKR_PHOTOS_GETINFO_METHOD);
 
-  gchar *request = g_strdup_printf (FLICKR_PHOTOS_GETINFO,
-                                    f->priv->api_key,
-                                    api_sig,
-                                    photo_id,
-                                    auth);
-  g_free (api_sig);
-  g_free (auth);
+  gchar *request = create_url (f, params, 2);
+
+  free_params (params, 2);
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
@@ -685,59 +534,37 @@ g_flickr_photos_search (GFlickr *f,
                         GFlickrListCb callback,
                         gpointer user_data)
 {
-  gchar *auth;
   g_return_if_fail (G_IS_FLICKR (f));
 
-  if (!user_id) {
+  if (user_id == NULL) {
     user_id = "";
   }
 
-  if (!text) {
+  if (text == NULL) {
     text = "";
   }
 
-  if (!tags) {
+  if (tags == NULL) {
     tags = "";
   }
 
-  gchar *strpage = g_strdup_printf ("%d", page);
-  gchar *strperpage = g_strdup_printf ("%d", f->priv->per_page);
+  gchar *params[8];
 
-  gchar *api_sig =
-    get_api_sig (f->priv->auth_secret,
-                 "api_key", f->priv->api_key,
-                 "extras", "date_taken,owner_name,url_o,url_t",
-                 "media", "photos",
-                 "method", FLICKR_PHOTOS_SEARCH_METHOD,
-                 "user_id", user_id,
-                 "page", strpage,
-                 "per_page", strperpage,
-                 "tags", tags,
-                 "text", text,
-                 f->priv->auth_token? "auth_token": "",
-                 f->priv->auth_token? f->priv->auth_token: "",
-                 NULL);
-  g_free (strpage);
-  g_free (strperpage);
+  params[0] = g_strdup ("extras=date_taken,owner_name,url_0,url_t");
+  params[1] = g_strdup ("media=photos");
+  params[2] = g_strdup_printf ("user_id=%s", user_id);
+  params[3] = g_strdup_printf ("page=%d", page);
+  params[4] = g_strdup_printf ("per_page=%d", f->priv->per_page);
+  params[5] = g_strdup_printf ("tags=%s", tags);
+  params[6] = g_strdup_printf ("text=%s", text);
+  params[7] = g_strdup_printf ("method=%s", FLICKR_PHOTOS_SEARCH_METHOD);
+
 
   /* Build the request */
-  if (f->priv->auth_token) {
-    auth = g_strdup_printf ("&auth_token=%s", f->priv->auth_token);
-  } else {
-    auth = g_strdup ("");
-  }
 
-  gchar *request = g_strdup_printf (FLICKR_PHOTOS_SEARCH,
-                                    f->priv->api_key,
-                                    api_sig,
-                                    user_id,
-                                    f->priv->per_page,
-                                    page,
-                                    tags,
-                                    text,
-                                    auth);
-  g_free (api_sig);
-  g_free (auth);
+  gchar *request = create_url (f, params, 8);
+
+  free_params (params, 8);
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
@@ -755,41 +582,19 @@ g_flickr_photos_getRecent (GFlickr *f,
                            GFlickrListCb callback,
                            gpointer user_data)
 {
-  gchar *auth;
   g_return_if_fail (G_IS_FLICKR (f));
 
-  gchar *strpage = g_strdup_printf ("%d", page);
-  gchar *strperpage = g_strdup_printf ("%d", f->priv->per_page);
+  gchar *params[5];
 
-  gchar *api_sig =
-    get_api_sig (f->priv->auth_secret,
-                 "api_key", f->priv->api_key,
-                 "extras", "date_taken,owner_name,url_o,url_t",
-                 "media", "photos",
-                 "method", FLICKR_PHOTOS_GETRECENT_METHOD,
-                 "page", strpage,
-                 "per_page", strperpage,
-                 f->priv->auth_token? "auth_token": "",
-                 f->priv->auth_token? f->priv->auth_token: "",
-                 NULL);
-  g_free (strpage);
-  g_free (strperpage);
+  params[0] = g_strdup ("extras=date_taken,owner_name,url_o,url_t");
+  params[1] = g_strdup ("media=photos");
+  params[2] = g_strdup_printf ("method=%s", FLICKR_PHOTOS_GETRECENT_METHOD);
+  params[3] = g_strdup_printf ("page=%d", page);
+  params[4] = g_strdup_printf ("per_page=%d", f->priv->per_page);
 
-  /* Build the request */
-  if (f->priv->auth_token) {
-    auth = g_strdup_printf ("&auth_token=%s", f->priv->auth_token);
-  } else {
-    auth = g_strdup ("");
-  }
+  gchar *request = create_url (f, params, 5);
 
-  gchar *request = g_strdup_printf (FLICKR_PHOTOS_GETRECENT,
-                                    f->priv->api_key,
-                                    api_sig,
-                                    f->priv->per_page,
-                                    page,
-                                    auth);
-  g_free (api_sig);
-  g_free (auth);
+  free_params (params, 5);
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
@@ -894,34 +699,16 @@ g_flickr_tags_getHotList (GFlickr *f,
                           GFlickrListCb callback,
                           gpointer user_data)
 {
-  gchar *auth;
-
   g_return_if_fail (G_IS_FLICKR (f));
 
-  gchar *strcount = g_strdup_printf ("%d", count);
+  gchar *params[2];
 
-  gchar *api_sig = get_api_sig (f->priv->auth_secret,
-                                "api_key", f->priv->api_key,
-                                "count", strcount,
-                                "method", FLICKR_TAGS_GETHOTLIST_METHOD,
-                                f->priv->auth_token? "auth_token": "",
-                                f->priv->auth_token? f->priv->auth_token: "",
-                                NULL);
-  g_free (strcount);
+  params[0] = g_strdup_printf ("count=%d", count);
+  params[1] = g_strdup_printf ("method=%s", FLICKR_TAGS_GETHOTLIST_METHOD);
 
-  /* Build the request */
-  if (f->priv->auth_token) {
-    auth = g_strdup_printf ("&auth_token=%s", f->priv->auth_token);
-  } else {
-    auth = g_strdup ("");
-  }
-  gchar *request = g_strdup_printf (FLICKR_TAGS_GETHOTLIST,
-                                    f->priv->api_key,
-                                    api_sig,
-                                    count,
-                                    auth);
-  g_free (api_sig);
-  g_free (auth);
+  gchar *request = create_url (f, params, 2);
+
+  free_params (params, 2);
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
@@ -939,40 +726,19 @@ g_flickr_photosets_getList (GFlickr *f,
                            GFlickrListCb callback,
                            gpointer user_data)
 {
-  gchar *user;
-  gchar *auth;
+  /* Either we insert user_id or not */
+  gint params_no = (user_id == NULL) ? 1 : 2;
 
-  gchar *api_sig = get_api_sig (f->priv->auth_secret,
-                                "api_key", f->priv->api_key,
-                                "method", FLICKR_PHOTOSETS_GETLIST_METHOD,
-                                user_id? "user_id": "",
-                                user_id? user_id: "",
-                                f->priv->auth_token? "auth_token": "",
-                                f->priv->auth_token? f->priv->auth_token: "",
-                                NULL);
+  gchar *params[2];
 
-  /* Build the request */
-  if (user_id) {
-    user = g_strdup_printf ("&user_id=%s", user_id);
-  } else {
-    user = g_strdup ("");
-  }
+  params[0] = g_strdup_printf ("method=%s", FLICKR_PHOTOSETS_GETLIST_METHOD);
 
-  if (f->priv->auth_token) {
-    auth = g_strdup_printf ("&auth_token=%s", f->priv->auth_token);
-  } else {
-    auth = g_strdup ("");
-  }
+  if (user_id != NULL)
+    params[1] = g_strdup_printf ("user_id=%s", user_id);
 
-  gchar *request = g_strdup_printf (FLICKR_PHOTOSETS_GETLIST,
-                                    f->priv->api_key,
-                                    api_sig,
-                                    user,
-                                    auth);
+  gchar *request = create_url (f, params, params_no);
 
-  g_free (api_sig);
-  g_free (user);
-  g_free (auth);
+  free_params (params, params_no);
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
@@ -991,46 +757,21 @@ g_flickr_photosets_getPhotos (GFlickr *f,
                               GFlickrListCb callback,
                               gpointer user_data)
 {
-  gchar *auth;
-
   g_return_if_fail (G_IS_FLICKR (f));
   g_return_if_fail (photoset_id);
 
-  gchar *strpage = g_strdup_printf ("%d", page);
-  gchar *strperpage = g_strdup_printf ("%d", f->priv->per_page);
+  gchar *params[6];
 
-  gchar *api_sig =
-    get_api_sig (f->priv->auth_secret,
-                 "api_key", f->priv->api_key,
-                 "photoset_id", photoset_id,
-                 "extras", "date_taken,owner_name,url_o,url_t",
-                 "media", "photos",
-                 "method", FLICKR_PHOTOSETS_GETPHOTOS_METHOD,
-                 "page", strpage,
-                 "per_page", strperpage,
-                 f->priv->auth_token? "auth_token": "",
-                 f->priv->auth_token? f->priv->auth_token: "",
-                 NULL);
+  params[0] = g_strdup_printf ("photoset_id=%s", photoset_id);
+  params[1] = g_strdup ("extras=date_taken,owner_name,url_o,url_t,media");
+  params[2] = g_strdup ("media=photos");
+  params[3] = g_strdup_printf ("page=%d", page);
+  params[4] = g_strdup_printf ("per_page=%d", f->priv->per_page);
+  params[5] = g_strdup_printf ("method=%s", FLICKR_PHOTOSETS_GETPHOTOS_METHOD);
 
-  g_free (strpage);
-  g_free (strperpage);
+  gchar *request = create_url (f, params, 6);
 
-  /* Build the request */
-  if (f->priv->auth_token) {
-    auth = g_strdup_printf ("&auth_token=%s", f->priv->auth_token);
-  } else {
-    auth = g_strdup ("");
-  }
-
-  gchar *request = g_strdup_printf (FLICKR_PHOTOSETS_GETPHOTOS,
-                                    f->priv->api_key,
-                                    api_sig,
-                                    photoset_id,
-                                    f->priv->per_page,
-                                    page,
-                                    auth);
-  g_free (api_sig);
-  g_free (auth);
+  free_params (params, 6);
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
@@ -1042,123 +783,7 @@ g_flickr_photosets_getPhotos (GFlickr *f,
   g_free (request);
 }
 
-gchar *
-g_flickr_auth_getFrob (GFlickr *f)
-{
-  gchar *api_sig;
-  gchar *url;
-  GVfs *vfs;
-  GFile *uri;
-  gchar *contents;
-  GError *error = NULL;
-  gchar *frob = NULL;
-
-  g_return_val_if_fail (G_IS_FLICKR (f), NULL);
-
-  api_sig = get_api_sig (f->priv->auth_secret,
-                         "api_key", f->priv->api_key,
-                         "method", "flickr.auth.getFrob",
-                         NULL);
-
-  /* Build url */
-  url = g_strdup_printf (FLICKR_AUTH_GETFROB,
-                         f->priv->api_key,
-                         api_sig);
-  g_free (api_sig);
-
-  /* Load content */
-  vfs = g_vfs_get_default ();
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_free (url);
-  if (!g_file_load_contents (uri, NULL, &contents, NULL, NULL, &error)) {
-    GRL_WARNING ("Unable to get Flickr's frob: %s", error->message);
-    return NULL;
-  }
-
-  /* Get frob */
-  frob = get_xpath_element (contents, "/rsp/frob");
-  g_free (contents);
-  if (!frob) {
-    GRL_WARNING ("Can not get Flickr's frob");
-  }
-
-  return frob;
-}
-
-gchar *
-g_flickr_auth_loginLink (GFlickr *f,
-                         const gchar *frob,
-                         const gchar *perm)
-{
-  gchar *api_sig;
-  gchar *url;
-
-  g_return_val_if_fail (G_IS_FLICKR (f), NULL);
-  g_return_val_if_fail (frob, NULL);
-  g_return_val_if_fail (perm, NULL);
-
-  api_sig = get_api_sig (f->priv->auth_secret,
-                         "api_key", f->priv->api_key,
-                         "frob", frob,
-                         "perms", perm,
-                         NULL);
-
-  url = g_strdup_printf (FLICKR_AUTH_LOGINLINK,
-                         f->priv->api_key,
-                         api_sig,
-                         frob,
-                         perm);
-  g_free (api_sig);
-
-  return url;
-}
-
-gchar *
-g_flickr_auth_getToken (GFlickr *f,
-                        const gchar *frob)
-{
-  GError *error = NULL;
-  GFile *uri;
-  GVfs *vfs;
-  gchar *api_sig;
-  gchar *contents;
-  gchar *token;
-  gchar *url;
-
-  g_return_val_if_fail (G_IS_FLICKR (f), NULL);
-  g_return_val_if_fail (frob, NULL);
-
-  api_sig = get_api_sig (f->priv->auth_secret,
-                         "method", "flickr.auth.getToken",
-                         "api_key", f->priv->api_key,
-                         "frob", frob,
-                         NULL);
-
-  /* Build url */
-  url = g_strdup_printf (FLICKR_AUTH_GETTOKEN,
-                         f->priv->api_key,
-                         api_sig,
-                         frob);
-  g_free (api_sig);
-
-  /* Load content */
-  vfs = g_vfs_get_default ();
-  uri = g_vfs_get_file_for_uri (vfs, url);
-  g_free (url);
-  if (!g_file_load_contents (uri, NULL, &contents, NULL, NULL, &error)) {
-    GRL_WARNING ("Unable to get Flickr's token: %s", error->message);
-    return NULL;
-  }
-
-  /* Get token */
-  token = get_xpath_element (contents, "/rsp/auth/token");
-  g_free (contents);
-  if (!token) {
-    GRL_WARNING ("Can not get Flickr's token");
-  }
-
-  return token;
-}
+/* ---------- Helper authorization functions ---------- */
 
 void
 g_flickr_auth_checkToken (GFlickr *f,
@@ -1166,25 +791,18 @@ g_flickr_auth_checkToken (GFlickr *f,
                           GFlickrHashTableCb callback,
                           gpointer user_data)
 {
-  gchar *api_sig;
   gchar *request;
+  gchar *params[1];
 
   g_return_if_fail (G_IS_FLICKR (f));
   g_return_if_fail (token);
   g_return_if_fail (callback);
 
-  api_sig = get_api_sig (f->priv->auth_secret,
-                         "method", FLICKR_AUTH_CHECKTOKEN_METHOD,
-                         "api_key", f->priv->api_key,
-                         "auth_token", token,
-                         NULL);
+  params[0] = g_strdup_printf ("method=%s", FLICKR_OAUTH_CHECKTOKEN_METHOD);
 
-  /* Build request */
-  request  = g_strdup_printf (FLICKR_AUTH_CHECKTOKEN,
-                              f->priv->api_key,
-                              api_sig,
-                              token);
-  g_free (api_sig);
+  request = create_url (f, params, 1);
+
+  free_params (params, 1);
 
   GFlickrData *gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);

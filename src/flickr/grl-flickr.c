@@ -33,12 +33,17 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef GOA_ENABLED
+#define GOA_API_IS_SUBJECT_TO_CHANGE
+#include <goa/goa.h>
+#endif
+
 #include "grl-flickr.h"
 #include "gflickr.h"
 
-#define GRL_FLICKR_SOURCE_GET_PRIVATE(object)                           \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                                \
-                               GRL_FLICKR_SOURCE_TYPE,                  \
+#define GRL_FLICKR_SOURCE_GET_PRIVATE(object)                          \
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),                               \
+                               GRL_FLICKR_SOURCE_TYPE,                 \
                                GrlFlickrSourcePrivate))
 
 /* --------- Logging  -------- */
@@ -112,6 +117,10 @@ static void grl_flickr_source_resolve (GrlSource *source,
 static void grl_flickr_source_search (GrlSource *source,
                                       GrlSourceSearchSpec *ss);
 
+#ifdef GOA_ENABLED
+static GList *grl_flickr_get_goa_multiple_config (GrlPlugin *plugin, gboolean public);
+#endif
+
 /* =================== Flickr Plugin  =============== */
 
 gboolean
@@ -119,15 +128,20 @@ grl_flickr_plugin_init (GrlRegistry *registry,
                         GrlPlugin *plugin,
                         GList *configs)
 {
-  gchar *flickr_key;
-  gchar *flickr_secret;
-  gchar *flickr_token;
-  gchar *flickr_token_secret;
+  gchar *flickr_key           = NULL;
+  gchar *flickr_secret        = NULL;
+  gchar *flickr_token         = NULL;
+  gchar *flickr_token_secret  = NULL;
 
   GrlConfig *config;
   gboolean public_source_created = FALSE;
 
   GRL_LOG_DOMAIN_INIT (flickr_log_domain, "flickr");
+
+#ifdef GOA_ENABLED
+  GRL_DEBUG ("GOA enabled");
+  gboolean create_public_from_goa = FALSE;
+#endif
 
   GRL_DEBUG ("flickr_plugin_init");
 
@@ -135,10 +149,30 @@ grl_flickr_plugin_init (GrlRegistry *registry,
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
-  if (!configs) {
+ if (configs == NULL) {
+#ifdef GOA_ENABLED
+    GRL_DEBUG ("No user config passed.");
+    create_public_from_goa = TRUE;
+#else
     GRL_INFO ("Configuration not provided! Plugin not loaded");
     return FALSE;
+#endif /* GOA_ENABLED */
   }
+
+#ifdef GOA_ENABLED
+  /* When is GOA enabled, add all configs from GOA too */
+  GList *goa_config = grl_flickr_get_goa_multiple_config (plugin,
+                                                          create_public_from_goa);
+
+  if (goa_config == NULL)
+  {
+    GRL_WARNING ("Cannot get flickr sources from GOA.");
+  }
+  else
+  {
+    configs = g_list_concat (configs, goa_config);
+  }
+#endif /* GOA_ENABLED */
 
   while (configs) {
     config = GRL_CONFIG (configs->data);
@@ -175,6 +209,8 @@ grl_flickr_plugin_init (GrlRegistry *registry,
       g_free (flickr_token);
     if (flickr_secret != NULL)
       g_free (flickr_secret);
+    if (flickr_token_secret != NULL)
+      g_free (flickr_token_secret);
 
     configs = g_list_next (configs);
   }
@@ -196,7 +232,7 @@ grl_flickr_source_public_new (const gchar *flickr_api_key,
 {
   GrlFlickrSource *source;
 
-  GRL_DEBUG ("grl_flickr_source_new");
+  GRL_DEBUG ("grl_flickr_public_source_new");
 
   source = g_object_new (GRL_FLICKR_SOURCE_TYPE,
                          "source-id", PUBLIC_SOURCE_ID,
@@ -218,6 +254,8 @@ grl_flickr_source_personal_new (GrlPlugin *plugin,
                                 const gchar *flickr_token_secret)
 {
   GFlickr *f;
+
+  GRL_DEBUG ("grl_flickr_personal_source_new");
 
   f = g_flickr_new (flickr_api_key, flickr_secret,
                     flickr_token, flickr_token_secret);
@@ -600,6 +638,106 @@ gettags_cb (GFlickr *f, GList *taglist, gpointer user_data)
     taglist = g_list_next (taglist);
   }
 }
+
+#ifdef GOA_ENABLED
+static GList *
+grl_flickr_get_goa_multiple_config (GrlPlugin *plugin, gboolean public)
+{
+  GList *tmp;
+  GList *list = NULL;
+  GError *error = NULL;
+  GrlConfig *conf = NULL;
+  GList *configs = NULL;
+
+  gchar *access_token;
+  gchar *token_secret;
+
+  gboolean public_created = FALSE;
+
+  GoaAccount *acc = NULL;
+  GoaOAuthBased *oauth = NULL;
+  GoaClient *cl = goa_client_new_sync (NULL, &error);
+
+  if (error != NULL)
+  {
+    GRL_ERROR ("%s\n", error->message);
+    return NULL;
+  }
+
+  list = goa_client_get_accounts (cl);
+  tmp = g_list_first (list);
+
+  /* find flickr one's and get tokens */
+  while (tmp != NULL)
+  {
+    acc = goa_object_peek_account (tmp->data);
+
+    if (strcmp (goa_account_get_provider_type (acc), "flickr") == 0)
+    {
+      oauth = goa_object_peek_oauth_based (tmp->data);
+
+      if (oauth != NULL)
+      {
+        conf = grl_config_new (grl_plugin_get_id (plugin),
+                               NULL);
+
+        /* Consumer data */
+        grl_config_set_api_key (conf,
+                                goa_oauth_based_get_consumer_key (oauth));
+        grl_config_set_api_secret (conf,
+                                   goa_oauth_based_get_consumer_secret (oauth));
+
+        /* if public == TRUE, create one public source */
+        if (public == TRUE && public_created == FALSE)
+        {
+          configs = g_list_append (configs, conf);
+          public_created = TRUE;
+
+          continue; /* Use this personal source again, but this time with tokens */
+        }
+
+        /* Get Access Token */
+        if (! goa_oauth_based_call_get_access_token_sync (oauth,
+                                                          &access_token,
+                                                          &token_secret,
+                                                          NULL, NULL,
+                                                          &error))
+        {
+
+          /* No access token doesn't mean error */
+          GRL_INFO ("Access token: %s\n", error->message);
+          g_error_free (error);
+        }
+        else
+        {
+          grl_config_set_api_token (conf, access_token);
+          grl_config_set_api_token_secret (conf, token_secret);
+
+          if (access_token != NULL)
+          {
+            g_free(access_token);
+            access_token = NULL;
+          }
+
+          if (token_secret != NULL)
+          {
+            g_free(token_secret);
+            token_secret = NULL;
+          }
+        }
+
+        configs = g_list_append (configs, conf);
+      }
+    }
+    tmp = g_list_next (tmp);
+  }
+
+  g_object_unref (cl);
+  g_list_free_full (list, g_object_unref);
+
+  return configs;
+}
+#endif /* FLICKR_GOA_ENABLED */
 
 /* ================== API Implementation ================ */
 

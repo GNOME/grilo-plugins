@@ -351,12 +351,15 @@ service_added_cb (DMAPMdnsBrowser *browser,
 
   GRL_DEBUG (__FUNCTION__);
 
+  g_object_add_weak_pointer (G_OBJECT (source), (gpointer *) &source);
   grl_registry_register_source (registry,
                                 plugin,
                                 GRL_SOURCE (source),
                                 NULL);
-
-  g_hash_table_insert (sources, g_strdup (service->name), g_object_ref (source));
+  if (source != NULL) {
+    g_hash_table_insert (sources, g_strdup (service->name), g_object_ref (source));
+    g_object_remove_weak_pointer (G_OBJECT (source), (gpointer *) &source);
+  }
 }
 
 static void

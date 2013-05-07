@@ -282,10 +282,14 @@ grl_podcasts_plugin_init (GrlRegistry *registry,
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   GrlPodcastsSource *source = grl_podcasts_source_new ();
+  g_object_add_weak_pointer (G_OBJECT (source), (gpointer *) &source);
   grl_registry_register_source (registry,
                                 plugin,
                                 GRL_SOURCE (source),
                                 NULL);
+  if (source == NULL)
+    return TRUE;
+  g_object_remove_weak_pointer (G_OBJECT (source), (gpointer *) &source);
 
   source->priv->cache_time = DEFAULT_CACHE_TIME;
   if (!configs || !configs->data) {

@@ -166,7 +166,7 @@ grl_flickr_plugin_init (GrlRegistry *registry,
 
   if (goa_config == NULL)
   {
-    GRL_WARNING ("Cannot get flickr sources from GOA.");
+    GRL_INFO ("Cannot get flickr sources from GOA.");
   }
   else
   {

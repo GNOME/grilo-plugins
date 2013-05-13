@@ -720,6 +720,9 @@ AC_ARG_ENABLE(magnatune,
                         if test "x$HAVE_SQLITE" = "xno"; then
                            AC_MSG_ERROR([sqlite3 not found, install it or use --disable-magnatune])
                         fi
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-magnatune])
+                        fi
                         ;;
                 esac
         ],
@@ -742,9 +745,9 @@ MAGNATUNE_PLUGIN_ID="grl-magnatune"
 AC_SUBST(MAGNATUNE_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([MAGNATUNE_PLUGIN_ID], ["$MAGNATUNE_PLUGIN_ID"], [Magnatune plugin ID])
 
-DEPS_MAGNATUNE_CFLAGS="$DEPS_CFLAGS $SQLITE_CFLAGS"
+DEPS_MAGNATUNE_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $SQLITE_CFLAGS"
 AC_SUBST(DEPS_MAGNATUNE_CFLAGS)
-DEPS_MAGNATUNE_LIBS="$DEPS_LIBS $SQLITE_LIBS"
+DEPS_MAGNATUNE_LIBS="$DEPS_LIBS $GRLNET_LIBS $SQLITE_LIBS"
 AC_SUBST(DEPS_MAGNATUNE_LIBS)
 
 # ----------------------------------------------------------

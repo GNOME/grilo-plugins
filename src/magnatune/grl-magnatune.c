@@ -25,9 +25,11 @@
 #endif
 
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <glib/gi18n-lib.h>
 #include <grilo.h>
 #include <sqlite3.h>
+#include <net/grl-net.h>
 
 #include "grl-magnatune.h"
 
@@ -59,10 +61,21 @@ GRL_LOG_DOMAIN_STATIC(magnatune_log_domain);
 /* --- Files --- */
 
 #define GRL_SQL_DB      "grl-magnatune.db"
+#define GRL_SQL_NEW_DB  "grl-magnatune-new.db"
+#define GRL_SQL_CRC     "grl-magnatune-db.crc"
+#define GRL_SQL_NEW_CRC "grl-magnatune-new.crc"
 
 /* --- URLs --- */
 
+#define URL_GET_DB    "http://he3.magnatune.com/info/sqlite_normalized.db"
+#define URL_GET_CRC   "http://magnatune.com/info/changed.txt"
+
 #define URL_SONG_PLAY "http://he3.magnatune.com/all"
+
+/* --- Other --- */
+
+#define DB_UPDATE_TIME_INTERVAL   (60 * 60 * 24 * 7)
+#define CRC_UPDATE_TIME_INTERVAL  (60 * 60 * 12)
 
 /* --- Plugin information --- */
 
@@ -84,6 +97,9 @@ struct _GrlMagnatunePrivate {
   sqlite3 *db;
 };
 
+struct _OperationSpec;
+typedef void (*GrlMagnatuneExecCb)(struct _OperationSpec *);
+
 struct _OperationSpec {
   GrlSource *source;
   guint operation_id;
@@ -91,6 +107,7 @@ struct _OperationSpec {
   guint skip;
   guint count;
   const gchar *text;
+  GrlMagnatuneExecCb magnatune_cb;
   GrlSourceResultCb callback;
   gpointer user_data;
   guint error_code;
@@ -109,6 +126,10 @@ static const GList *grl_magnatune_source_supported_keys(GrlSource *source);
 static void grl_magnatune_source_search(GrlSource *source,
                                         GrlSourceSearchSpec *ss);
 
+static gboolean magnatune_has_network_conn(void);
+
+static void magnatune_get_db_async(OperationSpec *os);
+
 /* ================== Magnatune Plugin  ================= */
 
 static gboolean
@@ -123,7 +144,7 @@ grl_magnatune_plugin_init(GrlRegistry *registry,
   GRL_DEBUG("magnatune_plugin_init");
 
   source = grl_magnatune_source_new();
-  if (source->priv->db == NULL)
+  if (source->priv->db == NULL && magnatune_has_network_conn() == FALSE)
     return FALSE;
 
   grl_registry_register_source(registry,
@@ -177,6 +198,9 @@ grl_magnatune_source_init(GrlMagnatuneSource *source)
   gint ret;
   gchar *path;
   gchar *db_path;
+  gchar *crc_path;
+  gchar *new_db_path;
+  gchar *new_crc_path;
 
   GRL_DEBUG("magnatune_source_init");
 
@@ -185,14 +209,26 @@ grl_magnatune_source_init(GrlMagnatuneSource *source)
 
   path = g_build_filename(g_get_user_data_dir(), "grilo-plugins", NULL);
   db_path = g_build_filename(path, GRL_SQL_DB, NULL);
+  crc_path = g_build_filename(path, GRL_SQL_CRC, NULL);
+  new_db_path = g_build_filename(path, GRL_SQL_NEW_DB, NULL);
+  new_crc_path = g_build_filename(path, GRL_SQL_NEW_CRC, NULL);
 
   if(!g_file_test(path, G_FILE_TEST_IS_DIR)) {
     g_mkdir_with_parents(path, 0775);
   }
 
   if (g_file_test(db_path, G_FILE_TEST_EXISTS) == TRUE) {
-    GRL_DEBUG("Opening database connection.");
+    if (g_file_test(new_db_path, G_FILE_TEST_EXISTS) == TRUE
+        && g_rename(new_db_path, db_path) == 0) {
+        GRL_DEBUG("New database in use.");
+    }
 
+    if (g_file_test(new_crc_path, G_FILE_TEST_EXISTS) == TRUE
+        && g_rename(new_crc_path, crc_path) == 0) {
+        GRL_DEBUG("New crc file in use.");
+    }
+
+    GRL_DEBUG("Opening database connection.");
     ret = sqlite3_open(db_path, &source->priv->db);
     if (ret != SQLITE_OK) {
       GRL_WARNING("Failed to open database '%s': %s",
@@ -202,9 +238,12 @@ grl_magnatune_source_init(GrlMagnatuneSource *source)
       source->priv->db = NULL;
     }
   } else {
-    GRL_DEBUG("No database was found.");
+    GRL_DEBUG("No database was found. Download when user interact.");
   }
 
+  g_free(new_crc_path);
+  g_free(new_db_path);
+  g_free(crc_path);
   g_free(db_path);
   g_free(path);
 }
@@ -228,6 +267,281 @@ grl_magnatune_source_finalize(GObject *object)
 }
 
 /* ======================= Utilities ==================== */
+
+static gboolean
+magnatune_has_network_conn(void)
+{
+  gboolean ret = FALSE;
+  GNetworkMonitor *nm = NULL;
+  GSocketConnectable *addr = NULL;
+  GError *err = NULL;
+
+  nm = g_network_monitor_get_default();
+  addr = g_network_address_new("www.magnatune.com", 80);
+
+  ret = g_network_monitor_can_reach(nm, addr, NULL, &err);
+  if (ret == FALSE)
+    GRL_WARNING("Plugin can't reach magnatune.com - '%s'", err->message);
+
+  g_object_unref(addr);
+  return ret;
+}
+
+static void
+magnatune_get_crc_done(GObject *source_object,
+                       GAsyncResult *res,
+                       gpointer user_data)
+{
+  gchar *new_crc_path = NULL;
+  gchar *content = NULL;
+  gsize length = 0;
+  gboolean ret = FALSE; 
+  GError *err = NULL;
+
+  GRL_DEBUG("magnatune_get_crc_done");
+
+  ret = grl_net_wc_request_finish(GRL_NET_WC(source_object),
+                                  res,
+                                  &content,
+                                  &length,
+                                  &err);
+  g_object_unref(source_object);
+
+  if (ret == TRUE) {
+    new_crc_path = g_build_filename(g_get_user_data_dir(), "grilo-plugins",
+                                    GRL_SQL_NEW_CRC, NULL);
+
+    ret = g_file_set_contents(new_crc_path,
+                              content,
+                              length,
+                              &err);
+    if (ret == FALSE) {
+      GRL_WARNING("Failed to save crc-file from magnatune to: '%s' - '%s'",
+                  new_crc_path, err->message);
+    }
+    g_free(new_crc_path);
+
+  } else {
+    GRL_WARNING("Failed to get crc-file from magnatune: %s", err->message);
+  }
+}
+
+static void
+magnatune_get_crc_async(void)
+{
+  GrlNetWc *wc = NULL;
+  
+  GRL_DEBUG("magnatune_get_crc_async");
+
+  wc = grl_net_wc_new();
+  grl_net_wc_request_async(wc,
+                           URL_GET_CRC,
+                           NULL,
+                           magnatune_get_crc_done,
+                           NULL);
+}
+
+static void
+magnatune_get_db_done(GObject *source_object,
+                      GAsyncResult *res,
+                      gpointer user_data)
+{
+  gchar *db_path = NULL;
+  gchar *new_db_path = NULL;
+  gchar *content = NULL;
+  gsize length = 0;
+  gboolean ret = FALSE;
+  gboolean first_run = FALSE;
+  GError *err = NULL;
+  GError *err_fn = NULL;
+  OperationSpec *os = NULL;
+  GrlMagnatuneSource *source = NULL;
+
+  GRL_DEBUG("magnatune_get_db_done");
+  os = (OperationSpec *) user_data;
+  ret = grl_net_wc_request_finish(GRL_NET_WC(source_object),
+                                  res,
+                                  &content,
+                                  &length,
+                                  &err_fn);
+  g_object_unref(source_object);
+
+  if (ret == FALSE) {
+    err = g_error_new(GRL_CORE_ERROR,
+                      GRL_CORE_ERROR_MEDIA_NOT_FOUND,
+                      _("Failed to get database from magnatune: %s"),
+                      err_fn->message);
+    g_error_free(err_fn);
+
+    if (os != NULL)
+      os->callback(os->source, os->operation_id, NULL, 0, os->user_data, err);
+
+  } else {
+    db_path = g_build_filename(g_get_user_data_dir(), "grilo-plugins",
+                               GRL_SQL_DB, NULL);
+
+    /* If this is a first run, new database must be ready to use */
+    if (g_file_test(db_path, G_FILE_TEST_EXISTS) == FALSE) {
+      new_db_path = db_path;
+      first_run = TRUE;
+    } else {
+      g_free(db_path);
+      new_db_path = g_build_filename(g_get_user_data_dir(), "grilo-plugins",
+                                     GRL_SQL_NEW_DB, NULL);
+    }
+
+    GRL_WARNING("Saving database to path '%s'", new_db_path);
+    ret = g_file_set_contents(new_db_path,
+                              content,
+                              length,
+                              &err_fn);
+
+    if (ret == FALSE) {
+      err = g_error_new(GRL_CORE_ERROR,
+                        GRL_CORE_ERROR_MEDIA_NOT_FOUND,
+                        _("Failed to save database from magnatune - '%s'"),
+                        err_fn->message);
+      g_error_free(err_fn);
+
+      if (os != NULL)
+        os->callback(os->source, os->operation_id, NULL, 0, os->user_data, err);
+
+    } else if (first_run == TRUE) {
+      source = GRL_MAGNATUNE_SOURCE(os->source);
+
+      if (source->priv->db == NULL) {
+        GRL_DEBUG("Opening database connection.");
+        if (sqlite3_open(db_path, &source->priv->db) != SQLITE_OK) {
+          GRL_WARNING("Failed to open database '%s': %s",
+                      db_path,
+                      sqlite3_errmsg(source->priv->db));
+          sqlite3_close(source->priv->db);
+          source->priv->db = NULL;
+        }
+      }
+    }
+
+    g_free(new_db_path);
+  }
+
+  if (ret == TRUE && os != NULL) {
+    /* execute application's request */
+    os->magnatune_cb(os);
+  }
+}
+
+static void
+magnatune_get_db_async(OperationSpec *os)
+{
+  GrlNetWc *wc = NULL;
+
+  GRL_DEBUG("magnatune_get_db_async");
+
+  wc = grl_net_wc_new();
+  grl_net_wc_request_async(wc,
+                           URL_GET_DB,
+                           NULL,
+                           magnatune_get_db_done,
+                           os);
+}
+
+static void
+magnatune_check_update_done(GObject *source_object,
+                            GAsyncResult *res,
+                            gpointer user_data)
+{
+  gchar *crc_path = NULL;
+  gchar *new_crc_path = NULL;
+  gchar *new_crc = NULL;
+  gchar *old_crc = NULL;
+  gsize length = 0;
+  gboolean ret = FALSE; 
+  GError *err = NULL;
+
+  ret = grl_net_wc_request_finish(GRL_NET_WC(source_object),
+                                  res,
+                                  &new_crc,
+                                  &length,
+                                  &err);
+  g_object_unref(source_object);
+
+  if (ret == TRUE) {
+    new_crc_path = g_build_filename(g_get_user_data_dir(), "grilo-plugins",
+                                    GRL_SQL_NEW_CRC, NULL);
+
+    ret = g_file_set_contents(new_crc_path,
+                              new_crc,
+                              length,
+                              &err);
+
+    crc_path = g_build_filename(g_get_user_data_dir(), "grilo-plugins",
+                                GRL_SQL_CRC, NULL);
+
+    ret = g_file_get_contents(crc_path,
+                              &old_crc,
+                              &length,
+                              &err);
+
+    if (g_strcmp0(new_crc, old_crc) != 0) {
+      magnatune_get_db_async(NULL);
+    }
+
+    g_free(new_crc_path);
+    g_free(crc_path);
+    g_free(old_crc);
+  }
+}
+
+static void
+magnatune_check_update(void)
+{
+  gchar *db_path = NULL;
+  gchar *new_db_path = NULL;
+  gchar *new_crc_path = NULL;
+  static gboolean already_checked = FALSE;
+  struct stat file_st;
+  GTimeVal tv;
+  GrlNetWc *wc = NULL;
+
+  GRL_DEBUG("magnatune_check_update");
+
+  if (already_checked == TRUE)
+    return;
+
+  already_checked = TRUE;
+
+  g_get_current_time(&tv);
+
+  new_db_path = g_build_filename(g_get_user_data_dir(), "grilo-plugins",
+                                 GRL_SQL_NEW_DB, NULL);
+
+  if (g_file_test(new_db_path, G_FILE_TEST_EXISTS) == FALSE) {
+
+    db_path = g_build_filename(g_get_user_data_dir(), "grilo-plugins",
+                               GRL_SQL_DB, NULL);
+    g_stat(db_path, &file_st);
+    if (tv.tv_sec - file_st.st_mtime > DB_UPDATE_TIME_INTERVAL) {
+
+      new_crc_path = g_build_filename(g_get_user_data_dir(), "grilo-plugins",
+                                      GRL_SQL_NEW_CRC, NULL);
+      g_stat(new_crc_path, &file_st);
+      if ((g_file_test(new_crc_path, G_FILE_TEST_EXISTS) == FALSE)
+           || (tv.tv_sec - file_st.st_mtime > CRC_UPDATE_TIME_INTERVAL)) {
+
+        wc = grl_net_wc_new();
+        grl_net_wc_request_async(wc,
+                                 URL_GET_CRC,
+                                 NULL,
+                                 magnatune_check_update_done,
+                                 NULL);
+      }
+      g_free(new_crc_path);
+    }
+    g_free(db_path);
+  }
+  g_free(new_db_path);
+}
+
 
 static GrlMedia *
 build_media(gint track_id,
@@ -435,5 +749,15 @@ grl_magnatune_source_search(GrlSource *source, GrlSourceSearchSpec *ss)
   os->callback = ss->callback;
   os->user_data = ss->user_data;
   os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
-  magnatune_execute_search(os);
+  os->magnatune_cb = NULL;
+
+  if (GRL_MAGNATUNE_SOURCE(source)->priv->db == NULL) {
+    /* Get database first, then execute the search */
+    os->magnatune_cb = magnatune_execute_search;
+    magnatune_get_crc_async();
+    magnatune_get_db_async(os);
+  } else {
+    magnatune_execute_search(os);
+    magnatune_check_update();
+  }
 }

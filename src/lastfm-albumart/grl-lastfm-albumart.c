@@ -44,6 +44,7 @@ GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 #define LASTFM_GET_ALBUM "http://ws.audioscrobbler.com/1.0/album/%s/%s/info.xml"
 
 #define LASTFM_DEFAULT_IMAGE "http://cdn.last.fm/flatness/catalogue/noimage/2/default_album_medium.png"
+#define LASTFM_BASE_IMAGE    "http://userserve-ak.last.fm/serve/%s/%s"
 
 #define LASTFM_XML_COVER_MEDIUM "/album/coverart/medium"
 #define LASTFM_XML_COVER_LARGE  "/album/coverart/large"
@@ -194,7 +195,26 @@ xml_get_image (const gchar *xmldata, const gchar *image_node)
   xmlXPathFreeContext (xpath_ctx);
   xmlFreeDoc (doc);
 
+  if (g_strcmp0 (image, LASTFM_DEFAULT_IMAGE) == 0) {
+    g_free (image);
+    image = NULL;
+  }
+
   return image;
+}
+
+static gchar *
+get_image_id (gchar **image, gint size)
+{
+  gint i;
+
+  for (i = 0; i < size; i++) {
+    if (image[i]) {
+      return g_path_get_basename(image[i]);
+    }
+  }
+
+  return NULL;
 }
 
 static void
@@ -208,7 +228,9 @@ read_done_cb (GObject *source_object,
   GError *wc_error = NULL;
   GrlRelatedKeys *relkeys;
   gchar *content = NULL;
-  gchar *image = NULL;
+  gchar *image[5] = { NULL };
+  gchar *image_id;
+  gint i;
 
   /* Get rid of stored operation data */
   cancellable = grl_operation_get_data (rs->operation_id);
@@ -236,45 +258,32 @@ read_done_cb (GObject *source_object,
     return;
   }
 
-  image = xml_get_image (content, LASTFM_XML_COVER_MEGA);
-  if (image && g_strcmp0 (image, LASTFM_DEFAULT_IMAGE) != 0) {
-    relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
-                                              NULL);
-    grl_data_add_related_keys (GRL_DATA (rs->media), relkeys);
-  }
-  g_free (image);
+  image[0] = xml_get_image (content, LASTFM_XML_COVER_MEGA);
+  image[1] = xml_get_image (content, LASTFM_XML_COVER_EXTRA);
+  image[2] = xml_get_image (content, LASTFM_XML_COVER_LARGE);
+  image[3] = xml_get_image (content, LASTFM_XML_COVER_MEDIUM);
+  image[4] = xml_get_image (content, LASTFM_XML_COVER_SMALL);
 
-  image = xml_get_image (content, LASTFM_XML_COVER_EXTRA);
-  if (image && g_strcmp0 (image, LASTFM_DEFAULT_IMAGE) != 0) {
-    relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
-                                              NULL);
-    grl_data_add_related_keys (GRL_DATA (rs->media), relkeys);
-  }
-  g_free (image);
+  image_id = get_image_id (image, G_N_ELEMENTS (image));
 
-  image = xml_get_image (content, LASTFM_XML_COVER_LARGE);
-  if (image && g_strcmp0 (image, LASTFM_DEFAULT_IMAGE) != 0) {
-    relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
-                                              NULL);
-    grl_data_add_related_keys (GRL_DATA (rs->media), relkeys);
+  /* Sometimes "mega" and "extra" values are not returned; let's hardcode them */
+  if (!image[0] && image_id) {
+    image[0] = g_strdup_printf (LASTFM_BASE_IMAGE, "500", image_id);
   }
-  g_free (image);
+  if (!image[1] && image_id) {
+    image[1] = g_strdup_printf (LASTFM_BASE_IMAGE, "252", image_id);
+  }
+  g_free (image_id);
 
-  image = xml_get_image (content, LASTFM_XML_COVER_MEDIUM);
-  if (image && g_strcmp0 (image, LASTFM_DEFAULT_IMAGE) != 0) {
-    relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
-                                              NULL);
-    grl_data_add_related_keys (GRL_DATA (rs->media), relkeys);
+  for (i = 0; i < G_N_ELEMENTS (image); i++) {
+    if (image[i]) {
+      relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL,
+                                                image[i],
+                                                NULL);
+      grl_data_add_related_keys (GRL_DATA (rs->media), relkeys);
+      g_free (image[i]);
+    }
   }
-  g_free (image);
-
-  image = xml_get_image (content, LASTFM_XML_COVER_SMALL);
-  if (image && g_strcmp0 (image, LASTFM_DEFAULT_IMAGE) != 0) {
-    relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL, image,
-                                              NULL);
-    grl_data_add_related_keys (GRL_DATA (rs->media), relkeys);
-  }
-  g_free (image);
 
   rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
 }

@@ -392,7 +392,7 @@ proxy_call_search_grlnet_async_cb (GObject *source_object,
   xmlXPathContextPtr  xpath = NULL;
   xmlXPathObjectPtr   obj = NULL;
   gint i, nb_items = 0;
-  gint length;
+  gsize length;
 
   GRL_DEBUG ("Response id=%u", op->operation_id);
 
@@ -408,7 +408,7 @@ proxy_call_search_grlnet_async_cb (GObject *source_object,
   if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
                                   res,
                                   &content,
-                                  (gsize *) &length,
+                                  &length,
                                   &wc_error)) {
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_SEARCH_FAILED,
@@ -428,7 +428,7 @@ proxy_call_search_grlnet_async_cb (GObject *source_object,
     return;
   }
 
-  doc = xmlParseMemory (content, length);
+  doc = xmlParseMemory (content, (gint) length);
 
   if (!doc) {
     GRL_DEBUG ("Doc failed");
@@ -588,7 +588,7 @@ proxy_call_browse_grlnet_async_cb (GObject *source_object,
   xmlXPathContextPtr  xpath = NULL;
   xmlXPathObjectPtr   obj = NULL;
   gint i, nb_items = 0;
-  gint length;
+  gsize length;
 
 
   GRL_DEBUG ("Response id=%u", op->operation_id);
@@ -605,7 +605,7 @@ proxy_call_browse_grlnet_async_cb (GObject *source_object,
   if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
                                   res,
                                   &content,
-                                  (gsize *) &length,
+                                  &length,
                                   &wc_error)) {
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_SEARCH_FAILED,
@@ -625,7 +625,7 @@ proxy_call_browse_grlnet_async_cb (GObject *source_object,
     return;
   }
 
-  doc = xmlRecoverMemory (content, length);
+  doc = xmlRecoverMemory (content, (gint) length);
 
   if (!doc) {
     GRL_DEBUG ("Doc failed");
@@ -843,7 +843,7 @@ proxy_call_resolve_grlnet_async_cb (GObject *source_object,
   GError             *wc_error = NULL;
   GError             *error = NULL;
   gchar              *content = NULL;
-  gint                length;
+  gsize               length;
   gchar              *value;
   gchar              *thumbnail;
   gchar             **tokens;
@@ -859,7 +859,7 @@ proxy_call_resolve_grlnet_async_cb (GObject *source_object,
   if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
                                   res,
                                   &content,
-                                  (gsize *) &length,
+                                  &length,
                                   &wc_error)) {
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_SEARCH_FAILED,
@@ -878,7 +878,7 @@ proxy_call_resolve_grlnet_async_cb (GObject *source_object,
     return;
   }
 
-  doc = xmlRecoverMemory (content, length);
+  doc = xmlRecoverMemory (content, (gint) length);
 
   if (!doc) {
     GRL_DEBUG ("Doc failed");

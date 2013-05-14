@@ -258,7 +258,7 @@ call_raw_async_cb (GObject *     source_object,
   xmlXPathObjectPtr   obj = NULL;
   gint i, nb_items = 0;
   gchar *content = NULL;
-  gint length;
+  gsize length;
 
   GRL_DEBUG ("Response id=%u", op->operation_id);
 
@@ -269,12 +269,12 @@ call_raw_async_cb (GObject *     source_object,
   if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
                                   res,
                                   &content,
-                                  (gsize *) &length,
+                                  &length,
                                   NULL)) {
     goto finalize;
   }
 
-  doc = xmlParseMemory (content, length);
+  doc = xmlParseMemory (content, (gint) length);
 
   if (!doc)
     goto finalize;

@@ -1,3 +1,66 @@
+NEW in 0.2.7
+============
+
+  * General
+    * Fix crash when registering sources
+    * Added i18n support
+      * Brazilian
+      * Czech
+      * Galician
+      * Greek
+      * Polish
+      * Serbian
+      * Slovenian
+      * Spanish
+    * BGO#673496 - Add i18n
+    * BGO#697565 - Using GOA in Flickr plugin
+
+  * Blip.tv plugin
+    * BGO#700297 - bliptv: Fix crash when browsing on 64-bit platforms
+
+  * Filesystem plugin
+    * BGO#696860 - filesystem: Add support for non-file URIs
+
+  * Flickr plugin
+    * Support GOA accounts
+    * BGO#697175 - Grilo's flickr plugin using OAuth
+    * BGO#697565 - Using GOA in Flickr plugin
+
+  * LastFM Album Art plugin
+    * Hardcode support for "mega" and "extra" thumbnails
+
+  * Metadata Store plugin
+    * Added filtering by type
+
+  * Optical Media plugin
+    * BGO#679624 - grl-optical-media reports USB sticks as DVD
+    * BGO#696863 - optical-media: Don't recurse when looking for DVDs
+    * BGO#696864 - optical-media: Fix detection of loopback mounted ISOs
+
+  * Rai.tv plguin
+    * BGO#697724 - Rai.tv finalaze segmentation fault
+    * BGO#700297 - bliptv: Fix crash when browsing on 64-bit platforms
+
+  * Tracker plugin
+    * Handle date-format keys
+    * Fix query syntax
+
+  * Contributors to this release:
+    * Bastien Nocera <hadess@hadess.net>
+    * Daniel Mustieles <daniel.mustieles@gmail.com>
+    * Dimitris Spingos <dmtrs32@gmail.com>
+    * Fran Diéguez <fran.dieguez@mabishu.com>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Marek Černocký <marek@manet.cz>
+    * Marek Chalupa <mchalupa@redhat.com>
+    * Martin Srebotnjak <miles@filmsi.net>
+    * Matej Urbančič <mateju@svn.gnome.org>
+    * Miguel Rodriguez Núñez <bokerones.fritos@gmail.com>
+    * Piotr Drąg <piotrdrag@gmail.com>
+    * Rafael Ferreira <rafael.f.f1@gmail.com>
+    * Мирослав Николић <miroslavnikolic@rocketmail.com>
+
+
 NEW in 0.2.6
 ============
 

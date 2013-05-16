@@ -58,6 +58,46 @@ GRL_LOG_DOMAIN_STATIC(magnatune_log_domain);
     "OR (son.name like '%%%s%%') "                              \
     "LIMIT %u OFFSET %u"
 
+#define GRL_SQL_ARTISTS_QUERY_ALL                               \
+  "SELECT DISTINCT art.artists_id, art.name "                   \
+  "FROM artists art "                                           \
+    "LIMIT %u OFFSET %u"
+
+#define GRL_SQL_ALBUMS_QUERY_ALL                                \
+  "SELECT DISTINCT alb.album_id, alb.name "                     \
+  "FROM albums alb "                                            \
+    "LIMIT %u OFFSET %u"
+
+#define GRL_SQL_GENRES_QUERY_ALL                                \
+  "SELECT DISTINCT gen.genre_id, gen.name "                     \
+  "FROM genres gen "                                            \
+    "LIMIT %u OFFSET %u"
+
+#define GRL_SQL_ALBUMS_BY_GENRE                                 \
+  "SELECT DISTINCT alb.album_id, alb.name "                     \
+  "FROM albums alb "                                            \
+  "LEFT OUTER JOIN genres_albums genalb "                       \
+    "ON (alb.album_id = genalb.album_id) "                      \
+  "WHERE (genalb.genre_id = %u) "                               \
+    "LIMIT %u OFFSET %u"
+
+#define GRL_SQL_ALBUMS_BY_ARTIST                                \
+  "SELECT DISTINCT alb.album_id, alb.name "                     \
+  "FROM albums alb "                                            \
+  "WHERE (alb.artist_id = %u) "                                 \
+    "LIMIT %u OFFSET %u"
+
+#define GRL_SQL_SONGS_BY_ALBUM                                  \
+  "SELECT DISTINCT son.song_id, art.name, alb.name, son.name, " \
+    "son.track_no, son.duration, son.mp3 "                      \
+  "FROM songs son "                                             \
+  "LEFT OUTER JOIN albums alb "                                 \
+    "ON (alb.album_id = son.album_id) "                         \
+  "LEFT OUTER JOIN artists art "                                \
+    "ON (art.artists_id = alb.artist_id) "                      \
+  "WHERE (alb.album_id = %u) "                                  \
+    "LIMIT %u OFFSET %u"
+
 /* --- Files --- */
 
 #define GRL_SQL_DB      "grl-magnatune.db"
@@ -77,6 +117,12 @@ GRL_LOG_DOMAIN_STATIC(magnatune_log_domain);
 #define DB_UPDATE_TIME_INTERVAL   (60 * 60 * 24 * 7)
 #define CRC_UPDATE_TIME_INTERVAL  (60 * 60 * 12)
 
+#define MAGNATUNE_ROOT_ARTIST     _("Artists")
+#define MAGNATUNE_ROOT_ALBUM      _("Albums")
+#define MAGNATUNE_ROOT_GENRE      _("Genres")
+
+#define MAGNATUNE_NAME_ID_SEP     "-"
+
 /* --- Plugin information --- */
 
 #define SOURCE_ID       "grl-magnatune"
@@ -92,6 +138,13 @@ enum {
   MAGNATUNE_TRACK_DURATION,
   MAGNATUNE_TRACK_URL_TO_MP3,
 };
+
+typedef enum {
+  MAGNATUNE_ARTIST_CAT,
+  MAGNATUNE_ALBUM_CAT,
+  MAGNATUNE_GENRE_CAT,
+  MAGNATUNE_NUM_CAT,
+} MagnatuneCategory;
 
 struct _GrlMagnatunePrivate {
   sqlite3 *db;
@@ -109,6 +162,7 @@ struct _OperationSpec {
   const gchar *text;
   GrlMagnatuneExecCb magnatune_cb;
   GrlSourceResultCb callback;
+  GrlMedia *container;
   gpointer user_data;
   guint error_code;
 };
@@ -125,6 +179,9 @@ static const GList *grl_magnatune_source_supported_keys(GrlSource *source);
 
 static void grl_magnatune_source_search(GrlSource *source,
                                         GrlSourceSearchSpec *ss);
+
+static void grl_magnatune_source_browse(GrlSource *source,
+                                        GrlSourceBrowseSpec *bs);
 
 static gboolean magnatune_has_network_conn(void);
 
@@ -188,6 +245,7 @@ grl_magnatune_source_class_init(GrlMagnatuneSourceClass * klass)
 
   source_class->supported_keys = grl_magnatune_source_supported_keys;
   source_class->search = grl_magnatune_source_search;
+  source_class->browse = grl_magnatune_source_browse;
 
   g_type_class_add_private(klass, sizeof(GrlMagnatunePrivate));
 }
@@ -607,6 +665,25 @@ build_media_track_from_stmt(sqlite3_stmt *sql_stmt)
   return media;
 }
 
+static GrlMedia*
+build_media_id_name_from_stmt(sqlite3_stmt *sql_stmt)
+{
+  GrlMedia *media = NULL;
+  guint media_id = 0;
+  gchar *id = NULL;
+  const gchar *media_name = NULL;
+
+  media = grl_media_box_new();
+  media_id = (guint) sqlite3_column_int(sql_stmt, 0);
+  media_name = (gchar *) sqlite3_column_text(sql_stmt, 1);
+  id = g_strdup_printf("%d", media_id);
+  grl_media_set_id(media, id);
+  grl_media_set_title(media, media_name);
+  g_free(id);
+
+  return media;
+}
+
 static GList* 
 magnatune_sqlite_execute(OperationSpec *os,
                          gchar *sql,
@@ -662,6 +739,162 @@ end_sqlite_execute:
   }
 
   return list_medias;
+}
+
+static void
+magnatune_browse_root(OperationSpec *os)
+{
+  GrlMedia *media = NULL;
+  guint num = 0;
+  gchar *id = NULL;
+
+  GRL_DEBUG("magnatune_browse_root");
+
+  if (os->skip > 1 || os->count == 0) {
+    os->callback(os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+    return;
+  }
+
+  num = (os->count > MAGNATUNE_NUM_CAT) ? MAGNATUNE_NUM_CAT: os->count;
+
+  media = grl_media_box_new();
+  grl_media_set_title(media, MAGNATUNE_ROOT_ARTIST);
+  id = g_strdup_printf("root-%d", MAGNATUNE_ARTIST_CAT);
+  grl_media_set_id(media, id);
+  num--;
+  os->callback(os->source, os->operation_id, media, num, os->user_data, NULL);
+  g_free(id);
+
+  if (num == 0)
+    return;
+
+  media = grl_media_box_new();
+  grl_media_set_title(media, MAGNATUNE_ROOT_ALBUM);
+  id = g_strdup_printf("root-%d", MAGNATUNE_ALBUM_CAT);
+  grl_media_set_id(media, id);
+  num--;
+  os->callback(os->source, os->operation_id, media, num, os->user_data, NULL);
+  g_free(id);
+
+  if (num == 0)
+    return;
+
+  media = grl_media_box_new();
+  grl_media_set_title(media, MAGNATUNE_ROOT_GENRE);
+  id = g_strdup_printf("root-%d", MAGNATUNE_GENRE_CAT);
+  grl_media_set_id(media, id);
+  num--;
+  os->callback(os->source, os->operation_id, media, num, os->user_data, NULL);
+  g_free(id);
+}
+
+static void
+magnatune_execute_browse(OperationSpec *os)
+{
+  MagnatuneBuildMediaFn *build_fn;
+  GrlMedia *media = NULL;
+  const gchar *container_id = NULL;
+  gchar *sql = NULL;
+  gchar **touple = NULL;
+  gchar *box_id = NULL;
+  gchar *category_str_id = NULL;
+  gint id = 0;
+  gint num_medias = 0;
+  static GList *iter = NULL;
+  static GList *list_medias = NULL;
+  GError *err = NULL;
+
+  GRL_DEBUG("magnatune_execute_browse");
+
+  container_id = grl_media_get_id(os->container);
+  if (container_id == NULL) {
+    magnatune_browse_root(os);
+    goto end_browse;
+  }
+
+  touple = g_strsplit_set(container_id, MAGNATUNE_NAME_ID_SEP, 0);
+  id = g_ascii_strtoll(touple[1], NULL, 10);
+  build_fn = build_media_id_name_from_stmt;
+
+  if (strcmp(touple[0], "root") == 0) {
+    switch (id) {
+    case MAGNATUNE_ARTIST_CAT:
+      category_str_id = g_strdup("artist");
+      sql = g_strdup_printf(GRL_SQL_ARTISTS_QUERY_ALL, os->count, os->skip);
+      break;
+
+    case MAGNATUNE_ALBUM_CAT:
+      category_str_id = g_strdup("album");
+      sql = g_strdup_printf(GRL_SQL_ALBUMS_QUERY_ALL, os->count, os->skip);
+      break;
+
+    case MAGNATUNE_GENRE_CAT:
+      category_str_id = g_strdup("genre");
+      sql = g_strdup_printf(GRL_SQL_GENRES_QUERY_ALL, os->count, os->skip);
+      break;
+    }
+
+  } else if (strcmp(touple[0], "artist") == 0) {
+    category_str_id = g_strdup("album");
+    sql = g_strdup_printf(GRL_SQL_ALBUMS_BY_ARTIST, id, os->count, os->skip);
+
+  } else if (strcmp(touple[0], "album") == 0) {
+    category_str_id = g_strdup("track");
+    sql = g_strdup_printf(GRL_SQL_SONGS_BY_ALBUM, id, os->count, os->skip);
+    build_fn = build_media_track_from_stmt;
+
+  } else if (strcmp(touple[0], "genre") == 0) {
+    category_str_id = g_strdup("album");
+    sql = g_strdup_printf(GRL_SQL_ALBUMS_BY_GENRE, id, os->count, os->skip);
+
+  } else {
+    err = g_error_new(GRL_CORE_ERROR,
+                      GRL_CORE_ERROR_BROWSE_FAILED,
+                      _("Invalid container identifier %s"),
+                      container_id);
+  }
+  g_strfreev(touple);
+
+  if (sql == NULL || err != NULL)
+    goto end_browse;
+
+  /* We have the right sql-query, execute */
+  list_medias = magnatune_sqlite_execute(os, sql, build_fn, &err);
+  g_free(sql);
+
+  if (list_medias == NULL)
+    goto end_browse;
+
+  num_medias = g_list_length(list_medias) - 1;;
+  for (iter = list_medias; iter; iter = iter->next) {
+    media = iter->data;
+    box_id = g_strdup_printf("%s-%s",
+                             category_str_id,
+                             grl_media_get_id(media));
+    grl_media_set_id(media, box_id);
+    g_free(box_id);
+
+    os->callback(os->source,
+                 os->operation_id,
+                 media,
+                 num_medias,
+                 os->user_data,
+                 NULL);
+    num_medias--;
+  }
+
+  g_list_free(list_medias);
+
+end_browse:
+  if (err != NULL) {
+    os->callback(os->source, os->operation_id, NULL, 0, os->user_data, err);
+    g_error_free(err);
+  }
+
+  if (category_str_id != NULL)
+    g_free(category_str_id);
+
+  g_slice_free(OperationSpec, os);
 }
 
 static void
@@ -758,6 +991,33 @@ grl_magnatune_source_search(GrlSource *source, GrlSourceSearchSpec *ss)
     magnatune_get_db_async(os);
   } else {
     magnatune_execute_search(os);
+    magnatune_check_update();
+  }
+}
+
+static void
+grl_magnatune_source_browse(GrlSource *source, GrlSourceBrowseSpec *bs)
+{
+  OperationSpec *os = NULL;
+
+  os = g_slice_new0(OperationSpec);
+  os->source = bs->source;
+  os->operation_id = bs->operation_id;
+  os->container = bs->container;
+  os->count = grl_operation_options_get_count(bs->options);
+  os->skip = grl_operation_options_get_skip(bs->options);
+  os->callback = bs->callback;
+  os->user_data = bs->user_data;
+  os->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
+  os->magnatune_cb = NULL;
+
+  if (GRL_MAGNATUNE_SOURCE(source)->priv->db == NULL) {
+    /* Get database first, then execute the browse */
+    os->magnatune_cb = magnatune_execute_browse;
+    magnatune_get_crc_async();
+    magnatune_get_db_async(os);
+  } else {
+    magnatune_execute_browse(os);
     magnatune_check_update();
   }
 }

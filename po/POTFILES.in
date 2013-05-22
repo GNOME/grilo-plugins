@@ -8,6 +8,7 @@ src/gravatar/grl-gravatar.c
 src/jamendo/grl-jamendo.c
 src/lastfm-albumart/grl-lastfm-albumart.c
 src/local-metadata/grl-local-metadata.c
+src/magnatune/grl-magnatune.c
 src/metadata-store/grl-metadata-store.c
 src/optical-media/grl-optical-media.c
 src/podcasts/grl-podcasts.c

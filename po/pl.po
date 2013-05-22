@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-16 19:11+0200\n"
-"PO-Revision-Date: 2013-04-16 19:12+0200\n"
+"POT-Creation-Date: 2013-05-22 17:44+0200\n"
+"PO-Revision-Date: 2013-05-22 17:45+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -39,13 +39,13 @@ msgstr "Przetworzenie odpowiedzi się nie powiodło"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:465
 #: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
-#: ../src/podcasts/grl-podcasts.c:1356 ../src/shoutcast/grl-shoutcast.c:424
+#: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Pusta odpowiedź"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:523
 #: ../src/jamendo/grl-jamendo.c:666
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:229
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
 #: ../src/shoutcast/grl-shoutcast.c:565
 #, c-format
 msgid "Failed to connect: %s"
@@ -73,15 +73,15 @@ msgstr "Pobranie metadanych zakładki się nie powiodło"
 msgid "Failed to get bookmarks list: %s"
 msgstr "Pobranie listy zakładek się nie powiodło: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:813
-#: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
+#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:817
+#: ../src/podcasts/grl-podcasts.c:849 ../src/podcasts/grl-podcasts.c:881
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Usunięcie się nie powiodło: %s"
 
 #: ../src/bookmarks/grl-bookmarks.c:660 ../src/bookmarks/grl-bookmarks.c:718
-#: ../src/podcasts/grl-podcasts.c:918 ../src/podcasts/grl-podcasts.c:951
-#: ../src/podcasts/grl-podcasts.c:1800
+#: ../src/podcasts/grl-podcasts.c:922 ../src/podcasts/grl-podcasts.c:955
+#: ../src/podcasts/grl-podcasts.c:1804
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Przechowanie się nie powiodło: %s"
@@ -89,8 +89,8 @@ msgstr "Przechowanie się nie powiodło: %s"
 #: ../src/bookmarks/grl-bookmarks.c:772 ../src/bookmarks/grl-bookmarks.c:807
 #: ../src/bookmarks/grl-bookmarks.c:839 ../src/bookmarks/grl-bookmarks.c:901
 #: ../src/metadata-store/grl-metadata-store.c:852
-#: ../src/podcasts/grl-podcasts.c:1656 ../src/podcasts/grl-podcasts.c:1700
-#: ../src/podcasts/grl-podcasts.c:1734 ../src/podcasts/grl-podcasts.c:1769
+#: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
+#: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
 msgid "No database connection"
 msgstr "Brak połączenia z bazą danych"
 
@@ -117,18 +117,18 @@ msgstr "Plik %s nie istnieje"
 msgid "Cannot get media from %s"
 msgstr "Nie można pobrać multimediów z %s"
 
-#: ../src/flickr/grl-flickr.c:58
+#: ../src/flickr/grl-flickr.c:63
 msgid "A source for browsing and searching Flickr photos"
 msgstr "Źródło do przeglądania i przeszukiwania zdjęć w serwisie Flickr"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:62
+#: ../src/flickr/grl-flickr.c:67
 #, c-format
 msgid "%s's Flickr"
 msgstr "Flickr użytkownika %s"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:64
+#: ../src/flickr/grl-flickr.c:69
 #, c-format
 msgid "A source for browsing and searching %s' flickr photos"
 msgstr ""
@@ -171,11 +171,11 @@ msgstr "Najczęściej odsłuchiwane albumy"
 msgid "Top tracks"
 msgstr "Najczęściej odsłuchiwane ścieżki"
 
-#: ../src/jamendo/grl-jamendo.c:774
+#: ../src/jamendo/grl-jamendo.c:774 ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Wykonawcy"
 
-#: ../src/jamendo/grl-jamendo.c:785
+#: ../src/jamendo/grl-jamendo.c:785 ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Albumy"
 
@@ -196,6 +196,7 @@ msgid "Invalid category identifier %s"
 msgstr "Nieprawidłowy identyfikator kategorii %s"
 
 #: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
+#: ../src/magnatune/grl-magnatune.c:853
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Nieprawidłowy identyfikator kontenera %s"
@@ -210,11 +211,11 @@ msgstr "Przeglądanie się nie powiodło: %s jest ścieżką"
 msgid "Malformed query \"%s\""
 msgstr "Błędnie sformatowane zapytanie \"%s\""
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:59
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
 msgid "Album art Provider from Last.FM"
 msgstr "Dostarczanie okładek albumów z serwisu Last.fm"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
 msgid "A plugin for getting album arts using Last.FM as backend"
 msgstr "Wtyczka do pobierania okładek albumów używając serwisu Last.fm"
 
@@ -240,6 +241,34 @@ msgstr "Nie można rozwiązać żadnego z podanych kluczy"
 #: ../src/local-metadata/grl-local-metadata.c:999
 msgid "A GIO supported URL for images is required"
 msgstr "Wymagany jest adres URL dla obrazów obsługiwany przez bibliotekę GIO"
+
+#: ../src/magnatune/grl-magnatune.c:122
+msgid "Genres"
+msgstr "Gatunki"
+
+#: ../src/magnatune/grl-magnatune.c:130
+msgid "A source for browsing music"
+msgstr "Źródło do przeglądania muzyki"
+
+#: ../src/magnatune/grl-magnatune.c:430
+#, c-format
+msgid "Failed to get database from magnatune: %s"
+msgstr "Pobranie bazy danych ze sklepu Magnatune się nie powiodło: %s"
+
+#: ../src/magnatune/grl-magnatune.c:460
+#, c-format
+msgid "Failed to save database from magnatune - '%s'"
+msgstr "Zapisanie bazy danych ze sklepu Magnatune się nie powiodło - \"%s\""
+
+#: ../src/magnatune/grl-magnatune.c:708
+#, c-format
+msgid "Failed to get table from magnatune db: %s"
+msgstr "Pobranie tablicy z bazy danych sklepu Magnatune się nie powiodło: %s"
+
+#: ../src/magnatune/grl-magnatune.c:724
+#, c-format
+msgid "Fail before returning media to user: %s"
+msgstr "Niepowodzenie przed zwróceniem multimediów do użytkownika: %s"
 
 #: ../src/metadata-store/grl-metadata-store.c:47
 msgid "Metadata Store"
@@ -293,42 +322,42 @@ msgstr "Źródło do przeglądania nośników optycznych"
 msgid "A source for browsing podcasts"
 msgstr "Źródło do przeglądania podcastów"
 
-#: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
+#: ../src/podcasts/grl-podcasts.c:753 ../src/podcasts/grl-podcasts.c:773
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "Pobranie strumieni podcastu się nie powiodło: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
-#: ../src/podcasts/grl-podcasts.c:1254
+#: ../src/podcasts/grl-podcasts.c:1239 ../src/podcasts/grl-podcasts.c:1248
+#: ../src/podcasts/grl-podcasts.c:1258
 msgid "Failed to parse content"
 msgstr "Przetworzenie treści się nie powiodło"
 
-#: ../src/podcasts/grl-podcasts.c:1287
+#: ../src/podcasts/grl-podcasts.c:1291
 msgid "Failed to parse podcast contents"
 msgstr "Przetworzenie treści podcastu się nie powiodło"
 
-#: ../src/podcasts/grl-podcasts.c:1445
+#: ../src/podcasts/grl-podcasts.c:1449
 msgid "Failed to get podcast information"
 msgstr "Pobranie informacji o podcaście się nie powiodło"
 
-#: ../src/podcasts/grl-podcasts.c:1485 ../src/podcasts/grl-podcasts.c:1505
+#: ../src/podcasts/grl-podcasts.c:1489 ../src/podcasts/grl-podcasts.c:1509
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Pobranie listy podcastów się nie powiodło: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1559 ../src/podcasts/grl-podcasts.c:1574
+#: ../src/podcasts/grl-podcasts.c:1563 ../src/podcasts/grl-podcasts.c:1578
 msgid "Failed to get podcast stream metadata"
 msgstr "Pobranie metadanych strumienia podcastu się nie powiodło"
 
-#: ../src/podcasts/grl-podcasts.c:1612
+#: ../src/podcasts/grl-podcasts.c:1616
 msgid "Failed to get podcast metadata"
 msgstr "Pobranie metadanych podcastu się nie powiodło"
 
-#: ../src/podcasts/grl-podcasts.c:1796
+#: ../src/podcasts/grl-podcasts.c:1800
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Nie można utworzyć kontenerów. Tylko kanały są akceptowane"
 
-#: ../src/podcasts/grl-podcasts.c:1801
+#: ../src/podcasts/grl-podcasts.c:1805
 msgid "URL required"
 msgstr "Wymagany jest adres URL"
 

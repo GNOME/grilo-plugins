@@ -86,6 +86,18 @@ struct _GrlFlickrSourcePrivate {
   gchar *user_id;
 };
 
+#ifdef GOA_ENABLED
+/*
+ * data passed when creating personal source
+ * when is GOA enabled, we need even goa_account_id, not only plugin
+ */
+struct token_cb_data {
+  GrlPlugin *plugin;
+  gchar     *goa_account_id;
+};
+#endif /* GOA_ENABLED */
+
+
 static void token_info_cb (GFlickr *f,
                            GHashTable *info,
                            gpointer user_data);
@@ -93,11 +105,20 @@ static void token_info_cb (GFlickr *f,
 static GrlFlickrSource *grl_flickr_source_public_new (const gchar *flickr_api_key,
                                                       const gchar *flickr_secret);
 
+#ifdef GOA_ENABLED
+static void grl_flickr_source_personal_new (GrlPlugin *plugin,
+                                            const gchar *flickr_api_key,
+                                            const gchar *flickr_secret,
+                                            const gchar *flickr_token,
+                                            const gchar *token_secret,
+                                            gchar       *goa_account_id);
+#else
 static void grl_flickr_source_personal_new (GrlPlugin *plugin,
                                             const gchar *flickr_api_key,
                                             const gchar *flickr_secret,
                                             const gchar *flickr_token,
                                             const gchar *token_secret);
+#endif /* GOA_ENABLED */
 
 static void grl_flickr_source_finalize (GObject *object);
 
@@ -133,6 +154,7 @@ grl_flickr_plugin_init (GrlRegistry *registry,
   gchar *flickr_token         = NULL;
   gchar *flickr_token_secret  = NULL;
 
+
   GrlConfig *config;
   gboolean public_source_created = FALSE;
 
@@ -141,6 +163,7 @@ grl_flickr_plugin_init (GrlRegistry *registry,
 #ifdef GOA_ENABLED
   GRL_DEBUG ("GOA enabled");
   gboolean create_public_from_goa = FALSE;
+  gchar *goa_account_id           = NULL;
 #endif
 
   GRL_DEBUG ("flickr_plugin_init");
@@ -186,11 +209,22 @@ grl_flickr_plugin_init (GrlRegistry *registry,
       GRL_INFO ("Required API key or secret configuration not provdied. "
                 " Plugin not loaded");
     } else if (flickr_token && flickr_token_secret) {
+#ifdef GOA_ENABLED
+      goa_account_id = grl_config_get_string (config, "goa-account-id");
+
+      grl_flickr_source_personal_new (plugin,
+                                      flickr_key,
+                                      flickr_secret,
+                                      flickr_token,
+                                      flickr_token_secret,
+                                      goa_account_id);
+#else
       grl_flickr_source_personal_new (plugin,
                                       flickr_key,
                                       flickr_secret,
                                       flickr_token,
                                       flickr_token_secret);
+#endif /* GOA_ENABLED */
     } else if (public_source_created) {
       GRL_WARNING ("Only one public source can be created");
     } else {
@@ -246,12 +280,22 @@ grl_flickr_source_public_new (const gchar *flickr_api_key,
   return source;
 }
 
+#ifdef GOA_ENABLED
+static void
+grl_flickr_source_personal_new (GrlPlugin *plugin,
+                                const gchar *flickr_api_key,
+                                const gchar *flickr_secret,
+                                const gchar *flickr_token,
+                                const gchar *flickr_token_secret,
+                                gchar       *goa_account_id)
+#else
 static void
 grl_flickr_source_personal_new (GrlPlugin *plugin,
                                 const gchar *flickr_api_key,
                                 const gchar *flickr_secret,
                                 const gchar *flickr_token,
                                 const gchar *flickr_token_secret)
+#endif /* GOA_ENABLED */
 {
   GFlickr *f;
 
@@ -260,8 +304,22 @@ grl_flickr_source_personal_new (GrlPlugin *plugin,
   f = g_flickr_new (flickr_api_key, flickr_secret,
                     flickr_token, flickr_token_secret);
 
+#ifdef GOA_ENABLED
+  struct token_cb_data *data;
+
+  data = g_slice_new (struct token_cb_data);
+  data->plugin = plugin;
+  data->goa_account_id = goa_account_id;
+
+  f = g_flickr_new (flickr_api_key, flickr_secret,
+                    flickr_token, flickr_token_secret);
+
+  g_flickr_auth_checkToken (f, flickr_token, token_info_cb,
+                            (gpointer) data);
+#else
   g_flickr_auth_checkToken (f, flickr_token, token_info_cb,
                             (gpointer) plugin);
+#endif /* GOA_ENABLED */
 }
 
 static void
@@ -310,13 +368,20 @@ token_info_cb (GFlickr *f,
                gpointer user_data)
 {
   GrlFlickrSource *source;
-  GrlPlugin *plugin = (GrlPlugin *) user_data;
   GrlRegistry *registry;
   gchar *fullname;
   gchar *source_desc;
   gchar *source_id;
   gchar *source_name;
   gchar *username;
+
+#ifdef GOA_ENABLED
+  struct token_cb_data *data = (struct token_cb_data *) user_data;
+  GrlPlugin *plugin = data->plugin;
+#else
+  GrlPlugin *plugin = (GrlPlugin *) user_data;
+#endif
+
 
   if (!info) {
     GRL_WARNING ("Wrong token!");
@@ -329,7 +394,23 @@ token_info_cb (GFlickr *f,
   username = g_hash_table_lookup (info, "user_username");
   fullname = g_hash_table_lookup (info, "user_fullname");
 
+  /* Set source id */
+#ifdef GOA_ENABLED
+  if (data->goa_account_id != NULL)
+  {
+    source_id = g_strdup_printf (PERSONAL_SOURCE_ID, data->goa_account_id);
+
+    g_free (data->goa_account_id);
+    g_slice_free (struct token_cb_data, data);
+  }
+  else
+  {
   source_id = g_strdup_printf (PERSONAL_SOURCE_ID, username);
+  }
+#else
+  source_id = g_strdup_printf (PERSONAL_SOURCE_ID, username);
+#endif /* GOA_ENABLED */
+
   source_name = g_strdup_printf (PERSONAL_SOURCE_NAME, fullname);
   source_desc = g_strdup_printf (PERSONAL_SOURCE_DESC, fullname);
 
@@ -686,6 +767,10 @@ grl_flickr_get_goa_multiple_config (GrlPlugin *plugin, gboolean public)
                                 goa_oauth_based_get_consumer_key (oauth));
         grl_config_set_api_secret (conf,
                                    goa_oauth_based_get_consumer_secret (oauth));
+
+        /* enable recognize that this config is from goa */
+        grl_config_set_string (conf, "goa-account-id",
+                                      goa_account_get_id (acc));
 
         /* if public == TRUE, create one public source */
         if (public == TRUE && public_created == FALSE)

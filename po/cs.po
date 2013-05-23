@@ -1,6 +1,7 @@
 # Czech translation for grilo-plugins.
 # Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
+#
 # Marek Černocký <marek@manet.cz>, 2013.
 #
 msgid ""
@@ -8,8 +9,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-04-24 01:15+0000\n"
-"PO-Revision-Date: 2013-04-26 12:40+0200\n"
+"POT-Creation-Date: 2013-05-22 15:30+0000\n"
+"PO-Revision-Date: 2013-05-23 18:42+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -35,13 +36,13 @@ msgstr "Selhalo zpracování odpovědi"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:465
 #: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
-#: ../src/podcasts/grl-podcasts.c:1356 ../src/shoutcast/grl-shoutcast.c:424
+#: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Prázdná odpověď"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:523
 #: ../src/jamendo/grl-jamendo.c:666
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:229
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
 #: ../src/shoutcast/grl-shoutcast.c:565
 #, c-format
 msgid "Failed to connect: %s"
@@ -68,15 +69,15 @@ msgstr "Selhalo získání metadat záložky"
 msgid "Failed to get bookmarks list: %s"
 msgstr "Selhalo získání seznamu záložek: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:813
-#: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
+#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:817
+#: ../src/podcasts/grl-podcasts.c:849 ../src/podcasts/grl-podcasts.c:881
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Selhalo odstranění: %s"
 
 #: ../src/bookmarks/grl-bookmarks.c:660 ../src/bookmarks/grl-bookmarks.c:718
-#: ../src/podcasts/grl-podcasts.c:918 ../src/podcasts/grl-podcasts.c:951
-#: ../src/podcasts/grl-podcasts.c:1800
+#: ../src/podcasts/grl-podcasts.c:922 ../src/podcasts/grl-podcasts.c:955
+#: ../src/podcasts/grl-podcasts.c:1804
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Selhalo uložení: %s"
@@ -84,8 +85,8 @@ msgstr "Selhalo uložení: %s"
 #: ../src/bookmarks/grl-bookmarks.c:772 ../src/bookmarks/grl-bookmarks.c:807
 #: ../src/bookmarks/grl-bookmarks.c:839 ../src/bookmarks/grl-bookmarks.c:901
 #: ../src/metadata-store/grl-metadata-store.c:852
-#: ../src/podcasts/grl-podcasts.c:1656 ../src/podcasts/grl-podcasts.c:1700
-#: ../src/podcasts/grl-podcasts.c:1734 ../src/podcasts/grl-podcasts.c:1769
+#: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
+#: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
 msgid "No database connection"
 msgstr "Žádné připojení k databázi"
 
@@ -112,18 +113,18 @@ msgstr "Soubor %s neexistuje"
 msgid "Cannot get media from %s"
 msgstr "Nelze získat médium z %s"
 
-#: ../src/flickr/grl-flickr.c:58
+#: ../src/flickr/grl-flickr.c:63
 msgid "A source for browsing and searching Flickr photos"
 msgstr "Zdroj pro procházení a vyhledávání fotografií Flickr"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:62
+#: ../src/flickr/grl-flickr.c:67
 #, c-format
 msgid "%s's Flickr"
 msgstr "Flickr uživatele %s"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:64
+#: ../src/flickr/grl-flickr.c:69
 #, c-format
 msgid "A source for browsing and searching %s' flickr photos"
 msgstr "Zdroj pro procházení a vyhledávání fotografií uživatele %s na Flickru"
@@ -164,11 +165,11 @@ msgstr "Přední alba"
 msgid "Top tracks"
 msgstr "Přední stopy"
 
-#: ../src/jamendo/grl-jamendo.c:774
+#: ../src/jamendo/grl-jamendo.c:774 ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Umělci"
 
-#: ../src/jamendo/grl-jamendo.c:785
+#: ../src/jamendo/grl-jamendo.c:785 ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Alba"
 
@@ -189,6 +190,7 @@ msgid "Invalid category identifier %s"
 msgstr "Neplatný identifikátor kategorie %s"
 
 #: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
+#: ../src/magnatune/grl-magnatune.c:853
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Neplatný identifikátor kontejneru %s"
@@ -203,11 +205,11 @@ msgstr "Selhalo procházení: %s je stopa"
 msgid "Malformed query \"%s\""
 msgstr "Vadný dotaz „%s“"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:59
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
 msgid "Album art Provider from Last.FM"
 msgstr "Poskytovatel přebalů alb z Last.FM"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
 msgid "A plugin for getting album arts using Last.FM as backend"
 msgstr "Zásuvný modul pro získávání přebalů alb pomocí služby Last.FM"
 
@@ -233,6 +235,34 @@ msgstr "Nelze získat žádný z uvedených klíčů"
 #: ../src/local-metadata/grl-local-metadata.c:999
 msgid "A GIO supported URL for images is required"
 msgstr "Je vyžadována adresa URL podporovaná GIO pro obrázky"
+
+#: ../src/magnatune/grl-magnatune.c:122
+msgid "Genres"
+msgstr "Žánry"
+
+#: ../src/magnatune/grl-magnatune.c:130
+msgid "A source for browsing music"
+msgstr "Zdroj pro procházení hudby"
+
+#: ../src/magnatune/grl-magnatune.c:430
+#, c-format
+msgid "Failed to get database from magnatune: %s"
+msgstr "Selhalo získání databáze z magnatune: %s"
+
+#: ../src/magnatune/grl-magnatune.c:460
+#, c-format
+msgid "Failed to save database from magnatune - '%s'"
+msgstr "Selhalo uložení databáze z magnatune – „%s“"
+
+#: ../src/magnatune/grl-magnatune.c:708
+#, c-format
+msgid "Failed to get table from magnatune db: %s"
+msgstr "Selhalo získání tabulky z databáze magnatune: %s"
+
+#: ../src/magnatune/grl-magnatune.c:724
+#, c-format
+msgid "Fail before returning media to user: %s"
+msgstr "Selhání před vrácením média uživateli: %s"
 
 #: ../src/metadata-store/grl-metadata-store.c:47
 msgid "Metadata Store"
@@ -286,42 +316,42 @@ msgstr "Zdroj pro procházení optických médií"
 msgid "A source for browsing podcasts"
 msgstr "Zdroj pro procházení podcastů"
 
-#: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
+#: ../src/podcasts/grl-podcasts.c:753 ../src/podcasts/grl-podcasts.c:773
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "Selhalo získání vysílání podcastu: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
-#: ../src/podcasts/grl-podcasts.c:1254
+#: ../src/podcasts/grl-podcasts.c:1239 ../src/podcasts/grl-podcasts.c:1248
+#: ../src/podcasts/grl-podcasts.c:1258
 msgid "Failed to parse content"
 msgstr "Selhalo zpracování obsahu"
 
-#: ../src/podcasts/grl-podcasts.c:1287
+#: ../src/podcasts/grl-podcasts.c:1291
 msgid "Failed to parse podcast contents"
 msgstr "Selhalo zpracování obsahu podcastu"
 
-#: ../src/podcasts/grl-podcasts.c:1445
+#: ../src/podcasts/grl-podcasts.c:1449
 msgid "Failed to get podcast information"
 msgstr "Selhalo získání informací o podcastu"
 
-#: ../src/podcasts/grl-podcasts.c:1485 ../src/podcasts/grl-podcasts.c:1505
+#: ../src/podcasts/grl-podcasts.c:1489 ../src/podcasts/grl-podcasts.c:1509
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Selhalo získání seznamu podcastů: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1559 ../src/podcasts/grl-podcasts.c:1574
+#: ../src/podcasts/grl-podcasts.c:1563 ../src/podcasts/grl-podcasts.c:1578
 msgid "Failed to get podcast stream metadata"
 msgstr "Selhalo získání metadat o vysílání podcastu"
 
-#: ../src/podcasts/grl-podcasts.c:1612
+#: ../src/podcasts/grl-podcasts.c:1616
 msgid "Failed to get podcast metadata"
 msgstr "Selhalo získání metadat podcastu"
 
-#: ../src/podcasts/grl-podcasts.c:1796
+#: ../src/podcasts/grl-podcasts.c:1800
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Nelze vytvořit kontejner. Přijímány jsou pouze kanály"
 
-#: ../src/podcasts/grl-podcasts.c:1801
+#: ../src/podcasts/grl-podcasts.c:1805
 msgid "URL required"
 msgstr "Vyžadována adresa URL"
 

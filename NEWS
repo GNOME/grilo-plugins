@@ -1,3 +1,24 @@
+NEW in 0.2.8
+============
+
+  * General
+    * Updated translations
+
+  * Flickr plugin
+    * BGO#700517 - flickr: Renaming of sources created using GOA
+
+  * Magnatune plugin
+    * New plugin providing music from Magnatune
+    * BGO#698523 - Adding Magnatune pluggin
+
+  * Contributors to this release:
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Marek Chalupa <mchalupa@redhat.com>
+    * Marek Černocký <marek@manet.cz>
+    * Piotr Drąg <piotrdrag@gmail.com>
+    * Victor Toso <me@victortoso.com>
+
+
 NEW in 0.2.7
 ============
 

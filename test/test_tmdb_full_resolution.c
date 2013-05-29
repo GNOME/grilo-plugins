@@ -42,7 +42,8 @@ static const gchar*
 get_region_certificate (GrlMedia *media, const gchar *region)
 {
   guint count = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_REGION);
-  for (guint i = 0; i < count; ++i) {
+  guint i;
+  for (i = 0; i < count; ++i) {
     const GDateTime* publication_date = NULL;
     const gchar *certificate = NULL;
     const gchar *this_region =

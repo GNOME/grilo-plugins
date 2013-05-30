@@ -1,0 +1,588 @@
+# German translation for grilo-plugins.
+# Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
+# This file is distributed under the same license as the grilo-plugins package.
+# Christian Kirbach <christian.kirbach@gmail.com>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: grilo-plugins master\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
+"plugins&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2013-05-22 15:30+0000\n"
+"PO-Revision-Date: 2013-04-20 17:56+0200\n"
+"Last-Translator: Christian Kirbach <christian.kirbach@gmail.com>\n"
+"Language-Team: Deutsch <gnome-de@gnome.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 2.91.6\n"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:55
+msgid "Apple Movie Trailers"
+msgstr ""
+
+#: ../src/apple-trailers/grl-apple-trailers.c:56
+msgid "A plugin for browsing Apple Movie Trailers"
+msgstr ""
+
+#: ../src/apple-trailers/grl-apple-trailers.c:457
+#: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
+#: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:472
+msgid "Failed to parse response"
+msgstr "Verarbeitung der Antwort ist gescheitert"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:465
+#: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
+#: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
+msgid "Empty response"
+msgstr "Leere Antwort"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:523
+#: ../src/jamendo/grl-jamendo.c:666
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
+#: ../src/shoutcast/grl-shoutcast.c:565
+#, c-format
+msgid "Failed to connect: %s"
+msgstr "Verbindung fehlgeschlagen: %s"
+
+#: ../src/bliptv/grl-bliptv.c:60
+msgid "A source for browsing and searching Blip.tv videos"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:119
+msgid "Bookmarks"
+msgstr "Lesezeichen"
+
+#: ../src/bookmarks/grl-bookmarks.c:120
+msgid "A source for organizing media bookmarks"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:441 ../src/bookmarks/grl-bookmarks.c:456
+msgid "Failed to get bookmark metadata"
+msgstr "Ermitteln der Metadaten der Lesezeichen gescheitert: %s"
+
+#: ../src/bookmarks/grl-bookmarks.c:486 ../src/bookmarks/grl-bookmarks.c:506
+#, c-format
+msgid "Failed to get bookmarks list: %s"
+msgstr "Ermitteln der Lesezeichenliste gescheitert: %s"
+
+#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:817
+#: ../src/podcasts/grl-podcasts.c:849 ../src/podcasts/grl-podcasts.c:881
+#, c-format
+msgid "Failed to remove: %s"
+msgstr "Entfernen ist fehlgeschlagen:  %s"
+
+#: ../src/bookmarks/grl-bookmarks.c:660 ../src/bookmarks/grl-bookmarks.c:718
+#: ../src/podcasts/grl-podcasts.c:922 ../src/podcasts/grl-podcasts.c:955
+#: ../src/podcasts/grl-podcasts.c:1804
+#, c-format
+msgid "Failed to store: %s"
+msgstr "Speichern gescheitert: %s"
+
+#: ../src/bookmarks/grl-bookmarks.c:772 ../src/bookmarks/grl-bookmarks.c:807
+#: ../src/bookmarks/grl-bookmarks.c:839 ../src/bookmarks/grl-bookmarks.c:901
+#: ../src/metadata-store/grl-metadata-store.c:852
+#: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
+#: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
+msgid "No database connection"
+msgstr "Keine Datenbank-Verbindung"
+
+#: ../src/dmap/grl-dmap.c:51
+#, c-format
+msgid "A source for browsing the DMAP server '%s'"
+msgstr "Eine Quelle zum Durchsuchen des DMAP-Servers »%s«"
+
+#: ../src/filesystem/grl-filesystem.c:69
+msgid "Filesystem"
+msgstr "Dateisystem"
+
+#: ../src/filesystem/grl-filesystem.c:70
+msgid "A source for browsing the filesystem"
+msgstr "Eine Quelle zum Durchsuchen des Dateisystems"
+
+#: ../src/filesystem/grl-filesystem.c:1327
+#, c-format
+msgid "File %s does not exist"
+msgstr "Die Datei %s existiert nicht"
+
+#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1629
+#, c-format
+msgid "Cannot get media from %s"
+msgstr ""
+
+#: ../src/flickr/grl-flickr.c:63
+msgid "A source for browsing and searching Flickr photos"
+msgstr ""
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:67
+#, c-format
+msgid "%s's Flickr"
+msgstr "Flickr von %s"
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:69
+#, c-format
+msgid "A source for browsing and searching %s' flickr photos"
+msgstr "Eine Quelle zum Durchsuchen und Suchen der flickr-Fotos von %s"
+
+#: ../src/gravatar/grl-gravatar.c:48
+msgid "Avatar provider from Gravatar"
+msgstr ""
+
+#: ../src/gravatar/grl-gravatar.c:49
+msgid "A plugin to get avatars for artist and author fields"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:93
+msgid "A source for browsing and searching Jamendo music"
+msgstr "Eine Quelle zum Durchsuchen und Suchen nach Jemando-Musik"
+
+#: ../src/jamendo/grl-jamendo.c:149
+msgid "Albums of the week"
+msgstr "Alben der Woche"
+
+#: ../src/jamendo/grl-jamendo.c:151
+msgid "Tracks of the week"
+msgstr "Titel der Woche"
+
+#: ../src/jamendo/grl-jamendo.c:153
+msgid "New releases"
+msgstr "Neuerscheinungen"
+
+#: ../src/jamendo/grl-jamendo.c:155
+msgid "Top artists"
+msgstr "Beste Künstler"
+
+#: ../src/jamendo/grl-jamendo.c:157
+msgid "Top albums"
+msgstr "Beliebteste Alben"
+
+#: ../src/jamendo/grl-jamendo.c:159
+msgid "Top tracks"
+msgstr "Beste Titel"
+
+#: ../src/jamendo/grl-jamendo.c:774 ../src/magnatune/grl-magnatune.c:120
+msgid "Artists"
+msgstr "Künstler"
+
+#: ../src/jamendo/grl-jamendo.c:785 ../src/magnatune/grl-magnatune.c:121
+msgid "Albums"
+msgstr "Alben"
+
+#: ../src/jamendo/grl-jamendo.c:796
+msgid "Feeds"
+msgstr "Nachrichtenquellen"
+
+#: ../src/jamendo/grl-jamendo.c:982 ../src/jamendo/grl-jamendo.c:1027
+#: ../src/jamendo/grl-jamendo.c:1054
+#, c-format
+msgid "Invalid identifier %s"
+msgstr "Ungültiger Bezeichner %s"
+
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1200
+#: ../src/youtube/grl-youtube.c:1341 ../src/youtube/grl-youtube.c:1556
+#, c-format
+msgid "Invalid category identifier %s"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
+#: ../src/magnatune/grl-magnatune.c:853
+#, c-format
+msgid "Invalid container identifier %s"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:1186
+#, c-format
+msgid "Failed to browse: %s is a track"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:1248
+#, c-format
+msgid "Malformed query \"%s\""
+msgstr ""
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
+msgid "Album art Provider from Last.FM"
+msgstr ""
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
+msgid "A plugin for getting album arts using Last.FM as backend"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:42
+msgid "Local Metadata Provider"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:43
+msgid "A source providing locally available metadata"
+msgstr "Eine Quelle, die lokal verfügbare Metadaten liefert"
+
+#: ../src/local-metadata/grl-local-metadata.c:472
+#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:866
+#: ../src/tracker/grl-tracker-source-api.c:460
+#, c-format
+msgid "Failed to resolve: %s"
+msgstr "Es konnte nicht aufgelöst werden: %s"
+
+#: ../src/local-metadata/grl-local-metadata.c:995
+msgid "Cannot resolve any of the given keys"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:999
+msgid "A GIO supported URL for images is required"
+msgstr ""
+
+#: ../src/magnatune/grl-magnatune.c:122
+msgid "Genres"
+msgstr ""
+
+#: ../src/magnatune/grl-magnatune.c:130
+#, fuzzy
+#| msgid "A source for browsing podcasts"
+msgid "A source for browsing music"
+msgstr "Eine Quelle zum Durchsuchen von Podcasts"
+
+#: ../src/magnatune/grl-magnatune.c:430
+#, fuzzy, c-format
+#| msgid "Failed to get podcasts list: %s"
+msgid "Failed to get database from magnatune: %s"
+msgstr "Ermitteln der Podcast-Liste schlug fehl: %s"
+
+#: ../src/magnatune/grl-magnatune.c:460
+#, c-format
+msgid "Failed to save database from magnatune - '%s'"
+msgstr ""
+
+#: ../src/magnatune/grl-magnatune.c:708
+#, fuzzy, c-format
+#| msgid "Failed to get bookmarks list: %s"
+msgid "Failed to get table from magnatune db: %s"
+msgstr "Ermitteln der Lesezeichenliste gescheitert: %s"
+
+#: ../src/magnatune/grl-magnatune.c:724
+#, c-format
+msgid "Fail before returning media to user: %s"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:47
+msgid "Metadata Store"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:48
+msgid "A plugin for storing extra metadata information"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:574
+#: ../src/metadata-store/grl-metadata-store.c:593
+#: ../src/metadata-store/grl-metadata-store.c:805
+#: ../src/tracker/grl-tracker-source-api.c:511
+#, c-format
+msgid "Failed to update metadata: %s"
+msgstr "Aktualisieren der Metadaten fehlgeschlagen: %s"
+
+#: ../src/metadata-store/grl-metadata-store.c:575
+msgid "specified keys are not writable"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:615
+msgid "Failed to update metadata"
+msgstr "Aktualisieren der Metadaten fehlgeschlagen"
+
+#: ../src/metadata-store/grl-metadata-store.c:761
+#: ../src/metadata-store/grl-metadata-store.c:806
+msgid "\"source-id\" not available"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1424
+msgid "Failed to resolve"
+msgstr "Es konnte nicht aufgelöst werden"
+
+#: ../src/metadata-store/grl-metadata-store.c:920
+#: ../src/metadata-store/grl-metadata-store.c:957 ../src/raitv/grl-raitv.c:415
+#: ../src/shoutcast/grl-shoutcast.c:759 ../src/vimeo/grl-vimeo.c:511
+#, c-format
+msgid "Failed to search: %s"
+msgstr "Suche fehlgeschlagen: %s"
+
+#: ../src/optical-media/grl-optical-media.c:46
+msgid "Optical Media"
+msgstr "Optische Median"
+
+#: ../src/optical-media/grl-optical-media.c:47
+msgid "A source for browsing optical media"
+msgstr "Eine Quelle zum Durchsuchen optischer Medien"
+
+#: ../src/podcasts/grl-podcasts.c:155
+msgid "A source for browsing podcasts"
+msgstr "Eine Quelle zum Durchsuchen von Podcasts"
+
+#: ../src/podcasts/grl-podcasts.c:753 ../src/podcasts/grl-podcasts.c:773
+#, c-format
+msgid "Failed to get podcast streams: %s"
+msgstr "Empfang des Podcast-Stroms fehlgeschlagen: %s"
+
+#: ../src/podcasts/grl-podcasts.c:1239 ../src/podcasts/grl-podcasts.c:1248
+#: ../src/podcasts/grl-podcasts.c:1258
+msgid "Failed to parse content"
+msgstr "Verarbeiten des Inhalts schlug fehl"
+
+#: ../src/podcasts/grl-podcasts.c:1291
+msgid "Failed to parse podcast contents"
+msgstr "Verarbeiten des Podcast-Inhalts schlug fehl"
+
+#: ../src/podcasts/grl-podcasts.c:1449
+msgid "Failed to get podcast information"
+msgstr "Ermitteln der Podcast-Informationen schlug fehl"
+
+#: ../src/podcasts/grl-podcasts.c:1489 ../src/podcasts/grl-podcasts.c:1509
+#, c-format
+msgid "Failed to get podcasts list: %s"
+msgstr "Ermitteln der Podcast-Liste schlug fehl: %s"
+
+#: ../src/podcasts/grl-podcasts.c:1563 ../src/podcasts/grl-podcasts.c:1578
+msgid "Failed to get podcast stream metadata"
+msgstr "Ermitteln der Podcast-Strom-Metadaten schlug fehl"
+
+#: ../src/podcasts/grl-podcasts.c:1616
+msgid "Failed to get podcast metadata"
+msgstr "Ermitteln der Podcast-Metadaten schlug fehl"
+
+#: ../src/podcasts/grl-podcasts.c:1800
+msgid "Cannot create containers. Only feeds are accepted"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1805
+msgid "URL required"
+msgstr "Adresse erforderlich"
+
+#: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
+msgid "Most Popular"
+msgstr "Am beliebtesten"
+
+#: ../src/raitv/grl-raitv.c:52
+msgid "Recent"
+msgstr "Zuletzt verwendet"
+
+#: ../src/raitv/grl-raitv.c:95
+msgid "A source for browsing and searching Rai.tv videos"
+msgstr "Eine Quelle zum Durchsuchen und Suchen nach Rai.tv-Videos"
+
+#: ../src/raitv/grl-raitv.c:173
+msgid "All"
+msgstr "Alle"
+
+#: ../src/raitv/grl-raitv.c:174
+msgid "Black and White"
+msgstr "Schwarz/Weiß"
+
+#: ../src/raitv/grl-raitv.c:175
+msgid "Cinema"
+msgstr "Kino"
+
+#: ../src/raitv/grl-raitv.c:176
+msgid "Comedians"
+msgstr "Komödien"
+
+#: ../src/raitv/grl-raitv.c:177
+msgid "Chronicle"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:178
+msgid "Culture"
+msgstr "Kultur"
+
+#: ../src/raitv/grl-raitv.c:179
+#, fuzzy
+msgid "Economy"
+msgstr "Sparmodus"
+
+#: ../src/raitv/grl-raitv.c:180
+msgid "Fiction"
+msgstr "Fiktion"
+
+# Fernsehsparte
+#: ../src/raitv/grl-raitv.c:181
+msgid "Junior"
+msgstr "Kinder"
+
+#: ../src/raitv/grl-raitv.c:182
+msgid "Investigations"
+msgstr "Untersuchungen"
+
+#: ../src/raitv/grl-raitv.c:183
+msgid "Interviews"
+msgstr "Interviews"
+
+#: ../src/raitv/grl-raitv.c:184
+msgid "Music"
+msgstr "Musik"
+
+#: ../src/raitv/grl-raitv.c:185
+msgid "News"
+msgstr "Neuigkeiten"
+
+#: ../src/raitv/grl-raitv.c:186
+msgid "Health"
+msgstr "Gesundheit"
+
+#: ../src/raitv/grl-raitv.c:187
+msgid "Satire"
+msgstr "Satire"
+
+#: ../src/raitv/grl-raitv.c:189
+msgid "Society"
+msgstr "Gesellschaft"
+
+#: ../src/raitv/grl-raitv.c:190
+msgid "Show"
+msgstr "Schau"
+
+#: ../src/raitv/grl-raitv.c:191
+msgid "Sport"
+msgstr "Sport"
+
+#: ../src/raitv/grl-raitv.c:192
+msgid "History"
+msgstr "Geschichte"
+
+#: ../src/raitv/grl-raitv.c:193
+msgid "Politics"
+msgstr "Politik"
+
+#: ../src/raitv/grl-raitv.c:194
+msgid "Leisure"
+msgstr "Vergnügen"
+
+#: ../src/raitv/grl-raitv.c:195
+msgid "Travel"
+msgstr "Reise"
+
+#: ../src/raitv/grl-raitv.c:612
+#, c-format
+msgid "Failed to browse: %s"
+msgstr "Durchsuchen ist fehlgeschlagen: %s"
+
+#: ../src/shoutcast/grl-shoutcast.c:67
+msgid "A source for browsing SHOUTcast radios"
+msgstr "Eine Quelle zum Durchsuchen von SHOUTcast-Radiosendern"
+
+#: ../src/shoutcast/grl-shoutcast.c:462
+#, c-format
+msgid "Cannot find media %s"
+msgstr ""
+
+#: ../src/shoutcast/grl-shoutcast.c:760 ../src/vimeo/grl-vimeo.c:512
+msgid "non-NULL search text is required"
+msgstr ""
+
+#: ../src/tmdb/grl-tmdb.c:948
+msgid "Remote data does not contain valid identifier"
+msgstr ""
+
+#. I can haz templatze ??
+#. Only emit this last one if more result than expected
+#. Schedule the next line to parse
+#: ../src/tracker/grl-tracker-source-api.c:332
+#: ../src/tracker/grl-tracker-source-api.c:414
+#, c-format
+msgid "Failed to query: %s"
+msgstr ""
+
+#: ../src/tracker/grl-tracker-source-api.c:628
+msgid "Empty query"
+msgstr "Leere Anfrage"
+
+#: ../src/tracker/grl-tracker-source-priv.h:44
+msgid "A plugin for searching multimedia content using Tracker"
+msgstr ""
+
+#: ../src/tracker/grl-tracker-utils.c:606
+#, fuzzy, c-format
+msgid "Removable - %s"
+msgstr "Entfernbar"
+
+#: ../src/tracker/grl-tracker-utils.c:618
+msgid "Local files"
+msgstr "Lokale Dateien"
+
+#: ../src/upnp/grl-upnp.c:53
+#, c-format
+msgid "A source for browsing the UPnP server '%s'"
+msgstr "Eine Quelle zum Durchsuchen des UPnP-Servers »%s«"
+
+#: ../src/upnp/grl-upnp.c:1254 ../src/upnp/grl-upnp.c:1311
+msgid "Failed to browse"
+msgstr "Durchsuchen ist fehlgeschlagen"
+
+#: ../src/upnp/grl-upnp.c:1374
+msgid "Failed to query"
+msgstr "Anfrage ist fehlgeschlagen"
+
+#: ../src/upnp/grl-upnp.c:1493
+#, c-format
+msgid "Unable to listen for changes in %s"
+msgstr ""
+
+#: ../src/vimeo/grl-vimeo.c:57
+msgid "A source for browsing and searching Vimeo videos"
+msgstr "Eine Quelle zum Durchsuchen und Suchen nach Vimeo-Videos"
+
+#: ../src/youtube/grl-youtube.c:60
+msgid "Standard feeds"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:63
+msgid "Categories"
+msgstr "Kategorien"
+
+#: ../src/youtube/grl-youtube.c:69
+msgid "Top Rated"
+msgstr "Bestbewertet"
+
+#: ../src/youtube/grl-youtube.c:72
+msgid "Top Favorites"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:75
+msgid "Most Viewed"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:81
+msgid "Most Recent"
+msgstr "Jüngst"
+
+#: ../src/youtube/grl-youtube.c:84
+msgid "Most Discussed"
+msgstr "Am meisten diskutiert"
+
+#: ../src/youtube/grl-youtube.c:87
+msgid "Most Linked"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:90
+msgid "Most Responded"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:93
+msgid "Recently Featured"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:96
+msgid "Watch On Mobile"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:117
+msgid "A source for browsing and searching YouTube videos"
+msgstr "Eine Quelle zum Durchsuchen und Suchen nach YouTube-Videos"
+
+#: ../src/youtube/grl-youtube.c:948
+msgid "Failed to get feed"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:1129 ../src/youtube/grl-youtube.c:1536
+#, c-format
+msgid "Invalid feed identifier %s"
+msgstr ""

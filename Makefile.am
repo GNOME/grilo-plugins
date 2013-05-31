@@ -70,3 +70,15 @@ dist-hook:
 	else \
 		echo A git clone is required to generate a ChangeLog >&2; \
 	fi
+
+if GCOV_ENABLED
+lcov-clean:
+	@rm -fr coverage
+	@find . -name "*.gcda" -exec rm {} \;
+	@lcov --directory . --zerocounters
+
+lcov:
+	@mkdir -p coverage
+	@lcov --compat-libtool --directory . --capture --output-file coverage/app.info
+	@genhtml -o coverage/ coverage/app.info
+endif

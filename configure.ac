@@ -197,6 +197,31 @@ if test "x$HAVE_GDATA" = "xyes"; then
 fi
 
 # ----------------------------------------------------------
+# TESTS COVERAGE
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(gcov,
+        AC_HELP_STRING([--enable-gcov],
+                [enable coverage testing (default: no)]),
+        [enable_gcov=$enableval],
+        [enable_gcov=no])
+
+if test "x$enable_gcov" = "xyes"; then
+   AC_PATH_PROG([enable_gcov], [lcov], [no])
+   if test "x$enable_gcov" = "xno"; then
+      AC_MSG_ERROR([You need lcov to build with coverage testing])
+   elif test "x$GCC" = "xno"; then
+      AC_MSG_ERROR([You need to use gcc to build with coverage testing])
+   else
+      enable_gcov=yes
+      CFLAGS="$CFLAGS -g -O0 -fprofile-arcs -ftest-coverage"
+      LDFLAGS="$LDFLAGS -lgcov"
+   fi
+fi
+
+AM_CONDITIONAL([GCOV_ENABLED], [test "x$enable_gcov" = "xyes"])
+
+# ----------------------------------------------------------
 # BUILD FAKE METADATA PLUGIN
 # ----------------------------------------------------------
 

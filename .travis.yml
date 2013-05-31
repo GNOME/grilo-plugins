@@ -4,5 +4,12 @@ before_install:
   - sudo add-apt-repository ppa:grilo-team/ppa -y
   - sudo apt-get update -qq
   - sudo apt-get install -qq gnome-common gnome-doc-utils libgrilo-0.2-dev
-         libjson-glib-dev libsoup2.4-dev
-script: ./autogen.sh && make && make check
+         libjson-glib-dev libsoup2.4-dev lcov
+  - sudo pip install cpp-coveralls --use-mirrors
+script:
+  - ./autogen.sh --enable-gcov
+  - make
+  - make check
+after_success:
+  - find . -path "*/.libs/*" -name "*.gc??" | while read -r p ; do mv "$p" "${p%%/.libs/*}" ; done
+  - coveralls --exclude test --exclude help

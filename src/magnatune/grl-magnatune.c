@@ -183,8 +183,6 @@ static void grl_magnatune_source_search(GrlSource *source,
 static void grl_magnatune_source_browse(GrlSource *source,
                                         GrlSourceBrowseSpec *bs);
 
-static gboolean magnatune_has_network_conn(void);
-
 static void magnatune_get_db_async(OperationSpec *os);
 
 /* ================== Magnatune Plugin  ================= */
@@ -201,9 +199,6 @@ grl_magnatune_plugin_init(GrlRegistry *registry,
   GRL_DEBUG("magnatune_plugin_init");
 
   source = grl_magnatune_source_new();
-  if (source->priv->db == NULL && magnatune_has_network_conn() == FALSE)
-    return FALSE;
-
   grl_registry_register_source(registry,
                                plugin,
                                GRL_SOURCE(source),
@@ -325,25 +320,6 @@ grl_magnatune_source_finalize(GObject *object)
 }
 
 /* ======================= Utilities ==================== */
-
-static gboolean
-magnatune_has_network_conn(void)
-{
-  gboolean ret = FALSE;
-  GNetworkMonitor *nm = NULL;
-  GSocketConnectable *addr = NULL;
-  GError *err = NULL;
-
-  nm = g_network_monitor_get_default();
-  addr = g_network_address_new("www.magnatune.com", 80);
-
-  ret = g_network_monitor_can_reach(nm, addr, NULL, &err);
-  if (ret == FALSE)
-    GRL_WARNING("Plugin can't reach magnatune.com - '%s'", err->message);
-
-  g_object_unref(addr);
-  return ret;
-}
 
 static void
 magnatune_get_crc_done(GObject *source_object,

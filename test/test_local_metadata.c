@@ -154,9 +154,7 @@ setup (void)
   grl_registry_load_all_plugins (registry, &error);
   g_assert_no_error (error);
 
-  local_source =
-    GRL_SOURCE (grl_registry_lookup_source (registry,
-                                            LOCAL_SOURCE_ID));
+  local_source = grl_registry_lookup_source (registry, LOCAL_SOURCE_ID);
 
 finish:
   return ret;
@@ -184,6 +182,7 @@ static gboolean
 test_image_thumbnail (void)
 {
   GrlMedia *media = NULL;
+  GrlOperationOptions *options;
   GError *error = NULL;
   GList *keys = NULL;
   gboolean ret = TRUE;
@@ -198,8 +197,9 @@ test_image_thumbnail (void)
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
 
-  media = grl_source_resolve_sync (GRL_SOURCE (local_source), media, keys,
-                                   GRL_RESOLVE_NORMAL, &error);
+  options = grl_operation_options_new (NULL);
+  grl_operation_options_set_flags (options, GRL_RESOLVE_NORMAL);
+  media = grl_source_resolve_sync (local_source, media, keys, options, &error);
   if (error) {
     g_clear_error (&error);
     ret = FALSE;
@@ -225,7 +225,7 @@ cleanup:
     g_free (expected_thumbnail_path);
   if (expected_thumbnail_uri)
     g_free (expected_thumbnail_uri);
-
+  g_object_unref (options);
   return ret;
 }
 
@@ -233,6 +233,7 @@ static gboolean
 test_image_no_thumbnail (void)
 {
   GrlMedia *media = NULL;
+  GrlOperationOptions *options;
   GError *error = NULL;
   GList *keys = NULL;
   gboolean ret = TRUE;
@@ -242,8 +243,9 @@ test_image_no_thumbnail (void)
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
 
-  media = grl_source_resolve_sync (GRL_SOURCE (local_source), media, keys,
-                                   GRL_RESOLVE_NORMAL, &error);
+  options = grl_operation_options_new (NULL);
+  grl_operation_options_set_flags (options, GRL_RESOLVE_NORMAL);
+  media = grl_source_resolve_sync (local_source, media, keys, options, &error);
   if (error) {
     g_clear_error (&error);
     ret = FALSE;
@@ -260,7 +262,7 @@ cleanup:
     g_object_unref (media);
   if (keys)
     g_list_free (keys);
-
+  g_object_unref (options);
   return ret;
 }
 

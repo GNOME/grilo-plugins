@@ -479,6 +479,7 @@ grl_tmdb_request_run_async (GrlTmdbRequest *self,
                                               cancellable,
                                               (GAsyncReadyCallback) on_wc_request,
                                               self);
+  g_free (call);
   g_hash_table_unref (headers);
 }
 

@@ -610,6 +610,7 @@ add_image (GrlTmdbSource *self,
   }
 
   g_free (str);
+  soup_uri_free (uri);
 }
 
 static void
@@ -664,6 +665,7 @@ on_request_ready (GObject *source,
         if (value != NULL) {
           grl_media_set_site (closure->rs->media, g_value_get_string (value));
           g_value_unset (value);
+          g_free (value);
         }
       }
 
@@ -673,6 +675,7 @@ on_request_ready (GObject *source,
           grl_media_set_description (closure->rs->media,
                                      g_value_get_string (value));
           g_value_unset (value);
+          g_free (value);
         }
       }
 
@@ -683,6 +686,7 @@ on_request_ready (GObject *source,
                                GRL_TMDB_METADATA_KEY_IMDB_ID,
                                g_value_get_string (value));
           g_value_unset (value);
+          g_free (value);
         }
       }
 
@@ -693,6 +697,7 @@ on_request_ready (GObject *source,
                                 (float) g_value_get_double (value),
                                 10.0f);
           g_value_unset (value);
+          g_free (value);
         }
       }
 
@@ -702,6 +707,7 @@ on_request_ready (GObject *source,
           grl_media_video_set_original_title (GRL_MEDIA_VIDEO (closure->rs->media),
                                               g_value_get_string (value));
           g_value_unset (value);
+          g_free (value);
         }
       }
 
@@ -710,6 +716,7 @@ on_request_ready (GObject *source,
         if (value != NULL) {
           grl_media_set_title (closure->rs->media, g_value_get_string (value));
           g_value_unset (value);
+          g_free (value);
         }
       }
 
@@ -725,6 +732,7 @@ on_request_ready (GObject *source,
                          g_value_get_string (value));
 
               g_value_unset (value);
+              g_free (value);
           }
         }
 
@@ -736,6 +744,7 @@ on_request_ready (GObject *source,
                          g_value_get_string (value));
 
               g_value_unset (value);
+              g_free (value);
           }
         }
 
@@ -747,6 +756,7 @@ on_request_ready (GObject *source,
                        g_value_get_string (value));
 
             g_value_unset (value);
+            g_free (value);
           }
         }
       }
@@ -937,8 +947,12 @@ on_search_ready (GObject *source,
     /* Nothing found */
     resolve_closure_callback (closure, NULL);
     resolve_closure_free (closure);
+    g_value_unset (value);
+    g_free (value);
     return;
   }
+  g_value_unset (value);
+  g_free (value);
 
   value = grl_tmdb_request_get (request, "$.results[0].id");
   if (value == NULL) {
@@ -962,6 +976,7 @@ on_search_ready (GObject *source,
 
   closure->id = g_value_get_int64 (value);
   g_value_unset (value);
+  g_free (value);
 
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_RATING)) {
     value = grl_tmdb_request_get (request, "$.results[0].vote_average");
@@ -970,6 +985,7 @@ on_search_ready (GObject *source,
                             (float) g_value_get_double (value),
                             10.0f);
       g_value_unset (value);
+      g_free (value);
     }
     g_hash_table_remove (closure->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_RATING));
   }
@@ -985,6 +1001,7 @@ on_search_ready (GObject *source,
                    g_value_get_string (value));
 
         g_value_unset (value);
+        g_free (value);
     }
   }
 
@@ -996,6 +1013,7 @@ on_search_ready (GObject *source,
                    g_value_get_string (value));
 
         g_value_unset (value);
+        g_free (value);
     }
   }
 
@@ -1007,6 +1025,7 @@ on_search_ready (GObject *source,
                  g_value_get_string (value));
 
       g_value_unset (value);
+      g_free (value);
     }
   }
 
@@ -1016,6 +1035,7 @@ on_search_ready (GObject *source,
       grl_media_video_set_original_title (GRL_MEDIA_VIDEO (closure->rs->media),
                                           g_value_get_string (value));
       g_value_unset (value);
+      g_free (value);
     }
     g_hash_table_remove (closure->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ORIGINAL_TITLE));
   }
@@ -1119,6 +1139,8 @@ on_configuration_ready (GObject *source,
   if (value != NULL) {
     GRL_DEBUG ("Got TMDb configuration.");
     self->priv->image_base_uri = soup_uri_new (g_value_get_string (value));
+    g_value_unset (value);
+    g_free (value);
   }
 
   g_queue_push_head (self->priv->pending_resolves, closure);

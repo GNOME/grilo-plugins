@@ -199,7 +199,8 @@ test_image_thumbnail (void)
 
   options = grl_operation_options_new (NULL);
   grl_operation_options_set_flags (options, GRL_RESOLVE_NORMAL);
-  media = grl_source_resolve_sync (local_source, media, keys, options, &error);
+
+  grl_source_resolve_sync (local_source, media, keys, options, &error);
   if (error) {
     g_clear_error (&error);
     ret = FALSE;

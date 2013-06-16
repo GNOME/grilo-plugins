@@ -469,7 +469,7 @@ static void remove_request (ResolveClosure *closure,
     PendingRequest *const pending_request = it->data;
 
     if (pending_request->request == request) {
-      g_queue_unlink (closure->pending_requests, it);
+      g_queue_delete_link (closure->pending_requests, it);
       pending_request_free (pending_request);
       break;
     }

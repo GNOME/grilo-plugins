@@ -61,6 +61,9 @@ test (void)
   g_object_unref (options);
   options = NULL;
 
+  g_error_free (error);
+  error = NULL;
+
   test_shutdown_tmdb ();
 }
 

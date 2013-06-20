@@ -24,11 +24,23 @@ ltmain.sh
 missing
 omf.make
 stamp-h1
+test-driver
 xmldocs.make
 gnome-doc-utils.make
 
 /m4/*.m4
 !/m4/grilo.m4
+
+/po/*.gmo
+/po/*.header
+/po/*.sed
+/po/*.sin
+/po/.intltool-merge-cache
+/po/Makefile.in.in
+/po/Makevars.template
+/po/POTFILES
+/po/Rules-quot
+/po/stamp-it
 
 .*.sw?
 .gdb_history

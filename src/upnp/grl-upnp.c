@@ -521,7 +521,14 @@ device_unavailable_cb (GUPnPControlPoint *cp,
   /* Check first if source is registered */
   source = grl_registry_lookup_source (registry, source_id);
   if (source) {
+    GError *error = NULL;
     GRL_DEBUG ("Unregistered source %s", source_id);
+    grl_registry_unregister_source (registry, source, &error);
+    if (error)
+      {
+        g_warning ("Failed to unregister source %s: %s", source_id, error->message);
+        g_error_free (error);
+      }
     g_free (source_id);
     return;
   }

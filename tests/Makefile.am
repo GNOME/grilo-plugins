@@ -49,7 +49,7 @@ test_local_metadata_CFLAGS = \
 
 test_tmdb_defines = \
 	-DGRILO_PLUGINS_TESTS_TMDB_PLUGIN_PATH=\""$(abs_top_builddir)/src/tmdb/.libs/"\" \
-	-DGRILO_PLUGINS_TESTS_TMDB_DATA_PATH=\""$(abs_top_srcdir)/test/test_data/tmdb/"\"
+	-DGRILO_PLUGINS_TESTS_TMDB_DATA_PATH=\""$(abs_top_srcdir)/tests/test_data/tmdb/"\"
 
 test_tmdb_preconditions_SOURCES = \
 	test_tmdb_preconditions.c \

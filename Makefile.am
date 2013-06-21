@@ -7,7 +7,7 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src help po test
+SUBDIRS = src help po tests
 
 MAINTAINERCLEANFILES = \
         aclocal.m4 \

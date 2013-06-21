@@ -24,7 +24,7 @@
  * A small program to test the local-metadata plugin.
  */
 
-#define TEST_DATA "./test_data"
+#define TEST_DATA "./data"
 #define TEST_IMAGE1 TEST_DATA"/image1.png"
 #define TEST_IMAGE2 TEST_DATA"/image2.png"
 #define TEST_THUMBNAIL TEST_DATA"/thumbnail.png"

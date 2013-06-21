@@ -25,7 +25,7 @@
 #include <float.h>
 
 #define TMDB_PLUGIN_ID "grl-tmdb"
-#define TEST_PATH "test_data/tmdb/"
+#define TEST_PATH "data/"
 
 GrlSource *source = NULL;
 
@@ -69,4 +69,3 @@ test_shutdown_tmdb (void)
   grl_registry_unload_plugin (registry, TMDB_PLUGIN_ID, &error);
   g_assert_no_error (error);
 }
-

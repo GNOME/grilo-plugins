@@ -299,7 +299,7 @@ finish:
 int
 main(int argc, char **argv)
 {
-  g_setenv ("GRL_PLUGIN_PATH", GRILO_PLUGINS_TESTS_LOCAL_METADATA_PLUGIN_PATH, TRUE);
+  g_setenv ("GRL_PLUGIN_PATH", TESTS_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", LOCAL_SOURCE_ID, TRUE);
 
   grl_init (&argc, &argv);

@@ -5,6 +5,8 @@
 #
 # Copyright (C) 2013 Igalia S.L.
 
+include $(top_srcdir)/gtester.mk
+
 SUBDIRS =
 
 if LOCALMETADATA_PLUGIN

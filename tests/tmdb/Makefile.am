@@ -5,6 +5,8 @@
 #
 # Copyright (C) 2010-2013 Igalia S.L.
 
+include $(top_srcdir)/gtester.mk
+
 INCLUDES = @DEPS_CFLAGS@
 
 TESTS =										\

@@ -5,6 +5,8 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
+include $(top_srcdir)/gtester.mk
+
 ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = src help po tests
@@ -28,7 +30,7 @@ MAINTAINERCLEANFILES = \
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES) gnome-doc-utils.make
 
-EXTRA_DIST = ./m4/grilo.m4
+EXTRA_DIST += ./m4/grilo.m4
 
 # Make sure that the documentation generation is enabled
 # when creating tarball releases,

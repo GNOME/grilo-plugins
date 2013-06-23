@@ -9,16 +9,11 @@ include $(top_srcdir)/gtester.mk
 
 SUBDIRS =
 
-if LOCALMETADATA_PLUGIN
-SUBDIRS += local-metadata
-endif
-
 if TMDB_PLUGIN
 SUBDIRS += tmdb
 endif
 
 DIST_SUBDIRS =    \
-   local-metadata \
    tmdb
 
 MAINTAINERCLEANFILES =  \

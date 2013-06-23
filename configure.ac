@@ -1190,7 +1190,6 @@ AC_CONFIG_FILES([
   src/vimeo/Makefile
   src/youtube/Makefile
   tests/Makefile
-  tests/local-metadata/Makefile
   tests/tmdb/Makefile
 ])
 

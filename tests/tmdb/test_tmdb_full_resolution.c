@@ -70,7 +70,7 @@ test_region_certificate (GrlMedia *media, const gchar *region, const gchar *expe
 "In a dynamic new portrayal of Arthur Conan Doyle’s most famous characters, “Sherlock Holmes” sends Holmes and his stalwart partner Watson on their latest challenge. Revealing fighting skills as lethal as his legendary intellect, Holmes will battle as never before to bring down a new nemesis and unravel a deadly plot that could destroy England."
 
 static void
-test (void)
+test_full_resolution (void)
 {
   GError *error = NULL;
   GrlRegistry *registry;
@@ -166,9 +166,13 @@ main(int argc, char **argv)
   g_setenv ("GRL_NET_MOCKED", GRILO_PLUGINS_TESTS_TMDB_DATA_PATH "sherlock.ini", TRUE);
 
   grl_init (&argc, &argv);
+  g_test_init (&argc, &argv, NULL);
+
 #if !GLIB_CHECK_VERSION(2,32,0)
   g_thread_init (NULL);
 #endif
 
-  test ();
+  g_test_add_func ("/tmdb/full-resolution", test_full_resolution);
+
+  return g_test_run ();
 }

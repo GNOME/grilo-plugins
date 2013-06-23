@@ -28,7 +28,7 @@
 #define TMDB_PLUGIN_ID "grl-tmdb"
 
 static void
-test (void)
+test_missing_configuration (void)
 {
   GrlMedia *media = NULL;
   GrlOperationOptions *options = NULL;
@@ -80,9 +80,13 @@ main(int argc, char **argv)
   g_setenv ("GRL_NET_MOCKED", GRILO_PLUGINS_TESTS_TMDB_DATA_PATH "empty-data.ini", TRUE);
 
   grl_init (&argc, &argv);
+  g_test_init (&argc, &argv, NULL);
+
 #if !GLIB_CHECK_VERSION(2,32,0)
   g_thread_init (NULL);
 #endif
 
-  test ();
+  g_test_add_func ("/tmdb/missing-configuration", test_missing_configuration);
+
+  return g_test_run ();
 }

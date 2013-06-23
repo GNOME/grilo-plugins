@@ -9,14 +9,14 @@ include $(top_srcdir)/gtester.mk
 
 INCLUDES = @DEPS_CFLAGS@
 
-TESTS =										\
+TEST_PROGS +=								\
 	test_tmdb_fast_resolution			\
 	test_tmdb_fast_resolution_by_id	\
 	test_tmdb_full_resolution			\
 	test_tmdb_missing_configuration	\
 	test_tmdb_preconditions
 
-check_PROGRAMS = $(TESTS)
+#check_PROGRAMS = $(TESTS)
 
 # Let the .c source code know about these paths,
 # even when sourcedir!=builddir, such as during make distcheck:
@@ -98,6 +98,8 @@ dist_noinst_DATA =			\
 	data/releases.txt			\
 	data/search.txt			\
 	data/sherlock.ini
+
+noinst_PROGRAMS = $(TEST_PROGS)
 
 MAINTAINERCLEANFILES =		\
 	*.in							\

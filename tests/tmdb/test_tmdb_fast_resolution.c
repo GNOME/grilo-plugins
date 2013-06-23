@@ -37,7 +37,7 @@ static gboolean compare_floats(gfloat a, gfloat b)
 }
 
 static void
-test (void)
+test_fast_resolution (void)
 {
   GrlKeyID backdrop, posters;
   GrlRegistry *registry;
@@ -107,9 +107,13 @@ main(int argc, char **argv)
   g_setenv ("GRL_NET_MOCKED", GRILO_PLUGINS_TESTS_TMDB_DATA_PATH "no-details.ini", TRUE);
 
   grl_init (&argc, &argv);
+  g_test_init (&argc, &argv, NULL);
+
 #if !GLIB_CHECK_VERSION(2,32,0)
   g_thread_init (NULL);
 #endif
 
-  test ();
+  g_test_add_func ("/tmdb/fast-resolution", test_fast_resolution);
+
+  return g_test_run ();
 }

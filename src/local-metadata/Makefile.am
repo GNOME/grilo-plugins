@@ -9,6 +9,7 @@ ext_LTLIBRARIES		 = libgrllocalmetadata.la
 
 libgrllocalmetadata_la_CFLAGS =	\
 	$(DEPS_LOCALMETADATA_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlLocalMetadata\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 

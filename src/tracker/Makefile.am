@@ -9,6 +9,7 @@ ext_LTLIBRARIES		 = libgrltracker.la
 
 libgrltracker_la_CFLAGS =	\
 	$(DEPS_TRACKER_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlTracker\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrltracker_la_LIBADD =	\

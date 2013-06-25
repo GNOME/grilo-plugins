@@ -9,6 +9,7 @@ ext_LTLIBRARIES = libgrlyoutube.la
 
 libgrlyoutube_la_CFLAGS =	\
 	$(DEPS_YOUTUBE_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlYoutube\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlyoutube_la_LIBADD =	\

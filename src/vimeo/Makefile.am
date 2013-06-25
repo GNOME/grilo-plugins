@@ -9,6 +9,7 @@ ext_LTLIBRARIES		 = libgrlvimeo.la
 
 libgrlvimeo_la_CFLAGS =	\
 	$(DEPS_VIMEO_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlVimeo\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlvimeo_la_LIBADD =	\

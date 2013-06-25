@@ -9,6 +9,7 @@ ext_LTLIBRARIES		 = libgrlshoutcast.la
 
 libgrlshoutcast_la_CFLAGS =	\
 	$(DEPS_SHOUTCAST_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlShoutcast\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlshoutcast_la_LIBADD =	\

@@ -9,6 +9,7 @@ ext_LTLIBRARIES		 = libgrloptical-media.la
 
 libgrloptical_media_la_CFLAGS =			\
 	$(DEPS_OPTICAL_MEDIA_STORE_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlOpticalMedia\"	\
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrloptical_media_la_LIBADD =	\

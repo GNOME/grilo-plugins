@@ -10,6 +10,7 @@ ext_LTLIBRARIES		 = libgrlbliptv.la
 
 libgrlbliptv_la_CFLAGS =	\
 	$(DEPS_BLIPTV_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlBlipTv\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlbliptv_la_LIBADD =	\

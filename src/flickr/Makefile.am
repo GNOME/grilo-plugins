@@ -9,6 +9,7 @@ libplugin_LTLIBRARIES	= libgrlflickr.la
 
 libgrlflickr_la_CFLAGS =	\
 	$(DEPS_FLICKR_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlFlickr\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlflickr_la_LIBADD =	\

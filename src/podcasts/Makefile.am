@@ -9,6 +9,7 @@ ext_LTLIBRARIES = libgrlpodcasts.la
 
 libgrlpodcasts_la_CFLAGS =	\
 	$(DEPS_PODCASTS_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlPodcasts\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlpodcasts_la_LIBADD =	\

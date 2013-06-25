@@ -8,6 +8,7 @@
 ext_LTLIBRARIES		 = libgrlfakemetadata.la
 
 libgrlfakemetadata_la_CFLAGS =	\
+	-DG_LOG_DOMAIN=\"GrlFakeMetadata\" \
 	$(DEPS_FAKEMETADATA_CFLAGS)
 
 libgrlfakemetadata_la_LIBADD =	\

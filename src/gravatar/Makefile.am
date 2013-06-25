@@ -9,6 +9,7 @@ ext_LTLIBRARIES = libgrlgravatar.la
 
 libgrlgravatar_la_CFLAGS =	\
 	$(DEPS_GRAVATAR_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlGravatar\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlgravatar_la_LIBADD =	\

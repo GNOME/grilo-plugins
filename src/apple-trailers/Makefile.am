@@ -9,6 +9,7 @@ ext_LTLIBRARIES		 = libgrlappletrailers.la
 
 libgrlappletrailers_la_CFLAGS =	\
 	$(DEPS_APPLE_TRAILERS_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlAppleTrailers\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlappletrailers_la_LIBADD =	\

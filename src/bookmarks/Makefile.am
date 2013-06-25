@@ -9,6 +9,7 @@ ext_LTLIBRARIES = libgrlbookmarks.la
 
 libgrlbookmarks_la_CFLAGS =	\
 	$(DEPS_BOOKMARKS_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlBookmarks\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlbookmarks_la_LIBADD =	\

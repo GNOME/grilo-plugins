@@ -9,6 +9,7 @@ ext_LTLIBRARIES = libgrlmagnatune.la
 
 libgrlmagnatune_la_CFLAGS =	\
 	$(DEPS_MAGNATUNE_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlMagnatune\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlmagnatune_la_LIBADD =	\

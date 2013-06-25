@@ -9,6 +9,7 @@ ext_LTLIBRARIES		 = libgrltmdb.la
 
 libgrltmdb_la_CFLAGS =	\
 	$(DEPS_TMDB_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlTmdb\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrltmdb_la_LIBADD = $(DEPS_TMDB_LIBS)

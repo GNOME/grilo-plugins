@@ -9,6 +9,7 @@ ext_LTLIBRARIES	= libgrlupnp.la
 
 libgrlupnp_la_CFLAGS =	\
 	$(DEPS_UPNP_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlUpnp\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlupnp_la_LIBADD =	\

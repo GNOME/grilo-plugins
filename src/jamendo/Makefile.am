@@ -9,6 +9,7 @@ ext_LTLIBRARIES		 = libgrljamendo.la
 
 libgrljamendo_la_CFLAGS =	\
 	$(DEPS_JAMENDO_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlJamendo\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrljamendo_la_LIBADD =	\

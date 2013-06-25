@@ -8,6 +8,7 @@ ext_LTLIBRARIES		 = libgrlraitv.la
 
 libgrlraitv_la_CFLAGS =	\
 	$(DEPS_RAITV_CFLAGS)	\
+	-DG_LOG_DOMAIN=\"GrlRaitv\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 libgrlraitv_la_LIBADD =	\

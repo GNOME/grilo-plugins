@@ -2,22 +2,23 @@
 # Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
 # Rafael Ferreira <rafael.f.f1@gmail.com>, 2013.
+# Enrico Nicoletto <liverig@gmail.com>, 2013.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-04-23 08:32+0000\n"
-"PO-Revision-Date: 2013-04-23 22:11-0300\n"
-"Last-Translator: Rafael Ferreira <rafael.f.f1@gmail.com>\n"
+"POT-Creation-Date: 2013-06-27 11:15+0000\n"
+"PO-Revision-Date: 2013-06-29 17:42-0300\n"
+"Last-Translator: Enrico Nicoletto <liverig@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.5.5\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:55
 msgid "Apple Movie Trailers"
@@ -35,13 +36,13 @@ msgstr "Falha ao analisar resposta"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:465
 #: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
-#: ../src/podcasts/grl-podcasts.c:1356 ../src/shoutcast/grl-shoutcast.c:424
+#: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Resposta vazia"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:523
 #: ../src/jamendo/grl-jamendo.c:666
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:229
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
 #: ../src/shoutcast/grl-shoutcast.c:565
 #, c-format
 msgid "Failed to connect: %s"
@@ -68,15 +69,15 @@ msgstr "Falha ao obter metadados de marcador"
 msgid "Failed to get bookmarks list: %s"
 msgstr "Falha ao obter a lista de marcadores: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:813
-#: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
+#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:817
+#: ../src/podcasts/grl-podcasts.c:849 ../src/podcasts/grl-podcasts.c:881
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Falha ao remover: %s"
 
 #: ../src/bookmarks/grl-bookmarks.c:660 ../src/bookmarks/grl-bookmarks.c:718
-#: ../src/podcasts/grl-podcasts.c:918 ../src/podcasts/grl-podcasts.c:951
-#: ../src/podcasts/grl-podcasts.c:1800
+#: ../src/podcasts/grl-podcasts.c:922 ../src/podcasts/grl-podcasts.c:955
+#: ../src/podcasts/grl-podcasts.c:1804
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Falha ao armazenar: %s"
@@ -84,8 +85,8 @@ msgstr "Falha ao armazenar: %s"
 #: ../src/bookmarks/grl-bookmarks.c:772 ../src/bookmarks/grl-bookmarks.c:807
 #: ../src/bookmarks/grl-bookmarks.c:839 ../src/bookmarks/grl-bookmarks.c:901
 #: ../src/metadata-store/grl-metadata-store.c:852
-#: ../src/podcasts/grl-podcasts.c:1656 ../src/podcasts/grl-podcasts.c:1700
-#: ../src/podcasts/grl-podcasts.c:1734 ../src/podcasts/grl-podcasts.c:1769
+#: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
+#: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
 msgid "No database connection"
 msgstr "Nenhuma conexão com o banco de dados"
 
@@ -112,18 +113,18 @@ msgstr "O arquivo %s não existe"
 msgid "Cannot get media from %s"
 msgstr "Não foi possível obter a mídia de %s"
 
-#: ../src/flickr/grl-flickr.c:58
+#: ../src/flickr/grl-flickr.c:63
 msgid "A source for browsing and searching Flickr photos"
 msgstr "Uma fonte para acessar e pesquisar por fotos do Flickr"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:62
+#: ../src/flickr/grl-flickr.c:67
 #, c-format
 msgid "%s's Flickr"
 msgstr "Flickr de %s"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:64
+#: ../src/flickr/grl-flickr.c:69
 #, c-format
 msgid "A source for browsing and searching %s' flickr photos"
 msgstr "Uma fonte para acessar e pesquisar por fotos do flickr de %s"
@@ -164,11 +165,11 @@ msgstr "Álbuns principais"
 msgid "Top tracks"
 msgstr "Faixas principais"
 
-#: ../src/jamendo/grl-jamendo.c:774
+#: ../src/jamendo/grl-jamendo.c:774 ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Artistas"
 
-#: ../src/jamendo/grl-jamendo.c:785
+#: ../src/jamendo/grl-jamendo.c:785 ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Álbuns"
 
@@ -189,6 +190,7 @@ msgid "Invalid category identifier %s"
 msgstr "Identificador de categoria %s inválido"
 
 #: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
+#: ../src/magnatune/grl-magnatune.c:829
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Identificador de recipiente %s inválido"
@@ -203,11 +205,11 @@ msgstr "Falha ao acessar: %s é uma faixa"
 msgid "Malformed query \"%s\""
 msgstr "Consulta \"%s\" malformada"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:59
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
 msgid "Album art Provider from Last.FM"
 msgstr "Provedor de arte de álbum do Last.FM"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
 msgid "A plugin for getting album arts using Last.FM as backend"
 msgstr "Um plug-in para obter artes de álbuns usando Last.FM como backend"
 
@@ -233,6 +235,34 @@ msgstr "Não foi possível resolver qualquer das chaves fornecidas"
 #: ../src/local-metadata/grl-local-metadata.c:999
 msgid "A GIO supported URL for images is required"
 msgstr "É necessária uma URL com suporte no GIO para imagens"
+
+#: ../src/magnatune/grl-magnatune.c:122
+msgid "Genres"
+msgstr "Gêneros"
+
+#: ../src/magnatune/grl-magnatune.c:130
+msgid "A source for browsing music"
+msgstr "Uma fonte para navegar entre músicas"
+
+#: ../src/magnatune/grl-magnatune.c:406
+#, c-format
+msgid "Failed to get database from magnatune: %s"
+msgstr "Ocorreu falha ao obter base de dados de magnatune: %s"
+
+#: ../src/magnatune/grl-magnatune.c:436
+#, c-format
+msgid "Failed to save database from magnatune - '%s'"
+msgstr "Ocorreu falha antes de salvar base de dados do magnatune - '%s'"
+
+#: ../src/magnatune/grl-magnatune.c:684
+#, c-format
+msgid "Failed to get table from magnatune db: %s"
+msgstr "Ocorreu falha ao obter tabela da base de dados magnatune: %s"
+
+#: ../src/magnatune/grl-magnatune.c:700
+#, c-format
+msgid "Fail before returning media to user: %s"
+msgstr "Ocorreu falha antes de retornar mídia ao usuário: %s"
 
 #: ../src/metadata-store/grl-metadata-store.c:47
 msgid "Metadata Store"
@@ -263,7 +293,7 @@ msgstr "Falha ao atualizar metadados"
 msgid "\"source-id\" not available"
 msgstr "\"source-id\" não disponível"
 
-#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1424
+#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1431
 msgid "Failed to resolve"
 msgstr "Falha ao resolver"
 
@@ -286,42 +316,42 @@ msgstr "Uma fonte para acessar mídias óticas"
 msgid "A source for browsing podcasts"
 msgstr "Uma fonte para acessar podcasts"
 
-#: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
+#: ../src/podcasts/grl-podcasts.c:753 ../src/podcasts/grl-podcasts.c:773
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "Falhou ao obter os fluxos do podcast: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
-#: ../src/podcasts/grl-podcasts.c:1254
+#: ../src/podcasts/grl-podcasts.c:1239 ../src/podcasts/grl-podcasts.c:1248
+#: ../src/podcasts/grl-podcasts.c:1258
 msgid "Failed to parse content"
 msgstr "Falha ao analisar o conteúdo"
 
-#: ../src/podcasts/grl-podcasts.c:1287
+#: ../src/podcasts/grl-podcasts.c:1291
 msgid "Failed to parse podcast contents"
 msgstr "Falha ao analisar o conteúdo do podcast"
 
-#: ../src/podcasts/grl-podcasts.c:1445
+#: ../src/podcasts/grl-podcasts.c:1449
 msgid "Failed to get podcast information"
 msgstr "Falha ao obter informações do podcast"
 
-#: ../src/podcasts/grl-podcasts.c:1485 ../src/podcasts/grl-podcasts.c:1505
+#: ../src/podcasts/grl-podcasts.c:1489 ../src/podcasts/grl-podcasts.c:1509
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Falha ao obter a lista de podcasts: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1559 ../src/podcasts/grl-podcasts.c:1574
+#: ../src/podcasts/grl-podcasts.c:1563 ../src/podcasts/grl-podcasts.c:1578
 msgid "Failed to get podcast stream metadata"
 msgstr "Falha ao obter metadados de fluxo de podcast"
 
-#: ../src/podcasts/grl-podcasts.c:1612
+#: ../src/podcasts/grl-podcasts.c:1616
 msgid "Failed to get podcast metadata"
 msgstr "Falhou ao obter metadados de podcast"
 
-#: ../src/podcasts/grl-podcasts.c:1796
+#: ../src/podcasts/grl-podcasts.c:1800
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Não foi possível criar recipientes. Apenas feeds são aceitos"
 
-#: ../src/podcasts/grl-podcasts.c:1801
+#: ../src/podcasts/grl-podcasts.c:1805
 msgid "URL required"
 msgstr "URL obrigatória"
 
@@ -444,7 +474,7 @@ msgstr "Não foi possível localizar a mídia %s"
 msgid "non-NULL search text is required"
 msgstr "Um texto de pesquisa não-NULL é obrigatório"
 
-#: ../src/tmdb/grl-tmdb.c:948
+#: ../src/tmdb/grl-tmdb.c:962
 msgid "Remote data does not contain valid identifier"
 msgstr "Dados remotos não contêm um identificador válido"
 
@@ -479,15 +509,15 @@ msgstr "Arquivos locais"
 msgid "A source for browsing the UPnP server '%s'"
 msgstr "Uma fonte para acessar servidor UPnP \"%s\""
 
-#: ../src/upnp/grl-upnp.c:1254 ../src/upnp/grl-upnp.c:1311
+#: ../src/upnp/grl-upnp.c:1261 ../src/upnp/grl-upnp.c:1318
 msgid "Failed to browse"
 msgstr "Falha ao acessar"
 
-#: ../src/upnp/grl-upnp.c:1374
+#: ../src/upnp/grl-upnp.c:1381
 msgid "Failed to query"
 msgstr "Falha ao consultar"
 
-#: ../src/upnp/grl-upnp.c:1493
+#: ../src/upnp/grl-upnp.c:1500
 #, c-format
 msgid "Unable to listen for changes in %s"
 msgstr "Não foi possível ouvir alterações em %s"

@@ -357,7 +357,10 @@ build_media_from_movie (xmlNodePtr node, gboolean xlarge)
 
   grl_media_set_id (media, movie_id);
   grl_media_set_author (media, movie_author);
-  date = grl_date_time_from_iso8601 (movie_date);
+  if (movie_date)
+    date = grl_date_time_from_iso8601 (movie_date);
+  else
+    date = NULL;
   if (date) {
     grl_media_set_publication_date (media, date);
     g_date_time_unref (date);

@@ -9,11 +9,16 @@ include $(top_srcdir)/gtester.mk
 
 SUBDIRS =
 
+if APPLE_TRAILERS_PLUGIN
+SUBDIRS += apple-trailers
+endif
+
 if TMDB_PLUGIN
 SUBDIRS += tmdb
 endif
 
 DIST_SUBDIRS =    \
+   apple-trailers \
    tmdb
 
 MAINTAINERCLEANFILES =  \

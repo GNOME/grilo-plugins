@@ -464,14 +464,14 @@ AC_ARG_ENABLE(youtube,
                         if test "x$HAVE_GDATA" = "xno"; then
                            AC_MSG_ERROR([libgdata not found, install it or use --disable-youtube])
                         fi
-                        if test "x$HAVE_QUVI" = "xno"; then
-                           AC_MSG_ERROR([libquvi not found, install it or use --disable-youtube])
+                        if test "x$HAVE_TOTEM_PL_PARSER" = "xno"; then
+                           AC_MSG_ERROR([totem-pl-parser not found, install it or use --disable-youtube])
                         fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_GDATA" = "xyes" -a "x$HAVE_QUVI" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_GDATA" = "xyes" -a "x$HAVE_TOTEM_PL_PARSER" = "xyes"; then
                    enable_youtube=yes
                 else
                    enable_youtube=no
@@ -489,9 +489,9 @@ YOUTUBE_PLUGIN_ID="grl-youtube"
 AC_SUBST(YOUTUBE_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([YOUTUBE_PLUGIN_ID], ["$YOUTUBE_PLUGIN_ID"], [YouTube plugin ID])
 
-DEPS_YOUTUBE_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS $GTHREAD_CFLAGS $GDATA_CFLAGS $QUVI_CFLAGS"
+DEPS_YOUTUBE_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS $GTHREAD_CFLAGS $GDATA_CFLAGS $TOTEM_PL_PARSER_CFLAGS"
 AC_SUBST(DEPS_YOUTUBE_CFLAGS)
-DEPS_YOUTUBE_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS $GTHREAD_LIBS $GDATA_LIBS $QUVI_LIBS"
+DEPS_YOUTUBE_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS $GTHREAD_LIBS $GDATA_LIBS $TOTEM_PL_PARSER_LIBS"
 AC_SUBST(DEPS_YOUTUBE_LIBS)
 
 # ----------------------------------------------------------

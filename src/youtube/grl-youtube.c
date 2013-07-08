@@ -29,7 +29,7 @@
 #include <glib/gi18n-lib.h>
 #include <net/grl-net.h>
 #include <gdata/gdata.h>
-#include <quvi/quvi.h>
+#include <totem-pl-parser.h>
 #include <string.h>
 
 #include "grl-youtube.h"
@@ -175,7 +175,6 @@ typedef enum {
 
 struct _GrlYoutubeSourcePriv {
   GDataService *service;
-  quvi_t quvi_handle;
 
   GrlNetWc *wc;
 };
@@ -344,17 +343,6 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id, const gcha
                                              "supported-media", GRL_MEDIA_TYPE_VIDEO,
 					     NULL));
 
-  /* Set up quvi */
-  if (quvi_init (&(source->priv->quvi_handle)) != QUVI_OK) {
-    source->priv->quvi_handle = NULL;
-  } else {
-    if (format)
-      quvi_setopt (source->priv->quvi_handle, QUVIOPT_FORMAT, format);
-    else
-      quvi_setopt (source->priv->quvi_handle, QUVIOPT_FORMAT, "mp4_360p");
-    quvi_setopt (source->priv->quvi_handle, QUVIOPT_NOVERIFY);
-  }
-
   ytsrc = source;
 
   return source;
@@ -430,13 +418,19 @@ grl_youtube_source_finalize (GObject *object)
   if (self->priv->service)
     g_object_unref (self->priv->service);
 
-  if (self->priv->quvi_handle)
-    quvi_close (&(self->priv->quvi_handle));
-
   G_OBJECT_CLASS (grl_youtube_source_parent_class)->finalize (object);
 }
 
 /* ======================= Utilities ==================== */
+
+static void
+entry_parsed_cb (TotemPlParser *parser,
+                 const char    *uri,
+                 GHashTable    *metadata,
+                 GrlMedia      *media)
+{
+  grl_media_set_url (media, uri);
+}
 
 static void
 release_operation_data (guint operation_id)
@@ -551,9 +545,6 @@ build_media_from_entry (GrlYoutubeSource *source,
   GDataMediaThumbnail *thumbnail;
   GrlMedia *media;
   GList *iter;
-  quvi_media_t v;
-  QUVIcode rc;
-  gchar *url;
 
   if (!content) {
     media = grl_media_video_new ();
@@ -609,21 +600,19 @@ build_media_from_entry (GrlYoutubeSource *source,
       gdouble average;
       gdata_youtube_video_get_rating (video, NULL, NULL, NULL, &average);
       grl_media_set_rating (media, average, 5.00);
-    } else if (key == GRL_METADATA_KEY_URL && source->priv->quvi_handle) {
-      rc = quvi_parse (source->priv->quvi_handle,
-                       (char *) gdata_youtube_video_get_player_uri (video),
-                       &v);
-      if (rc == QUVI_OK) {
-        rc = quvi_getprop (v, QUVIPROP_MEDIAURL, &url);
-        if (rc == QUVI_OK) {
-          grl_media_set_url (media, url);
-        }
-        quvi_parse_close (&v);
-      }
-      else {
-	GRL_WARNING ("Failed to get video URL. libquvi error '%s'",
-		     quvi_strerror (source->priv->quvi_handle, rc));
-      }
+    } else if (key == GRL_METADATA_KEY_URL) {
+      TotemPlParser *parser;
+      TotemPlParserResult res;
+
+      parser = totem_pl_parser_new ();
+      g_signal_connect (parser, "entry-parsed",
+                        G_CALLBACK (entry_parsed_cb), media);
+      res = totem_pl_parser_parse (parser,
+                                   (char *) gdata_youtube_video_get_player_uri (video),
+                                   FALSE);
+      if (res != TOTEM_PL_PARSER_RESULT_SUCCESS)
+	GRL_WARNING ("Failed to get video URL. totem-pl-parser error '%d'", res);
+      g_clear_object (&parser);
     } else if (key == GRL_METADATA_KEY_EXTERNAL_PLAYER) {
       GDataYouTubeContent *youtube_content;
       youtube_content =

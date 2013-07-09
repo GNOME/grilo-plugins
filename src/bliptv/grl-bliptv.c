@@ -443,7 +443,7 @@ grl_bliptv_source_browse (GrlSource *source,
 
   grl_operation_set_data (bs->operation_id, op);
 
-  url = g_strdup_printf (BLIPTV_BROWSE, page_number + 1);
+  url = g_strdup_printf (BLIPTV_BROWSE, page_number);
 
   GRL_DEBUG ("Starting browse request for id=%u", bs->operation_id);
 
@@ -483,7 +483,7 @@ grl_bliptv_source_search (GrlSource *source,
 
   grl_operation_set_data (ss->operation_id, op);
 
-  url = g_strdup_printf (BLIPTV_SEARCH, page_number + 1, ss->text);
+  url = g_strdup_printf (BLIPTV_SEARCH, page_number, ss->text);
 
   GRL_DEBUG ("Starting search request for id=%u : '%s'",
              ss->operation_id, ss->text);

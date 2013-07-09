@@ -1,0 +1,1037 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+	xmlns:creativeCommons="http://backend.userland.com/creativeCommonsRssModule"
+	xmlns:media="http://search.yahoo.com/mrss/"
+	xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+	xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+	xmlns:blip="http://blip.tv/dtd/blip/1.0"
+	xmlns:yv="http://video.yahooapis.com/v2/video/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+    xmlns:amp="http://www.adobe.com/amp/1.0"
+	xmlns:dcterms="http://purl.org/dc/terms"
+	xmlns:gm="http://www.google.com/schemas/gm/1.1"
+	xmlns:mediaad="http://blip.tv/dtd/mediaad/1.0"
+>
+<channel>
+<title></title>
+<link>http://blip.tv</link>
+
+
+
+
+
+
+
+<description>Blip</description>
+
+<language>en-us</language>
+<generator>http://blip.tv</generator>
+<lastBuildDate>Tue, 09 Jul 2013 11:40:23 +0000</lastBuildDate>
+<pubDate>Tue, 09 Jul 2013 11:40:23 +0000</pubDate>
+
+
+
+<item>
+  <guid isPermaLink="false">57A4DEE4-E88C-11E2-8E37-970C8C82E22D</guid>
+  <link>http://blip.tv/seamastersailing/sea-master-sailing-june-2013-6613849</link>
+  <title>Sea Master Sailing June 2013</title>
+  <blip:user>SunsetVineAPP</blip:user>
+  <blip:userid>954948</blip:userid>
+  <blip:safeusername>sea-master-sailing</blip:safeusername>
+  <blip:showpath>seamastersailing</blip:showpath>
+  <blip:show>Sea Master Sailing</blip:show>
+  <blip:showpage>http://blip.tv/seamastersailing</blip:showpage>
+  <blip:picture>http://blip.tv/skin/blipnew/placeholder_user.gif</blip:picture>
+  <blip:posts_id>6613849</blip:posts_id>
+  <blip:item_id>6597160</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-UN</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T11:40:23Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>Sports</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:core>0</blip:core>
+  <blip:core_value>5</blip:core_value>
+  <blip:channel_name>Sports &amp; Cars</blip:channel_name>
+  <blip:channel_list>Sports &amp; Cars</blip:channel_list>
+  <blip:adminRating>1</blip:adminRating>
+  <blip:runtime>1347</blip:runtime>
+  <blip:embedLookup>AYOT1z0C</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/AYOT1z0C</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613849&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>SunsetVineAPP-SeaMasterSailingJune2013374.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[&#8234;https://www.sunsetvine.com&#8236; - This months Sea Master Sailing we see the Mod 70&apos;s, Multi 50&apos;s and Maxi 80 begin their quest for the Route de Prince title. We are in Hyeres for the ISAF World Cup, plus the World Match Race Tour Korea and the Omani Sailor of the Year Awards]]></blip:puredescription>
+  <blip:license>No license (All rights reserved)</blip:license>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/AYOT1z0C.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#AYOT1z0C" style="display:none"></embed>
+<br />
+
+&#8234;https://www.sunsetvine.com&#8236; - This months Sea Master Sailing we see the Mod 70&apos;s, Multi 50&apos;s and Maxi 80 begin their quest for the Route de Prince title. We are in Hyeres for the ISAF World Cup, plus the World Match Race Tour Korea and the Omani Sailor of the Year Awards
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613849</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597160</comments>
+  <category>Sports</category>
+  <category>sailing</category>
+  <category>route de prince</category>
+  <category>isaf</category>
+  <category>wmrt</category>
+  <pubDate>Tue, 09 Jul 2013 11:40:23 +0000</pubDate>
+  <enclosure length="1203440317" type="video/vnd.objectvideo" url="http://blip.tv/file/get/SunsetVineAPP-SeaMasterSailingJune2013236.mp4"/>
+  <itunes:keywords>sailing, route de prince, isaf, wmrt</itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/SunsetVineAPP-SeaMasterSailingJune2013374.jpg</itunes:image>
+  <media:keywords>sailing, route de prince, isaf, wmrt</media:keywords>
+  <media:group>
+    <media:content blip:acodec="faad" blip:role="Source" blip:vcodec="ffh264" expression="full" fileSize="1203440317" height="1080" isDefault="true" type="video/mp4" url="http://blip.tv/file/get/SunsetVineAPP-SeaMasterSailingJune2013236.mp4" width="1920">
+      <mediaad:content position="preroll" provider="freewheel"/>
+      <mediaad:content position="overlay" provider="freewheel"/>
+      <mediaad:content position="postroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="155611472" height="270" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/SunsetVineAPP-SeaMasterSailingJune2013405.mp4" width="480"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="202350016" height="360" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/SunsetVineAPP-SeaMasterSailingJune2013456.m4v" width="640"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597160"><![CDATA[<iframe src="http://blip.tv/play/AYOT1z0C.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#AYOT1z0C" style="display:none"></embed>]]></media:player>
+  <media:title>Sea Master Sailing June 2013</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/SunsetVineAPP-SeaMasterSailingJune2013374.jpg"/>
+</item>
+
+
+
+
+<item>
+  <guid isPermaLink="false">4AD04118-E88C-11E2-94C8-FF56AE45C9D5</guid>
+  <link>http://blip.tv/renaissance-woodworker/rww-164-shave-pony-6613848</link>
+  <title>RWW 164 Shave Pony</title>
+  <blip:user>RenaissanceWW</blip:user>
+  <blip:userid>232273</blip:userid>
+  <blip:safeusername>renaissanceww</blip:safeusername>
+  <blip:showpath>renaissance-woodworker</blip:showpath>
+  <blip:show>The Renaissance Woodworker</blip:show>
+  <blip:showpage>http://blip.tv/renaissance-woodworker</blip:showpage>
+  <blip:picture>http://a.images.blip.tv/RenaissanceWW-picture823.jpg</blip:picture>
+  <blip:posts_id>6613848</blip:posts_id>
+  <blip:item_id>6597159</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-G</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T11:40:02Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>HowTo/DIY/Tutorial</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:core>0</blip:core>
+  <blip:core_value>7</blip:core_value>
+  <blip:channel_name>How To</blip:channel_name>
+  <blip:channel_list>How To</blip:channel_list>
+  <blip:adminRating>1</blip:adminRating>
+  <blip:runtime>1296</blip:runtime>
+  <blip:embedLookup>hagkg5PXPAI</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/hagkg5PXPAI</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613848&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>RenaissanceWW-RWW164ShavePony286-905.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[I have wanted to build a shave horse for some time but I just can&apos;t justify the space it would occupy in my small shop. So a compromise is in order that I call the shave pony. This is basically a bench top shaving horse.]]></blip:puredescription>
+  <blip:license>No license (All rights reserved)</blip:license>
+  <blip:categories>
+    <blip:category>diy</blip:category>
+  </blip:categories>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/hagkg5PXPAI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#hagkg5PXPAI" style="display:none"></embed>
+<br />
+
+I have wanted to build a shave horse for some time but I just can&apos;t justify the space it would occupy in my small shop. So a compromise is in order that I call the shave pony. This is basically a bench top shaving horse.
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613848</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597159</comments>
+  <category>Videoblogging</category>
+  <blip:youtube_category>Howto &amp; Style</blip:youtube_category>
+  <blip:distributions_info>
+    <blip:token>youtube</blip:token>
+    <blip:title></blip:title>
+    <blip:description><![CDATA[I have wanted to build a shave horse for some time but I just can&apos;t justify the space it would occupy in my small shop.  So a compromise is in order that I call the shave pony.  This is basically a bench top shaving horse.]]></blip:description>
+    <blip:thumbnail></blip:thumbnail>
+  </blip:distributions_info>
+  <category>woodworking</category>
+  <category>shave horse</category>
+  <category>shave pony</category>
+  <category>hand tools</category>
+  <pubDate>Tue, 09 Jul 2013 11:40:02 +0000</pubDate>
+  <enclosure length="358526261" type="video/vnd.objectvideo" url="http://blip.tv/file/get/RenaissanceWW-RWW164ShavePony286.mp4"/>
+  <itunes:keywords>woodworking, shave horse, shave pony, hand tools</itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/RenaissanceWW-RWW164ShavePony286-905.jpg</itunes:image>
+  <media:keywords>woodworking, shave horse, shave pony, hand tools</media:keywords>
+  <media:group>
+    <media:content blip:acodec="faad" blip:role="Source" blip:vcodec="ffh264" expression="full" fileSize="358526261" height="720" isDefault="true" type="video/mp4" url="http://blip.tv/file/get/RenaissanceWW-RWW164ShavePony286.mp4" width="1280">
+      <mediaad:content position="preroll" provider="freewheel"/>
+      <mediaad:content position="postroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="77068071" height="270" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/RenaissanceWW-RWW164ShavePony177.mp4" width="480"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="101033402" height="360" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/RenaissanceWW-RWW164ShavePony503.m4v" width="640"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597159"><![CDATA[<iframe src="http://blip.tv/play/hagkg5PXPAI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#hagkg5PXPAI" style="display:none"></embed>]]></media:player>
+  <media:title>RWW 164 Shave Pony</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/RenaissanceWW-RWW164ShavePony286-905.jpg"/>
+</item>
+
+
+
+
+<item>
+  <guid isPermaLink="false">EE1BC2D0-E88B-11E2-ABBD-EEE928E48476</guid>
+  <link>http://blip.tv/rebeltaxi/rebeltaxi-loves-minority-report-game-review-everybody-runs-6613846</link>
+  <title>RebelTaxi Loves MINORITY REPORT Game Review EVERYBODY RUNS!</title>
+  <blip:user>RebelTaxi</blip:user>
+  <blip:userid>258815</blip:userid>
+  <blip:safeusername>rebeltaxi</blip:safeusername>
+  <blip:showpath>rebeltaxi</blip:showpath>
+  <blip:show>RebelTaxi</blip:show>
+  <blip:showpage>http://blip.tv/rebeltaxi</blip:showpage>
+  <blip:picture>http://a.images.blip.tv/RebelTaxi-picture707.png</blip:picture>
+  <blip:posts_id>6613846</blip:posts_id>
+  <blip:item_id>6597157</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-UN</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T11:37:26Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>Videogames</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:core>0</blip:core>
+  <blip:core_value>4</blip:core_value>
+  <blip:channel_name>Videogames</blip:channel_name>
+  <blip:channel_list>Videogames</blip:channel_list>
+  <blip:adminRating>2</blip:adminRating>
+  <blip:runtime>310</blip:runtime>
+  <blip:embedLookup>AYOT1zoC</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/AYOT1zoC</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613846&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>RebelTaxi-RebelTaxiLovesMINORITYREPORTGameReviewEVERYBODYRUNS598.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[TUMBLR: http://rebeltaxi.tumblr.com/ FACEBOOKhttp://www.facebook.com/panpizza LET&apos;S PLAY Channel: http://www.youtube.com/user/RTMegaDrive SHOP: http://www.redbubble.com/people/rebeltaxi/shop/recent+t-shirts?ref=shop_product_refinement Tara Strong Story http://rebeltaxi.tumblr.com/post/28691956175/spaghetti-time-how-i-meet-tara-strong-san-diego UP Next: Comic Con Coverage Then: RebelTaxi Loves Gurren Lagann Review]]></blip:puredescription>
+  <blip:license>Creative Commons Attribution-NonCommercial-ShareAlike 3.0</blip:license>
+  <blip:categories>
+    <blip:category>video gaming</blip:category>
+  </blip:categories>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/AYOT1zoC.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#AYOT1zoC" style="display:none"></embed>
+<br />
+
+TUMBLR: http://rebeltaxi.tumblr.com/ FACEBOOKhttp://www.facebook.com/panpizza LET&apos;S PLAY Channel: http://www.youtube.com/user/RTMegaDrive SHOP: http://www.redbubble.com/people/rebeltaxi/shop/recent+t-shirts?ref=shop_product_refinement Tara Strong Story http://rebeltaxi.tumblr.com/post/28691956175/spaghetti-time-how-i-meet-tara-strong-san-diego UP Next: Comic Con Coverage Then: RebelTaxi Loves Gurren Lagann Review
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613846</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597157</comments>
+  <category>Gaming</category>
+  <category>minority report</category>
+  <category>game</category>
+  <category>everybody runs</category>
+  <category>video game review</category>
+  <category>spoony expiriment</category>
+  <category>worst game ever</category>
+  <category>funniest game ever</category>
+  <category>ragdoll physics</category>
+  <pubDate>Tue, 09 Jul 2013 11:37:26 +0000</pubDate>
+  <enclosure length="242840132" type="video/quicktime" url="http://blip.tv/file/get/RebelTaxi-RebelTaxiLovesMINORITYREPORTGameReviewEVERYBODYRUNS630.mov"/>
+  <itunes:keywords>minority report, game, everybody runs, video game review, spoony expiriment, worst game ever, funniest game ever, ragdoll physics</itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/RebelTaxi-RebelTaxiLovesMINORITYREPORTGameReviewEVERYBODYRUNS598.jpg</itunes:image>
+  <media:keywords>minority report, game, everybody runs, video game review, spoony expiriment, worst game ever, funniest game ever, ragdoll physics</media:keywords>
+  <media:group>
+    <media:content blip:acodec="ffaac" blip:role="Source" blip:vcodec="ffh264" expression="full" fileSize="242840132" height="720" isDefault="true" type="video/quicktime" url="http://blip.tv/file/get/RebelTaxi-RebelTaxiLovesMINORITYREPORTGameReviewEVERYBODYRUNS630.mov" width="1280">
+      <mediaad:content position="preroll" provider="freewheel"/>
+      <mediaad:content position="overlay" provider="freewheel"/>
+      <mediaad:content position="postroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="24751559" height="270" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/RebelTaxi-RebelTaxiLovesMINORITYREPORTGameReviewEVERYBODYRUNS143.mp4" width="480"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="31799929" height="360" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/RebelTaxi-RebelTaxiLovesMINORITYREPORTGameReviewEVERYBODYRUNS467.m4v" width="640"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597157"><![CDATA[<iframe src="http://blip.tv/play/AYOT1zoC.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#AYOT1zoC" style="display:none"></embed>]]></media:player>
+  <media:title>RebelTaxi Loves MINORITY REPORT Game Review EVERYBODY RUNS!</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/RebelTaxi-RebelTaxiLovesMINORITYREPORTGameReviewEVERYBODYRUNS598.jpg"/>
+  <creativeCommons:license>http://creativecommons.org/licenses/by-nc-sa/3.0/</creativeCommons:license>
+</item>
+
+
+
+
+<item>
+  <guid isPermaLink="false">CBD9CCF8-E88B-11E2-87A2-8D676DEBEAB1</guid>
+  <link>http://blip.tv/splashnewstv/someone-writes-i-love-rob-on-kristen-stewart-s-car-6613845</link>
+  <title>Someone Writes 'I Love Rob' On Kristen Stewart's Car</title>
+  <blip:user>SplashNewsTV</blip:user>
+  <blip:userid>794989</blip:userid>
+  <blip:safeusername>splashnewstv</blip:safeusername>
+  <blip:showpath>splashnewstv</blip:showpath>
+  <blip:show>SplashNewsTV</blip:show>
+  <blip:showpage>http://blip.tv/splashnewstv</blip:showpage>
+  <blip:picture>http://a.images.blip.tv/SplashNewsTV-picture826.jpg</blip:picture>
+  <blip:posts_id>6613845</blip:posts_id>
+  <blip:item_id>6597156</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-UN</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T10:53:38Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>Entertainment (about),Celebrity (about)</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:is_premium>1</blip:is_premium>
+  <blip:core>0</blip:core>
+  <blip:core_value>8</blip:core_value>
+  <blip:channel_name>Entertainment</blip:channel_name>
+  <blip:channel_list>Entertainment</blip:channel_list>
+  <blip:adminRating>2</blip:adminRating>
+  <blip:runtime>69</blip:runtime>
+  <blip:embedLookup>h+sBg5PXOQI</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/h+sBg5PXOQI</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613845&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>SplashNewsTV-SomeoneWritesILoveRobOnKristenStewartsCar855-11.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[Kristen Stewart has been the victim of a bit of an awkward prank as someone took it upon themselves to declare her love for ex Robert Pattinson in the dust on the bonnet of her car in California.]]></blip:puredescription>
+  <blip:license>No license (All rights reserved)</blip:license>
+  <blip:categories>
+    <blip:category>fashion&amp;beauty</blip:category>
+    <blip:category>news&amp;information</blip:category>
+  </blip:categories>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/h%2BsBg5PXOQI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#h+sBg5PXOQI" style="display:none"></embed>
+<br />
+
+Kristen Stewart has been the victim of a bit of an awkward prank as someone took it upon themselves to declare her love for ex Robert Pattinson in the dust on the bonnet of her car in California.
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613845</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597156</comments>
+  <category>Default Category</category>
+  <pubDate>Tue, 09 Jul 2013 10:53:38 +0000</pubDate>
+  <enclosure length="76291461" type="video/vnd.objectvideo" url="http://blip.tv/file/get/SplashNewsTV-SomeoneWritesILoveRobOnKristenStewartsCar855.mp4"/>
+  <itunes:keywords></itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/SplashNewsTV-SomeoneWritesILoveRobOnKristenStewartsCar855-11.jpg</itunes:image>
+  <media:keywords></media:keywords>
+  <media:group>
+    <media:content blip:acodec="ffaac" blip:role="Source" blip:vcodec="ffh264" expression="full" fileSize="76291461" height="1080" isDefault="true" type="video/mp4" url="http://blip.tv/file/get/SplashNewsTV-SomeoneWritesILoveRobOnKristenStewartsCar855.mp4" width="1920">
+      <mediaad:content position="preroll" provider="freewheel"/>
+      <mediaad:content position="overlay" provider="freewheel"/>
+      <mediaad:content position="postroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="8342286" height="270" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/SplashNewsTV-SomeoneWritesILoveRobOnKristenStewartsCar964.mp4" width="480"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="10251350" height="360" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/SplashNewsTV-SomeoneWritesILoveRobOnKristenStewartsCar382.m4v" width="640"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip HD 720" blip:vcodec="ffh264" expression="full" fileSize="28024706" height="720" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/SplashNewsTV-SomeoneWritesILoveRobOnKristenStewartsCar457.m4v" width="1280"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597156"><![CDATA[<iframe src="http://blip.tv/play/h%2BsBg5PXOQI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#h+sBg5PXOQI" style="display:none"></embed>]]></media:player>
+  <media:title>Someone Writes 'I Love Rob' On Kristen Stewart's Car</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/SplashNewsTV-SomeoneWritesILoveRobOnKristenStewartsCar855-11.jpg"/>
+  <media:restriction relationship="disallow" type="uri">urn:blinkx</media:restriction>
+</item>
+
+
+
+
+<item>
+  <guid isPermaLink="false">E8D0CE74-E886-11E2-94A1-808E1DF46AEB</guid>
+  <link>http://blip.tv/jesuotaku/anime-expo-2013-panel-with-jesuotaku-6613841</link>
+  <title>Anime Expo 2013 Panel with JesuOtaku</title>
+  <blip:user>JesuOtaku</blip:user>
+  <blip:userid>401559</blip:userid>
+  <blip:safeusername>jesuotaku</blip:safeusername>
+  <blip:showpath>jesuotaku</blip:showpath>
+  <blip:show>JesuOtaku</blip:show>
+  <blip:showpage>http://blip.tv/jesuotaku</blip:showpage>
+  <blip:picture>http://a.images.blip.tv/JesuOtaku-picture637.jpg</blip:picture>
+  <blip:posts_id>6613841</blip:posts_id>
+  <blip:item_id>6597152</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-UN</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T11:01:30Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>Channel Awesome,Anime (about)</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:is_premium>1</blip:is_premium>
+  <blip:core>0</blip:core>
+  <blip:core_value>4</blip:core_value>
+  <blip:channel_name>Animation &amp; Comics</blip:channel_name>
+  <blip:channel_list>Animation &amp; Comics</blip:channel_list>
+  <blip:adminRating>2</blip:adminRating>
+  <blip:runtime>2963</blip:runtime>
+  <blip:embedLookup>hZ5Zg5PXNQI</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/hZ5Zg5PXNQI</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613841&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>JesuOtaku-AnimeExpo2013PanelWithJesuOtaku362.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[JesuOtaku, MarzGurl and the Psykoneko offer their tips and tricks on video reviewing in this special focus panel on becoming an internet critic and (not) becoming internet famous.]]></blip:puredescription>
+  <blip:license>No license (All rights reserved)</blip:license>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/hZ5Zg5PXNQI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#hZ5Zg5PXNQI" style="display:none"></embed>
+<br />
+
+JesuOtaku, MarzGurl and the Psykoneko offer their tips and tricks on video reviewing in this special focus panel on becoming an internet critic and (not) becoming internet famous.
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613841</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597152</comments>
+  <category>Educational</category>
+  <pubDate>Tue, 09 Jul 2013 11:01:30 +0000</pubDate>
+  <enclosure length="1522620451" type="video/vnd.objectvideo" url="http://blip.tv/file/get/JesuOtaku-AnimeExpo2013PanelWithJesuOtaku160.mp4"/>
+  <itunes:keywords></itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/JesuOtaku-AnimeExpo2013PanelWithJesuOtaku362.jpg</itunes:image>
+  <media:keywords></media:keywords>
+  <media:group>
+    <media:content blip:acodec="ffaac" blip:role="Source" blip:vcodec="ffh264" expression="full" fileSize="1522620451" height="720" isDefault="true" type="video/mp4" url="http://blip.tv/file/get/JesuOtaku-AnimeExpo2013PanelWithJesuOtaku160.mp4" width="1280">
+      <mediaad:content position="preroll" provider="freewheel"/>
+      <mediaad:content position="midroll" provider="freewheel" start="673,1663"/>
+      <mediaad:content position="overlay" provider="freewheel"/>
+      <mediaad:content position="postroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="170954192" height="270" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/JesuOtaku-AnimeExpo2013PanelWithJesuOtaku599.mp4" width="480"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="236121698" height="360" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/JesuOtaku-AnimeExpo2013PanelWithJesuOtaku147.m4v" width="640"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597152"><![CDATA[<iframe src="http://blip.tv/play/hZ5Zg5PXNQI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#hZ5Zg5PXNQI" style="display:none"></embed>]]></media:player>
+  <media:title>Anime Expo 2013 Panel with JesuOtaku</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/JesuOtaku-AnimeExpo2013PanelWithJesuOtaku362.jpg"/>
+</item>
+
+
+
+
+<item>
+  <guid isPermaLink="false">4255D120-E881-11E2-94CC-21D3EDB5DB80</guid>
+  <link>http://blip.tv/splashnewstv/bikini-clad-kendall-jenner-enjoys-a-paddleboarding-session-6613837</link>
+  <title>Bikini-Clad Kendall Jenner Enjoys a Paddleboarding Session</title>
+  <blip:user>SplashNewsTV</blip:user>
+  <blip:userid>794989</blip:userid>
+  <blip:safeusername>splashnewstv</blip:safeusername>
+  <blip:showpath>splashnewstv</blip:showpath>
+  <blip:show>SplashNewsTV</blip:show>
+  <blip:showpage>http://blip.tv/splashnewstv</blip:showpage>
+  <blip:picture>http://a.images.blip.tv/SplashNewsTV-picture826.jpg</blip:picture>
+  <blip:posts_id>6613837</blip:posts_id>
+  <blip:item_id>6597148</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-UN</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T09:39:24Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>Entertainment (about),Celebrity (about)</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:is_premium>1</blip:is_premium>
+  <blip:core>0</blip:core>
+  <blip:core_value>8</blip:core_value>
+  <blip:channel_name>Entertainment</blip:channel_name>
+  <blip:channel_list>Entertainment</blip:channel_list>
+  <blip:adminRating>2</blip:adminRating>
+  <blip:runtime>62</blip:runtime>
+  <blip:embedLookup>h+sBg5PXMQI</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/h+sBg5PXMQI</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613837&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>SplashNewsTV-BikiniCladKendallJennerEnjoysAPaddleboardingSession433-856.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[Kendall Jenner seemed to be having a great time as she paddleboarded in a bikini that featured a beach scene on it in Hawaii.]]></blip:puredescription>
+  <blip:license>No license (All rights reserved)</blip:license>
+  <blip:categories>
+    <blip:category>fashion&amp;beauty</blip:category>
+    <blip:category>news&amp;information</blip:category>
+  </blip:categories>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/h%2BsBg5PXMQI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#h+sBg5PXMQI" style="display:none"></embed>
+<br />
+
+Kendall Jenner seemed to be having a great time as she paddleboarded in a bikini that featured a beach scene on it in Hawaii.
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613837</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597148</comments>
+  <category>Default Category</category>
+  <pubDate>Tue, 09 Jul 2013 09:39:24 +0000</pubDate>
+  <enclosure length="59605302" type="video/vnd.objectvideo" url="http://blip.tv/file/get/SplashNewsTV-BikiniCladKendallJennerEnjoysAPaddleboardingSession433.mp4"/>
+  <itunes:keywords></itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/SplashNewsTV-BikiniCladKendallJennerEnjoysAPaddleboardingSession433-856.jpg</itunes:image>
+  <media:keywords></media:keywords>
+  <media:group>
+    <media:content blip:acodec="ffaac" blip:role="Source" blip:vcodec="ffh264" expression="full" fileSize="59605302" height="1080" isDefault="true" type="video/mp4" url="http://blip.tv/file/get/SplashNewsTV-BikiniCladKendallJennerEnjoysAPaddleboardingSession433.mp4" width="1920">
+      <mediaad:content position="preroll" provider="freewheel"/>
+      <mediaad:content position="overlay" provider="freewheel"/>
+      <mediaad:content position="postroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="5323152" height="270" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/SplashNewsTV-BikiniCladKendallJennerEnjoysAPaddleboardingSession890.mp4" width="480"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="5325500" height="360" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/SplashNewsTV-BikiniCladKendallJennerEnjoysAPaddleboardingSession425.m4v" width="640"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip HD 720" blip:vcodec="ffh264" expression="full" fileSize="12510332" height="720" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/SplashNewsTV-BikiniCladKendallJennerEnjoysAPaddleboardingSession712.m4v" width="1280"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597148"><![CDATA[<iframe src="http://blip.tv/play/h%2BsBg5PXMQI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#h+sBg5PXMQI" style="display:none"></embed>]]></media:player>
+  <media:title>Bikini-Clad Kendall Jenner Enjoys a Paddleboarding Session</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/SplashNewsTV-BikiniCladKendallJennerEnjoysAPaddleboardingSession433-856.jpg"/>
+  <media:restriction relationship="disallow" type="uri">urn:blinkx</media:restriction>
+</item>
+
+
+
+
+<item>
+  <guid isPermaLink="false">16BAC67C-E879-11E2-8E8E-952077C8107F</guid>
+  <link>http://blip.tv/wrestling-is/wrestling-is-fun-comes-to-easton-july-27th-featuring-the-green-ant-6613824</link>
+  <title>Wrestling Is Fun! comes to Easton July 27th featuring the Green Ant!</title>
+  <blip:user>Wrestling_Is</blip:user>
+  <blip:userid>971906</blip:userid>
+  <blip:safeusername>wrestlingis</blip:safeusername>
+  <blip:showpath>wrestling-is</blip:showpath>
+  <blip:show>Wrestling_Is</blip:show>
+  <blip:showpage>http://blip.tv/wrestling-is</blip:showpage>
+  <blip:picture>http://a.images.blip.tv/Wrestling_Is-picture285.jpg</blip:picture>
+  <blip:posts_id>6613824</blip:posts_id>
+  <blip:item_id>6597135</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-UN</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T09:22:34Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>Comedy,Wrestling</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:core>0</blip:core>
+  <blip:core_value>4</blip:core_value>
+  <blip:channel_name>Comedy</blip:channel_name>
+  <blip:channel_list>Comedy</blip:channel_list>
+  <blip:adminRating>2</blip:adminRating>
+  <blip:runtime>46</blip:runtime>
+  <blip:embedLookup>AYOT1yQC</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/AYOT1yQC</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613824&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>Wrestling_Is-WrestlingIsFunComesToEastonJuly27thFeaturingTheGreenA396-477.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[Green Ant has some fighting words for Amasis as Wrestling Is Fun! head to Easton, PA on July 27th. Does the fighting insect have what it takes to dethrone the funky Pharaoh? Be there July 27th to find out! www.wrestlingisfun.org]]></blip:puredescription>
+  <blip:license>No license (All rights reserved)</blip:license>
+  <blip:categories>
+    <blip:category>comedy</blip:category>
+  </blip:categories>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/AYOT1yQC.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#AYOT1yQC" style="display:none"></embed>
+<br />
+
+Green Ant has some fighting words for Amasis as Wrestling Is Fun! head to Easton, PA on July 27th. Does the fighting insect have what it takes to dethrone the funky Pharaoh? Be there July 27th to find out! www.wrestlingisfun.org
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613824</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597135</comments>
+  <category>Sports</category>
+  <category>wrestling</category>
+  <category>is</category>
+  <category>fun</category>
+  <category>free</category>
+  <category>video</category>
+  <category>green</category>
+  <category>ant</category>
+  <category>amasis</category>
+  <category>banana</category>
+  <category>chikara</category>
+  <pubDate>Tue, 09 Jul 2013 09:22:34 +0000</pubDate>
+  <enclosure length="134864791" type="video/mpeg" url="http://blip.tv/file/get/Wrestling_Is-WrestlingIsFunComesToEastonJuly27thFeaturingTheGreenA396.mpeg"/>
+  <itunes:keywords>wrestling, is, fun, free, video, green, ant, amasis, banana, chikara</itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/Wrestling_Is-WrestlingIsFunComesToEastonJuly27thFeaturingTheGreenA396-477.jpg</itunes:image>
+  <media:keywords>wrestling, is, fun, free, video, green, ant, amasis, banana, chikara</media:keywords>
+  <media:group>
+    <media:content blip:acodec="mp3" blip:role="Source" blip:vcodec="ffmpeg2" expression="full" fileSize="134864791" height="1080" isDefault="true" type="video/mpeg" url="http://blip.tv/file/get/Wrestling_Is-WrestlingIsFunComesToEastonJuly27thFeaturingTheGreenA396.mpeg" width="1920">
+      <mediaad:content position="preroll" provider="freewheel"/>
+      <mediaad:content position="overlay" provider="freewheel"/>
+      <mediaad:content position="postroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="2998354" height="360" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/Wrestling_Is-WrestlingIsFunComesToEastonJuly27thFeaturingTheGreenA870.m4v" width="640"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="2372284" height="270" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/Wrestling_Is-WrestlingIsFunComesToEastonJuly27thFeaturingTheGreenA492.mp4" width="480"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597135"><![CDATA[<iframe src="http://blip.tv/play/AYOT1yQC.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#AYOT1yQC" style="display:none"></embed>]]></media:player>
+  <media:title>Wrestling Is Fun! comes to Easton July 27th featuring the Green Ant!</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/Wrestling_Is-WrestlingIsFunComesToEastonJuly27thFeaturingTheGreenA396-477.jpg"/>
+</item>
+
+
+
+
+<item>
+  <guid isPermaLink="false">93F66968-E877-11E2-B835-E63ABE0204F2</guid>
+  <link>http://blip.tv/the-cake-is-not-a-lie/8yor-bratz-rock-angelz-ps2-01-1-1-cheering-up-cool-cat-6613823</link>
+  <title>8YOR: Bratz Rock Angelz (PS2) 01 1.1 - Cheering Up Cool Cat</title>
+  <blip:user>Bobfish_Almighty</blip:user>
+  <blip:userid>681768</blip:userid>
+  <blip:safeusername>Thecakeisnotalie</blip:safeusername>
+  <blip:showpath>the-cake-is-not-a-lie</blip:showpath>
+  <blip:show>The Cake Is Not A Lie</blip:show>
+  <blip:showpage>http://blip.tv/the-cake-is-not-a-lie</blip:showpage>
+  <blip:picture>http://a.images.blip.tv/Bobfish_Almighty-picture258.jpg</blip:picture>
+  <blip:posts_id>6613823</blip:posts_id>
+  <blip:item_id>6597134</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-G</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T09:11:45Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>Videogames</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:core>0</blip:core>
+  <blip:core_value>4</blip:core_value>
+  <blip:channel_name>Videogames</blip:channel_name>
+  <blip:channel_list>Videogames</blip:channel_list>
+  <blip:adminRating>2</blip:adminRating>
+  <blip:runtime>879</blip:runtime>
+  <blip:embedLookup>hqdDg5PXIwI</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/hqdDg5PXIwI</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613823&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>Bobfish_Almighty-8YORBratzRockAngelzPS20111CheeringUpCoolCat445-487.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[Back by popular demand (as in more than 90% of this channel&apos;s total views) we bring you Bratz Rock Angelz. This time for the PlayStation 2. Join Cloe, Sascha, Yasmin and (my personal favourite) Jade as they set up their own fashion magazine, and stick it to the Tweevils and that dragon Burdine over at Your Thing. Note: Due to some technical hitches the first recording was done by cam, part 10 onwards will be by capture card. For all the latest fails, follow my Facebook fanpage https://www.facebook.com/pages/The-Cake-Is-Not-A-Lie/175538095796283? and Twitter https://twitter.com/L_Coulsen Or, if you&apos;re after something more artistic, follow my other channel for all the latest on my literary pursuits, including so gloriously pretentious, self written, poetry readings http://www.youtube.com/user/TheCakeIsNotaVlog]]></blip:puredescription>
+  <blip:license>Creative Commons Attribution-NonCommercial-ShareAlike 3.0</blip:license>
+  <blip:categories>
+    <blip:category>searchonly</blip:category>
+  </blip:categories>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/hqdDg5PXIwI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#hqdDg5PXIwI" style="display:none"></embed>
+<br />
+
+Back by popular demand (as in more than 90% of this channel&apos;s total views) we bring you Bratz Rock Angelz. This time for the PlayStation 2. Join Cloe, Sascha, Yasmin and (my personal favourite) Jade as they set up their own fashion magazine, and stick it to the Tweevils and that dragon Burdine over at Your Thing. Note: Due to some technical hitches the first recording was done by cam, part 10 onwards will be by capture card. For all the latest fails, follow my Facebook fanpage https://www.facebook.com/pages/The-Cake-Is-Not-A-Lie/175538095796283? and Twitter https://twitter.com/L_Coulsen Or, if you&apos;re after something more artistic, follow my other channel for all the latest on my literary pursuits, including so gloriously pretentious, self written, poetry readings http://www.youtube.com/user/TheCakeIsNotaVlog
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613823</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597134</comments>
+  <category>Gaming</category>
+  <category>bratz</category>
+  <category>rock angelz</category>
+  <category>thq</category>
+  <category>cloe</category>
+  <category>sascha</category>
+  <category>yasmin</category>
+  <category>jade</category>
+  <category>burdine</category>
+  <category>tweevils</category>
+  <category>lets play</category>
+  <category>playstation 2</category>
+  <category>ps2</category>
+  <pubDate>Tue, 09 Jul 2013 09:11:45 +0000</pubDate>
+  <enclosure length="220490147" type="video/vnd.objectvideo" url="http://blip.tv/file/get/Bobfish_Almighty-8YORBratzRockAngelzPS20111CheeringUpCoolCat445.mp4"/>
+  <itunes:keywords>bratz, rock angelz, thq, cloe, sascha, yasmin, jade, burdine, tweevils, lets play, playstation 2, ps2</itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/Bobfish_Almighty-8YORBratzRockAngelzPS20111CheeringUpCoolCat445-487.jpg</itunes:image>
+  <media:keywords>bratz, rock angelz, thq, cloe, sascha, yasmin, jade, burdine, tweevils, lets play, playstation 2, ps2</media:keywords>
+  <media:group>
+    <media:content blip:acodec="ffaac" blip:role="Source" blip:vcodec="ffh264" expression="full" fileSize="220490147" height="720" isDefault="true" type="video/mp4" url="http://blip.tv/file/get/Bobfish_Almighty-8YORBratzRockAngelzPS20111CheeringUpCoolCat445.mp4" width="1280">
+      <mediaad:content position="preroll" provider="freewheel"/>
+      <mediaad:content position="overlay" provider="freewheel"/>
+      <mediaad:content position="postroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="51520603" height="270" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/Bobfish_Almighty-8YORBratzRockAngelzPS20111CheeringUpCoolCat286.mp4" width="480"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="71417094" height="360" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/Bobfish_Almighty-8YORBratzRockAngelzPS20111CheeringUpCoolCat111.m4v" width="640"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597134"><![CDATA[<iframe src="http://blip.tv/play/hqdDg5PXIwI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#hqdDg5PXIwI" style="display:none"></embed>]]></media:player>
+  <media:title>8YOR: Bratz Rock Angelz (PS2) 01 1.1 - Cheering Up Cool Cat</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/Bobfish_Almighty-8YORBratzRockAngelzPS20111CheeringUpCoolCat445-487.jpg"/>
+  <creativeCommons:license>http://creativecommons.org/licenses/by-nc-sa/3.0/</creativeCommons:license>
+</item>
+
+
+
+
+<item>
+  <guid isPermaLink="false">06CFD970-E877-11E2-883C-75636DEBEAB1</guid>
+  <link>http://blip.tv/splashnewstv/lea-michele-rocks-a-bikini-in-mexico-6613820</link>
+  <title>Lea Michele Rocks a Bikini in Mexico</title>
+  <blip:user>SplashNewsTV</blip:user>
+  <blip:userid>794989</blip:userid>
+  <blip:safeusername>splashnewstv</blip:safeusername>
+  <blip:showpath>splashnewstv</blip:showpath>
+  <blip:show>SplashNewsTV</blip:show>
+  <blip:showpage>http://blip.tv/splashnewstv</blip:showpage>
+  <blip:picture>http://a.images.blip.tv/SplashNewsTV-picture826.jpg</blip:picture>
+  <blip:posts_id>6613820</blip:posts_id>
+  <blip:item_id>6597131</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-UN</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T08:06:44Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>Entertainment (about),Celebrity (about)</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:is_premium>1</blip:is_premium>
+  <blip:core>0</blip:core>
+  <blip:core_value>8</blip:core_value>
+  <blip:channel_name>Entertainment</blip:channel_name>
+  <blip:channel_list>Entertainment</blip:channel_list>
+  <blip:adminRating>2</blip:adminRating>
+  <blip:runtime>64</blip:runtime>
+  <blip:embedLookup>h+sBg5PXIAI</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/h+sBg5PXIAI</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613820&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>SplashNewsTV-LeaMicheleRocksABikiniInMexico591-562.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[Glee star Lea Michele looks gorgeous as she relaxes poolside in Mexico wearing a tiny bikini.]]></blip:puredescription>
+  <blip:license>No license (All rights reserved)</blip:license>
+  <blip:categories>
+    <blip:category>fashion&amp;beauty</blip:category>
+    <blip:category>news&amp;information</blip:category>
+  </blip:categories>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/h%2BsBg5PXIAI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#h+sBg5PXIAI" style="display:none"></embed>
+<br />
+
+Glee star Lea Michele looks gorgeous as she relaxes poolside in Mexico wearing a tiny bikini.
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613820</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597131</comments>
+  <category>Default Category</category>
+  <pubDate>Tue, 09 Jul 2013 08:06:44 +0000</pubDate>
+  <enclosure length="70668193" type="video/vnd.objectvideo" url="http://blip.tv/file/get/SplashNewsTV-LeaMicheleRocksABikiniInMexico591.mp4"/>
+  <itunes:keywords></itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/SplashNewsTV-LeaMicheleRocksABikiniInMexico591-562.jpg</itunes:image>
+  <media:keywords></media:keywords>
+  <media:group>
+    <media:content blip:acodec="ffaac" blip:role="Source" blip:vcodec="ffh264" expression="full" fileSize="70668193" height="1080" isDefault="true" type="video/mp4" url="http://blip.tv/file/get/SplashNewsTV-LeaMicheleRocksABikiniInMexico591.mp4" width="1920">
+      <mediaad:content position="preroll" provider="freewheel"/>
+      <mediaad:content position="overlay" provider="freewheel"/>
+      <mediaad:content position="postroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="6943440" height="270" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/SplashNewsTV-LeaMicheleRocksABikiniInMexico565.mp4" width="480"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="7313763" height="360" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/SplashNewsTV-LeaMicheleRocksABikiniInMexico792.m4v" width="640"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip HD 720" blip:vcodec="ffh264" expression="full" fileSize="18579348" height="720" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/SplashNewsTV-LeaMicheleRocksABikiniInMexico894.m4v" width="1280"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597131"><![CDATA[<iframe src="http://blip.tv/play/h%2BsBg5PXIAI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#h+sBg5PXIAI" style="display:none"></embed>]]></media:player>
+  <media:title>Lea Michele Rocks a Bikini in Mexico</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/SplashNewsTV-LeaMicheleRocksABikiniInMexico591-562.jpg"/>
+  <media:restriction relationship="disallow" type="uri">urn:blinkx</media:restriction>
+</item>
+
+
+
+
+<item>
+  <guid isPermaLink="false">D6E30A02-E876-11E2-883C-75636DEBEAB1</guid>
+  <link>http://blip.tv/splashnewstv/mariah-carey-rushed-to-hospital-for-shoulder-injury-6613819</link>
+  <title>Mariah Carey Rushed to Hospital For Shoulder Injury</title>
+  <blip:user>SplashNewsTV</blip:user>
+  <blip:userid>794989</blip:userid>
+  <blip:safeusername>splashnewstv</blip:safeusername>
+  <blip:showpath>splashnewstv</blip:showpath>
+  <blip:show>SplashNewsTV</blip:show>
+  <blip:showpage>http://blip.tv/splashnewstv</blip:showpage>
+  <blip:picture>http://a.images.blip.tv/SplashNewsTV-picture826.jpg</blip:picture>
+  <blip:posts_id>6613819</blip:posts_id>
+  <blip:item_id>6597130</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-UN</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T08:53:08Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>Entertainment (about),Celebrity (about)</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:is_premium>1</blip:is_premium>
+  <blip:core>0</blip:core>
+  <blip:core_value>8</blip:core_value>
+  <blip:channel_name>Entertainment</blip:channel_name>
+  <blip:channel_list>Entertainment</blip:channel_list>
+  <blip:adminRating>2</blip:adminRating>
+  <blip:runtime>64</blip:runtime>
+  <blip:embedLookup>h+sBg5PXHwI</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/h+sBg5PXHwI</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613819&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>SplashNewsTV-MariahCareyRushedToHospitalForShoulderInjury231-585.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[Mariah Carey is doing &apos;fine&apos; after she was rushed to hospital with a dislocated shoulder following a music video accident.]]></blip:puredescription>
+  <blip:license>No license (All rights reserved)</blip:license>
+  <blip:categories>
+    <blip:category>fashion&amp;beauty</blip:category>
+    <blip:category>news&amp;information</blip:category>
+  </blip:categories>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/h%2BsBg5PXHwI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#h+sBg5PXHwI" style="display:none"></embed>
+<br />
+
+Mariah Carey is doing &apos;fine&apos; after she was rushed to hospital with a dislocated shoulder following a music video accident.
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613819</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597130</comments>
+  <category>Default Category</category>
+  <pubDate>Tue, 09 Jul 2013 08:53:08 +0000</pubDate>
+  <enclosure length="80196242" type="video/vnd.objectvideo" url="http://blip.tv/file/get/SplashNewsTV-MariahCareyRushedToHospitalForShoulderInjury231.mp4"/>
+  <itunes:keywords></itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/SplashNewsTV-MariahCareyRushedToHospitalForShoulderInjury231-585.jpg</itunes:image>
+  <media:keywords></media:keywords>
+  <media:group>
+    <media:content blip:acodec="ffaac" blip:role="Source" blip:vcodec="ffh264" expression="full" fileSize="80196242" height="1080" isDefault="true" type="video/mp4" url="http://blip.tv/file/get/SplashNewsTV-MariahCareyRushedToHospitalForShoulderInjury231.mp4" width="1920">
+      <mediaad:content position="preroll" provider="freewheel"/>
+      <mediaad:content position="overlay" provider="freewheel"/>
+      <mediaad:content position="postroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="9589823" height="270" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/SplashNewsTV-MariahCareyRushedToHospitalForShoulderInjury513.mp4" width="480"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="11824236" height="360" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/SplashNewsTV-MariahCareyRushedToHospitalForShoulderInjury840.m4v" width="640"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip HD 720" blip:vcodec="ffh264" expression="full" fileSize="32832628" height="720" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/SplashNewsTV-MariahCareyRushedToHospitalForShoulderInjury722.m4v" width="1280"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597130"><![CDATA[<iframe src="http://blip.tv/play/h%2BsBg5PXHwI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#h+sBg5PXHwI" style="display:none"></embed>]]></media:player>
+  <media:title>Mariah Carey Rushed to Hospital For Shoulder Injury</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/SplashNewsTV-MariahCareyRushedToHospitalForShoulderInjury231-585.jpg"/>
+  <media:restriction relationship="disallow" type="uri">urn:blinkx</media:restriction>
+</item>
+
+
+
+
+<item>
+  <guid isPermaLink="false">63F2CC9E-E876-11E2-97DD-8DB2690377E9</guid>
+  <link>http://blip.tv/newgameplus/new-game-plus-s02e21-6613818</link>
+  <title>New Game Plus - S02E21</title>
+  <blip:user>newgameplus</blip:user>
+  <blip:userid>950808</blip:userid>
+  <blip:safeusername>new-game-plus</blip:safeusername>
+  <blip:showpath>newgameplus</blip:showpath>
+  <blip:show>New Game Plus</blip:show>
+  <blip:showpage>http://blip.tv/newgameplus</blip:showpage>
+  <blip:picture>http://a.images.blip.tv/Newgameplus-picture376.jpg</blip:picture>
+  <blip:posts_id>6613818</blip:posts_id>
+  <blip:item_id>6597129</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-MA</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T09:03:15Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>Videogames</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:core>0</blip:core>
+  <blip:core_value>6</blip:core_value>
+  <blip:channel_name>Videogames</blip:channel_name>
+  <blip:channel_list>Videogames</blip:channel_list>
+  <blip:adminRating>2</blip:adminRating>
+  <blip:runtime>1533</blip:runtime>
+  <blip:embedLookup>h_Ijg5PXHgI</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/h_Ijg5PXHgI</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613818&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>Newgameplus-NewGamePlusS02E21994-295.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[This week&apos;s ep sees Jason go west in Call of Juarez: Gunslinger, Kirsty gets her heart broken by SpaceDogs Plus, and Shaney talks GRID2#yolo#swag. Straight form E3, Tim talks Witcher 3 with the devs, Brad returns for another anime wrap up, and we go a bit srs bsnss with a look at some great utility apps from the iAwards. All this, plus more, on episode 57 of New Game Plus!]]></blip:puredescription>
+  <blip:license>No license (All rights reserved)</blip:license>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/h_Ijg5PXHgI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#h_Ijg5PXHgI" style="display:none"></embed>
+<br />
+
+This week&apos;s ep sees Jason go west in Call of Juarez: Gunslinger, Kirsty gets her heart broken by SpaceDogs Plus, and Shaney talks GRID2#yolo#swag. Straight form E3, Tim talks Witcher 3 with the devs, Brad returns for another anime wrap up, and we go a bit srs bsnss with a look at some great utility apps from the iAwards. All this, plus more, on episode 57 of New Game Plus!
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613818</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597129</comments>
+  <category>Gaming</category>
+  <category>new game plus</category>
+  <category>ng+</category>
+  <category>e3</category>
+  <category>gaming</category>
+  <category>videogames</category>
+  <category>australian</category>
+  <pubDate>Tue, 09 Jul 2013 09:03:15 +0000</pubDate>
+  <enclosure length="869973357" type="video/vnd.objectvideo" url="http://blip.tv/file/get/Newgameplus-NewGamePlusS02E21994.mp4"/>
+  <itunes:keywords>new game plus, ng+, e3, gaming, videogames, australian</itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/Newgameplus-NewGamePlusS02E21994-295.jpg</itunes:image>
+  <media:keywords>new game plus, ng+, e3, gaming, videogames, australian</media:keywords>
+  <media:group>
+    <media:content blip:acodec="ffaac" blip:role="Source" blip:vcodec="ffh264" expression="full" fileSize="869973357" height="720" isDefault="true" type="video/mp4" url="http://blip.tv/file/get/Newgameplus-NewGamePlusS02E21994.mp4" width="1280">
+      <mediaad:content position="preroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="113389417" height="270" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/Newgameplus-NewGamePlusS02E21298.mp4" width="480"></media:content>
+    <media:content blip:acodec="ffaac" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="142379688" height="360" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/Newgameplus-NewGamePlusS02E21649.m4v" width="640"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597129"><![CDATA[<iframe src="http://blip.tv/play/h_Ijg5PXHgI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#h_Ijg5PXHgI" style="display:none"></embed>]]></media:player>
+  <media:title>New Game Plus - S02E21</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/Newgameplus-NewGamePlusS02E21994-295.jpg"/>
+</item>
+
+
+
+
+<item>
+  <guid isPermaLink="false">55A87264-E872-11E2-BE1D-83D7D1A41575</guid>
+  <link>http://blip.tv/timmer/episode-37-the-baroness-part1-6613810</link>
+  <title>Episode 37 : The Baroness (part1)</title>
+  <blip:user>Timmer</blip:user>
+  <blip:userid>983231</blip:userid>
+  <blip:safeusername>half-the-battle</blip:safeusername>
+  <blip:showpath>timmer</blip:showpath>
+  <blip:show>Half The Battle</blip:show>
+  <blip:showpage>http://blip.tv/timmer</blip:showpage>
+  <blip:picture>http://a.images.blip.tv/Timmer-picture337.jpg</blip:picture>
+  <blip:posts_id>6613810</blip:posts_id>
+  <blip:item_id>6597121</blip:item_id>
+  <blip:item_type>file</blip:item_type>
+  <blip:contentRating>TV-G</blip:contentRating>
+  <blip:rating>0.0</blip:rating>
+  <blip:datestamp>2013-07-09T08:34:13Z</blip:datestamp>
+  <blip:language>English</blip:language>
+  <blip:adChannel>Toys/Games</blip:adChannel>
+  <blip:recommendations>0</blip:recommendations>
+  <blip:recommendable>0</blip:recommendable>
+  <blip:core>0</blip:core>
+  <blip:core_value>4</blip:core_value>
+  <blip:channel_name>Animation &amp; Comics</blip:channel_name>
+  <blip:channel_list>Animation &amp; Comics,Videogames</blip:channel_list>
+  <blip:adminRating>2</blip:adminRating>
+  <blip:runtime>739</blip:runtime>
+  <blip:embedLookup>iIM_g5PXFgI</blip:embedLookup>
+  <blip:embedUrl type="application/x-shockwave-flash">http://blip.tv/play/iIM_g5PXFgI</blip:embedUrl>
+  <wfw:commentRss>http://blip.tv/comments/?attached_to=post6613810&amp;skin=rss</wfw:commentRss>
+  <blip:thumbnail_src>Timmer-Episode37TheBaronessPart1729.jpg</blip:thumbnail_src>
+  <blip:puredescription><![CDATA[Time to take a look at a main character ! And what a character !]]></blip:puredescription>
+  <blip:license>No license (All rights reserved)</blip:license>
+  <description><![CDATA[
+
+<iframe src="http://blip.tv/play/iIM_g5PXFgI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#iIM_g5PXFgI" style="display:none"></embed>
+<br />
+
+Time to take a look at a main character ! And what a character !
+
+]]></description>
+  <yv:adInfo>
+    <yv:adTargeting>
+      <yv:adData>
+        <yv:id>YahooPartnerVideoID</yv:id>
+        <yv:name>Blip post id</yv:name>
+        <yv:value>6613810</yv:value>
+      </yv:adData>
+    </yv:adTargeting>
+  </yv:adInfo>
+  <comments>http://blip.tv/file/6597121</comments>
+  <category>Comedy</category>
+  <category>gijoe</category>
+  <category>gi</category>
+  <category>joe</category>
+  <category>cartoon</category>
+  <category>comic</category>
+  <category>toys</category>
+  <category>cobra</category>
+  <pubDate>Tue, 09 Jul 2013 08:34:13 +0000</pubDate>
+  <enclosure length="348055171" type="video/ms-wmv" url="http://blip.tv/file/get/Timmer-Episode37TheBaronessPart1720.wmv"/>
+  <itunes:keywords>gijoe, gi, joe, cartoon, comic, toys, cobra</itunes:keywords>
+  <itunes:image>http://a.images.blip.tv/Timmer-Episode37TheBaronessPart1729.jpg</itunes:image>
+  <media:keywords>gijoe, gi, joe, cartoon, comic, toys, cobra</media:keywords>
+  <media:group>
+    <media:content blip:acodec="ffwmapro" blip:role="Source" blip:vcodec="ffwmv3" expression="full" fileSize="348055171" height="720" isDefault="true" type="video/ms-wmv" url="http://blip.tv/file/get/Timmer-Episode37TheBaronessPart1720.wmv" width="960">
+      <mediaad:content position="preroll" provider="freewheel"/>
+      <mediaad:content position="postroll" provider="freewheel"/>
+    </media:content>
+    <media:content blip:acodec="faad" blip:role="Blip LD" blip:vcodec="ffh264" expression="full" fileSize="38809700" height="360" isDefault="false" type="video/mp4" url="http://blip.tv/file/get/Timmer-Episode37TheBaronessPart1948.mp4" width="480"></media:content>
+    <media:content blip:acodec="faad" blip:role="Blip SD" blip:vcodec="ffh264" expression="full" fileSize="39885644" height="480" isDefault="false" type="video/x-m4v" url="http://blip.tv/file/get/Timmer-Episode37TheBaronessPart1655.m4v" width="640"></media:content>
+  </media:group>
+  <media:player url="http://blip.tv/file/6597121"><![CDATA[<iframe src="http://blip.tv/play/iIM_g5PXFgI.x?p=1" width="720" height="433" frameborder="0" allowfullscreen></iframe><embed type="application/x-shockwave-flash" src="http://a.blip.tv/api.swf#iIM_g5PXFgI" style="display:none"></embed>]]></media:player>
+  <media:title>Episode 37 : The Baroness (part1)</media:title>
+  <media:thumbnail url="http://a.images.blip.tv/Timmer-Episode37TheBaronessPart1729.jpg"/>
+</item>
+
+
+
+
+
+
+	<blip:pagination>
+	
+	<blip:currentPageNumber>1</blip:currentPageNumber>
+	<blip:nextPage>http://blip.tv/posts/?skin=rss;sid=;sort=index;date=;id=6613387%2C5580300%2C4673402%2C603650%2C5539306%2C4030034%2C4404741%2C4463884%2C4471950%2C4472421%2C5051408%2C6351048;deleted=no;pagelen=12;nsfw=dc;page=2</blip:nextPage>
+	</blip:pagination>
+
+
+	<blip:pagination>
+	
+	<blip:currentPageNumber>1</blip:currentPageNumber>
+	<blip:nextPage>http://blip.tv/posts/?skin=rss;search=gnome;s=posts;page=2</blip:nextPage>
+	</blip:pagination>
+
+
+</channel>
+</rss>

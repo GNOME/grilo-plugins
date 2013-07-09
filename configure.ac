@@ -1191,6 +1191,7 @@ AC_CONFIG_FILES([
   src/youtube/Makefile
   tests/Makefile
   tests/apple-trailers/Makefile
+  tests/bliptv/Makefile
   tests/tmdb/Makefile
 ])
 

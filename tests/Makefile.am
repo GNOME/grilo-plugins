@@ -13,12 +13,17 @@ if APPLE_TRAILERS_PLUGIN
 SUBDIRS += apple-trailers
 endif
 
+if BLIPTV_PLUGIN
+SUBDIRS += bliptv
+endif
+
 if TMDB_PLUGIN
 SUBDIRS += tmdb
 endif
 
 DIST_SUBDIRS =    \
    apple-trailers \
+   bliptv         \
    tmdb
 
 MAINTAINERCLEANFILES =  \

@@ -189,6 +189,7 @@ test_search_no_results (void)
   g_object_unref (options);
 }
 
+/*
 static void
 test_autosplit (void)
 {
@@ -251,6 +252,7 @@ test_autosplit (void)
   g_list_free_full (medias, g_object_unref);
   g_object_unref (options);
 }
+*/
 
 int
 main(int argc, char **argv)
@@ -271,7 +273,9 @@ main(int argc, char **argv)
   g_test_add_func ("/bliptv/browse", test_browse);
   g_test_add_func ("/bliptv/search/results", test_search_results);
   g_test_add_func ("/bliptv/search/no-results", test_search_no_results);
-  g_test_add_func ("/bliptv/autosplit", test_autosplit);
+
+  /* NOTE: This test depends on grilo 0.2.7. Wait until it is released */
+  /* g_test_add_func ("/bliptv/autosplit", test_autosplit); */
 
   return g_test_run ();
 }

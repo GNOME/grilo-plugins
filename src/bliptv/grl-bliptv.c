@@ -49,7 +49,7 @@ GRL_LOG_DOMAIN_STATIC(bliptv_log_domain);
 
 #define BLIPTV_BACKEND "http://blip.tv"
 #define BLIPTV_BROWSE  BLIPTV_BACKEND "/posts?skin=rss&page=%u"
-#define BLIPTV_SEARCH  BLIPTV_BROWSE "&search=%s"
+#define BLIPTV_SEARCH  BLIPTV_BACKEND "/posts?search=%s&skin=rss&page=%%u"
 
 /* --- Plugin information --- */
 
@@ -78,6 +78,8 @@ typedef struct
   guint      operation_id;
   guint      count;
   guint      skip;
+  guint      page;
+  gchar     *url;
 
   GrlSourceResultCb callback;
   gpointer          user_data;
@@ -244,6 +246,8 @@ bliptv_operation_free (BliptvOperation *op)
     g_object_unref (op->cancellable);
   if (op->source)
     g_object_unref (op->source);
+  if (op->url)
+    g_free (op->url);
   g_slice_free (BliptvOperation, op);
 }
 
@@ -258,12 +262,13 @@ call_raw_async_cb (GObject *     source_object,
   xmlXPathObjectPtr   obj = NULL;
   gint i, nb_items = 0;
   gchar *content = NULL;
+  gchar *url;
   gsize length;
 
   GRL_DEBUG ("Response id=%u", op->operation_id);
 
   if (g_cancellable_is_cancelled (op->cancellable)) {
-    goto finalize;
+    goto finalize_send_last;
   }
 
   if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
@@ -271,17 +276,17 @@ call_raw_async_cb (GObject *     source_object,
                                   &content,
                                   &length,
                                   NULL)) {
-    goto finalize;
+    goto finalize_send_last;
   }
 
   doc = xmlParseMemory (content, (gint) length);
 
   if (!doc)
-    goto finalize;
+    goto finalize_send_last;
 
   xpath = xmlXPathNewContext (doc);
   if (!xpath)
-    goto finalize;
+    goto finalize_send_last;
 
   xmlXPathRegisterNs (xpath,
                       (xmlChar *) "blip",
@@ -297,8 +302,9 @@ call_raw_async_cb (GObject *     source_object,
       xmlXPathFreeObject (obj);
     }
 
-  if (nb_items < (op->count + op->skip))
-    op->count = nb_items - op->skip;
+  if (nb_items == 0) {
+    goto finalize_send_last;
+  }
 
   for (i = op->skip; i < nb_items; i++)
     {
@@ -379,7 +385,26 @@ call_raw_async_cb (GObject *     source_object,
         break;
     }
 
- finalize:
+  if (op->count > 0) {
+    /* Request next page */
+    op->skip = 0;
+    url = g_strdup_printf (op->url, ++op->page);
+
+    GRL_DEBUG ("Operation %d: requesting page %d",
+               op->operation_id,
+               op->page);
+
+    grl_net_wc_request_async (GRL_BLIPTV_SOURCE (op->source)->priv->wc,
+                              url,
+                              op->cancellable,
+                              call_raw_async_cb,
+                              op);
+    g_free (url);
+
+    goto finalize_free;
+  }
+
+ finalize_send_last:
   /* Signal the last element if it was not already signaled */
   if (nb_items == 0) {
     op->callback (op->source,
@@ -390,12 +415,13 @@ call_raw_async_cb (GObject *     source_object,
                   NULL);
   }
 
+  bliptv_operation_free (op);
+
+ finalize_free:
   if (xpath)
     xmlXPathFreeContext (xpath);
   if (doc)
     xmlFreeDoc (doc);
-
-  bliptv_operation_free (op);
 }
 
 /* ================== API Implementation ================ */
@@ -437,13 +463,15 @@ grl_bliptv_source_browse (GrlSource *source,
   op->cancellable  = g_cancellable_new ();
   op->count        = count;
   op->skip         = page_offset;
+  op->page         = page_number;
+  op->url          = g_strdup (BLIPTV_BROWSE);
   op->operation_id = bs->operation_id;
   op->callback     = bs->callback;
   op->user_data    = bs->user_data;
 
   grl_operation_set_data (bs->operation_id, op);
 
-  url = g_strdup_printf (BLIPTV_BROWSE, page_number);
+  url = g_strdup_printf (op->url, page_number);
 
   GRL_DEBUG ("Starting browse request for id=%u", bs->operation_id);
 
@@ -476,6 +504,8 @@ grl_bliptv_source_search (GrlSource *source,
   op->cancellable  = g_cancellable_new ();
   op->count        = count;
   op->skip         = page_offset;
+  op->page         = page_number;
+  op->url          = g_strdup_printf (BLIPTV_SEARCH, ss->text);
   op->operation_id = ss->operation_id;
   op->callback     = ss->callback;
   op->user_data    = ss->user_data;
@@ -483,7 +513,7 @@ grl_bliptv_source_search (GrlSource *source,
 
   grl_operation_set_data (ss->operation_id, op);
 
-  url = g_strdup_printf (BLIPTV_SEARCH, page_number, ss->text);
+  url = g_strdup_printf (op->url, page_number);
 
   GRL_DEBUG ("Starting search request for id=%u : '%s'",
              ss->operation_id, ss->text);

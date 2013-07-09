@@ -306,6 +306,22 @@ call_raw_async_cb (GObject *     source_object,
     goto finalize_send_last;
   }
 
+  /* Special case: when there are no results in a search, Blip.tv returns an
+     element telling precisely that, no results found; so we need to report no
+     results too */
+  if (nb_items == 1) {
+    obj = xmlXPathEvalExpression ((xmlChar *) "string(/rss/channel/item[0]/blip:item_id)", xpath);
+    if (!obj || !obj->stringval || obj->stringval[0] == '\0') {
+      if (obj) {
+        xmlXPathFreeObject (obj);
+      }
+      nb_items = 0;
+      goto finalize_send_last;
+    } else {
+      xmlXPathFreeObject (obj);
+    }
+  }
+
   for (i = op->skip; i < nb_items; i++)
     {
       GList *mapping = bliptv_mappings;

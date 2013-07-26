@@ -1125,6 +1125,7 @@ gupnp_resolve_cb (GUPnPServiceProxy *service,
 {
   GError *error = NULL;
   gchar *didl = NULL;
+  guint returned = 0;
   GrlSourceResolveSpec *rs;
   GUPnPDIDLLiteParser *didl_parser;
 
@@ -1135,11 +1136,12 @@ gupnp_resolve_cb (GUPnPServiceProxy *service,
 
   gupnp_service_proxy_end_action (service, action, &error,
                                   "Result", G_TYPE_STRING, &didl,
+                                  "NumberReturned", G_TYPE_UINT, &returned,
                                   NULL);
 
-  if (!didl) {
-    GRL_DEBUG ("Resolve operation failed");
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
+  if (!didl || !returned) {
+    GRL_DEBUG ("Got no results for resolve");
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error? error: NULL);
     if (error) {
       g_error_free (error);
     }

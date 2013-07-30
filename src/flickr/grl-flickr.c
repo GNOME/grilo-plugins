@@ -441,13 +441,17 @@ token_info_cb (GFlickr *f,
 static void
 update_media (GrlMedia *media, GHashTable *photo)
 {
+  GrlRelatedKeys *relkeys;
+  gchar *image[2] = { NULL };
   gchar *author;
   gchar *date;
   gchar *description;
   gchar *id;
+  gchar *small;
   gchar *thumbnail;
   gchar *title;
   gchar *url;
+  gint i;
 
   author = g_hash_table_lookup (photo, "owner_realname");
   if (!author) {
@@ -496,11 +500,6 @@ update_media (GrlMedia *media, GHashTable *photo)
     grl_media_set_id (media, id);
   }
 
-  if (thumbnail) {
-    grl_media_set_thumbnail (media, thumbnail);
-    g_free (thumbnail);
-  }
-
   if (title && title[0] != '\0') {
     grl_media_set_title (media, title);
   }
@@ -509,6 +508,22 @@ update_media (GrlMedia *media, GHashTable *photo)
     grl_media_set_url (media, url);
     g_free (url);
   }
+
+  small = g_flickr_photo_url_small (NULL, photo);
+  image[0] = small;
+  image[1] = thumbnail;
+
+  for (i = 0; i < G_N_ELEMENTS (image); i++) {
+    if (image[i]) {
+      relkeys = grl_related_keys_new_with_keys (GRL_METADATA_KEY_THUMBNAIL,
+                                                image[i],
+                                                NULL);
+      grl_data_add_related_keys (GRL_DATA (media), relkeys);
+    }
+  }
+
+  g_free (small);
+  g_free (thumbnail);
 }
 
 static void

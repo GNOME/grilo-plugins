@@ -114,6 +114,9 @@ gchar *
 g_flickr_photo_url_original (GFlickr *f, GHashTable *photo);
 
 gchar *
+g_flickr_photo_url_small (GFlickr *f, GHashTable *photo);
+
+gchar *
 g_flickr_photo_url_thumbnail (GFlickr *f, GHashTable *photo);
 
 gchar *

@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-20 19:59+0800\n"
-"PO-Revision-Date: 2013-07-20 20:00+0800\n"
+"POT-Creation-Date: 2013-08-16 10:12+0800\n"
+"PO-Revision-Date: 2013-08-16 10:12+0800\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (Hong Kong) <community@linuxhall.org>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.3\n"
+"X-Generator: Poedit 1.5.5\n"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:55
 msgid "Apple Movie Trailers"
@@ -290,7 +290,7 @@ msgstr "無法更新元數據"
 msgid "\"source-id\" not available"
 msgstr "「source-id」無法使用"
 
-#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1431
+#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1433
 msgid "Failed to resolve"
 msgstr "解析失敗"
 
@@ -398,7 +398,7 @@ msgstr "小說"
 
 #: ../src/raitv/grl-raitv.c:181
 msgid "Junior"
-msgstr ""
+msgstr "青年"
 
 #: ../src/raitv/grl-raitv.c:182
 msgid "Investigations"
@@ -505,15 +505,15 @@ msgstr "本地檔案"
 msgid "A source for browsing the UPnP server '%s'"
 msgstr "瀏覽 UPnP 伺服器「%s」的來源"
 
-#: ../src/upnp/grl-upnp.c:1261 ../src/upnp/grl-upnp.c:1318
+#: ../src/upnp/grl-upnp.c:1263 ../src/upnp/grl-upnp.c:1320
 msgid "Failed to browse"
 msgstr "無法瀏覽"
 
-#: ../src/upnp/grl-upnp.c:1381
+#: ../src/upnp/grl-upnp.c:1383
 msgid "Failed to query"
 msgstr "無法查詢"
 
-#: ../src/upnp/grl-upnp.c:1500
+#: ../src/upnp/grl-upnp.c:1502
 #, c-format
 msgid "Unable to listen for changes in %s"
 msgstr "無法聽取 %s 中的更改"
@@ -559,9 +559,8 @@ msgid "Most Responded"
 msgstr "最多回應"
 
 #: ../src/youtube/grl-youtube.c:93
-#, fuzzy
 msgid "Recently Featured"
-msgstr "最近玩過的(_R)"
+msgstr "最近推出"
 
 #: ../src/youtube/grl-youtube.c:96
 msgid "Watch On Mobile"

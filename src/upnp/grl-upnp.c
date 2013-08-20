@@ -1237,7 +1237,7 @@ grl_upnp_source_browse (GrlSource *source,
     action =
       gupnp_service_proxy_begin_action (GRL_UPNP_SOURCE (source)->priv->service,
                                         "Search", gupnp_browse_cb, os,
-                                        "ContainerID", G_TYPE_STRING, container_id,
+                                        "ContainerID", G_TYPE_STRING, "0",
                                         "SearchCriteria", G_TYPE_STRING, upnp_browse,
                                         "Filter", G_TYPE_STRING, upnp_filter,
                                         "StartingIndex", G_TYPE_UINT, os->skip,

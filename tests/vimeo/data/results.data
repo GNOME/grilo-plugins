@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp generated_in="0.0573" stat="ok">
+  <videos on_this_page="2" page="1" perpage="2" total="605">
+    <video allow_adds="1" embed_privacy="anywhere" id="31110838" is_hd="1" is_transcoding="0" license="0" privacy="anybody">
+      <title>Mound by Allison Schulnik</title>
+      <description>Please allow 1 minute to load before viewing.  Credits: Film by Allison Schulnik Cinematography by Helder K. Sun. &quot;It's Raining Today&quot; written by Noel Scott Engel  4:23 min Copyright Allison Schulnik 2011 allisonschulnik.com</description>
+      <upload_date>2011-10-25 17:28:37</upload_date>
+      <modified_date>2013-08-23 06:17:32</modified_date>
+      <number_of_likes>3566</number_of_likes>
+      <number_of_plays>217134</number_of_plays>
+      <number_of_comments>139</number_of_comments>
+      <width>1280</width>
+      <height>720</height>
+      <duration>263</duration>
+      <owner display_name="garaco taco" id="9030794" is_plus="0" is_pro="0" is_staff="0" profileurl="http://vimeo.com/user9030794" realname="garaco taco" username="user9030794" videosurl="http://vimeo.com/user9030794/videos">
+        <portraits>
+          <portrait height="30" width="30">http://b.vimeocdn.com/ps/270/881/2708811_30.jpg</portrait>
+          <portrait height="75" width="75">http://b.vimeocdn.com/ps/270/881/2708811_75.jpg</portrait>
+          <portrait height="100" width="100">http://b.vimeocdn.com/ps/270/881/2708811_100.jpg</portrait>
+          <portrait height="300" width="300">http://b.vimeocdn.com/ps/270/881/2708811_300.jpg</portrait>
+        </portraits>
+      </owner>
+      <tags>
+        <tag author="9030794" id="68583916" normalized="allison" url="http://vimeo.com/tag:allison">allison</tag>
+        <tag author="9030794" id="68583917" normalized="schulnik" url="http://vimeo.com/tag:schulnik">schulnik</tag>
+        <tag author="9030794" id="68583918" normalized="scott" url="http://vimeo.com/tag:scott">scott</tag>
+        <tag author="9030794" id="68583919" normalized="walker" url="http://vimeo.com/tag:walker">walker</tag>
+        <tag author="9030794" id="68583920" normalized="claymation" url="http://vimeo.com/tag:claymation">claymation</tag>
+        <tag author="9030794" id="68583921" normalized="video" url="http://vimeo.com/tag:video">video</tag>
+        <tag author="9030794" id="68583922" normalized="stop-motion" url="http://vimeo.com/tag:stop-motion">stop-motion</tag>
+        <tag author="9030794" id="68583923" normalized="experimental" url="http://vimeo.com/tag:experimental">experimental</tag>
+        <tag author="9030794" id="68583924" normalized="animation" url="http://vimeo.com/tag:animation">animation</tag>
+        <tag author="9030794" id="68583925" normalized="itapostrophesrainingtoday" url="http://vimeo.com/tag:It%26%23039%3Bs+Raining+Today">It's Raining Today</tag>
+        <tag author="9030794" id="68583926" normalized="calarts" url="http://vimeo.com/tag:CalArts">CalArts</tag>
+        <tag author="9030794" id="68583927" normalized="art" url="http://vimeo.com/tag:art">art</tag>
+        <tag author="9030794" id="68583928" normalized="artist" url="http://vimeo.com/tag:artist">artist</tag>
+        <tag author="9030794" id="68583929" normalized="clown" url="http://vimeo.com/tag:clown">clown</tag>
+        <tag author="9030794" id="68583930" normalized="hobo" url="http://vimeo.com/tag:hobo">hobo</tag>
+        <tag author="9030794" id="68583931" normalized="gnome" url="http://vimeo.com/tag:gnome">gnome</tag>
+      </tags>
+      <cast>
+        <member display_name="garaco taco" id="9030794" role="" username="user9030794"/>
+      </cast>
+      <urls>
+        <url type="video">http://vimeo.com/31110838</url>
+        <url type="mobile">http://vimeo.com/m/31110838</url>
+      </urls>
+      <thumbnails>
+        <thumbnail height="75" width="100">http://b.vimeocdn.com/ts/209/404/209404005_100.jpg</thumbnail>
+        <thumbnail height="150" width="200">http://b.vimeocdn.com/ts/209/404/209404005_200.jpg</thumbnail>
+        <thumbnail height="360" width="640">http://b.vimeocdn.com/ts/209/404/209404005_640.jpg</thumbnail>
+      </thumbnails>
+    </video>
+    <video allow_adds="1" embed_privacy="anywhere" id="13797705" is_hd="0" is_transcoding="0" license="by-sa" privacy="anybody">
+      <title>Shell Yes! motion design mockup</title>
+      <description></description>
+      <upload_date>2010-08-01 05:41:20</upload_date>
+      <modified_date>2013-08-20 03:33:11</modified_date>
+      <number_of_likes>37</number_of_likes>
+      <number_of_plays>38941</number_of_plays>
+      <number_of_comments>9</number_of_comments>
+      <width>640</width>
+      <height>480</height>
+      <duration>13</duration>
+      <owner display_name="GNOME Shell" id="2664247" is_plus="0" is_pro="0" is_staff="0" profileurl="http://vimeo.com/user2664247" realname="GNOME Shell" username="user2664247" videosurl="http://vimeo.com/user2664247/videos">
+        <portraits>
+          <portrait height="30" width="30">http://b.vimeocdn.com/ps/159/159264_30.jpg</portrait>
+          <portrait height="75" width="75">http://b.vimeocdn.com/ps/159/159264_75.jpg</portrait>
+          <portrait height="100" width="100">http://b.vimeocdn.com/ps/159/159264_100.jpg</portrait>
+          <portrait height="300" width="300">http://b.vimeocdn.com/ps/159/159264_300.jpg</portrait>
+        </portraits>
+      </owner>
+      <cast>
+        <member display_name="GNOME Shell" id="2664247" role="" username="user2664247"/>
+      </cast>
+      <urls>
+        <url type="video">http://vimeo.com/13797705</url>
+        <url type="mobile">http://vimeo.com/m/13797705</url>
+      </urls>
+      <thumbnails>
+        <thumbnail height="75" width="100">http://b.vimeocdn.com/ts/798/198/79819832_100.jpg</thumbnail>
+        <thumbnail height="150" width="200">http://b.vimeocdn.com/ts/798/198/79819832_200.jpg</thumbnail>
+        <thumbnail height="480" width="640">http://b.vimeocdn.com/ts/798/198/79819832_640.jpg</thumbnail>
+      </thumbnails>
+    </video>
+  </videos>
+</rsp>

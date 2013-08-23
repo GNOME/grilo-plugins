@@ -1193,6 +1193,7 @@ AC_CONFIG_FILES([
   tests/apple-trailers/Makefile
   tests/bliptv/Makefile
   tests/tmdb/Makefile
+  tests/vimeo/Makefile
 ])
 
 AC_OUTPUT

@@ -21,10 +21,15 @@ if TMDB_PLUGIN
 SUBDIRS += tmdb
 endif
 
+if VIMEO_PLUGIN
+SUBDIRS += vimeo
+endif
+
 DIST_SUBDIRS =    \
    apple-trailers \
    bliptv         \
-   tmdb
+   tmdb           \
+   vimeo
 
 MAINTAINERCLEANFILES =  \
    *.in                 \

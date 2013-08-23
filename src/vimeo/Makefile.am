@@ -30,6 +30,14 @@ extdir			= $(GRL_PLUGINS_DIR)
 vimeoxmldir		= $(GRL_PLUGINS_DIR)
 vimeoxml_DATA	= $(VIMEO_PLUGIN_ID).xml
 
+# This lets us test the plugin without installing it,
+# because grilo expects the .so and .xml files to be in
+# the same directory:
+copy-xml-to-libs-dir: libgrlvimeo.la
+	cp -f $(srcdir)/$(vimeoxml_DATA) $(builddir)/.libs/
+
+all-local: copy-xml-to-libs-dir
+
 EXTRA_DIST = $(vimeoxml_DATA)
 
 MAINTAINERCLEANFILES =	\

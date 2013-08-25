@@ -5,6 +5,8 @@
 #
 # Copyright (C) 2011 Igalia S.L. All rights reserved.
 
+include $(top_srcdir)/gtester.mk
+
 ext_LTLIBRARIES		 = libgrltracker.la
 
 libgrltracker_la_CFLAGS =	\

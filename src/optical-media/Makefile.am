@@ -5,6 +5,8 @@
 #
 # Copyright (C) 2012 Bastien Nocera
 
+include $(top_srcdir)/gtester.mk
+
 ext_LTLIBRARIES		 = libgrloptical-media.la
 
 libgrloptical_media_la_CFLAGS =			\

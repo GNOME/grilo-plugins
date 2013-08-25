@@ -6,6 +6,8 @@
 #
 # Copyright (C) 2010-2012 Igalia S.L. All rights reserved.
 
+include $(top_srcdir)/gtester.mk
+
 SUBDIRS =
 
 if APPLE_TRAILERS_PLUGIN

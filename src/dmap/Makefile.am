@@ -5,6 +5,8 @@
 #
 # Copyright (C) 2011 W. Michael Petullo. All rights reserved.
 
+include $(top_srcdir)/gtester.mk
+
 ext_LTLIBRARIES	= libgrldmap.la
 
 libgrldmap_la_CFLAGS =	\

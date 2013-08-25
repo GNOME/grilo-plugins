@@ -6,6 +6,8 @@
 # Copyright (C) 2011 Intel Corporation.
 # Copyright (C) 2011 Igalia S.L.
 
+include $(top_srcdir)/gtester.mk
+
 ext_LTLIBRARIES		 = libgrlbliptv.la
 
 libgrlbliptv_la_CFLAGS =	\

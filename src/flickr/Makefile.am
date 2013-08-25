@@ -5,6 +5,8 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
+include $(top_srcdir)/gtester.mk
+
 libplugin_LTLIBRARIES	= libgrlflickr.la
 
 libgrlflickr_la_CFLAGS =	\

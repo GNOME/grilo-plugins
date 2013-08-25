@@ -5,6 +5,8 @@
 #
 # Copyright (C) 2012 Openismus GmbH.
 
+include $(top_srcdir)/gtester.mk
+
 ext_LTLIBRARIES		 = libgrltmdb.la
 
 libgrltmdb_la_CFLAGS =	\

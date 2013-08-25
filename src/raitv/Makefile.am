@@ -4,6 +4,8 @@
 # Author: Marco Piazza <mpiazza@gmail.com>
 #
 
+include $(top_srcdir)/gtester.mk
+
 ext_LTLIBRARIES		 = libgrlraitv.la
 
 libgrlraitv_la_CFLAGS =	\

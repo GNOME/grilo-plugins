@@ -5,6 +5,8 @@
 #
 # Copyright (C) 2013 Victor Toso. All rights reserved.
 
+include $(top_srcdir)/gtester.mk
+
 ext_LTLIBRARIES = libgrlmagnatune.la
 
 libgrlmagnatune_la_CFLAGS =	\

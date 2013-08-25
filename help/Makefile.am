@@ -1,6 +1,8 @@
 SUBDIRS = examples
 
 include $(top_srcdir)/gnome-doc-utils.make
+include $(top_srcdir)/gtester.mk
+
 dist-hook: doc-dist-hook
 
 DOC_MODULE = grilo-plugins

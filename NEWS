@@ -1,3 +1,70 @@
+NEW in 0.2.9
+============
+
+  * General
+    * Updated translations (Brazilian Portuguese, Galician, Slovenian, Spanish
+      and Traditional Chinese)
+    * Added German translation
+    * Added Indonesian translation
+    * Added Lithuanian translation
+    * Added Norwegian Bokmål translation
+    * Added lcov support (test coverage)
+    * Integration with Coveralls.io service
+    * Refactored testsuite to use glib gtester
+    * BGO#702731 - gitignore: Ignore test-driver and the generated stuff under
+      po/
+    * BGO#703037 - all: Add G_LOG_DOMAIN for each plugin
+    * BGO#704678 - gitignore: Ignore more test executables and the .pot file
+    * BGO#703396 - Use totem-pl-parser instead of libquvi
+
+  * Apple trailers plugin
+    * Fixed warning
+    * Added test suite
+
+  * Blip.tv plugin
+    * Fixed problems with pagination
+    * Check empty results case
+    * Added test suite
+
+  * Flickr plugin
+    * BGO#705149 - flickr: Bigger thumbnails
+
+  * Local Metadata plugin
+    * Added new tests
+    * Fixed leaks
+
+  * Magnatune plugin
+    * BGO#701336 - Magnatune: slow startup due to hostname lookup at plugin init
+
+  * TMDb plugin
+    * Small fixes
+
+  * UPnP plugin
+    * Use always root container when browsing using search
+    * BGO#702730 - upnp: Disappearing sources are not unregistered
+    * BGO#704917 - upnp: Avoid warning on empty resolve result
+
+  * Vimeo plugin
+    * Added test suite
+
+  * Contributors to this release:
+    * Andika Triwidada <andika@gmail.com>
+    * Aurimas Černius <aurisc4@gmail.com>
+    * Bastien Nocera <hadess@hadess.net>
+    * Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>
+    * Christian Kirbach <Christian.Kirbach@googlemail.com>
+    * Debarshi Ray <debarshir@gnome.org>
+    * Emanuele Aina <emanuele.aina@collabora.com>
+    * Enrico Nicoletto <liverig@gmail.com>
+    * Fran Diéguez <fran.dieguez@mabishu.com>
+    * Jasper Lievisse Adriaanse <jasper@humppa.nl>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Kjartan Maraas <kmaraas@gnome.org>
+    * Matej Urbančič <mateju@svn.gnome.org>
+    * Miguel Rodriguez Núñez <bokerones.fritos@gmail.com>
+    * Victor Toso <me@victortoso.com>
+
+
 NEW in 0.2.8
 ============
 

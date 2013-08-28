@@ -91,7 +91,7 @@ void g_flickr_set_per_page (GFlickr *f, gint per_page);
 
 void
 g_flickr_photos_getInfo (GFlickr *f,
-                         glong photo_id,
+                         const gchar *photo_id,
                          GFlickrHashTableCb callback,
                          gpointer user_data);
 

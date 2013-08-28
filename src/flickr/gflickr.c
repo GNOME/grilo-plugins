@@ -503,7 +503,7 @@ g_flickr_set_per_page (GFlickr *f, gint per_page)
 
 void
 g_flickr_photos_getInfo (GFlickr *f,
-                         glong photo_id,
+                         const gchar *photo_id,
                          GFlickrHashTableCb callback,
                          gpointer user_data)
 {
@@ -511,7 +511,7 @@ g_flickr_photos_getInfo (GFlickr *f,
 
   gchar *params[2];
 
-  params[0] = g_strdup_printf ("photo_id=%ld", photo_id);
+  params[0] = g_strdup_printf ("photo_id=%s", photo_id);
   params[1] = g_strdup_printf ("method=%s", FLICKR_PHOTOS_GETINFO_METHOD);
 
   gchar *request = create_url (f, params, 2);

@@ -974,7 +974,7 @@ grl_flickr_source_resolve (GrlSource *source,
   }
 
   g_flickr_photos_getInfo (GRL_FLICKR_SOURCE (source)->priv->flickr,
-                           atol (id),
+                           id,
                            getInfo_cb,
                            rs);
 }

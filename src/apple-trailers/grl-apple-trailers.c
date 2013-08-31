@@ -57,9 +57,9 @@ GRL_LOG_DOMAIN_STATIC(apple_trailers_log_domain);
 
 typedef struct {
   GrlSourceBrowseSpec *bs;
+  GCancellable *cancellable;
   xmlDocPtr xml_doc;
   xmlNodePtr xml_entries;
-  gboolean cancelled;
 } OperationData;
 
 enum {
@@ -70,7 +70,6 @@ enum {
 
 struct _GrlAppleTrailersSourcePriv {
   GrlNetWc *wc;
-  GCancellable *cancellable;
   gboolean hd;
   gboolean large_poster;
 };
@@ -186,10 +185,6 @@ grl_apple_trailers_source_finalize (GObject *object)
 
   if (self->priv->wc)
     g_object_unref (self->priv->wc);
-
-  if (self->priv->cancellable
-      && G_IS_CANCELLABLE (self->priv->cancellable))
-    g_object_unref (self->priv->cancellable);
 
   G_OBJECT_CLASS (grl_apple_trailers_source_parent_class)->finalize (object);
 }
@@ -403,7 +398,7 @@ send_movie_info (OperationData *op_data)
   GrlMedia *media;
   gboolean last = FALSE;
 
-  if (op_data->cancelled) {
+  if (g_cancellable_is_cancelled (op_data->cancellable)) {
     op_data->bs->callback (op_data->bs->source,
                            op_data->bs->operation_id,
                            NULL,
@@ -434,6 +429,7 @@ send_movie_info (OperationData *op_data)
 
   if (last) {
     xmlFreeDoc (op_data->xml_doc);
+    g_object_unref (op_data->cancellable);
     g_slice_free (OperationData, op_data);
   }
 
@@ -447,7 +443,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   xmlNodePtr node;
   guint skip = grl_operation_options_get_skip (op_data->bs->options);
 
-  if (op_data->cancelled ||
+  if (g_cancellable_is_cancelled (op_data->cancellable) ||
       grl_operation_options_get_count (op_data->bs->options) == 0) {
     goto finalize;
   }
@@ -503,6 +499,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
     g_error_free (error);
   }
 
+  g_object_unref (op_data->cancellable);
   g_slice_free (OperationData, op_data);
 }
 
@@ -533,6 +530,7 @@ read_done_cb (GObject *source_object,
                            error);
     g_error_free (wc_error);
     g_error_free (error);
+    g_object_unref (op_data->cancellable);
     g_slice_free (OperationData, op_data);
 
     return;
@@ -544,19 +542,17 @@ read_done_cb (GObject *source_object,
 static void
 read_url_async (GrlAppleTrailersSource *source,
                 const gchar *url,
-                gpointer user_data)
+                OperationData *op_data)
 {
   if (!source->priv->wc)
     source->priv->wc = grl_net_wc_new ();
 
-  source->priv->cancellable = g_cancellable_new ();
-
   GRL_DEBUG ("Opening '%s'", url);
   grl_net_wc_request_async (source->priv->wc,
                         url,
-                        source->priv->cancellable,
+                        op_data->cancellable,
                         read_done_cb,
-                        user_data);
+                        op_data);
 }
 
 /* ================== API Implementation ================ */
@@ -594,6 +590,7 @@ grl_apple_trailers_source_browse (GrlSource *source,
 
   op_data = g_slice_new0 (OperationData);
   op_data->bs = bs;
+  op_data->cancellable = g_cancellable_new();
   grl_operation_set_data (bs->operation_id, op_data);
 
   if (at_source->priv->hd) {
@@ -607,21 +604,11 @@ static void
 grl_apple_trailers_source_cancel (GrlSource *source, guint operation_id)
 {
   OperationData *op_data;
-  GrlAppleTrailersSourcePriv *priv;
 
   GRL_DEBUG ("grl_apple_trailers_source_cancel");
 
-  priv = GRL_APPLE_TRAILERS_SOURCE_GET_PRIVATE (source);
-  if (priv->cancellable && G_IS_CANCELLABLE (priv->cancellable))
-    g_cancellable_cancel (priv->cancellable);
-  priv->cancellable = NULL;
-
-  if (priv->wc)
-    grl_net_wc_flush_delayed_requests (priv->wc);
-
   op_data = (OperationData *) grl_operation_get_data (operation_id);
-
   if (op_data) {
-    op_data->cancelled = TRUE;
+    g_cancellable_cancel (op_data->cancellable);
   }
 }

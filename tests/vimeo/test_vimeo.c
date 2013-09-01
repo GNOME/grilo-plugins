@@ -137,6 +137,7 @@ test_search_null (void)
                   GRL_CORE_ERROR_SEARCH_NULL_UNSUPPORTED);
 
   g_object_unref (options);
+  g_error_free (error);
 }
 
 static void

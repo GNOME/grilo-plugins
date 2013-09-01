@@ -363,7 +363,8 @@ process_video_search_result (const gchar *xml_result, gpointer user_data)
       node = node->next;
     }
 
-    data->search_cb (data->vimeo, g_list_reverse (video_list), data->user_data);
+    video_list = g_list_reverse (video_list);
+    data->search_cb (data->vimeo, video_list, data->user_data);
     g_list_free_full (video_list, (GDestroyNotify) g_hash_table_unref);
   }
   g_slice_free (GVimeoVideoSearchData, data);

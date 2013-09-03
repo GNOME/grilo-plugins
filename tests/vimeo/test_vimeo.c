@@ -27,6 +27,8 @@
 #define VIMEO_KEY      "TEST_VIMEO_KEY"
 #define VIMEO_SECRET   "TEST_VIMEO_SECRET"
 
+static GMainLoop *main_loop = NULL;
+
 static void
 test_setup (void)
 {
@@ -169,6 +171,63 @@ test_search_empty (void)
   g_object_unref (options);
 }
 
+static void
+search_cb (GrlSource *source,
+           guint operation_id,
+           GrlMedia *media,
+           guint remaining,
+           gpointer user_data,
+           const GError *error)
+{
+  static gboolean is_cancelled = FALSE;
+
+  if (!is_cancelled) {
+    g_assert (media);
+    g_object_unref (media);
+    g_assert_cmpint (remaining, >, 0);
+    g_assert_no_error (error);
+    grl_operation_cancel (operation_id);
+    is_cancelled = TRUE;
+  } else {
+    g_assert (!media);
+    g_assert_cmpint (remaining, ==, 0);
+    g_assert_error (error,
+                    GRL_CORE_ERROR,
+                    GRL_CORE_ERROR_OPERATION_CANCELLED);
+    g_main_loop_quit (main_loop);
+  }
+}
+
+static void
+test_cancel (void)
+{
+  GrlOperationOptions *options;
+  GrlRegistry *registry;
+  GrlSource *source;
+
+  registry = grl_registry_get_default ();
+  source = grl_registry_lookup_source (registry, VIMEO_ID);
+  g_assert (source);
+  options = grl_operation_options_new (NULL);
+  grl_operation_options_set_count (options, 2);
+  grl_operation_options_set_flags (options, GRL_RESOLVE_FAST_ONLY);
+  g_assert (options);
+
+  grl_source_search (source,
+                     "gnome",
+                     grl_source_supported_keys (source),
+                     options,
+                     search_cb,
+                     NULL);
+
+  if (!main_loop) {
+    main_loop = g_main_loop_new (NULL, FALSE);
+  }
+
+  g_main_loop_run (main_loop);
+  g_object_unref (options);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -188,6 +247,7 @@ main (int argc, char **argv)
   g_test_add_func ("/vimeo/search/normal", test_search_normal);
   g_test_add_func ("/vimeo/search/null", test_search_null);
   g_test_add_func ("/vimeo/search/empty", test_search_empty);
+  g_test_add_func ("/vimeo/cancel", test_cancel);
 
   return g_test_run ();
 }

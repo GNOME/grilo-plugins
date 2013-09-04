@@ -564,7 +564,6 @@ proxy_call_search_grlnet_async_cb (GObject *source_object,
                   0,
                   op->user_data,
                   NULL);
-    raitv_operation_free (op);
   }
   else {
     //Continue the search
@@ -774,7 +773,6 @@ proxy_call_browse_grlnet_async_cb (GObject *source_object,
                   0,
                   op->user_data,
                   NULL);
-    raitv_operation_free (op);
   }
   else {
     //Continue the search
@@ -1187,7 +1185,7 @@ grl_raitv_source_browse (GrlSource *source,
   op->count	   = op->length;
   op->offset       = 0;
 
-  grl_operation_set_data (bs->operation_id, op);
+  grl_operation_set_data_full (bs->operation_id, op, (GDestroyNotify) raitv_operation_free);
 
   RaitvMediaType type = classify_media_id (container_id);
   switch (type)
@@ -1234,7 +1232,7 @@ grl_raitv_source_search (GrlSource *source,
   op->offset       = 0;
   op->text	   = ss->text;
 
-  grl_operation_set_data (ss->operation_id, op);
+  grl_operation_set_data_full (ss->operation_id, op, (GDestroyNotify) raitv_operation_free);
 
   g_raitv_videos_search(op);
 }
@@ -1306,7 +1304,7 @@ grl_raitv_source_resolve (GrlSource *source,
     op->user_data    = rs->user_data;
     op->media	      = rs->media;
 
-    grl_operation_set_data (rs->operation_id, op);
+    grl_operation_set_data_full (rs->operation_id, op, (GDestroyNotify) raitv_operation_free);
 
     urltarget = g_strdup_printf ("http://www.rai.tv/dl/RaiTV/programmi/media/%s.html",
                                  grl_media_get_id(rs->media));
@@ -1338,7 +1336,7 @@ grl_raitv_source_resolve (GrlSource *source,
   op->user_data    = rs->user_data;
   op->media	   = rs->media;
 
-  grl_operation_set_data (rs->operation_id, op);
+  grl_operation_set_data_full (rs->operation_id, op, (GDestroyNotify) raitv_operation_free);
 
   urltarget = g_strdup_printf("%s/%s.html","http://www.rai.tv/dl/RaiTV/programmi/media",grl_media_get_id(rs->media));
 

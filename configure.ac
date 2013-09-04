@@ -89,7 +89,7 @@ fi
 PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.28      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
-			  ${GRL_NAME} >= 0.2.6)
+			  ${GRL_NAME} >= 0.2.7)
 
 # ----------------------------------------------------------
 # DEFINITIONS

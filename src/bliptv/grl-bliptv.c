@@ -431,8 +431,6 @@ call_raw_async_cb (GObject *     source_object,
                   NULL);
   }
 
-  bliptv_operation_free (op);
-
  finalize_free:
   if (xpath)
     xmlXPathFreeContext (xpath);
@@ -485,7 +483,7 @@ grl_bliptv_source_browse (GrlSource *source,
   op->callback     = bs->callback;
   op->user_data    = bs->user_data;
 
-  grl_operation_set_data (bs->operation_id, op);
+  grl_operation_set_data_full (bs->operation_id, op, (GDestroyNotify) bliptv_operation_free);
 
   url = g_strdup_printf (op->url, page_number);
 
@@ -527,7 +525,7 @@ grl_bliptv_source_search (GrlSource *source,
   op->user_data    = ss->user_data;
 
 
-  grl_operation_set_data (ss->operation_id, op);
+  grl_operation_set_data_full (ss->operation_id, op, (GDestroyNotify) bliptv_operation_free);
 
   url = g_strdup_printf (op->url, page_number);
 

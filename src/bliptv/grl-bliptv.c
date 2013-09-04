@@ -547,7 +547,7 @@ grl_bliptv_source_cancel (GrlSource *source, guint operation_id)
 {
   BliptvOperation *op = grl_operation_get_data (operation_id);
 
-  GRL_WARNING ("Cancelling id=%u", operation_id);
+  GRL_DEBUG ("Cancelling id=%u", operation_id);
 
   if (!op)
     {

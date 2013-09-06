@@ -550,6 +550,7 @@ grl_bliptv_source_cancel (GrlSource *source, guint operation_id)
   if (!op)
     {
       GRL_WARNING ("\tNo such operation id=%u", operation_id);
+      return;
     }
 
   if (op->cancellable) {

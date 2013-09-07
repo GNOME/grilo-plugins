@@ -503,7 +503,7 @@ magnatune_check_update_done(GObject *source_object,
     new_crc_path = g_build_filename(g_get_user_data_dir(), "grilo-plugins",
                                     GRL_SQL_NEW_CRC, NULL);
 
-    ret = g_file_set_contents(new_crc_path,
+    g_file_set_contents(new_crc_path,
                               new_crc,
                               length,
                               &err);
@@ -511,10 +511,10 @@ magnatune_check_update_done(GObject *source_object,
     crc_path = g_build_filename(g_get_user_data_dir(), "grilo-plugins",
                                 GRL_SQL_CRC, NULL);
 
-    ret = g_file_get_contents(crc_path,
-                              &old_crc,
-                              &length,
-                              &err);
+    g_file_get_contents(crc_path,
+                        &old_crc,
+                        &length,
+                        &err);
 
     if (g_strcmp0(new_crc, old_crc) != 0) {
       magnatune_get_db_async(NULL);

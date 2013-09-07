@@ -596,9 +596,9 @@ remove_bookmark (GrlBookmarksSource *bookmarks_source,
 
   /* Remove orphan nodes from database */
   GRL_DEBUG ("%s", GRL_SQL_REMOVE_ORPHAN);
-  r = sqlite3_exec (bookmarks_source->priv->db,
-                    GRL_SQL_REMOVE_ORPHAN,
-                    NULL, NULL, NULL);
+  sqlite3_exec (bookmarks_source->priv->db,
+                GRL_SQL_REMOVE_ORPHAN,
+                NULL, NULL, NULL);
 
   if (bookmarks_source->priv->notify_changes) {
     /* We can improve accuracy computing the parent container of removed

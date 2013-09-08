@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins 3.9.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-26 10:56+0200\n"
-"PO-Revision-Date: 2013-08-26 11:06+0200\n"
+"POT-Creation-Date: 2013-09-08 19:57+0200\n"
+"PO-Revision-Date: 2013-09-08 19:58+0200\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: Norwegian bokmål <i18n-nb@lister.ping.uio.no>\n"
 "Language: \n"
@@ -24,19 +24,19 @@ msgstr "Apple filmtrailere"
 msgid "A plugin for browsing Apple Movie Trailers"
 msgstr "Et tillegg for å se Apple filmtrailere"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:460
+#: ../src/apple-trailers/grl-apple-trailers.c:456
 #: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:472
 msgid "Failed to parse response"
 msgstr "Klarte ikke å tolke svar"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:468
+#: ../src/apple-trailers/grl-apple-trailers.c:464
 #: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
 #: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Tomt svar"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:526
+#: ../src/apple-trailers/grl-apple-trailers.c:523
 #: ../src/jamendo/grl-jamendo.c:666
 #: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
 #: ../src/shoutcast/grl-shoutcast.c:565
@@ -46,7 +46,7 @@ msgstr "Klarte ikke å koble til: %s"
 
 #: ../src/bliptv/grl-bliptv.c:60
 msgid "A source for browsing and searching Blip.tv videos"
-msgstr ""
+msgstr "En kilde for å se på og søke gjennom videoer på Blip.tv"
 
 #: ../src/bookmarks/grl-bookmarks.c:119
 msgid "Bookmarks"
@@ -54,16 +54,16 @@ msgstr "Bokmerker"
 
 #: ../src/bookmarks/grl-bookmarks.c:120
 msgid "A source for organizing media bookmarks"
-msgstr ""
+msgstr "En kilde for å organisere bokmerker"
 
 #: ../src/bookmarks/grl-bookmarks.c:441 ../src/bookmarks/grl-bookmarks.c:456
 msgid "Failed to get bookmark metadata"
-msgstr ""
+msgstr "Klarte ikke å hente metadata for bokmerke"
 
 #: ../src/bookmarks/grl-bookmarks.c:486 ../src/bookmarks/grl-bookmarks.c:506
 #, c-format
 msgid "Failed to get bookmarks list: %s"
-msgstr ""
+msgstr "Klarte ikke å hente bokmerkeliste: %s"
 
 #: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:817
 #: ../src/podcasts/grl-podcasts.c:849 ../src/podcasts/grl-podcasts.c:881
@@ -89,7 +89,7 @@ msgstr "Ingen databasetilkobling"
 #: ../src/dmap/grl-dmap.c:51
 #, c-format
 msgid "A source for browsing the DMAP server '%s'"
-msgstr ""
+msgstr "En kilde for å se på innhold på DMAP-tjener «%s»"
 
 #: ../src/filesystem/grl-filesystem.c:69
 msgid "Filesystem"
@@ -97,7 +97,7 @@ msgstr "Filsystem"
 
 #: ../src/filesystem/grl-filesystem.c:70
 msgid "A source for browsing the filesystem"
-msgstr ""
+msgstr "En kilde for å bla gjennom filsystemet"
 
 #: ../src/filesystem/grl-filesystem.c:1327
 #, c-format
@@ -107,11 +107,11 @@ msgstr "Fil %s eksisterer ikke"
 #: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1618
 #, c-format
 msgid "Cannot get media from %s"
-msgstr ""
+msgstr "Kan ikke hente medie fra %s"
 
 #: ../src/flickr/grl-flickr.c:63
 msgid "A source for browsing and searching Flickr photos"
-msgstr ""
+msgstr "En kilde for å se på og søke gjennom bilder på Flickr"
 
 #. "%s" is a full user name, like "John Doe"
 #: ../src/flickr/grl-flickr.c:67
@@ -218,7 +218,7 @@ msgid "A source providing locally available metadata"
 msgstr ""
 
 #: ../src/local-metadata/grl-local-metadata.c:472
-#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:866
+#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:864
 #: ../src/tracker/grl-tracker-source-api.c:460
 #, c-format
 msgid "Failed to resolve: %s"
@@ -451,7 +451,7 @@ msgstr ""
 msgid "Travel"
 msgstr "Reise"
 
-#: ../src/raitv/grl-raitv.c:612
+#: ../src/raitv/grl-raitv.c:611
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Klarte ikke å bla gjennom: %s"

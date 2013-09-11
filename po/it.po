@@ -6,10 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
-"plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-08-28 08:13+0000\n"
-"PO-Revision-Date: 2013-08-30 09:21+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-09-11 13:33+0200\n"
+"PO-Revision-Date: 2013-09-11 12:26+0200\n"
 "Last-Translator: Claudio Arseni <claudio.arseni@ubuntu.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "Language: it\n"
@@ -27,19 +26,19 @@ msgstr "Apple Movie Trailers"
 msgid "A plugin for browsing Apple Movie Trailers"
 msgstr "Un plugin per esplorare Apple Movie Trailers"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:460
+#: ../src/apple-trailers/grl-apple-trailers.c:456
 #: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:472
 msgid "Failed to parse response"
 msgstr "Analisi della risposta non riuscita"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:468
+#: ../src/apple-trailers/grl-apple-trailers.c:464
 #: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
 #: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Risposta vuota"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:526
+#: ../src/apple-trailers/grl-apple-trailers.c:523
 #: ../src/jamendo/grl-jamendo.c:666
 #: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
 #: ../src/shoutcast/grl-shoutcast.c:565
@@ -125,7 +124,7 @@ msgstr "Flickr di %s"
 #. "%s" is a full user name, like "John Doe"
 #: ../src/flickr/grl-flickr.c:69
 #, c-format
-msgid "A source for browsing and searching %s' flickr photos"
+msgid "A source for browsing and searching %s's flickr photos"
 msgstr "Una risorsa per esplorare e cercare le foto di %s su Flickr"
 
 #: ../src/gravatar/grl-gravatar.c:48
@@ -222,7 +221,7 @@ msgid "A source providing locally available metadata"
 msgstr "Una risorsa che fornisce i metadati disponibili localmente"
 
 #: ../src/local-metadata/grl-local-metadata.c:472
-#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:866
+#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:864
 #: ../src/tracker/grl-tracker-source-api.c:460
 #, c-format
 msgid "Failed to resolve: %s"
@@ -455,7 +454,7 @@ msgstr "Tempo libero"
 msgid "Travel"
 msgstr "Viaggi"
 
-#: ../src/raitv/grl-raitv.c:612
+#: ../src/raitv/grl-raitv.c:611
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Esplorazione non riuscita: %s"

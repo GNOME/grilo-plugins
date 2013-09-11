@@ -66,7 +66,7 @@ GRL_LOG_DOMAIN(flickr_log_domain);
 /* "%s" is a full user name, like "John Doe" */
 #define PERSONAL_SOURCE_NAME _("%s's Flickr")
 /* "%s" is a full user name, like "John Doe" */
-#define PERSONAL_SOURCE_DESC _("A source for browsing and searching %s' flickr photos")
+#define PERSONAL_SOURCE_DESC _("A source for browsing and searching %s's flickr photos")
 
 typedef struct {
   GrlSource *source;

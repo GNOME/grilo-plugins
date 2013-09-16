@@ -1063,9 +1063,6 @@ produce_from_directory (CategoryInfo *dir, gint dir_size, OperationSpec *os)
 
   GRL_DEBUG ("produce_from_directory");
 
-  /* YouTube's first index is 1, but the directories start at 0 */
-  os->skip--;
-
   if (os->skip >= dir_size) {
     /* No results */
     os->callback (os->source,
@@ -1144,7 +1141,9 @@ produce_from_feed (OperationSpec *os)
   grl_operation_set_data (os->operation_id, os->cancellable);
 
   service = GRL_YOUTUBE_SOURCE (os->source)->priv->service;
-  query = gdata_query_new_with_limits (NULL , os->skip, os->count);
+
+  /* Index in GData starts at 1 */
+  query = gdata_query_new_with_limits (NULL , os->skip + 1, os->count);
   os->category_info = &feeds_dir[feed_type];
 
 #ifdef HAVE_LIBGDATA_0_9
@@ -1203,7 +1202,9 @@ produce_from_category (OperationSpec *os)
   operation_spec_ref (os);
 
   service = GRL_YOUTUBE_SOURCE (os->source)->priv->service;
-  query = gdata_query_new_with_limits (NULL , os->skip, os->count);
+
+  /* Index in GData starts at 1 */
+  query = gdata_query_new_with_limits (NULL , os->skip + 1, os->count);
   os->category_info = &categories_dir[category_index];
   gdata_query_set_categories (query, category_term);
 
@@ -1392,7 +1393,7 @@ grl_youtube_source_search (GrlSource *source,
   os->cancellable = g_cancellable_new ();
   os->operation_id = ss->operation_id;
   os->keys = ss->keys;
-  os->skip = grl_operation_options_get_skip (ss->options) + 1;
+  os->skip = grl_operation_options_get_skip (ss->options);
   os->count = grl_operation_options_get_count (ss->options);
   os->callback = ss->callback;
   os->user_data = ss->user_data;
@@ -1403,7 +1404,8 @@ grl_youtube_source_search (GrlSource *source,
 
   grl_operation_set_data (ss->operation_id, os->cancellable);
 
-  query = gdata_query_new_with_limits (ss->text, os->skip, os->count);
+  /* Index in GData starts at 1 */
+  query = gdata_query_new_with_limits (ss->text, os->skip + 1, os->count);
 
 #ifdef HAVE_LIBGDATA_0_9
   gdata_youtube_service_query_videos_async (GDATA_YOUTUBE_SERVICE (GRL_YOUTUBE_SOURCE (source)->priv->service),
@@ -1445,7 +1447,7 @@ grl_youtube_source_browse (GrlSource *source,
   os->container_id = container_id;
   os->keys = bs->keys;
   os->flags = grl_operation_options_get_flags (bs->options);
-  os->skip = grl_operation_options_get_skip (bs->options) + 1;
+  os->skip = grl_operation_options_get_skip (bs->options);
   os->count = grl_operation_options_get_count (bs->options);
   os->callback = bs->callback;
   os->user_data = bs->user_data;

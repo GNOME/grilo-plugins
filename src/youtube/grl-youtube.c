@@ -1437,7 +1437,11 @@ grl_youtube_source_browse (GrlSource *source,
   OperationSpec *os;
   const gchar *container_id;
 
-  GRL_DEBUG ("%s: %s", __FUNCTION__, grl_media_get_id (bs->container));
+  GRL_DEBUG ("%s: %s (%u, %d)",
+             __FUNCTION__,
+             grl_media_get_id (bs->container),
+             grl_operation_options_get_skip (bs->options),
+             grl_operation_options_get_count (bs->options));
 
   container_id = grl_media_get_id (bs->container);
 

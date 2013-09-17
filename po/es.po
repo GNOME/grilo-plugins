@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-05-23 16:45+0000\n"
-"PO-Revision-Date: 2013-05-27 11:06+0200\n"
+"POT-Creation-Date: 2013-09-11 08:03+0000\n"
+"PO-Revision-Date: 2013-09-17 11:12+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "Language: es\n"
@@ -31,13 +31,13 @@ msgstr "Tráiler de películas de Apple"
 msgid "A plugin for browsing Apple Movie Trailers"
 msgstr "Un complemento para explorar tráilers de películas de Apple"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:457
+#: ../src/apple-trailers/grl-apple-trailers.c:456
 #: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:472
 msgid "Failed to parse response"
 msgstr "Falló al analizar la respuesta"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:465
+#: ../src/apple-trailers/grl-apple-trailers.c:464
 #: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
 #: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
@@ -111,7 +111,7 @@ msgstr "Una fuente para explorar el sistema de archivos"
 msgid "File %s does not exist"
 msgstr "El archivo %s no existe"
 
-#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1629
+#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1618
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "No se pueden obtener los archivos multimedia desde %s"
@@ -129,8 +129,9 @@ msgstr "%s de Flickr"
 #. "%s" is a full user name, like "John Doe"
 #: ../src/flickr/grl-flickr.c:69
 #, c-format
-msgid "A source for browsing and searching %s' flickr photos"
-msgstr "Una fuente para explorar y buscar %s fotos en flickr"
+#| msgid "A source for browsing and searching %s' flickr photos"
+msgid "A source for browsing and searching %s's flickr photos"
+msgstr "Una fuente para explorar y buscar fotos de %s en flickr"
 
 #: ../src/gravatar/grl-gravatar.c:48
 msgid "Avatar provider from Gravatar"
@@ -187,14 +188,14 @@ msgstr "Proveedores"
 msgid "Invalid identifier %s"
 msgstr "Identificador %s no válido"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1200
-#: ../src/youtube/grl-youtube.c:1341 ../src/youtube/grl-youtube.c:1556
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1189
+#: ../src/youtube/grl-youtube.c:1330 ../src/youtube/grl-youtube.c:1545
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Identificador de categoría %s no válido"
 
 #: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
-#: ../src/magnatune/grl-magnatune.c:853
+#: ../src/magnatune/grl-magnatune.c:829
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Identificador de extensión %s no válido"
@@ -227,7 +228,7 @@ msgid "A source providing locally available metadata"
 msgstr "Una fuente que proporciona metadatos locales"
 
 #: ../src/local-metadata/grl-local-metadata.c:472
-#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:866
+#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:864
 #: ../src/tracker/grl-tracker-source-api.c:460
 #, c-format
 msgid "Failed to resolve: %s"
@@ -249,22 +250,22 @@ msgstr "Géneros"
 msgid "A source for browsing music"
 msgstr "Una fuente para explorar música"
 
-#: ../src/magnatune/grl-magnatune.c:430
+#: ../src/magnatune/grl-magnatune.c:406
 #, c-format
 msgid "Failed to get database from magnatune: %s"
 msgstr "Falló al obtener la base de datos de magnatune: %s"
 
-#: ../src/magnatune/grl-magnatune.c:460
+#: ../src/magnatune/grl-magnatune.c:436
 #, c-format
 msgid "Failed to save database from magnatune - '%s'"
 msgstr "Falló al guardar la base de datos «%s» de magnatune."
 
-#: ../src/magnatune/grl-magnatune.c:708
+#: ../src/magnatune/grl-magnatune.c:684
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
 msgstr "Falló al obtener la tabla desde la base de datos de magnatune: %s"
 
-#: ../src/magnatune/grl-magnatune.c:724
+#: ../src/magnatune/grl-magnatune.c:700
 #, c-format
 msgid "Fail before returning media to user: %s"
 msgstr "Falló al devolver los contenidos multimedia al usuario: %s"
@@ -298,7 +299,7 @@ msgstr "Falló al actualizar los metadatos"
 msgid "\"source-id\" not available"
 msgstr "«source-id» no disponible"
 
-#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1424
+#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1433
 msgid "Failed to resolve"
 msgstr "No se pudo resolver"
 
@@ -460,7 +461,7 @@ msgstr "Ocio"
 msgid "Travel"
 msgstr "Viajes"
 
-#: ../src/raitv/grl-raitv.c:612
+#: ../src/raitv/grl-raitv.c:611
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Falló al examinar: %s"
@@ -478,7 +479,7 @@ msgstr "No se pueden encontrar los archivos multimedia %s"
 msgid "non-NULL search text is required"
 msgstr "Se requiere un texto de búsqueda no nulo"
 
-#: ../src/tmdb/grl-tmdb.c:948
+#: ../src/tmdb/grl-tmdb.c:962
 msgid "Remote data does not contain valid identifier"
 msgstr "Los datos remotos no contienen identificadores válidos"
 
@@ -513,15 +514,15 @@ msgstr "Archivos locales"
 msgid "A source for browsing the UPnP server '%s'"
 msgstr "Una fuente para explorar el servidor UPnP «%s»"
 
-#: ../src/upnp/grl-upnp.c:1254 ../src/upnp/grl-upnp.c:1311
+#: ../src/upnp/grl-upnp.c:1263 ../src/upnp/grl-upnp.c:1320
 msgid "Failed to browse"
 msgstr "Falló al explorar"
 
-#: ../src/upnp/grl-upnp.c:1374
+#: ../src/upnp/grl-upnp.c:1383
 msgid "Failed to query"
 msgstr "Falló al consultar"
 
-#: ../src/upnp/grl-upnp.c:1493
+#: ../src/upnp/grl-upnp.c:1502
 #, c-format
 msgid "Unable to listen for changes in %s"
 msgstr "No es posible obtener los cambios en %s"
@@ -578,11 +579,11 @@ msgstr "Ver en un dispositivo móvil"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Una fuente para buscar y explorar vídeos en Youtube"
 
-#: ../src/youtube/grl-youtube.c:948
+#: ../src/youtube/grl-youtube.c:937
 msgid "Failed to get feed"
 msgstr "Falló al obtener un proveedor"
 
-#: ../src/youtube/grl-youtube.c:1129 ../src/youtube/grl-youtube.c:1536
+#: ../src/youtube/grl-youtube.c:1118 ../src/youtube/grl-youtube.c:1525
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Identificador de proveedor %s no válido"

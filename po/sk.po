@@ -8,9 +8,9 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-08-31 13:14+0000\n"
-"PO-Revision-Date: 2013-09-04 21:42+0100\n"
-"Last-Translator: Peter Mráz <etkinator@gmail.com>\n"
+"POT-Creation-Date: 2013-09-20 05:49+0000\n"
+"PO-Revision-Date: 2013-09-22 14:59+0100\n"
+"Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <gnome-sk-list@gnome.org>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
@@ -108,7 +108,7 @@ msgid "File %s does not exist"
 msgstr "Súbor %s neexistuje"
 
 # MČ: s tým médium mám stále problém. Zakaždým mi napadne hypnóza.
-#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1618
+#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1624
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Nedá sa získať médium z %s"
@@ -126,7 +126,7 @@ msgstr "Služba Flickr používateľa %s"
 #. "%s" is a full user name, like "John Doe"
 #: ../src/flickr/grl-flickr.c:69
 #, c-format
-msgid "A source for browsing and searching %s' flickr photos"
+msgid "A source for browsing and searching %s's flickr photos"
 msgstr ""
 "Zdroj na prehliadanie a vyhľadávanie fotografií služby flickr používateľa %s"
 
@@ -184,8 +184,8 @@ msgstr "Kanály"
 msgid "Invalid identifier %s"
 msgstr "Neplatný identifikátor %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1189
-#: ../src/youtube/grl-youtube.c:1330 ../src/youtube/grl-youtube.c:1545
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1188
+#: ../src/youtube/grl-youtube.c:1331 ../src/youtube/grl-youtube.c:1551
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Neplatný identifikátor kategórie %s"
@@ -224,7 +224,7 @@ msgid "A source providing locally available metadata"
 msgstr "Zdroj poskytujúci miestne dostupné metaúdaje"
 
 #: ../src/local-metadata/grl-local-metadata.c:472
-#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:866
+#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:864
 #: ../src/tracker/grl-tracker-source-api.c:460
 #, c-format
 msgid "Failed to resolve: %s"
@@ -458,7 +458,7 @@ msgstr "Voľný čas"
 msgid "Travel"
 msgstr "Cestovanie"
 
-#: ../src/raitv/grl-raitv.c:612
+#: ../src/raitv/grl-raitv.c:611
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Zlyhalo prehliadanie: %s"
@@ -583,7 +583,7 @@ msgstr "Zdroj na prehliadanie a vyhľadávanie videí služby YouTube"
 msgid "Failed to get feed"
 msgstr "Zlyhalo získanie kanálu"
 
-#: ../src/youtube/grl-youtube.c:1118 ../src/youtube/grl-youtube.c:1525
+#: ../src/youtube/grl-youtube.c:1115 ../src/youtube/grl-youtube.c:1531
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Neplatný identifikátor kanálu %s"

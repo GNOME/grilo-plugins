@@ -48,6 +48,17 @@ test_setup (void)
 }
 
 static void
+test_unload (const gchar *plugin_id)
+{
+  GError *error = NULL;
+  GrlRegistry *registry;
+
+  registry = grl_registry_get_default ();
+  grl_registry_unload_plugin (registry, plugin_id, &error);
+  g_assert_no_error (error);
+}
+
+static void
 test_search_normal (void)
 {
   GError *error = NULL;
@@ -250,4 +261,6 @@ main (int argc, char **argv)
   g_test_add_func ("/vimeo/cancel", test_cancel);
 
   return g_test_run ();
+
+  test_unload (VIMEO_ID);
 }

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins 3.9.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-08 19:57+0200\n"
-"PO-Revision-Date: 2013-09-08 19:58+0200\n"
+"POT-Creation-Date: 2013-09-28 15:24+0200\n"
+"PO-Revision-Date: 2013-09-29 10:09+0200\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: Norwegian bokmål <i18n-nb@lister.ping.uio.no>\n"
 "Language: \n"
@@ -104,7 +104,7 @@ msgstr "En kilde for å bla gjennom filsystemet"
 msgid "File %s does not exist"
 msgstr "Fil %s eksisterer ikke"
 
-#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1618
+#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1624
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Kan ikke hente medie fra %s"
@@ -122,8 +122,8 @@ msgstr "Flickr for %s"
 #. "%s" is a full user name, like "John Doe"
 #: ../src/flickr/grl-flickr.c:69
 #, c-format
-msgid "A source for browsing and searching %s' flickr photos"
-msgstr ""
+msgid "A source for browsing and searching %s's flickr photos"
+msgstr "En kilde for å se på og søke gjennom %s sine bilder på Flickr"
 
 #: ../src/gravatar/grl-gravatar.c:48
 msgid "Avatar provider from Gravatar"
@@ -179,17 +179,17 @@ msgstr "Strømmer"
 msgid "Invalid identifier %s"
 msgstr "Ugyldig identifikator %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1189
-#: ../src/youtube/grl-youtube.c:1330 ../src/youtube/grl-youtube.c:1545
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1188
+#: ../src/youtube/grl-youtube.c:1331 ../src/youtube/grl-youtube.c:1551
 #, c-format
 msgid "Invalid category identifier %s"
-msgstr ""
+msgstr "Ugyldig identifikator %s for kategori"
 
 #: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
 #: ../src/magnatune/grl-magnatune.c:829
 #, c-format
 msgid "Invalid container identifier %s"
-msgstr ""
+msgstr "Ugyldig identifikator %s for kontainer"
 
 #: ../src/jamendo/grl-jamendo.c:1186
 #, c-format
@@ -230,7 +230,7 @@ msgstr ""
 
 #: ../src/local-metadata/grl-local-metadata.c:999
 msgid "A GIO supported URL for images is required"
-msgstr ""
+msgstr "En bilde-URL for bilder som støttes av GIO kreves"
 
 #: ../src/magnatune/grl-magnatune.c:122
 msgid "Genres"
@@ -243,26 +243,26 @@ msgstr "En kilde for å bla gjennom musikk"
 #: ../src/magnatune/grl-magnatune.c:406
 #, c-format
 msgid "Failed to get database from magnatune: %s"
-msgstr ""
+msgstr "Klarte ikke å hente database fra magnatune: %s"
 
 #: ../src/magnatune/grl-magnatune.c:436
 #, c-format
 msgid "Failed to save database from magnatune - '%s'"
-msgstr ""
+msgstr "Klarte ikke å lagre database fra magnatune - «%s»"
 
 #: ../src/magnatune/grl-magnatune.c:684
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
-msgstr ""
+msgstr "Klarte ikke å hente tabell fra magnatune database: %s"
 
 #: ../src/magnatune/grl-magnatune.c:700
 #, c-format
 msgid "Fail before returning media to user: %s"
-msgstr ""
+msgstr "Feil før media returneres til bruker: %s"
 
 #: ../src/metadata-store/grl-metadata-store.c:47
 msgid "Metadata Store"
-msgstr ""
+msgstr "Metadatalager"
 
 #: ../src/metadata-store/grl-metadata-store.c:48
 msgid "A plugin for storing extra metadata information"
@@ -274,20 +274,20 @@ msgstr ""
 #: ../src/tracker/grl-tracker-source-api.c:511
 #, c-format
 msgid "Failed to update metadata: %s"
-msgstr ""
+msgstr "Klarte ikke å oppdatere metadata: %s"
 
 #: ../src/metadata-store/grl-metadata-store.c:575
 msgid "specified keys are not writable"
-msgstr ""
+msgstr "spesifiserte nøkler er ikke skrivbare"
 
 #: ../src/metadata-store/grl-metadata-store.c:615
 msgid "Failed to update metadata"
-msgstr ""
+msgstr "Klarte ikke å oppdatere metadata"
 
 #: ../src/metadata-store/grl-metadata-store.c:761
 #: ../src/metadata-store/grl-metadata-store.c:806
 msgid "\"source-id\" not available"
-msgstr ""
+msgstr "«source-id» ikke tilgjengelig"
 
 #: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1433
 msgid "Failed to resolve"
@@ -298,7 +298,7 @@ msgstr ""
 #: ../src/shoutcast/grl-shoutcast.c:759 ../src/vimeo/grl-vimeo.c:511
 #, c-format
 msgid "Failed to search: %s"
-msgstr ""
+msgstr "Klarte ikke å søke: %s"
 
 #: ../src/optical-media/grl-optical-media.c:46
 msgid "Optical Media"
@@ -320,7 +320,7 @@ msgstr ""
 #: ../src/podcasts/grl-podcasts.c:1239 ../src/podcasts/grl-podcasts.c:1248
 #: ../src/podcasts/grl-podcasts.c:1258
 msgid "Failed to parse content"
-msgstr ""
+msgstr "Klarte ikke å tolke innhold"
 
 #: ../src/podcasts/grl-podcasts.c:1291
 msgid "Failed to parse podcast contents"
@@ -381,7 +381,7 @@ msgstr "Komikere"
 
 #: ../src/raitv/grl-raitv.c:177
 msgid "Chronicle"
-msgstr ""
+msgstr "Krønike"
 
 #: ../src/raitv/grl-raitv.c:178
 msgid "Culture"
@@ -445,7 +445,7 @@ msgstr "Politikk"
 
 #: ../src/raitv/grl-raitv.c:194
 msgid "Leisure"
-msgstr ""
+msgstr "Fritid"
 
 #: ../src/raitv/grl-raitv.c:195
 msgid "Travel"
@@ -463,7 +463,7 @@ msgstr ""
 #: ../src/shoutcast/grl-shoutcast.c:462
 #, c-format
 msgid "Cannot find media %s"
-msgstr ""
+msgstr "Kan ikke finne medie %s"
 
 #: ../src/shoutcast/grl-shoutcast.c:760 ../src/vimeo/grl-vimeo.c:512
 msgid "non-NULL search text is required"
@@ -480,7 +480,7 @@ msgstr ""
 #: ../src/tracker/grl-tracker-source-api.c:414
 #, c-format
 msgid "Failed to query: %s"
-msgstr ""
+msgstr "Klarte ikke å spørre: %s"
 
 #: ../src/tracker/grl-tracker-source-api.c:628
 msgid "Empty query"
@@ -510,7 +510,7 @@ msgstr ""
 
 #: ../src/upnp/grl-upnp.c:1383
 msgid "Failed to query"
-msgstr ""
+msgstr "Klarte ikke å spørre"
 
 #: ../src/upnp/grl-upnp.c:1502
 #, c-format
@@ -543,7 +543,7 @@ msgstr "Mest sett"
 
 #: ../src/youtube/grl-youtube.c:81
 msgid "Most Recent"
-msgstr ""
+msgstr "Nyeste"
 
 #: ../src/youtube/grl-youtube.c:84
 msgid "Most Discussed"
@@ -573,7 +573,7 @@ msgstr ""
 msgid "Failed to get feed"
 msgstr ""
 
-#: ../src/youtube/grl-youtube.c:1118 ../src/youtube/grl-youtube.c:1525
+#: ../src/youtube/grl-youtube.c:1115 ../src/youtube/grl-youtube.c:1531
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr ""

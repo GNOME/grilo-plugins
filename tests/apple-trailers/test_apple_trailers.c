@@ -167,7 +167,9 @@ main(int argc, char **argv)
   g_test_add_func ("/apple-trailers/browse/count", test_browse_count);
   g_test_add_func ("/apple-trailers/browse/skip", test_browse_skip);
 
-  return g_test_run ();
+  gint result = g_test_run ();
 
   test_unload (APPLE_TRAILERS_ID);
+
+  return result;
 }

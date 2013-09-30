@@ -260,7 +260,9 @@ main (int argc, char **argv)
   g_test_add_func ("/vimeo/search/empty", test_search_empty);
   g_test_add_func ("/vimeo/cancel", test_cancel);
 
-  return g_test_run ();
+  gint result = g_test_run ();
 
   test_unload (VIMEO_ID);
+
+  return result;
 }

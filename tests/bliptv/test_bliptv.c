@@ -284,7 +284,9 @@ main(int argc, char **argv)
   g_test_add_func ("/bliptv/search/no-results", test_search_no_results);
   g_test_add_func ("/bliptv/autosplit", test_autosplit);
 
-  return g_test_run ();
+  gint result = g_test_run ();
 
   test_unload (BLIPTV_ID);
+
+  return result;
 }

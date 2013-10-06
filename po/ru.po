@@ -8,9 +8,9 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-09-13 11:44+0000\n"
-"PO-Revision-Date: 2013-09-14 01:03+0600\n"
-"Last-Translator: Dmitriy S. Seregin <dseregin@59.ru>\n"
+"POT-Creation-Date: 2013-09-17 08:22+0000\n"
+"PO-Revision-Date: 2013-10-06 18:56+0300\n"
+"Last-Translator: Yuri Myasoedov <ymyasoedov@yandex.ru>\n"
 "Language-Team: Russian <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:55
 msgid "Apple Movie Trailers"
@@ -26,7 +26,7 @@ msgstr "Трейлеры к фильмам Apple"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:56
 msgid "A plugin for browsing Apple Movie Trailers"
-msgstr "Модуль для обзора трейлеров к фильмам Apple"
+msgstr "Модуль обзора трейлеров к фильмам Apple"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:456
 #: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
@@ -57,9 +57,8 @@ msgid "Bookmarks"
 msgstr "Закладки"
 
 #: ../src/bookmarks/grl-bookmarks.c:120
-#, fuzzy
 msgid "A source for organizing media bookmarks"
-msgstr "Источник для организации закладок к носителям"
+msgstr "Источник для организации закладок к медиаконтенту"
 
 #: ../src/bookmarks/grl-bookmarks.c:441 ../src/bookmarks/grl-bookmarks.c:456
 msgid "Failed to get bookmark metadata"
@@ -74,7 +73,7 @@ msgstr "Не удалось получить список закладок: %s"
 #: ../src/podcasts/grl-podcasts.c:849 ../src/podcasts/grl-podcasts.c:881
 #, c-format
 msgid "Failed to remove: %s"
-msgstr "Failed to remove: %s"
+msgstr "Не удалось удалить: %s"
 
 #: ../src/bookmarks/grl-bookmarks.c:660 ../src/bookmarks/grl-bookmarks.c:718
 #: ../src/podcasts/grl-podcasts.c:922 ../src/podcasts/grl-podcasts.c:955
@@ -109,10 +108,10 @@ msgstr "Источник для обзора файловой системы"
 msgid "File %s does not exist"
 msgstr "Файл %s не существует"
 
-#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1618
+#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1624
 #, c-format
 msgid "Cannot get media from %s"
-msgstr ""
+msgstr "Не удалось получить медиаконтент из %s"
 
 #: ../src/flickr/grl-flickr.c:63
 msgid "A source for browsing and searching Flickr photos"
@@ -136,7 +135,7 @@ msgstr "Поставщик аватаров от Gravatar"
 
 #: ../src/gravatar/grl-gravatar.c:49
 msgid "A plugin to get avatars for artist and author fields"
-msgstr "Модуль для получения аватаров по полям исполнитель и автор"
+msgstr "Модуль получения аватаров по полям «Исполнитель» и «Автор»"
 
 #: ../src/jamendo/grl-jamendo.c:93
 msgid "A source for browsing and searching Jamendo music"
@@ -184,8 +183,8 @@ msgstr "Каналы"
 msgid "Invalid identifier %s"
 msgstr "Некорректный идентификатор %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1189
-#: ../src/youtube/grl-youtube.c:1330 ../src/youtube/grl-youtube.c:1545
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1188
+#: ../src/youtube/grl-youtube.c:1331 ../src/youtube/grl-youtube.c:1551
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Некорректный идентификатор категории %s"
@@ -199,20 +198,20 @@ msgstr "Некорректный идентификатор контейнера
 #: ../src/jamendo/grl-jamendo.c:1186
 #, c-format
 msgid "Failed to browse: %s is a track"
-msgstr ""
+msgstr "Не удалось просмотреть: %s является дорожкой"
 
 #: ../src/jamendo/grl-jamendo.c:1248
 #, c-format
 msgid "Malformed query \"%s\""
-msgstr "Искажённый запрос «%s»"
+msgstr "Некорректно сформированный запрос «%s»"
 
 #: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
 msgid "Album art Provider from Last.FM"
-msgstr ""
+msgstr "Поставщик обложек от Last.FM"
 
 #: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
 msgid "A plugin for getting album arts using Last.FM as backend"
-msgstr ""
+msgstr "Модуль получения обложек через Last.FM"
 
 #: ../src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
@@ -231,15 +230,15 @@ msgstr "Не удалось разрешить: %s"
 
 #: ../src/local-metadata/grl-local-metadata.c:995
 msgid "Cannot resolve any of the given keys"
-msgstr ""
+msgstr "Не удалось разрешить ни один из предоставленных ключей"
 
 #: ../src/local-metadata/grl-local-metadata.c:999
 msgid "A GIO supported URL for images is required"
-msgstr ""
+msgstr "Для изображений требуется URL с поддержкой GIO"
 
 #: ../src/magnatune/grl-magnatune.c:122
 msgid "Genres"
-msgstr "Genres"
+msgstr "Жанры"
 
 #: ../src/magnatune/grl-magnatune.c:130
 msgid "A source for browsing music"
@@ -263,7 +262,7 @@ msgstr "Не удалось получить таблицу из базы дан
 #: ../src/magnatune/grl-magnatune.c:700
 #, c-format
 msgid "Fail before returning media to user: %s"
-msgstr ""
+msgstr "Произошла ошибка перед возвратом медиаконтента пользователю: %s"
 
 #: ../src/metadata-store/grl-metadata-store.c:47
 msgid "Metadata Store"
@@ -271,7 +270,7 @@ msgstr "Хранилище метаданных"
 
 #: ../src/metadata-store/grl-metadata-store.c:48
 msgid "A plugin for storing extra metadata information"
-msgstr "Модуль для хранения дополнительной информации метаданных"
+msgstr "Модуль хранения дополнительной информации метаданных"
 
 #: ../src/metadata-store/grl-metadata-store.c:574
 #: ../src/metadata-store/grl-metadata-store.c:593
@@ -350,7 +349,7 @@ msgstr "Не удалось получить метаданные подкаст
 
 #: ../src/podcasts/grl-podcasts.c:1800
 msgid "Cannot create containers. Only feeds are accepted"
-msgstr ""
+msgstr "Не удалось создать контейнеры. Допустимы только ленты"
 
 #: ../src/podcasts/grl-podcasts.c:1805
 msgid "URL required"
@@ -402,7 +401,7 @@ msgstr "Художественная литература"
 
 #: ../src/raitv/grl-raitv.c:181
 msgid "Junior"
-msgstr ""
+msgstr "Молодёжь"
 
 #: ../src/raitv/grl-raitv.c:182
 msgid "Investigations"
@@ -468,7 +467,7 @@ msgstr "Источник для обзора радио SHOUTcast"
 #: ../src/shoutcast/grl-shoutcast.c:462
 #, c-format
 msgid "Cannot find media %s"
-msgstr "Не удалось найти носитель %s"
+msgstr "Не удалось найти медиаконтент %s"
 
 #: ../src/shoutcast/grl-shoutcast.c:760 ../src/vimeo/grl-vimeo.c:512
 msgid "non-NULL search text is required"
@@ -493,7 +492,7 @@ msgstr "Пустой запрос"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
-msgstr "Модуль для поиска мультимедиа-контента с помощью трекера"
+msgstr "Модуль поиска мультимедиа-контента с помощью трекера"
 
 #: ../src/tracker/grl-tracker-utils.c:606
 #, c-format
@@ -520,7 +519,7 @@ msgstr "Не удалось выполнить запрос"
 #: ../src/upnp/grl-upnp.c:1502
 #, c-format
 msgid "Unable to listen for changes in %s"
-msgstr ""
+msgstr "Невозможно отследить изменения в %s"
 
 #: ../src/vimeo/grl-vimeo.c:57
 msgid "A source for browsing and searching Vimeo videos"
@@ -536,11 +535,11 @@ msgstr "Категории"
 
 #: ../src/youtube/grl-youtube.c:69
 msgid "Top Rated"
-msgstr ""
+msgstr "Топ лучших"
 
 #: ../src/youtube/grl-youtube.c:72
 msgid "Top Favorites"
-msgstr ""
+msgstr "Топ избранных"
 
 #: ../src/youtube/grl-youtube.c:75
 msgid "Most Viewed"
@@ -548,7 +547,7 @@ msgstr "Самое просматриваемое"
 
 #: ../src/youtube/grl-youtube.c:81
 msgid "Most Recent"
-msgstr ""
+msgstr "Последнее"
 
 #: ../src/youtube/grl-youtube.c:84
 msgid "Most Discussed"
@@ -556,19 +555,19 @@ msgstr "Самое обсуждаемое"
 
 #: ../src/youtube/grl-youtube.c:87
 msgid "Most Linked"
-msgstr ""
+msgstr "Наиболее часто ссылаются"
 
 #: ../src/youtube/grl-youtube.c:90
 msgid "Most Responded"
-msgstr ""
+msgstr "С наибольшим количеством ответов"
 
 #: ../src/youtube/grl-youtube.c:93
 msgid "Recently Featured"
-msgstr ""
+msgstr "Недавно показанное"
 
 #: ../src/youtube/grl-youtube.c:96
 msgid "Watch On Mobile"
-msgstr ""
+msgstr "Смотреть мобильную версию"
 
 #: ../src/youtube/grl-youtube.c:117
 msgid "A source for browsing and searching YouTube videos"
@@ -578,7 +577,7 @@ msgstr "Источник для обзора и поиска видео YouTube"
 msgid "Failed to get feed"
 msgstr "Не удалось получить канал"
 
-#: ../src/youtube/grl-youtube.c:1118 ../src/youtube/grl-youtube.c:1525
+#: ../src/youtube/grl-youtube.c:1115 ../src/youtube/grl-youtube.c:1531
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Некорректный идентификатор канала %s"

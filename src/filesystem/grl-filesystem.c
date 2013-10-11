@@ -40,7 +40,7 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 
 /* -------- File info ------- */
 
-#define FILE_ATTRIBUTES                         \
+#define _FILE_ATTRIBUTES                        \
   G_FILE_ATTRIBUTE_STANDARD_NAME ","            \
   G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","    \
   G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","    \
@@ -49,6 +49,14 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
   G_FILE_ATTRIBUTE_TIME_MODIFIED ","            \
   G_FILE_ATTRIBUTE_THUMBNAIL_PATH ","           \
   G_FILE_ATTRIBUTE_THUMBNAILING_FAILED
+
+#if GLIB_CHECK_VERSION(2, 39, 0)
+#define FILE_ATTRIBUTES \
+  _FILE_ATTRIBUTES "," \
+  G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID
+#else
+#define FILE_ATTRIBUTES _FILE_ATTRIBUTES
+#endif
 
 #define FILE_ATTRIBUTES_FAST                    \
   G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN
@@ -475,6 +483,7 @@ create_content (GrlMedia *content,
   gchar *str;
   gchar *extension;
   const gchar *mime;
+  gboolean thumb_failed, thumb_is_valid;
   GError *error = NULL;
 
   if (!info)
@@ -563,10 +572,18 @@ create_content (GrlMedia *content,
     g_date_time_unref (date_time);
 
     /* Thumbnail */
-    gboolean thumb_failed =
+    thumb_failed =
       g_file_info_get_attribute_boolean (info,
                                          G_FILE_ATTRIBUTE_THUMBNAILING_FAILED);
-    if (!thumb_failed) {
+#if GLIB_CHECK_VERSION (2, 39, 0)
+    thumb_is_valid =
+      g_file_info_get_attribute_boolean (info,
+                                         G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID);
+#else
+    thumb_is_valid = TRUE;
+#endif
+
+    if (!thumb_failed && thumb_is_valid) {
       const gchar *thumb =
         g_file_info_get_attribute_byte_string (info,
                                                G_FILE_ATTRIBUTE_THUMBNAIL_PATH);

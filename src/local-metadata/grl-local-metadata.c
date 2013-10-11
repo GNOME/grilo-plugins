@@ -428,6 +428,7 @@ got_file_info (GFile *file,
   GFileInfo *info;
   GError *error = NULL;
   const gchar *thumbnail_path;
+  gboolean thumbnail_is_valid;
 
   GRL_DEBUG ("got_file_info");
 
@@ -444,9 +445,15 @@ got_file_info (GFile *file,
 
   thumbnail_path =
       g_file_info_get_attribute_byte_string (info, G_FILE_ATTRIBUTE_THUMBNAIL_PATH);
+#if GLIB_CHECK_VERSION (2, 39, 0)
+  thumbnail_is_valid =
+      g_file_info_get_attribute_boolean (info, G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID);
+#else
+  thumbnail_is_valid = TRUE;
+#endif
 
 
-  if (thumbnail_path) {
+  if (thumbnail_path && thumbnail_is_valid) {
     gchar *thumbnail_uri = g_filename_to_uri (thumbnail_path, NULL, &error);
     if (error)
       goto error;
@@ -455,13 +462,15 @@ got_file_info (GFile *file,
               grl_media_get_url (rs->media));
     grl_media_set_thumbnail (rs->media, thumbnail_uri);
     g_free (thumbnail_uri);
-
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+  } else if (thumbnail_path && !thumbnail_is_valid) {
+    GRL_INFO ("Found outdated thumbnail %s for media: %s", thumbnail_path,
+              grl_media_get_url (rs->media));
   } else {
     GRL_INFO ("Could not find thumbnail for media: %s",
               grl_media_get_url (rs->media));
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   }
+
+  rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
 
   goto exit;
 
@@ -570,11 +579,21 @@ resolve_image (GrlSource *source,
   GRL_DEBUG ("resolve_image");
 
   if (flags & FLAG_THUMBNAIL) {
+    const gchar *attributes;
+
     file = g_file_new_for_uri (grl_media_get_url (rs->media));
 
     cancellable = g_cancellable_new ();
     grl_operation_set_data (rs->operation_id, cancellable);
-    g_file_query_info_async (file, G_FILE_ATTRIBUTE_THUMBNAIL_PATH,
+
+#if GLIB_CHECK_VERSION (2, 39, 0)
+    attributes = G_FILE_ATTRIBUTE_THUMBNAIL_PATH "," \
+                 G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID;
+#else
+    attributes = G_FILE_ATTRIBUTE_THUMBNAIL_PATH;
+#endif
+
+    g_file_query_info_async (file, attributes,
                              G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT, cancellable,
                              (GAsyncReadyCallback)got_file_info, rs);
     g_object_unref (file);

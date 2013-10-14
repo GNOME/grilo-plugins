@@ -87,7 +87,7 @@ fi
 # HARD DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.34      \
+PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.36      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
 			  ${GRL_NAME} >= 0.2.10)
@@ -119,6 +119,8 @@ PKG_CHECK_MODULES([GRLPLS], [${GRLPLS_NAME} >= 0.2.0],
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 
 PKG_CHECK_MODULES(GIO, gio-2.0, HAVE_GIO=yes, HAVE_GIO=no)
+
+PKG_CHECK_MODULES(GIO_UNIX, gio-unix-2.0, HAVE_GIO_UNIX=yes, HAVE_GIO_UNIX=no)
 
 PKG_CHECK_MODULES(GSSDP, gssdp-1.0, HAVE_GSSDP=yes, HAVE_GSSDP=no)
 
@@ -179,6 +181,8 @@ PKG_CHECK_MODULES([TRACKER_SPARQL], [ ${trackerpkg} ],
                                     HAVE_TRACKER_SPARQL=yes,
                                     HAVE_TRACKER_SPARQL=no)
 
+GDBUS_CODEGEN=`${PKG_CONFIG} --variable=gdbus_codegen gio-2.0`
+AC_SUBST(GDBUS_CODEGEN)
 
 # ----------------------------------------------------------
 # CHECK GOA
@@ -1173,6 +1177,60 @@ DEPS_LOCALMETADATA_LIBS="$DEPS_LIBS $GIO_LIBS $MEDIAART_LIBS"
 AC_SUBST(DEPS_LOCALMETADATA_LIBS)
 
 # ----------------------------------------------------------
+# BUILD DLEYNA PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(dleyna,
+        AC_HELP_STRING([--enable-dleyna],
+                [enable DLNA plugin using the dLeyna DBus services (default: yes)]),
+                [
+                  case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO not found, install it or use --disable-dleyna])
+                        fi
+                        if test "x$HAVE_GIO_UNIX" = "xno"; then
+                           AC_MSG_ERROR([GIO Unix Extensions not found, install it or use --disable-dleyna])
+                        fi
+                        ;;
+                  esac
+
+                ],
+                [
+                  if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_GIO_UNIX" = "xyes"; then
+                     enable_dleyna=yes
+                  else
+                     enable_dleyna=no
+                  fi
+                ])
+
+AM_CONDITIONAL([DLEYNA_PLUGIN], [test "x$enable_dleyna" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL dleyna"
+if test "x$enable_dleyna" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED dleyna"
+
+        AX_PYTHON_MODULE([dbusmock])
+        AS_IF([test "$HAVE_PYMOD_DBUSMOCK" = "yes"],,
+              AC_MSG_WARN([[
+***
+*** No python-dbusmock module detected, tests for the dLeyna plugin will be disabled.
+***]]))
+fi
+
+AM_CONDITIONAL([DLEYNA_TESTS_RUN_DBUSMOCK],[test "$HAVE_PYMOD_DBUSMOCK" = "yes"])
+
+DLEYNA_PLUGIN_ID="grl-dleyna"
+AC_SUBST(DLEYNA_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([DLEYNA_PLUGIN_ID], ["$DLEYNA_PLUGIN_ID"], [dLeyna DLNA plugin ID])
+
+DEPS_DLEYNA_CFLAGS="$DEPS_CFLAGS $GIO_UNIX_CFLAGS"
+AC_SUBST(DEPS_DLEYNA_CFLAGS)
+DEPS_DLEYNA_LIBS="$DEPS_LIBS $GIO_UNIX_LIBS"
+AC_SUBST(DEPS_DLEYNA_LIBS)
+
+
+# ----------------------------------------------------------
 # BUILD DMAP PLUGIN
 # ----------------------------------------------------------
 
@@ -1329,6 +1387,7 @@ AC_CONFIG_FILES([
   src/apple-trailers/Makefile
   src/bliptv/Makefile
   src/bookmarks/Makefile
+  src/dleyna/Makefile
   src/dmap/Makefile
   src/filesystem/Makefile
   src/flickr/Makefile
@@ -1354,6 +1413,8 @@ AC_CONFIG_FILES([
   tests/Makefile
   tests/apple-trailers/Makefile
   tests/bliptv/Makefile
+  tests/dleyna/Makefile
+  tests/dleyna/dbusmock/dleyna-server-mock.service
   tests/local-metadata/Makefile
   tests/tmdb/Makefile
   tests/vimeo/Makefile

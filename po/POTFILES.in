@@ -1,6 +1,7 @@
 src/apple-trailers/grl-apple-trailers.c
 src/bliptv/grl-bliptv.c
 src/bookmarks/grl-bookmarks.c
+src/dleyna/grl-dleyna-source.c
 src/dmap/grl-dmap.c
 src/dmap/simple-dmap-db.c
 src/filesystem/grl-filesystem.c

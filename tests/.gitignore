@@ -2,8 +2,12 @@ test
 test_apple_trailers
 test_bliptv
 test_local_metadata
+test_dleyna
 test_tmdb_preconditions
 test_tmdb_missing_configuration
 test_tmdb_fast_resolution
 test_tmdb_fast_resolution_by_id
 test_tmdb_full_resolution
+/dleyna/dbusmock/dleyna-server-mock.service
+*.pyc
+__pycache__

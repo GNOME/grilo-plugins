@@ -1,0 +1,10 @@
+<plugin>
+  <info>
+    <name>dLeyna</name>
+    <module>libgrldleyna</module>
+    <description>A plugin for browsing DLNA servers</description>
+    <author>Intel Corp.</author>
+    <license>LGPL</license>
+    <site>https://01.org/dleyna</site>
+  </info>
+</plugin>

@@ -22,6 +22,10 @@ if BOOKMARKS_PLUGIN
 SUBDIRS += bookmarks
 endif
 
+if DLEYNA_PLUGIN
+SUBDIRS += dleyna
+endif
+
 if DMAP_PLUGIN
 SUBDIRS += dmap
 endif
@@ -107,7 +111,7 @@ SUBDIRS += freebox
 endif
 
 DIST_SUBDIRS = \
-   apple-trailers bliptv bookmarks dmap filesystem flickr freebox gravatar jamendo \
+   apple-trailers bliptv bookmarks dleyna dmap filesystem flickr freebox gravatar jamendo \
    lastfm-albumart local-metadata lua-factory magnatune metadata-store optical-media   \
    pocket podcasts raitv shoutcast tmdb tracker upnp vimeo youtube
 

@@ -1,0 +1,10 @@
+#!/usr/bin/env python
+
+import os
+
+# Assume the templates are in the same dir as this script
+os.chdir(os.path.dirname(__file__))
+
+# DbusMock does not seem to like to be torn down after each fixture, set
+# logfile to /dev/null as we don't use it
+os.execvp('python', ['python', '-m', 'dbusmock', '-t', 'dleynamanager.py', '--logfile', '/dev/null'])

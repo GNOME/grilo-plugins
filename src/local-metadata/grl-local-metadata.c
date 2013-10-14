@@ -688,6 +688,8 @@ has_compatible_media_url (GrlMedia *media)
 
     if (g_str_has_prefix (source, "grl-upnp-uuid:"))
       return FALSE;
+    if (g_str_has_prefix (source, "grl-dleyna-uuid:"))
+      return FALSE;
   }
 
   url = grl_media_get_url (media);

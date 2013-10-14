@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.intel.dleyna-server
+Exec=@abs_top_srcdir@/tests/dleyna/dbusmock/dleyna-server-mock

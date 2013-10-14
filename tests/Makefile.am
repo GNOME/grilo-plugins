@@ -17,6 +17,10 @@ if BLIPTV_PLUGIN
 SUBDIRS += bliptv
 endif
 
+if DLEYNA_PLUGIN
+SUBDIRS += dleyna
+endif
+
 if LOCALMETADATA_PLUGIN
 SUBDIRS += local-metadata
 endif
@@ -32,6 +36,7 @@ endif
 DIST_SUBDIRS =    \
    apple-trailers \
    bliptv         \
+   dleyna         \
    local-metadata \
    tmdb           \
    vimeo

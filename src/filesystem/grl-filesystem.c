@@ -625,7 +625,6 @@ browse_emit_idle (gpointer user_data)
 
     uri = (gchar *) idle_data->current->data;
     file = g_file_new_for_uri (uri);
-    g_free (uri);
 
     content = create_content (NULL,
                               file,
@@ -652,7 +651,7 @@ browse_emit_idle (gpointer user_data)
   return TRUE;
 
 finish:
-    g_list_free (idle_data->entries);
+    g_list_free_full (idle_data->entries, g_free);
     g_hash_table_remove (fs_source->priv->cancellables,
                          GUINT_TO_POINTER (idle_data->id));
     g_object_unref (idle_data->cancellable);

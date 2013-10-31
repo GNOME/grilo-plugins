@@ -1,0 +1,580 @@
+# Malayalam translation for grilo-plugins.
+# Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
+# This file is distributed under the same license as the grilo-plugins package.
+# Anish Sheela <aneesh.nl@gmail.com>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: grilo-plugins master\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
+"plugins&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2013-10-29 18:00+0000\n"
+"PO-Revision-Date: 2013-11-01 02:09+0530\n"
+"Last-Translator: Anish Sheela <aneesh.nl@gmail.com>\n"
+"Language-Team: Malayalam <l10n@lists.smc.org.in>\n"
+"Language: ml\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:55
+msgid "Apple Movie Trailers"
+msgstr ""
+
+#: ../src/apple-trailers/grl-apple-trailers.c:56
+msgid "A plugin for browsing Apple Movie Trailers"
+msgstr ""
+
+#: ../src/apple-trailers/grl-apple-trailers.c:456
+#: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
+#: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:472
+msgid "Failed to parse response"
+msgstr "മറുപടി പാഴ്സ് ചെയ്യുന്നതില്‍ പരാജയം"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:464
+#: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
+#: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
+msgid "Empty response"
+msgstr "മറുപടി ശൂന്യം"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:523
+#: ../src/jamendo/grl-jamendo.c:666
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
+#: ../src/shoutcast/grl-shoutcast.c:565
+#, c-format
+msgid "Failed to connect: %s"
+msgstr ""
+
+#: ../src/bliptv/grl-bliptv.c:60
+msgid "A source for browsing and searching Blip.tv videos"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:119
+msgid "Bookmarks"
+msgstr "ഓര്‍മ്മക്കുറിപ്പുകള്‍"
+
+#: ../src/bookmarks/grl-bookmarks.c:120
+msgid "A source for organizing media bookmarks"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:441 ../src/bookmarks/grl-bookmarks.c:456
+msgid "Failed to get bookmark metadata"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:486 ../src/bookmarks/grl-bookmarks.c:506
+#, c-format
+msgid "Failed to get bookmarks list: %s"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:817
+#: ../src/podcasts/grl-podcasts.c:849 ../src/podcasts/grl-podcasts.c:881
+#, c-format
+msgid "Failed to remove: %s"
+msgstr "നീക്കം ചെയ്യുന്നതില്‍ പരാജയം: %s"
+
+#: ../src/bookmarks/grl-bookmarks.c:660 ../src/bookmarks/grl-bookmarks.c:718
+#: ../src/podcasts/grl-podcasts.c:922 ../src/podcasts/grl-podcasts.c:955
+#: ../src/podcasts/grl-podcasts.c:1804
+#, c-format
+msgid "Failed to store: %s"
+msgstr ""
+
+#: ../src/bookmarks/grl-bookmarks.c:772 ../src/bookmarks/grl-bookmarks.c:807
+#: ../src/bookmarks/grl-bookmarks.c:839 ../src/bookmarks/grl-bookmarks.c:901
+#: ../src/metadata-store/grl-metadata-store.c:852
+#: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
+#: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
+msgid "No database connection"
+msgstr "ഡാറ്റാബൈസ് കണക്ഷന്‍ ലഭ്യമല്ല"
+
+#: ../src/dmap/grl-dmap.c:51
+#, c-format
+msgid "A source for browsing the DMAP server '%s'"
+msgstr ""
+
+#: ../src/filesystem/grl-filesystem.c:69
+msgid "Filesystem"
+msgstr "ഫയല്‍ സിസ്റ്റം"
+
+#: ../src/filesystem/grl-filesystem.c:70
+msgid "A source for browsing the filesystem"
+msgstr ""
+
+#: ../src/filesystem/grl-filesystem.c:1326
+#, c-format
+msgid "File %s does not exist"
+msgstr "ഫയല്‍ %s നിലവിലില്ല"
+
+#: ../src/filesystem/grl-filesystem.c:1403 ../src/youtube/grl-youtube.c:1624
+#, c-format
+msgid "Cannot get media from %s"
+msgstr ""
+
+#: ../src/flickr/grl-flickr.c:63
+msgid "A source for browsing and searching Flickr photos"
+msgstr ""
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:67
+#, c-format
+msgid "%s's Flickr"
+msgstr "%s ന്റെ ഫ്ലിക്കര്‍"
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:69
+#, c-format
+msgid "A source for browsing and searching %s's flickr photos"
+msgstr ""
+
+#: ../src/gravatar/grl-gravatar.c:48
+msgid "Avatar provider from Gravatar"
+msgstr ""
+
+#: ../src/gravatar/grl-gravatar.c:49
+msgid "A plugin to get avatars for artist and author fields"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:93
+msgid "A source for browsing and searching Jamendo music"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:149
+msgid "Albums of the week"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:151
+msgid "Tracks of the week"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:153
+msgid "New releases"
+msgstr "പുതിയ ലക്കങ്ങള്‍"
+
+#: ../src/jamendo/grl-jamendo.c:155
+msgid "Top artists"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:157
+msgid "Top albums"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:159
+msgid "Top tracks"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:774 ../src/magnatune/grl-magnatune.c:120
+msgid "Artists"
+msgstr "കലാകാരന്‍മാര്‍"
+
+#: ../src/jamendo/grl-jamendo.c:785 ../src/magnatune/grl-magnatune.c:121
+msgid "Albums"
+msgstr "ആല്‍ബങ്ങള്‍"
+
+#: ../src/jamendo/grl-jamendo.c:796
+msgid "Feeds"
+msgstr "ഫീഡുകള്‍"
+
+#: ../src/jamendo/grl-jamendo.c:982 ../src/jamendo/grl-jamendo.c:1027
+#: ../src/jamendo/grl-jamendo.c:1054
+#, c-format
+msgid "Invalid identifier %s"
+msgstr "തിരിച്ചറിയാത്ത ഐഡന്റിഫയര്‍ %s"
+
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1188
+#: ../src/youtube/grl-youtube.c:1331 ../src/youtube/grl-youtube.c:1551
+#, c-format
+msgid "Invalid category identifier %s"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
+#: ../src/magnatune/grl-magnatune.c:829
+#, c-format
+msgid "Invalid container identifier %s"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:1186
+#, c-format
+msgid "Failed to browse: %s is a track"
+msgstr ""
+
+#: ../src/jamendo/grl-jamendo.c:1248
+#, c-format
+msgid "Malformed query \"%s\""
+msgstr ""
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
+msgid "Album art Provider from Last.FM"
+msgstr ""
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
+msgid "A plugin for getting album arts using Last.FM as backend"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:42
+msgid "Local Metadata Provider"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:43
+msgid "A source providing locally available metadata"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:472
+#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:864
+#: ../src/tracker/grl-tracker-source-api.c:460
+#, c-format
+msgid "Failed to resolve: %s"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:995
+msgid "Cannot resolve any of the given keys"
+msgstr ""
+
+#: ../src/local-metadata/grl-local-metadata.c:999
+msgid "A GIO supported URL for images is required"
+msgstr ""
+
+#: ../src/magnatune/grl-magnatune.c:122
+msgid "Genres"
+msgstr ""
+
+#: ../src/magnatune/grl-magnatune.c:130
+msgid "A source for browsing music"
+msgstr ""
+
+#: ../src/magnatune/grl-magnatune.c:406
+#, c-format
+msgid "Failed to get database from magnatune: %s"
+msgstr ""
+
+#: ../src/magnatune/grl-magnatune.c:436
+#, c-format
+msgid "Failed to save database from magnatune - '%s'"
+msgstr ""
+
+#: ../src/magnatune/grl-magnatune.c:684
+#, c-format
+msgid "Failed to get table from magnatune db: %s"
+msgstr ""
+
+#: ../src/magnatune/grl-magnatune.c:700
+#, c-format
+msgid "Fail before returning media to user: %s"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:47
+msgid "Metadata Store"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:48
+msgid "A plugin for storing extra metadata information"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:574
+#: ../src/metadata-store/grl-metadata-store.c:593
+#: ../src/metadata-store/grl-metadata-store.c:805
+#: ../src/tracker/grl-tracker-source-api.c:511
+#, c-format
+msgid "Failed to update metadata: %s"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:575
+msgid "specified keys are not writable"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:615
+msgid "Failed to update metadata"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:761
+#: ../src/metadata-store/grl-metadata-store.c:806
+msgid "\"source-id\" not available"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1433
+msgid "Failed to resolve"
+msgstr ""
+
+#: ../src/metadata-store/grl-metadata-store.c:920
+#: ../src/metadata-store/grl-metadata-store.c:957 ../src/raitv/grl-raitv.c:415
+#: ../src/shoutcast/grl-shoutcast.c:759 ../src/vimeo/grl-vimeo.c:511
+#, c-format
+msgid "Failed to search: %s"
+msgstr "തിരയാന്‍ സാധിച്ചില്ല: %s"
+
+#: ../src/optical-media/grl-optical-media.c:46
+msgid "Optical Media"
+msgstr "ഒപ്ടിക്കല്‍ മീഡിയ"
+
+#: ../src/optical-media/grl-optical-media.c:47
+msgid "A source for browsing optical media"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:155
+msgid "A source for browsing podcasts"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:753 ../src/podcasts/grl-podcasts.c:773
+#, c-format
+msgid "Failed to get podcast streams: %s"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1239 ../src/podcasts/grl-podcasts.c:1248
+#: ../src/podcasts/grl-podcasts.c:1258
+msgid "Failed to parse content"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1291
+msgid "Failed to parse podcast contents"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1449
+msgid "Failed to get podcast information"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1489 ../src/podcasts/grl-podcasts.c:1509
+#, c-format
+msgid "Failed to get podcasts list: %s"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1563 ../src/podcasts/grl-podcasts.c:1578
+msgid "Failed to get podcast stream metadata"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1616
+msgid "Failed to get podcast metadata"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1800
+msgid "Cannot create containers. Only feeds are accepted"
+msgstr ""
+
+#: ../src/podcasts/grl-podcasts.c:1805
+msgid "URL required"
+msgstr "URL ആവശ്യമുണ്ട്"
+
+#: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
+msgid "Most Popular"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:52
+msgid "Recent"
+msgstr "ഏറ്റവും പുതിയതു്"
+
+#: ../src/raitv/grl-raitv.c:95
+msgid "A source for browsing and searching Rai.tv videos"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:173
+msgid "All"
+msgstr "എല്ലാം"
+
+#: ../src/raitv/grl-raitv.c:174
+msgid "Black and White"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:175
+msgid "Cinema"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:176
+msgid "Comedians"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:177
+msgid "Chronicle"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:178
+msgid "Culture"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:179
+msgid "Economy"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:180
+msgid "Fiction"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:181
+msgid "Junior"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:182
+msgid "Investigations"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:183
+msgid "Interviews"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:184
+msgid "Music"
+msgstr "സംഗീതം"
+
+#: ../src/raitv/grl-raitv.c:185
+msgid "News"
+msgstr "വാര്‍ത്തകള്‍"
+
+#: ../src/raitv/grl-raitv.c:186
+msgid "Health"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:187
+msgid "Satire"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:189
+msgid "Society"
+msgstr "സമൂഹം"
+
+#: ../src/raitv/grl-raitv.c:190
+msgid "Show"
+msgstr "പരിപാടി"
+
+#: ../src/raitv/grl-raitv.c:191
+msgid "Sport"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:192
+msgid "History"
+msgstr "ചരിത്രം"
+
+#: ../src/raitv/grl-raitv.c:193
+msgid "Politics"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:194
+msgid "Leisure"
+msgstr ""
+
+#: ../src/raitv/grl-raitv.c:195
+msgid "Travel"
+msgstr "യാത്ര"
+
+#: ../src/raitv/grl-raitv.c:611
+#, c-format
+msgid "Failed to browse: %s"
+msgstr ""
+
+#: ../src/shoutcast/grl-shoutcast.c:67
+msgid "A source for browsing SHOUTcast radios"
+msgstr ""
+
+#: ../src/shoutcast/grl-shoutcast.c:462
+#, c-format
+msgid "Cannot find media %s"
+msgstr ""
+
+#: ../src/shoutcast/grl-shoutcast.c:760 ../src/vimeo/grl-vimeo.c:512
+msgid "non-NULL search text is required"
+msgstr ""
+
+#: ../src/tmdb/grl-tmdb.c:962
+msgid "Remote data does not contain valid identifier"
+msgstr ""
+
+#. I can haz templatze ??
+#. Only emit this last one if more result than expected
+#. Schedule the next line to parse
+#: ../src/tracker/grl-tracker-source-api.c:332
+#: ../src/tracker/grl-tracker-source-api.c:414
+#, c-format
+msgid "Failed to query: %s"
+msgstr ""
+
+#: ../src/tracker/grl-tracker-source-api.c:628
+msgid "Empty query"
+msgstr ""
+
+#: ../src/tracker/grl-tracker-source-priv.h:44
+msgid "A plugin for searching multimedia content using Tracker"
+msgstr ""
+
+#: ../src/tracker/grl-tracker-utils.c:606
+#, c-format
+msgid "Removable - %s"
+msgstr ""
+
+#: ../src/tracker/grl-tracker-utils.c:618
+msgid "Local files"
+msgstr "പ്രാദേശിക ഫയലുകള്‍"
+
+#: ../src/upnp/grl-upnp.c:53
+#, c-format
+msgid "A source for browsing the UPnP server '%s'"
+msgstr ""
+
+#: ../src/upnp/grl-upnp.c:1263 ../src/upnp/grl-upnp.c:1320
+msgid "Failed to browse"
+msgstr ""
+
+#: ../src/upnp/grl-upnp.c:1383
+msgid "Failed to query"
+msgstr ""
+
+#: ../src/upnp/grl-upnp.c:1502
+#, c-format
+msgid "Unable to listen for changes in %s"
+msgstr ""
+
+#: ../src/vimeo/grl-vimeo.c:57
+msgid "A source for browsing and searching Vimeo videos"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:60
+msgid "Standard feeds"
+msgstr "മാനക ഫീഡുകള്‍"
+
+#: ../src/youtube/grl-youtube.c:63
+msgid "Categories"
+msgstr "വിഭാഗങ്ങള്‍"
+
+#: ../src/youtube/grl-youtube.c:69
+msgid "Top Rated"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:72
+msgid "Top Favorites"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:75
+msgid "Most Viewed"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:81
+msgid "Most Recent"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:84
+msgid "Most Discussed"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:87
+msgid "Most Linked"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:90
+msgid "Most Responded"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:93
+msgid "Recently Featured"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:96
+msgid "Watch On Mobile"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:117
+msgid "A source for browsing and searching YouTube videos"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:937
+msgid "Failed to get feed"
+msgstr ""
+
+#: ../src/youtube/grl-youtube.c:1115 ../src/youtube/grl-youtube.c:1531
+#, c-format
+msgid "Invalid feed identifier %s"
+msgstr ""

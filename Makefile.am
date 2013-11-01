@@ -47,6 +47,7 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-apple-trailers \
                             --enable-jamendo \
                             --enable-lastfm-albumart \
                             --enable-localmetadata \
+                            --enable-lua-factory \
                             --enable-magnatune \
                             --enable-metadata-store \
                             --enable-optical-media \

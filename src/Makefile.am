@@ -50,6 +50,10 @@ if LOCALMETADATA_PLUGIN
 SUBDIRS += local-metadata
 endif
 
+if LUA_FACTORY_PLUGIN
+SUBDIRS += lua-factory
+endif
+
 if MAGNATUNE_PLUGIN
 SUBDIRS += magnatune 
 endif
@@ -108,7 +112,7 @@ endif
 
 DIST_SUBDIRS = \
    apple-trailers bliptv bookmarks dmap filesystem flickr freebox gravatar guardian-videos jamendo \
-   lastfm-albumart local-metadata magnatune metadata-store optical-media   \
+   lastfm-albumart local-metadata lua-factory magnatune metadata-store optical-media   \
    pocket podcasts raitv shoutcast tmdb tracker upnp vimeo youtube
 
 MAINTAINERCLEANFILES =	\

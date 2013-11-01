@@ -1,0 +1,10 @@
+<plugin>
+  <info>
+    <name>Lua Source Factory</name>
+    <module>libgrlluafactory</module>
+    <description>A plugin that creates sources from Lua plugins</description>
+    <author>Victor Toso</author>
+    <license>LGPL</license>
+    <site>http://victortoso.com</site>
+  </info>
+</plugin>

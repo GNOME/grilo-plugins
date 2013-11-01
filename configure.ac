@@ -138,6 +138,8 @@ PKG_CHECK_MODULES(GDATA, libgdata >= 0.7.0, HAVE_GDATA=yes, HAVE_GDATA=no)
 
 PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4, HAVE_LIBSOUP=yes, HAVE_LIBSOUP=no)
 
+PKG_CHECK_MODULES(LUA, lua >= 5.2.0, HAVE_LUA=yes, HAVE_LUA=no)
+
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
 PKG_CHECK_MODULES(OAUTH, oauth, HAVE_OAUTH=yes, HAVE_OAUTH=no)
@@ -828,6 +830,49 @@ DEPS_MAGNATUNE_LIBS="$DEPS_LIBS $GRLNET_LIBS $SQLITE_LIBS"
 AC_SUBST(DEPS_MAGNATUNE_LIBS)
 
 # ----------------------------------------------------------
+# BUILD LUA FACTORY PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(lua_factory,
+        AC_HELP_STRING([--enable-lua-factory],
+                [enable Lua plugins (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_LUA" = "xno"; then
+                           AC_MSG_ERROR([lua not found, install it or use --disable-lua-factory])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_LUA" = "xyes"; then
+                  enable_lua_factory=yes
+                else
+                  enable_lua_factory=no
+                fi
+        ])
+
+AM_CONDITIONAL([LUA_FACTORY_PLUGIN], [test "x$enable_lua_factory" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL lua_factory"
+if test "x$enable_lua_factory" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED lua_factory"
+fi
+
+LUA_FACTORY_PLUGIN_ID="grl-lua-factory"
+AC_SUBST(LUA_FACTORY_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([LUA_FACTORY_PLUGIN_ID], ["$LUA_FACTORY_PLUGIN_ID"], [Lua Factory plugin ID])
+
+DEPS_LUA_FACTORY_CFLAGS="$DEPS_CFLAGS $LUA_CFLAGS"
+AC_SUBST(DEPS_LUA_FACTORY_CFLAGS)
+DEPS_LUA_FACTORY_LIBS="$DEPS_LIBS $LUA_LIBS"
+AC_SUBST(DEPS_LUA_FACTORY_LIBS)
+
+LUA_FACTORY_SOURCE_LOCATION="grilo-plugins/${LUA_FACTORY_PLUGIN_ID}"
+AC_SUBST(LUA_FACTORY_SOURCE_LOCATION)
+
+# ----------------------------------------------------------
 # BUILD METADATA-STORE PLUGIN
 # ----------------------------------------------------------
 
@@ -1320,6 +1365,8 @@ AC_CONFIG_FILES([
   src/jamendo/Makefile
   src/lastfm-albumart/Makefile
   src/local-metadata/Makefile
+  src/lua-factory/Makefile
+  src/lua-factory/sources/Makefile
   src/magnatune/Makefile
   src/metadata-store/Makefile
   src/optical-media/Makefile

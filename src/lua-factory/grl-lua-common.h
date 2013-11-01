@@ -66,4 +66,7 @@ typedef struct _OperationSpec {
   guint error_code;
 } OperationSpec;
 
+void grl_lua_library_save_operation_data (lua_State *L, OperationSpec *os);
+OperationSpec *grl_lua_library_load_operation_data (lua_State *L);
+
 #endif /* _GRL_LUA_LIBRARY_COMMON_H_ */

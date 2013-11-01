@@ -102,6 +102,23 @@ static void grl_lua_factory_source_finalize (GObject *object);
 
 static const GList *grl_lua_factory_source_supported_keys (GrlSource *source);
 
+static void grl_lua_factory_source_search (GrlSource *source,
+                                           GrlSourceSearchSpec *ss);
+
+static void grl_lua_factory_source_browse (GrlSource *source,
+                                           GrlSourceBrowseSpec *bs);
+
+static void grl_lua_factory_source_query (GrlSource *source,
+                                          GrlSourceQuerySpec *qs);
+
+static void grl_lua_factory_source_resolve (GrlSource *source,
+                                            GrlSourceResolveSpec *rs);
+
+static gboolean grl_lua_factory_source_may_resolve (GrlSource *source,
+                                                    GrlMedia *media,
+                                                    GrlKeyID key_id,
+                                                    GList **missing_keys);
+
 static GrlSupportedOps
 grl_lua_factory_source_supported_operations (GrlSource *source);
 
@@ -111,6 +128,8 @@ static GrlConfig *merge_all_configs (const gchar *source_id,
 
 static gboolean all_mandatory_options_has_value (GHashTable *source_configs,
                                                  GrlConfig *merged_configs);
+
+static gboolean lua_plugin_source_init (GrlLuaFactorySource *lua_source);
 
 /* ================== Lua-Factory Plugin  ================================== */
 
@@ -245,6 +264,12 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   g_free (source_id);
   source->priv->config_keys = config_keys;
   source->priv->l_st = L;
+
+  if (lua_plugin_source_init (source) == FALSE) {
+    g_object_unref (G_OBJECT (source));
+    source = NULL;
+  }
+
   return source;
 
 bail:
@@ -275,6 +300,11 @@ grl_lua_factory_source_class_init (GrlLuaFactorySourceClass *klass)
 
   source_class->supported_keys = grl_lua_factory_source_supported_keys;
   source_class->supported_operations = grl_lua_factory_source_supported_operations;
+  source_class->search = grl_lua_factory_source_search;
+  source_class->browse = grl_lua_factory_source_browse;
+  source_class->query = grl_lua_factory_source_query;
+  source_class->resolve = grl_lua_factory_source_resolve;
+  source_class->may_resolve = grl_lua_factory_source_may_resolve;
 
   g_type_class_add_private (klass, sizeof (GrlLuaFactorySourcePrivate));
 }
@@ -304,6 +334,62 @@ grl_lua_factory_source_finalize (GObject *object)
   lua_close (source->priv->l_st);
 
   G_OBJECT_CLASS (grl_lua_factory_source_parent_class)->finalize (object);
+}
+
+/* lua_plugin_source_init
+ *
+ * Calls a init function with current config_keys to check if the source is
+ * ready to operate.
+ */
+static gboolean
+lua_plugin_source_init (GrlLuaFactorySource *lua_source)
+{
+  lua_State *L = lua_source->priv->l_st;
+  GList *it_keys = NULL;
+  GList *list_keys = NULL;
+  const gchar *key = NULL;
+  const gchar *value = NULL;
+  gboolean ret = FALSE;
+
+  /* Source does not have grl_source_init() */
+  if (lua_source->priv->fn[LUA_SOURCE_INIT] == FALSE) {
+    GRL_DEBUG ("grl_source_init not implemented");
+    return TRUE;
+  }
+
+  lua_getglobal (L, LUA_SOURCE_OPERATION[LUA_SOURCE_INIT]);
+
+  if (lua_source->priv->config_keys != NULL) {
+    /* configs */
+    lua_newtable (L);
+
+    list_keys = g_hash_table_get_keys (lua_source->priv->config_keys);
+    for (it_keys = list_keys; it_keys; it_keys = g_list_next (it_keys)) {
+      key = it_keys->data;
+      value = grl_config_get_string (lua_source->priv->configs, key);
+
+      if (value) {
+        lua_pushstring (L, key);
+        lua_pushstring (L, value);
+        lua_settable (L, -3);
+      }
+    }
+    g_list_free (list_keys);
+
+  } else {
+    lua_pushnil (L);
+  }
+
+  if (lua_pcall (L, 1, 1, 0)) {
+    GRL_WARNING ("calling grl_source_init function failed: %s",
+                 lua_tolstring (L, -1, NULL));
+    lua_pop (L, 1);
+    return FALSE;
+  }
+
+  ret = (lua_isboolean (L, -1) && lua_toboolean (L, -1)) ? TRUE : FALSE;
+  lua_pop (L, 1);
+  return ret;
 }
 
 /* ======================= Utilities ======================================= */
@@ -813,6 +899,188 @@ grl_lua_factory_source_supported_keys (GrlSource *source)
 static GrlSupportedOps
 grl_lua_factory_source_supported_operations (GrlSource *source)
 {
-  /* No operation is implemented right now */
-  return 0;
+  GrlSupportedOps caps = 0;
+  GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
+
+  caps |= (lua_source->priv->fn[LUA_SEARCH]) ? GRL_OP_SEARCH : caps;
+  caps |= (lua_source->priv->fn[LUA_BROWSE]) ? GRL_OP_BROWSE : caps;
+  caps |= (lua_source->priv->fn[LUA_QUERY]) ? GRL_OP_QUERY : caps;
+  caps |= (lua_source->priv->fn[LUA_RESOLVE]) ? GRL_OP_RESOLVE : caps;
+
+  return caps;
+}
+
+static void
+grl_lua_factory_source_search (GrlSource *source,
+                               GrlSourceSearchSpec *ss)
+{
+  GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
+  lua_State *L = lua_source->priv->l_st;
+  OperationSpec *os = NULL;
+  const gchar *text = NULL;
+
+  GRL_DEBUG ("grl_lua_factory_source_search");
+
+  os = g_slice_new0 (OperationSpec);
+  os->source = ss->source;
+  os->operation_id = ss->operation_id;
+  os->cb.result = ss->callback;
+  os->user_data = ss->user_data;
+  os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
+  os->keys = g_list_copy (ss->keys);
+  os->options = grl_operation_options_copy (ss->options);
+  os->op_type = LUA_SEARCH;
+
+  grl_lua_library_save_operation_data (L, os);
+  lua_getglobal (L, LUA_SOURCE_OPERATION[LUA_SEARCH]);
+
+  text = (ss->text == NULL) ? "" : ss->text;
+  lua_pushstring (L, text);
+  if (lua_pcall (L, 1, 0, 0)) {
+    GRL_WARNING ("%s '%s'", "calling search function fail:",
+                 lua_tolstring (L, -1, NULL));
+    lua_pop (L, 1);
+  }
+}
+
+static void
+grl_lua_factory_source_browse (GrlSource *source,
+                               GrlSourceBrowseSpec *bs)
+{
+  GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
+  lua_State *L = lua_source->priv->l_st;
+  OperationSpec *os = NULL;
+  const gchar *media_id = NULL;
+
+  GRL_DEBUG ("grl_lua_factory_source_browse");
+
+  os = g_slice_new0 (OperationSpec);
+  os->source = bs->source;
+  os->operation_id = bs->operation_id;
+  os->media = bs->container;
+  os->cb.result = bs->callback;
+  os->user_data = bs->user_data;
+  os->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
+  os->keys = g_list_copy (bs->keys);
+  os->options = grl_operation_options_copy (bs->options);
+  os->op_type = LUA_BROWSE;
+
+  grl_lua_library_save_operation_data (L, os);
+  lua_getglobal (L, LUA_SOURCE_OPERATION[LUA_BROWSE]);
+
+  media_id = grl_media_get_id (os->media);
+  lua_pushstring (L, media_id);
+  if (lua_pcall (L, 1, 0, 0)) {
+    GRL_WARNING ("%s '%s'", "calling browse function fail:",
+                 lua_tolstring (L, -1, NULL));
+    lua_pop (L, 1);
+  }
+}
+
+static void
+grl_lua_factory_source_query (GrlSource *source,
+                              GrlSourceQuerySpec *qs)
+{
+  GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
+  lua_State *L = lua_source->priv->l_st;
+  OperationSpec *os = NULL;
+  const gchar *query = NULL;
+
+  GRL_DEBUG ("grl_lua_factory_source_query");
+
+  os = g_slice_new0 (OperationSpec);
+  os->source = qs->source;
+  os->operation_id = qs->operation_id;
+  os->cb.result = qs->callback;
+  os->user_data = qs->user_data;
+  os->error_code = GRL_CORE_ERROR_QUERY_FAILED;
+  os->keys = g_list_copy (qs->keys);
+  os->options = grl_operation_options_copy (qs->options);
+  os->op_type = LUA_QUERY;
+
+  grl_lua_library_save_operation_data (L, os);
+  lua_getglobal (L, LUA_SOURCE_OPERATION[LUA_QUERY]);
+
+  query = (qs->query == NULL) ? "" : qs->query;
+  lua_pushstring (L, query);
+  if (lua_pcall (L, 1, 0, 0)) {
+    GRL_WARNING ("%s '%s'", "calling query function fail:",
+                 lua_tolstring (L, -1, NULL));
+    lua_pop (L, 1);
+  }
+}
+
+static void
+grl_lua_factory_source_resolve (GrlSource *source,
+                                GrlSourceResolveSpec *rs)
+{
+  GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
+  lua_State *L = lua_source->priv->l_st;
+  OperationSpec *os = NULL;
+
+  GRL_DEBUG ("grl_lua_factory_source_resolve");
+
+  os = g_slice_new0 (OperationSpec);
+  os->source = rs->source;
+  os->operation_id = rs->operation_id;
+  os->cb.resolve = rs->callback;
+  os->media = rs->media;
+  os->user_data = rs->user_data;
+  os->error_code = GRL_CORE_ERROR_RESOLVE_FAILED;
+  os->keys = g_list_copy (rs->keys);
+  os->options = grl_operation_options_copy (rs->options);
+  os->op_type = LUA_RESOLVE;
+
+  grl_lua_library_save_operation_data (L, os);
+  lua_getglobal (L, LUA_SOURCE_OPERATION[LUA_RESOLVE]);
+
+  if (lua_pcall (L, 0, 0, 0)) {
+    GRL_WARNING ("%s '%s'", "calling resolve function fail:",
+                 lua_tolstring (L, -1, NULL));
+    lua_pop (L, 1);
+  }
+}
+
+static gboolean
+grl_lua_factory_source_may_resolve (GrlSource *source,
+                                    GrlMedia *media,
+                                    GrlKeyID key_id,
+                                    GList **missing_keys)
+{
+  GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
+  GList *it_keys = NULL;
+  GList *missing = NULL;
+  GrlMediaType res_type = GRL_MEDIA_TYPE_NONE;
+  GrlKeyID it_key_id = GRL_METADATA_KEY_INVALID;
+
+  GRL_DEBUG ("grl_lua_factory_source_may_resolve");
+
+  if (lua_source->priv->resolve_keys == NULL
+      || !g_list_find (lua_source->priv->supported_keys,
+                       GRLKEYID_TO_POINTER (key_id))) {
+    return FALSE;
+  }
+
+  /* Verify if the source resolve type and media type match */
+  res_type = lua_source->priv->resolve_type;
+  if ((GRL_IS_MEDIA_AUDIO (media) && !(res_type & GRL_MEDIA_TYPE_AUDIO))
+      || (GRL_IS_MEDIA_IMAGE (media) && !(res_type & GRL_MEDIA_TYPE_IMAGE))
+      || (GRL_IS_MEDIA_VIDEO (media) && !(res_type & GRL_MEDIA_TYPE_VIDEO))) {
+    return FALSE;
+  }
+
+  /* Verify if all keys needed are present */
+  for (it_keys = lua_source->priv->resolve_keys;
+       it_keys;
+       it_keys = g_list_next (it_keys)) {
+
+    it_key_id = GRLPOINTER_TO_KEYID (it_keys->data);
+    if (it_key_id != GRL_METADATA_KEY_INVALID
+        && grl_data_has_key (GRL_DATA (media), it_key_id) == FALSE) {
+      missing = g_list_prepend (missing, GRLKEYID_TO_POINTER (it_key_id));
+    }
+  }
+
+  *missing_keys = missing;
+  return (missing == NULL) ? TRUE : FALSE;
 }

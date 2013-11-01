@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "grl-lua-common.h"
+#include "grl-lua-library.h"
 
 #define GRL_LOG_DOMAIN_DEFAULT lua_library_log_domain
 GRL_LOG_DOMAIN_STATIC (lua_library_log_domain);
@@ -43,4 +44,45 @@ luaopen_grilo (lua_State *L)
   luaL_newlib (L, library_fn);
 
   return 1;
+}
+
+/* ======= Lua-Library and Lua-Factory utilities ============= */
+
+/**
+ * grl_lua_library_save_operation_data
+ *
+ * @L : LuaState where the data will be stored.
+ * @os: The Operation Data to store.
+ * @return: Nothing.
+ *
+ * Stores the OperationSpec from Lua-Factory in the global environment of
+ * lua_State.
+ **/
+void
+grl_lua_library_save_operation_data (lua_State *L, OperationSpec *os)
+{
+  lua_getglobal (L, LUA_ENV_TABLE);
+  lua_pushstring (L, GRILO_LUA_OPERATION_INDEX);
+  lua_pushlightuserdata (L, os);
+  lua_settable (L, -3);
+  lua_pop (L, 1);
+}
+
+/**
+ * grl_lua_library_load_operation_data
+ *
+ * @L : LuaState where the data is stored.
+ * @return: The Operation Data.
+ **/
+OperationSpec *
+grl_lua_library_load_operation_data (lua_State *L)
+{
+  OperationSpec *os = NULL;
+
+  lua_getglobal (L, LUA_ENV_TABLE);
+  lua_pushstring (L, GRILO_LUA_OPERATION_INDEX);
+  lua_gettable (L, -2);
+  os = (lua_islightuserdata(L, -1)) ? lua_touserdata(L, -1) : NULL;
+  lua_pop(L, 1);
+  return os;
 }

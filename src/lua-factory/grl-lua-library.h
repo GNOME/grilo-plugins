@@ -31,6 +31,10 @@
 
 #define GRILO_LUA_LIBRARY_NAME "grl"
 
+#define LUA_ENV_TABLE "_G"
+
+#define GRILO_LUA_OPERATION_INDEX "grl-lua-operation-spec"
+
 gint luaopen_grilo (lua_State *L);
 
 #endif /* _GRL_LUA_LIBRARY_H_ */

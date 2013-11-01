@@ -26,16 +26,11 @@
 
 #include <grilo.h>
 
-#ifndef _GRL_LUA_LIBRARY_H_
-#define _GRL_LUA_LIBRARY_H_
+#ifndef _GRL_LUA_LIBRARY_JSON_H_
+#define _GRL_LUA_LIBRARY_JSON_H_
 
-#define GRILO_LUA_LIBRARY_NAME "grl"
-#define LUA_MODULES_NAME       "lua"
+#define GRILO_LUA_LIBRARY_JSON  "json"
 
-#define LUA_ENV_TABLE "_G"
+gint luaopen_json (lua_State *L);
 
-#define GRILO_LUA_OPERATION_INDEX "grl-lua-operation-spec"
-
-gint luaopen_grilo (lua_State *L);
-
-#endif /* _GRL_LUA_LIBRARY_H_ */
+#endif /* _GRL_LUA_LIBRARY_JSON_H_ */

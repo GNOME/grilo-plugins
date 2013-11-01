@@ -26,6 +26,7 @@ libgrlluafactory_la_SOURCES =					\
 	grl-lua-library.c					\
 	grl-lua-library.h					\
 	grl-lua-common.h					\
+	lua-library/lua-json.c					\
 	lua-library/lua-libraries.h
 
 extdir			= $(GRL_PLUGINS_DIR)

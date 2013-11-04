@@ -79,6 +79,7 @@ struct _GrlVimeoSourcePrivate {
 };
 
 static GrlVimeoSource *grl_vimeo_source_new (void);
+static void grl_vimeo_source_finalize (GObject *object);
 
 gboolean grl_vimeo_plugin_init (GrlRegistry *registry,
                                 GrlPlugin *plugin,
@@ -192,11 +193,14 @@ static void
 grl_vimeo_source_class_init (GrlVimeoSourceClass * klass)
 {
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   source_class->supported_keys = grl_vimeo_source_supported_keys;
   source_class->slow_keys = grl_vimeo_source_slow_keys;
   source_class->resolve = grl_vimeo_source_resolve;
   source_class->search = grl_vimeo_source_search;
+
+  object_class->finalize = grl_vimeo_source_finalize;
 
   g_type_class_add_private (klass, sizeof (GrlVimeoSourcePrivate));
 }
@@ -210,6 +214,16 @@ grl_vimeo_source_init (GrlVimeoSource *source)
 }
 
 G_DEFINE_TYPE (GrlVimeoSource, grl_vimeo_source, GRL_TYPE_SOURCE);
+
+static void
+grl_vimeo_source_finalize (GObject *object)
+{
+  GrlVimeoSource *source = GRL_VIMEO_SOURCE (object);
+
+  g_clear_object (&source->priv->vimeo);
+
+  G_OBJECT_CLASS (grl_vimeo_source_parent_class)->finalize (object);
+}
 
 /* ======================= Utilities ==================== */
 

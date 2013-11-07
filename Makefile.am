@@ -81,6 +81,6 @@ lcov-clean:
 
 lcov:
 	@mkdir -p coverage
-	@lcov --compat-libtool --directory . --capture --output-file coverage/app.info
-	@genhtml -o coverage/ coverage/app.info
+	@lcov --compat-libtool --directory src --capture --output-file coverage/grilo.info
+	@genhtml -o coverage/ coverage/grilo.info
 endif

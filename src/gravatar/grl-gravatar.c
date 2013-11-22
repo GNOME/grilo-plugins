@@ -101,7 +101,7 @@ grl_gravatar_source_plugin_init (GrlRegistry *registry,
                             "Avatar for the author");
   if (!GRL_METADATA_KEY_ARTIST_AVATAR &&
       !GRL_METADATA_KEY_AUTHOR_AVATAR) {
-    GRL_WARNING ("Unable to register \"autor-avatar\" nor \"artist-avatar\"");
+    GRL_WARNING ("Unable to register \"author-avatar\" nor \"artist-avatar\"");
     return FALSE;
   }
 

@@ -144,7 +144,7 @@ PKG_CHECK_MODULES(GMIME, gmime-2.6,
                                                    HAVE_GMIME=no)])
 # Search available Tracker version
 trackerpkg="tracker-sparql-0.10"
-m4_foreach([VERSION], [[0.10], [0.11], [0.12], [0.14], [0.15], [0.16], [0.17]],
+m4_foreach([VERSION], [[0.10], [0.11], [0.12], [0.14], [0.15], [0.16], [0.17], [0.18]],
                       [PKG_CHECK_EXISTS([tracker-sparql-VERSION >= 0.10.5],
                                         [ trackerpkg="tracker-sparql-VERSION" ])
                       ])

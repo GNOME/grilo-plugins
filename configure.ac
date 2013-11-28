@@ -167,7 +167,7 @@ AC_ARG_ENABLE(goa,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GOA" = "xno"; then
-                           AC_MSG_ERROR([goa >= 3.7.1 not found, install it or use --disable-goa])
+                           AC_MSG_ERROR([goa-1.0 >= 3.7.1 not found, install it or use --disable-goa])
                         fi
                         ;;
                 esac
@@ -280,7 +280,7 @@ AC_ARG_ENABLE(optical-media,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_TOTEM_PL_PARSER" = "xno"; then
-                           AC_MSG_ERROR([totem-pl-parser not found, install it or use --disable-optical-media])
+                           AC_MSG_ERROR([totem-plparser >= 3.4.1 not found, install it or use --disable-optical-media])
                         fi
                         ;;
                 esac
@@ -320,10 +320,10 @@ AC_ARG_ENABLE(jamendo,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-jamendo])
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-jamendo])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-jamendo])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-jamendo])
                         fi
                         ;;
                 esac
@@ -363,10 +363,10 @@ AC_ARG_ENABLE(lastfm_albumart,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-lastfm-albumart])
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-lastfm-albumart])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-lastfm-albumart])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-lastfm-albumart])
                         fi
                         ;;
                 esac
@@ -406,16 +406,16 @@ AC_ARG_ENABLE(upnp,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GSSDP" = "xno"; then
-                           AC_MSG_ERROR([gssdp not found, install it or use --disable-upnp])
+                           AC_MSG_ERROR([gssdp-1.0 not found, install it or use --disable-upnp])
                         fi
                         if test "x$HAVE_GUPNP" = "xno"; then
-                           AC_MSG_ERROR([gupnp not found, install it or use --disable-upnp])
+                           AC_MSG_ERROR([gupnp-1.0 >= 0.13 not found, install it or use --disable-upnp])
                         fi
                         if test "x$HAVE_GUPNPAV" = "xno"; then
-                           AC_MSG_ERROR([gupnp-av not found, install it or use --disable-upnp])
+                           AC_MSG_ERROR([gupnp-av-1.0 >= 0.5 not found, install it or use --disable-upnp])
                         fi
                         if test "$xHAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-upnp])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-upnp])
                         fi
                 esac
         ],
@@ -454,16 +454,16 @@ AC_ARG_ENABLE(youtube,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-youtube])
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2  not found, install it or use --disable-youtube])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-youtube])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-youtube])
                         fi
                         if test "x$HAVE_GDATA" = "xno"; then
-                           AC_MSG_ERROR([libgdata not found, install it or use --disable-youtube])
+                           AC_MSG_ERROR([libgdata >= 0.7.0 not found, install it or use --disable-youtube])
                         fi
                         if test "x$HAVE_TOTEM_PL_PARSER" = "xno"; then
-                           AC_MSG_ERROR([totem-pl-parser not found, install it or use --disable-youtube])
+                           AC_MSG_ERROR([totem-plparser >= 3.4.1 not found, install it or use --disable-youtube])
                         fi
                         ;;
                 esac
@@ -503,13 +503,13 @@ AC_ARG_ENABLE(flickr,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-flickr])
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-flickr])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-flickr])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-flickr])
                         fi
                         if test "x$HAVE_OAUTH" = "xno"; then
-                           AC_MSG_ERROR([liboauth not found, install it or use --disable-flickr])
+                           AC_MSG_ERROR([oauth not found, install it or use --disable-flickr])
                         fi
                         ;;
                 esac
@@ -557,16 +557,16 @@ AC_ARG_ENABLE(podcasts,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-podcasts])
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-podcasts])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-podcasts])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-podcasts])
                         fi
                         if test "x$HAVE_SQLITE" = "xno"; then
                            AC_MSG_ERROR([sqlite3 not found, install it or use --disable-podcasts])
                         fi
                         if test "x$HAVE_GMIME" = "xno"; then
-                           AC_MSG_ERROR([gmime not found, install it or use --disable-podcasts])
+                           AC_MSG_ERROR([gmime-2.4 or gmime-2.6 not found, install it or use --disable-podcasts])
                         fi
                         ;;
                 esac
@@ -609,10 +609,10 @@ AC_ARG_ENABLE(bookmarks,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([GIO not found, install it or use --disable-bookmarks])
+                           AC_MSG_ERROR([gio-2.0 not found, install it or use --disable-bookmarks])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-bookmarks])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-bookmarks])
                         fi
                         if test "x$HAVE_SQLITE" = "xno"; then
                            AC_MSG_ERROR([sqlite3 not found, install it or use --disable-bookmarks])
@@ -655,10 +655,10 @@ AC_ARG_ENABLE(shoutcast,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-shoutcast])
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-shoutcast])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-shoutcast])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-shoutcast])
                         fi
                         ;;
                 esac
@@ -698,10 +698,10 @@ AC_ARG_ENABLE(apple_trailers,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-apple-trailers])
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-apple-trailers])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-apple-trailers])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-apple-trailers])
                         fi
                         ;;
                 esac
@@ -744,7 +744,7 @@ AC_ARG_ENABLE(magnatune,
                            AC_MSG_ERROR([sqlite3 not found, install it or use --disable-magnatune])
                         fi
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-magnatune])
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-magnatune])
                         fi
                         ;;
                 esac
@@ -824,16 +824,16 @@ AC_ARG_ENABLE(vimeo,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-vimeo])
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-vimeo])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-vimeo])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-vimeo])
                         fi
 			               if test "x$HAVE_GCRYPT" = "xno"; then
                            AC_MSG_ERROR([libgcrypt not found, install it or use --disable-vimeo])
                         fi
                         if test "x$HAVE_TOTEM_PL_PARSER" = "xno"; then
-                           AC_MSG_ERROR([totem-pl-parser not found, install it or use --disable-vimeo])
+                           AC_MSG_ERROR([totem-plparser >= 3.4.1 not found, install it or use --disable-vimeo])
                         fi
                         ;;
                 esac
@@ -942,10 +942,10 @@ AC_ARG_ENABLE(bliptv,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-bliptv])
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-bliptv])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-bliptv])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-bliptv])
                         fi
                         ;;
                 esac
@@ -985,10 +985,10 @@ AC_ARG_ENABLE(raitv,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net not found, install it or use --disable-raitv])
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-raitv])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-raitv])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-raitv])
                         fi
                         ;;
                 esac
@@ -1068,10 +1068,10 @@ AC_ARG_ENABLE(dmap,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_DMAP" = "xno"; then
-                           AC_MSG_ERROR([DMAP not found, install it or use --disable-dmap])
+                           AC_MSG_ERROR([libdmapsharing-3.0 >= 2.9.12 not found, install it or use --disable-dmap])
                         fi
                         if test "$xHAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([xml2 not found, install it or use --disable-dmap])
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-dmap])
                         fi
                 esac
         ],

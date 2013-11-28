@@ -5,6 +5,6 @@
     <description>A plugin for searching music</description>
     <author>Victor Toso</author>
     <license>LGPL</license>
-    <site>http://live.gnome.org/Grilo</site>
+    <site>https://wiki.gnome.org/Projects/Grilo</site>
   </info>
 </plugin>

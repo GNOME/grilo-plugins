@@ -1,0 +1,581 @@
+# Chinese (China) translation for grilo-plugins.
+# Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
+# This file is distributed under the same license as the grilo-plugins package.
+# 甘露(Gan Lu) <rhythm.gan@gmail.com>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: grilo-plugins master\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
+"plugins&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2013-11-28 09:48+0000\n"
+"PO-Revision-Date: 2013-11-30 20:57+0800\n"
+"Last-Translator: 甘露(Gan Lu) <rhythm.gan@gmail.com>\n"
+"Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:55
+msgid "Apple Movie Trailers"
+msgstr "苹果电影格式预告片"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:56
+msgid "A plugin for browsing Apple Movie Trailers"
+msgstr "浏览苹果电影格式预告片的插件"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:456
+#: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
+#: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:472
+msgid "Failed to parse response"
+msgstr "无法解析应答"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:464
+#: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
+#: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
+msgid "Empty response"
+msgstr "无应答"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:523
+#: ../src/jamendo/grl-jamendo.c:666
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
+#: ../src/shoutcast/grl-shoutcast.c:565
+#, c-format
+msgid "Failed to connect: %s"
+msgstr "无法连接：%s"
+
+#: ../src/bliptv/grl-bliptv.c:60
+msgid "A source for browsing and searching Blip.tv videos"
+msgstr "浏览及搜索 Blip.tv 视频的源"
+
+#: ../src/bookmarks/grl-bookmarks.c:119
+msgid "Bookmarks"
+msgstr "书签"
+
+#: ../src/bookmarks/grl-bookmarks.c:120
+msgid "A source for organizing media bookmarks"
+msgstr "组织媒体书签的源"
+
+#: ../src/bookmarks/grl-bookmarks.c:441 ../src/bookmarks/grl-bookmarks.c:456
+msgid "Failed to get bookmark metadata"
+msgstr "无法得到书签元数据"
+
+#: ../src/bookmarks/grl-bookmarks.c:486 ../src/bookmarks/grl-bookmarks.c:506
+#, c-format
+msgid "Failed to get bookmarks list: %s"
+msgstr "无法得到书签列表：%s"
+
+#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:817
+#: ../src/podcasts/grl-podcasts.c:849 ../src/podcasts/grl-podcasts.c:881
+#, c-format
+msgid "Failed to remove: %s"
+msgstr "无法删除：%s"
+
+#: ../src/bookmarks/grl-bookmarks.c:660 ../src/bookmarks/grl-bookmarks.c:718
+#: ../src/podcasts/grl-podcasts.c:922 ../src/podcasts/grl-podcasts.c:955
+#: ../src/podcasts/grl-podcasts.c:1804
+#, c-format
+msgid "Failed to store: %s"
+msgstr "无法存储：%s"
+
+#: ../src/bookmarks/grl-bookmarks.c:772 ../src/bookmarks/grl-bookmarks.c:807
+#: ../src/bookmarks/grl-bookmarks.c:839 ../src/bookmarks/grl-bookmarks.c:901
+#: ../src/metadata-store/grl-metadata-store.c:852
+#: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
+#: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
+msgid "No database connection"
+msgstr "无数据库连接"
+
+#: ../src/dmap/grl-dmap.c:51
+#, c-format
+msgid "A source for browsing the DMAP server '%s'"
+msgstr "浏览 DMAP 服务器 '%s' 的源"
+
+#: ../src/filesystem/grl-filesystem.c:77
+msgid "Filesystem"
+msgstr "文件系统"
+
+#: ../src/filesystem/grl-filesystem.c:78
+msgid "A source for browsing the filesystem"
+msgstr "浏览文件系统的源"
+
+#: ../src/filesystem/grl-filesystem.c:1343
+#, c-format
+msgid "File %s does not exist"
+msgstr "文件 %s 不存在"
+
+#: ../src/filesystem/grl-filesystem.c:1420 ../src/youtube/grl-youtube.c:1624
+#, c-format
+msgid "Cannot get media from %s"
+msgstr "无法从 %s 获得媒体"
+
+#: ../src/flickr/grl-flickr.c:63
+msgid "A source for browsing and searching Flickr photos"
+msgstr "浏览和搜索 Flickr 照片的源"
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:67
+#, c-format
+msgid "%s's Flickr"
+msgstr "%s 的 Flickr"
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:69
+#, c-format
+msgid "A source for browsing and searching %s's flickr photos"
+msgstr "浏览和搜索 %s 的 Flickr 照片的源"
+
+#: ../src/gravatar/grl-gravatar.c:48
+msgid "Avatar provider from Gravatar"
+msgstr "Gravatar 提供的头像"
+
+#: ../src/gravatar/grl-gravatar.c:49
+msgid "A plugin to get avatars for artist and author fields"
+msgstr "从艺人及作者字段处得到头像的插件"
+
+#: ../src/jamendo/grl-jamendo.c:93
+msgid "A source for browsing and searching Jamendo music"
+msgstr "浏览及搜索 Jamendo 音乐的源"
+
+#: ../src/jamendo/grl-jamendo.c:149
+msgid "Albums of the week"
+msgstr "本周专辑之星"
+
+#: ../src/jamendo/grl-jamendo.c:151
+msgid "Tracks of the week"
+msgstr "本周曲目之星"
+
+#: ../src/jamendo/grl-jamendo.c:153
+msgid "New releases"
+msgstr "新发行"
+
+#: ../src/jamendo/grl-jamendo.c:155
+msgid "Top artists"
+msgstr "顶级艺人"
+
+#: ../src/jamendo/grl-jamendo.c:157
+msgid "Top albums"
+msgstr "顶级专辑"
+
+#: ../src/jamendo/grl-jamendo.c:159
+msgid "Top tracks"
+msgstr "顶级曲目"
+
+#: ../src/jamendo/grl-jamendo.c:774 ../src/magnatune/grl-magnatune.c:120
+msgid "Artists"
+msgstr "艺人"
+
+#: ../src/jamendo/grl-jamendo.c:785 ../src/magnatune/grl-magnatune.c:121
+msgid "Albums"
+msgstr "专辑"
+
+#: ../src/jamendo/grl-jamendo.c:796
+msgid "Feeds"
+msgstr "飞递"
+
+#: ../src/jamendo/grl-jamendo.c:982 ../src/jamendo/grl-jamendo.c:1027
+#: ../src/jamendo/grl-jamendo.c:1054
+#, c-format
+msgid "Invalid identifier %s"
+msgstr "无效的识别码 %s"
+
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1188
+#: ../src/youtube/grl-youtube.c:1331 ../src/youtube/grl-youtube.c:1551
+#, c-format
+msgid "Invalid category identifier %s"
+msgstr "无效的分类识别码 %s"
+
+#: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
+#: ../src/magnatune/grl-magnatune.c:829
+#, c-format
+msgid "Invalid container identifier %s"
+msgstr "无效的容器识别码 %s"
+
+#: ../src/jamendo/grl-jamendo.c:1186
+#, c-format
+msgid "Failed to browse: %s is a track"
+msgstr "无法浏览：%s 是一条音轨"
+
+#: ../src/jamendo/grl-jamendo.c:1248
+#, c-format
+msgid "Malformed query \"%s\""
+msgstr "查询格式不对 \"%s\""
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
+msgid "Album art Provider from Last.FM"
+msgstr "来自 Last.FM 的专辑封面提供者"
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
+msgid "A plugin for getting album arts using Last.FM as backend"
+msgstr "使用 Last.FM 作为后端来获得专辑的插件"
+
+#: ../src/local-metadata/grl-local-metadata.c:42
+msgid "Local Metadata Provider"
+msgstr "本地元数据提供者"
+
+#: ../src/local-metadata/grl-local-metadata.c:43
+msgid "A source providing locally available metadata"
+msgstr "提供本地可用元数据的源"
+
+#: ../src/local-metadata/grl-local-metadata.c:481
+#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:864
+#: ../src/tracker/grl-tracker-source-api.c:460
+#, c-format
+msgid "Failed to resolve: %s"
+msgstr "无法解析：%s"
+
+#: ../src/local-metadata/grl-local-metadata.c:1014
+msgid "Cannot resolve any of the given keys"
+msgstr "给定的键均无法解析"
+
+#: ../src/local-metadata/grl-local-metadata.c:1018
+msgid "A GIO supported URL for images is required"
+msgstr "需要映像有一个 GIO 支持的 URL"
+
+#: ../src/magnatune/grl-magnatune.c:122
+msgid "Genres"
+msgstr "流派"
+
+#: ../src/magnatune/grl-magnatune.c:130
+msgid "A source for browsing music"
+msgstr "浏览音乐的源"
+
+#: ../src/magnatune/grl-magnatune.c:406
+#, c-format
+msgid "Failed to get database from magnatune: %s"
+msgstr "无法从 Magnatune 商店获得数据库：%s"
+
+#: ../src/magnatune/grl-magnatune.c:436
+#, c-format
+msgid "Failed to save database from magnatune - '%s'"
+msgstr "无法从 Magnatune 处保存数据库 - '%s'"
+
+#: ../src/magnatune/grl-magnatune.c:684
+#, c-format
+msgid "Failed to get table from magnatune db: %s"
+msgstr "无法从 Magnatune 数据库得到数据库表：%s"
+
+#: ../src/magnatune/grl-magnatune.c:700
+#, c-format
+msgid "Fail before returning media to user: %s"
+msgstr "在归还媒体给用户前失败：%s"
+
+#: ../src/metadata-store/grl-metadata-store.c:47
+msgid "Metadata Store"
+msgstr "元数据存储"
+
+#: ../src/metadata-store/grl-metadata-store.c:48
+msgid "A plugin for storing extra metadata information"
+msgstr "存储额元数据信息的插件"
+
+#: ../src/metadata-store/grl-metadata-store.c:574
+#: ../src/metadata-store/grl-metadata-store.c:593
+#: ../src/metadata-store/grl-metadata-store.c:805
+#: ../src/tracker/grl-tracker-source-api.c:511
+#, c-format
+msgid "Failed to update metadata: %s"
+msgstr "无法更新元数据：%s"
+
+#: ../src/metadata-store/grl-metadata-store.c:575
+msgid "specified keys are not writable"
+msgstr "指定的键不可写"
+
+#: ../src/metadata-store/grl-metadata-store.c:615
+msgid "Failed to update metadata"
+msgstr "无法更新元数据"
+
+#: ../src/metadata-store/grl-metadata-store.c:761
+#: ../src/metadata-store/grl-metadata-store.c:806
+msgid "\"source-id\" not available"
+msgstr "\"source-id\" 不可用"
+
+#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1433
+msgid "Failed to resolve"
+msgstr "解析失败"
+
+#: ../src/metadata-store/grl-metadata-store.c:920
+#: ../src/metadata-store/grl-metadata-store.c:957 ../src/raitv/grl-raitv.c:415
+#: ../src/shoutcast/grl-shoutcast.c:759 ../src/vimeo/grl-vimeo.c:525
+#, c-format
+msgid "Failed to search: %s"
+msgstr "无法搜索：%s"
+
+#: ../src/optical-media/grl-optical-media.c:46
+msgid "Optical Media"
+msgstr "光媒介"
+
+#: ../src/optical-media/grl-optical-media.c:47
+msgid "A source for browsing optical media"
+msgstr "浏览光媒介的源"
+
+#: ../src/podcasts/grl-podcasts.c:155
+msgid "A source for browsing podcasts"
+msgstr "浏览播客的源"
+
+#: ../src/podcasts/grl-podcasts.c:753 ../src/podcasts/grl-podcasts.c:773
+#, c-format
+msgid "Failed to get podcast streams: %s"
+msgstr "无法获得播客流：%s"
+
+#: ../src/podcasts/grl-podcasts.c:1239 ../src/podcasts/grl-podcasts.c:1248
+#: ../src/podcasts/grl-podcasts.c:1258
+msgid "Failed to parse content"
+msgstr "无法解析内容"
+
+#: ../src/podcasts/grl-podcasts.c:1291
+msgid "Failed to parse podcast contents"
+msgstr "无法解析播客内容"
+
+#: ../src/podcasts/grl-podcasts.c:1449
+msgid "Failed to get podcast information"
+msgstr "无法获得播客信息"
+
+#: ../src/podcasts/grl-podcasts.c:1489 ../src/podcasts/grl-podcasts.c:1509
+#, c-format
+msgid "Failed to get podcasts list: %s"
+msgstr "无法获得播客清单：%s"
+
+#: ../src/podcasts/grl-podcasts.c:1563 ../src/podcasts/grl-podcasts.c:1578
+msgid "Failed to get podcast stream metadata"
+msgstr "无法获得播客流元数据"
+
+#: ../src/podcasts/grl-podcasts.c:1616
+msgid "Failed to get podcast metadata"
+msgstr "无法获得播客元数据"
+
+#: ../src/podcasts/grl-podcasts.c:1800
+msgid "Cannot create containers. Only feeds are accepted"
+msgstr "无法创建容器。仅接受飞递"
+
+#: ../src/podcasts/grl-podcasts.c:1805
+msgid "URL required"
+msgstr "要求 URL"
+
+#: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
+msgid "Most Popular"
+msgstr "最为流行"
+
+#: ../src/raitv/grl-raitv.c:52
+msgid "Recent"
+msgstr "近期"
+
+#: ../src/raitv/grl-raitv.c:95
+msgid "A source for browsing and searching Rai.tv videos"
+msgstr "浏览及搜索 Rai.tv 视频的源"
+
+#: ../src/raitv/grl-raitv.c:173
+msgid "All"
+msgstr "全部"
+
+#: ../src/raitv/grl-raitv.c:174
+msgid "Black and White"
+msgstr "黑与白"
+
+#: ../src/raitv/grl-raitv.c:175
+msgid "Cinema"
+msgstr "影院"
+
+#: ../src/raitv/grl-raitv.c:176
+msgid "Comedians"
+msgstr "谐星"
+
+#: ../src/raitv/grl-raitv.c:177
+msgid "Chronicle"
+msgstr "纪事"
+
+#: ../src/raitv/grl-raitv.c:178
+msgid "Culture"
+msgstr "文化"
+
+#: ../src/raitv/grl-raitv.c:179
+msgid "Economy"
+msgstr "经济"
+
+#: ../src/raitv/grl-raitv.c:180
+msgid "Fiction"
+msgstr "小说"
+
+#: ../src/raitv/grl-raitv.c:181
+msgid "Junior"
+msgstr "青春"
+
+#: ../src/raitv/grl-raitv.c:182
+msgid "Investigations"
+msgstr "调查"
+
+#: ../src/raitv/grl-raitv.c:183
+msgid "Interviews"
+msgstr "面谈"
+
+#: ../src/raitv/grl-raitv.c:184
+msgid "Music"
+msgstr "音乐"
+
+#: ../src/raitv/grl-raitv.c:185
+msgid "News"
+msgstr "新闻"
+
+#: ../src/raitv/grl-raitv.c:186
+msgid "Health"
+msgstr "健康"
+
+#: ../src/raitv/grl-raitv.c:187
+msgid "Satire"
+msgstr "讽刺"
+
+#: ../src/raitv/grl-raitv.c:189
+msgid "Society"
+msgstr "社会"
+
+#: ../src/raitv/grl-raitv.c:190
+msgid "Show"
+msgstr "秀逗"
+
+#: ../src/raitv/grl-raitv.c:191
+msgid "Sport"
+msgstr "运动"
+
+#: ../src/raitv/grl-raitv.c:192
+msgid "History"
+msgstr "历史"
+
+#: ../src/raitv/grl-raitv.c:193
+msgid "Politics"
+msgstr "政治"
+
+#: ../src/raitv/grl-raitv.c:194
+msgid "Leisure"
+msgstr "休闲"
+
+#: ../src/raitv/grl-raitv.c:195
+msgid "Travel"
+msgstr "旅游"
+
+#: ../src/raitv/grl-raitv.c:611
+#, c-format
+msgid "Failed to browse: %s"
+msgstr "无法浏览：%s"
+
+#: ../src/shoutcast/grl-shoutcast.c:67
+msgid "A source for browsing SHOUTcast radios"
+msgstr "浏览 SHOUTcast 广播的源"
+
+#: ../src/shoutcast/grl-shoutcast.c:462
+#, c-format
+msgid "Cannot find media %s"
+msgstr "无法找到媒介 %s"
+
+#: ../src/shoutcast/grl-shoutcast.c:760 ../src/vimeo/grl-vimeo.c:526
+msgid "non-NULL search text is required"
+msgstr "要求非空的搜索文本"
+
+#: ../src/tmdb/grl-tmdb.c:962
+msgid "Remote data does not contain valid identifier"
+msgstr "远端数据未包含有效的识别码"
+
+#. I can haz templatze ??
+#. Only emit this last one if more result than expected
+#. Schedule the next line to parse
+#: ../src/tracker/grl-tracker-source-api.c:332
+#: ../src/tracker/grl-tracker-source-api.c:414
+#, c-format
+msgid "Failed to query: %s"
+msgstr "无法查询：%s"
+
+#: ../src/tracker/grl-tracker-source-api.c:628
+msgid "Empty query"
+msgstr "空查询"
+
+#: ../src/tracker/grl-tracker-source-priv.h:44
+msgid "A plugin for searching multimedia content using Tracker"
+msgstr "使用 Tracker 搜索多媒体内容的插件"
+
+#: ../src/tracker/grl-tracker-utils.c:606
+#, c-format
+msgid "Removable - %s"
+msgstr "可移动 - %s"
+
+#: ../src/tracker/grl-tracker-utils.c:618
+msgid "Local files"
+msgstr "本地文件"
+
+#: ../src/upnp/grl-upnp.c:53
+#, c-format
+msgid "A source for browsing the UPnP server '%s'"
+msgstr "浏览 UPnP 服务器 '%s' 的源"
+
+#: ../src/upnp/grl-upnp.c:1263 ../src/upnp/grl-upnp.c:1320
+msgid "Failed to browse"
+msgstr "无法浏览"
+
+#: ../src/upnp/grl-upnp.c:1383
+msgid "Failed to query"
+msgstr "无法查询"
+
+#: ../src/upnp/grl-upnp.c:1502
+#, c-format
+msgid "Unable to listen for changes in %s"
+msgstr "无法监听在 %s 中的变化"
+
+#: ../src/vimeo/grl-vimeo.c:57
+msgid "A source for browsing and searching Vimeo videos"
+msgstr "浏览及搜索 Vimeo 视频的源"
+
+#: ../src/youtube/grl-youtube.c:60
+msgid "Standard feeds"
+msgstr "标准飞递"
+
+#: ../src/youtube/grl-youtube.c:63
+msgid "Categories"
+msgstr "分类"
+
+#: ../src/youtube/grl-youtube.c:69
+msgid "Top Rated"
+msgstr "最高评分"
+
+#: ../src/youtube/grl-youtube.c:72
+msgid "Top Favorites"
+msgstr "最受欢迎"
+
+#: ../src/youtube/grl-youtube.c:75
+msgid "Most Viewed"
+msgstr "最多查看"
+
+#: ../src/youtube/grl-youtube.c:81
+msgid "Most Recent"
+msgstr "最最近期"
+
+#: ../src/youtube/grl-youtube.c:84
+msgid "Most Discussed"
+msgstr "最多讨论"
+
+#: ../src/youtube/grl-youtube.c:87
+msgid "Most Linked"
+msgstr "最多被链"
+
+#: ../src/youtube/grl-youtube.c:90
+msgid "Most Responded"
+msgstr "最多响应"
+
+#: ../src/youtube/grl-youtube.c:93
+msgid "Recently Featured"
+msgstr "最近精选"
+
+#: ../src/youtube/grl-youtube.c:96
+msgid "Watch On Mobile"
+msgstr "在移动设备上观看"
+
+#: ../src/youtube/grl-youtube.c:117
+msgid "A source for browsing and searching YouTube videos"
+msgstr "浏览及搜索 YouTube 视频的源"
+
+#: ../src/youtube/grl-youtube.c:937
+msgid "Failed to get feed"
+msgstr "无法获得飞递"
+
+#: ../src/youtube/grl-youtube.c:1115 ../src/youtube/grl-youtube.c:1531
+#, c-format
+msgid "Invalid feed identifier %s"
+msgstr "无效的飞递识别码 %s"

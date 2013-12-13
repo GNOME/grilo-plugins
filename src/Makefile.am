@@ -94,8 +94,12 @@ if YOUTUBE_PLUGIN
 SUBDIRS += youtube
 endif
 
+if FREEBOX_PLUGIN
+SUBDIRS += freebox
+endif
+
 DIST_SUBDIRS = \
-   apple-trailers bliptv bookmarks dmap filesystem flickr gravatar jamendo \
+   apple-trailers bliptv bookmarks dmap filesystem flickr freebox gravatar jamendo \
    lastfm-albumart local-metadata magnatune metadata-store optical-media   \
    podcasts raitv shoutcast tmdb tracker upnp vimeo youtube
 

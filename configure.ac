@@ -39,6 +39,9 @@ AM_PROG_CC_C_O
 
 AC_HEADER_STDC
 
+m4_define([glib_required_version], [2.32.0])
+AM_PATH_GLIB_2_0(glib_required_version)
+
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 # ----------------------------------------------------------
@@ -112,6 +115,9 @@ AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} >= 0.2.2],
 			    HAVE_GRLNET=yes,
 			    HAVE_GRLNET=no)
+PKG_CHECK_MODULES([GRLPLS], [${GRLPLS_NAME} >= 0.2.0],
+			    HAVE_GRLPLS=yes,
+			    HAVE_GRLPLS=no)
 
 PKG_CHECK_MODULES([GRLPLS], [${GRLPLS_NAME} >= 0.2.0],
 			    HAVE_GRLPLS=yes,
@@ -150,6 +156,9 @@ PKG_CHECK_MODULES(GMIME, gmime-2.6,
                          [PKG_CHECK_MODULES(GMIME, gmime-2.4,
                                                    HAVE_GMIME=yes,
                                                    HAVE_GMIME=no)])
+
+PKG_CHECK_MODULES(AVAHI, avahi-gobject, HAVE_AVAHI=yes, HAVE_AVAHI=no)
+
 # Search available Tracker version
 trackerpkg="tracker-sparql-0.10"
 m4_foreach([VERSION], [[0.10], [0.11], [0.12], [0.14], [0.15], [0.16], [0.17], [0.18]],
@@ -1126,6 +1135,49 @@ DEPS_TMDB_LIBS="$DEPS_LIBS $LIBSOUP_LIBS $GRLNET_LIBS $JSON_LIBS"
 AC_SUBST(DEPS_TMDB_LIBS)
 
 # ----------------------------------------------------------
+# BUILD FREEBOX PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(freebox,
+        AC_HELP_STRING([--enable-freebox],
+                [enable Freebox plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GRLPLS" = "xno"; then
+                           AC_MSG_ERROR([grilo-pls-0.2 >= 0.2.0 not found, install it or use --disable-freebox])
+                        fi
+                        if test "x$HAVE_AVAHI" = "xno"; then
+                           AC_MSG_ERROR([avahi not found, install it or use --disable-freebox])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+               if test "x$HAVE_GRLPLS" = "xyes" -a "x$HAVE_AVAHI" = "xyes"; then
+                  enable_freebox=yes
+               else
+                  enable_freebox=no
+               fi
+        ])
+
+AM_CONDITIONAL([FREEBOX_PLUGIN], [test "x$enable_freebox" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL freebox"
+if test "x$enable_freebox" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED freebox"
+fi
+
+FREEBOX_PLUGIN_ID="grl-freebox"
+AC_SUBST(FREEBOX_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([FREEBOX_PLUGIN_ID], ["$FREEBOX_PLUGIN_ID"], [Freebox plugin ID])
+
+DEPS_FREEBOX_CFLAGS="$DEPS_CFLAGS $GRLPLS_CFLAGS $AVAHI_CFLAGS"
+AC_SUBST(DEPS_FREEBOX_CFLAGS)
+DEPS_FREEBOX_LIBS="$DEPS_LIBS $GRLPLS_LIBS $AVAHI_LIBS"
+AC_SUBST(DEPS_FREEBOX_LIBS)
+
+# ----------------------------------------------------------
 # GETTEXT/INTLTOOL
 # ----------------------------------------------------------
 
@@ -1166,6 +1218,7 @@ AC_CONFIG_FILES([
   src/dmap/Makefile
   src/filesystem/Makefile
   src/flickr/Makefile
+  src/freebox/Makefile
   src/gravatar/Makefile
   src/jamendo/Makefile
   src/lastfm-albumart/Makefile

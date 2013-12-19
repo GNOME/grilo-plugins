@@ -68,6 +68,7 @@ fi
 
 GRL_NAME=grilo-${GRL_VERSION}
 GRLNET_NAME=grilo-net-${GRL_VERSION}
+GRLPLS_NAME=grilo-pls-${GRL_VERSION}
 
 # ----------------------------------------------------------
 # DEBUG SUPPORT
@@ -111,6 +112,10 @@ AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} >= 0.2.2],
 			    HAVE_GRLNET=yes,
 			    HAVE_GRLNET=no)
+
+PKG_CHECK_MODULES([GRLPLS], [${GRLPLS_NAME} >= 0.2.0],
+			    HAVE_GRLPLS=yes,
+			    HAVE_GRLPLS=no)
 
 PKG_CHECK_MODULES(XML, libxml-2.0, HAVE_XML=yes, HAVE_XML=no)
 
@@ -228,7 +233,16 @@ AM_CONDITIONAL([GCOV_ENABLED], [test "x$enable_gcov" = "xyes"])
 
 AC_ARG_ENABLE(filesystem,
         AC_HELP_STRING([--enable-filesystem],
-                [enable File System plugin (default: yes)]),,
+                [enable File System plugin (default: yes)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GRLPLS" = "xno"; then
+                           AC_MSG_ERROR([grilo-pls not found, install it or use --disable-filesystem])
+                        fi
+                        ;;
+                esac
+        ],
         [enable_filesystem=yes])
 
 AM_CONDITIONAL([FILESYSTEM_PLUGIN], [test "x$enable_filesystem" = "xyes"])
@@ -242,9 +256,9 @@ FILESYSTEM_PLUGIN_ID="grl-filesystem"
 AC_SUBST(FILESYSTEM_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([FILESYSTEM_PLUGIN_ID], ["$FILESYSTEM_PLUGIN_ID"], [Filesystem plugin ID])
 
-DEPS_FILESYSTEM_CFLAGS="$DEPS_CFLAGS $GIO_CFLAGS"
+DEPS_FILESYSTEM_CFLAGS="$DEPS_CFLAGS $GRLPLS_CFLAGS $GIO_CFLAGS"
 AC_SUBST(DEPS_FILESYSTEM_CFLAGS)
-DEPS_FILESYSTEM_LIBS="$DEPS_LIBS $GIO_LIBS"
+DEPS_FILESYSTEM_LIBS="$DEPS_LIBS $GRLPLS_LIBS $GIO_LIBS"
 AC_SUBST(DEPS_FILESYSTEM_LIBS)
 
 # ----------------------------------------------------------

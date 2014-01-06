@@ -1094,7 +1094,7 @@ grl_jamendo_source_browse (GrlSource *source,
   GError *error = NULL;
   guint page_size;
   guint page_number;
-  guint page_offset;
+  guint page_offset = 0;
   gint count = grl_operation_options_get_count (bs->options);
   guint skip = grl_operation_options_get_skip (bs->options);
 

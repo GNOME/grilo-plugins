@@ -480,6 +480,8 @@ get_wc (void)
 {
   if (ytsrc && !ytsrc->priv->wc)
     ytsrc->priv->wc = grl_net_wc_new ();
+  else if (!ytsrc)
+    return NULL;
 
   return ytsrc->priv->wc;
 }
@@ -518,6 +520,11 @@ read_url_async (const gchar *url,
                 gpointer user_data)
 {
   AsyncReadCb *arc;
+  GrlNetWc *wc;
+
+  wc = get_wc ();
+  if (!wc)
+    return;
 
   arc = g_slice_new0 (AsyncReadCb);
   arc->url = g_strdup (url);
@@ -525,7 +532,7 @@ read_url_async (const gchar *url,
   arc->user_data = user_data;
 
   GRL_DEBUG ("Opening async '%s'", url);
-  grl_net_wc_request_async (get_wc (),
+  grl_net_wc_request_async (wc,
                         url,
                         cancellable,
                         read_done_cb,

@@ -951,17 +951,17 @@ proxy_call_resolve_grlnet_async_cb (GObject *source_object,
 
 
 
-static gint
+static guint
 get_theme_index_from_id (const gchar *category_id)
 {
-  gint i;
+  guint i;
 
   for (i=0; i<root_dir[ROOT_DIR_POPULARS_INDEX].count; i++) {
     if (g_strrstr (category_id, themes_dir[i].id)) {
       return i;
     }
   }
-  return -1;
+  g_assert_not_reached ();
 }
 
 static gboolean
@@ -1082,7 +1082,7 @@ produce_from_directory (CategoryInfo *dir, gint dir_size, RaitvOperation *os,
 static void
 produce_from_popular_theme (RaitvOperation *op)
 {
-  gint category_index;
+  guint category_index;
   gchar	*start = NULL;
   gchar	*url = NULL;
 
@@ -1110,7 +1110,7 @@ produce_from_popular_theme (RaitvOperation *op)
 static void
 produce_from_recent_theme (RaitvOperation *op)
 {
-  gint category_index;
+  guint category_index;
   gchar	*start = NULL;
   gchar	*url = NULL;
 

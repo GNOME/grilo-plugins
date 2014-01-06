@@ -1063,7 +1063,7 @@ produce_from_directory (CategoryInfo *dir, gint dir_size, RaitvOperation *os,
 
     do {
       GrlMedia *content =
-        produce_container_from_directory (NULL, dir, index,type );
+        produce_container_from_directory (NULL, dir, index, type);
 
       remaining--;
       index++;

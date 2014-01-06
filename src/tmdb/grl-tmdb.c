@@ -1210,7 +1210,7 @@ grl_tmdb_source_may_resolve (GrlSource *source,
 
   /* Caller wants to check what's needed to resolve */
   if (!media) {
-    if (!missing_keys)
+    if (missing_keys)
       *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, NULL);
 
     return FALSE;
@@ -1219,7 +1219,7 @@ grl_tmdb_source_may_resolve (GrlSource *source,
   /* We can do nothing without a title or the movie-id */
   if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_TITLE) &&
           !grl_data_has_key (GRL_DATA (media), GRL_TMDB_METADATA_KEY_TMDB_ID)) {
-    if (!missing_keys)
+    if (missing_keys)
       *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, NULL);
 
     return FALSE;

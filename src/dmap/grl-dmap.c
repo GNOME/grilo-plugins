@@ -236,22 +236,37 @@ add_media_from_service (gpointer id,
                         DAAPRecord *record,
                         ResultCbAndArgs *cb)
 {
-  gchar *id_s   = NULL,
-    *title  = NULL,
-    *url    = NULL;
-  int duration  = 0;
+  gint   duration = 0;
+  gint32  bitrate = 0,
+            track = 0;
+  gchar  *id_s    = NULL,
+         *title   = NULL,
+         *album   = NULL,
+         *artist  = NULL,
+         *genre   = NULL,
+         *url     = NULL;
   gboolean has_video;
   GrlMedia *media;
 
   g_object_get (record,
-                "title",
-                &title,
-                "location",
-                &url,
-                "has-video",
-                &has_video,
-                "duration",
-                &duration,
+               "songalbum",
+               &album,
+               "songartist",
+               &artist,
+               "bitrate",
+               &bitrate,
+               "duration",
+               &duration,
+               "songgenre",
+               &genre,
+               "title",
+               &title,
+               "track",
+               &track,
+               "location",
+               &url,
+               "has-video",
+               &has_video,
                 NULL);
 
   id_s = g_strdup_printf ("%u", GPOINTER_TO_UINT (id));
@@ -262,8 +277,8 @@ add_media_from_service (gpointer id,
     media = grl_media_audio_new ();
   }
 
-  grl_media_set_id       (media, id_s);
-  grl_media_set_duration (media, duration);
+  grl_media_set_id           (media, id_s);
+  grl_media_set_duration     (media, duration);
 
   if (title) {
     grl_media_set_title (media, title);
@@ -273,6 +288,25 @@ add_media_from_service (gpointer id,
     // Replace URL's daap:// with http://.
     url[0] = 'h'; url[1] = 't'; url[2] = 't'; url[3] = 'p';
     grl_media_set_url (media, url);
+  }
+
+  if (has_video == FALSE) {
+    GrlMediaAudio *media_audio = GRL_MEDIA_AUDIO (media);
+
+    grl_media_audio_set_bitrate      (media_audio, bitrate);
+    grl_media_audio_set_track_number (media_audio, track);
+
+    if (album) {
+      grl_media_audio_set_album (media_audio, album);
+    }
+
+    if (artist) {
+      grl_media_audio_set_artist (media_audio, artist);
+    }
+
+    if (genre) {
+      grl_media_audio_set_genre (media_audio, genre);
+    }
   }
 
   g_free (id_s);
@@ -417,9 +451,14 @@ grl_dmap_source_supported_keys (GrlSource *source)
   GRL_DEBUG (__func__);
 
   if (!keys) {
-    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ALBUM,
+                                      GRL_METADATA_KEY_ARTIST,
+                                      GRL_METADATA_KEY_BITRATE,
                                       GRL_METADATA_KEY_DURATION,
+                                      GRL_METADATA_KEY_GENRE,
+                                      GRL_METADATA_KEY_ID,
                                       GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_TRACK_NUMBER,
                                       GRL_METADATA_KEY_URL,
                                       NULL);
   }

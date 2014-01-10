@@ -253,8 +253,11 @@ add_volume (GList *media_list,
   GMount *mount;
 
   device_path = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
-  if (device_path == NULL)
+  if (device_path == NULL) {
+    GRL_DEBUG ("%s: Not adding volume %s as has no device path", __FUNCTION__,
+               g_volume_get_name (volume));
     return media_list;
+  }
 
   /* Is it an audio CD or a blank media */
   mount = g_volume_get_mount (volume);
@@ -268,6 +271,8 @@ add_volume (GList *media_list,
       /* We don't add Audio CDs, or blank media */
       g_object_unref (root);
       g_free (device_path);
+      GRL_DEBUG ("%s: Not adding mount %s as is burn or cdda", __FUNCTION__,
+                 g_mount_get_name (mount));
       return media_list;
     }
     g_object_unref (root);
@@ -309,6 +314,8 @@ add_drive (GList *media_list,
 
   if (g_drive_can_eject (drive) == FALSE ||
       g_drive_has_media (drive) == FALSE) {
+    GRL_DEBUG ("%s: Not adding %s as cannot eject or has no media", __FUNCTION__,
+               g_drive_get_name (drive));
     return media_list;
   }
 
@@ -320,6 +327,8 @@ add_drive (GList *media_list,
     names = g_themed_icon_get_names (G_THEMED_ICON (icon));
     if (names && names[0] && !g_str_has_prefix (names[0], "drive-optical")) {
       g_object_unref (icon);
+      GRL_DEBUG ("%s: Not adding drive %s as is not optical drive", __FUNCTION__,
+                 g_drive_get_name (drive));
       return media_list;
     }
   }
@@ -360,12 +369,17 @@ parsed_finished (TotemPlParser *pl, GAsyncResult *result, BrowseData *data)
 
   /* Do the fallback ourselves */
   if (retval == TOTEM_PL_PARSER_RESULT_IGNORED) {
+    GRL_DEBUG ("%s: Falling back for %s as has it's been ignored", __FUNCTION__,
+               grl_media_get_id (data->media));
     grl_media_set_url (data->media, grl_media_get_id (data->media));
     retval = TOTEM_PL_PARSER_RESULT_SUCCESS;
   }
 
   if (retval == TOTEM_PL_PARSER_RESULT_SUCCESS &&
       grl_media_get_url (data->media) != NULL) {
+    GRL_DEBUG ("%s: Adding %s which resolved to %s", __FUNCTION__,
+               grl_media_get_id (data->media),
+               grl_media_get_url (data->media));
     data->bs->callback (data->bs->source,
                         data->bs->operation_id,
                         data->media,
@@ -465,7 +479,7 @@ grl_optical_media_source_browse (GrlSource *source,
   }
   g_list_free (drives);
 
-  /* Look for mounted ISO images */
+  /* Look for loopback-mounted ISO images */
   volumes = g_volume_monitor_get_volumes (priv->monitor);
   for (l = volumes; l != NULL; l = l->next) {
     GVolume *volume = l->data;
@@ -475,6 +489,9 @@ grl_optical_media_source_browse (GrlSource *source,
 
     if (path != NULL && g_str_has_prefix (path, "/dev/loop"))
       media_list = add_volume (media_list, volume, NULL, GRL_OPTICAL_MEDIA_SOURCE (source));
+    else
+      GRL_DEBUG ("%s: Not adding volume %s as is not an ISO", __FUNCTION__,
+                 g_volume_get_name (volume));
 
     g_free (path);
     g_object_unref (volume);

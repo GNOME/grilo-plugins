@@ -406,6 +406,8 @@ entry_parsed_cb (TotemPlParser *parser,
                  GHashTable    *metadata,
                  BrowseData    *data)
 {
+  char *scheme;
+
   g_return_if_fail (data->media != NULL);
   if (grl_media_get_url (data->media) != NULL) {
     GRL_WARNING ("Was going to set media '%s' to URL '%s' but already has URL '%s'",
@@ -415,7 +417,10 @@ entry_parsed_cb (TotemPlParser *parser,
     return;
   }
 
-  grl_media_set_url (data->media, uri);
+  scheme = g_uri_parse_scheme (uri);
+  if (scheme != NULL && !g_str_equal (scheme, "file"))
+    grl_media_set_url (data->media, uri);
+  g_free (scheme);
 }
 
 static void

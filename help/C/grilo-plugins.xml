@@ -80,12 +80,6 @@
 <para>This is a Grilo plugin for DMap. Its plugin ID is <literal>"grl-dmap"</literal></para>
 </sect1>
 
-<sect1 id="sec-plugin-fake-metadata">
-<title>Fake Metadata</title>
-<para>This is a Grilo plugin for fake metadata. Its plugin ID is <literal>"grl-fake-metadata"</literal></para>
-<para></para>
-</sect1>
-
 <sect1 id="sec-plugin-filesystem">
 <title>Filesystem</title>
 <para>This is a Grilo plugin for the filesystem. Its plugin ID is <literal>"grl-filesystem"</literal></para>

@@ -40,7 +40,6 @@ DISTCHECK_CONFIGURE_FLAGS = --disable-scrollkeeper \
                             --enable-bliptv \
                             --enable-bookmarks \
                             --enable-dmap \
-                            --enable-fakemetadata \
                             --enable-filesystem \
                             --enable-flickr \
                             --enable-gravatar \

@@ -220,31 +220,6 @@ fi
 AM_CONDITIONAL([GCOV_ENABLED], [test "x$enable_gcov" = "xyes"])
 
 # ----------------------------------------------------------
-# BUILD FAKE METADATA PLUGIN
-# ----------------------------------------------------------
-
-AC_ARG_ENABLE(fakemetadata,
-        AC_HELP_STRING([--enable-fakemetadata],
-                [enable Fake Metadata plugin (default: no)]),,
-        [enable_fakemetadata=no])
-
-AM_CONDITIONAL([FAKEMETADATA_PLUGIN], [test "x$enable_fakemetadata" = "xyes"])
-GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL fakemetadata"
-if test "x$enable_fakemetadata" = "xyes"
-then
-	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED fakemetadata"
-fi
-
-FAKEMETADATA_PLUGIN_ID="grl-fake-metadata"
-AC_SUBST(FAKEMETADATA_PLUGIN_ID)
-AC_DEFINE_UNQUOTED([FAKEMETADATA_PLUGIN_ID], ["$FAKEMETADATA_PLUGIN_ID"], [Fake metadata plugin ID])
-
-DEPS_FAKEMETADATA_CFLAGS="$DEPS_CFLAGS"
-AC_SUBST(DEPS_FAKEMETADATA_CFLAGS)
-DEPS_FAKEMETADATA_LIBS="$DEPS_LIBS"
-AC_SUBST(DEPS_FAKEMETADATA_LIBS)
-
-# ----------------------------------------------------------
 # BUILD FILE SYSTEM PLUGIN
 # ----------------------------------------------------------
 
@@ -1169,7 +1144,6 @@ AC_CONFIG_FILES([
   src/bliptv/Makefile
   src/bookmarks/Makefile
   src/dmap/Makefile
-  src/fake-metadata/Makefile
   src/filesystem/Makefile
   src/flickr/Makefile
   src/gravatar/Makefile

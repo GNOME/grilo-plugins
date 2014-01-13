@@ -26,10 +26,6 @@ if DMAP_PLUGIN
 SUBDIRS += dmap
 endif
 
-if FAKEMETADATA_PLUGIN
-SUBDIRS += fake-metadata
-endif
-
 if FILESYSTEM_PLUGIN
 SUBDIRS += filesystem
 endif
@@ -99,10 +95,9 @@ SUBDIRS += youtube
 endif
 
 DIST_SUBDIRS = \
-	apple-trailers bliptv bookmarks dmap fake-metadata filesystem flickr	\
-	gravatar jamendo lastfm-albumart local-metadata magnatune metadata-store\
-	optical-media podcasts raitv shoutcast tmdb tracker upnp vimeo			\
-	youtube
+   apple-trailers bliptv bookmarks dmap filesystem flickr gravatar jamendo \
+   lastfm-albumart local-metadata magnatune metadata-store optical-media   \
+   podcasts raitv shoutcast tmdb tracker upnp vimeo youtube
 
 MAINTAINERCLEANFILES =	\
         *.in		\

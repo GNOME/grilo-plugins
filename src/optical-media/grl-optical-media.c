@@ -59,6 +59,7 @@ struct _GrlOpticalMediaSourcePrivate {
   GVolumeMonitor *monitor;
   guint monitor_signal_ids[NUM_MONITOR_SIGNALS];
   GList *list; /* GrlMedia */
+  GCancellable *cancellable;
 };
 
 /* --- Data types --- */
@@ -160,6 +161,7 @@ grl_optical_media_source_init (GrlOpticalMediaSource *source)
 
   source->priv = GRL_OPTICAL_MEDIA_SOURCE_GET_PRIVATE (source);
 
+  source->priv->cancellable = g_cancellable_new ();
   source->priv->monitor = g_volume_monitor_get ();
 
   for (i = 0; i < G_N_ELEMENTS (monitor_signals); i++) {
@@ -174,6 +176,9 @@ grl_optical_media_source_finalize (GObject *object)
 {
   GrlOpticalMediaSource *source = GRL_OPTICAL_MEDIA_SOURCE (object);
   guint i;
+
+  g_cancellable_cancel (source->priv->cancellable);
+  g_clear_object (&source->priv->cancellable);
 
   for (i = 0; i < NUM_MONITOR_SIGNALS; i++) {
     g_signal_handler_disconnect (G_OBJECT (source->priv->monitor),

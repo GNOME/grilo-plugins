@@ -58,6 +58,7 @@ GRL_LOG_DOMAIN_STATIC(optical_media_log_domain);
 struct _GrlOpticalMediaSourcePrivate {
   GVolumeMonitor *monitor;
   guint monitor_signal_ids[NUM_MONITOR_SIGNALS];
+  GList *list; /* GrlMedia */
 };
 
 /* --- Data types --- */
@@ -178,6 +179,8 @@ grl_optical_media_source_finalize (GObject *object)
     g_signal_handler_disconnect (G_OBJECT (source->priv->monitor),
                                  source->priv->monitor_signal_ids[i]);
   }
+
+  g_list_free_full (source->priv->list, g_object_unref);
 
   g_object_unref (source->priv->monitor);
   source->priv->monitor = NULL;
@@ -377,15 +380,20 @@ parsed_finished (TotemPlParser *pl, GAsyncResult *result, BrowseData *data)
 
   if (retval == TOTEM_PL_PARSER_RESULT_SUCCESS &&
       grl_media_get_url (data->media) != NULL) {
+    GrlOpticalMediaSource *source;
+
+    source = GRL_OPTICAL_MEDIA_SOURCE (data->bs->source);
+
     GRL_DEBUG ("%s: Adding %s which resolved to %s", __FUNCTION__,
                grl_media_get_id (data->media),
                grl_media_get_url (data->media));
-    data->bs->callback (data->bs->source,
+    data->bs->callback (GRL_SOURCE (source),
                         data->bs->operation_id,
                         data->media,
                         -1,
                         data->bs->user_data,
                         NULL);
+    source->priv->list = g_list_append (source->priv->list, g_object_ref (data->media));
   } else {
     if (retval == TOTEM_PL_PARSER_RESULT_ERROR ||
         retval == TOTEM_PL_PARSER_RESULT_CANCELLED) {
@@ -472,6 +480,8 @@ grl_optical_media_source_browse (GrlSource *source,
   GList *media_list;
 
   GRL_DEBUG ("%s", __FUNCTION__);
+
+  g_list_free_full (priv->list, g_object_unref);
 
   media_list = NULL;
 

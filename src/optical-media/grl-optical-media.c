@@ -387,10 +387,11 @@ parsed_finished (TotemPlParser *pl, GAsyncResult *result, BrowseData *data)
                         data->bs->user_data,
                         NULL);
   } else {
-    if (retval == TOTEM_PL_PARSER_RESULT_ERROR) {
+    if (retval == TOTEM_PL_PARSER_RESULT_ERROR ||
+        retval == TOTEM_PL_PARSER_RESULT_CANCELLED) {
       GRL_WARNING ("Failed to parse '%s': %s",
                    grl_media_get_id (data->media),
-                   error->message);
+                   error ? error->message : "No reason");
       g_error_free (error);
     }
     g_object_unref (data->media);

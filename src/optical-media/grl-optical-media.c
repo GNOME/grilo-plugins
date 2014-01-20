@@ -415,25 +415,25 @@ parsed_finished (TotemPlParser *pl, GAsyncResult *result, BrowseData *data)
 }
 
 static void
-entry_parsed_cb (TotemPlParser *parser,
-                 const char    *uri,
-                 GHashTable    *metadata,
-                 BrowseData    *data)
+entry_parsed_cb (TotemPlParser  *parser,
+                 const char     *uri,
+                 GHashTable     *metadata,
+                 GrlMedia      **media)
 {
   char *scheme;
 
-  g_return_if_fail (data->media != NULL);
-  if (grl_media_get_url (data->media) != NULL) {
+  g_return_if_fail (*media != NULL);
+  if (grl_media_get_url (*media) != NULL) {
     GRL_WARNING ("Was going to set media '%s' to URL '%s' but already has URL '%s'",
-                 grl_media_get_id (data->media),
+                 grl_media_get_id (*media),
                  uri,
-                 grl_media_get_url (data->media));
+                 grl_media_get_url (*media));
     return;
   }
 
   scheme = g_uri_parse_scheme (uri);
   if (scheme != NULL && !g_str_equal (scheme, "file"))
-    grl_media_set_url (data->media, uri);
+    grl_media_set_url (*media, uri);
   g_free (scheme);
 }
 
@@ -545,7 +545,7 @@ grl_optical_media_source_browse (GrlSource *source,
   data->parser = totem_pl_parser_new ();
   g_object_set (data->parser, "recurse", FALSE, NULL);
   g_signal_connect (G_OBJECT (data->parser), "entry-parsed",
-                    G_CALLBACK (entry_parsed_cb), data);
+                    G_CALLBACK (entry_parsed_cb), &data->media);
 
   resolve_disc_urls (data);
 }

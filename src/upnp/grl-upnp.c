@@ -109,7 +109,7 @@ static void setup_key_mappings (void);
 
 static gchar *build_source_id (const gchar *udn);
 
-static GrlUpnpSource *grl_upnp_source_new (const gchar *id, const gchar *name);
+static GrlUpnpSource *grl_upnp_source_new (const gchar *id, const gchar *name, const gchar *icon_url);
 
 gboolean grl_upnp_plugin_init (GrlRegistry *registry,
                                GrlPlugin *plugin,
@@ -210,18 +210,28 @@ GRL_PLUGIN_REGISTER (grl_upnp_plugin_init,
 G_DEFINE_TYPE (GrlUpnpSource, grl_upnp_source, GRL_TYPE_SOURCE);
 
 static GrlUpnpSource *
-grl_upnp_source_new (const gchar *source_id, const gchar *name)
+grl_upnp_source_new (const gchar *source_id, const gchar *name, const gchar *icon_url)
 {
   gchar *source_desc;
   GrlUpnpSource *source;
+  GIcon *icon = NULL;
 
   GRL_DEBUG ("grl_upnp_source_new");
   source_desc = g_strdup_printf (SOURCE_DESC_TEMPLATE, name);
+
+  if (icon_url != NULL) {
+    GFile *file;
+
+    file = g_file_new_for_uri (icon_url);
+    icon = g_file_icon_new (file);
+    g_object_unref (file);
+  }
 
   source = g_object_new (GRL_UPNP_SOURCE_TYPE,
 			 "source-id", source_id,
 			 "source-name", name,
 			 "source-desc", source_desc,
+			 "source-icon", icon,
 			 NULL);
 
   source->priv->upnp_name = g_strdup (name);
@@ -421,6 +431,19 @@ context_available_cb (GUPnPContextManager *context_manager,
   g_object_unref (cp);
 }
 
+static char *
+get_device_icon (GUPnPDeviceProxy *device)
+{
+  return gupnp_device_info_get_icon_url (GUPNP_DEVICE_INFO (device),
+                                         NULL,
+                                         /* FIXME: use -1, -1, -1 when
+                                          * https://bugzilla.gnome.org/show_bug.cgi?id=722696
+                                          * is fixed */
+                                         -1, 256, 256,
+                                         TRUE,
+                                         NULL, NULL, NULL, NULL);
+}
+
 static void
 device_available_cb (GUPnPControlPoint *cp,
 		     GUPnPDeviceProxy *device,
@@ -432,6 +455,7 @@ device_available_cb (GUPnPControlPoint *cp,
   GUPnPServiceInfo *service;
   GrlRegistry *registry;
   gchar *source_id;
+  gchar *icon_url;
 
   GRL_DEBUG ("device_available_cb");
 
@@ -462,7 +486,9 @@ device_available_cb (GUPnPControlPoint *cp,
 
   /* We got a valid UPnP source */
   /* Now let's check if it supports search operations before registering */
-  GrlUpnpSource *source = grl_upnp_source_new (source_id, name);
+  icon_url = get_device_icon (device);
+  GrlUpnpSource *source = grl_upnp_source_new (source_id, name, icon_url);
+  g_free (icon_url);
   source->priv->device = g_object_ref (device);
   source->priv->service = g_object_ref (service);
 

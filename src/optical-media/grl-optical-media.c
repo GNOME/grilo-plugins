@@ -53,7 +53,7 @@ GRL_LOG_DOMAIN_STATIC(optical_media_log_domain);
                                GRL_OPTICAL_MEDIA_SOURCE_TYPE,  \
                                GrlOpticalMediaSourcePrivate))
 
-#define NUM_MONITOR_SIGNALS 4
+#define NUM_MONITOR_SIGNALS 3
 
 struct _GrlOpticalMediaSourcePrivate {
   GVolumeMonitor *monitor;
@@ -81,9 +81,17 @@ static void grl_optical_media_source_cancel (GrlSource *source,
                                              guint operation_id);
 
 static void
-on_g_volume_monitor_event (GVolumeMonitor *monitor,
-                           gpointer device,
-                           GrlOpticalMediaSource *source);
+on_g_volume_monitor_removed_event (GVolumeMonitor        *monitor,
+                                   GMount                *mount,
+                                   GrlOpticalMediaSource *source);
+static void
+on_g_volume_monitor_changed_event (GVolumeMonitor        *monitor,
+                                   GMount                *mount,
+                                   GrlOpticalMediaSource *source);
+static void
+on_g_volume_monitor_added_event (GVolumeMonitor        *monitor,
+                                 GMount                *mount,
+                                 GrlOpticalMediaSource *source);
 
 /* =================== OpticalMedia Plugin  =============== */
 
@@ -151,24 +159,17 @@ grl_optical_media_source_class_init (GrlOpticalMediaSourceClass * klass)
 static void
 grl_optical_media_source_init (GrlOpticalMediaSource *source)
 {
-  const char * monitor_signals[NUM_MONITOR_SIGNALS] = {
-    "volume-added",
-    "volume-removed",
-    "mount-added",
-    "mount-removed",
-  };
-  guint i;
-
   source->priv = GRL_OPTICAL_MEDIA_SOURCE_GET_PRIVATE (source);
 
   source->priv->cancellable = g_cancellable_new ();
   source->priv->monitor = g_volume_monitor_get ();
 
-  for (i = 0; i < G_N_ELEMENTS (monitor_signals); i++) {
-    source->priv->monitor_signal_ids[i] = g_signal_connect (G_OBJECT (source->priv->monitor),
-                                                            monitor_signals[i],
-                                                            G_CALLBACK (on_g_volume_monitor_event), source);
-  }
+  source->priv->monitor_signal_ids[0] = g_signal_connect (G_OBJECT (source->priv->monitor), "mount-added",
+                                                          G_CALLBACK (on_g_volume_monitor_added_event), source);
+  source->priv->monitor_signal_ids[1] = g_signal_connect (G_OBJECT (source->priv->monitor), "mount-changed",
+                                                          G_CALLBACK (on_g_volume_monitor_changed_event), source);
+  source->priv->monitor_signal_ids[2] = g_signal_connect (G_OBJECT (source->priv->monitor), "mount-removed",
+                                                          G_CALLBACK (on_g_volume_monitor_removed_event), source);
 }
 
 static void
@@ -195,28 +196,17 @@ grl_optical_media_source_finalize (GObject *object)
 
 /* ======================= Utilities ==================== */
 
-static void
-on_g_volume_monitor_event (GVolumeMonitor *monitor,
-                           gpointer device,
-                           GrlOpticalMediaSource *source)
+static char *
+create_mount_id (GMount *mount)
 {
-  grl_source_notify_change (GRL_SOURCE (source), NULL, GRL_CONTENT_CHANGED, TRUE);
-}
+  GFile *root;
+  char *uri;
 
-/* ================== API Implementation ================ */
+  root = g_mount_get_root (mount);
+  uri = g_file_get_uri (root);
+  g_object_unref (root);
 
-static const GList *
-grl_optical_media_source_supported_keys (GrlSource *source)
-{
-  static GList *keys = NULL;
-  if (!keys) {
-    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
-                                      GRL_METADATA_KEY_TITLE,
-                                      GRL_METADATA_KEY_URL,
-                                      GRL_METADATA_KEY_MIME,
-                                      NULL);
-  }
-  return keys;
+  return uri;
 }
 
 static char *
@@ -248,83 +238,52 @@ get_uri_for_gicon (GIcon *icon)
   return uri;
 }
 
-static GList *
-add_volume (GList *media_list,
-            GVolume *volume,
-            GDrive *drive,
-            GrlOpticalMediaSource *source)
+static void
+media_set_metadata (GMount   *mount,
+                    GrlMedia *media)
 {
   char *name, *icon_uri;
   GIcon *icon;
-  char *device_path, *id;
-  GrlMedia * media;
-  GMount *mount;
-
-  device_path = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
-  if (device_path == NULL) {
-    GRL_DEBUG ("%s: Not adding volume %s as has no device path", __FUNCTION__,
-               g_volume_get_name (volume));
-    return media_list;
-  }
-
-  /* Is it an audio CD or a blank media */
-  mount = g_volume_get_mount (volume);
-  if (mount != NULL) {
-    GFile *root;
-
-    root = g_mount_get_root (mount);
-    g_object_unref (mount);
-
-    if (g_file_has_uri_scheme (root, "burn") != FALSE || g_file_has_uri_scheme (root, "cdda") != FALSE) {
-      /* We don't add Audio CDs, or blank media */
-      g_object_unref (root);
-      g_free (device_path);
-      GRL_DEBUG ("%s: Not adding mount %s as is burn or cdda", __FUNCTION__,
-                 g_mount_get_name (mount));
-      return media_list;
-    }
-    g_object_unref (root);
-  }
-
-  media = grl_media_video_new ();
-
-  id = g_filename_to_uri (device_path, NULL, NULL);
-  g_free (device_path);
-
-  grl_media_set_id (media, id);
-  g_free (id);
 
   /* Work out an icon to display */
-  icon = g_volume_get_icon (volume);
+  icon = g_mount_get_icon (mount);
   icon_uri = get_uri_for_gicon (icon);
   g_object_unref (icon);
   grl_media_set_thumbnail (media, icon_uri);
   g_free (icon_uri);
 
-  /* Get the volume's pretty name for the menu label */
-  name = g_volume_get_name (volume);
+  /* Get the mount's pretty name for the menu label */
+  name = g_mount_get_name (mount);
   g_strstrip (name);
   grl_media_set_title (media, name);
   g_free (name);
-
-  grl_media_set_mime (media, "x-special/device-block");
-
-  return g_list_prepend (media_list, media);
 }
 
-static GList *
-add_drive (GList *media_list,
-           GDrive *drive,
-           GrlOpticalMediaSource *source)
+static gint
+find_mount (gconstpointer a,
+            gconstpointer b)
 {
-  GList *volumes, *i;
+  GrlMedia *media = (GrlMedia *) a;
+  GMount *mount = (GMount *) b;
+  char *id;
+  gint ret;
+
+  id = create_mount_id (mount);
+  ret = g_strcmp0 (id, grl_media_get_id (media));
+  g_free (id);
+  return ret;
+}
+
+static gboolean
+ignore_drive (GDrive *drive)
+{
   GIcon *icon;
 
   if (g_drive_can_eject (drive) == FALSE ||
       g_drive_has_media (drive) == FALSE) {
     GRL_DEBUG ("%s: Not adding %s as cannot eject or has no media", __FUNCTION__,
                g_drive_get_name (drive));
-    return media_list;
+    return TRUE;
   }
 
   /* Hack to avoid USB devices showing up
@@ -337,23 +296,222 @@ add_drive (GList *media_list,
       g_object_unref (icon);
       GRL_DEBUG ("%s: Not adding drive %s as is not optical drive", __FUNCTION__,
                  g_drive_get_name (drive));
-      return media_list;
+      return TRUE;
     }
   }
   g_clear_object (&icon);
 
-  /* Repeat for all the drive's volumes */
-  volumes = g_drive_get_volumes (drive);
+  return TRUE;
+}
 
-  for (i = volumes; i != NULL; i = i->next) {
-    GVolume *volume = i->data;
-    media_list = add_volume (media_list, volume, drive, source);
-    g_object_unref (volume);
+static gboolean
+ignore_volume (GVolume *volume)
+{
+  gboolean ret = TRUE;
+  char *path;
+  GDrive *drive;
+
+  /* Ignore drive? */
+  drive = g_volume_get_drive (volume);
+  if (drive != NULL && ignore_drive (drive)) {
+    g_object_unref (drive);
+    return TRUE;
+  }
+  g_clear_object (&drive);
+
+  path = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
+
+  if (path != NULL) {
+    ret = FALSE;
+    g_free (path);
+  } else {
+    GRL_DEBUG ("%s: Not adding volume %s as it has no identifier", __FUNCTION__,
+               g_volume_get_name (volume));
   }
 
-  g_list_free (volumes);
+  return ret;
+}
 
-  return media_list;
+static gboolean
+ignore_mount (GMount *mount)
+{
+  GFile *root;
+  GVolume *volume;
+  gboolean ret = TRUE;
+
+  root = g_mount_get_root (mount);
+
+  if (g_file_has_uri_scheme (root, "burn") != FALSE || g_file_has_uri_scheme (root, "cdda") != FALSE) {
+    /* We don't add Audio CDs, or blank media */
+    g_object_unref (root);
+    GRL_DEBUG ("%s: Not adding mount %s as is burn or cdda", __FUNCTION__,
+               g_mount_get_name (mount));
+    return TRUE;
+  }
+  g_object_unref (root);
+
+  volume = g_mount_get_volume (mount);
+  if (volume == NULL)
+    return ret;
+
+  ret = ignore_volume (volume);
+  g_object_unref (volume);
+
+  return ret;
+}
+
+static GrlMedia *
+create_media_from_mount (GMount *mount)
+{
+  char *id;
+  GrlMedia *media;
+
+  /* Is it an audio CD or a blank media */
+  if (ignore_mount (mount)) {
+    g_object_unref (mount);
+    return NULL;
+  }
+
+  id = create_mount_id (mount);
+  if (id == NULL) {
+    GRL_DEBUG ("%s: Not adding mount %s as has no device path", __FUNCTION__,
+               g_mount_get_name (mount));
+    return NULL;
+  }
+
+  media = grl_media_video_new ();
+
+  grl_media_set_id (media, id);
+  g_free (id);
+
+  media_set_metadata (mount, media);
+  grl_media_set_mime (media, "x-special/device-block");
+
+  return media;
+}
+
+static void
+parsed_finished_item (TotemPlParser         *pl,
+                      GAsyncResult          *result,
+                      GrlOpticalMediaSource *source)
+{
+  GrlMedia **media;
+  TotemPlParserResult retval;
+
+  media = g_object_get_data (G_OBJECT (pl), "media");
+  retval = totem_pl_parser_parse_finish (TOTEM_PL_PARSER (pl), result, NULL);
+  if (retval == TOTEM_PL_PARSER_RESULT_SUCCESS &&
+      grl_media_get_url (*media) != NULL) {
+    source->priv->list = g_list_append (source->priv->list, g_object_ref (*media));
+    grl_source_notify_change (GRL_SOURCE (source), *media, GRL_CONTENT_ADDED, FALSE);
+  }
+
+  g_object_unref (*media);
+  g_object_unref (pl);
+}
+
+static void
+entry_parsed_cb (TotemPlParser  *parser,
+                 const char     *uri,
+                 GHashTable     *metadata,
+                 GrlMedia      **media)
+{
+  char *scheme;
+
+  g_return_if_fail (*media != NULL);
+  if (grl_media_get_url (*media) != NULL) {
+    GRL_WARNING ("Was going to set media '%s' to URL '%s' but already has URL '%s'",
+                 grl_media_get_id (*media),
+                 uri,
+                 grl_media_get_url (*media));
+    return;
+  }
+
+  scheme = g_uri_parse_scheme (uri);
+  if (scheme != NULL && !g_str_equal (scheme, "file"))
+    grl_media_set_url (*media, uri);
+  g_free (scheme);
+}
+
+static void
+on_g_volume_monitor_added_event (GVolumeMonitor        *monitor,
+                                 GMount                *mount,
+                                 GrlOpticalMediaSource *source)
+{
+  GrlMedia **media;
+  TotemPlParser *pl;
+
+  if (ignore_mount (mount))
+    return;
+
+  media = (GrlMedia **) g_new0 (gpointer, 1);
+  *media = create_media_from_mount (mount);
+  if (*media == NULL) {
+    g_free (media);
+    return;
+  }
+
+  pl = totem_pl_parser_new ();
+  g_object_set_data (G_OBJECT (pl), "media", media);
+  g_object_set (pl, "recurse", FALSE, NULL);
+  g_signal_connect (G_OBJECT (pl), "entry-parsed",
+                    G_CALLBACK (entry_parsed_cb), media);
+  totem_pl_parser_parse_async (pl,
+                               grl_media_get_id (*media),
+                               FALSE,
+                               source->priv->cancellable,
+                               (GAsyncReadyCallback) parsed_finished_item,
+                               source);
+}
+
+static void
+on_g_volume_monitor_removed_event (GVolumeMonitor        *monitor,
+                                   GMount                *mount,
+                                   GrlOpticalMediaSource *source)
+{
+  GList *l;
+  GrlMedia *media;
+
+  l = g_list_find_custom (source->priv->list, mount, find_mount);
+  if (!l)
+    return;
+
+  media = l->data;
+  source->priv->list = g_list_remove (source->priv->list, media);
+  grl_source_notify_change (GRL_SOURCE (source), media, GRL_CONTENT_REMOVED, FALSE);
+  g_object_unref (media);
+}
+
+static void
+on_g_volume_monitor_changed_event (GVolumeMonitor        *monitor,
+                                   GMount                *mount,
+                                   GrlOpticalMediaSource *source)
+{
+  GList *l;
+
+  l = g_list_find_custom (source->priv->list, mount, find_mount);
+  if (!l)
+    return;
+
+  media_set_metadata (mount, l->data);
+
+  grl_source_notify_change (GRL_SOURCE (source), l->data, GRL_CONTENT_CHANGED, FALSE);
+}
+
+/* ================== API Implementation ================ */
+
+static const GList *
+grl_optical_media_source_supported_keys (GrlSource *source)
+{
+  static GList *keys = NULL;
+  if (!keys) {
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ID,
+                                      GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_URL,
+                                      GRL_METADATA_KEY_MIME,
+                                      NULL);
+  }
+  return keys;
 }
 
 typedef struct {
@@ -415,29 +573,6 @@ parsed_finished (TotemPlParser *pl, GAsyncResult *result, BrowseData *data)
 }
 
 static void
-entry_parsed_cb (TotemPlParser  *parser,
-                 const char     *uri,
-                 GHashTable     *metadata,
-                 GrlMedia      **media)
-{
-  char *scheme;
-
-  g_return_if_fail (*media != NULL);
-  if (grl_media_get_url (*media) != NULL) {
-    GRL_WARNING ("Was going to set media '%s' to URL '%s' but already has URL '%s'",
-                 grl_media_get_id (*media),
-                 uri,
-                 grl_media_get_url (*media));
-    return;
-  }
-
-  scheme = g_uri_parse_scheme (uri);
-  if (scheme != NULL && !g_str_equal (scheme, "file"))
-    grl_media_set_url (*media, uri);
-  g_free (scheme);
-}
-
-static void
 resolve_disc_urls (BrowseData *data)
 {
   g_assert (data->media == NULL);
@@ -477,9 +612,7 @@ static void
 grl_optical_media_source_browse (GrlSource *source,
                                  GrlSourceBrowseSpec *bs)
 {
-  GList *drives;
-  GList *volumes;
-  GList *l;
+  GList *mounts, *l;
   GrlOpticalMediaSourcePrivate *priv = GRL_OPTICAL_MEDIA_SOURCE (source)->priv;
   BrowseData *data;
   GList *media_list;
@@ -490,34 +623,21 @@ grl_optical_media_source_browse (GrlSource *source,
 
   media_list = NULL;
 
-  /* Get the drives */
-  drives = g_volume_monitor_get_connected_drives (priv->monitor);
-  for (l = drives; l != NULL; l = l->next) {
-    GDrive *drive = l->data;
+  /* Look for loopback-mounted ISO images and discs */
+  mounts = g_volume_monitor_get_mounts (priv->monitor);
+  for (l = mounts; l != NULL; l = l->next) {
+    GMount *mount = l->data;
 
-    media_list = add_drive (media_list, drive, GRL_OPTICAL_MEDIA_SOURCE (source));
-    g_object_unref (drive);
+    if (!ignore_mount (mount)) {
+      GrlMedia *media;
+      media = create_media_from_mount (mount);
+      if (media)
+        media_list = g_list_prepend (media_list, media);
+    }
+
+    g_object_unref (mount);
   }
-  g_list_free (drives);
-
-  /* Look for loopback-mounted ISO images */
-  volumes = g_volume_monitor_get_volumes (priv->monitor);
-  for (l = volumes; l != NULL; l = l->next) {
-    GVolume *volume = l->data;
-    char *path;
-
-    path = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
-
-    if (path != NULL && g_str_has_prefix (path, "/dev/loop"))
-      media_list = add_volume (media_list, volume, NULL, GRL_OPTICAL_MEDIA_SOURCE (source));
-    else
-      GRL_DEBUG ("%s: Not adding volume %s as is not an ISO", __FUNCTION__,
-                 g_volume_get_name (volume));
-
-    g_free (path);
-    g_object_unref (volume);
-  }
-  g_list_free (volumes);
+  g_list_free (mounts);
 
   /* Got nothing? */
   if (media_list == NULL) {

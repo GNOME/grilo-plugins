@@ -230,8 +230,7 @@ get_uri_for_gicon (GIcon *icon)
   if (G_IS_EMBLEMED_ICON (icon) != FALSE) {
     GIcon *new_icon;
     new_icon = g_emblemed_icon_get_icon (G_EMBLEMED_ICON (icon));
-    g_object_unref (icon);
-    icon = g_object_ref (new_icon);
+    icon = new_icon;
   }
 
   if (G_IS_FILE_ICON (icon) != FALSE) {

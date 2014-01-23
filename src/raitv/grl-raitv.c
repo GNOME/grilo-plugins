@@ -206,7 +206,6 @@ gboolean grl_raitv_plugin_init (GrlRegistry *registry,
                                 GList *configs);
 
 static const GList *grl_raitv_source_supported_keys (GrlSource *source);
-static const GList *grl_raitv_source_slow_keys (GrlSource *source);
 
 static void grl_raitv_source_browse (GrlSource *source,
                                      GrlSourceBrowseSpec *bs);
@@ -309,7 +308,6 @@ grl_raitv_source_class_init (GrlRaitvSourceClass *klass)
   object_class->finalize = grl_raitv_source_finalize;
 
   source_class->supported_keys = grl_raitv_source_supported_keys;
-  source_class->slow_keys = grl_raitv_source_slow_keys;
 
   source_class->cancel = grl_raitv_source_cancel;
   source_class->browse = grl_raitv_source_browse;
@@ -1151,18 +1149,6 @@ grl_raitv_source_supported_keys (GrlSource *source)
   }
   return keys;
 }
-
-static const GList *
-grl_raitv_source_slow_keys (GrlSource *source)
-{
-  static GList *keys = NULL;
-  if (!keys) {
-    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_URL,
-                                      NULL);
-  }
-  return keys;
-}
-
 
 static void
 grl_raitv_source_browse (GrlSource *source,

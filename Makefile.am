@@ -28,15 +28,14 @@ MAINTAINERCLEANFILES = \
 	mkinstalldirs \
 	*~
 
-DISTCLEANFILES = $(MAINTAINERCLEANFILES) gnome-doc-utils.make
+DISTCLEANFILES = $(MAINTAINERCLEANFILES)
 
 EXTRA_DIST += ./m4/grilo.m4
 
 # Make sure that the documentation generation is enabled
 # when creating tarball releases,
 # and make sure that we enable all plugins needed by the documentation.
-DISTCHECK_CONFIGURE_FLAGS = --disable-scrollkeeper \
-                            --enable-apple-trailers \
+DISTCHECK_CONFIGURE_FLAGS = --enable-apple-trailers \
                             --enable-bliptv \
                             --enable-bookmarks \
                             --enable-dmap \

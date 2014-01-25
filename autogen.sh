@@ -17,8 +17,6 @@ which gnome-autogen.sh || {
     exit 1
 }
 
-gnome-doc-prepare --automake --copy --force
 REQUIRED_AUTOMAKE_VERSION=1.8 \
 USE_GNOME2_MACROS=1 \
-USE_COMMON_DOC_BUILD=yes \
 . gnome-autogen.sh "$@"

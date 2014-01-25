@@ -1126,8 +1126,11 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [The domain to use with g
 AC_SUBST([abs_top_builddir])
 AC_SUBST([builddir])
 
-GNOME_DOC_INIT([0.9.0],,
-  [AC_MSG_WARN([[gnome-doc-utils not found: tutorial will not be built.]])])
+# ----------------------------------------------------------
+# DOCUMENTATION
+# ----------------------------------------------------------
+
+YELP_HELP_INIT
 
 # ----------------------------------------------------------
 # OUTPUT

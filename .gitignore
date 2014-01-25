@@ -26,7 +26,6 @@ omf.make
 stamp-h1
 test-driver
 xmldocs.make
-gnome-doc-utils.make
 
 /m4/*.m4
 !/m4/grilo.m4

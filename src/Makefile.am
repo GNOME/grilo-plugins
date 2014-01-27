@@ -98,8 +98,12 @@ if FREEBOX_PLUGIN
 SUBDIRS += freebox
 endif
 
+if GUARDIANVIDEOS_PLUGIN
+SUBDIRS += guardian-videos
+endif
+
 DIST_SUBDIRS = \
-   apple-trailers bliptv bookmarks dmap filesystem flickr freebox gravatar jamendo \
+   apple-trailers bliptv bookmarks dmap filesystem flickr freebox gravatar guardian-videos jamendo \
    lastfm-albumart local-metadata magnatune metadata-store optical-media   \
    podcasts raitv shoutcast tmdb tracker upnp vimeo youtube
 

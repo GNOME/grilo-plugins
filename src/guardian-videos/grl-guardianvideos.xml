@@ -1,0 +1,10 @@
+<plugin>
+  <info>
+    <name>The Guardian Videos</name>
+    <module>libgrlguardianvideos</module>
+    <description>A plugin for browsing videos from the Guardian</description>
+    <author>GNOME</author>
+    <license>LGPL</license>
+    <site>http://www.gnome.org</site>
+  </info>
+</plugin>

@@ -92,6 +92,11 @@ grl_tmdb_request_new_details (const char *api_key,
                               guint64 id);
 
 GrlTmdbRequest *
+grl_tmdb_request_new_details_list (const char *api_key,
+                                   GList *details,
+                                   guint64 id);
+
+GrlTmdbRequest *
 grl_tmdb_request_new_configuration (const char *api_key);
 
 GrlTmdbRequestDetail

@@ -46,6 +46,11 @@ GRL_LOG_DOMAIN_EXTERN(tmdb_log_domain);
 #define TMDB_API_CALL_MOVIE_KEYWORDS TMDB_API_CALL_MOVIE_INFO"/keywords"
 #define TMDB_API_CALL_MOVIE_RELEASE_INFO TMDB_API_CALL_MOVIE_INFO"/releases"
 
+#define TMDB_API_PARAM_MOVIE_CAST "casts"
+#define TMDB_API_PARAM_MOVIE_IMAGES "images"
+#define TMDB_API_PARAM_MOVIE_KEYWORDS "keywords"
+#define TMDB_API_PARAM_MOVIE_RELEASE_INFO "releases"
+
 struct _FilterClosure {
   JsonArrayForeach callback;
   GrlTmdbRequestFilterFunc filter;
@@ -83,6 +88,7 @@ struct _GrlTmdbRequestPrivate {
   GSimpleAsyncResult *simple;
   JsonParser *parser;
   GrlTmdbRequestDetail detail;
+  GList *details;
 };
 
 G_DEFINE_TYPE (GrlTmdbRequest, grl_tmdb_request, G_TYPE_OBJECT);
@@ -174,6 +180,8 @@ grl_tmdb_request_finalize (GObject *object)
 {
   GrlTmdbRequest *self = GRL_TMDB_REQUEST (object);
 
+  g_list_free (self->priv->details);
+
   if (self->priv->api_key != NULL) {
     g_free (self->priv->api_key);
     self->priv->api_key = NULL;
@@ -206,6 +214,7 @@ static void
 grl_tmdb_request_constructed (GObject *object)
 {
   GrlTmdbRequest *self = GRL_TMDB_REQUEST (object);
+
   if (self->priv->args == NULL) {
     self->priv->args = g_hash_table_new_full (g_str_hash,
                                               g_str_equal,
@@ -428,6 +437,40 @@ grl_tmdb_request_new_details (const char *api_key,
   return result;
 }
 
+/**
+ * grl_tmdb_request_new_details_list:
+ * @api_key: TMDb.org API key to use for this request
+ * @details: A list of #GrlTmdbRequestDetail to request
+ * @id: TMDb.org identifier of the movie.
+ * Returns: (transfer full): A new instance of #GrlTmdbRequest
+ *
+ * Convenience function to create a #GrlTmdbRequest that gets detailed
+ * information about a movie.
+ */
+GrlTmdbRequest *
+grl_tmdb_request_new_details_list (const char *api_key,
+                                   GList *details,
+                                   guint64 id)
+{
+  GrlTmdbRequest *result;
+  char *uri;
+
+  g_return_val_if_fail (details != NULL, NULL);
+
+  uri = g_strdup_printf (TMDB_API_CALL_MOVIE_INFO, id);
+  result = g_object_new (GRL_TMDB_REQUEST_TYPE,
+                         "api-key", api_key,
+                         "uri", uri,
+                         "args", NULL,
+                         NULL);
+  g_free (uri);
+
+  result->priv->details = g_list_copy (details);
+
+
+  return result;
+}
+
 GrlTmdbRequest *
 grl_tmdb_request_new_configuration (const char *api_key)
 {
@@ -436,6 +479,57 @@ grl_tmdb_request_new_configuration (const char *api_key)
                        "uri", TMDB_API_CALL_CONFIGURATION,
                        "args", NULL,
                        NULL);
+}
+
+static const char *
+id_to_param (GrlTmdbRequestDetail detail)
+{
+  switch (detail) {
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST:
+      return TMDB_API_PARAM_MOVIE_CAST;
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES:
+      return TMDB_API_PARAM_MOVIE_IMAGES;
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_KEYWORDS:
+      return TMDB_API_PARAM_MOVIE_KEYWORDS;
+    case GRL_TMDB_REQUEST_DETAIL_MOVIE_RELEASE_INFO:
+      return TMDB_API_PARAM_MOVIE_RELEASE_INFO;
+    default:
+      return NULL;
+  }
+}
+
+static char *
+append_details_list (GrlTmdbRequest *self,
+                     const char *call)
+{
+  GString *c;
+  GList *l;
+  gboolean added_comma = FALSE;
+
+  if (self->priv->details == NULL)
+    return NULL;
+
+  c = g_string_new (call);
+  g_string_append (c, "&append_to_response=");
+
+  for (l = self->priv->details; l != NULL; l = l->next) {
+    const char *param;
+
+    param = id_to_param (GPOINTER_TO_UINT (l->data));
+    if (!param)
+      continue;
+    g_string_append_printf (c, "%s,", id_to_param (GPOINTER_TO_UINT (l->data)));
+    added_comma = TRUE;
+  }
+
+  /* Remove trailing comma */
+  if (added_comma) {
+    g_string_truncate (c, c->len - 1);
+    return g_string_free (c, FALSE);
+  }
+
+  g_string_free (c, TRUE);
+  return NULL;
 }
 
 /**
@@ -455,13 +549,19 @@ grl_tmdb_request_run_async (GrlTmdbRequest *self,
                             gpointer user_data)
 {
   SoupURI *uri;
-  char *call;
+  char *call, *new_call;
   GHashTable *headers;
 
   uri = soup_uri_new_with_base (self->priv->base, self->priv->uri);
   soup_uri_set_query_from_form (uri, self->priv->args);
   call = soup_uri_to_string (uri, FALSE);
   soup_uri_free (uri);
+
+  new_call = append_details_list (self, call);
+  if (new_call != NULL) {
+    g_free (call);
+    call = new_call;
+  }
 
   self->priv->simple = g_simple_async_result_new (G_OBJECT (self),
                                                   callback,

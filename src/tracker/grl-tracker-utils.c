@@ -90,6 +90,30 @@ set_date (TrackerSparqlCursor *cursor,
   }
 }
 
+static void
+set_title_from_filename (TrackerSparqlCursor *cursor,
+                         gint                 column,
+                         GrlMedia            *media,
+                         GrlKeyID             key)
+{
+  const gchar *str = tracker_sparql_cursor_get_string (cursor, column, NULL);
+  if (key == GRL_METADATA_KEY_TITLE) {
+    grl_data_set_boolean (GRL_DATA (media), GRL_METADATA_KEY_TITLE_FROM_FILENAME, TRUE);
+    grl_media_set_title (media, str);
+  }
+}
+
+static void
+set_title (TrackerSparqlCursor *cursor,
+           gint                 column,
+           GrlMedia            *media,
+           GrlKeyID             key)
+{
+  const gchar *str = tracker_sparql_cursor_get_string (cursor, column, NULL);
+  grl_data_set_boolean (GRL_DATA (media), GRL_METADATA_KEY_TITLE_FROM_FILENAME, FALSE);
+  grl_media_set_title (media, str);
+}
+
 static tracker_grl_sparql_t *
 insert_key_mapping (GrlKeyID     grl_key,
                     const gchar *sparql_key_attr,
@@ -243,15 +267,17 @@ grl_tracker_setup_key_mappings (void)
                       "nie:url(?urn)",
                       "file");
 
-  insert_key_mapping (GRL_METADATA_KEY_TITLE,
-                      "nie:title",
-                      "nie:title(?urn)",
-                      "audio");
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_TITLE,
+                                  "nie:title",
+                                  "nie:title(?urn)",
+                                  "audio",
+                                  set_title);
 
-  insert_key_mapping (GRL_METADATA_KEY_TITLE,
-                      "nfo:fileName",
-                      "nfo:fileName(?urn)",
-                      "file");
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_TITLE,
+                                  "nfo:fileName",
+                                  "nfo:fileName(?urn)",
+                                  "file",
+                                  set_title_from_filename);
 
   insert_key_mapping (GRL_METADATA_KEY_URL,
                       "nie:url",

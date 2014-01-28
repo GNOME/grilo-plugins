@@ -624,8 +624,13 @@ on_request_ready (GObject *source,
   GList *values, *iter;
   GValue *value;
 
-  GRL_DEBUG ("Detail request (%s) ready for movie #%" G_GUINT64_FORMAT "...",
-             grl_tmdb_request_detail_to_string (detail), closure->id);
+  if (detail != GRL_TMDB_REQUEST_DETAIL_COUNT) {
+    GRL_DEBUG ("Detail request (%s) ready for movie #%" G_GUINT64_FORMAT "...",
+               grl_tmdb_request_detail_to_string (detail), closure->id);
+  } else {
+    GRL_DEBUG ("Detail request (aggregated) ready for movie #%" G_GUINT64_FORMAT "...",
+               closure->id);
+  }
 
   if (!grl_tmdb_request_run_finish (GRL_TMDB_REQUEST (source),
                                     result,
@@ -637,276 +642,293 @@ on_request_ready (GObject *source,
     goto out;
   }
 
-  switch (detail) {
-    case GRL_TMDB_REQUEST_DETAIL_MOVIE:
-    {
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_GENRE)) {
-        iter = values = grl_tmdb_request_get_string_list (request, "$.genres..name");
-        while (iter != NULL) {
-          grl_data_add_string (GRL_DATA (closure->rs->media),
-                               GRL_METADATA_KEY_GENRE, iter->data);
-          iter = iter->next;
-        }
-        g_list_free_full (values, g_free);
-      }
-
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_STUDIO)) {
-        iter = values = grl_tmdb_request_get_string_list (request, "$.production_companies..name");
-        while (iter != NULL) {
-          grl_data_add_string (GRL_DATA (closure->rs->media),
-                               GRL_METADATA_KEY_STUDIO, iter->data);
-          iter = iter->next;
-        }
-        g_list_free_full (values, g_free);
-      }
-
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_SITE)) {
-        value = grl_tmdb_request_get (request, "$.homepage");
-        if (value != NULL) {
-          grl_media_set_site (closure->rs->media, g_value_get_string (value));
-          g_value_unset (value);
-          g_free (value);
-        }
-      }
-
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_DESCRIPTION)) {
-        value = grl_tmdb_request_get (request, "$.overview");
-        if (value != NULL) {
-          grl_media_set_description (closure->rs->media,
-                                     g_value_get_string (value));
-          g_value_unset (value);
-          g_free (value);
-        }
-      }
-
-      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_IMDB_ID)) {
-        value = grl_tmdb_request_get (request, "$.imdb_id");
-        if (value != NULL) {
-          grl_data_set_string (GRL_DATA (closure->rs->media),
-                               GRL_TMDB_METADATA_KEY_IMDB_ID,
-                               g_value_get_string (value));
-          g_value_unset (value);
-          g_free (value);
-        }
-      }
-
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_RATING)) {
-        value = grl_tmdb_request_get (request, "$.vote_average");
-        if (value != NULL) {
-          grl_media_set_rating (closure->rs->media,
-                                (float) g_value_get_double (value),
-                                10.0f);
-          g_value_unset (value);
-          g_free (value);
-        }
-      }
-
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_ORIGINAL_TITLE)) {
-        value = grl_tmdb_request_get (request, "$.original_title");
-        if (value != NULL) {
-          grl_media_video_set_original_title (GRL_MEDIA_VIDEO (closure->rs->media),
-                                              g_value_get_string (value));
-          g_value_unset (value);
-          g_free (value);
-        }
-      }
-
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_TITLE)) {
-        value = grl_tmdb_request_get (request, "$.title");
-        if (value != NULL) {
-          grl_media_set_title (closure->rs->media, g_value_get_string (value));
-          g_value_unset (value);
-          g_free (value);
-        }
-      }
-
-      if (!closure->slow) {
-        /* Add thumbnails first and poster and backdrops later.
-         * Posters more likely make a good thumbnail than backdrops.
-         */
-        if (SHOULD_RESOLVE (GRL_METADATA_KEY_THUMBNAIL)) {
-          value = grl_tmdb_request_get (request, "$.poster_path");
-          if (value != NULL) {
-              add_image (closure->self, closure->rs->media,
-                         GRL_METADATA_KEY_THUMBNAIL,
-                         g_value_get_string (value));
-
-              g_value_unset (value);
-              g_free (value);
-          }
-        }
-
-        if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER)) {
-          value = grl_tmdb_request_get (request, "$.poster_path");
-          if (value != NULL) {
-              add_image (closure->self, closure->rs->media,
-                         GRL_TMDB_METADATA_KEY_POSTER,
-                         g_value_get_string (value));
-
-              g_value_unset (value);
-              g_free (value);
-          }
-        }
-
-        if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROP)) {
-          value = grl_tmdb_request_get (request, "$.backdrop_path");
-          if (value != NULL) {
-            add_image (closure->self, closure->rs->media,
-                       GRL_TMDB_METADATA_KEY_BACKDROP,
-                       g_value_get_string (value));
-
-            g_value_unset (value);
-            g_free (value);
-          }
-        }
-      }
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_GENRE)) {
+    iter = values = grl_tmdb_request_get_string_list (request, "$.genres..name");
+    while (iter != NULL) {
+      grl_data_add_string (GRL_DATA (closure->rs->media),
+                           GRL_METADATA_KEY_GENRE, iter->data);
+      iter = iter->next;
     }
-    break;
-    case GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES:
-    {
-      /* Add thumbnails first, and posters and backdrops later.
-       * Posters more likely make a good thumbnail than backdrops.
-       */
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_THUMBNAIL)) {
-        iter = values = grl_tmdb_request_get_string_list_with_filter (request,
-                                                                      "$.posters",
-                                                                      neutral_backdrop_filter);
-        while (iter != NULL) {
+    g_list_free_full (values, g_free);
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_STUDIO)) {
+    iter = values = grl_tmdb_request_get_string_list (request, "$.production_companies..name");
+    while (iter != NULL) {
+      grl_data_add_string (GRL_DATA (closure->rs->media),
+                           GRL_METADATA_KEY_STUDIO, iter->data);
+      iter = iter->next;
+    }
+    g_list_free_full (values, g_free);
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_SITE)) {
+    value = grl_tmdb_request_get (request, "$.homepage");
+    if (value != NULL) {
+      grl_media_set_site (closure->rs->media, g_value_get_string (value));
+      g_value_unset (value);
+      g_free (value);
+    }
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_DESCRIPTION)) {
+    value = grl_tmdb_request_get (request, "$.overview");
+    if (value != NULL) {
+      grl_media_set_description (closure->rs->media,
+                                 g_value_get_string (value));
+      g_value_unset (value);
+      g_free (value);
+    }
+  }
+
+  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_IMDB_ID)) {
+    value = grl_tmdb_request_get (request, "$.imdb_id");
+    if (value != NULL) {
+      grl_data_set_string (GRL_DATA (closure->rs->media),
+                           GRL_TMDB_METADATA_KEY_IMDB_ID,
+                           g_value_get_string (value));
+      g_value_unset (value);
+      g_free (value);
+    }
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_RATING)) {
+    value = grl_tmdb_request_get (request, "$.vote_average");
+    if (value != NULL) {
+      grl_media_set_rating (closure->rs->media,
+                            (float) g_value_get_double (value),
+                            10.0f);
+      g_value_unset (value);
+      g_free (value);
+    }
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_ORIGINAL_TITLE)) {
+    value = grl_tmdb_request_get (request, "$.original_title");
+    if (value != NULL) {
+      grl_media_video_set_original_title (GRL_MEDIA_VIDEO (closure->rs->media),
+                                          g_value_get_string (value));
+      g_value_unset (value);
+      g_free (value);
+    }
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_TITLE)) {
+    value = grl_tmdb_request_get (request, "$.title");
+    if (value != NULL) {
+      grl_media_set_title (closure->rs->media, g_value_get_string (value));
+      g_value_unset (value);
+      g_free (value);
+    }
+  }
+
+  if (!closure->slow) {
+    /* Add thumbnails first and poster and backdrops later.
+     * Posters more likely make a good thumbnail than backdrops.
+     */
+    if (SHOULD_RESOLVE (GRL_METADATA_KEY_THUMBNAIL)) {
+      value = grl_tmdb_request_get (request, "$.poster_path");
+      if (value != NULL) {
           add_image (closure->self, closure->rs->media,
                      GRL_METADATA_KEY_THUMBNAIL,
-                     iter->data);
+                     g_value_get_string (value));
 
-          iter = iter->next;
-        }
-        g_list_free_full (values, g_free);
+          g_value_unset (value);
+          g_free (value);
       }
+    }
 
-      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER)) {
-        iter = values = grl_tmdb_request_get_string_list_with_filter (request,
-                                                                      "$.posters",
-                                                                      neutral_backdrop_filter);
-        while (iter != NULL) {
+    if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER)) {
+      value = grl_tmdb_request_get (request, "$.poster_path");
+      if (value != NULL) {
           add_image (closure->self, closure->rs->media,
                      GRL_TMDB_METADATA_KEY_POSTER,
-                     iter->data);
+                     g_value_get_string (value));
 
-          iter = iter->next;
-        }
-        g_list_free_full (values, g_free);
-      }
-
-      if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROP)) {
-        iter = values = grl_tmdb_request_get_string_list_with_filter (request,
-                                                                      "$.backdrops",
-                                                                      neutral_backdrop_filter);
-        while (iter != NULL) {
-          add_image (closure->self, closure->rs->media,
-                     GRL_TMDB_METADATA_KEY_BACKDROP,
-                     iter->data);
-
-          iter = iter->next;
-        }
-        g_list_free_full (values, g_free);
+          g_value_unset (value);
+          g_free (value);
       }
     }
-    break;
-    case GRL_TMDB_REQUEST_DETAIL_MOVIE_KEYWORDS:
-    {
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_KEYWORD)) {
-        iter = values = grl_tmdb_request_get_string_list (request,
-                                                          "$.keywords..name");
-        while (iter != NULL) {
-          grl_media_add_keyword (closure->rs->media, iter->data);
-          iter = iter->next;
-        }
-        g_list_free_full (values, g_free);
+
+    if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROP)) {
+      value = grl_tmdb_request_get (request, "$.backdrop_path");
+      if (value != NULL) {
+        add_image (closure->self, closure->rs->media,
+                   GRL_TMDB_METADATA_KEY_BACKDROP,
+                   g_value_get_string (value));
+
+        g_value_unset (value);
+        g_free (value);
       }
     }
-    break;
-    case GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST:
-    {
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_PERFORMER)) {
-        values = grl_tmdb_request_get_string_list (request, "$.cast..name");
-        iter = values;
-        while (iter != NULL) {
-          grl_media_video_add_performer (GRL_MEDIA_VIDEO (closure->rs->media),
-                                         iter->data);
-          iter = iter->next;
-        }
-        g_list_free_full (values, g_free);
-      }
+  }
 
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_PRODUCER)) {
-        values = grl_tmdb_request_get_string_list_with_filter (request,
-                                                               "$.crew[*]",
-                                                               producer_filter);
-        iter = values;
-        while (iter != NULL) {
-            grl_media_video_add_producer (GRL_MEDIA_VIDEO (closure->rs->media),
-                                          iter->data);
-          iter = iter->next;
-        }
-        g_list_free_full (values, g_free);
-      }
+  /* Add thumbnails first, and posters and backdrops later.
+   * Posters more likely make a good thumbnail than backdrops.
+   */
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_THUMBNAIL)) {
+    values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                           "$.posters",
+                                                           neutral_backdrop_filter);
+    if (!values)
+      values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                             "$.images.posters",
+                                                             neutral_backdrop_filter);
+    iter = values;
+    while (iter != NULL) {
+      add_image (closure->self, closure->rs->media,
+                 GRL_METADATA_KEY_THUMBNAIL,
+                 iter->data);
 
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_DIRECTOR)) {
-        values = grl_tmdb_request_get_string_list_with_filter (request,
-                                                               "$.crew[*]",
-                                                               director_filter);
-        iter = values;
-        while (iter != NULL) {
-          grl_media_video_add_director (GRL_MEDIA_VIDEO (closure->rs->media),
-                                        iter->data);
-          iter = iter->next;
-        }
-        g_list_free_full (values, g_free);
-      }
-
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_AUTHOR)) {
-        values = grl_tmdb_request_get_string_list_with_filter (request,
-                                                               "$.crew[*]",
-                                                               writer_filter);
-        iter = values;
-        while (iter != NULL) {
-          grl_media_add_author (GRL_MEDIA (closure->rs->media),
-                                iter->data);
-          iter = iter->next;
-        }
-        g_list_free_full (values, g_free);
-      }
+      iter = iter->next;
     }
-    break;
-    case GRL_TMDB_REQUEST_DETAIL_MOVIE_RELEASE_INFO:
-    {
-      if (SHOULD_RESOLVE (GRL_METADATA_KEY_REGION) ||
-              SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE) ||
-              SHOULD_RESOLVE (GRL_METADATA_KEY_PUBLICATION_DATE)) {
-        values = grl_tmdb_request_get_list_with_filter (request,
-                                                        "$.countries[*]",
-                                                        NULL);
+    g_list_free_full (values, g_free);
+  }
 
-        for (iter = values; iter != NULL; iter = iter->next) {
-          const char *region, *cert, *date;
-          GDateTime *pubdate;
-          JsonObject *object;
+  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER)) {
+    values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                           "$.posters",
+                                                           neutral_backdrop_filter);
+    if (!values)
+      values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                             "$.images.posters",
+                                                             neutral_backdrop_filter);
+    iter = values;
+    while (iter != NULL) {
+      add_image (closure->self, closure->rs->media,
+                 GRL_TMDB_METADATA_KEY_POSTER,
+                 iter->data);
 
-          object = json_node_get_object (iter->data);
-          region = json_object_get_string_member (object, "iso_3166_1");
-          cert = json_object_get_string_member (object, "certification");
-          date = json_object_get_string_member (object, "release_date");
-          pubdate = parse_date (date);
-
-          grl_media_add_region_data (closure->rs->media, region, pubdate, cert);
-
-          g_date_time_unref (pubdate);
-        }
-
-        g_list_free_full (values, (GDestroyNotify) json_node_free);
-      }
+      iter = iter->next;
     }
-    break;
-    default:
-      break;
+    g_list_free_full (values, g_free);
+  }
+
+  if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROP)) {
+    values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                           "$.backdrops",
+                                                           neutral_backdrop_filter);
+    if (!values)
+      values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                             "$.images.backdrops",
+                                                             neutral_backdrop_filter);
+    iter = values;
+    while (iter != NULL) {
+      add_image (closure->self, closure->rs->media,
+                 GRL_TMDB_METADATA_KEY_BACKDROP,
+                 iter->data);
+
+      iter = iter->next;
+    }
+    g_list_free_full (values, g_free);
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_KEYWORD)) {
+    values = grl_tmdb_request_get_string_list (request,
+                                               "$.keywords..name");
+    if (!values)
+      values = grl_tmdb_request_get_string_list (request,
+                                                 "$.keywords.keywords..name");
+    iter = values;
+    while (iter != NULL) {
+      grl_media_add_keyword (closure->rs->media, iter->data);
+      iter = iter->next;
+    }
+    g_list_free_full (values, g_free);
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_PERFORMER)) {
+    values = grl_tmdb_request_get_string_list (request, "$.cast..name");
+    if (!values)
+      values = grl_tmdb_request_get_string_list (request, "$.casts.cast..name");
+    iter = values;
+    while (iter != NULL) {
+      grl_media_video_add_performer (GRL_MEDIA_VIDEO (closure->rs->media),
+                                     iter->data);
+      iter = iter->next;
+    }
+    g_list_free_full (values, g_free);
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_PRODUCER)) {
+    values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                           "$.crew[*]",
+                                                           producer_filter);
+    if (!values)
+      values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                             "$.casts.crew[*]",
+                                                             producer_filter);
+    iter = values;
+    while (iter != NULL) {
+        grl_media_video_add_producer (GRL_MEDIA_VIDEO (closure->rs->media),
+                                      iter->data);
+      iter = iter->next;
+    }
+    g_list_free_full (values, g_free);
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_DIRECTOR)) {
+    values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                           "$.crew[*]",
+                                                           director_filter);
+    if (!values)
+      values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                             "$.casts.crew[*]",
+                                                             director_filter);
+    iter = values;
+    while (iter != NULL) {
+      grl_media_video_add_director (GRL_MEDIA_VIDEO (closure->rs->media),
+                                    iter->data);
+      iter = iter->next;
+    }
+    g_list_free_full (values, g_free);
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_AUTHOR)) {
+    values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                           "$.crew[*]",
+                                                           writer_filter);
+    if (!values)
+      values = grl_tmdb_request_get_string_list_with_filter (request,
+                                                             "$.casts.crew[*]",
+                                                             writer_filter);
+    iter = values;
+    while (iter != NULL) {
+      grl_media_add_author (GRL_MEDIA (closure->rs->media),
+                            iter->data);
+      iter = iter->next;
+    }
+    g_list_free_full (values, g_free);
+  }
+
+  if (SHOULD_RESOLVE (GRL_METADATA_KEY_REGION) ||
+          SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE) ||
+          SHOULD_RESOLVE (GRL_METADATA_KEY_PUBLICATION_DATE)) {
+    values = grl_tmdb_request_get_list_with_filter (request,
+                                                    "$.countries[*]",
+                                                    NULL);
+    if (!values)
+      values = grl_tmdb_request_get_list_with_filter (request,
+                                                      "$.releases.countries[*]",
+                                                      NULL);
+
+    for (iter = values; iter != NULL; iter = iter->next) {
+      const char *region, *cert, *date;
+      GDateTime *pubdate;
+      JsonObject *object;
+
+      object = json_node_get_object (iter->data);
+      region = json_object_get_string_member (object, "iso_3166_1");
+      cert = json_object_get_string_member (object, "certification");
+      date = json_object_get_string_member (object, "release_date");
+      pubdate = parse_date (date);
+
+      grl_media_add_region_data (closure->rs->media, region, pubdate, cert);
+
+      g_date_time_unref (pubdate);
+    }
+
+    g_list_free_full (values, (GDestroyNotify) json_node_free);
   }
 
 out:
@@ -1070,9 +1092,12 @@ static void queue_detail_request (ResolveClosure *closure,
 
 static void resolve_slow_details (ResolveClosure *closure)
 {
+  GList *details = NULL;
+  GrlTmdbRequest *request;
+
   if (SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_BACKDROP) ||
       SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_POSTER))
-    queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES);
+    details = g_list_prepend (details, GUINT_TO_POINTER (GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES));
 
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_RATING) ||
       SHOULD_RESOLVE (GRL_METADATA_KEY_ORIGINAL_TITLE) ||
@@ -1082,21 +1107,38 @@ static void resolve_slow_details (ResolveClosure *closure)
       SHOULD_RESOLVE (GRL_METADATA_KEY_SITE) ||
       SHOULD_RESOLVE (GRL_METADATA_KEY_DESCRIPTION) ||
       SHOULD_RESOLVE (GRL_TMDB_METADATA_KEY_IMDB_ID))
-    queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE);
+    details = g_list_prepend (details, GUINT_TO_POINTER (GRL_TMDB_REQUEST_DETAIL_MOVIE));
 
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_KEYWORD))
-    queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE_KEYWORDS);
+    details = g_list_prepend (details, GUINT_TO_POINTER (GRL_TMDB_REQUEST_DETAIL_MOVIE_KEYWORDS));
 
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_PERFORMER) ||
       SHOULD_RESOLVE (GRL_METADATA_KEY_PRODUCER) ||
       SHOULD_RESOLVE (GRL_METADATA_KEY_DIRECTOR) ||
       SHOULD_RESOLVE (GRL_METADATA_KEY_AUTHOR))
-    queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST);
+    details = g_list_prepend (details, GUINT_TO_POINTER (GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST));
 
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_REGION) ||
           SHOULD_RESOLVE (GRL_METADATA_KEY_CERTIFICATE) ||
           SHOULD_RESOLVE (GRL_METADATA_KEY_PUBLICATION_DATE))
-    queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE_RELEASE_INFO);
+    details = g_list_prepend (details, GUINT_TO_POINTER (GRL_TMDB_REQUEST_DETAIL_MOVIE_RELEASE_INFO));
+
+  if (details == NULL)
+    return;
+
+  if (g_list_length (details) == 1) {
+    queue_detail_request (closure, GPOINTER_TO_UINT (details));
+    return;
+  }
+
+  GRL_DEBUG ("Requesting aggregated info for movie #%" G_GUINT64_FORMAT "...",
+             closure->id);
+
+  request = grl_tmdb_request_new_details_list (closure->self->priv->api_key,
+                                               details, closure->id);
+  g_list_free (details);
+
+  queue_request (closure, request, on_request_ready);
 }
 
 static void

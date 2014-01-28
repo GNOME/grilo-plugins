@@ -37,7 +37,7 @@
 GRL_LOG_DOMAIN_EXTERN(tmdb_log_domain);
 
 /* URIs for TMDb.org API V3 */
-#define TMDB_BASE_URI "http://api.themoviedb.org/3/"
+#define TMDB_BASE_URI "https://api.themoviedb.org/3/"
 #define TMDB_API_CALL_CONFIGURATION "configuration"
 #define TMDB_API_CALL_SEARCH_MOVIE "search/movie"
 #define TMDB_API_CALL_MOVIE_INFO "movie/%"G_GUINT64_FORMAT

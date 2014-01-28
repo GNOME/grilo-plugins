@@ -1000,6 +1000,15 @@ on_search_ready (GObject *source,
   g_value_unset (value);
   g_free (value);
 
+  if (grl_data_get_boolean (GRL_DATA (closure->rs->media), GRL_METADATA_KEY_TITLE_FROM_FILENAME)) {
+    value = grl_tmdb_request_get (request, "$.results[0].title");
+    if (value) {
+      grl_media_set_title (closure->rs->media, g_value_get_string (value));
+      g_value_unset (value);
+      g_free (value);
+    }
+  }
+
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_RATING)) {
     value = grl_tmdb_request_get (request, "$.results[0].vote_average");
     if (value != NULL) {

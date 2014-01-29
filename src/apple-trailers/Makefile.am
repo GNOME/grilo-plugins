@@ -24,7 +24,9 @@ libgrlappletrailers_la_LDFLAGS = \
 
 libgrlappletrailers_la_SOURCES =	\
 	grl-apple-trailers.c		\
-	grl-apple-trailers.h
+	grl-apple-trailers.h		\
+	apple-trailersresources.h	\
+	apple-trailersresources.c
 
 extdir						= $(GRL_PLUGINS_DIR)
 appletrailersxmldir		= $(GRL_PLUGINS_DIR)
@@ -38,7 +40,14 @@ copy-xml-to-libs-dir: libgrlappletrailers.la
 
 all-local: copy-xml-to-libs-dir
 
-EXTRA_DIST = $(appletrailersxml_DATA)
+apple-trailersresources.h: apple-trailers.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/apple-trailers.gresource.xml \
+		--target=$@ --sourcedir=$(srcdir) --c-name _grl_apple_trailers --generate-header
+apple-trailersresources.c: apple-trailers.gresource.xml apple-trailersresources.h channel-trailers.svg
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/apple-trailers.gresource.xml \
+		--target=$@ --sourcedir=$(srcdir) --c-name _grl_apple_trailers --generate-source
+
+EXTRA_DIST = $(appletrailersxml_DATA) channel-trailers.svg apple-trailers.gresource.xml
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

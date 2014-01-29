@@ -158,10 +158,15 @@ grl_apple_trailers_source_new (gboolean high_definition,
                                gboolean xlarge)
 {
   GrlAppleTrailersSource *source;
+  GIcon *icon;
+  GFile *file;
 
   GRL_DEBUG ("grl_apple_trailers_source_new%s%s",
              high_definition ? " (HD)" : "",
              xlarge ? " (X-large poster)" : "");
+  file = g_file_new_for_uri ("resource:///org/gnome/grilo/plugins/apple-trailers/channel-trailers.svg");
+  icon = g_file_icon_new (file);
+  g_object_unref (file);
   source = g_object_new (GRL_APPLE_TRAILERS_SOURCE_TYPE,
                          "source-id", SOURCE_ID,
                          "source-name", SOURCE_NAME,
@@ -169,6 +174,7 @@ grl_apple_trailers_source_new (gboolean high_definition,
                          "supported-media", GRL_MEDIA_TYPE_VIDEO,
                          "high-definition", high_definition,
 			 "large-poster", xlarge,
+                         "source-icon", icon,
                          NULL);
 
   return source;

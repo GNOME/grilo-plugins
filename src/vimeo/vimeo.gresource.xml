@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/gnome/grilo/plugins/vimeo">
+    <file compressed="false">channel-vimeo.svg</file>
+  </gresource>
+</gresources>

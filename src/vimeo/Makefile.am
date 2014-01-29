@@ -26,7 +26,9 @@ libgrlvimeo_la_SOURCES =	\
 	grl-vimeo.c		\
 	grl-vimeo.h		\
 	gvimeo.c		\
-	gvimeo.h
+	gvimeo.h		\
+	vimeoresources.h	\
+	vimeoresources.c
 
 extdir			= $(GRL_PLUGINS_DIR)
 vimeoxmldir		= $(GRL_PLUGINS_DIR)
@@ -40,7 +42,14 @@ copy-xml-to-libs-dir: libgrlvimeo.la
 
 all-local: copy-xml-to-libs-dir
 
-EXTRA_DIST = $(vimeoxml_DATA)
+vimeoresources.h: vimeo.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/vimeo.gresource.xml \
+		--target=$@ --sourcedir=$(srcdir) --c-name _grl_vimeo --generate-header
+vimeoresources.c: vimeo.gresource.xml vimeoresources.h channel-vimeo.svg
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/vimeo.gresource.xml \
+		--target=$@ --sourcedir=$(srcdir) --c-name _grl_vimeo --generate-source
+
+EXTRA_DIST = $(vimeoxml_DATA) channel-vimeo.svg vimeo.gresource.xml
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

@@ -179,13 +179,21 @@ GRL_PLUGIN_REGISTER (grl_vimeo_plugin_init,
 static GrlVimeoSource *
 grl_vimeo_source_new (void)
 {
+  GIcon *icon;
+  GFile *file;
+
   GRL_DEBUG ("grl_vimeo_source_new");
+
+  file = g_file_new_for_uri ("resource:///org/gnome/grilo/plugins/vimeo/channel-vimeo.svg");
+  icon = g_file_icon_new (file);
+  g_object_unref (file);
 
   return g_object_new (GRL_VIMEO_SOURCE_TYPE,
                        "source-id", SOURCE_ID,
                        "source-name", SOURCE_NAME,
                        "source-desc", SOURCE_DESC,
                        "supported-media", GRL_MEDIA_TYPE_VIDEO,
+                       "source-icon", icon,
                        NULL);
 }
 

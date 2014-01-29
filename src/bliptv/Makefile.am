@@ -25,7 +25,9 @@ libgrlbliptv_la_LDFLAGS = \
 
 libgrlbliptv_la_SOURCES = 		\
 	grl-bliptv.c			\
-	grl-bliptv.h
+	grl-bliptv.h			\
+	bliptvresources.h		\
+	bliptvresources.c
 
 extdir 			= $(GRL_PLUGINS_DIR)
 bliptvxmldir 	= $(GRL_PLUGINS_DIR)
@@ -39,10 +41,19 @@ copy-xml-to-libs-dir: libgrlbliptv.la
 
 all-local: copy-xml-to-libs-dir
 
-EXTRA_DIST = $(bliptvxml_DATA)
+bliptvresources.h: bliptv.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/bliptv.gresource.xml \
+		--target=$@ --sourcedir=$(srcdir) --c-name _grl_bliptv --generate-header
+bliptvresources.c: bliptv.gresource.xml bliptvresources.h channel-bliptv.svg
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/bliptv.gresource.xml \
+		--target=$@ --sourcedir=$(srcdir) --c-name _grl_bliptv --generate-source
+
+EXTRA_DIST = $(bliptvxml_DATA) channel-bliptv.svg bliptv.gresource.xml
 
 MAINTAINERCLEANFILES =	\
 	*.in		\
 	*~
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)
+
+CLEANFILES = bliptvresources.h bliptvresources.c

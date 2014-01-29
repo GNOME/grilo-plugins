@@ -318,6 +318,8 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id, const gcha
 {
   GrlYoutubeSource *source;
   GDataYouTubeService *service;
+  GIcon *icon;
+  GFile *file;
 
   GRL_DEBUG ("grl_youtube_source_new");
 
@@ -331,6 +333,10 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id, const gcha
     return NULL;
   }
 
+  file = g_file_new_for_uri ("resource:///org/gnome/grilo/plugins/youtube/channel-youtube.svg");
+  icon = g_file_icon_new (file);
+  g_object_unref (file);
+
   /* Use auto-split mode because YouTube fails for queries
      that request more than YOUTUBE_MAX_CHUNK results */
   source = GRL_YOUTUBE_SOURCE (g_object_new (GRL_YOUTUBE_SOURCE_TYPE,
@@ -341,6 +347,7 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id, const gcha
 					     YOUTUBE_MAX_CHUNK,
                                              "yt-service", service,
                                              "supported-media", GRL_MEDIA_TYPE_VIDEO,
+                                             "source-icon", icon,
 					     NULL));
 
   ytsrc = source;

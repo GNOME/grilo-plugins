@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/gnome/grilo/plugins/raitv">
+    <file compressed="false">channel-rai.svg</file>
+  </gresource>
+</gresources>

@@ -23,13 +23,22 @@ libgrlraitv_la_LDFLAGS = \
 
 libgrlraitv_la_SOURCES = 		\
 	grl-raitv.c			\
-	grl-raitv.h
+	grl-raitv.h			\
+	raitvresources.h		\
+	raitvresources.c
 
 extdir 			= $(GRL_PLUGINS_DIR)
 raitvxmldir 	= $(GRL_PLUGINS_DIR)
 raitvxml_DATA	= $(RAITV_PLUGIN_ID).xml
 
-EXTRA_DIST = $(raitvxml_DATA)
+raitvresources.h: raitv.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/raitv.gresource.xml \
+		--target=$@ --sourcedir=$(srcdir) --c-name _grl_raitv --generate-header
+raitvresources.c: raitv.gresource.xml raitvresources.h channel-rai.svg
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/raitv.gresource.xml \
+		--target=$@ --sourcedir=$(srcdir) --c-name _grl_raitv --generate-source
+
+EXTRA_DIST = $(raitvxml_DATA) channel-rai.svg raitv.gresource.xml
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

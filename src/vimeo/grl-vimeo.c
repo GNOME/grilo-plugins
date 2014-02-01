@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <gio/gio.h>
 #include <glib/gi18n-lib.h>
 
 #include "grl-vimeo.h"

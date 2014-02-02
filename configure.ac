@@ -146,6 +146,8 @@ PKG_CHECK_MODULES(GOA, [goa-1.0 >= 3.7.1], HAVE_GOA=yes, HAVE_GOA=no)
 
 PKG_CHECK_MODULES(TOTEM_PL_PARSER, totem-plparser >= 3.4.1, HAVE_TOTEM_PL_PARSER=yes, HAVE_TOTEM_PL_PARSER=no)
 
+PKG_CHECK_MODULES(REST, rest-0.7, HAVE_REST=yes, HAVE_REST=no)
+
 PKG_CHECK_MODULES([JSON], [json-glib-1.0], HAVE_JSON_GLIB=yes, HAVE_JSON_GLIB=no)
 
 PKG_CHECK_MODULES(GMIME, gmime-2.6,
@@ -543,6 +545,56 @@ if test "x$enable_goa" = "xyes"; then
 	DEPS_FLICKR_LIBS="$DEPS_FLICKR_LIBS $GOA_LIBS"
 fi
 AC_SUBST(DEPS_FLICKR_LIBS)
+
+# ----------------------------------------------------------
+# BUILD POCKET PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(pocket,
+        AC_HELP_STRING([--enable-pocket],
+                [enable Pocket plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_JSON_GLIB" = "xno"; then
+                           AC_MSG_ERROR([json-glib not found, install it or use --disable-pocket])
+                        fi
+                        if test "x$HAVE_GOA" = "xno"; then
+                           AC_MSG_ERROR([gnome-online-accounts not found, install it or use --disable-pocket])
+                        fi
+                        if test "x$HAVE_REST" = "xno"; then
+                           AC_MSG_ERROR([rest not found, install it or use --disable-pocket])
+                        fi
+                        if test "x$HAVE_TOTEM_PL_PARSER" = "xno"; then
+                           AC_MSG_ERROR([totem-pl-parser not found, install it or use --disable-pocket])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_JSON_GLIB" = "xyes" -a "x$HAVE_GOA" = "xyes" -a "x$HAVE_REST" = "xyes" -a "x$HAVE_TOTEM_PL_PARSER" = "xyes"; then
+                   enable_pocket=yes
+                else
+                   enable_pocket=no
+                fi
+        ])
+
+AM_CONDITIONAL([POCKET_PLUGIN], [test "x$enable_pocket" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL pocket"
+if test "x$enable_pocket" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED pocket"
+fi
+
+POCKET_PLUGIN_ID="grl-pocket"
+AC_SUBST(POCKET_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([POCKET_PLUGIN_ID], ["$POCKET_PLUGIN_ID"], [Pocket plugin ID])
+
+DEPS_POCKET_CFLAGS="$DEPS_CFLAGS $JSON_CFLAGS $GOA_CFLAGS $REST_CFLAGS $TOTEM_PL_PARSER_CFLAGS"
+AC_SUBST(DEPS_POCKET_CFLAGS)
+
+DEPS_POCKET_LIBS="$DEPS_LIBS $JSON_LIBS $GOA_LIBS $REST_LIBS $TOTEM_PL_PARSER_LIBS"
+AC_SUBST(DEPS_POCKET_LIBS)
 
 # ----------------------------------------------------------
 # BUILD PODCASTS PLUGIN
@@ -1264,6 +1316,7 @@ AC_CONFIG_FILES([
   src/magnatune/Makefile
   src/metadata-store/Makefile
   src/optical-media/Makefile
+  src/pocket/Makefile
   src/podcasts/Makefile
   src/raitv/Makefile
   src/shoutcast/Makefile

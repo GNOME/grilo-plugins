@@ -1,0 +1,10 @@
+<plugin>
+  <info>
+    <name>Pocket</name>
+    <module>libgrlpocket</module>
+    <description>A plugin for Pocket videos</description>
+    <author>GNOME</author>
+    <license>LGPL</license>
+    <site>http://www.gnome.org</site>
+  </info>
+</plugin>

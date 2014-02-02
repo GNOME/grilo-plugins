@@ -62,6 +62,10 @@ if OPTICAL_MEDIA_PLUGIN
 SUBDIRS += optical-media
 endif
 
+if POCKET_PLUGIN
+SUBDIRS += pocket
+endif
+
 if PODCASTS_PLUGIN
 SUBDIRS += podcasts
 endif
@@ -105,7 +109,7 @@ endif
 DIST_SUBDIRS = \
    apple-trailers bliptv bookmarks dmap filesystem flickr freebox gravatar guardian-videos jamendo \
    lastfm-albumart local-metadata magnatune metadata-store optical-media   \
-   podcasts raitv shoutcast tmdb tracker upnp vimeo youtube
+   pocket podcasts raitv shoutcast tmdb tracker upnp vimeo youtube
 
 MAINTAINERCLEANFILES =	\
         *.in		\

@@ -61,17 +61,17 @@ verify (GrlData *data,
     expected[0] = g_hash_table_new (NULL, NULL);
     g_hash_table_insert (expected[0], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID), "7501");
     g_hash_table_insert (expected[0], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE), "2 Guns");
-    g_hash_table_insert (expected[0], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DURATION), GINT_TO_POINTER (11100));
+    g_hash_table_insert (expected[0], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DURATION), GINT_TO_POINTER (185));
 
     expected[1] = g_hash_table_new (NULL, NULL);
     g_hash_table_insert (expected[1], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID), "7863");
     g_hash_table_insert (expected[1], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE), "20 Feet from Stardom");
-    g_hash_table_insert (expected[1], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DURATION), GINT_TO_POINTER (7980));
+    g_hash_table_insert (expected[1], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DURATION), GINT_TO_POINTER (133));
 
     expected[2] = g_hash_table_new (NULL, NULL);
     g_hash_table_insert (expected[2], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID), "6466");
     g_hash_table_insert (expected[2], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE), "300: Rise of an Empire");
-    g_hash_table_insert (expected[2], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DURATION), GINT_TO_POINTER (9000));
+    g_hash_table_insert (expected[2], GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DURATION), GINT_TO_POINTER (150));
   }
 
   g_assert_cmpstr (grl_data_get_string (data, GRL_METADATA_KEY_ID),

@@ -66,13 +66,12 @@ struct _GrlDmapSourcePrivate {
 typedef struct _ResultCbAndArgs {
   GrlSourceResultCb callback;
   GrlSource *source;
+  GrlMedia *container;
   guint op_id;
-  gint code_error;
   GHRFunc predicate;
   gchar *predicate_data;
   guint skip;
   guint count;
-  guint remaining;
   gpointer user_data;
 } ResultCbAndArgs;
 
@@ -129,7 +128,7 @@ grl_dmap_plugin_init (GrlRegistry *registry,
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
   browser     = dmap_mdns_browser_new (DMAP_MDNS_BROWSER_SERVICE_TYPE_DAAP);
-  connections = g_hash_table_new (g_str_hash, g_str_equal);
+  connections = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
   sources     = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 
   g_signal_connect (G_OBJECT (browser),
@@ -232,140 +231,46 @@ build_url (DMAPMdnsBrowserService *service)
 }
 
 static void
-add_media_from_service (gpointer id,
-                        DAAPRecord *record,
-                        ResultCbAndArgs *cb)
+do_browse (ResultCbAndArgsAndDb *cb_and_db)
 {
-  gint   duration = 0;
-  gint32  bitrate = 0,
-            track = 0;
-  gchar  *id_s    = NULL,
-         *title   = NULL,
-         *album   = NULL,
-         *artist  = NULL,
-         *genre   = NULL,
-         *url     = NULL;
-  gboolean has_video;
-  GrlMedia *media;
+  simple_dmap_db_browse (cb_and_db->db,
+                         cb_and_db->cb.container,
+                         cb_and_db->cb.source,
+                         cb_and_db->cb.op_id,
+                         cb_and_db->cb.skip,
+                         cb_and_db->cb.count,
+                         cb_and_db->cb.callback,
+                         cb_and_db->cb.user_data);
 
-  g_object_get (record,
-               "songalbum",
-               &album,
-               "songartist",
-               &artist,
-               "bitrate",
-               &bitrate,
-               "duration",
-               &duration,
-               "songgenre",
-               &genre,
-               "title",
-               &title,
-               "track",
-               &track,
-               "location",
-               &url,
-               "has-video",
-               &has_video,
-                NULL);
-
-  id_s = g_strdup_printf ("%u", GPOINTER_TO_UINT (id));
-
-  if (has_video == TRUE) {
-    media = grl_media_video_new ();
-  } else {
-    media = grl_media_audio_new ();
-  }
-
-  grl_media_set_id           (media, id_s);
-  grl_media_set_duration     (media, duration);
-
-  if (title) {
-    grl_media_set_title (media, title);
-  }
-
-  if (url) {
-    // Replace URL's daap:// with http://.
-    url[0] = 'h'; url[1] = 't'; url[2] = 't'; url[3] = 'p';
-    grl_media_set_url (media, url);
-  }
-
-  if (has_video == FALSE) {
-    GrlMediaAudio *media_audio = GRL_MEDIA_AUDIO (media);
-
-    grl_media_audio_set_bitrate      (media_audio, bitrate);
-    grl_media_audio_set_track_number (media_audio, track);
-
-    if (album) {
-      grl_media_audio_set_album (media_audio, album);
-    }
-
-    if (artist) {
-      grl_media_audio_set_artist (media_audio, artist);
-    }
-
-    if (genre) {
-      grl_media_audio_set_genre (media_audio, genre);
-    }
-  }
-
-  g_free (id_s);
-
-  cb->callback (cb->source,
-                cb->op_id,
-                media,
-                --cb->remaining,
-                cb->user_data,
-                NULL);
-}
-
-static void
-add_to_hash_table (gpointer key, gpointer value, GHashTable *hash_table)
-{
-  g_hash_table_insert (hash_table, key, value);
-}
-
-static void
-add_filtered_media_from_service (ResultCbAndArgsAndDb *cb_and_db)
-{
-  GHashTable *hash_table;
-  hash_table = g_hash_table_new (g_direct_hash, g_direct_equal);
-
-  simple_dmap_db_filtered_foreach (cb_and_db->db,
-                                   cb_and_db->cb.skip,
-                                   cb_and_db->cb.count,
-                                   (GHRFunc) cb_and_db->cb.predicate,
-                                   cb_and_db->cb.predicate_data,
-                                   (GHFunc) add_to_hash_table,
-                                   hash_table);
-
-  cb_and_db->cb.remaining = g_hash_table_size (hash_table);
-  if (cb_and_db->cb.remaining > 0) {
-    g_hash_table_foreach (hash_table, (GHFunc) add_media_from_service, &cb_and_db->cb);
-  } else {
-    cb_and_db->cb.callback (cb_and_db->cb.source,
-                            cb_and_db->cb.op_id,
-                            NULL,
-                            0,
-                            cb_and_db->cb.user_data,
-                            NULL);
-  }
-  g_hash_table_destroy (hash_table);
   g_free (cb_and_db);
 }
 
 static void
-connected_cb (DMAPConnection       *connection,
-              gboolean              result,
-              const char           *reason,
-              ResultCbAndArgsAndDb *cb_and_db)
+do_search (ResultCbAndArgsAndDb *cb_and_db)
+{
+  simple_dmap_db_search (cb_and_db->db,
+                         cb_and_db->cb.source,
+                         cb_and_db->cb.op_id,
+                         (GHRFunc) cb_and_db->cb.predicate,
+                         cb_and_db->cb.predicate_data,
+                         cb_and_db->cb.callback,
+                         cb_and_db->cb.user_data);
+
+  g_free (cb_and_db);
+}
+
+static void
+browse_connected_cb (DMAPConnection       *connection,
+                     gboolean              result,
+                     const char           *reason,
+                     ResultCbAndArgsAndDb *cb_and_db)
 {
   GError *error;
 
   // NOTE: connection argument is required by API but ignored in this case.
   if (!result) {
     error = g_error_new_literal (GRL_CORE_ERROR,
-                                 cb_and_db->cb.code_error,
+                                 GRL_CORE_ERROR_BROWSE_FAILED,
                                  reason);
     cb_and_db->cb.callback (cb_and_db->cb.source,
                             cb_and_db->cb.op_id,
@@ -375,7 +280,32 @@ connected_cb (DMAPConnection       *connection,
                             error);
     g_error_free (error);
   } else {
-    add_filtered_media_from_service (cb_and_db);
+    do_browse (cb_and_db);
+  }
+}
+
+static void
+search_connected_cb (DMAPConnection       *connection,
+                     gboolean              result,
+                     const char           *reason,
+                     ResultCbAndArgsAndDb *cb_and_db)
+{
+  GError *error;
+
+  // NOTE: connection argument is required by API but ignored in this case.
+  if (!result) {
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_BROWSE_FAILED,
+                                 reason);
+    cb_and_db->cb.callback (cb_and_db->cb.source,
+                            cb_and_db->cb.op_id,
+                            NULL,
+                            0,
+                            cb_and_db->cb.user_data,
+                            error);
+    g_error_free (error);
+  } else {
+    do_search (cb_and_db);
   }
 }
 
@@ -428,16 +358,15 @@ grl_dmap_connect (gchar *name, gchar *host, guint port, ResultCbAndArgsAndDb *cb
 }
 
 static gboolean
-always_true (gpointer key, gpointer value, gpointer user_data)
+match (GrlMedia *media, gpointer val, gpointer user_data)
 {
-  return TRUE;
-}
+  g_assert (GRL_IS_MEDIA_AUDIO (media) || GRL_IS_MEDIA_VIDEO (media));
 
-static gboolean
-match (gpointer key, DAAPRecord *record, gpointer user_data)
-{
-  char *title;
-  g_object_get (record, "title", &title, NULL);
+  if (NULL == user_data) {
+    return TRUE;
+  }
+
+  const char *title = grl_media_get_title (media);
   return strstr (title, user_data) != NULL;
 }
 
@@ -480,17 +409,15 @@ grl_dmap_source_browse (GrlSource *source,
 
   cb_and_db->cb.callback       = bs->callback;
   cb_and_db->cb.source         = bs->source;
+  cb_and_db->cb.container      = bs->container;
   cb_and_db->cb.op_id          = bs->operation_id;
-  cb_and_db->cb.code_error     = GRL_CORE_ERROR_BROWSE_FAILED;
-  cb_and_db->cb.predicate      = always_true;
-  cb_and_db->cb.predicate_data = NULL;
   cb_and_db->cb.skip           = grl_operation_options_get_skip (bs->options);
   cb_and_db->cb.count          = grl_operation_options_get_count (bs->options);
   cb_and_db->cb.user_data      = bs->user_data;
 
   if ((cb_and_db->db = g_hash_table_lookup (connections, url))) {
     // Just call directly; already connected, already populated database.
-    connected_cb (NULL, TRUE, NULL, cb_and_db);
+    browse_connected_cb (NULL, TRUE, NULL, cb_and_db);
   } else {
     // Connect.
     cb_and_db->db = simple_dmap_db_new ();
@@ -499,9 +426,9 @@ grl_dmap_source_browse (GrlSource *source,
                       dmap_source->priv->service->host,
                       dmap_source->priv->service->port,
                       cb_and_db,
-                      (DMAPConnectionCallback) connected_cb);
+                      (DMAPConnectionCallback) browse_connected_cb);
 
-    g_hash_table_insert (connections, (gpointer) url, cb_and_db->db);
+    g_hash_table_insert (connections, g_strdup (url), cb_and_db->db);
   }
 
   g_free (url);
@@ -520,22 +447,20 @@ static void grl_dmap_source_search (GrlSource *source,
 
   cb_and_db->cb.callback       = ss->callback;
   cb_and_db->cb.source         = ss->source;
+  cb_and_db->cb.container      = NULL;
   cb_and_db->cb.op_id          = ss->operation_id;
-  cb_and_db->cb.code_error     = GRL_CORE_ERROR_SEARCH_FAILED;
   cb_and_db->cb.predicate      = (GHRFunc) match;
   cb_and_db->cb.predicate_data = ss->text;
-  cb_and_db->cb.skip           = grl_operation_options_get_skip (ss->options);
-  cb_and_db->cb.count          = grl_operation_options_get_count (ss->options);
   cb_and_db->cb.user_data      = ss->user_data;
 
   if ((cb_and_db->db = g_hash_table_lookup (connections, url))) {
     // Just call directly; already connected, already populated database.
-    connected_cb (NULL, TRUE, NULL, cb_and_db);
+    search_connected_cb (NULL, TRUE, NULL, cb_and_db);
   } else {
     // Connect.
     cb_and_db->db = simple_dmap_db_new ();
-    grl_dmap_connect (service->name, service->host, service->port, cb_and_db, (DMAPConnectionCallback) connected_cb);
-    g_hash_table_insert (connections, url, cb_and_db->db);
+    grl_dmap_connect (service->name, service->host, service->port, cb_and_db, (DMAPConnectionCallback) search_connected_cb);
+    g_hash_table_insert (connections, g_strdup (url), cb_and_db->db);
   }
 
   g_free (url);

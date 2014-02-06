@@ -28,7 +28,11 @@ libgrlupnp_la_CFLAGS +=	\
 libgrlupnp_la_LIBADD +=	\
 	$(XML_LIBS)
 
-libgrlupnp_la_SOURCES = grl-upnp.c grl-upnp.h
+libgrlupnp_la_SOURCES = \
+	grl-upnp.c		\
+	grl-upnp.h		\
+	grl-upnp-utils.c	\
+	grl-upnp-utils.h
 
 extdir			= $(GRL_PLUGINS_DIR)
 upnpxmldir		= $(GRL_PLUGINS_DIR)

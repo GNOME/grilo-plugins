@@ -36,6 +36,7 @@
 #include <glib/gi18n-lib.h>
 
 #include "grl-upnp.h"
+#include "grl-upnp-utils.h"
 
 #define GRL_UPNP_GET_PRIVATE(object)                                    \
   (G_TYPE_INSTANCE_GET_PRIVATE((object), GRL_UPNP_SOURCE_TYPE, GrlUpnpPrivate))
@@ -109,7 +110,7 @@ static void setup_key_mappings (void);
 
 static gchar *build_source_id (const gchar *udn);
 
-static GrlUpnpSource *grl_upnp_source_new (const gchar *id, const gchar *name, const gchar *icon_url);
+static GrlUpnpSource *grl_upnp_source_new (const gchar *id, const gchar *name, const gchar *icon_url, gboolean localmachine);
 
 gboolean grl_upnp_plugin_init (GrlRegistry *registry,
                                GrlPlugin *plugin,
@@ -207,11 +208,15 @@ GRL_PLUGIN_REGISTER (grl_upnp_plugin_init,
 G_DEFINE_TYPE (GrlUpnpSource, grl_upnp_source, GRL_TYPE_SOURCE);
 
 static GrlUpnpSource *
-grl_upnp_source_new (const gchar *source_id, const gchar *name, const gchar *icon_url)
+grl_upnp_source_new (const gchar *source_id,
+                     const gchar *name,
+                     const gchar *icon_url,
+                     gboolean     localhost)
 {
   gchar *source_desc;
   GrlUpnpSource *source;
   GIcon *icon = NULL;
+  gchar *tags[2];
 
   GRL_DEBUG ("grl_upnp_source_new");
   source_desc = g_strdup_printf (SOURCE_DESC_TEMPLATE, name);
@@ -224,11 +229,18 @@ grl_upnp_source_new (const gchar *source_id, const gchar *name, const gchar *ico
     g_object_unref (file);
   }
 
+  if (localhost) {
+    tags[0] = "localhost";
+    tags[1] = NULL;
+  } else
+    tags[0] = NULL;
+
   source = g_object_new (GRL_UPNP_SOURCE_TYPE,
 			 "source-id", source_id,
 			 "source-name", name,
 			 "source-desc", source_desc,
 			 "source-icon", icon,
+                         "source-tags", tags,
 			 NULL);
 
   source->priv->upnp_name = g_strdup (name);
@@ -456,6 +468,7 @@ device_available_cb (GUPnPControlPoint *cp,
 		     GUPnPDeviceProxy *device,
 		     gpointer user_data)
 {
+  SoupURI *url_base;
   gchar* name;
   const gchar* udn;
   const char *type;
@@ -494,7 +507,9 @@ device_available_cb (GUPnPControlPoint *cp,
   /* We got a valid UPnP source */
   /* Now let's check if it supports search operations before registering */
   icon_url = get_device_icon (device);
-  GrlUpnpSource *source = grl_upnp_source_new (source_id, name, icon_url);
+  url_base = (SoupURI*) gupnp_device_info_get_url_base (GUPNP_DEVICE_INFO (device));
+  GrlUpnpSource *source = grl_upnp_source_new (source_id, name, icon_url,
+                                               grl_upnp_util_uri_is_localhost (url_base));
   g_free (icon_url);
   source->priv->device = g_object_ref (device);
   source->priv->service = g_object_ref (service);

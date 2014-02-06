@@ -58,8 +58,10 @@ GRL_LOG_DOMAIN_STATIC(optical_media_log_domain);
 struct _GrlOpticalMediaSourcePrivate {
   GVolumeMonitor *monitor;
   guint monitor_signal_ids[NUM_MONITOR_SIGNALS];
-  GList *list; /* GrlMedia */
+  /* List of GrlMedia */
+  GList *list;
   GCancellable *cancellable;
+  gboolean notify_changes;
 };
 
 /* --- Data types --- */
@@ -76,6 +78,12 @@ static const GList *grl_optical_media_source_supported_keys (GrlSource *source);
 
 static void grl_optical_media_source_browse (GrlSource *source,
                                              GrlSourceBrowseSpec *bs);
+
+static gboolean grl_optical_media_source_notify_change_start (GrlSource *source,
+                                                              GError **error);
+
+static gboolean grl_optical_media_source_notify_change_stop (GrlSource *source,
+                                                             GError **error);
 
 static void grl_optical_media_source_cancel (GrlSource *source,
                                              guint operation_id);
@@ -152,6 +160,9 @@ grl_optical_media_source_class_init (GrlOpticalMediaSourceClass * klass)
   source_class->supported_keys = grl_optical_media_source_supported_keys;
   source_class->cancel = grl_optical_media_source_cancel;
   source_class->browse = grl_optical_media_source_browse;
+
+  source_class->notify_change_start = grl_optical_media_source_notify_change_start;
+  source_class->notify_change_stop = grl_optical_media_source_notify_change_stop;
 
   g_type_class_add_private (klass, sizeof (GrlOpticalMediaSourcePrivate));
 }
@@ -403,7 +414,9 @@ parsed_finished_item (TotemPlParser         *pl,
   if (retval == TOTEM_PL_PARSER_RESULT_SUCCESS &&
       grl_media_get_url (*media) != NULL) {
     source->priv->list = g_list_append (source->priv->list, g_object_ref (*media));
-    grl_source_notify_change (GRL_SOURCE (source), *media, GRL_CONTENT_ADDED, FALSE);
+    if (source->priv->notify_changes) {
+      grl_source_notify_change (GRL_SOURCE (source), *media, GRL_CONTENT_ADDED, FALSE);
+    }
   }
 
   g_object_unref (*media);
@@ -478,7 +491,9 @@ on_g_volume_monitor_removed_event (GVolumeMonitor        *monitor,
 
   media = l->data;
   source->priv->list = g_list_remove (source->priv->list, media);
-  grl_source_notify_change (GRL_SOURCE (source), media, GRL_CONTENT_REMOVED, FALSE);
+  if (source->priv->notify_changes) {
+    grl_source_notify_change (GRL_SOURCE (source), media, GRL_CONTENT_REMOVED, FALSE);
+  }
   g_object_unref (media);
 }
 
@@ -495,7 +510,9 @@ on_g_volume_monitor_changed_event (GVolumeMonitor        *monitor,
 
   media_set_metadata (mount, l->data);
 
-  grl_source_notify_change (GRL_SOURCE (source), l->data, GRL_CONTENT_CHANGED, FALSE);
+  if (source->priv->notify_changes) {
+    grl_source_notify_change (GRL_SOURCE (source), l->data, GRL_CONTENT_CHANGED, FALSE);
+  }
 }
 
 /* ================== API Implementation ================ */
@@ -668,6 +685,28 @@ grl_optical_media_source_browse (GrlSource *source,
                     G_CALLBACK (entry_parsed_cb), &data->media);
 
   resolve_disc_urls (data);
+}
+
+static gboolean
+grl_optical_media_source_notify_change_start (GrlSource *source,
+                                              GError **error)
+{
+  GrlOpticalMediaSourcePrivate *priv = GRL_OPTICAL_MEDIA_SOURCE (source)->priv;
+
+  priv->notify_changes = TRUE;
+
+  return TRUE;
+}
+
+static gboolean
+grl_optical_media_source_notify_change_stop (GrlSource *source,
+                                             GError **error)
+{
+  GrlOpticalMediaSourcePrivate *priv = GRL_OPTICAL_MEDIA_SOURCE (source)->priv;
+
+  priv->notify_changes = FALSE;
+
+  return TRUE;
 }
 
 static void

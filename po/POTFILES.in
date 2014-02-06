@@ -2,6 +2,7 @@ src/apple-trailers/grl-apple-trailers.c
 src/bliptv/grl-bliptv.c
 src/bookmarks/grl-bookmarks.c
 src/dmap/grl-dmap.c
+src/dmap/simple-dmap-db.c
 src/filesystem/grl-filesystem.c
 src/flickr/grl-flickr.c
 src/gravatar/grl-gravatar.c

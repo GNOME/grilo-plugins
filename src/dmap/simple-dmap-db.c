@@ -58,13 +58,13 @@
 
 #include "simple-dmap-db.h"
 
+#define ALBUMS_ID    "albums"
+#define ALBUMS_NAME  _("Albums")
+#define ARTISTS_ID   "artists"
+#define ARTISTS_NAME _("Artists")
+
 /* Media ID's start at max and go down. Container ID's start at 1 and go up. */
 static guint nextid = G_MAXINT; /* NOTE: this should be G_MAXUINT, but iPhoto can't handle it. */
-
-static const gchar *ALBUMS_ID    =  "albums";
-static const gchar *ALBUMS_NAME  =  "Albums";
-static const gchar *ARTISTS_ID   = "artists";
-static const gchar *ARTISTS_NAME = "Artists";
 
 struct SimpleDMAPDbPrivate {
   GrlMediaBox *albums_box;  // Contains each album box (tracked with albums hash table).
@@ -377,10 +377,10 @@ simple_dmap_db_init (SimpleDMAPDb *db)
   db->priv->artists_box = g_object_new (GRL_TYPE_MEDIA_BOX, NULL);
 
   grl_media_set_id    (GRL_MEDIA (db->priv->albums_box), ALBUMS_ID);
-  grl_media_set_title (GRL_MEDIA (db->priv->albums_box), _(ALBUMS_NAME));
+  grl_media_set_title (GRL_MEDIA (db->priv->albums_box), ALBUMS_NAME);
 
   grl_media_set_id    (GRL_MEDIA (db->priv->artists_box), ARTISTS_ID);
-  grl_media_set_title (GRL_MEDIA (db->priv->artists_box), _(ARTISTS_NAME));
+  grl_media_set_title (GRL_MEDIA (db->priv->artists_box), ARTISTS_NAME);
 
   db->priv->root    = g_hash_table_new_full (box_hash, box_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
   db->priv->albums  = g_hash_table_new_full (box_hash, box_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);

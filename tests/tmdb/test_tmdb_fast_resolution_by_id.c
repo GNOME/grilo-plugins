@@ -117,5 +117,9 @@ main(int argc, char **argv)
 
   g_test_add_func ("/tmdb/fast-resolution-by-id", test_fast_resolution_by_id);
 
-  return g_test_run ();
+  gint result = g_test_run ();
+
+  grl_deinit ();
+
+  return result;
 }

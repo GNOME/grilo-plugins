@@ -88,5 +88,9 @@ main(int argc, char **argv)
 
   g_test_add_func ("/tmdb/missing-configuration", test_missing_configuration);
 
-  return g_test_run ();
+  gint result = g_test_run ();
+
+  grl_deinit ();
+
+  return result;
 }

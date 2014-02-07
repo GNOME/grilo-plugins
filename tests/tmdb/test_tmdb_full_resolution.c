@@ -174,5 +174,9 @@ main(int argc, char **argv)
 
   g_test_add_func ("/tmdb/full-resolution", test_full_resolution);
 
-  return g_test_run ();
+  gint result = g_test_run ();
+
+  grl_deinit ();
+
+  return result;
 }

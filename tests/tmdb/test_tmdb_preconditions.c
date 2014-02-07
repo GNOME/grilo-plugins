@@ -108,5 +108,9 @@ main(int argc, char **argv)
 
   g_test_add_func ("/tmdb/preconditions", test_preconditions);
 
-  return g_test_run ();
+  gint result = g_test_run ();
+
+  grl_deinit ();
+
+  return result;
 }

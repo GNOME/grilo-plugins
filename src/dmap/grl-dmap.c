@@ -107,8 +107,10 @@ static void service_removed_cb (DMAPMdnsBrowser *browser,
 
 /* ===================== Globals  ======================= */
 static DMAPMdnsBrowser *browser;
-static GHashTable *connections; // Maps URIs to DBs.
-static GHashTable *sources;     // Map DMAP services to Grilo media sources.
+/* Maps URIs to DBs */
+static GHashTable *connections;
+/* Map DMAP services to Grilo media sources */
+static GHashTable *sources;
 
 /* =================== DMAP Plugin ====================== */
 
@@ -142,9 +144,9 @@ grl_dmap_plugin_init (GrlRegistry *registry,
                     (gpointer) plugin);
 
   if (!dmap_mdns_browser_start (browser, &error)) {
-    g_warning ("error starting browser. code: %d message: %s",
-               error->code,
-               error->message);
+    GRL_WARNING ("error starting browser. code: %d message: %s",
+                 error->code,
+                 error->message);
     g_error_free (error);
 
     g_clear_pointer (&connections, g_hash_table_unref);
@@ -267,7 +269,7 @@ browse_connected_cb (DMAPConnection       *connection,
 {
   GError *error;
 
-  // NOTE: connection argument is required by API but ignored in this case.
+  /* NOTE: connection argument is required by API but ignored in this case. */
   if (!result) {
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_BROWSE_FAILED,
@@ -292,7 +294,7 @@ search_connected_cb (DMAPConnection       *connection,
 {
   GError *error;
 
-  // NOTE: connection argument is required by API but ignored in this case.
+  /* NOTE: connection argument is required by API but ignored in this case. */
   if (!result) {
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_BROWSE_FAILED,
@@ -416,10 +418,10 @@ grl_dmap_source_browse (GrlSource *source,
   cb_and_db->cb.user_data      = bs->user_data;
 
   if ((cb_and_db->db = g_hash_table_lookup (connections, url))) {
-    // Just call directly; already connected, already populated database.
+    /* Just call directly; already connected, already populated database. */
     browse_connected_cb (NULL, TRUE, NULL, cb_and_db);
   } else {
-    // Connect.
+    /* Connect */
     cb_and_db->db = simple_dmap_db_new ();
 
     grl_dmap_connect (dmap_source->priv->service->name,
@@ -454,10 +456,10 @@ static void grl_dmap_source_search (GrlSource *source,
   cb_and_db->cb.user_data      = ss->user_data;
 
   if ((cb_and_db->db = g_hash_table_lookup (connections, url))) {
-    // Just call directly; already connected, already populated database.
+    /* Just call directly; already connected, already populated database */
     search_connected_cb (NULL, TRUE, NULL, cb_and_db);
   } else {
-    // Connect.
+    /* Connect */
     cb_and_db->db = simple_dmap_db_new ();
     grl_dmap_connect (service->name, service->host, service->port, cb_and_db, (DMAPConnectionCallback) search_connected_cb);
     g_hash_table_insert (connections, g_strdup (url), cb_and_db->db);

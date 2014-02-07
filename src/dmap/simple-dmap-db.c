@@ -67,8 +67,11 @@
 static guint nextid = G_MAXINT; /* NOTE: this should be G_MAXUINT, but iPhoto can't handle it. */
 
 struct SimpleDMAPDbPrivate {
-  GrlMediaBox *albums_box;  // Contains each album box (tracked with albums hash table).
-  GrlMediaBox *artists_box; // Contains each artist box (tracked with artist hash table).
+  /* Contains each album box (tracked with albums hash table) */
+  GrlMediaBox *albums_box;
+
+  /* Contains each artist box (tracked with artist hash table) */
+  GrlMediaBox *artists_box;
 
   GHashTable  *root;
   GHashTable  *albums;
@@ -200,7 +203,7 @@ simple_dmap_db_add (DMAPDb *_db, DMAPRecord *record)
   }
 
   if (url) {
-    // Replace URL's daap:// with http://.
+    /* Replace URL's daap:// with http:// */
     url[0] = 'h'; url[1] = 't'; url[2] = 't'; url[3] = 'p';
     grl_media_set_url (media, url);
   }
@@ -282,8 +285,8 @@ simple_dmap_db_browse (SimpleDMAPDb *db,
     }
   }
 
-  // Should not be NULL; this means the container requested
-  // does not exist in the database.
+  /* Should not be NULL; this means the container requested
+     does not exist in the database. */
   if (NULL == hash_table) {
     GError *error = g_error_new (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_BROWSE_FAILED,
@@ -322,22 +325,24 @@ simple_dmap_db_search (SimpleDMAPDb *db,
   guint remaining = 0;
   gpointer key1, val1, key2, val2;
   GHashTable *hash_table[] = { db->priv->albums, db->priv->artists };
-  GHashTable *results = NULL; // Use hash table to avoid duplicates.
+
+  /* Use hash table to avoid duplicates */
+  GHashTable *results = NULL;
   GHashTableIter iter1, iter2;
 
   results = g_hash_table_new (g_str_hash, g_str_equal);
 
-  // For albums and artists...
+  /* For albums and artists... */
   for (i = 0; i < 2; i++) {
     g_hash_table_iter_init (&iter1, hash_table[i]);
-    // For each album or artist in above...
+    /* For each album or artist in above... */
     for (j = 0; g_hash_table_iter_next (&iter1, &key1, &val1); j++) {
       if (GRL_IS_MEDIA_BOX (key1)) {
         g_hash_table_iter_init (&iter2, val1);
-        // For each media item in above...
+        /* For each media item in above... */
         for (k = 0; g_hash_table_iter_next (&iter2, &key2, &val2); k++) {
           const char *id = grl_media_get_id (GRL_MEDIA (key2));
-          // If the predicate returns true, add to results set.
+          /* If the predicate returns true, add to results set. */
           if (predicate (key2, val2, pred_user_data)
            && ! g_hash_table_contains (results, id)) {
             remaining++;
@@ -348,7 +353,7 @@ simple_dmap_db_search (SimpleDMAPDb *db,
     }
   }
 
-  // Process results set.
+  /* Process results set. */
   g_hash_table_iter_init (&iter1, results);
   for (i = 0; g_hash_table_iter_next (&iter1, &key1, &val1); i++) {
     func (source, op_id, GRL_MEDIA (g_object_ref (val1)), --remaining, user_data, NULL);

@@ -87,15 +87,12 @@ test_tmdb_full_resolution_CFLAGS =	\
 
 # Distribute the tests data:
 dist_noinst_DATA =			\
-	data/casts.txt				\
 	data/configuration.txt	\
 	data/details.txt			\
 	data/empty-data.ini		\
 	data/fast-by-id.ini		\
-	data/images.txt			\
-	data/keywords.txt			\
+	data/multiple.txt		\
 	data/no-details.ini		\
-	data/releases.txt			\
 	data/search.txt			\
 	data/sherlock.ini
 

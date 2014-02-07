@@ -67,7 +67,7 @@ test_region_certificate (GrlMedia *media, const gchar *region, const gchar *expe
 }
 
 #define DESCRIPTION \
-"In a dynamic new portrayal of Arthur Conan Doyle’s most famous characters, “Sherlock Holmes” sends Holmes and his stalwart partner Watson on their latest challenge. Revealing fighting skills as lethal as his legendary intellect, Holmes will battle as never before to bring down a new nemesis and unravel a deadly plot that could destroy England."
+"Eccentric consulting detective Sherlock Holmes and Doctor John Watson battle to bring down a new nemesis and unravel a deadly plot that could destroy England."
 
 static void
 test_full_resolution (void)
@@ -118,19 +118,19 @@ test_full_resolution (void)
   /* And now the slow properties */
   g_assert_cmpstr (grl_media_get_site (media), ==,
                    "http://sherlock-holmes-movie.warnerbros.com/");
-  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_GENRE), ==, 6);
+  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_GENRE), ==, 7);
   g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_STUDIO), ==, 3);
 
   g_assert_cmpstr (grl_media_get_description (media), ==, DESCRIPTION);
 
   g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), imdb_id), ==, "tt0988045");
-  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_KEYWORD), ==, 15);
+  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_KEYWORD), ==, 12);
 
-  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_PERFORMER), ==, 10);
+  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_PERFORMER), ==, 54);
 
-  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_PRODUCER), ==, 9);
+  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_PRODUCER), ==, 10);
 
-  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_DIRECTOR), ==, 1);
+  g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_DIRECTOR), ==, 2);
   g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), GRL_METADATA_KEY_DIRECTOR), ==, "Guy Ritchie");
 
   guint count = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_REGION);

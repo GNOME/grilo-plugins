@@ -144,6 +144,11 @@ int main (int argc, char *argv[])
   g_object_unref (media);
   g_object_unref (config);
   g_object_unref (options);
+
+  /*
+   * Deinitialize Grilo:
+   */
+  grl_deinit ();
 }
 
 

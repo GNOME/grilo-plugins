@@ -311,8 +311,6 @@ simple_daap_record_finalize (GObject *object)
 {
   SimpleDAAPRecord *record = SIMPLE_DAAP_RECORD (object);
 
-  g_debug ("Free'ing record");
-
   g_free (record->priv->location);
   g_free (record->priv->title);
   g_free (record->priv->album);

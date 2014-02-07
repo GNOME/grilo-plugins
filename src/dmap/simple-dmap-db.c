@@ -395,7 +395,7 @@ simple_dmap_db_finalize (GObject *object)
 {
   SimpleDMAPDb *db = SIMPLE_DMAP_DB (object);
 
-  g_debug ("Finalizing SimpleDMAPDb");
+  GRL_DEBUG ("Finalizing SimpleDMAPDb");
 
   g_object_unref (db->priv->albums_box);
   g_object_unref (db->priv->artists_box);

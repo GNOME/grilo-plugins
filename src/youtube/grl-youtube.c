@@ -351,6 +351,7 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id, const gcha
 					     NULL));
 
   ytsrc = source;
+  g_object_add_weak_pointer (G_OBJECT (source), (gpointer *) &ytsrc);
 
   return source;
 }

@@ -144,9 +144,9 @@ grl_dmap_plugin_init (GrlRegistry *registry,
                     (gpointer) plugin);
 
   if (!dmap_mdns_browser_start (browser, &error)) {
-    GRL_WARNING ("error starting browser. code: %d message: %s",
-                 error->code,
-                 error->message);
+    GRL_DEBUG ("error starting browser. code: %d message: %s",
+               error->code,
+               error->message);
     g_error_free (error);
 
     g_clear_pointer (&connections, g_hash_table_unref);

@@ -107,9 +107,18 @@ freebox_monitor_finalize (GObject *object)
 {
   FreeboxMonitorPrivate *priv = FREEBOX_MONITOR(object)->priv;
 
-  g_clear_pointer (&priv->browser, avahi_service_browser_free);
-  g_clear_pointer (&priv->client, avahi_client_free);
-  g_clear_pointer (&priv->poll, avahi_simple_poll_free);
+  if (priv->browser) {
+    avahi_service_browser_free (priv->browser);
+    priv->browser = NULL;
+  }
+  if (priv->client) {
+    avahi_client_free (priv->client);
+    priv->client = NULL;
+  }
+  if (priv->poll) {
+    avahi_glib_poll_free (priv->poll);
+    priv->poll = NULL;
+  }
 }
 
 static void

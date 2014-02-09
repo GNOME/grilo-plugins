@@ -76,8 +76,10 @@ get_string_for_element (JsonReader *reader,
     return NULL;
   }
   ret = g_strdup (json_reader_get_string_value (reader));
-  if (ret && *ret == '\0')
-    g_clear_pointer (&ret, g_free);
+  if (ret && *ret == '\0') {
+    g_free (ret);
+    ret = NULL;
+  }
   json_reader_end_member (reader);
 
   return ret;
@@ -165,7 +167,10 @@ parse_item (JsonReader *reader)
   goto end;
 
 bail:
-  g_clear_pointer (&item, gnome_pocket_item_free);
+  if (item) {
+    gnome_pocket_item_free (item);
+    item = NULL;
+  }
 
 end:
   return item;
@@ -194,7 +199,9 @@ gnome_pocket_item_from_string (const char *str)
   item = parse_item (reader);
 
 bail:
-  g_clear_pointer (&members, g_strfreev);
+  if (members) {
+    g_strfreev (members);
+  }
   g_clear_object (&reader);
   g_clear_object (&parser);
 
@@ -747,8 +754,12 @@ gnome_pocket_finalize (GObject *object)
   g_clear_object (&priv->proxy);
   g_clear_object (&priv->oauth2);
   g_clear_object (&priv->client);
-  g_clear_pointer (&priv->access_token, g_free);
-  g_clear_pointer (&priv->consumer_key, g_free);
+  if (priv->access_token) {
+    g_free (priv->access_token);
+  }
+  if (priv->consumer_key) {
+    g_free (priv->consumer_key);
+  }
 
   G_OBJECT_CLASS (gnome_pocket_parent_class)->finalize (object);
 }
@@ -810,8 +821,14 @@ handle_accounts (GnomePocket *self)
   GoaOAuth2Based *oauth2 = NULL;
 
   g_clear_object (&self->priv->oauth2);
-  g_clear_pointer (&self->priv->access_token, g_free);
-  g_clear_pointer (&self->priv->consumer_key, g_free);
+  if (self->priv->access_token) {
+    g_free (self->priv->access_token);
+    self->priv->access_token = NULL;
+  }
+  if (self->priv->consumer_key) {
+    g_free (self->priv->consumer_key);
+    self->priv->consumer_key = NULL;
+  }
 
   accounts = goa_client_get_accounts (self->priv->client);
 

@@ -39,9 +39,6 @@ AM_PROG_CC_C_O
 
 AC_HEADER_STDC
 
-m4_define([glib_required_version], [2.32.0])
-AM_PATH_GLIB_2_0(glib_required_version)
-
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 # ----------------------------------------------------------
@@ -90,7 +87,7 @@ fi
 # HARD DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.28      \
+PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.32      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
 			  ${GRL_NAME} >= 0.2.8)

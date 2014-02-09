@@ -149,9 +149,9 @@ grl_dmap_plugin_init (GrlRegistry *registry,
                error->message);
     g_error_free (error);
 
-    g_clear_pointer (&connections, g_hash_table_unref);
-    g_clear_pointer (&sources, g_hash_table_unref);
-    g_clear_object (&browser);
+    g_hash_table_unref (connections);
+    g_hash_table_unref (sources);
+    g_object_unref (browser);
     return FALSE;
   }
 

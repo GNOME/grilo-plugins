@@ -160,6 +160,11 @@ grl_apple_trailers_source_new (gboolean high_definition,
   GrlAppleTrailersSource *source;
   GIcon *icon;
   GFile *file;
+  const char *tags[] = {
+    "country:us",
+    "cinema",
+    NULL
+  };
 
   GRL_DEBUG ("grl_apple_trailers_source_new%s%s",
              high_definition ? " (HD)" : "",
@@ -175,6 +180,7 @@ grl_apple_trailers_source_new (gboolean high_definition,
                          "high-definition", high_definition,
 			 "large-poster", xlarge,
                          "source-icon", icon,
+                         "source-tags", tags,
                          NULL);
 
   return source;

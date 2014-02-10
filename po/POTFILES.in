@@ -7,6 +7,7 @@ src/filesystem/grl-filesystem.c
 src/flickr/grl-flickr.c
 src/freebox/grl-freebox.c
 src/gravatar/grl-gravatar.c
+src/guardian-videos/grl-guardianvideos.c
 src/jamendo/grl-jamendo.c
 src/lastfm-albumart/grl-lastfm-albumart.c
 src/local-metadata/grl-local-metadata.c

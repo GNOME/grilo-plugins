@@ -163,6 +163,11 @@ grl_freebox_source_new (void)
   GIcon *icon;
   GFile *file;
   GrlFreeboxSource *object;
+  const char *tags[] = {
+    "tv",
+    "country:fr",
+    NULL
+  };
 
   GRL_DEBUG ("%s", __FUNCTION__);
 
@@ -175,6 +180,7 @@ grl_freebox_source_new (void)
                          "source-desc", SOURCE_DESC,
                          "supported-media", GRL_MEDIA_TYPE_VIDEO,
                          "source-icon", icon,
+                         "source-tags", tags,
                          NULL);
   return object;
 }

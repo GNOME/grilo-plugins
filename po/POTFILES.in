@@ -5,6 +5,7 @@ src/dmap/grl-dmap.c
 src/dmap/simple-dmap-db.c
 src/filesystem/grl-filesystem.c
 src/flickr/grl-flickr.c
+src/freebox/grl-freebox.c
 src/gravatar/grl-gravatar.c
 src/jamendo/grl-jamendo.c
 src/lastfm-albumart/grl-lastfm-albumart.c

@@ -1,3 +1,183 @@
+NEW in 0.2.10
+=============
+
+  * General
+    * Improve building
+    * Require glib 2.32 or higher
+    * Require new Grilo version
+    * Run coverage only in src/
+    * Unload plugins in tests
+    * BGO#699317 - switch from gnome-doc-utils to yelp-utils
+    * BGO#710185 - grilo-inspect leaves empty directories in /tmp
+    * BGO#723525 - License text contains obsolete FSF postal address
+    * Added/Updated i18n support
+      * Brazilian Portuguese
+      * Catalan
+      * Catalan Valencian (new)
+      * Chinese Simplified (new)
+      * Czech
+      * Danish (new)
+      * Esperanto (new)
+      * French
+      * Galician
+      * German
+      * Greek
+      * Hebrew (new)
+      * Hungarian (new)
+      * Indonesian
+      * Italian (new)
+      * Japanese (new)
+      * Korean (new)
+      * Latvian (new)
+      * Lithuanian
+      * Malayalam
+      * Norwegian Bokmål
+      * Polish
+      * Portuguese
+      * Russian (new)
+      * Serbian
+      * Slovak
+      * Slovenian
+      * Spanish
+      * Traditional Chinese
+      * Ukrainian
+
+  * Apple Trailers plugin
+    * Do not share GCancellable among operations
+    * BGO#722398 - core: Add unit to duration
+    * BGO#723233 - Add source icons
+
+  * Blip.tv plugin
+    * Fixed leak
+    * Small fixes
+    * BGO#723233 - Add source icons
+
+  * Bookmarks plugin
+    * Small fixes
+
+  * DMAP plugin
+    * Add more attributes
+    * Small fixes
+    * BGO#715016 - dmap: Fix memory leak when Avahi is absent
+    * BGO#723574 - Patch to make DMAP media list hierarchical
+
+  * Fake Metadata plugin
+    * Removed plugin
+
+  * Filesystem plugin
+    * BGO#695303 - new feature: grilo playlist library
+    * BGO#709900 - Don’t return outdated thumbnails for local files
+    * BGO#710796 - Minor memory leak fix
+
+  * Flickr plugin
+    * Small fixes
+    * BGO#706917 - flickr: resolve() returns wrong values
+
+  * Freebox plugin
+    * New plugin offering TV channels through Freebox server, offered by Free
+      ISP in France
+    * BGO#720436 - freebox: Add new Freebox TV source
+
+  * Gravatar plugin
+    * BGO#715017 - gravatar: Fix typo in error message
+
+  * Guadian plugin
+    * New plugin showing the newest videos from the Guardian
+    * BGO#680678 - Add Guardian Video source
+
+  * Jamendo plugin
+    * BGO#721642 - Assorted fixes from coverity scan
+
+  * Magnatune plugin
+    * Small fixes
+
+  * Optical Media plugin
+    * BGO#703619 - Create sources for each optical media
+    * BGO#720441 - optical-media: Fix CFLAGS and LIBS name
+    * BGO#722629 - optical-media: Implement proper content-changed support
+    * BGO#723990 - optical-media: Fix incorrect emblemed icon handling
+
+  * Pocket plugin
+    * New plugin showing content from Pocket
+    * BGO#722819 - Add Pocket source
+
+  * Rai.tv plugin
+    * Fixed leaks
+    * Small fixes
+    * BGO#721642 - Assorted fixes from coverity scan
+    * BGO#722822 - raitv: Remove slow keys
+    * BGO#723233 - Add source icons
+
+  * TMDb plugin
+    * Fixed tests
+    * BGO#710185 - grilo-inspect leaves empty directories in /tmp
+    * BGO#710272 - Test-suite fails with libsoup 2.44.1
+    * BGO#721642 - Assorted fixes from coverity scan
+    * BGO#723147 - tmdb: Use https queries
+    * BGO#723149 - tmdb: Reduce number of network calls
+
+  * Tracker plugin
+    * BGO#715036 - Support tracker 0.17
+    * BGO#715080 - build: support tracker 0.18
+
+  * UPnP plugin
+    * BGO#722607 - upnp: Add icons for UPnP servers
+
+  * Vimeo plugin
+    * Added new tests
+    * Fixed leaks
+    * BGO#711393 - vimeo: Don't leak cache directories
+    * BGO#723233 - Add source icons
+
+  * YouTube plugin
+    * Fix management of skip value
+    * More debug information
+    * Small fixes
+    * BGO#721642 - Assorted fixes from coverity scan
+    * BGO#723233 - Add source icons
+
+  * Contributors to this release:
+    * Alexandre Franke <alexandre.franke@gmail.com>
+    * Andika Triwidada <andika@gmail.com>
+    * Anish A <aneesh.nl@gmail.com>
+    * Ask H. Larsen <asklarsen@gmail.com>
+    * Aurimas Černius <aurisc4@gmail.com>
+    * Baptiste Mille-Mathias <baptiste.millemathias@gmail.com>
+    * Bastien Nocera <hadess@hadess.net>
+    * Carles Ferrando <carles.ferrando@gmail.com>
+    * Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>
+    * Christian Kirbach <christian.kirbach@gmail.com>
+    * Claudio Arseni <claudio.arseni@ubuntu.com>
+    * Daniel Korostil <ted.korostiled@gmail.com>
+    * Daniel Mustieles <daniel.mustieles@gmail.com>
+    * Dimitris Spingos <dmtrs32@gmail.com>
+    * Dominique Leuenberger <dimstar@opensuse.org>
+    * Dušan Kazik <prescott66@gmail.com>
+    * Enrico Nicoletto <liverig@gmail.com>
+    * Evgeny Bobkin <evgen.ibqn@gmail.com>
+    * Fernando Carvalho <phaetonkde@gmail.com>
+    * Fran Diéguez <fran.dieguez@mabishu.com>
+    * Gabor Kelemen <kelemeng@gnome.hu>
+    * Gil Forcada <gforcada@gnome.org>
+    * Jacobo Aragunde Pérez <jaragunde@igalia.com>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Kenneth Nielsen <k.nielsen81@gmail.com>
+    * Kjartan Maraas <kmaraas@gnome.org>
+    * Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>
+    * Marek Černocký <marek@manet.cz>
+    * Matej Urbančič <mateju@svn.gnome.org>
+    * Nishio Futoshi <fut_nis@d3.dion.ne.jp>
+    * Philip Withnall <philip.withnall@collabora.co.uk>
+    * Piotr Drąg <piotrdrag@gmail.com>
+    * Rūdolfs Mazurs <rudolfsm@src.gnome.org>
+    * Seong-ho Cho <darkcircle.0426@gmail.com>
+    * W. Michael Petullo <mike@flyn.org>
+    * Yosef Or Boczko <yoseforb@src.gnome.org>
+    * Yuri Myasoedov <ymyasoedov@yandex.ru>
+    * Мирослав Николић <miroslavnikolic@rocketmail.com>
+    * 甘露(Gan Lu) <rhythm.gan@gmail.com>
+
+
 NEW in 0.2.9
 ============
 

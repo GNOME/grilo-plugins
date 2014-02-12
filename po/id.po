@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-09-11 08:03+0000\n"
-"PO-Revision-Date: 2013-09-14 09:52+0700\n"
+"POT-Creation-Date: 2014-02-11 21:13+0000\n"
+"PO-Revision-Date: 2014-02-12 12:03+0700\n"
 "Last-Translator: Andika Triwidada <andika@gmail.com>\n"
 "Language-Team: Indonesian <gnome@i15n.org>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 1.6.4\n"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:55
 msgid "Apple Movie Trailers"
@@ -26,19 +26,19 @@ msgstr "Trailer Film Apple"
 msgid "A plugin for browsing Apple Movie Trailers"
 msgstr "Pengaya untuk meramban Trailer Film Apple"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:456
+#: ../src/apple-trailers/grl-apple-trailers.c:462
 #: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:472
 msgid "Failed to parse response"
 msgstr "Gagal mengurai respon"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:464
+#: ../src/apple-trailers/grl-apple-trailers.c:470
 #: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
 #: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Respon kosong"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:523
+#: ../src/apple-trailers/grl-apple-trailers.c:529
 #: ../src/jamendo/grl-jamendo.c:666
 #: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
 #: ../src/shoutcast/grl-shoutcast.c:565
@@ -93,20 +93,36 @@ msgstr "Tak ada koneksi basis data"
 msgid "A source for browsing the DMAP server '%s'"
 msgstr "Sumber untuk meramban server DMAP '%s'"
 
-#: ../src/filesystem/grl-filesystem.c:69
+#: ../src/dmap/simple-dmap-db.c:62 ../src/jamendo/grl-jamendo.c:785
+#: ../src/magnatune/grl-magnatune.c:121
+msgid "Albums"
+msgstr "Album"
+
+#: ../src/dmap/simple-dmap-db.c:64 ../src/jamendo/grl-jamendo.c:774
+#: ../src/magnatune/grl-magnatune.c:120
+msgid "Artists"
+msgstr "Artis"
+
+#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1116
+#: ../src/jamendo/grl-jamendo.c:1191 ../src/magnatune/grl-magnatune.c:829
+#, c-format
+msgid "Invalid container identifier %s"
+msgstr "Identifier wadah tak valid %s"
+
+#: ../src/filesystem/grl-filesystem.c:60
 msgid "Filesystem"
 msgstr "Sistem berkas"
 
-#: ../src/filesystem/grl-filesystem.c:70
+#: ../src/filesystem/grl-filesystem.c:61
 msgid "A source for browsing the filesystem"
 msgstr "Sumber untuk meramban sistem berkas"
 
-#: ../src/filesystem/grl-filesystem.c:1327
+#: ../src/filesystem/grl-filesystem.c:1141
 #, c-format
 msgid "File %s does not exist"
 msgstr "Berkas %s tak ada"
 
-#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1618
+#: ../src/filesystem/grl-filesystem.c:1218 ../src/youtube/grl-youtube.c:1639
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Tak bisa mendapat media dari %s"
@@ -127,6 +143,14 @@ msgstr "Flickr milik %s"
 msgid "A source for browsing and searching %s's flickr photos"
 msgstr "Sumber untuk meramban dan mencari foto flickr milik %s"
 
+#: ../src/freebox/grl-freebox.c:49
+msgid "Freebox TV"
+msgstr "Freebox TV"
+
+#: ../src/freebox/grl-freebox.c:50
+msgid "A source for browsing Freebox TV channels"
+msgstr "Sumber untuk meramban kanal-kanal Freebox TV"
+
 #: ../src/gravatar/grl-gravatar.c:48
 msgid "Avatar provider from Gravatar"
 msgstr "Penyedia avatar dari Gravatar"
@@ -134,6 +158,14 @@ msgstr "Penyedia avatar dari Gravatar"
 #: ../src/gravatar/grl-gravatar.c:49
 msgid "A plugin to get avatars for artist and author fields"
 msgstr "Pengaya untuk mendapat avatar bagi ruas artis dan pengarang"
+
+#: ../src/guardian-videos/grl-guardianvideos.c:48
+msgid "The Guardian Videos"
+msgstr "Video Guardian"
+
+#: ../src/guardian-videos/grl-guardianvideos.c:49
+msgid "A source for browsing videos from the Guardian"
+msgstr "Sumber untuk meramban video dari Guardian"
 
 #: ../src/jamendo/grl-jamendo.c:93
 msgid "A source for browsing and searching Jamendo music"
@@ -163,14 +195,6 @@ msgstr "Album top"
 msgid "Top tracks"
 msgstr "Trek top"
 
-#: ../src/jamendo/grl-jamendo.c:774 ../src/magnatune/grl-magnatune.c:120
-msgid "Artists"
-msgstr "Artis"
-
-#: ../src/jamendo/grl-jamendo.c:785 ../src/magnatune/grl-magnatune.c:121
-msgid "Albums"
-msgstr "Album"
-
 #: ../src/jamendo/grl-jamendo.c:796
 msgid "Feeds"
 msgstr "Asupan"
@@ -181,17 +205,11 @@ msgstr "Asupan"
 msgid "Invalid identifier %s"
 msgstr "Identifier tak valid %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1189
-#: ../src/youtube/grl-youtube.c:1330 ../src/youtube/grl-youtube.c:1545
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1203
+#: ../src/youtube/grl-youtube.c:1346 ../src/youtube/grl-youtube.c:1566
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Identifier kategori tak valid %s"
-
-#: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
-#: ../src/magnatune/grl-magnatune.c:829
-#, c-format
-msgid "Invalid container identifier %s"
-msgstr "Identifier wadah tak valid %s"
 
 #: ../src/jamendo/grl-jamendo.c:1186
 #, c-format
@@ -219,18 +237,18 @@ msgstr "Penyedia Metadata Lokal"
 msgid "A source providing locally available metadata"
 msgstr "Sumber yang menyediakan metadata yang tersedia secara lokal"
 
-#: ../src/local-metadata/grl-local-metadata.c:472
-#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:864
+#: ../src/local-metadata/grl-local-metadata.c:481
+#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:869
 #: ../src/tracker/grl-tracker-source-api.c:460
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Gagal menentukan: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:995
+#: ../src/local-metadata/grl-local-metadata.c:1014
 msgid "Cannot resolve any of the given keys"
 msgstr "Tak bisa menentukan sebarang kunci yang diberikan"
 
-#: ../src/local-metadata/grl-local-metadata.c:999
+#: ../src/local-metadata/grl-local-metadata.c:1018
 msgid "A GIO supported URL for images is required"
 msgstr "Perlu URL yang didukung GIO bagi citra"
 
@@ -291,13 +309,13 @@ msgstr "Gagal memutakhirkan metadata"
 msgid "\"source-id\" not available"
 msgstr "\"source-id\" tak tersedia"
 
-#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1433
+#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1459
 msgid "Failed to resolve"
 msgstr "Gagal menentukan"
 
 #: ../src/metadata-store/grl-metadata-store.c:920
-#: ../src/metadata-store/grl-metadata-store.c:957 ../src/raitv/grl-raitv.c:415
-#: ../src/shoutcast/grl-shoutcast.c:759 ../src/vimeo/grl-vimeo.c:511
+#: ../src/metadata-store/grl-metadata-store.c:957 ../src/raitv/grl-raitv.c:420
+#: ../src/shoutcast/grl-shoutcast.c:759 ../src/vimeo/grl-vimeo.c:534
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Gagal mencari: %s"
@@ -309,6 +327,14 @@ msgstr "Media Optis"
 #: ../src/optical-media/grl-optical-media.c:47
 msgid "A source for browsing optical media"
 msgstr "Sumber untuk meramban media optis"
+
+#: ../src/pocket/grl-pocket.c:47
+msgid "Pocket"
+msgstr "Pocket"
+
+#: ../src/pocket/grl-pocket.c:48
+msgid "A source for browsing Pocket videos"
+msgstr "Sumber untuk meramban video Pocket"
 
 #: ../src/podcasts/grl-podcasts.c:155
 msgid "A source for browsing podcasts"
@@ -453,7 +479,7 @@ msgstr "Santai"
 msgid "Travel"
 msgstr "Travel"
 
-#: ../src/raitv/grl-raitv.c:611
+#: ../src/raitv/grl-raitv.c:616
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Gagal meramban: %s"
@@ -467,11 +493,11 @@ msgstr "Sumber untuk meramban radio SHOUTcast"
 msgid "Cannot find media %s"
 msgstr "Tak bisa temukan media %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:760 ../src/vimeo/grl-vimeo.c:512
+#: ../src/shoutcast/grl-shoutcast.c:760 ../src/vimeo/grl-vimeo.c:535
 msgid "non-NULL search text is required"
 msgstr "diperlukan teks pencarian bukan NULL"
 
-#: ../src/tmdb/grl-tmdb.c:962
+#: ../src/tmdb/grl-tmdb.c:984
 msgid "Remote data does not contain valid identifier"
 msgstr "Data remote tak memuat identifier yang valid"
 
@@ -506,20 +532,20 @@ msgstr "Berkas lokal"
 msgid "A source for browsing the UPnP server '%s'"
 msgstr "Sumber untuk meramban server UPnP '%s'"
 
-#: ../src/upnp/grl-upnp.c:1263 ../src/upnp/grl-upnp.c:1320
+#: ../src/upnp/grl-upnp.c:1289 ../src/upnp/grl-upnp.c:1346
 msgid "Failed to browse"
 msgstr "Gagal meramban"
 
-#: ../src/upnp/grl-upnp.c:1383
+#: ../src/upnp/grl-upnp.c:1409
 msgid "Failed to query"
 msgstr "Gagal kuiri"
 
-#: ../src/upnp/grl-upnp.c:1502
+#: ../src/upnp/grl-upnp.c:1528
 #, c-format
 msgid "Unable to listen for changes in %s"
 msgstr "Tak bisa mendengarkan perubahan dalam %s"
 
-#: ../src/vimeo/grl-vimeo.c:57
+#: ../src/vimeo/grl-vimeo.c:58
 msgid "A source for browsing and searching Vimeo videos"
 msgstr "Sumber untuk meramban dan mencari video Vimeo"
 
@@ -571,11 +597,11 @@ msgstr "Lihat Di Mobile"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Sumber untuk meramban dan mencari video YouTube"
 
-#: ../src/youtube/grl-youtube.c:937
+#: ../src/youtube/grl-youtube.c:952
 msgid "Failed to get feed"
 msgstr "Gagal mendapat asupan"
 
-#: ../src/youtube/grl-youtube.c:1118 ../src/youtube/grl-youtube.c:1525
+#: ../src/youtube/grl-youtube.c:1130 ../src/youtube/grl-youtube.c:1546
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Identifier asupan tak valid %s"

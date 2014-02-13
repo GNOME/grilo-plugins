@@ -144,6 +144,8 @@ PKG_CHECK_MODULES(OAUTH, oauth, HAVE_OAUTH=yes, HAVE_OAUTH=no)
 
 PKG_CHECK_MODULES(GOA, [goa-1.0 >= 3.7.1], HAVE_GOA=yes, HAVE_GOA=no)
 
+PKG_CHECK_MODULES(GOA_WITH_POCKET, [goa-1.0 >= 3.11.4], HAVE_GOA_WITH_POCKET=yes, HAVE_GOA_WITH_POCKET=no)
+
 PKG_CHECK_MODULES(TOTEM_PL_PARSER, totem-plparser >= 3.4.1, HAVE_TOTEM_PL_PARSER=yes, HAVE_TOTEM_PL_PARSER=no)
 
 PKG_CHECK_MODULES(REST, rest-0.7, HAVE_REST=yes, HAVE_REST=no)
@@ -559,8 +561,8 @@ AC_ARG_ENABLE(pocket,
                         if test "x$HAVE_JSON_GLIB" = "xno"; then
                            AC_MSG_ERROR([json-glib not found, install it or use --disable-pocket])
                         fi
-                        if test "x$HAVE_GOA" = "xno"; then
-                           AC_MSG_ERROR([gnome-online-accounts not found, install it or use --disable-pocket])
+                        if test "x$HAVE_GOA_WITH_POCKET" = "xno"; then
+                           AC_MSG_ERROR([goa-1.0 >= 3.11.4 not found, install it or use --disable-pocket])
                         fi
                         if test "x$HAVE_REST" = "xno"; then
                            AC_MSG_ERROR([rest not found, install it or use --disable-pocket])
@@ -572,7 +574,7 @@ AC_ARG_ENABLE(pocket,
                 esac
         ],
         [
-                if test "x$HAVE_JSON_GLIB" = "xyes" -a "x$HAVE_GOA" = "xyes" -a "x$HAVE_REST" = "xyes" -a "x$HAVE_TOTEM_PL_PARSER" = "xyes"; then
+                if test "x$HAVE_JSON_GLIB" = "xyes" -a "x$HAVE_GOA_WITH_POCKET" = "xyes" -a "x$HAVE_REST" = "xyes" -a "x$HAVE_TOTEM_PL_PARSER" = "xyes"; then
                    enable_pocket=yes
                 else
                    enable_pocket=no
@@ -590,10 +592,10 @@ POCKET_PLUGIN_ID="grl-pocket"
 AC_SUBST(POCKET_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([POCKET_PLUGIN_ID], ["$POCKET_PLUGIN_ID"], [Pocket plugin ID])
 
-DEPS_POCKET_CFLAGS="$DEPS_CFLAGS $JSON_CFLAGS $GOA_CFLAGS $REST_CFLAGS $TOTEM_PL_PARSER_CFLAGS"
+DEPS_POCKET_CFLAGS="$DEPS_CFLAGS $JSON_CFLAGS $GOA_WITH_POCKET_CFLAGS $REST_CFLAGS $TOTEM_PL_PARSER_CFLAGS"
 AC_SUBST(DEPS_POCKET_CFLAGS)
 
-DEPS_POCKET_LIBS="$DEPS_LIBS $JSON_LIBS $GOA_LIBS $REST_LIBS $TOTEM_PL_PARSER_LIBS"
+DEPS_POCKET_LIBS="$DEPS_LIBS $JSON_LIBS $GOA_WITH_POCKET_LIBS $REST_LIBS $TOTEM_PL_PARSER_LIBS"
 AC_SUBST(DEPS_POCKET_LIBS)
 
 # ----------------------------------------------------------

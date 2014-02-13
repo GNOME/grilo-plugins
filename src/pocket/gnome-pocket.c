@@ -76,10 +76,8 @@ get_string_for_element (JsonReader *reader,
     return NULL;
   }
   ret = g_strdup (json_reader_get_string_value (reader));
-  if (ret && *ret == '\0') {
-    g_free (ret);
-    ret = NULL;
-  }
+  if (ret && *ret == '\0')
+    g_clear_pointer (&ret, g_free);
   json_reader_end_member (reader);
 
   return ret;
@@ -155,22 +153,18 @@ parse_item (JsonReader *reader)
 
   item->time_added = get_time_added (reader);
 
-#if 0
-  if (!json_reader_read_member (reader, "tags")) {
-    json_reader_end_member (reader);
-    goto bail;
-  }
-  item->tags = ;
+  if (json_reader_read_member (reader, "tags"))
+    item->tags = json_reader_list_members (reader);
   json_reader_end_member (reader);
-#endif
+
+  if (json_reader_read_member (reader, "image"))
+    item->thumbnail_url = get_string_for_element (reader, "src");
+  json_reader_end_member (reader);
 
   goto end;
 
 bail:
-  if (item) {
-    gnome_pocket_item_free (item);
-    item = NULL;
-  }
+  g_clear_pointer (&item, gnome_pocket_item_free);
 
 end:
   return item;
@@ -199,9 +193,7 @@ gnome_pocket_item_from_string (const char *str)
   item = parse_item (reader);
 
 bail:
-  if (members) {
-    g_strfreev (members);
-  }
+  g_clear_pointer (&members, g_strfreev);
   g_clear_object (&reader);
   g_clear_object (&parser);
 
@@ -264,6 +256,18 @@ gnome_pocket_item_to_string (GnomePocketItem *item)
   builder_add_int_as_str (builder, "has_image", item->has_image);
   builder_add_int_as_str (builder, "has_video", item->has_video);
   builder_add_int64_as_str (builder, "time_added", item->time_added);
+
+  if (item->thumbnail_url) {
+    json_builder_set_member_name (builder, "image");
+    json_builder_begin_object (builder);
+
+    json_builder_set_member_name (builder, "item_id");
+    json_builder_add_string_value (builder, item->id);
+    json_builder_set_member_name (builder, "src");
+    json_builder_add_string_value (builder, item->thumbnail_url);
+
+    json_builder_end_object (builder);
+  }
 
   json_builder_end_object (builder);
   json_builder_end_object (builder);
@@ -363,6 +367,7 @@ update_list (GnomePocket *self,
              GList       *updated_items)
 {
   GHashTable *removed; /* key=id, value=gboolean */
+  GList *added;
   GList *l;
 
   if (updated_items == NULL)
@@ -371,6 +376,7 @@ update_list (GnomePocket *self,
   removed = g_hash_table_new_full (g_str_hash, g_str_equal,
                                    g_free, NULL);
 
+  added = NULL;
   for (l = updated_items; l != NULL; l = l->next) {
     GnomePocketItem *item = l->data;
 
@@ -380,10 +386,13 @@ update_list (GnomePocket *self,
                            GINT_TO_POINTER (1));
       gnome_pocket_item_free (item);
     } else {
-      self->priv->items = g_list_prepend (self->priv->items, item);
+      added = g_list_prepend (added, item);
       gnome_pocket_item_save (item);
     }
   }
+
+  added = g_list_reverse (added);
+  self->priv->items = g_list_concat (added, self->priv->items);
 
   /* And remove the old items */
   for (l = self->priv->items; l != NULL; l = l->next) {
@@ -404,36 +413,51 @@ update_list (GnomePocket *self,
 static gint64
 load_since (GnomePocket *self)
 {
-	char *path;
-	char *contents = NULL;
-	gint64 since = 0;
+  char *path;
+  char *contents = NULL;
+  gint64 since = 0;
 
-	path = g_build_filename (cache_path, "since", NULL);
-	g_file_get_contents (path, &contents, NULL, NULL);
-	g_free (path);
+  path = g_build_filename (cache_path, "since", NULL);
+  g_file_get_contents (path, &contents, NULL, NULL);
+  g_free (path);
 
-	if (contents != NULL) {
-		since = g_ascii_strtoll (contents, NULL, 0);
-		g_free (contents);
-	}
+  if (contents != NULL) {
+    since = g_ascii_strtoll (contents, NULL, 0);
+    g_free (contents);
+  }
 
-	return since;
+  return since;
 }
 
 static void
 save_since (GnomePocket *self)
 {
-	char *str;
-	char *path;
+  char *str;
+  char *path;
 
-	if (self->priv->since == 0)
-		return;
+  if (self->priv->since == 0)
+    return;
 
-	str = g_strdup_printf ("%" G_GINT64_FORMAT, self->priv->since);
-	path = g_build_filename (cache_path, "since", NULL);
-	g_file_set_contents (path, str, -1, NULL);
-	g_free (path);
-	g_free (str);
+  str = g_strdup_printf ("%" G_GINT64_FORMAT, self->priv->since);
+  path = g_build_filename (cache_path, "since", NULL);
+  g_file_set_contents (path, str, -1, NULL);
+  g_free (path);
+  g_free (str);
+}
+
+static int
+sort_items (gconstpointer a,
+	    gconstpointer b)
+{
+  GnomePocketItem *item_a = (gpointer) a;
+  GnomePocketItem *item_b = (gpointer) b;
+
+  /* We sort newest first */
+  if (item_a->time_added < item_b->time_added)
+    return 1;
+  if (item_b->time_added < item_a->time_added)
+    return -1;
+  return 0;
 }
 
 static GList *
@@ -480,6 +504,8 @@ parse_json (JsonParser *parser,
     g_strfreev (members);
   }
   json_reader_end_member (reader);
+
+  ret = g_list_sort (ret, sort_items);
 
 bail:
   g_clear_object (&reader);
@@ -555,6 +581,10 @@ gnome_pocket_refresh (GnomePocket         *self,
     rest_proxy_call_add_param (call, "since", since);
     g_free (since);
   }
+
+  /* To get the image/images/authors/videos item details */
+  rest_proxy_call_add_param (call, "detailType", "complete");
+  rest_proxy_call_add_param (call, "tags", "1");
 
   rest_proxy_call_invoke_async (call, cancellable, refresh_cb, simple);
 }
@@ -678,13 +708,15 @@ next:
     name = g_dir_read_name (dir);
   }
   g_dir_close (dir);
+
+  self->priv->items = g_list_sort (self->priv->items, sort_items);
 }
 
 static void
 load_cached_thread (GTask           *task,
-		    gpointer         source_object,
-		    gpointer         task_data,
-		    GCancellable    *cancellable)
+                    gpointer         source_object,
+                    gpointer         task_data,
+                    GCancellable    *cancellable)
 {
   GnomePocket *self = GNOME_POCKET (source_object);
 
@@ -695,9 +727,9 @@ load_cached_thread (GTask           *task,
 
 void
 gnome_pocket_load_cached (GnomePocket         *self,
-			  GCancellable        *cancellable,
-			  GAsyncReadyCallback  callback,
-			  gpointer             user_data)
+                          GCancellable        *cancellable,
+                          GAsyncReadyCallback  callback,
+                          gpointer             user_data)
 {
   GTask *task;
 
@@ -711,14 +743,89 @@ gnome_pocket_load_cached (GnomePocket         *self,
 
 gboolean
 gnome_pocket_load_cached_finish (GnomePocket         *self,
-				 GAsyncResult        *res,
-				 GError             **error)
+                                 GAsyncResult        *res,
+                                 GError             **error)
 {
   GTask *task = G_TASK (res);
 
   g_return_val_if_fail (g_task_is_valid (res, self), NULL);
 
   return g_task_propagate_boolean (task, error);
+}
+
+GList *
+gnome_pocket_load_from_file (GnomePocket   *self,
+                             const char    *filename,
+                             GError       **error)
+{
+  GList *ret;
+  gint64 since;
+  JsonParser *parser;
+
+  parser = json_parser_new ();
+  if (!json_parser_load_from_file (parser, filename, error)) {
+    g_object_unref (parser);
+    return NULL;
+  }
+
+  ret = parse_json (parser, &since);
+  g_object_unref (parser);
+
+  return ret;
+}
+
+static const char *
+bool_to_str (gboolean b)
+{
+  return b ? "True" : "False";
+}
+
+static const char *
+inclusion_to_str (PocketMediaInclusion inc)
+{
+  switch (inc) {
+  case POCKET_HAS_MEDIA_FALSE:
+    return "False";
+  case POCKET_HAS_MEDIA_INCLUDED:
+    return "Included";
+  case POCKET_IS_MEDIA:
+    return "Is media";
+  default:
+    g_assert_not_reached ();
+  }
+}
+
+void
+gnome_pocket_print_item (GnomePocketItem *item)
+{
+  GDateTime *date;
+  char *date_str;
+
+  g_return_if_fail (item != NULL);
+
+  date = g_date_time_new_from_unix_utc (item->time_added);
+  date_str = g_date_time_format (date, "%F %R");
+  g_date_time_unref (date);
+
+  g_print ("Item: %s\n", item->id);
+  g_print ("\tTime added: %s\n", date_str);
+  g_print ("\tURL: %s\n", item->url);
+  if (item->thumbnail_url)
+    g_print ("\tThumbnail URL: %s\n", item->thumbnail_url);
+  g_print ("\tTitle: %s\n", item->title);
+  g_print ("\tFavorite: %s\n", bool_to_str (item->favorite));
+  g_print ("\tIs article: %s\n", bool_to_str (item->is_article));
+  g_print ("\tHas Image: %s\n", inclusion_to_str (item->has_image));
+  g_print ("\tHas Video: %s\n", inclusion_to_str (item->has_video));
+  if (item->tags != NULL) {
+    guint i;
+    g_print ("\tTags: ");
+    for (i = 0; item->tags[i] != NULL; i++)
+      g_print ("%s, ", item->tags[i]);
+    g_print ("\n");
+  }
+
+  g_free (date_str);
 }
 
 GList *
@@ -754,12 +861,8 @@ gnome_pocket_finalize (GObject *object)
   g_clear_object (&priv->proxy);
   g_clear_object (&priv->oauth2);
   g_clear_object (&priv->client);
-  if (priv->access_token) {
-    g_free (priv->access_token);
-  }
-  if (priv->consumer_key) {
-    g_free (priv->consumer_key);
-  }
+  g_clear_pointer (&priv->access_token, g_free);
+  g_clear_pointer (&priv->consumer_key, g_free);
 
   G_OBJECT_CLASS (gnome_pocket_parent_class)->finalize (object);
 }
@@ -821,14 +924,8 @@ handle_accounts (GnomePocket *self)
   GoaOAuth2Based *oauth2 = NULL;
 
   g_clear_object (&self->priv->oauth2);
-  if (self->priv->access_token) {
-    g_free (self->priv->access_token);
-    self->priv->access_token = NULL;
-  }
-  if (self->priv->consumer_key) {
-    g_free (self->priv->consumer_key);
-    self->priv->consumer_key = NULL;
-  }
+  g_clear_pointer (&self->priv->access_token, g_free);
+  g_clear_pointer (&self->priv->consumer_key, g_free);
 
   accounts = goa_client_get_accounts (self->priv->client);
 
@@ -949,3 +1046,7 @@ gnome_pocket_new (void)
 {
   return g_object_new (GNOME_TYPE_POCKET, NULL);
 }
+
+/*
+ * vim: sw=2 ts=8 cindent noai bs=2
+ */

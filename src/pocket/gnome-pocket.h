@@ -46,6 +46,7 @@ typedef struct {
   char                  *id;
   char                  *url;
   char                  *title;
+  char                  *thumbnail_url;
   gboolean               favorite;
   PocketItemStatus       status;
   gboolean               is_article;
@@ -60,6 +61,7 @@ typedef struct {
 GType            gnome_pocket_item_get_type    (void) G_GNUC_CONST;
 char            *gnome_pocket_item_to_string   (GnomePocketItem *item);
 GnomePocketItem *gnome_pocket_item_from_string (const char *str);
+void             gnome_pocket_print_item       (GnomePocketItem *item);
 
 #define GNOME_TYPE_POCKET         (gnome_pocket_get_type ())
 #define GNOME_POCKET(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), GNOME_TYPE_POCKET, GnomePocket))
@@ -111,6 +113,11 @@ void               gnome_pocket_load_cached        (GnomePocket         *self,
 gboolean           gnome_pocket_load_cached_finish (GnomePocket         *self,
                                                     GAsyncResult        *res,
                                                     GError             **error);
+
+/* Debug functions */
+GList             *gnome_pocket_load_from_file  (GnomePocket         *self,
+                                                 const char          *filename,
+                                                 GError             **error);
 
 G_END_DECLS
 

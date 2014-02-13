@@ -69,8 +69,6 @@ typedef struct {
 
 static GrlPocketSource *grl_pocket_source_new (GnomePocket *pocket);
 
-static void grl_pocket_source_finalize (GObject *object);
-
 gboolean grl_pocket_plugin_init (GrlRegistry *registry,
                                  GrlPlugin   *plugin,
                                  GList       *configs);
@@ -204,10 +202,7 @@ grl_pocket_source_new (GnomePocket *pocket)
 static void
 grl_pocket_source_class_init (GrlPocketSourceClass * klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
-
-  object_class->finalize = grl_pocket_source_finalize;
 
   source_class->supported_keys = grl_pocket_source_supported_keys;
   source_class->browse = grl_pocket_source_browse;
@@ -220,15 +215,6 @@ static void
 grl_pocket_source_init (GrlPocketSource *source)
 {
   source->priv = GRL_POCKET_SOURCE_GET_PRIVATE(source);
-}
-
-static void
-grl_pocket_source_finalize (GObject *object)
-{
-  GrlPocketSource *source = GRL_POCKET_SOURCE (object);
-  GrlPocketSourcePrivate *priv = GRL_POCKET_SOURCE (source)->priv;
-
-  G_OBJECT_CLASS (grl_pocket_source_parent_class)->finalize (object);
 }
 
 /* ================== API Implementation ================ */

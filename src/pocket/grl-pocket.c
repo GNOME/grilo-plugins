@@ -261,6 +261,7 @@ item_to_media (GnomePocketItem *item)
   grl_media_set_url (ret, item->url);
   grl_media_set_title (ret, item->title);
   grl_media_set_favourite (ret, item->favorite);
+  grl_media_set_thumbnail (ret, item->thumbnail_url);
 
   date = g_date_time_new_from_unix_utc (item->time_added);
   grl_media_set_creation_date (ret, date);

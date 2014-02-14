@@ -158,7 +158,7 @@ PKG_CHECK_MODULES(GMIME, gmime-2.6,
                                                    HAVE_GMIME=yes,
                                                    HAVE_GMIME=no)])
 
-PKG_CHECK_MODULES(AVAHI, avahi-gobject, HAVE_AVAHI=yes, HAVE_AVAHI=no)
+PKG_CHECK_MODULES(AVAHI, [avahi-gobject avahi-glib avahi-client], HAVE_AVAHI=yes, HAVE_AVAHI=no)
 
 # Search available Tracker version
 trackerpkg="tracker-sparql-0.10"

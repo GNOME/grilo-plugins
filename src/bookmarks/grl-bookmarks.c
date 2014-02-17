@@ -738,7 +738,7 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
 
   if (bookmarks_source->priv->notify_changes) {
     grl_source_notify_change (GRL_SOURCE (bookmarks_source),
-                              GRL_MEDIA (parent),
+                              bookmark,
                               GRL_CONTENT_ADDED,
                               FALSE);
   }

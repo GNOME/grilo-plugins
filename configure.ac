@@ -87,7 +87,7 @@ fi
 # HARD DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.32      \
+PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.34      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
 			  ${GRL_NAME} >= 0.2.8)

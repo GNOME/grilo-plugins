@@ -1,3 +1,47 @@
+NEW in 0.2.11
+=============
+
+  * General
+    * Require glib >= 2.34
+    * Added/Updated i18n support
+      * Czech
+      * Indonesian
+      * Lithuanian
+      * Norwegian Bokmål
+      * Polish
+
+  * Bookmarks plugin
+    * BGO#724548 - bookmarks: Bug fixes
+
+  * Flickr plugin
+    * BGO#724615 - flickr: Set mime-type for images
+
+  * Freebox plugin
+    * BGO#724369 - freebox plugin fails to link against avahi-glib and
+      avahi-client
+
+  * Pocket plugin
+    * BGO#724123 - pocket: Bump required gnome-online-accounts version
+    * BGO#724265 - pocket: Add thumbnails support for videos
+
+  * TMDb plugin
+    * Fix tests
+
+  * Tracker plugin
+    * BGO#724546 - grl-tracker-source cannot find tracker 1.0
+
+  * Contributors to this release:
+    * Andika Triwidada <andika@gmail.com>
+    * Aurimas Černius <aurisc4@gmail.com>
+    * Bastien Nocera <hadess@hadess.net>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Juan R. Garcia Blanco <juanrgar@gmail.com>
+    * Kjartan Maraas <kmaraas@gnome.org>
+    * Marek Černocký <marek@manet.cz>
+    * Piotr Drąg <piotrdrag@gmail.com>
+    * Vadim Rutkovsky <vrutkovs@redhat.com>
+
+
 NEW in 0.2.10
 =============
 

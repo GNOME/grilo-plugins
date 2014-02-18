@@ -343,6 +343,12 @@ mime_is_audio (const gchar *mime)
   return mime && g_str_has_prefix (mime, "audio/");
 }
 
+static gboolean
+mime_is_image (const gchar *mime)
+{
+  return mime && g_str_has_prefix (mime, "image/");
+}
+
 static GrlMedia *
 build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
 {
@@ -376,6 +382,8 @@ build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
       media = GRL_MEDIA (grl_media_new ());
     } else if (mime_is_video (mime)) {
       media = GRL_MEDIA (grl_media_new ());
+    } else if (mime_is_image (mime)) {
+      media = GRL_MEDIA (grl_media_image_new ());
     } else {
       media = GRL_MEDIA (grl_media_new ());
     }

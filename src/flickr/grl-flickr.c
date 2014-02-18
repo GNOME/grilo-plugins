@@ -505,7 +505,21 @@ update_media (GrlMedia *media, GHashTable *photo)
   }
 
   if (url) {
+    gchar *content_type;
+
     grl_media_set_url (media, url);
+
+    content_type = g_content_type_guess (url, NULL, 0, NULL);
+    if (content_type) {
+      gchar *mime;
+
+      mime = g_content_type_get_mime_type (content_type);
+      if (mime) {
+        grl_media_set_mime (media, mime);
+        g_free (mime);
+      }
+      g_free (content_type);
+    }
     g_free (url);
   }
 
@@ -850,6 +864,7 @@ grl_flickr_source_supported_keys (GrlSource *source)
                                       GRL_METADATA_KEY_CREATION_DATE,
                                       GRL_METADATA_KEY_DESCRIPTION,
                                       GRL_METADATA_KEY_ID,
+                                      GRL_METADATA_KEY_MIME,
                                       GRL_METADATA_KEY_THUMBNAIL,
                                       GRL_METADATA_KEY_TITLE,
                                       GRL_METADATA_KEY_URL,

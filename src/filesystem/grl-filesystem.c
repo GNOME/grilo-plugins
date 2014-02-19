@@ -1112,7 +1112,9 @@ grl_filesystem_source_resolve (GrlSource *source,
 {
   GFile *file;
   const gchar *id;
+  GFileInfo *info;
   GList *chosen_uris;
+  GError *error = NULL;
 
   GRL_DEBUG (__FUNCTION__);
 
@@ -1135,15 +1137,18 @@ grl_filesystem_source_resolve (GrlSource *source,
     file = g_file_new_for_uri (id ? id : DEFAULT_ROOT);
   }
 
-  if (g_file_query_exists (file, NULL)) {
+  info = g_file_query_info (file, "", G_FILE_QUERY_INFO_NONE, NULL, &error);
+  if (info != NULL) {
     grl_pls_file_to_media (rs->media, file, NULL, GRL_FILESYSTEM_SOURCE(source)->priv->handle_pls, rs->options);
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+    g_object_unref (info);
   } else {
-    GError *error = g_error_new (GRL_CORE_ERROR,
-                                 GRL_CORE_ERROR_RESOLVE_FAILED,
-                                 _("File %s does not exist"),
-                                 id);
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
+    GError *error_new = g_error_new (error->domain,
+                                     error->code,
+                                     _("File %s does not exist"),
+                                     id);
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error_new);
+    g_error_free (error_new);
     g_error_free (error);
   }
 

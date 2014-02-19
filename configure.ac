@@ -160,6 +160,8 @@ PKG_CHECK_MODULES(GMIME, gmime-2.6,
 
 PKG_CHECK_MODULES(AVAHI, [avahi-gobject avahi-glib avahi-client], HAVE_AVAHI=yes, HAVE_AVAHI=no)
 
+PKG_CHECK_MODULES(MEDIAART, [libmediaart-1.0], HAVE_MEDIAART=yes, HAVE_MEDIAART=no)
+
 # Search available Tracker version
 trackerpkg="tracker-sparql-0.10"
 m4_foreach([VERSION], [[0.10], [0.11], [0.12], [0.14], [0.15], [0.16], [0.17], [0.18], [1.0]],
@@ -1082,11 +1084,14 @@ AC_ARG_ENABLE(localmetadata,
                         if test "x$HAVE_GIO" = "xno"; then
                            AC_MSG_ERROR([gio-2.0 not found, install it or use --disable-localmetadata])
                         fi
+                        if test "x$HAVE_MEDIAART" = "xno"; then
+                           AC_MSG_ERROR([libmediaart not found, install it or use --disable-localmetadata])
+                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes"; then
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_MEDIAART" = "xyes"; then
                    enable_localmetadata=yes
                 else
                    enable_localmetadata=no
@@ -1104,9 +1109,9 @@ LOCALMETADATA_PLUGIN_ID="grl-local-metadata"
 AC_SUBST(LOCALMETADATA_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([LOCALMETADATA_PLUGIN_ID], ["$LOCALMETADATA_PLUGIN_ID"], [Local metadata plugin ID])
 
-DEPS_LOCALMETADATA_CFLAGS="$DEPS_CFLAGS $GIO_CFLAGS"
+DEPS_LOCALMETADATA_CFLAGS="$DEPS_CFLAGS $GIO_CFLAGS $MEDIAART_CFLAGS"
 AC_SUBST(DEPS_LOCALMETADATA_CFLAGS)
-DEPS_LOCALMETADATA_LIBS="$DEPS_LIBS $GIO_LIBS"
+DEPS_LOCALMETADATA_LIBS="$DEPS_LIBS $GIO_LIBS $MEDIAART_LIBS"
 AC_SUBST(DEPS_LOCALMETADATA_LIBS)
 
 # ----------------------------------------------------------

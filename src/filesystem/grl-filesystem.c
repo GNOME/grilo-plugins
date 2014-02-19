@@ -700,6 +700,10 @@ recursive_operation_got_entry (GFile *directory, GAsyncResult *res, RecursiveOpe
 
   enumerator = g_file_enumerate_children_finish (directory, res, &error);
   if (error) {
+    if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+      g_error_free (error);
+      return;
+    }
     GRL_WARNING ("Got error: %s", error->message);
     g_error_free (error);
     /* we couldn't get the children of this directory, but we probably have

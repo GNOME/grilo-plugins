@@ -320,16 +320,25 @@ container_changed_cb (GUPnPServiceProxy *proxy,
   tokens = g_strsplit (g_value_get_string (value), ",", -1);
   changed_medias = g_ptr_array_sized_new (g_strv_length (tokens) / 2);
   while (tokens[i]) {
-    container = grl_media_box_new ();
-    grl_media_set_id (container, tokens[i]);
-    g_ptr_array_add (changed_medias, container);
+    gchar *token;
+
+    token = g_strstrip (tokens[i]);
+    if (token && *token != '\0') {
+      container = grl_media_box_new ();
+      grl_media_set_id (container, tokens[i]);
+      g_ptr_array_add (changed_medias, container);
+    }
     i += 2;
+    if (i > g_strv_length (tokens))
+      break;
   }
 
-  grl_source_notify_change_list (source,
-                                 changed_medias,
-                                 GRL_CONTENT_CHANGED,
-                                 FALSE);
+  if (changed_medias->len > 0) {
+    grl_source_notify_change_list (source,
+                                   changed_medias,
+                                   GRL_CONTENT_CHANGED,
+                                   FALSE);
+  }
   g_strfreev (tokens);
 }
 

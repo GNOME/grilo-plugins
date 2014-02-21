@@ -43,7 +43,6 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-apple-trailers \
                             --enable-flickr \
                             --enable-freebox \
                             --enable-gravatar \
-                            --enable-guardianvideos \
                             --enable-jamendo \
                             --enable-lastfm-albumart \
                             --enable-localmetadata \

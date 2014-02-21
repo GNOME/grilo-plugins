@@ -1285,46 +1285,6 @@ DEPS_FREEBOX_LIBS="$DEPS_LIBS $GRLPLS_LIBS $AVAHI_LIBS"
 AC_SUBST(DEPS_FREEBOX_LIBS)
 
 # ----------------------------------------------------------
-# BUILD GUARDIANVIDEOS PLUGIN
-# ----------------------------------------------------------
-
-AC_ARG_ENABLE(guardianvideos,
-        AC_HELP_STRING([--enable-guardianvideos],
-                [enable Guardian Videos plugin (default: auto)]),
-        [
-                case "$enableval" in
-                     yes)
-                        if test "x$HAVE_GRLPLS" = "xno"; then
-                           AC_MSG_ERROR([grilo-pls-0.2 >= 0.2.0 not found, install it or use --disable-guardianvideos])
-                        fi
-                        ;;
-                esac
-        ],
-        [
-               if test "x$HAVE_GRLPLS" = "xyes"; then
-                  enable_guardianvideos=yes
-               else
-                  enable_guardianvideos=no
-               fi
-        ])
-
-AM_CONDITIONAL([GUARDIANVIDEOS_PLUGIN], [test "x$enable_guardianvideos" = "xyes"])
-GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL guardianvideos"
-if test "x$enable_guardianvideos" = "xyes"
-then
-	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED guardianvideos"
-fi
-
-GUARDIANVIDEOS_PLUGIN_ID="grl-guardianvideos"
-AC_SUBST(GUARDIANVIDEOS_PLUGIN_ID)
-AC_DEFINE_UNQUOTED([GUARDIANVIDEOS_PLUGIN_ID], ["$GUARDIANVIDEOS_PLUGIN_ID"], [Guardian Videos plugin ID])
-
-DEPS_GUARDIANVIDEOS_CFLAGS="$DEPS_CFLAGS $GRLPLS_CFLAGS"
-AC_SUBST(DEPS_GUARDIANVIDEOS_CFLAGS)
-DEPS_GUARDIANVIDEOS_LIBS="$DEPS_LIBS $GRLPLS_LIBS"
-AC_SUBST(DEPS_GUARDIANVIDEOS_LIBS)
-
-# ----------------------------------------------------------
 # GETTEXT/INTLTOOL
 # ----------------------------------------------------------
 
@@ -1367,7 +1327,6 @@ AC_CONFIG_FILES([
   src/flickr/Makefile
   src/freebox/Makefile
   src/gravatar/Makefile
-  src/guardian-videos/Makefile
   src/jamendo/Makefile
   src/lastfm-albumart/Makefile
   src/local-metadata/Makefile

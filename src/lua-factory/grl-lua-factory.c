@@ -160,6 +160,9 @@ grl_lua_factory_plugin_init (GrlRegistry *registry,
       continue;
     }
 
+    /* In case the plugin gets unref'ed during registration */
+    g_object_add_weak_pointer (G_OBJECT (source), (gpointer *) &source);
+
     if (!grl_registry_register_source (registry, plugin,
                                        GRL_SOURCE (source), &err)) {
       GRL_DEBUG ("Fail to register source: %s", err->message);
@@ -167,6 +170,10 @@ grl_lua_factory_plugin_init (GrlRegistry *registry,
       continue;
     }
 
+    if (!source)
+      continue;
+
+    g_object_remove_weak_pointer (G_OBJECT (source), (gpointer *) &source);
     source_loaded = TRUE;
     GRL_DEBUG ("Successfully initialized: %s",
                grl_source_get_id (GRL_SOURCE (source)));

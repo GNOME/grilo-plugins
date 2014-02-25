@@ -7,7 +7,8 @@
 
 lua_sources_DATA =					\
 	grl-metrolyrics.lua				\
-	grl-radiofrance.lua
+	grl-radiofrance.lua				\
+	grl-euronews.lua
 
 lua_sourcesdir = $(datadir)/$(LUA_FACTORY_SOURCE_LOCATION)
 

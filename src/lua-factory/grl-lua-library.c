@@ -573,6 +573,33 @@ grl_l_warning (lua_State *L)
   return 0;
 }
 
+/**
+ * grl.dgettext
+ *
+ * @domain: (string) the domain to use for the translation
+ * @str: (string) the string to translate
+ * @return: the translated string
+ */
+static gint
+grl_l_dgettext (lua_State *L)
+{
+  const gchar *domain;
+  const gchar *str;
+  gchar *output;
+
+  luaL_argcheck (L, lua_isstring (L, 1), 1, "expecting domain name as string");
+  luaL_argcheck (L, lua_isstring (L, 2), 2, "expecting string to translate as string");
+
+  domain = lua_tolstring (L, 1, NULL);
+  str = lua_tolstring (L, 2, NULL);
+
+  bind_textdomain_codeset (domain, "UTF-8");
+  output = dgettext (domain, str);
+  lua_pushstring (L, output);
+
+  return 1;
+}
+
 /* ================== Lua-Library initialization =========================== */
 
 gint
@@ -586,6 +613,7 @@ luaopen_grilo (lua_State *L)
     {"fetch", &grl_l_fetch},
     {"debug", &grl_l_debug},
     {"warning", &grl_l_warning},
+    {"dgettext", &grl_l_dgettext},
     {NULL, NULL}
   };
 

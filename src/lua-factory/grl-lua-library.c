@@ -537,6 +537,42 @@ grl_l_callback (lua_State *L)
   return 0;
 }
 
+/**
+ * grl.debug
+ *
+ * @str: (string) the debug output to generate
+ */
+static gint
+grl_l_debug (lua_State *L)
+{
+  const gchar *str;
+
+  luaL_argcheck (L, lua_isstring (L, 1), 1, "expecting debug output as string");
+
+  str = lua_tolstring (L, 1, NULL);
+  GRL_DEBUG ("%s", str);
+
+  return 0;
+}
+
+/**
+ * grl.warning
+ *
+ * @str: (string) the debug output to generate
+ */
+static gint
+grl_l_warning (lua_State *L)
+{
+  const gchar *str;
+
+  luaL_argcheck (L, lua_isstring (L, 1), 1, "expecting warning output as string");
+
+  str = lua_tolstring (L, 1, NULL);
+  GRL_WARNING ("%s", str);
+
+  return 0;
+}
+
 /* ================== Lua-Library initialization =========================== */
 
 gint
@@ -548,6 +584,8 @@ luaopen_grilo (lua_State *L)
     {"get_media_keys", &grl_l_media_get_keys},
     {"callback", &grl_l_callback},
     {"fetch", &grl_l_fetch},
+    {"debug", &grl_l_debug},
+    {"warning", &grl_l_warning},
     {NULL, NULL}
   };
 

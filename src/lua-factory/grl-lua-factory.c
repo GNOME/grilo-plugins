@@ -47,6 +47,7 @@ GRL_LOG_DOMAIN_STATIC (lua_factory_log_domain);
 #define LUA_SOURCE_DESCRIPTION      "description"
 #define LUA_SOURCE_SUPPORTED_MEDIA  "supported_media"
 #define LUA_SOURCE_ICON             "icon"
+#define LUA_SOURCE_AUTO_SPLIT_THRESHOLD "auto_split_threshold"
 #define LUA_SOURCE_CONFIG_KEYS      "config_keys"
 #define LUA_SOURCE_SUPPORTED_KEYS   "supported_keys"
 #define LUA_SOURCE_SLOW_KEYS        "slow_keys"
@@ -84,7 +85,8 @@ static gint lua_plugin_source_info (lua_State *L,
                                     gchar **source_name,
                                     gchar **source_desc,
                                     GrlMediaType *source_supported_media,
-                                    GIcon **source_icon);
+                                    GIcon **source_icon,
+                                    guint *auto_split_threshold);
 
 static gint lua_plugin_source_operations (lua_State *L,
                                           gboolean fn[LUA_NUM_OPERATIONS]);
@@ -198,6 +200,7 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   gchar *source_desc = NULL;
   GIcon *source_icon = NULL;
   GrlMediaType source_supported_media = GRL_MEDIA_TYPE_ALL;
+  guint auto_split_threshold;
   gint ret = 0;
 
   GRL_DEBUG ("grl_lua_factory_source_new");
@@ -231,7 +234,8 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   }
 
   ret = lua_plugin_source_info (L, &source_id, &source_name, &source_desc,
-                                &source_supported_media, &source_icon);
+                                &source_supported_media, &source_icon,
+                                &auto_split_threshold);
   if (ret != LUA_OK)
     goto bail;
 
@@ -243,6 +247,7 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
                          "source-desc", source_desc,
                          "supported-media", source_supported_media,
                          "source-icon", source_icon,
+                         "auto-split-threshold", auto_split_threshold,
                          NULL);
   g_free (source_name);
   g_free (source_desc);
@@ -645,13 +650,15 @@ lua_plugin_source_info (lua_State *L,
                         gchar **source_name,
                         gchar **source_desc,
                         GrlMediaType *source_supported_media,
-                        GIcon **source_icon)
+                        GIcon **source_icon,
+                        guint *auto_split_threshold)
 {
   const char *lua_source_id = NULL;
   const char *lua_source_name = NULL;
   const char *lua_source_desc = NULL;
   const char *lua_source_icon = NULL;
   const char *lua_source_media = NULL;
+  guint lua_auto_split_threshold;
 
   GRL_DEBUG ("lua_plugin_source_info");
 
@@ -681,8 +688,12 @@ lua_plugin_source_info (lua_State *L,
   lua_getfield (L, -5, LUA_SOURCE_ICON);
   lua_source_icon = lua_tolstring (L, -1, NULL);
 
+  /* Auto-split-threshold */
+  lua_getfield (L, -6, LUA_SOURCE_AUTO_SPLIT_THRESHOLD);
+  lua_auto_split_threshold = lua_tonumber (L, -1);
+
   /* Remove source info and main table from stack */
-  lua_pop (L, 6);
+  lua_pop (L, 7);
 
   if (lua_source_id == NULL
       || lua_source_name == NULL
@@ -711,6 +722,9 @@ lua_plugin_source_info (lua_State *L,
     *source_icon = g_file_icon_new (file);
     g_object_unref (file);
   }
+
+  *auto_split_threshold = lua_auto_split_threshold;
+
   return LUA_OK;
 }
 

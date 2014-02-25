@@ -48,6 +48,7 @@ GRL_LOG_DOMAIN_STATIC (lua_factory_log_domain);
 #define LUA_SOURCE_SUPPORTED_MEDIA  "supported_media"
 #define LUA_SOURCE_ICON             "icon"
 #define LUA_SOURCE_AUTO_SPLIT_THRESHOLD "auto_split_threshold"
+#define LUA_SOURCE_TAGS             "tags"
 #define LUA_SOURCE_CONFIG_KEYS      "config_keys"
 #define LUA_SOURCE_SUPPORTED_KEYS   "supported_keys"
 #define LUA_SOURCE_SLOW_KEYS        "slow_keys"
@@ -86,7 +87,8 @@ static gint lua_plugin_source_info (lua_State *L,
                                     gchar **source_desc,
                                     GrlMediaType *source_supported_media,
                                     GIcon **source_icon,
-                                    guint *auto_split_threshold);
+                                    guint *auto_split_threshold,
+                                    gchar ***source_tags);
 
 static gint lua_plugin_source_operations (lua_State *L,
                                           gboolean fn[LUA_NUM_OPERATIONS]);
@@ -201,6 +203,7 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   GIcon *source_icon = NULL;
   GrlMediaType source_supported_media = GRL_MEDIA_TYPE_ALL;
   guint auto_split_threshold;
+  gchar **source_tags;
   gint ret = 0;
 
   GRL_DEBUG ("grl_lua_factory_source_new");
@@ -235,7 +238,7 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
 
   ret = lua_plugin_source_info (L, &source_id, &source_name, &source_desc,
                                 &source_supported_media, &source_icon,
-                                &auto_split_threshold);
+                                &auto_split_threshold, &source_tags);
   if (ret != LUA_OK)
     goto bail;
 
@@ -248,9 +251,12 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
                          "supported-media", source_supported_media,
                          "source-icon", source_icon,
                          "auto-split-threshold", auto_split_threshold,
+                         "source-tags", source_tags,
                          NULL);
   g_free (source_name);
   g_free (source_desc);
+  if (source_tags)
+    g_strfreev (source_tags);
 
   ret = lua_plugin_source_operations (L, source->priv->fn);
   if (ret != LUA_OK)
@@ -642,6 +648,41 @@ merge_all_configs (const gchar *source_id,
   return merged_config;
 }
 
+static gchar **
+table_to_tags (lua_State *L)
+{
+  GPtrArray *array;
+  gint i = 0;
+  gint array_len = 0;
+
+  if (!lua_istable (L, -1))
+    return NULL;
+
+  array = g_ptr_array_new_with_free_func (g_free);
+
+  array_len = luaL_len (L, -1);
+
+  for (i = 0; i < array_len; i++) {
+    lua_pushinteger (L, i + 1);
+    lua_gettable (L, -2);
+    if (lua_isstring (L, -1)) {
+      g_ptr_array_add (array, g_strdup (lua_tostring (L, -1)));
+    }
+    lua_pop (L, 1);
+  }
+
+  lua_pop (L, 1);
+
+  if (array->len == 0) {
+    g_ptr_array_free (array, TRUE);
+    return NULL;
+  }
+
+  g_ptr_array_add (array, NULL);
+
+  return (gchar **) g_ptr_array_free (array, FALSE);
+}
+
 /* Get from the main table of the plugin
  * the mandatory information to create a source. */
 static gint
@@ -651,7 +692,8 @@ lua_plugin_source_info (lua_State *L,
                         gchar **source_desc,
                         GrlMediaType *source_supported_media,
                         GIcon **source_icon,
-                        guint *auto_split_threshold)
+                        guint *auto_split_threshold,
+                        gchar ***source_tags)
 {
   const char *lua_source_id = NULL;
   const char *lua_source_name = NULL;
@@ -659,6 +701,7 @@ lua_plugin_source_info (lua_State *L,
   const char *lua_source_icon = NULL;
   const char *lua_source_media = NULL;
   guint lua_auto_split_threshold;
+  gchar **lua_source_tags = NULL;
 
   GRL_DEBUG ("lua_plugin_source_info");
 
@@ -692,13 +735,19 @@ lua_plugin_source_info (lua_State *L,
   lua_getfield (L, -6, LUA_SOURCE_AUTO_SPLIT_THRESHOLD);
   lua_auto_split_threshold = lua_tonumber (L, -1);
 
+  /* Source Tags */
+  lua_getfield (L, -7, LUA_SOURCE_TAGS);
+  lua_source_tags = table_to_tags (L);
+
   /* Remove source info and main table from stack */
-  lua_pop (L, 7);
+  lua_pop (L, 8);
 
   if (lua_source_id == NULL
       || lua_source_name == NULL
       || lua_source_desc == NULL) {
     GRL_DEBUG ("Lua source info is not well defined.");
+    if (lua_source_tags)
+      g_strfreev (lua_source_tags);
     return !LUA_OK;
   }
 
@@ -724,6 +773,8 @@ lua_plugin_source_info (lua_State *L,
   }
 
   *auto_split_threshold = lua_auto_split_threshold;
+
+  *source_tags = lua_source_tags;
 
   return LUA_OK;
 }

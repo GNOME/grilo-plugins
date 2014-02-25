@@ -6,7 +6,8 @@
 # Copyright (C) 2013 Victor Toso. All rights reserved.
 
 lua_sources_DATA =					\
-	grl-metrolyrics.lua
+	grl-metrolyrics.lua				\
+	grl-radiofrance.lua
 
 lua_sourcesdir = $(datadir)/$(LUA_FACTORY_SOURCE_LOCATION)
 

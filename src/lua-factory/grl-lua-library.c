@@ -169,6 +169,8 @@ grl_util_build_media (lua_State *L,
         break;
 
       default:
+        /* Non-fundamental types don't reduce to ints, so can't be
+         * in the switch statement */
         if (type == G_TYPE_DATE_TIME) {
           GDateTime *date = grl_date_time_from_iso8601 (lua_tostring (L, -1));
           grl_data_set_boxed (GRL_DATA (media), key_id, date);

@@ -3,7 +3,7 @@ compiler: gcc
 before_install:
   - sudo add-apt-repository ppa:grilo-team/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install -qq gnome-common ilibjson-glib-dev libsoup2.4-dev
+  - sudo apt-get install -qq gnome-common libjson-glib-dev libsoup2.4-dev
          libgrilo-unofficial-prerelease-0.2-dev libsqlite3-dev liboauth-dev
          lcov libdmapsharing-3.0-dev libgmime-2.6-dev
          libtracker-sparql-0.14-dev libgssdp-1.0-dev libgupnp-1.0-dev

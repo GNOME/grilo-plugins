@@ -33,6 +33,10 @@ GRL_LOG_DOMAIN_STATIC (lua_library_log_domain);
 typedef struct _FetchOperation {
   lua_State *L;
   gchar *lua_cb;
+  guint index;
+  guint num_urls;
+  gboolean is_table;
+  gchar **results;
 } FetchOperation;
 
 /* ================== Lua-Library utils/helpers ============================ */
@@ -192,23 +196,51 @@ grl_util_fetch_done (GObject *source_object,
                      gpointer user_data)
 {
   gchar *data = NULL;
-  gsize length = 0;
+  guint i = 0;
   GError *err = NULL;
   FetchOperation *fo = (FetchOperation *) user_data;
   lua_State *L = fo->L;
 
-  GRL_DEBUG ("fetch_done");
-
   grl_net_wc_request_finish (GRL_NET_WC (source_object),
-                             res, &data, &length, &err);
+                             res, &data, NULL, &err);
+
+  fo->results[fo->index] = (err == NULL) ? g_strdup (data) : g_strdup ("");
+  if (err != NULL) {
+    GRL_WARNING ("Can't fetch element %d: '%s'", fo->index + 1, err->message);
+    g_error_free (err);
+  } else {
+    GRL_DEBUG ("fetch_done element %d of %d urls", fo->index + 1, fo->num_urls);
+  }
+
+  /* Check if we finished fetching urls */
+  for (i = 0; i < fo->num_urls; i++)
+    if (fo->results[i] == NULL)
+      goto fetch_op_cleanup;
 
   lua_getglobal (L, fo->lua_cb);
-  lua_pushlstring (L, data, length);
+
+  if (!fo->is_table) {
+    lua_pushlstring (L, fo->results[0], strlen (fo->results[0]));
+  } else {
+    lua_newtable (L);
+    for (i = 0; i < fo->num_urls; i++) {
+      lua_pushnumber (L, i + 1);
+      lua_pushlstring (L, fo->results[i], strlen (fo->results[i]));
+      lua_settable (L, -3);
+    }
+  }
 
   if (lua_pcall (L, 1, 0, 0)) {
     GRL_WARNING ("%s (%s) '%s'", "calling source callback function fail",
                  fo->lua_cb, lua_tolstring (L, -1, NULL));
   }
+
+  for (i = 0; i < fo->num_urls; i++)
+    g_free (fo->results[i]);
+  g_free (fo->results);
+
+fetch_op_cleanup:
+  g_free (fo->lua_cb);
   g_free (fo);
 }
 
@@ -428,26 +460,51 @@ grl_l_media_get_keys (lua_State *L)
 /**
 * grl.fetch
 *
-* @url: (string) The http url to GET the content.
+* @url: (string or array) The http url to GET the content.
 * @callback: (string) The function to be called after fetch is complete.
+* @netopts: (table) Options to set the GrlNetWc object.
 * @return: Nothing.;
 */
 static gint
 grl_l_fetch (lua_State *L)
 {
-  const gchar *url = NULL;
+  guint i = 0;
+  guint num_urls = 0;
+  gchar **urls = NULL;
+  gchar **results = NULL;
   const gchar *lua_callback = NULL;
   GrlNetWc *wc = NULL;
-  FetchOperation *fo = g_malloc (sizeof (FetchOperation));
+  FetchOperation *fo = NULL;
+  gboolean is_table = FALSE;
 
-  luaL_argcheck (L, lua_isstring (L, 1), 1, "expecting url as string");
+  luaL_argcheck (L, (lua_isstring (L, 1) || lua_istable (L, 1)), 1,
+                 "expecting url as string or an array of urls");
   luaL_argcheck (L, lua_isstring (L, 2), 2,
                  "expecting callback function as string");
 
-  url = lua_tolstring (L, 1, NULL);
-  lua_callback = lua_tolstring (L, 2, NULL);
+  num_urls = (lua_isstring (L, 1)) ? 1 : luaL_len (L, 1);
+  urls = g_new0 (gchar *, num_urls);
 
-  GRL_DEBUG ("grl.fetch() -> '%s'", url);
+  if (lua_isstring (L, 1)) {
+    *urls = (gchar *) lua_tolstring (L, 1, NULL);
+    GRL_DEBUG ("grl.fetch() -> '%s'", *urls);
+  } else {
+    is_table = TRUE;
+    for (i = 0; i < num_urls; i++) {
+      lua_pushinteger (L, i + 1);
+      lua_gettable (L, 1);
+      if (lua_isstring (L, -1) && !lua_isnumber (L, -1)) {
+        urls[i] = (gchar *) lua_tostring (L, -1);
+      } else {
+        luaL_error (L, "Array of urls expect strings only: at index %d is %s",
+                    i + 1, luaL_typename (L, -1));
+      }
+      GRL_DEBUG ("grl.fetch() -> urls[%d]: '%s'", i, urls[i]);
+      lua_pop (L, 1);
+    }
+  }
+
+  lua_callback = lua_tolstring (L, 2, NULL);
 
   wc = grl_net_wc_new ();
   if (lua_istable (L, 3)) {
@@ -484,11 +541,21 @@ grl_l_fetch (lua_State *L)
     }
   }
 
-  fo->L = L;
-  fo->lua_cb = g_strdup (lua_callback);
+  /* shared data between urls */
+  results = g_new0 (gchar *, num_urls);
+  for (i = 0; i < num_urls; i++) {
+    fo = g_new0 (FetchOperation, 1);
+    fo->L = L;
+    fo->lua_cb = g_strdup (lua_callback);
+    fo->index = i;
+    fo->num_urls = num_urls;
+    fo->is_table = is_table;
+    fo->results = results;
 
-  grl_net_wc_request_async (wc, url, NULL, grl_util_fetch_done, fo);
+    grl_net_wc_request_async (wc, urls[i], NULL, grl_util_fetch_done, fo);
+  }
   g_object_unref (wc);
+  g_free (urls);
   return 1;
 }
 

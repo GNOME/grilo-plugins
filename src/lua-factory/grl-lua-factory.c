@@ -743,8 +743,7 @@ lua_plugin_source_info (lua_State *L,
   lua_pop (L, 8);
 
   if (lua_source_id == NULL
-      || lua_source_name == NULL
-      || lua_source_desc == NULL) {
+      || lua_source_name == NULL) {
     GRL_DEBUG ("Lua source info is not well defined.");
     if (lua_source_tags)
       g_strfreev (lua_source_tags);

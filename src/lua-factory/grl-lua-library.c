@@ -214,10 +214,16 @@ grl_util_fetch_done (GObject *source_object,
     GRL_DEBUG ("fetch_done element %d of %d urls", fo->index + 1, fo->num_urls);
   }
 
-  /* Check if we finished fetching urls */
-  for (i = 0; i < fo->num_urls; i++)
-    if (fo->results[i] == NULL)
-      goto fetch_op_cleanup;
+  /* Check if we finished fetching URLs */
+  for (i = 0; i < fo->num_urls; i++) {
+    if (fo->results[i] == NULL) {
+      /* Clean up this operation, and wait for
+       * other operations to complete */
+      g_free (fo->lua_cb);
+      g_free (fo);
+      return;
+    }
+  }
 
   lua_getglobal (L, fo->lua_cb);
 
@@ -240,8 +246,6 @@ grl_util_fetch_done (GObject *source_object,
   for (i = 0; i < fo->num_urls; i++)
     g_free (fo->results[i]);
   g_free (fo->results);
-
-fetch_op_cleanup:
   g_free (fo->lua_cb);
   g_free (fo);
 }

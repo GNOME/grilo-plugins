@@ -8,7 +8,7 @@ before_install:
          lcov libdmapsharing-3.0-dev libgmime-2.6-dev
          libtracker-sparql-0.14-dev libgssdp-1.0-dev libgupnp-1.0-dev
          libgupnp-av-1.0-dev libquvi-dev libtotem-plparser-dev libgdata-dev
-         yelp-tools
+         yelp-tools libavahi-gobject-dev
   - sudo pip install cpp-coveralls --use-mirrors
 script:
   - ./autogen.sh --enable-gcov

@@ -94,6 +94,7 @@ test_episodes (void)
     { "metalocalypse.s02e01.dvdrip.xvid-ffndvd.avi", NULL, "metalocalypse", 2, 1 },
     { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", NULL, "Boardwalk Empire", 4, 1 },
     { NULL, "file:///home/test/My%20super%20series.S01E01.mp4", "My super series", 1, 1 },
+    { "Adventure Time - 2x01 - It Came from the Nightosphere.mp4", NULL, "Adventure Time", 2, 1 }
   };
 
 

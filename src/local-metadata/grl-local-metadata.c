@@ -48,7 +48,7 @@ GRL_LOG_DOMAIN_STATIC(local_metadata_log_domain);
 #define TV_REGEX                                \
   "(?<showname>.*)\\."                          \
   "(?<season>(?:\\d{1,2})|(?:[sS]\\K\\d{1,2}))" \
-  "(?<episode>(?:\\d{2})|(?:[eE]\\K\\d{1,2}))"  \
+  "(?<episode>(?:\\d{2})|(?:[eEx]\\K\\d{1,2}))"  \
   "\\.?(?<name>.*)?"
 #define MOVIE_REGEX                             \
   "(?<name>.*)"                                 \
@@ -241,6 +241,7 @@ video_sanitise_string (const gchar *str)
 {
   int    i;
   gchar *line;
+  GRegex *regex;
 
   line = (gchar *) str;
   for (i = 0; video_blacklisted_prefix[i]; i++) {
@@ -259,6 +260,9 @@ video_sanitise_string (const gchar *str)
       return g_strndup (line, end - line);
     }
   }
+  regex = g_regex_new ("\\.-\\.", 0, 0, NULL);
+  line = g_regex_replace_literal(regex, line, -1, 0, ".", 0, NULL);
+  g_regex_unref(regex);
 
   return g_strdup (line);
 }
@@ -369,7 +373,7 @@ video_guess_values_from_display_name (const gchar *display_name,
     if (episode) {
       gchar *e = g_match_info_fetch_named (info, "episode");
       if (e) {
-        if (*e == 'e' || *e == 'E') {
+        if (*e == 'e' || *e == 'E' || *e == 'x') {
           *episode = atoi (e + 1);
         } else {
           *episode = atoi (e);

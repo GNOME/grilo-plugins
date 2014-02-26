@@ -140,7 +140,7 @@ grl_util_build_media (lua_State *L,
           grl_data_set_int (GRL_DATA (media), key_id, lua_tointeger (L, -1));
         } else if (lua_istable (L, -1)) {
           grl_util_add_table_to_media (L, media, key_id, key_name, type);
-        } else {
+        } else if (!lua_isnil (L, -1)) {
           GRL_WARNING ("'%s' is not compatible for '%s'",
                        lua_typename (L, -1), key_name);
         }
@@ -151,7 +151,7 @@ grl_util_build_media (lua_State *L,
           grl_data_set_float (GRL_DATA (media), key_id, lua_tonumber (L, -1));
         } else if (lua_istable (L, -1)) {
           grl_util_add_table_to_media (L, media, key_id, key_name, type);
-        } else {
+        } else if (!lua_isnil (L, -1)) {
           GRL_WARNING ("'%s' is not compatible for '%s'",
                        lua_typename (L, -1), key_name);
         }
@@ -162,7 +162,7 @@ grl_util_build_media (lua_State *L,
           grl_data_set_string (GRL_DATA (media), key_id, lua_tostring (L, -1));
         } else if (lua_istable (L, -1)) {
           grl_util_add_table_to_media (L, media, key_id, key_name, type);
-        } else {
+        } else if (!lua_isnil (L, -1)) {
           GRL_WARNING ("'%s' is not compatible for '%s'",
                        lua_typename (L, -1), key_name);
         }
@@ -179,7 +179,7 @@ grl_util_build_media (lua_State *L,
            gsize size = luaL_len (L, -1);
            const guint8 *binary = lua_tostring (L, -1);
            grl_data_set_binary (GRL_DATA (media), key_id, binary, size);
-        } else {
+        } else if (!lua_isnil (L, -1)) {
           GRL_DEBUG ("'%s' is being ignored as G_TYPE is not being handled.",
                      key_name);
         }

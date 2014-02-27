@@ -17,6 +17,10 @@ if BLIPTV_PLUGIN
 SUBDIRS += bliptv
 endif
 
+if LOCALMETADATA_PLUGIN
+SUBDIRS += local-metadata
+endif
+
 if TMDB_PLUGIN
 SUBDIRS += tmdb
 endif

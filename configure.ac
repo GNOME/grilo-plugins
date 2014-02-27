@@ -1347,6 +1347,7 @@ AC_CONFIG_FILES([
   tests/Makefile
   tests/apple-trailers/Makefile
   tests/bliptv/Makefile
+  tests/local-metadata/Makefile
   tests/tmdb/Makefile
   tests/vimeo/Makefile
 ])

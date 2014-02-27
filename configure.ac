@@ -138,7 +138,11 @@ PKG_CHECK_MODULES(GDATA, libgdata >= 0.7.0, HAVE_GDATA=yes, HAVE_GDATA=no)
 
 PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4, HAVE_LIBSOUP=yes, HAVE_LIBSOUP=no)
 
-PKG_CHECK_MODULES(LUA, lua >= 5.2.0, HAVE_LUA=yes, HAVE_LUA=no)
+PKG_CHECK_MODULES(LUA, lua >= 5.2.0,
+                       HAVE_LUA=yes,
+                       [PKG_CHECK_MODULES(LUA, lua5.2 >= 5.2.0,
+                                               HAVE_LUA=yes,
+                                               HAVE_LUA=no)])
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 

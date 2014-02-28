@@ -273,10 +273,12 @@ grl_util_build_media (lua_State *L,
            const guint8 *binary = lua_tostring (L, -1);
            grl_data_set_binary (GRL_DATA (media), key_id, binary, size);
         } else if (!lua_isnil (L, -1)) {
-          GRL_DEBUG ("'%s' is being ignored as G_TYPE is not being handled.",
-                     key_name);
+          GRL_WARNING ("'%s' is being ignored as G_TYPE is not being handled.",
+                       key_name);
         }
       }
+    } else {
+      GRL_WARNING ("'%s' is not a valid keyword", key_name);
     }
 
     g_free (key_name);

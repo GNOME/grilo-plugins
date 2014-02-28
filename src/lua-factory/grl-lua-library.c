@@ -22,6 +22,8 @@
 
 #include <net/grl-net.h>
 #include <string.h>
+#include <errno.h>
+#include <stdlib.h>
 
 #include "grl-lua-common.h"
 #include "grl-lua-library.h"
@@ -40,6 +42,97 @@ typedef struct _FetchOperation {
 } FetchOperation;
 
 /* ================== Lua-Library utils/helpers ============================ */
+
+static gchar *
+char_str (gunichar c,
+          gchar   *buf)
+{
+  memset (buf, 0, 8);
+  g_unichar_to_utf8 (c, buf);
+  return buf;
+}
+
+/* Adapted from unescape_gstring_inplace() in gmarkup.c in glib */
+static char *
+unescape_string (const char *orig_from)
+{
+  char *to, *from, *ret;
+
+  /*
+   * Meeks' theorem: unescaping can only shrink text.
+   * for &lt; etc. this is obvious, for &#xffff; more
+   * thought is required, but this is patently so.
+   */
+  ret = g_strdup (orig_from);
+
+  for (from = to = ret; *from != '\0'; from++, to++) {
+    *to = *from;
+
+    if (*to == '\r') {
+      *to = '\n';
+      if (from[1] == '\n')
+        from++;
+    }
+    if (*from == '&') {
+      from++;
+      if (*from == '#') {
+        gboolean is_hex = FALSE;
+        gulong l;
+        gchar *end = NULL;
+
+        from++;
+
+        if (*from == 'x') {
+          is_hex = TRUE;
+          from++;
+        }
+
+        /* digit is between start and p */
+        errno = 0;
+        if (is_hex)
+          l = strtoul (from, &end, 16);
+        else
+          l = strtoul (from, &end, 10);
+
+        if (end == from || errno != 0)
+          continue;
+        if (*end != ';')
+          continue;
+        /* characters XML 1.1 permits */
+        if ((0 < l && l <= 0xD7FF) ||
+            (0xE000 <= l && l <= 0xFFFD) ||
+            (0x10000 <= l && l <= 0x10FFFF)) {
+          gchar buf[8];
+          char_str (l, buf);
+          strcpy (to, buf);
+          to += strlen (buf) - 1;
+          from = end;
+        } else {
+          continue;
+        }
+      } else if (strncmp (from, "lt;", 3) == 0) {
+        *to = '<';
+        from += 2;
+      } else if (strncmp (from, "gt;", 3) == 0) {
+        *to = '>';
+        from += 2;
+      } else if (strncmp (from, "amp;", 4) == 0) {
+        *to = '&';
+        from += 3;
+      } else if (strncmp (from, "quot;", 5) == 0) {
+        *to = '"';
+        from += 4;
+      } else if (strncmp (from, "apos;", 5) == 0) {
+        *to = '\'';
+        from += 4;
+      } else {
+        continue;
+      }
+    }
+  }
+
+  return ret;
+}
 
 /* Top of the stack must be a table */
 static void
@@ -673,6 +766,52 @@ grl_l_dgettext (lua_State *L)
   return 1;
 }
 
+/**
+ * grl.decode
+ *
+ * @part: (string) the %-encoded part string to decode
+ * @return: the decoded string
+ */
+static gint
+grl_l_decode (lua_State *L)
+{
+  const gchar *part;
+  gchar *output;
+
+  luaL_argcheck (L, lua_isstring (L, 1), 1, "expecting part as string");
+
+  part = lua_tolstring (L, 1, NULL);
+
+  output = g_uri_unescape_string (part, NULL);
+  lua_pushstring (L, output);
+  g_free (output);
+
+  return 1;
+}
+
+/**
+ * grl.unescape
+ *
+ * @html: (string) the HTML string to unescape
+ * @return: the unescaped string
+ */
+static gint
+grl_l_unescape (lua_State *L)
+{
+  const gchar *html;
+  gchar *output;
+
+  luaL_argcheck (L, lua_isstring (L, 1), 1, "expecting html as string");
+
+  html = lua_tolstring (L, 1, NULL);
+
+  output = unescape_string (html);
+  lua_pushstring (L, output);
+  g_free (output);
+
+  return 1;
+}
+
 /* ================== Lua-Library initialization =========================== */
 
 gint
@@ -687,6 +826,8 @@ luaopen_grilo (lua_State *L)
     {"debug", &grl_l_debug},
     {"warning", &grl_l_warning},
     {"dgettext", &grl_l_dgettext},
+    {"decode", &grl_l_decode},
+    {"unescape", &grl_l_unescape},
     {NULL, NULL}
   };
 

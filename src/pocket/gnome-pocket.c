@@ -672,8 +672,8 @@ parse_cached_data (GnomePocket *self)
 
   name = g_dir_read_name (dir);
   while (name) {
-    JsonParser *parser;
-    JsonReader *reader;
+    JsonParser *parser = NULL;
+    JsonReader *reader = NULL;
     char *full_path = NULL;
     char **members;
     GnomePocketItem *item;

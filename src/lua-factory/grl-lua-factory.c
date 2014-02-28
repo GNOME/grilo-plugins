@@ -96,6 +96,7 @@ static gint lua_plugin_source_operations (lua_State *L,
 static gint lua_plugin_source_all_dependencies (lua_State *L);
 
 static gint lua_plugin_source_all_keys (lua_State *L,
+                                        const gchar *source_id,
                                         GList **supported_keys,
                                         GList **slow_keys,
                                         GList **resolve_keys,
@@ -267,6 +268,7 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
     goto bail;
 
   ret = lua_plugin_source_all_keys (L,
+                                    source_id,
                                     &source->priv->supported_keys,
                                     &source->priv->slow_keys,
                                     &source->priv->resolve_keys,
@@ -443,7 +445,8 @@ table_array_to_list (lua_State *L,
 static GList *
 keys_table_array_to_list (lua_State *L,
                           const gchar *array_name,
-                          GrlRegistry *registry)
+                          GrlRegistry *registry,
+                          const gchar *source_id)
 {
   GList *list, *filtered_list, *l;
 
@@ -463,7 +466,7 @@ keys_table_array_to_list (lua_State *L,
     if (key_id != GRL_METADATA_KEY_INVALID) {
       filtered_list = g_list_prepend (filtered_list, GRLKEYID_TO_POINTER (key_id));
     } else {
-      GRL_WARNING ("Unknown key '%s'", key_name);
+      GRL_WARNING ("Unknown key '%s' in property '%s' for source '%s'", key_name, array_name, source_id);
     }
   }
   g_list_free_full (list, g_free);
@@ -860,6 +863,7 @@ lua_plugin_source_all_dependencies (lua_State *L)
 
 static gint
 lua_plugin_source_all_keys (lua_State *L,
+                            const gchar *source_id,
                             GList **supported_keys,
                             GList **slow_keys,
                             GList **resolve_keys,
@@ -881,10 +885,10 @@ lua_plugin_source_all_keys (lua_State *L,
   registry = grl_registry_get_default ();
 
   /* Supported keys */
-  *supported_keys = keys_table_array_to_list (L, LUA_SOURCE_SUPPORTED_KEYS, registry);
+  *supported_keys = keys_table_array_to_list (L, LUA_SOURCE_SUPPORTED_KEYS, registry, source_id);
 
   /* Slow keys */
-  *slow_keys = keys_table_array_to_list (L, LUA_SOURCE_SLOW_KEYS, registry);
+  *slow_keys = keys_table_array_to_list (L, LUA_SOURCE_SLOW_KEYS, registry, source_id);
 
   /* Resolve keys - type, required fields */
   lua_pushstring (L, LUA_SOURCE_RESOLVE_KEYS);
@@ -911,7 +915,7 @@ lua_plugin_source_all_keys (lua_State *L,
     *resolve_type = media_type;
 
     /* check required table field */
-    *resolve_keys = keys_table_array_to_list (L, LUA_REQUIRED_TABLE, registry);
+    *resolve_keys = keys_table_array_to_list (L, LUA_REQUIRED_TABLE, registry, source_id);
   }
   lua_pop (L, 1);
 

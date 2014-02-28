@@ -687,7 +687,8 @@ read_done_cb (GObject *source_object,
       free_entry (entry);
       goto invoke_cb;
     } else {
-      g_idle_add (xml_parse_entries_idle, xpe);
+      guint id = g_idle_add (xml_parse_entries_idle, xpe);
+      g_source_set_name_by_id (id, "[jamendo] xml_parse_entries_idle");
     }
   } else {
     if (xpe->type == RESOLVE) {

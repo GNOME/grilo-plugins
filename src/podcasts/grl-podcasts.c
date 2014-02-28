@@ -1227,6 +1227,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   xmlXPathObjectPtr xpathObj = NULL;
   guint stream_count;
   PodcastData *podcast_data = NULL;
+  guint id;
 
   GRL_DEBUG ("parse_feed");
 
@@ -1334,7 +1335,8 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   osp->xpathCtx = xpathCtx;
   osp->xpathObj = xpathObj;
   osp->parse_count = stream_count;
-  g_idle_add (parse_entry_idle, osp);
+  id = g_idle_add (parse_entry_idle, osp);
+  g_source_set_name_by_id (id, "[podcasts] parse_entry_idle");
   return;
 
  free_resources:

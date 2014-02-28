@@ -489,8 +489,10 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   if (!node) {
     goto finalize;
   } else {
+    guint id;
     op_data->xml_entries = node;
-    g_idle_add ((GSourceFunc) send_movie_info, op_data);
+    id = g_idle_add ((GSourceFunc) send_movie_info, op_data);
+    g_source_set_name_by_id (id, "[apple-trailers] send_movie_info");
   }
 
   return;

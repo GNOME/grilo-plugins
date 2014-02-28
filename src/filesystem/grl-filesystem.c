@@ -534,6 +534,8 @@ produce_from_uri (GrlSourceBrowseSpec *bs, const gchar *uri, GrlOperationOptions
 
   /* Emit results */
   if (entries) {
+    guint id;
+
     /* Use the idle loop to avoid blocking for too long */
     BrowseIdleData *idle_data = g_slice_new (BrowseIdleData);
     gint global_count = grl_operation_options_get_count (bs->options);
@@ -548,7 +550,8 @@ produce_from_uri (GrlSourceBrowseSpec *bs, const gchar *uri, GrlOperationOptions
                          GUINT_TO_POINTER (bs->operation_id),
                          idle_data->cancellable);
 
-    g_idle_add (browse_emit_idle, idle_data);
+    id = g_idle_add (browse_emit_idle, idle_data);
+    g_source_set_name_by_id (id, "[filesystem] browse_emit_idle");
   } else {
     /* No results */
     bs->callback (bs->source,

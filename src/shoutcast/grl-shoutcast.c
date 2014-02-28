@@ -396,6 +396,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   xmlNodePtr node;
   xmlXPathContextPtr xpath_ctx;
   xmlXPathObjectPtr xpath_res;
+  guint id;
 
   if (op_data->cancelled) {
     op_data->result_cb (op_data->source,
@@ -503,9 +504,11 @@ xml_parse_result (const gchar *str, OperationData *op_data)
   }
 
   if (stationlist_result) {
-    g_idle_add ((GSourceFunc) send_stationlist_entries, op_data);
+    id = g_idle_add ((GSourceFunc) send_stationlist_entries, op_data);
+    g_source_set_name_by_id (id, "[shoutcast] send_stationlist_entries");
   } else {
-    g_idle_add ((GSourceFunc) send_genrelist_entries, op_data);
+    id = g_idle_add ((GSourceFunc) send_genrelist_entries, op_data);
+    g_source_set_name_by_id (id, "[shoutcast] send_genrelist_entries");
   }
 
   return;
@@ -580,11 +583,13 @@ read_done_cb (GObject *source_object,
   cache = op_data->cache;
   xml_parse_result (content, op_data);
   if (cache && source->priv->cached_page_expired) {
+    guint id;
     GRL_DEBUG ("Caching page");
     g_free (source->priv->cached_page);
     source->priv->cached_page = g_strdup (content);
     source->priv->cached_page_expired = FALSE;
-    g_timeout_add_seconds (EXPIRE_CACHE_TIMEOUT, expire_cache, source);
+    id = g_timeout_add_seconds (EXPIRE_CACHE_TIMEOUT, expire_cache, source);
+    g_source_set_name_by_id (id, "[shoutcast] expire_cache");
   }
 }
 
@@ -602,8 +607,10 @@ read_url_async (GrlShoutcastSource *source,
                 OperationData *op_data)
 {
   if (op_data->cache && !source->priv->cached_page_expired) {
+    guint id;
     GRL_DEBUG ("Using cached page");
-    g_idle_add ((GSourceFunc) read_cached_page, op_data);
+    id = g_idle_add ((GSourceFunc) read_cached_page, op_data);
+    g_source_set_name_by_id (id, "[shoutcast] read_cached_page");
   } else {
     if (!source->priv->wc)
       source->priv->wc = grl_net_wc_new ();

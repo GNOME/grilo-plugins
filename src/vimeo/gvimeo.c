@@ -497,6 +497,7 @@ g_vimeo_video_get_play_url (GVimeo *vimeo,
 			    gpointer user_data)
 {
   GVimeoVideoURLData *data;
+  guint tag_id;
 
   data = g_slice_new (GVimeoVideoURLData);
   data->vimeo = g_object_ref (vimeo);
@@ -504,5 +505,6 @@ g_vimeo_video_get_play_url (GVimeo *vimeo,
   data->callback = callback;
   data->user_data = user_data;
 
-  g_idle_add ((GSourceFunc) get_video_play_url_cb, data);
+  tag_id = g_idle_add ((GSourceFunc) get_video_play_url_cb, data);
+  g_source_set_name_by_id (tag_id, "[vimeo] get_video_play_url_cb");
 }

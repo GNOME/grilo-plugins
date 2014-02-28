@@ -189,7 +189,7 @@ grl_util_build_media (lua_State *L,
     if (!lua_isnil (L, 1))
       GRL_DEBUG ("Media in wrong format (neither nil or table).");
 
-    return NULL;
+    return user_media;
   }
 
   if (media == NULL) {
@@ -677,8 +677,8 @@ grl_l_callback (lua_State *L)
 
   nparam = lua_gettop (L);
   os = grl_lua_library_load_operation_data (L);
+  media = (os->op_type == LUA_RESOLVE) ? os->media : NULL;
   if (nparam > 0) {
-    media = (os->op_type == LUA_RESOLVE) ? os->media : NULL;
     media = grl_util_build_media (L, media);
     count = (lua_isnumber (L, 2)) ? lua_tonumber (L, 2) : 0;
   }

@@ -30,7 +30,7 @@ source = {
   id = "grl-euronews-lua",
   name = "Euronews",
   description = "A source for watching Euronews online",
-  supported_keys = { "id", "title", "url", "type" },
+  supported_keys = { "id", "title", "url" },
   supported_media = 'video',
   tags = { 'news', 'tv' }
 }

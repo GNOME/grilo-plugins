@@ -440,6 +440,37 @@ table_array_to_list (lua_State *L,
   return g_list_reverse (list);
 }
 
+static GList *
+keys_table_array_to_list (lua_State *L,
+                          const gchar *array_name,
+                          GrlRegistry *registry)
+{
+  GList *list, *filtered_list, *l;
+
+  list = table_array_to_list (L, array_name);
+
+  if (list == NULL)
+    return NULL;
+
+  filtered_list = NULL;
+
+  for (l = list; l != NULL; l = l->next) {
+    const gchar *key_name = l->data;
+    GrlKeyID key_id;
+
+    key_id = grl_registry_lookup_metadata_key (registry, key_name);
+
+    if (key_id != GRL_METADATA_KEY_INVALID) {
+      filtered_list = g_list_prepend (filtered_list, GRLKEYID_TO_POINTER (key_id));
+    } else {
+      GRL_WARNING ("Unknown key '%s'", key_name);
+    }
+  }
+  g_list_free_full (list, g_free);
+
+  return g_list_reverse (filtered_list);
+}
+
 static gboolean
 lua_module_exists (const gchar *lua_module)
 {
@@ -836,11 +867,9 @@ lua_plugin_source_all_keys (lua_State *L,
                             GHashTable **config_keys)
 {
   GrlRegistry *registry = NULL;
-  GList *list = NULL;
-  GList *it = NULL;
   GList *table_list = NULL;
+  GList *it = NULL;
   GHashTable *htable = NULL;
-  GrlKeyID key_id = GRL_METADATA_KEY_INVALID;
   const gchar *key_name = NULL;
 
   GRL_DEBUG ("lua_plugin_source_all_keys");
@@ -852,39 +881,12 @@ lua_plugin_source_all_keys (lua_State *L,
   registry = grl_registry_get_default ();
 
   /* Supported keys */
-  list = NULL;
-  table_list = table_array_to_list (L, LUA_SOURCE_SUPPORTED_KEYS);
-  if (table_list != NULL) {
-    for (it = table_list; it; it = g_list_next (it)) {
-      key_name = it->data;
-      key_id = grl_registry_lookup_metadata_key (registry, key_name);
-
-      if (key_id != GRL_METADATA_KEY_INVALID) {
-        list = g_list_prepend (list, GRLKEYID_TO_POINTER (key_id));
-      }
-    }
-    *supported_keys = list;
-  }
-  g_list_free_full (table_list, g_free);
+  *supported_keys = keys_table_array_to_list (L, LUA_SOURCE_SUPPORTED_KEYS, registry);
 
   /* Slow keys */
-  list = NULL;
-  table_list = table_array_to_list (L, LUA_SOURCE_SLOW_KEYS);
-  if (table_list != NULL) {
-    for (it = table_list; it; it = g_list_next (it)) {
-      key_name = it->data;
-      key_id = grl_registry_lookup_metadata_key (registry, key_name);
-
-      if (key_id != GRL_METADATA_KEY_INVALID) {
-        list = g_list_prepend (list, GRLKEYID_TO_POINTER (key_id));
-      }
-    }
-    *slow_keys = list;
-  }
-  g_list_free_full (table_list, g_free);
+  *slow_keys = keys_table_array_to_list (L, LUA_SOURCE_SLOW_KEYS, registry);
 
   /* Resolve keys - type, required fields */
-  list = NULL;
   lua_pushstring (L, LUA_SOURCE_RESOLVE_KEYS);
   lua_gettable (L, -2);
   if (lua_istable (L, -1)) {
@@ -906,22 +908,10 @@ lua_plugin_source_all_keys (lua_State *L,
     }
     lua_pop (L, 1);
 
+    *resolve_type = media_type;
+
     /* check required table field */
-    table_list = table_array_to_list (L, LUA_REQUIRED_TABLE);
-    if (table_list != NULL) {
-      for (it = table_list; it; it = g_list_next (it)) {
-        key_name = it->data;
-        key_id = grl_registry_lookup_metadata_key (registry, key_name);
-
-        if (key_id != GRL_METADATA_KEY_INVALID) {
-          list = g_list_prepend (list, GRLKEYID_TO_POINTER (key_id));
-        }
-      }
-      g_list_free_full (table_list, g_free);
-
-      *resolve_type = media_type;
-      *resolve_keys = list;
-    }
+    *resolve_keys = keys_table_array_to_list (L, LUA_REQUIRED_TABLE, registry);
   }
   lua_pop (L, 1);
 

@@ -124,7 +124,7 @@ function create_media(item, francebleu)
   end
 
   media.type = "audio"
-  media.mime = "audio/mpeg"
+  media.mime_type = "audio/mpeg"
   media.id = item:match("id : '(.-)',")
   media.title = item:match("nom : '(.-)',")
   media.title = media.title:gsub("\\'", "'")

@@ -218,6 +218,11 @@ grl_util_build_media (lua_State *L,
     gchar *ptr = NULL;
     GType type = G_TYPE_NONE;
 
+    /* Handled above */
+    if (g_strcmp0 (key_name, "type") == 0) {
+      goto next_key;
+    }
+
     /* Replace '_' to '-': convenient for the developer */
     while ((ptr = strstr (key_name, "_")) != NULL) {
       *ptr = '-';
@@ -281,6 +286,7 @@ grl_util_build_media (lua_State *L,
       GRL_WARNING ("'%s' is not a valid keyword", key_name);
     }
 
+next_key:
     g_free (key_name);
     lua_pop (L, 1);
   }

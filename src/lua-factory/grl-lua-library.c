@@ -460,6 +460,11 @@ grl_l_operation_get_options (lua_State *L)
     return 2;
   }
 
+  if (g_strcmp0 (option, "operation-id") == 0) {
+    lua_pushnumber (L, (gint) os->operation_id);
+    return 1;
+  }
+
   luaL_error (L, "'%s' is not available nor implemented.", option);
   return 0;
 }

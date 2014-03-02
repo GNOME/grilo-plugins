@@ -275,7 +275,7 @@ grl_util_build_media (lua_State *L,
           g_date_time_unref (date);
         } else if (type == G_TYPE_BYTE_ARRAY) {
            gsize size = luaL_len (L, -1);
-           const guint8 *binary = lua_tostring (L, -1);
+           const guint8 *binary = (const guint8 *) lua_tostring (L, -1);
            grl_data_set_binary (GRL_DATA (media), key_id, binary, size);
         } else if (!lua_isnil (L, -1)) {
           GRL_WARNING ("'%s' is being ignored as G_TYPE is not being handled.",

@@ -162,11 +162,8 @@ grl_vimeo_plugin_init (GrlRegistry *registry,
   init_result = TRUE;
 
  go_out:
-
-  if (vimeo_key != NULL)
-    g_free (vimeo_key);
-  if (vimeo_secret != NULL)
-    g_free (vimeo_secret);
+  g_clear_pointer (&vimeo_key, g_free);
+  g_clear_pointer (&vimeo_secret, g_free);
 
   return init_result;
 }

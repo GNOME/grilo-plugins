@@ -248,8 +248,7 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
   if (r) {
     if (sql_error) {
       GRL_WARNING ("Failed to create database tables: %s", sql_error);
-      sqlite3_free (sql_error);
-      sql_error = NULL;
+      g_clear_pointer (&sql_error, sqlite3_free);
     } else {
       GRL_WARNING ("Failed to create database tables.");
     }
@@ -817,9 +816,7 @@ grl_metadata_store_source_store_metadata (GrlSource *source,
 
   sms->callback (sms->source, sms->media, failed_keys, sms->user_data, error);
 
-  if (error) {
-    g_error_free (error);
-  }
+  g_clear_error (&error);
   g_list_free (failed_keys);
 }
 

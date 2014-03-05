@@ -302,8 +302,7 @@ grl_bookmarks_source_init (GrlBookmarksSource *source)
   if (r) {
     if (sql_error) {
       GRL_WARNING ("Failed to create database tables: %s", sql_error);
-      sqlite3_free (sql_error);
-      sql_error = NULL;
+      g_clear_pointer (&sql_error, (GDestroyNotify) sqlite3_free);
     } else {
       GRL_WARNING ("Failed to create database tables.");
     }
@@ -537,8 +536,7 @@ produce_bookmarks_from_sql (OperationSpec *os, const gchar *sql)
   }
 
  free_resources:
-  if (sql_stmt)
-    sqlite3_finalize (sql_stmt);
+  g_clear_pointer (&sql_stmt, (GDestroyNotify) sqlite3_finalize);
 }
 
 static void
@@ -874,9 +872,7 @@ grl_bookmarks_source_store (GrlSource *source, GrlSourceStoreSpec *ss)
   store_bookmark (GRL_BOOKMARKS_SOURCE (ss->source),
                   &keylist, ss->parent, ss->media, &error);
   ss->callback (ss->source, ss->media, keylist, ss->user_data, error);
-  if (error) {
-    g_error_free (error);
-  }
+  g_clear_error (&error);
 }
 
 static void grl_bookmarks_source_remove (GrlSource *source,
@@ -887,9 +883,7 @@ static void grl_bookmarks_source_remove (GrlSource *source,
   remove_bookmark (GRL_BOOKMARKS_SOURCE (rs->source),
 		   rs->media_id, &error);
   rs->callback (rs->source, rs->media, rs->user_data, error);
-  if (error) {
-    g_error_free (error);
-  }
+  g_clear_error (&error);
 }
 
 static void

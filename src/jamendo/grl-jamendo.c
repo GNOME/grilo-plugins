@@ -242,12 +242,9 @@ grl_jamendo_source_finalize (GObject *object)
   GrlJamendoSource *self;
 
   self = GRL_JAMENDO_SOURCE (object);
-  if (self->priv->wc)
-    g_object_unref (self->priv->wc);
 
-  if (self->priv->cancellable
-      && G_IS_CANCELLABLE (self->priv->cancellable))
-    g_object_unref (self->priv->cancellable);
+  g_clear_object (&self->priv->wc);
+  g_clear_object (&self->priv->cancellable);
 
   G_OBJECT_CLASS (grl_jamendo_source_parent_class)->finalize (object);
 }
@@ -737,9 +734,7 @@ read_done_cb (GObject *source_object,
   }
 
   g_slice_free (XmlParseEntries, xpe);
-  if (error) {
-    g_error_free (error);
-  }
+  g_clear_error (&error);
 }
 
 static void
@@ -1059,9 +1054,7 @@ grl_jamendo_source_resolve (GrlSource *source,
     }
   }
 
-  if (id_split) {
-    g_strfreev (id_split);
-  }
+  g_clear_pointer (&id_split, g_clear_pointer);
 
   if (url) {
     xpe = g_slice_new0 (XmlParseEntries);
@@ -1209,9 +1202,7 @@ grl_jamendo_source_browse (GrlSource *source,
 
   read_url_async (GRL_JAMENDO_SOURCE (source), url, xpe);
   g_free (url);
-  if (container_split) {
-    g_strfreev (container_split);
-  }
+  g_clear_pointer (&container_split, g_strfreev);
 }
 
 /*

@@ -420,11 +420,8 @@ grl_youtube_source_finalize (GObject *object)
 
   self = GRL_YOUTUBE_SOURCE (object);
 
-  if (self->priv->wc)
-    g_object_unref (self->priv->wc);
-
-  if (self->priv->service)
-    g_object_unref (self->priv->service);
+  g_clear_object (&self->priv->wc);
+  g_clear_object (&self->priv->service);
 
   G_OBJECT_CLASS (grl_youtube_source_parent_class)->finalize (object);
 }
@@ -445,9 +442,7 @@ release_operation_data (guint operation_id)
 {
   GCancellable *cancellable = grl_operation_get_data (operation_id);
 
-  if (cancellable) {
-    g_object_unref (cancellable);
-  }
+  g_clear_object (&cancellable);
 }
 
 static OperationSpec *
@@ -468,9 +463,7 @@ operation_spec_unref (OperationSpec *os)
 {
   os->ref_count--;
   if (os->ref_count == 0) {
-    if (os->cancellable) {
-      g_object_unref (os->cancellable);
-    }
+    g_clear_object (&os->cancellable);
     g_slice_free (OperationSpec, os);
     GRL_DEBUG ("freeing spec");
   }
@@ -862,9 +855,7 @@ resolve_cb (GObject *object,
                             rs);
   }
 
-  if (video) {
-    g_object_unref (video);
-  }
+  g_clear_object (&video);
 }
 
 static void
@@ -958,8 +949,7 @@ search_cb (GObject *object, GAsyncResult *result, OperationSpec *os)
     need_extra_unref = TRUE;
   }
 
-  if (feed)
-    g_object_unref (feed);
+  g_clear_object (&feed);
 
   GRL_DEBUG ("Unreffing spec in search_cb");
   operation_spec_unref (os);
@@ -1310,9 +1300,7 @@ media_from_uri_cb (GObject *object, GAsyncResult *result, gpointer user_data)
 			    mfus);
   }
 
-  if (video) {
-    g_object_unref (video);
-  }
+  g_clear_object (&video);
 }
 
 static gboolean
@@ -1348,9 +1336,7 @@ produce_container_from_category_cb (BuildCategorySpec *spec)
   }
 
   rs->callback (rs->source, rs->operation_id, media, rs->user_data, error);
-  if (error) {
-    g_error_free (error);
-  }
+  g_clear_error (&error);
 
   return FALSE;
 }

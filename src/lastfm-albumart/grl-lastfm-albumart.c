@@ -150,8 +150,7 @@ G_DEFINE_TYPE (GrlLastfmAlbumartSource,
 static void
 grl_lastfm_albumart_source_finalize (GObject *object)
 {
-  if (wc && GRL_IS_NET_WC (wc))
-    g_object_unref (wc);
+  g_clear_object (&wc);
 
   G_OBJECT_CLASS (grl_lastfm_albumart_source_parent_class)->finalize (object);
 }
@@ -196,8 +195,7 @@ xml_get_image (const gchar *xmldata, const gchar *image_node)
   xmlFreeDoc (doc);
 
   if (g_strcmp0 (image, LASTFM_DEFAULT_IMAGE) == 0) {
-    g_free (image);
-    image = NULL;
+    g_clear_pointer (&image, g_free);
   }
 
   return image;
@@ -234,9 +232,7 @@ read_done_cb (GObject *source_object,
 
   /* Get rid of stored operation data */
   cancellable = grl_operation_get_data (rs->operation_id);
-  if (cancellable) {
-    g_object_unref (cancellable);
-  }
+  g_clear_object (&cancellable);
 
   if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
                               res,

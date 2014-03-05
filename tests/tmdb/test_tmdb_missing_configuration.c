@@ -55,14 +55,9 @@ test_missing_configuration (void)
    * file would have resulted in an error */
   g_assert (error != NULL);
 
-  g_object_unref (media);
-  media = NULL;
-
-  g_object_unref (options);
-  options = NULL;
-
-  g_error_free (error);
-  error = NULL;
+  g_clear_object (&media);
+  g_clear_object (&options);
+  g_clear_error (&error);
 
   test_shutdown_tmdb ();
 }

@@ -168,8 +168,7 @@ tracker_get_upnp_class_cb (GObject      *object,
     }
   }
 
-  if (cursor)
-    g_object_unref (cursor);
+  g_clear_object (&cursor);
 
   if (grl_tracker_browse_filesystem)
     tracker_sparql_connection_query_async (grl_tracker_connection,

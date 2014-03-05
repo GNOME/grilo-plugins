@@ -78,11 +78,8 @@ test_preconditions (void)
                            &error);
   g_assert_no_error (error);
 
-  g_object_unref (media);
-  media = NULL;
-
-  g_object_unref (options);
-  options = NULL;
+  g_clear_object (&media);
+  g_clear_object (&options);
 
   test_shutdown_tmdb ();
 }

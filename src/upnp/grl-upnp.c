@@ -195,10 +195,7 @@ grl_upnp_plugin_deinit (GrlPlugin *plugin)
 {
   GRL_DEBUG ("grl_upnp_plugin_deinit");
 
-  if (context_manager != NULL) {
-    g_object_unref (context_manager);
-    context_manager = NULL;
-  }
+  g_clear_object (&context_manager);
 }
 
 GRL_PLUGIN_REGISTER (grl_upnp_plugin_init,
@@ -903,8 +900,7 @@ get_thumbnail (GList *nodes)
     if (is_http_get (node)) {
       counter++;
       if (is_image (node)) {
-        if (val)
-          g_free (val);
+        g_clear_pointer (&val, g_free);
         val = (gchar *) xmlNodeGetContent (node);
 
         if (has_thumbnail_marker (node))  /* that's definitely it! */
@@ -916,8 +912,7 @@ get_thumbnail (GList *nodes)
   if (val && counter == 1) {
     /* There was only one element with http-get protocol: that's the uri of the
      * media itself, not a thumbnail */
-    g_free (val);
-    val = NULL;
+    g_clear_pointer (&val, g_free);
   }
 
   return val;
@@ -1107,9 +1102,7 @@ gupnp_browse_cb (GUPnPServiceProxy *service,
     GRL_DEBUG ("Got no results");
     os->callback (os->source, os->operation_id,
                   NULL, 0, os->user_data, error? error: NULL);
-    if (error) {
-      g_error_free (error);
-    }
+    g_clear_error (&error);
 
     goto free_resources;
   }
@@ -1177,9 +1170,7 @@ gupnp_resolve_cb (GUPnPServiceProxy *service,
   if (!didl || !returned) {
     GRL_DEBUG ("Got no results for resolve");
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error? error: NULL);
-    if (error) {
-      g_error_free (error);
-    }
+    g_clear_error (&error);
 
     goto free_resources;
   }

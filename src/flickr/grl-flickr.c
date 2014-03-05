@@ -237,14 +237,10 @@ grl_flickr_plugin_init (GrlRegistry *registry,
                                     NULL);
     }
 
-    if (flickr_key != NULL)
-      g_free (flickr_key);
-    if (flickr_token != NULL)
-      g_free (flickr_token);
-    if (flickr_secret != NULL)
-      g_free (flickr_secret);
-    if (flickr_token_secret != NULL)
-      g_free (flickr_token_secret);
+    g_clear_pointer (&flickr_key, g_free);
+    g_clear_pointer (&flickr_token, g_free);
+    g_clear_pointer (&flickr_secret, g_free);
+    g_clear_pointer (&flickr_token_secret, g_free);
 
     configs = g_list_next (configs);
   }
@@ -827,17 +823,8 @@ grl_flickr_get_goa_multiple_config (GrlPlugin *plugin, gboolean public)
           grl_config_set_api_token (conf, access_token);
           grl_config_set_api_token_secret (conf, token_secret);
 
-          if (access_token != NULL)
-          {
-            g_free(access_token);
-            access_token = NULL;
-          }
-
-          if (token_secret != NULL)
-          {
-            g_free(token_secret);
-            token_secret = NULL;
-          }
+          g_clear_pointer (&access_token, g_free);
+          g_clear_pointer (&token_secret, g_free);
         }
 
         configs = g_list_append (configs, conf);

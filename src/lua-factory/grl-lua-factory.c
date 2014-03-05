@@ -256,8 +256,7 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
                          NULL);
   g_free (source_name);
   g_free (source_desc);
-  if (source_tags)
-    g_strfreev (source_tags);
+  g_clear_pointer (&source_tags, g_strfreev);
 
   ret = lua_plugin_source_operations (L, source->priv->fn);
   if (ret != LUA_OK)
@@ -286,20 +285,15 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   source->priv->l_st = L;
 
   if (lua_plugin_source_init (source) == FALSE) {
-    g_object_unref (G_OBJECT (source));
-    source = NULL;
+    g_clear_object (&source);
   }
 
   return source;
 
 bail:
   if (source != NULL) {
-    if (config_keys != NULL)
-      g_hash_table_unref (config_keys);
-
-    if (source->priv->configs != NULL)
-      g_object_unref (source->priv->configs);
-
+    g_clear_pointer (&config_keys, g_hash_table_unref);
+    g_clear_object (&source->priv->configs);
     g_list_free (source->priv->resolve_keys);
     g_list_free (source->priv->supported_keys);
     g_list_free (source->priv->slow_keys);
@@ -342,11 +336,8 @@ grl_lua_factory_source_finalize (GObject *object)
 {
   GrlLuaFactorySource *source = GRL_LUA_FACTORY_SOURCE (object);
 
-  if (source->priv->configs)
-    g_object_unref (source->priv->configs);
-
-  if (source->priv->config_keys)
-    g_hash_table_unref (source->priv->config_keys);
+  g_clear_object (&source->priv->configs);
+  g_clear_pointer (&source->priv->config_keys, g_hash_table_unref);
 
   g_list_free (source->priv->resolve_keys);
   g_list_free (source->priv->supported_keys);
@@ -779,8 +770,7 @@ lua_plugin_source_info (lua_State *L,
   if (lua_source_id == NULL
       || lua_source_name == NULL) {
     GRL_DEBUG ("Lua source info is not well defined.");
-    if (lua_source_tags)
-      g_strfreev (lua_source_tags);
+    g_clear_pointer (&lua_source_tags, g_strfreev);
     return !LUA_OK;
   }
 

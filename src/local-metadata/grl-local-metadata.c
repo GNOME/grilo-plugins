@@ -436,9 +436,7 @@ got_file_info (GFile *file,
   /* Free stored operation data */
   cancellable = grl_operation_get_data (rs->operation_id);
 
-  if (cancellable) {
-    g_object_unref (cancellable);
-  }
+  g_clear_object (&cancellable);
 
   info = g_file_query_info_finish (file, result, &error);
   if (error)
@@ -488,8 +486,7 @@ error:
     }
 
 exit:
-  if (info)
-    g_object_unref (info);
+    g_clear_object (&info);
 }
 
 static void

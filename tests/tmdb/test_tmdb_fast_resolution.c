@@ -85,11 +85,8 @@ test_fast_resolution (void)
 
   g_assert (grl_media_get_publication_date (media) == NULL);
 
-  g_object_unref (media);
-  media = NULL;
-
-  g_object_unref (options);
-  options = NULL;
+  g_clear_object (&media);
+  g_clear_object (&options);
 
   test_shutdown_tmdb ();
 }

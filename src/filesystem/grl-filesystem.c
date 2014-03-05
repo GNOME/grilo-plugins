@@ -392,12 +392,10 @@ file_is_valid_content (GFileInfo *info, gboolean fast, GrlOperationOptions *opti
   }
 
  end:
-  if (file_date)
-    g_date_time_unref (file_date);
-  if (min_date)
-    g_date_time_unref (min_date);
-  if (max_date)
-    g_date_time_unref (max_date);
+  g_clear_pointer (&file_date, g_date_time_unref);
+  g_clear_pointer (&min_date, g_date_time_unref);
+  g_clear_pointer (&max_date, g_date_time_unref);
+
   return is_media;
 }
 
@@ -916,11 +914,7 @@ notify_parent_change (GrlSource *source, GFile *child, GrlSourceChangeType chang
   media = grl_pls_file_to_media (NULL, parent ? parent : child, NULL, fs_source->priv->handle_pls, options);
   grl_source_notify_change (source, media, change, FALSE);
   g_object_unref (media);
-
-  if (parent) {
-    g_object_unref (parent);
-  }
-
+  g_clear_object (&parent);
   g_object_unref (options);
 }
 

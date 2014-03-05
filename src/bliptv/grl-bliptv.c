@@ -170,10 +170,8 @@ grl_bliptv_source_dispose (GObject *object)
   GrlBliptvSource *self;
 
   self= GRL_BLIPTV_SOURCE (object);
-  if (self->priv->wc) {
-    g_object_unref (self->priv->wc);
-    self->priv->wc = NULL;
-  }
+
+  g_clear_object (&self->priv->wc);
 
   G_OBJECT_CLASS (grl_bliptv_source_parent_class)->dispose (object);
 }
@@ -249,12 +247,10 @@ bliptv_setup_mapping (void)
 static void
 bliptv_operation_free (BliptvOperation *op)
 {
-  if (op->cancellable)
-    g_object_unref (op->cancellable);
-  if (op->source)
-    g_object_unref (op->source);
-  if (op->url)
-    g_free (op->url);
+  g_clear_object (&op->cancellable);
+  g_clear_object (&op->source);
+  g_clear_pointer (&op->url, (GDestroyNotify) g_free);
+
   g_slice_free (BliptvOperation, op);
 }
 
@@ -319,9 +315,7 @@ call_raw_async_cb (GObject *     source_object,
   if (nb_items == 1) {
     obj = xmlXPathEvalExpression ((xmlChar *) "string(/rss/channel/item[0]/blip:item_id)", xpath);
     if (!obj || !obj->stringval || obj->stringval[0] == '\0') {
-      if (obj) {
-        xmlXPathFreeObject (obj);
-      }
+      g_clear_pointer (&obj, (GDestroyNotify) xmlXPathFreeObject);
       nb_items = 0;
       goto finalize_send_last;
     } else {
@@ -439,10 +433,8 @@ call_raw_async_cb (GObject *     source_object,
   }
 
  finalize_free:
-  if (xpath)
-    xmlXPathFreeContext (xpath);
-  if (doc)
-    xmlFreeDoc (doc);
+  g_clear_pointer (&xpath, (GDestroyNotify) xmlXPathFreeContext);
+  g_clear_pointer (&doc, (GDestroyNotify) xmlFreeDoc);
 }
 
 /* ================== API Implementation ================ */

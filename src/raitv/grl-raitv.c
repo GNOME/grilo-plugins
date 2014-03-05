@@ -284,10 +284,7 @@ grl_raitv_source_finalize (GObject *object)
 {
   GrlRaitvSource *source = GRL_RAITV_SOURCE (object);
 
-  if (source->priv->wc != NULL) {
-    g_object_unref (source->priv->wc);
-    source->priv->wc = NULL;
-  }
+  g_clear_object (&source->priv->wc);
 
   if (source->priv->raitv_search_mappings != NULL) {
     g_list_free_full (source->priv->raitv_search_mappings, g_free);
@@ -377,10 +374,8 @@ grl_raitv_source_init (GrlRaitvSource *self)
 static void
 raitv_operation_free (RaitvOperation *op)
 {
-  if (op->cancellable)
-    g_object_unref (op->cancellable);
-  if (op->source)
-    g_object_unref (op->source);
+  g_clear_object (&op->cancellable);
+  g_clear_object (&op->source);
   g_slice_free (RaitvOperation, op);
 }
 
@@ -555,11 +550,8 @@ proxy_call_search_grlnet_async_cb (GObject *source_object,
     }
 
  finalize:
-
-  if (xpath)
-    xmlXPathFreeContext (xpath);
-  if (doc)
-    xmlFreeDoc (doc);
+  g_clear_pointer (&xpath, xmlXPathFreeContext);
+  g_clear_pointer (&doc, xmlFreeDoc);
 
   /* Signal the last element if it was not already signaled */
   if (nb_items == 0 || g_bVideoNotFound) {
@@ -763,12 +755,8 @@ proxy_call_browse_grlnet_async_cb (GObject *source_object,
     }
 
  finalize:
-  //g_free (body);
-
-  if (xpath)
-    xmlXPathFreeContext (xpath);
-  if (doc)
-    xmlFreeDoc (doc);
+  g_clear_pointer (&xpath, xmlXPathFreeContext);
+  g_clear_pointer (&doc, xmlFreeDoc);
 
   /* Signal the last element if it was not already signaled */
   if (nb_items == 0) {
@@ -947,11 +935,8 @@ proxy_call_resolve_grlnet_async_cb (GObject *source_object,
                  op->user_data,
                  NULL);
 
-  if (xpath)
-    xmlXPathFreeContext (xpath);
-
-  if (doc)
-    xmlFreeDoc (doc);
+  g_clear_pointer (&xpath, xmlXPathFreeContext);
+  g_clear_pointer (&doc, xmlFreeDoc);
 }
 
 

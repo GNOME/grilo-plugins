@@ -181,31 +181,11 @@ grl_tmdb_request_finalize (GObject *object)
   GrlTmdbRequest *self = GRL_TMDB_REQUEST (object);
 
   g_list_free (self->priv->details);
-
-  if (self->priv->api_key != NULL) {
-    g_free (self->priv->api_key);
-    self->priv->api_key = NULL;
-  }
-
-  if (self->priv->uri != NULL) {
-    g_free (self->priv->uri);
-    self->priv->uri = NULL;
-  }
-
-  if (self->priv->args != NULL) {
-    g_hash_table_unref (self->priv->args);
-    self->priv->args = NULL;
-  }
-
-  if (self->priv->base != NULL) {
-    soup_uri_free (self->priv->base);
-    self->priv->base = NULL;
-  }
-
-  if (self->priv->parser != NULL) {
-    g_object_unref (self->priv->parser);
-    self->priv->parser = NULL;
-  }
+  g_clear_pointer (&self->priv->api_key, g_free);
+  g_clear_pointer (&self->priv->uri, g_free);
+  g_clear_pointer (&self->priv->args, g_hash_table_unref);
+  g_clear_pointer (&self->priv->base, soup_uri_free);
+  g_clear_object (&self->priv->parser);
 
   G_OBJECT_CLASS (grl_tmdb_request_parent_class)->finalize (object);
 }

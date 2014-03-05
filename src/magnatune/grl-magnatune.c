@@ -867,8 +867,7 @@ end_browse:
     g_error_free(err);
   }
 
-  if (category_str_id != NULL)
-    g_free(category_str_id);
+  g_clear_pointer (&category_str_id, g_free);
 
   g_slice_free(OperationSpec, os);
 }

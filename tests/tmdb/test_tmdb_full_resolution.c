@@ -144,11 +144,8 @@ test_full_resolution (void)
   test_region_certificate (media, "DK", "15");
   test_region_certificate (media, "US", "PG-13");
 
-  g_object_unref (media);
-  media = NULL;
-
-  g_object_unref (options);
-  options = NULL;
+  g_clear_object (&media);
+  g_clear_object (&options);
 
   test_shutdown_tmdb ();
 }

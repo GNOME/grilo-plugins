@@ -223,20 +223,10 @@ grl_shoutcast_source_finalize (GObject *object)
 {
   GrlShoutcastSource *self = GRL_SHOUTCAST_SOURCE (object);
 
-  if (self->priv->wc && GRL_IS_NET_WC (self->priv->wc))
-    g_object_unref (self->priv->wc);
-
-  if (self->priv->cancellable && G_IS_CANCELLABLE (self->priv->cancellable))
-    g_cancellable_cancel (self->priv->cancellable);
-
-  if (self->priv->cached_page) {
-    g_free (self->priv->cached_page);
-    self->priv->cached_page = NULL;
-  }
-
-  if (self->priv->dev_key) {
-    g_free (self->priv->dev_key);
-  }
+  g_clear_object (&self->priv->wc);
+  g_clear_pointer (&self->priv->cancellable, g_cancellable_cancel);
+  g_clear_pointer (&self->priv->cached_page, g_free);
+  g_clear_pointer (&self->priv->dev_key, g_free);
 
   G_OBJECT_CLASS (grl_shoutcast_source_parent_class)->finalize (object);
 }
@@ -336,9 +326,7 @@ build_media_from_station (OperationData *op_data)
   g_free (station_bitrate);
   g_free (media_id);
   g_free (media_url);
-  if (station_genres) {
-    g_strfreev (station_genres);
-  }
+  g_clear_pointer (&station_genres, g_strfreev);
 
   return media;
 }
@@ -463,9 +451,7 @@ xml_parse_result (const gchar *str, OperationData *op_data)
                              _("Cannot find media %s"),
                              grl_media_get_id (op_data->media));
       }
-      if (xpath_res) {
-        xmlXPathFreeObject (xpath_res);
-      }
+      g_clear_pointer (&xpath_res, xmlXPathFreeObject);
       xmlXPathFreeContext (xpath_ctx);
     } else {
       error = g_error_new_literal (GRL_CORE_ERROR,
@@ -522,17 +508,10 @@ xml_parse_result (const gchar *str, OperationData *op_data)
                       error);
 
  free_resources:
-  if (op_data->xml_doc) {
-    xmlFreeDoc (op_data->xml_doc);
-  }
+  g_clear_pointer (&op_data->xml_doc, xmlFreeDoc);
+  g_clear_pointer (&op_data->filter_entry, g_free);
+  g_clear_error (&error);
 
-  if (op_data->filter_entry) {
-    g_free (op_data->filter_entry);
-  }
-
-  if (error) {
-    g_error_free (error);
-  }
   g_slice_free (OperationData, op_data);
 }
 

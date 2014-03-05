@@ -152,8 +152,8 @@ grl_tracker_source_finalize (GObject *object)
   GrlTrackerSource *self;
 
   self = GRL_TRACKER_SOURCE (object);
-  if (self->priv->tracker_connection)
-    g_object_unref (self->priv->tracker_connection);
+
+  g_clear_object (&self->priv->tracker_connection);
 
   G_OBJECT_CLASS (grl_tracker_source_parent_class)->finalize (object);
 }
@@ -169,14 +169,12 @@ grl_tracker_source_set_property (GObject      *object,
 
   switch (propid) {
     case PROP_TRACKER_CONNECTION:
-      if (priv->tracker_connection != NULL)
-        g_object_unref (G_OBJECT (priv->tracker_connection));
+      g_clear_object (&priv->tracker_connection);
       priv->tracker_connection = g_object_ref (g_value_get_object (value));
       break;
 
     case PROP_TRACKER_DATASOURCE:
-      if (priv->tracker_datasource != NULL)
-        g_free (priv->tracker_datasource);
+      g_clear_pointer (&priv->tracker_datasource, g_free);
       priv->tracker_datasource = g_strdup (g_value_get_string (value));
       break;
 

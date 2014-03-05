@@ -399,8 +399,7 @@ grl_podcasts_source_init (GrlPodcastsSource *source)
   if (r) {
     if (sql_error) {
       GRL_WARNING ("Failed to create database tables: %s", sql_error);
-      sqlite3_free (sql_error);
-      sql_error = NULL;
+      g_clear_pointer (&sql_error, sqlite3_free);
     } else {
       GRL_WARNING ("Failed to create database tables.");
     }
@@ -421,8 +420,7 @@ grl_podcasts_source_finalize (GObject *object)
 
   source = GRL_PODCASTS_SOURCE (object);
 
-  if (source->priv->wc)
-    g_object_unref (source->priv->wc);
+  g_clear_object (&source->priv->wc);
 
   sqlite3_close (source->priv->db);
 
@@ -510,9 +508,7 @@ read_url_async (GrlPodcastsSource *source,
    * In this case, as we don't know the previous URL,
    * we ditch the Wc and create another. It's cheap.
    */
-  if (source->priv->wc)
-    g_object_unref (source->priv->wc);
-
+  g_clear_object (&source->priv->wc);
   source->priv->wc = grl_net_wc_new ();
   grl_net_wc_request_async (source->priv->wc, url, NULL, read_done_cb, arc);
 }
@@ -1085,8 +1081,7 @@ parse_entry (xmlDocPtr doc, xmlNodePtr entry, Entry *data)
         data->image = (gchar *) xmlGetProp (node, (xmlChar *) "href");
       }
     } else if (!xmlStrcmp (node->name, (const xmlChar *) "thumbnail")) {
-      if (data->image)
-        g_free (data->image);
+      g_clear_pointer (&data->image, g_free);
       data->image = (gchar *) xmlGetProp (node, (xmlChar *) "url");
     }
     node = node->next;
@@ -1340,14 +1335,10 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   return;
 
  free_resources:
-  if (podcast_data)
-    free_podcast_data (podcast_data);
-  if (xpathObj)
-    xmlXPathFreeObject (xpathObj);
-  if (xpathCtx)
-    xmlXPathFreeContext (xpathCtx);
-  if (doc)
-    xmlFreeDoc (doc);
+  g_clear_pointer (&podcast_data, free_podcast_data);
+  g_clear_pointer (&xpathObj, xmlXPathFreeObject);
+  g_clear_pointer (&xpathCtx, xmlXPathFreeContext);
+  g_clear_pointer (&doc, xmlFreeDoc);
 }
 
 static void
@@ -1534,8 +1525,7 @@ produce_podcasts (OperationSpec *os)
   }
 
  free_resources:
-  if (sql_stmt)
-    sqlite3_finalize (sql_stmt);
+  g_clear_pointer (&sql_stmt, sqlite3_finalize);
 }
 
 static void
@@ -1813,9 +1803,7 @@ grl_podcasts_source_store (GrlSource *source, GrlSourceStoreSpec *ss)
   }
 
   ss->callback (ss->source, ss->media, keylist, ss->user_data, error);
-  if (error) {
-    g_error_free (error);
-  }
+  g_clear_error (&error);
 }
 
 static void
@@ -1832,9 +1820,7 @@ grl_podcasts_source_remove (GrlSource *source,
 		   rs->media_id, &error);
   }
   rs->callback (rs->source, rs->media, rs->user_data, error);
-  if (error) {
-    g_error_free (error);
-  }
+  g_clear_error (&error);
 }
 
 static gboolean

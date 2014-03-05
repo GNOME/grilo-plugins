@@ -194,8 +194,7 @@ tracker_evt_update_orphan_item_cb (GObject              *object,
       GRL_DEBUG ("\tend of parsing...");
     }
 
-    g_object_unref (evt->cursor);
-    evt->cursor = NULL;
+    g_clear_object (&evt->cursor);
 
     if (grl_tracker_per_device_source) {
       /* Once all items have been processed, add new sources and we're
@@ -429,8 +428,7 @@ tracker_evt_preupdate_sources_item_cb (GObject              *object,
       GRL_DEBUG ("\tend of parsing... start notifying sources");
     }
 
-    g_object_unref (evt->cursor);
-    evt->cursor = NULL;
+    g_clear_object (&evt->cursor);
 
     /* Once all sources have been preupdated, start items
        updates. */

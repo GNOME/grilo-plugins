@@ -195,8 +195,7 @@ grl_apple_trailers_source_finalize (GObject *object)
 
   self = GRL_APPLE_TRAILERS_SOURCE (object);
 
-  if (self->priv->wc)
-    g_object_unref (self->priv->wc);
+  g_clear_object (&self->priv->wc);
 
   G_OBJECT_CLASS (grl_apple_trailers_source_parent_class)->finalize (object);
 }
@@ -505,14 +504,8 @@ xml_parse_result (const gchar *str, OperationData *op_data)
                          op_data->bs->user_data,
                          error);
 
-  if (op_data->xml_doc) {
-    xmlFreeDoc (op_data->xml_doc);
-  }
-
-  if (error) {
-    g_error_free (error);
-  }
-
+  g_clear_pointer (&op_data->xml_doc, (GDestroyNotify) xmlFreeDoc);
+  g_clear_error (&error);
   g_object_unref (op_data->cancellable);
   g_slice_free (OperationData, op_data);
 }

@@ -199,8 +199,7 @@ grl_optical_media_source_finalize (GObject *object)
 
   g_list_free_full (source->priv->list, g_object_unref);
 
-  g_object_unref (source->priv->monitor);
-  source->priv->monitor = NULL;
+  g_clear_object (&source->priv->monitor);
 
   G_OBJECT_CLASS (grl_optical_media_source_parent_class)->finalize (object);
 }

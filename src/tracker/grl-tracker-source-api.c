@@ -482,8 +482,7 @@ tracker_resolve_cb (GObject      *source_object,
   }
 
  end_operation:
-  if (cursor)
-    g_object_unref (G_OBJECT (cursor));
+  g_clear_object (&cursor);
 
   grl_tracker_queue_done (grl_tracker_queue, os);
 }
@@ -727,12 +726,9 @@ grl_tracker_source_resolve (GrlSource *source,
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 
-  if (sparql_type_filter != NULL)
-    g_free (sparql_type_filter);
-  if (constraint != NULL)
-    g_free (constraint);
-  if (sparql_select != NULL)
-    g_free (sparql_select);
+  g_clear_pointer (&sparql_type_filter, g_free);
+  g_clear_pointer (&constraint, g_free);
+  g_clear_pointer (&sparql_select, g_free);
 }
 
 gboolean

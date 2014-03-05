@@ -138,10 +138,7 @@ g_vimeo_dispose (GObject *object)
 {
   GVimeo *vimeo = G_VIMEO (object);
 
-  if (vimeo->priv->wc) {
-    g_object_unref (vimeo->priv->wc);
-    vimeo->priv->wc = NULL;
-  }
+  g_clear_object (&vimeo->priv->wc);
 
   G_OBJECT_CLASS (g_vimeo_parent_class)->dispose (object);
 }

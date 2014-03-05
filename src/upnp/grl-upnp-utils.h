@@ -25,7 +25,9 @@
 
 G_BEGIN_DECLS
 
-gboolean grl_upnp_util_uri_is_localhost (SoupURI  *uri);
+void grl_upnp_util_uri_is_localhost (SoupURI  *uri,
+                                     gboolean *localhost,
+                                     gboolean *localuser);
 
 G_END_DECLS
 

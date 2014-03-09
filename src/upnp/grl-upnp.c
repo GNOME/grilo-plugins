@@ -234,6 +234,7 @@ grl_upnp_source_new (const gchar *source_id, const gchar *name, const gchar *ico
   source->priv->upnp_name = g_strdup (name);
 
   g_free (source_desc);
+  g_clear_object (&icon);
 
   return source;
 }

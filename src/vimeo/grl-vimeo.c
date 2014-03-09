@@ -179,6 +179,7 @@ grl_vimeo_source_new (void)
 {
   GIcon *icon;
   GFile *file;
+  GrlVimeoSource *source;
 
   GRL_DEBUG ("grl_vimeo_source_new");
 
@@ -186,13 +187,16 @@ grl_vimeo_source_new (void)
   icon = g_file_icon_new (file);
   g_object_unref (file);
 
-  return g_object_new (GRL_VIMEO_SOURCE_TYPE,
-                       "source-id", SOURCE_ID,
-                       "source-name", SOURCE_NAME,
-                       "source-desc", SOURCE_DESC,
-                       "supported-media", GRL_MEDIA_TYPE_VIDEO,
-                       "source-icon", icon,
-                       NULL);
+  source = g_object_new (GRL_VIMEO_SOURCE_TYPE,
+                         "source-id", SOURCE_ID,
+                         "source-name", SOURCE_NAME,
+                         "source-desc", SOURCE_DESC,
+                         "supported-media", GRL_MEDIA_TYPE_VIDEO,
+                         "source-icon", icon,
+                         NULL);
+  g_object_unref (icon);
+
+  return source;
 }
 
 static void

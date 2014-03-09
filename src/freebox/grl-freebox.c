@@ -182,6 +182,8 @@ grl_freebox_source_new (void)
                          "source-icon", icon,
                          "source-tags", tags,
                          NULL);
+  g_object_unref (icon);
+
   return object;
 }
 

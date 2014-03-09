@@ -260,17 +260,21 @@ grl_raitv_source_new (void)
 {
   GIcon *icon;
   GFile *file;
+  GrlRaitvSource *source;
 
   file = g_file_new_for_uri ("resource:///org/gnome/grilo/plugins/raitv/channel-rai.svg");
   icon = g_file_icon_new (file);
   g_object_unref (file);
-  return g_object_new (GRL_TYPE_RAITV_SOURCE,
-                       "source-id", SOURCE_ID,
-                       "source-name", SOURCE_NAME,
-                       "source-desc", SOURCE_DESC,
-                       "supported-media", GRL_MEDIA_TYPE_VIDEO,
-                       "source-icon", icon,
-                       NULL);
+  source = g_object_new (GRL_TYPE_RAITV_SOURCE,
+                         "source-id", SOURCE_ID,
+                         "source-name", SOURCE_NAME,
+                         "source-desc", SOURCE_DESC,
+                         "supported-media", GRL_MEDIA_TYPE_VIDEO,
+                         "source-icon", icon,
+                         NULL);
+  g_object_unref (icon);
+
+  return source;
 }
 
 static void

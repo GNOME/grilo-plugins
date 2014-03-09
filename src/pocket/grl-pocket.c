@@ -194,6 +194,7 @@ grl_pocket_source_new (GnomePocket *pocket)
                          "supported-media", GRL_MEDIA_TYPE_VIDEO,
                          "source-icon", icon,
                          NULL);
+  g_object_unref (icon);
   GRL_POCKET_SOURCE (object)->priv->pocket = pocket;
 
   return object;

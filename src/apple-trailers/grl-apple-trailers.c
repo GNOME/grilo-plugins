@@ -182,6 +182,7 @@ grl_apple_trailers_source_new (gboolean high_definition,
                          "source-icon", icon,
                          "source-tags", tags,
                          NULL);
+  g_object_unref (icon);
 
   return source;
 }

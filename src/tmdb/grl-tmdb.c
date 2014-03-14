@@ -1127,7 +1127,7 @@ static void resolve_slow_details (ResolveClosure *closure)
     return;
 
   if (g_list_length (details) == 1) {
-    queue_detail_request (closure, GPOINTER_TO_UINT (details));
+    queue_detail_request (closure, GPOINTER_TO_UINT (details->data));
     return;
   }
 

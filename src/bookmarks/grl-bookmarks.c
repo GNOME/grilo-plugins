@@ -578,6 +578,7 @@ produce_bookmarks_from_category (OperationSpec *os, const gchar *category_id)
 static void
 remove_bookmark (GrlBookmarksSource *bookmarks_source,
                  const gchar *bookmark_id,
+                 GrlMedia *media,
                  GError **error)
 {
   gint r;
@@ -610,7 +611,7 @@ remove_bookmark (GrlBookmarksSource *bookmarks_source,
     /* We can improve accuracy computing the parent container of removed
        element */
     grl_source_notify_change (GRL_SOURCE (bookmarks_source),
-                              NULL,
+                              media,
                               GRL_CONTENT_REMOVED,
                               TRUE);
   }
@@ -881,7 +882,7 @@ static void grl_bookmarks_source_remove (GrlSource *source,
   GRL_DEBUG (__FUNCTION__);
   GError *error = NULL;
   remove_bookmark (GRL_BOOKMARKS_SOURCE (rs->source),
-		   rs->media_id, &error);
+		   rs->media_id, rs->media, &error);
   rs->callback (rs->source, rs->media, rs->user_data, error);
   g_clear_error (&error);
 }

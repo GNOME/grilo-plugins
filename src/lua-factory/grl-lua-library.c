@@ -693,6 +693,8 @@ grl_l_callback (lua_State *L)
 
   nparam = lua_gettop (L);
   os = grl_lua_library_load_operation_data (L);
+  g_return_val_if_fail (os != NULL, 0);
+
   media = (os->op_type == LUA_RESOLVE) ? os->media : NULL;
   if (nparam > 0) {
     media = grl_util_build_media (L, media);
@@ -714,6 +716,7 @@ grl_l_callback (lua_State *L)
     g_list_free (os->keys);
     g_object_unref (os->options);
     g_slice_free (OperationSpec, os);
+    grl_lua_library_save_operation_data (L, NULL);
   }
 
   return 0;

@@ -1076,6 +1076,8 @@ grl_lua_factory_source_resolve (GrlSource *source,
 
   GRL_DEBUG ("grl_lua_factory_source_resolve");
 
+  g_return_if_fail (grl_lua_library_load_operation_data (L) == NULL);
+
   os = g_slice_new0 (OperationSpec);
   os->source = rs->source;
   os->operation_id = rs->operation_id;

@@ -36,6 +36,7 @@ typedef struct _FetchOperation {
   lua_State *L;
   gchar *lua_cb;
   guint index;
+  gchar *url;
   guint num_urls;
   gboolean is_table;
   gchar **results;
@@ -309,7 +310,7 @@ grl_util_fetch_done (GObject *source_object,
 
   fo->results[fo->index] = (err == NULL) ? g_strdup (data) : g_strdup ("");
   if (err != NULL) {
-    GRL_WARNING ("Can't fetch element %d: '%s'", fo->index + 1, err->message);
+    GRL_WARNING ("Can't fetch element %d (URL: %s): '%s'", fo->index + 1, fo->url, err->message);
     g_error_free (err);
   } else {
     GRL_DEBUG ("fetch_done element %d of %d urls", fo->index + 1, fo->num_urls);
@@ -346,6 +347,7 @@ grl_util_fetch_done (GObject *source_object,
 
   for (i = 0; i < fo->num_urls; i++)
     g_free (fo->results[i]);
+  g_free (fo->url);
   g_free (fo->results);
   g_free (fo->lua_cb);
   g_free (fo);
@@ -660,6 +662,7 @@ grl_l_fetch (lua_State *L)
     fo->L = L;
     fo->lua_cb = g_strdup (lua_callback);
     fo->index = i;
+    fo->url = g_strdup (urls[i]);
     fo->num_urls = num_urls;
     fo->is_table = is_table;
     fo->results = results;

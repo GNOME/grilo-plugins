@@ -988,6 +988,7 @@ grl_lua_factory_source_search (GrlSource *source,
   os->op_type = LUA_SEARCH;
 
   grl_lua_library_save_operation_data (L, os);
+  grl_lua_library_set_current_operation (L, os->operation_id);
   lua_getglobal (L, LUA_SOURCE_OPERATION[LUA_SEARCH]);
 
   text = (ss->text == NULL) ? "" : ss->text;
@@ -997,6 +998,8 @@ grl_lua_factory_source_search (GrlSource *source,
                  lua_tolstring (L, -1, NULL));
     lua_pop (L, 1);
   }
+
+  grl_lua_library_set_current_operation (L, 0);
 }
 
 static void
@@ -1022,6 +1025,7 @@ grl_lua_factory_source_browse (GrlSource *source,
   os->op_type = LUA_BROWSE;
 
   grl_lua_library_save_operation_data (L, os);
+  grl_lua_library_set_current_operation (L, os->operation_id);
   lua_getglobal (L, LUA_SOURCE_OPERATION[LUA_BROWSE]);
 
   media_id = grl_media_get_id (os->media);
@@ -1031,6 +1035,8 @@ grl_lua_factory_source_browse (GrlSource *source,
                  lua_tolstring (L, -1, NULL));
     lua_pop (L, 1);
   }
+
+  grl_lua_library_set_current_operation (L, 0);
 }
 
 static void
@@ -1055,6 +1061,7 @@ grl_lua_factory_source_query (GrlSource *source,
   os->op_type = LUA_QUERY;
 
   grl_lua_library_save_operation_data (L, os);
+  grl_lua_library_set_current_operation (L, os->operation_id);
   lua_getglobal (L, LUA_SOURCE_OPERATION[LUA_QUERY]);
 
   query = (qs->query == NULL) ? "" : qs->query;
@@ -1064,6 +1071,8 @@ grl_lua_factory_source_query (GrlSource *source,
                  lua_tolstring (L, -1, NULL));
     lua_pop (L, 1);
   }
+
+  grl_lua_library_set_current_operation (L, 0);
 }
 
 static void
@@ -1076,7 +1085,7 @@ grl_lua_factory_source_resolve (GrlSource *source,
 
   GRL_DEBUG ("grl_lua_factory_source_resolve");
 
-  g_return_if_fail (grl_lua_library_load_operation_data (L) == NULL);
+  g_return_if_fail (grl_lua_library_load_operation_data (L, rs->operation_id) == NULL);
 
   os = g_slice_new0 (OperationSpec);
   os->source = rs->source;
@@ -1090,6 +1099,7 @@ grl_lua_factory_source_resolve (GrlSource *source,
   os->op_type = LUA_RESOLVE;
 
   grl_lua_library_save_operation_data (L, os);
+  grl_lua_library_set_current_operation (L, os->operation_id);
   lua_getglobal (L, LUA_SOURCE_OPERATION[LUA_RESOLVE]);
 
   if (lua_pcall (L, 0, 0, 0)) {
@@ -1097,6 +1107,8 @@ grl_lua_factory_source_resolve (GrlSource *source,
                  lua_tolstring (L, -1, NULL));
     lua_pop (L, 1);
   }
+
+  grl_lua_library_set_current_operation (L, 0);
 }
 
 static gboolean

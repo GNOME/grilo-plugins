@@ -34,6 +34,7 @@ GRL_LOG_DOMAIN_STATIC (lua_library_log_domain);
 
 typedef struct _FetchOperation {
   lua_State *L;
+  guint operation_id;
   gchar *lua_cb;
   guint index;
   gchar *url;
@@ -327,6 +328,8 @@ grl_util_fetch_done (GObject *source_object,
     }
   }
 
+  grl_lua_library_set_current_operation (L, fo->operation_id);
+
   lua_getglobal (L, fo->lua_cb);
 
   if (!fo->is_table) {
@@ -344,6 +347,8 @@ grl_util_fetch_done (GObject *source_object,
     GRL_WARNING ("%s (%s) '%s'", "calling source callback function fail",
                  fo->lua_cb, lua_tolstring (L, -1, NULL));
   }
+
+  grl_lua_library_set_current_operation (L, 0);
 
   for (i = 0; i < fo->num_urls; i++)
     g_free (fo->results[i]);
@@ -370,7 +375,8 @@ grl_l_operation_get_options (lua_State *L)
 
   luaL_argcheck (L, lua_isstring (L, 1), 1, "expecting option (string)");
 
-  os = grl_lua_library_load_operation_data (L);
+  os = grl_lua_library_get_current_operation (L);
+  g_return_val_if_fail (os != NULL, 0);
   option = lua_tostring (L, 1);
 
   if (g_strcmp0 (option, "count") == 0) {
@@ -486,7 +492,8 @@ grl_l_operation_get_keys (lua_State *L)
   const gchar *key_name = NULL;
   gint i = 0;
 
-  os = grl_lua_library_load_operation_data (L);
+  os = grl_lua_library_get_current_operation (L);
+  g_return_val_if_fail (os != NULL, 0);
 
   registry = grl_registry_get_default ();
   lua_newtable (L);
@@ -518,7 +525,8 @@ grl_l_media_get_keys (lua_State *L)
   GrlKeyID key_id;
   gchar *key_name = NULL;
 
-  os = grl_lua_library_load_operation_data (L);
+  os = grl_lua_library_get_current_operation (L);
+  g_return_val_if_fail (os != NULL, 0);
 
   registry = grl_registry_get_default ();
   lua_newtable (L);
@@ -590,11 +598,15 @@ grl_l_fetch (lua_State *L)
   GrlNetWc *wc = NULL;
   FetchOperation *fo = NULL;
   gboolean is_table = FALSE;
+  OperationSpec *os;
 
   luaL_argcheck (L, (lua_isstring (L, 1) || lua_istable (L, 1)), 1,
                  "expecting url as string or an array of urls");
   luaL_argcheck (L, lua_isstring (L, 2), 2,
                  "expecting callback function as string");
+
+  os = grl_lua_library_get_current_operation (L);
+  g_return_val_if_fail (os != NULL, 0);
 
   num_urls = (lua_isstring (L, 1)) ? 1 : luaL_len (L, 1);
   urls = g_new0 (gchar *, num_urls);
@@ -660,6 +672,7 @@ grl_l_fetch (lua_State *L)
   for (i = 0; i < num_urls; i++) {
     fo = g_new0 (FetchOperation, 1);
     fo->L = L;
+    fo->operation_id = os->operation_id;
     fo->lua_cb = g_strdup (lua_callback);
     fo->index = i;
     fo->url = g_strdup (urls[i]);
@@ -692,7 +705,7 @@ grl_l_callback (lua_State *L)
   GRL_DEBUG ("grl.callback()");
 
   nparam = lua_gettop (L);
-  os = grl_lua_library_load_operation_data (L);
+  os = grl_lua_library_get_current_operation (L);
   g_return_val_if_fail (os != NULL, 0);
 
   media = (os->op_type == LUA_RESOLVE) ? os->media : NULL;
@@ -715,8 +728,8 @@ grl_l_callback (lua_State *L)
   if (count == 0) {
     g_list_free (os->keys);
     g_object_unref (os->options);
+    grl_lua_library_remove_operation_data (L, os->operation_id);
     g_slice_free (OperationSpec, os);
-    grl_lua_library_save_operation_data (L, NULL);
   }
 
   return 0;
@@ -883,6 +896,87 @@ luaopen_grilo (lua_State *L)
 void
 grl_lua_library_save_operation_data (lua_State *L, OperationSpec *os)
 {
+  char *op_id;
+
+  g_return_if_fail (os != NULL);
+
+  op_id = g_strdup_printf (GRILO_LUA_OPERATION_INDEX "-%i", os->operation_id);
+  lua_getglobal (L, LUA_ENV_TABLE);
+  lua_pushstring (L, op_id);
+  lua_pushlightuserdata (L, os);
+  lua_settable (L, -3);
+  lua_pop (L, 1);
+  g_free (op_id);
+}
+
+/**
+ * grl_lua_library_remove_operation_data
+ *
+ * @L: LuaState where the data will be removed.
+ * @operation_id: The operation ID to remove.
+ * @return: Nothing.
+ *
+ * Remove the OperationSpec with this ID from the the global environment of
+ * lua_State.
+ **/
+void
+grl_lua_library_remove_operation_data (lua_State *L, guint operation_id)
+{
+  char *op_id;
+
+  op_id = g_strdup_printf (GRILO_LUA_OPERATION_INDEX "-%i", operation_id);
+  lua_getglobal (L, LUA_ENV_TABLE);
+  lua_pushstring (L, op_id);
+  lua_pushlightuserdata (L, NULL);
+  lua_settable (L, -3);
+  lua_pop (L, 1);
+  g_free (op_id);
+}
+
+/**
+ * grl_lua_library_load_operation_data
+ *
+ * @L : LuaState where the data is stored.
+ * @operation_id: The operation ID to load Operation Data for.
+ * to load the Operation Data for the current call.
+ * @return: The Operation Data.
+ **/
+OperationSpec *
+grl_lua_library_load_operation_data (lua_State *L, guint operation_id)
+{
+  OperationSpec *os = NULL;
+  char *op_id;
+
+  g_return_val_if_fail (operation_id > 0, NULL);
+
+  op_id = g_strdup_printf (GRILO_LUA_OPERATION_INDEX "-%i", operation_id);
+  lua_getglobal (L, LUA_ENV_TABLE);
+  lua_pushstring (L, op_id);
+  lua_gettable (L, -2);
+  os = (lua_islightuserdata(L, -1)) ? lua_touserdata(L, -1) : NULL;
+  lua_pop(L, 1);
+  g_free (op_id);
+
+  return os;
+}
+
+/**
+ * grl_lua_library_set_current_operation
+ *
+ * @L: LuaState where the data is stored.
+ * @operation_id: The current operation ID.
+ * @return: Nothing:
+ **/
+void
+grl_lua_library_set_current_operation (lua_State *L, guint operation_id)
+{
+  OperationSpec *os;
+
+  if (operation_id > 0)
+    os = grl_lua_library_load_operation_data (L, operation_id);
+  else
+    os = NULL;
+
   lua_getglobal (L, LUA_ENV_TABLE);
   lua_pushstring (L, GRILO_LUA_OPERATION_INDEX);
   lua_pushlightuserdata (L, os);
@@ -891,13 +985,13 @@ grl_lua_library_save_operation_data (lua_State *L, OperationSpec *os)
 }
 
 /**
- * grl_lua_library_load_operation_data
+ * grl_lua_library_get_current_operation
  *
- * @L : LuaState where the data is stored.
- * @return: The Operation Data.
+ * @L: LuaState where the data is stored.
+ * @return: The Operation Data for the current operation.
  **/
 OperationSpec *
-grl_lua_library_load_operation_data (lua_State *L)
+grl_lua_library_get_current_operation (lua_State *L)
 {
   OperationSpec *os = NULL;
 
@@ -906,5 +1000,6 @@ grl_lua_library_load_operation_data (lua_State *L)
   lua_gettable (L, -2);
   os = (lua_islightuserdata(L, -1)) ? lua_touserdata(L, -1) : NULL;
   lua_pop(L, 1);
+
   return os;
 }

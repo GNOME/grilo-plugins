@@ -67,6 +67,10 @@ typedef struct _OperationSpec {
 } OperationSpec;
 
 void grl_lua_library_save_operation_data (lua_State *L, OperationSpec *os);
-OperationSpec *grl_lua_library_load_operation_data (lua_State *L);
+void grl_lua_library_remove_operation_data (lua_State *L, guint operation_id);
+OperationSpec *grl_lua_library_load_operation_data (lua_State *L, guint operation_id);
+
+void grl_lua_library_set_current_operation (lua_State *L, guint operation_id);
+OperationSpec * grl_lua_library_get_current_operation (lua_State *L);
 
 #endif /* _GRL_LUA_LIBRARY_COMMON_H_ */

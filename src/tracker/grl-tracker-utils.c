@@ -36,6 +36,7 @@ static GHashTable *grl_to_sparql_mapping = NULL;
 static GHashTable *sparql_to_grl_mapping = NULL;
 
 GrlKeyID grl_metadata_key_tracker_urn;
+GrlKeyID grl_metadata_key_gibest_hash;
 
 
 /**/
@@ -189,6 +190,22 @@ grl_tracker_setup_key_mappings (void)
                                           NULL);
   }
 
+  /* Check if "gibest-hash" is registered; if not, then register it */
+  grl_metadata_key_gibest_hash =
+    grl_registry_lookup_metadata_key (registry, "gibest-hash");
+
+  if (grl_metadata_key_gibest_hash == GRL_METADATA_KEY_INVALID) {
+    grl_metadata_key_gibest_hash =
+      grl_registry_register_metadata_key (grl_registry_get_default (),
+                                          g_param_spec_string ("gibest-hash",
+                                                               "Gibest hash",
+                                                               "Gibest hash of the video file",
+                                                               NULL,
+                                                               G_PARAM_STATIC_STRINGS |
+                                                               G_PARAM_READWRITE),
+                                          NULL);
+  }
+
   grl_to_sparql_mapping = g_hash_table_new (g_direct_hash, g_direct_equal);
   sparql_to_grl_mapping = g_hash_table_new (g_str_hash, g_str_equal);
 
@@ -226,6 +243,11 @@ grl_tracker_setup_key_mappings (void)
                       NULL,
                       "nfo:fileSize(?urn)",
                       "file");
+
+  insert_key_mapping (grl_metadata_key_gibest_hash,
+                      NULL,
+                      "(select nfo:hashValue(?h) { ?urn nfo:hasHash ?h . ?h nfo:hashAlgorithm \"gibest\" })",
+                      "video");
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_MODIFICATION_DATE,
                                   "nfo:fileLastModified",

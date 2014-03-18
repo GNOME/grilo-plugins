@@ -303,6 +303,7 @@ grl_util_fetch_done (GObject *source_object,
   gchar *data = NULL;
   guint i = 0;
   GError *err = NULL;
+  OperationSpec *os;
   FetchOperation *fo = (FetchOperation *) user_data;
   lua_State *L = fo->L;
 
@@ -329,6 +330,8 @@ grl_util_fetch_done (GObject *source_object,
   }
 
   grl_lua_library_set_current_operation (L, fo->operation_id);
+  os = grl_lua_library_get_current_operation (L);
+  os->pending_ops--;
 
   lua_getglobal (L, fo->lua_cb);
 
@@ -607,6 +610,7 @@ grl_l_fetch (lua_State *L)
 
   os = grl_lua_library_get_current_operation (L);
   g_return_val_if_fail (os != NULL, 0);
+  os->pending_ops++;
 
   num_urls = (lua_isstring (L, 1)) ? 1 : luaL_len (L, 1);
   urls = g_new0 (gchar *, num_urls);
@@ -728,6 +732,7 @@ grl_l_callback (lua_State *L)
   if (count == 0) {
     g_list_free (os->keys);
     g_object_unref (os->options);
+    os->callback_done = TRUE;
     grl_lua_library_remove_operation_data (L, os->operation_id);
     g_slice_free (OperationSpec, os);
   }
@@ -971,6 +976,25 @@ void
 grl_lua_library_set_current_operation (lua_State *L, guint operation_id)
 {
   OperationSpec *os;
+
+  /* Verify that either grl.callback was called, or that there
+   * are pending operations */
+  os = grl_lua_library_get_current_operation (L);
+  if (os) {
+    if (os->pending_ops == 0 && !os->callback_done) {
+      g_warning ("Source '%s' is broken, as there are no pending operations "
+                 "and grl.callback() was not called", grl_source_get_id (os->source));
+      switch (os->op_type) {
+      case LUA_RESOLVE:
+        os->cb.resolve (os->source, os->operation_id, NULL, os->user_data, NULL);
+        break;
+
+      default:
+        os->cb.result (os->source, os->operation_id, NULL,
+                       0, os->user_data, NULL);
+      }
+    }
+  }
 
   if (operation_id > 0)
     os = grl_lua_library_load_operation_data (L, operation_id);

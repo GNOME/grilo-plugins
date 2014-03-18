@@ -64,6 +64,8 @@ typedef struct _OperationSpec {
   GrlMedia *media;
   gpointer user_data;
   guint error_code;
+  guint pending_ops;
+  gboolean callback_done;
 } OperationSpec;
 
 void grl_lua_library_save_operation_data (lua_State *L, OperationSpec *os);

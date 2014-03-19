@@ -32,6 +32,7 @@ endif
 DIST_SUBDIRS =    \
    apple-trailers \
    bliptv         \
+   local-metadata \
    tmdb           \
    vimeo
 

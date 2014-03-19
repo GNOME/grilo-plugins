@@ -1,14 +1,14 @@
 # Danish translation for grilo-plugins.
-# Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
+# Copyright (C) 2013-14 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
-# Ask Hjorth Larsen <asklarsen@gmail.com>, 2013.
+# Ask Hjorth Larsen <asklarsen@gmail.com>, 2013-14.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-17 18:18+0200\n"
-"PO-Revision-Date: 2013-09-17 00:33+0200\n"
+"POT-Creation-Date: 2014-03-19 22:29+0100\n"
+"PO-Revision-Date: 2014-03-15 14:06+0100\n"
 "Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -25,22 +25,22 @@ msgstr "Apple-filmtrailere"
 msgid "A plugin for browsing Apple Movie Trailers"
 msgstr "Et udvidelsesmodul til at gennemse Apple-filmtrailere"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:456
-#: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
-#: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:472
+#: ../src/apple-trailers/grl-apple-trailers.c:468
+#: ../src/jamendo/grl-jamendo.c:333 ../src/jamendo/grl-jamendo.c:694
+#: ../src/shoutcast/grl-shoutcast.c:405 ../src/shoutcast/grl-shoutcast.c:459
 msgid "Failed to parse response"
 msgstr "Kunne ikke fortolke svar"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:464
-#: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
-#: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
+#: ../src/apple-trailers/grl-apple-trailers.c:476
+#: ../src/jamendo/grl-jamendo.c:341 ../src/jamendo/grl-jamendo.c:348
+#: ../src/podcasts/grl-podcasts.c:1353 ../src/shoutcast/grl-shoutcast.c:413
 msgid "Empty response"
 msgstr "Tomt svar"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:523
-#: ../src/jamendo/grl-jamendo.c:666
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
-#: ../src/shoutcast/grl-shoutcast.c:565
+#: ../src/apple-trailers/grl-apple-trailers.c:531
+#: ../src/jamendo/grl-jamendo.c:663
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:247
+#: ../src/shoutcast/grl-shoutcast.c:547
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Kunne ikke forbinde: %s"
@@ -57,33 +57,33 @@ msgstr "Bogmærker"
 msgid "A source for organizing media bookmarks"
 msgstr "En kilde til at organisere mediebogmærker"
 
-#: ../src/bookmarks/grl-bookmarks.c:441 ../src/bookmarks/grl-bookmarks.c:456
+#: ../src/bookmarks/grl-bookmarks.c:448 ../src/bookmarks/grl-bookmarks.c:463
 msgid "Failed to get bookmark metadata"
 msgstr "Kunne ikke hente bogmærkemetadata"
 
-#: ../src/bookmarks/grl-bookmarks.c:486 ../src/bookmarks/grl-bookmarks.c:506
+#: ../src/bookmarks/grl-bookmarks.c:493 ../src/bookmarks/grl-bookmarks.c:513
 #, c-format
 msgid "Failed to get bookmarks list: %s"
 msgstr "Kunne ikke hente bogmærkeliste: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:817
-#: ../src/podcasts/grl-podcasts.c:849 ../src/podcasts/grl-podcasts.c:881
+#: ../src/bookmarks/grl-bookmarks.c:599 ../src/podcasts/grl-podcasts.c:813
+#: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Kunne ikke fjerne: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:660 ../src/bookmarks/grl-bookmarks.c:718
-#: ../src/podcasts/grl-podcasts.c:922 ../src/podcasts/grl-podcasts.c:955
-#: ../src/podcasts/grl-podcasts.c:1804
+#: ../src/bookmarks/grl-bookmarks.c:667 ../src/bookmarks/grl-bookmarks.c:725
+#: ../src/podcasts/grl-podcasts.c:918 ../src/podcasts/grl-podcasts.c:951
+#: ../src/podcasts/grl-podcasts.c:1796
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Kunne ikke gemme: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:772 ../src/bookmarks/grl-bookmarks.c:807
-#: ../src/bookmarks/grl-bookmarks.c:839 ../src/bookmarks/grl-bookmarks.c:901
-#: ../src/metadata-store/grl-metadata-store.c:852
-#: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
-#: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
+#: ../src/bookmarks/grl-bookmarks.c:779 ../src/bookmarks/grl-bookmarks.c:814
+#: ../src/bookmarks/grl-bookmarks.c:846 ../src/bookmarks/grl-bookmarks.c:904
+#: ../src/metadata-store/grl-metadata-store.c:849
+#: ../src/podcasts/grl-podcasts.c:1652 ../src/podcasts/grl-podcasts.c:1696
+#: ../src/podcasts/grl-podcasts.c:1730 ../src/podcasts/grl-podcasts.c:1765
 msgid "No database connection"
 msgstr "Ingen databaseforbindelse"
 
@@ -92,20 +92,36 @@ msgstr "Ingen databaseforbindelse"
 msgid "A source for browsing the DMAP server '%s'"
 msgstr "En kilde til at gennemse DMAP-serveren \"%s\""
 
-#: ../src/filesystem/grl-filesystem.c:69
+#: ../src/dmap/simple-dmap-db.c:62 ../src/jamendo/grl-jamendo.c:781
+#: ../src/magnatune/grl-magnatune.c:121
+msgid "Albums"
+msgstr "Album"
+
+#: ../src/dmap/simple-dmap-db.c:64 ../src/jamendo/grl-jamendo.c:770
+#: ../src/magnatune/grl-magnatune.c:120
+msgid "Artists"
+msgstr "Kunstnere"
+
+#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1110
+#: ../src/jamendo/grl-jamendo.c:1185 ../src/magnatune/grl-magnatune.c:829
+#, c-format
+msgid "Invalid container identifier %s"
+msgstr "Ugyldig beholder-id %s"
+
+#: ../src/filesystem/grl-filesystem.c:60
 msgid "Filesystem"
 msgstr "Filsystem"
 
-#: ../src/filesystem/grl-filesystem.c:70
+#: ../src/filesystem/grl-filesystem.c:61
 msgid "A source for browsing the filesystem"
 msgstr "En kilde til at gennemse filsystemet"
 
-#: ../src/filesystem/grl-filesystem.c:1327
+#: ../src/filesystem/grl-filesystem.c:1142
 #, c-format
 msgid "File %s does not exist"
 msgstr "Filen %s findes ikke"
 
-#: ../src/filesystem/grl-filesystem.c:1404 ../src/youtube/grl-youtube.c:1624
+#: ../src/filesystem/grl-filesystem.c:1219 ../src/youtube/grl-youtube.c:1626
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Kan ikke hente medie fra %s"
@@ -125,6 +141,14 @@ msgstr "%ss Flickr"
 #, c-format
 msgid "A source for browsing and searching %s's flickr photos"
 msgstr "En kilde til at gennemse og søge blandt %ss flickr-billeder"
+
+#: ../src/freebox/grl-freebox.c:49
+msgid "Freebox TV"
+msgstr "Freebox-tv"
+
+#: ../src/freebox/grl-freebox.c:50
+msgid "A source for browsing Freebox TV channels"
+msgstr "En kilde til at gennemse Freebox-tv-kanaler"
 
 #: ../src/gravatar/grl-gravatar.c:48
 msgid "Avatar provider from Gravatar"
@@ -164,43 +188,29 @@ msgstr "Topalbum"
 msgid "Top tracks"
 msgstr "Topspor"
 
-#: ../src/jamendo/grl-jamendo.c:774 ../src/magnatune/grl-magnatune.c:120
-msgid "Artists"
-msgstr "Kunstnere"
-
-#: ../src/jamendo/grl-jamendo.c:785 ../src/magnatune/grl-magnatune.c:121
-msgid "Albums"
-msgstr "Album"
-
 # ?
-#: ../src/jamendo/grl-jamendo.c:796
+#: ../src/jamendo/grl-jamendo.c:792
 msgid "Feeds"
 msgstr "Kanaler"
 
-#: ../src/jamendo/grl-jamendo.c:982 ../src/jamendo/grl-jamendo.c:1027
-#: ../src/jamendo/grl-jamendo.c:1054
+#: ../src/jamendo/grl-jamendo.c:978 ../src/jamendo/grl-jamendo.c:1023
+#: ../src/jamendo/grl-jamendo.c:1050
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Ugyldig id %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1188
-#: ../src/youtube/grl-youtube.c:1331 ../src/youtube/grl-youtube.c:1551
+#: ../src/jamendo/grl-jamendo.c:1037 ../src/youtube/grl-youtube.c:1194
+#: ../src/youtube/grl-youtube.c:1335 ../src/youtube/grl-youtube.c:1553
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Ugyldig kategori-id %s"
 
-#: ../src/jamendo/grl-jamendo.c:1116 ../src/jamendo/grl-jamendo.c:1191
-#: ../src/magnatune/grl-magnatune.c:829
-#, c-format
-msgid "Invalid container identifier %s"
-msgstr "Ugyldig beholder-id %s"
-
-#: ../src/jamendo/grl-jamendo.c:1186
+#: ../src/jamendo/grl-jamendo.c:1180
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Kunne ikke gennemse: %s er et spor"
 
-#: ../src/jamendo/grl-jamendo.c:1248
+#: ../src/jamendo/grl-jamendo.c:1240
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Fejludformet forespørgsel \"%s\""
@@ -213,26 +223,26 @@ msgstr "Albumbilledtjeneste fra Last.FM"
 msgid "A plugin for getting album arts using Last.FM as backend"
 msgstr "Et udvidelsesmodul til at hente albumbilleder med Last.FM som motor"
 
-#: ../src/local-metadata/grl-local-metadata.c:42
+#: ../src/local-metadata/grl-local-metadata.c:43
 msgid "Local Metadata Provider"
 msgstr "Lokal metadatatjeneste"
 
-#: ../src/local-metadata/grl-local-metadata.c:43
+#: ../src/local-metadata/grl-local-metadata.c:44
 msgid "A source providing locally available metadata"
 msgstr "En kilde som udbyder lokalt tilgængelige metadata"
 
-#: ../src/local-metadata/grl-local-metadata.c:472
-#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:864
+#: ../src/local-metadata/grl-local-metadata.c:480
+#: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:861
 #: ../src/tracker/grl-tracker-source-api.c:460
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Kunne ikke evaluere: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:995
+#: ../src/local-metadata/grl-local-metadata.c:839
 msgid "Cannot resolve any of the given keys"
 msgstr "Kan ikke evaluere nogen af de givne nøgler"
 
-#: ../src/local-metadata/grl-local-metadata.c:999
+#: ../src/local-metadata/grl-local-metadata.c:843
 msgid "A GIO supported URL for images is required"
 msgstr "Der kræves en GIO-understøttet URL til billeder"
 
@@ -272,34 +282,34 @@ msgstr "Metadata-lager"
 msgid "A plugin for storing extra metadata information"
 msgstr "Et udvidelsesmodul til at gemme yderligere metadataoplysninger"
 
-#: ../src/metadata-store/grl-metadata-store.c:574
-#: ../src/metadata-store/grl-metadata-store.c:593
-#: ../src/metadata-store/grl-metadata-store.c:805
-#: ../src/tracker/grl-tracker-source-api.c:511
+#: ../src/metadata-store/grl-metadata-store.c:573
+#: ../src/metadata-store/grl-metadata-store.c:592
+#: ../src/metadata-store/grl-metadata-store.c:804
+#: ../src/tracker/grl-tracker-source-api.c:510
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Kunne ikke opdatere metadata: %s"
 
-#: ../src/metadata-store/grl-metadata-store.c:575
+#: ../src/metadata-store/grl-metadata-store.c:574
 msgid "specified keys are not writable"
 msgstr "der kan ikke skrives til de angivne nøgler"
 
-#: ../src/metadata-store/grl-metadata-store.c:615
+#: ../src/metadata-store/grl-metadata-store.c:614
 msgid "Failed to update metadata"
 msgstr "Kunne ikke opdatere metadata"
 
-#: ../src/metadata-store/grl-metadata-store.c:761
-#: ../src/metadata-store/grl-metadata-store.c:806
+#: ../src/metadata-store/grl-metadata-store.c:760
+#: ../src/metadata-store/grl-metadata-store.c:805
 msgid "\"source-id\" not available"
 msgstr "\"kilde-id\" ikke tilgængelig"
 
-#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1433
+#: ../src/metadata-store/grl-metadata-store.c:780 ../src/upnp/grl-upnp.c:1460
 msgid "Failed to resolve"
 msgstr "Kunne ikke evaluere"
 
-#: ../src/metadata-store/grl-metadata-store.c:920
-#: ../src/metadata-store/grl-metadata-store.c:957 ../src/raitv/grl-raitv.c:415
-#: ../src/shoutcast/grl-shoutcast.c:759 ../src/vimeo/grl-vimeo.c:511
+#: ../src/metadata-store/grl-metadata-store.c:917
+#: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:419
+#: ../src/shoutcast/grl-shoutcast.c:745 ../src/vimeo/grl-vimeo.c:535
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Kunne ikke søge: %s"
@@ -312,47 +322,56 @@ msgstr "Optisk medie"
 msgid "A source for browsing optical media"
 msgstr "En kilde til at gennemse optiske medier"
 
+# er et program
+#: ../src/pocket/grl-pocket.c:47
+msgid "Pocket"
+msgstr "Pocket"
+
+#: ../src/pocket/grl-pocket.c:48
+msgid "A source for browsing Pocket videos"
+msgstr "En kilde til at gennemse Pocket-videoer"
+
 #: ../src/podcasts/grl-podcasts.c:155
 msgid "A source for browsing podcasts"
 msgstr "En kilde til at gennemse podcasts"
 
-#: ../src/podcasts/grl-podcasts.c:753 ../src/podcasts/grl-podcasts.c:773
+#: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "Kunne ikke hente podcast-strømme: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1239 ../src/podcasts/grl-podcasts.c:1248
-#: ../src/podcasts/grl-podcasts.c:1258
+#: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
+#: ../src/podcasts/grl-podcasts.c:1254
 msgid "Failed to parse content"
 msgstr "Kunne ikke fortolke indhold"
 
-#: ../src/podcasts/grl-podcasts.c:1291
+#: ../src/podcasts/grl-podcasts.c:1287
 msgid "Failed to parse podcast contents"
 msgstr "Kunne ikke fortolke podcast-indhold"
 
-#: ../src/podcasts/grl-podcasts.c:1449
+#: ../src/podcasts/grl-podcasts.c:1442
 msgid "Failed to get podcast information"
 msgstr "Kunne ikke hente podcast-information"
 
-#: ../src/podcasts/grl-podcasts.c:1489 ../src/podcasts/grl-podcasts.c:1509
+#: ../src/podcasts/grl-podcasts.c:1482 ../src/podcasts/grl-podcasts.c:1502
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Kunne ikke hente podcast-liste: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1563 ../src/podcasts/grl-podcasts.c:1578
+#: ../src/podcasts/grl-podcasts.c:1555 ../src/podcasts/grl-podcasts.c:1570
 msgid "Failed to get podcast stream metadata"
 msgstr "Kunne ikke hente metadata for podcast-strøm"
 
-#: ../src/podcasts/grl-podcasts.c:1616
+#: ../src/podcasts/grl-podcasts.c:1608
 msgid "Failed to get podcast metadata"
 msgstr "Kunne ikke hente metadata for podcast"
 
 # ??
-#: ../src/podcasts/grl-podcasts.c:1800
+#: ../src/podcasts/grl-podcasts.c:1792
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Kan ikke oprette beholdere. Kun kanaler accepteres"
 
-#: ../src/podcasts/grl-podcasts.c:1805
+#: ../src/podcasts/grl-podcasts.c:1797
 msgid "URL required"
 msgstr "URL påkrævet"
 
@@ -456,7 +475,7 @@ msgstr "Fritid"
 msgid "Travel"
 msgstr "Rejse"
 
-#: ../src/raitv/grl-raitv.c:611
+#: ../src/raitv/grl-raitv.c:612
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Kunne ikke gennemlæse: %s"
@@ -465,16 +484,16 @@ msgstr "Kunne ikke gennemlæse: %s"
 msgid "A source for browsing SHOUTcast radios"
 msgstr "En kilde til at gennemlæse SHOUTcast-radioer"
 
-#: ../src/shoutcast/grl-shoutcast.c:462
+#: ../src/shoutcast/grl-shoutcast.c:451
 #, c-format
 msgid "Cannot find media %s"
 msgstr "Kan ikke finde mediet %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:760 ../src/vimeo/grl-vimeo.c:512
+#: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:536
 msgid "non-NULL search text is required"
 msgstr "søgeteksten må ikke være NULL"
 
-#: ../src/tmdb/grl-tmdb.c:962
+#: ../src/tmdb/grl-tmdb.c:984
 msgid "Remote data does not contain valid identifier"
 msgstr "Fjerndata indeholder ikke nogen gyldig id"
 
@@ -487,7 +506,7 @@ msgstr "Fjerndata indeholder ikke nogen gyldig id"
 msgid "Failed to query: %s"
 msgstr "Kunne ikke forespørge: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:628
+#: ../src/tracker/grl-tracker-source-api.c:627
 msgid "Empty query"
 msgstr "Tom forespørgsel"
 
@@ -495,12 +514,12 @@ msgstr "Tom forespørgsel"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Et udvidelsesmodul til at søge i multimedieindhold med Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:606
+#: ../src/tracker/grl-tracker-utils.c:611
 #, c-format
 msgid "Removable - %s"
 msgstr "Kan fjernes - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:618
+#: ../src/tracker/grl-tracker-utils.c:623
 msgid "Local files"
 msgstr "Lokale filer"
 
@@ -509,20 +528,20 @@ msgstr "Lokale filer"
 msgid "A source for browsing the UPnP server '%s'"
 msgstr "En kilde til at gennemse UPnP-serveren \"%s\""
 
-#: ../src/upnp/grl-upnp.c:1263 ../src/upnp/grl-upnp.c:1320
+#: ../src/upnp/grl-upnp.c:1290 ../src/upnp/grl-upnp.c:1347
 msgid "Failed to browse"
 msgstr "Kunne ikke gennemse"
 
-#: ../src/upnp/grl-upnp.c:1383
+#: ../src/upnp/grl-upnp.c:1410
 msgid "Failed to query"
 msgstr "Kunne ikke forespørge"
 
-#: ../src/upnp/grl-upnp.c:1502
+#: ../src/upnp/grl-upnp.c:1529
 #, c-format
 msgid "Unable to listen for changes in %s"
 msgstr "Kan ikke lytte efter ændringer i %s"
 
-#: ../src/vimeo/grl-vimeo.c:57
+#: ../src/vimeo/grl-vimeo.c:58
 msgid "A source for browsing and searching Vimeo videos"
 msgstr "En kilde til at gennemse og søge i Vimeo-videoer"
 
@@ -575,11 +594,11 @@ msgstr "Se på mobilen"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "En kilde for at gennemse og søge efter YouTube-videoer"
 
-#: ../src/youtube/grl-youtube.c:937
+#: ../src/youtube/grl-youtube.c:944
 msgid "Failed to get feed"
 msgstr "Kunne ikke hente kanal"
 
-#: ../src/youtube/grl-youtube.c:1115 ../src/youtube/grl-youtube.c:1531
+#: ../src/youtube/grl-youtube.c:1121 ../src/youtube/grl-youtube.c:1533
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Ugyldig kanal-id %s"

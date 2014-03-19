@@ -55,8 +55,10 @@ function grl_source_resolve()
   local artist, title
 
   req = grl.get_media_keys()
-  if not req or not req.artist or not req.title then
+  if not req or not req.artist or not req.title
+    or #req.artist == 0 or #req.title == 0 then
     grl.callback()
+    return
   end
 
   -- Prepare artist and title strings to the url

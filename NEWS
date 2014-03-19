@@ -1,3 +1,92 @@
+NEW in 0.2.12
+=============
+
+  * General
+    * BGO#725299 - build: Detect Lua in Debian systems
+    * BGO#725420 - all: Add names to all the timeouts and idles
+    * Plug some leaks
+    * Added/updated i18n support
+      * Chinese
+      * French
+      * Galician
+      * Hungarian
+      * Korean
+      * Portuguese
+      * Russian
+      * Slovenian
+      * Spanish
+      * Traditional Chinese
+
+  * Apple Trailers plugin
+    *BGO#724019 - core: Add "source-tags" property
+
+  * Bookmarks plugin
+    * BGO#726349 - bookmarks: Pass the removed media when notifying
+
+  * Filesystem plugin
+    * BGO#725203 - Filesystem plugin bug fixes
+
+  * Freebox plugin
+    *BGO#724019 - core: Add "source-tags" property
+
+  * Guardian plugin
+    * Removed (part of new Lua Factory plugin)
+    * BGO#724644 - guardian-videos: Update to use guardianapis
+
+  * Local Metadata plugin
+    * Added tests
+    * BGO#724046 - local-art: Use libmediaart instead of custom code
+    * BGO#725026 - Add support for SeasonxEpisode filename format
+
+  * Lua Factory plugin
+    * Added new plugin that allows to create sources in Lua language
+    * It includes the following sources:
+      * Euronews - A source for watching Euronews online
+      * Metrolyrics - A source for lyrics
+      * Radio France - A source for browsing Radio France radio stations
+      * The Guardian Videos - A source for browsing videos from the Guardian
+    * BGO#711243 - Lua-Factory Plugin
+    * BGO#722820 - Add Radio France source
+    * BGO#724415 - Add Euronews source
+    * BGO#724644 - guardian-videos: Update to use guardianapis
+    * BGO#725188 - Lua-Factory: extend fetch operation
+    * BGO#725209 - lua-factory: Detect broken sources
+    * BGO#725381 - lua-factory: Add grl.unescape() helper
+    * BGO#726562 - lua-factory: Print URL for failed fetches
+    * BGO#726563 - lua-factory: Assert when overwriting user_data with
+      concurrent resolves
+    * BGO#726677 - metrolyrics: fix initial check up
+
+  * Pocket plugin
+    * BGO#725425 - pocket: initialize variables
+
+  * TMDb plugin
+    * BGO#726372 - tmdb: Fix possible assertion at run-time
+
+  * Tracker plugin
+    * BGO#629002 - Add GRL_METADATA_KEY_SIZE
+
+  * UPnP plugin
+    * BGO#724793 - upnp: Prevent crash with some UPnP servers
+
+  * Contributors to this release:
+    * Balázs Úr <urbalazs@gmail.com>
+    * Bastien Nocera <hadess@hadess.net>
+    * Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>
+    * Dominique Leuenberger <dimstar@opensuse.org>
+    * Fran Diéguez <fran.dieguez@mabishu.com>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Matej Urbančič <mateju@svn.gnome.org>
+    * Miguel Rodriguez Nuñez <bokerones.fritos@gmail.com>
+    *  Rūdolfs Mazurs <rudolfsm@src.gnome.org>
+    * Seong-ho Cho <darkcircle.0426@gmail.com>
+    * Tiagosdot <almosthumane@portugalmail.pt>
+    * Victor Toso <me@victortoso.com>
+    * Wylmer Wang <wantinghard@gmail.com>
+    * Yuri Myasoedov <ymyasoedov@yandex.ru>
+    * naybnet <naybnet@gmail.com>
+
+
 NEW in 0.2.11
 =============
 

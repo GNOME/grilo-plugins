@@ -162,7 +162,7 @@ msgstr "Zásuvný modul pro získávání avatarů pro pole s umělcem a autorem
 
 #: ../src/guardian-videos/grl-guardianvideos.c:48
 msgid "The Guardian Videos"
-msgstr "Videa Guardian"
+msgstr "Videa deníku Guardian"
 
 #: ../src/guardian-videos/grl-guardianvideos.c:49
 msgid "A source for browsing videos from the Guardian"

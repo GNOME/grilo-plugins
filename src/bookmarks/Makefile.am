@@ -22,7 +22,11 @@ libgrlbookmarks_la_LDFLAGS = \
 	-module		     \
 	-avoid-version
 
-libgrlbookmarks_la_SOURCES = grl-bookmarks.c grl-bookmarks.h
+libgrlbookmarks_la_SOURCES =		\
+	grl-bookmarks.c			\
+	grl-bookmarks.h			\
+	bookmarks-resource.c		\
+	bookmarks-resource.h
 
 extdir				= $(GRL_PLUGINS_DIR)
 bookmarksxmldir	= $(GRL_PLUGINS_DIR)

@@ -164,6 +164,8 @@ PKG_CHECK_MODULES(AVAHI, [avahi-gobject avahi-glib avahi-client], HAVE_AVAHI=yes
 
 PKG_CHECK_MODULES(MEDIAART, [libmediaart-1.0], HAVE_MEDIAART=yes, HAVE_MEDIAART=no)
 
+PKG_CHECK_MODULES(GOM, [gom-1.0], HAVE_GOM=yes, HAVE_GOM=no)
+
 # Search available Tracker version
 trackerpkg="tracker-sparql-0.10"
 m4_foreach([VERSION], [[0.10], [0.11], [0.12], [0.14], [0.15], [0.16], [0.17], [0.18], [1.0]],
@@ -673,14 +675,14 @@ AC_ARG_ENABLE(bookmarks,
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-bookmarks])
                         fi
-                        if test "x$HAVE_SQLITE" = "xno"; then
-                           AC_MSG_ERROR([sqlite3 not found, install it or use --disable-bookmarks])
+                        if test "x$HAVE_GOM" = "xno"; then
+                           AC_MSG_ERROR([gom-1.0 not found, install it or use --disable-bookmarks])
                         fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_SQLITE" = "xyes"; then
+                if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_GOM" = "xyes"; then
                    enable_bookmarks=yes
                 else
                    enable_bookmarks=no
@@ -698,9 +700,9 @@ BOOKMARKS_PLUGIN_ID="grl-bookmarks"
 AC_SUBST(BOOKMARKS_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([BOOKMARKS_PLUGIN_ID], ["$BOOKMARKS_PLUGIN_ID"], [Bookmarks plugin ID])
 
-DEPS_BOOKMARKS_CFLAGS="$DEPS_CFLAGS $SQLITE_CFLAGS"
+DEPS_BOOKMARKS_CFLAGS="$DEPS_CFLAGS $GOM_CFLAGS"
 AC_SUBST(DEPS_BOOKMARKS_CFLAGS)
-DEPS_BOOKMARKS_LIBS="$DEPS_LIBS $SQLITE_LIBS"
+DEPS_BOOKMARKS_LIBS="$DEPS_LIBS $GOM_LIBS"
 AC_SUBST(DEPS_BOOKMARKS_LIBS)
 
 # ----------------------------------------------------------

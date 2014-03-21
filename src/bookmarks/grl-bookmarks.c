@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010, 2011 Igalia S.L.
+ * Copyright (C) 2014 Bastien Nocera <hadess@hadess.net>
  *
  * Contact: Iago Toral Quiroga <itoral@igalia.com>
  *
@@ -28,14 +29,14 @@
 #include <glib/gstdio.h>
 #include <glib/gi18n-lib.h>
 #include <grilo.h>
-#include <sqlite3.h>
 #include <string.h>
 #include <stdlib.h>
 
 #include "grl-bookmarks.h"
+#include "bookmarks-resource.h"
 
-#define GRL_BOOKMARKS_GET_PRIVATE(object)			 \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),			 \
+#define GRL_BOOKMARKS_GET_PRIVATE(object)                         \
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),                         \
                                GRL_BOOKMARKS_SOURCE_TYPE,        \
                                GrlBookmarksPrivate))
 
@@ -50,66 +51,13 @@ GRL_LOG_DOMAIN_STATIC(bookmarks_log_domain);
 
 #define GRL_SQL_DB "grl-bookmarks.db"
 
-#define GRL_SQL_CREATE_TABLE_BOOKMARKS			 \
-  "CREATE TABLE IF NOT EXISTS bookmarks ("		 \
-  "id     INTEGER PRIMARY KEY AUTOINCREMENT,"		 \
-  "parent INTEGER REFERENCES bookmarks (id),"		 \
-  "type   INTEGER,"					 \
-  "url    TEXT,"					 \
-  "title  TEXT,"					 \
-  "date   TEXT,"					 \
-  "mime   TEXT,"					 \
-  "desc   TEXT)"
-
-#define GRL_SQL_GET_BOOKMARKS_BY_PARENT			\
-  "SELECT b1.*, count(b2.parent <> '') "		\
-  "FROM bookmarks b1 LEFT OUTER JOIN bookmarks b2 "	\
-  "  ON b1.id = b2.parent "				\
-  "WHERE b1.parent='%s' "				\
-  "GROUP BY b1.id "					\
-  "LIMIT %u OFFSET %u"
-
-#define GRL_SQL_GET_BOOKMARK_BY_ID			\
-  "SELECT b1.*, count(b2.parent <> '') "		\
-  "FROM bookmarks b1 LEFT OUTER JOIN bookmarks b2 "	\
-  "  ON b1.id = b2.parent "				\
-  "WHERE b1.id='%s' "					\
-  "GROUP BY b1.id "					\
-  "LIMIT 1"
-
-#define GRL_SQL_STORE_BOOKMARK				  \
-  "INSERT INTO bookmarks "				  \
-  "(parent, type, url, title, date, mime, desc) "	  \
-  "VALUES (?, ?, ?, ?, ?, ?, ?)"
-
-#define GRL_SQL_REMOVE_BOOKMARK			\
-  "DELETE FROM bookmarks "			\
-  "WHERE id='%s' or parent='%s'"
-
-#define GRL_SQL_REMOVE_ORPHAN			\
-  "DELETE FROM bookmarks "			\
-  "WHERE id in ( "				\
-  "  SELECT DISTINCT id FROM bookmarks "	\
-  "  WHERE parent NOT IN ( "			\
-  "    SELECT DISTINCT id FROM bookmarks) "	\
+#define GRL_SQL_REMOVE_ORPHAN                        \
+  "DELETE FROM bookmarks "                        \
+  "WHERE id in ( "                                \
+  "  SELECT DISTINCT id FROM bookmarks "        \
+  "  WHERE parent NOT IN ( "                        \
+  "    SELECT DISTINCT id FROM bookmarks) "        \
   "  and parent <> 0)"
-
-#define GRL_SQL_GET_BOOKMARKS_BY_TEXT				\
-  "SELECT b1.*, count(b2.parent <> '') "			\
-  "FROM bookmarks b1 LEFT OUTER JOIN bookmarks b2 "		\
-  "  ON b1.id = b2.parent "					\
-  "WHERE (b1.title LIKE '%%%s%%' OR b1.desc LIKE '%%%s%%') "	\
-  "  AND b1.type = 1 "                                          \
-  "GROUP BY b1.id "						\
-  "LIMIT %u OFFSET %u"
-
-#define GRL_SQL_GET_BOOKMARKS_BY_QUERY				\
-  "SELECT b1.*, count(b2.parent <> '') "			\
-  "FROM bookmarks b1 LEFT OUTER JOIN bookmarks b2 "		\
-  "  ON b1.id = b2.parent "					\
-  "WHERE %s "							\
-  "GROUP BY b1.id "						\
-  "LIMIT %u OFFSET %u"
 
 /* --- Plugin information --- */
 
@@ -126,20 +74,9 @@ enum {
   BOOKMARK_TYPE_STREAM,
 };
 
-enum {
-  BOOKMARK_ID = 0,
-  BOOKMARK_PARENT,
-  BOOKMARK_TYPE,
-  BOOKMARK_URL,
-  BOOKMARK_TITLE,
-  BOOKMARK_DATE,
-  BOOKMARK_MIME,
-  BOOKMARK_DESC,
-  BOOKMARK_CHILDCOUNT
-};
-
 struct _GrlBookmarksPrivate {
-  sqlite3 *db;
+  GomAdapter *adapter;
+  GomRepository *repository;
   gboolean notify_changes;
 };
 
@@ -264,12 +201,27 @@ static gboolean grl_bookmarks_source_notify_change_stop (GrlSource *source,
 }
 
 static void
+migrate_cb (GObject      *object,
+            GAsyncResult *result,
+            gpointer      user_data)
+{
+   gboolean ret;
+   GError *error = NULL;
+
+   ret = gom_repository_migrate_finish (GOM_REPOSITORY (object), result, &error);
+   if (!ret) {
+     GRL_WARNING ("Failed to migrate database: %s", error->message);
+     g_error_free (error);
+   }
+}
+
+static void
 grl_bookmarks_source_init (GrlBookmarksSource *source)
 {
-  gint r;
+  GError *error = NULL;
   gchar *path;
   gchar *db_path;
-  gchar *sql_error = NULL;
+  GList *object_types;
 
   source->priv = GRL_BOOKMARKS_GET_PRIVATE (source);
 
@@ -283,33 +235,21 @@ grl_bookmarks_source_init (GrlBookmarksSource *source)
 
   GRL_DEBUG ("Opening database connection...");
   db_path = g_strconcat (path, G_DIR_SEPARATOR_S, GRL_SQL_DB, NULL);
-  r = sqlite3_open (db_path, &source->priv->db);
   g_free (path);
+
+  source->priv->adapter = gom_adapter_new ();
+  if (!gom_adapter_open_sync (source->priv->adapter, db_path, &error)) {
+    GRL_WARNING ("Could not open database '%s': %s", db_path, error->message);
+    g_error_free (error);
+    g_free (db_path);
+    return;
+  }
   g_free (db_path);
 
-  if (r) {
-    g_critical ("Failed to open database '%s': %s",
-		db_path, sqlite3_errmsg (source->priv->db));
-    sqlite3_close (source->priv->db);
-    return;
-  }
-  GRL_DEBUG ("  OK");
-
-  GRL_DEBUG ("Checking database tables...");
-  r = sqlite3_exec (source->priv->db, GRL_SQL_CREATE_TABLE_BOOKMARKS,
-		    NULL, NULL, &sql_error);
-
-  if (r) {
-    if (sql_error) {
-      GRL_WARNING ("Failed to create database tables: %s", sql_error);
-      g_clear_pointer (&sql_error, (GDestroyNotify) sqlite3_free);
-    } else {
-      GRL_WARNING ("Failed to create database tables.");
-    }
-    sqlite3_close (source->priv->db);
-    return;
-  }
-  GRL_DEBUG ("  OK");
+  source->priv->repository = gom_repository_new (source->priv->adapter);
+  object_types = g_list_prepend(NULL, GINT_TO_POINTER(BOOKMARKS_TYPE_RESOURCE));
+  gom_repository_automatic_migrate_async (source->priv->repository, 1, object_types, migrate_cb, source);
+  g_list_free(object_types);
 }
 
 G_DEFINE_TYPE (GrlBookmarksSource, grl_bookmarks_source, GRL_TYPE_SOURCE);
@@ -323,7 +263,12 @@ grl_bookmarks_source_finalize (GObject *object)
 
   source = GRL_BOOKMARKS_SOURCE (object);
 
-  sqlite3_close (source->priv->db);
+  g_clear_object (&source->priv->repository);
+
+  if (source->priv->adapter) {
+    gom_adapter_close_sync (source->priv->adapter, NULL);
+    g_clear_object (&source->priv->adapter);
+  }
 
   G_OBJECT_CLASS (grl_bookmarks_source_parent_class)->finalize (object);
 }
@@ -349,30 +294,32 @@ mime_is_image (const gchar *mime)
 }
 
 static GrlMedia *
-build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
+build_media_from_resource (GrlMedia    *content,
+                           GomResource *resource)
 {
   GrlMedia *media = NULL;
-  gchar *id;
+  gint64 id;
+  gchar *str_id;
   gchar *title;
   gchar *url;
   gchar *desc;
   gchar *date;
   gchar *mime;
   guint type;
-  guint childcount;
 
   if (content) {
     media = content;
   }
 
-  id = (gchar *) sqlite3_column_text (sql_stmt, BOOKMARK_ID);
-  title = (gchar *) sqlite3_column_text (sql_stmt, BOOKMARK_TITLE);
-  url = (gchar *) sqlite3_column_text (sql_stmt, BOOKMARK_URL);
-  desc = (gchar *) sqlite3_column_text (sql_stmt, BOOKMARK_DESC);
-  date = (gchar *) sqlite3_column_text (sql_stmt, BOOKMARK_DATE);
-  mime = (gchar *) sqlite3_column_text (sql_stmt, BOOKMARK_MIME);
-  type = (guint) sqlite3_column_int (sql_stmt, BOOKMARK_TYPE);
-  childcount = (guint) sqlite3_column_int (sql_stmt, BOOKMARK_CHILDCOUNT);
+  g_object_get (resource,
+                  "id", &id,
+                  "title", &title,
+                  "url", &url,
+                  "desc", &desc,
+                  "date", &date,
+                  "mime", &mime,
+                  "type", &type,
+                  NULL);
 
   if (!media) {
     if (type == BOOKMARK_TYPE_CATEGORY) {
@@ -388,7 +335,9 @@ build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
     }
   }
 
-  grl_media_set_id (media, id);
+  str_id = g_strdup_printf ("%" G_GINT64_FORMAT, id);
+  grl_media_set_id (media, str_id);
+  g_free (str_id);
   grl_media_set_title (media, title);
   if (url) {
     grl_media_set_url (media, url);
@@ -407,9 +356,11 @@ build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
     }
   }
 
-  if (type == BOOKMARK_TYPE_CATEGORY) {
-    grl_media_box_set_childcount (GRL_MEDIA_BOX (media), childcount);
-  }
+  g_free (title);
+  g_free (url);
+  g_free (desc);
+  g_free (date);
+  g_free (mime);
 
   return media;
 }
@@ -417,18 +368,18 @@ build_media_from_stmt (GrlMedia *content, sqlite3_stmt *sql_stmt)
 static void
 bookmark_resolve (GrlSourceResolveSpec *rs)
 {
-  gint r;
-  sqlite3_stmt *sql_stmt = NULL;
-  sqlite3 *db;
+  GomRepository *repository;
+  GValue value = { 0, };
+  GomFilter *filter;
+  GomResource *resource;
   GError *error = NULL;
-  gchar *sql;
-  const gchar *id;
+  gint64 id;
 
   GRL_DEBUG (__FUNCTION__);
 
-  db = GRL_BOOKMARKS_SOURCE (rs->source)->priv->db;
+  repository = GRL_BOOKMARKS_SOURCE (rs->source)->priv->repository;
 
-  id = grl_media_get_id (rs->media);
+  id = g_ascii_strtoll (grl_media_get_id (rs->media), NULL, 0);
   if (!id) {
     /* Root category: special case */
     grl_media_set_title (rs->media, GRL_ROOT_TITLE);
@@ -436,13 +387,20 @@ bookmark_resolve (GrlSourceResolveSpec *rs)
     return;
   }
 
-  sql = g_strdup_printf (GRL_SQL_GET_BOOKMARK_BY_ID, id);
-  GRL_DEBUG ("%s", sql);
-  r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
-  g_free (sql);
+  g_value_init (&value, G_TYPE_INT64);
+  g_value_set_int64 (&value, id);
+  filter = gom_filter_new_eq (BOOKMARKS_TYPE_RESOURCE, "id", &value);
+  g_value_unset (&value);
+  resource = gom_repository_find_one_sync (repository,
+                                           BOOKMARKS_TYPE_RESOURCE,
+                                           filter,
+                                           &error);
+  g_object_unref (filter);
 
-  if (r != SQLITE_OK) {
-    GRL_WARNING ("Failed to get bookmark: %s", sqlite3_errmsg (db));
+  if (!resource) {
+    GRL_WARNING ("Failed to get bookmark: %s", error->message);
+    g_error_free (error);
+
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_RESOLVE_FAILED,
                                  _("Failed to get bookmark metadata"));
@@ -451,128 +409,171 @@ bookmark_resolve (GrlSourceResolveSpec *rs)
     return;
   }
 
-  while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
-
-  if (r == SQLITE_ROW) {
-    build_media_from_stmt (rs->media, sql_stmt);
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
-  } else {
-    GRL_WARNING ("Failed to get bookmark: %s", sqlite3_errmsg (db));
-    error = g_error_new_literal (GRL_CORE_ERROR,
-                                 GRL_CORE_ERROR_RESOLVE_FAILED,
-                                 _("Failed to get bookmark metadata"));
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
-    g_error_free (error);
-  }
-
-  sqlite3_finalize (sql_stmt);
+  build_media_from_resource (rs->media, resource);
+  g_object_unref (resource);
+  rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
 }
 
 static void
-produce_bookmarks_from_sql (OperationSpec *os, const gchar *sql)
+find_cb (GObject      *object,
+         GAsyncResult *res,
+         gpointer      user_data)
 {
-  gint r;
-  sqlite3_stmt *sql_stmt = NULL;
-  sqlite3 *db;
-  GrlMedia *media;
+  GomResourceGroup *group;
+  OperationSpec *os = user_data;
+  GError *local_error = NULL;
   GError *error = NULL;
-  GList *medias = NULL;
-  guint count = 0;
-  GList *iter;
+  guint idx, count, num_left;
 
-  GRL_DEBUG ("produce_bookmarks_from_sql");
-
-  GRL_DEBUG ("%s", sql);
-  db = GRL_BOOKMARKS_SOURCE (os->source)->priv->db;
-  r = sqlite3_prepare_v2 (db, sql, strlen (sql), &sql_stmt, NULL);
-
-  if (r != SQLITE_OK) {
-    GRL_WARNING ("Failed to retrieve bookmarks: %s", sqlite3_errmsg (db));
+  group = gom_repository_find_finish (GOM_REPOSITORY (object),
+                                      res,
+                                      &local_error);
+  if (!group) {
+    GRL_WARNING ("Failed to find bookmarks: %s", local_error->message);
     error = g_error_new (GRL_CORE_ERROR,
                          os->error_code,
-                         _("Failed to get bookmarks list: %s"),
-                         sqlite3_errmsg (db));
+                         _("Failed to find bookmarks: %s"), local_error->message);
+    g_error_free (local_error);
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
     g_error_free (error);
-    goto free_resources;
+    goto out;
   }
 
-  while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
-
-  while (r == SQLITE_ROW) {
-    media = build_media_from_stmt (NULL, sql_stmt);
-    medias = g_list_prepend (medias, media);
-    count++;
-    r = sqlite3_step (sql_stmt);
-  }
-
-  if (r != SQLITE_DONE) {
-    GRL_WARNING ("Failed to retrieve bookmarks: %s", sqlite3_errmsg (db));
-    error = g_error_new (GRL_CORE_ERROR,
-                         os->error_code,
-                         _("Failed to get bookmarks list: %s"),
-                         sqlite3_errmsg (db));
-    os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
-    g_error_free (error);
-    goto free_resources;
-  }
-
-  if (count > 0) {
-    medias = g_list_reverse (medias);
-    iter = medias;
-    while (iter) {
-      media = GRL_MEDIA (iter->data);
-      os->callback (os->source,
-		    os->operation_id,
-		    media,
-		    --count,
-		    os->user_data,
-		    NULL);
-      iter = g_list_next (iter);
-    }
-    g_list_free (medias);
-  } else {
+  count = gom_resource_group_get_count (group);
+  if (os->skip >= count) {
     os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+    goto out;
   }
 
- free_resources:
-  g_clear_pointer (&sql_stmt, (GDestroyNotify) sqlite3_finalize);
+  if (!gom_resource_group_fetch_sync (group, os->skip, os->count, &local_error)) {
+    GRL_WARNING ("Failed to find bookmarks: %s", local_error->message);
+    error = g_error_new (GRL_CORE_ERROR,
+                         os->error_code,
+                         _("Failed to find bookmarks: %s"), local_error->message);
+    g_error_free (local_error);
+    os->callback (os->source, os->operation_id, NULL, 0, os->user_data, error);
+    g_error_free (error);
+    goto out;
+  }
+
+  idx = os->skip;
+  num_left = MIN (count - os->skip, os->count);
+  for (idx = os->skip; num_left > 0 ; idx++) {
+    GomResource *resource;
+    GrlMedia *media;
+
+    resource = gom_resource_group_get_index (group, idx);
+    media = build_media_from_resource (NULL, resource);
+    os->callback (os->source,
+                  os->operation_id,
+                  media,
+                  --num_left,
+                  os->user_data,
+                  NULL);
+  }
+
+  g_object_unref (group);
+
+out:
+  g_slice_free (OperationSpec, os);
 }
 
 static void
-produce_bookmarks_by_query (OperationSpec *os, const gchar *query)
+produce_bookmarks_from_filter (OperationSpec *os,
+                               GomFilter     *filter)
 {
-  gchar *sql;
-  GRL_DEBUG ("produce_bookmarks_by_query");
-  sql = g_strdup_printf (GRL_SQL_GET_BOOKMARKS_BY_QUERY,
-			 query, os->count, os->skip);
-  produce_bookmarks_from_sql (os, sql);
-  g_free (sql);
-}
+  GomRepository *repository;
 
-static void
-produce_bookmarks_by_text (OperationSpec *os, const gchar *text)
-{
-  gchar *sql;
-  GRL_DEBUG ("produce_bookmarks_by_text");
-  sql = g_strdup_printf (GRL_SQL_GET_BOOKMARKS_BY_TEXT,
-			 text? text: "",
-                         text? text: "",
-                         os->count,
-                         os->skip);
-  produce_bookmarks_from_sql (os, sql);
-  g_free (sql);
+  GRL_DEBUG ("produce_bookmarks_from_filter");
+
+  repository = GRL_BOOKMARKS_SOURCE (os->source)->priv->repository;
+  gom_repository_find_async (repository,
+                             BOOKMARKS_TYPE_RESOURCE,
+                             filter,
+                             find_cb,
+                             os);
 }
 
 static void
 produce_bookmarks_from_category (OperationSpec *os, const gchar *category_id)
 {
-  gchar *sql;
+  GomFilter *filter;
+  GValue value = { 0, };
+  int parent_id;
+
   GRL_DEBUG ("produce_bookmarks_from_category");
-  sql = g_strdup_printf (GRL_SQL_GET_BOOKMARKS_BY_PARENT,
-			 category_id, os->count, os->skip);
-  produce_bookmarks_from_sql (os, sql);
-  g_free (sql);
+  parent_id = atoi (category_id);
+
+  g_value_init (&value, G_TYPE_INT64);
+  g_value_set_int64 (&value, parent_id);
+  filter = gom_filter_new_eq (BOOKMARKS_TYPE_RESOURCE, "parent", &value);
+  g_value_unset (&value);
+
+  produce_bookmarks_from_filter (os, filter);
+  g_object_unref (filter);
+}
+
+static void
+produce_bookmarks_from_query (OperationSpec *os, const gchar *query)
+{
+  GomFilter *filter;
+  GArray *array;
+
+  GRL_DEBUG ("produce_bookmarks_from_query");
+
+  array = g_array_new(FALSE, FALSE, sizeof(GValue));
+  filter = gom_filter_new_sql (query, array);
+  g_array_unref (array);
+  produce_bookmarks_from_filter (os, filter);
+  g_object_unref (filter);
+}
+
+static GomFilter *
+substr_filter (const char *column,
+               const char *text)
+{
+  GValue value = { 0, };
+  GomFilter *filter;
+  char *str;
+
+  g_value_init (&value, G_TYPE_STRING);
+  str = g_strdup_printf ("%%%s%%", text);
+  g_value_set_string (&value, str);
+  g_free (str);
+
+  filter = gom_filter_new_like (BOOKMARKS_TYPE_RESOURCE, column, &value);
+  g_value_unset (&value);
+
+  return filter;
+}
+
+static void
+produce_bookmarks_from_text (OperationSpec *os, const gchar *text)
+{
+  GomFilter *like1, *like2, *likes, *type1, *filter;
+  GValue value = { 0, };
+
+  GRL_DEBUG ("produce_bookmarks_from_text");
+
+  /* WHERE (title LIKE '%text%' OR desc LIKE '%text%') AND type == BOOKMARKS_TYPE_STREAM */
+
+  like1 = substr_filter ("title", text);
+  like2 = substr_filter ("desc", text);
+  likes = gom_filter_new_or (like1, like2);
+  g_object_unref (like1);
+  g_object_unref (like2);
+
+  g_value_init (&value, G_TYPE_INT);
+  g_value_set_int (&value, BOOKMARKS_TYPE_STREAM);
+  type1 = gom_filter_new_eq (BOOKMARKS_TYPE_RESOURCE, "type", &value);
+  g_value_unset (&value);
+
+  filter = gom_filter_new_and (likes, type1);
+  g_object_unref (likes);
+  g_object_unref (type1);
+
+  produce_bookmarks_from_filter (os, filter);
+  g_object_unref (filter);
 }
 
 static void
@@ -581,31 +582,26 @@ remove_bookmark (GrlBookmarksSource *bookmarks_source,
                  GrlMedia *media,
                  GError **error)
 {
-  gint r;
-  gchar *sql_error;
-  gchar *sql;
+  GomResource *resource;
+  gint64 id;
+  GError *local_error = NULL;
 
   GRL_DEBUG ("remove_bookmark");
 
-  sql = g_strdup_printf (GRL_SQL_REMOVE_BOOKMARK, bookmark_id, bookmark_id);
-  GRL_DEBUG ("%s", sql);
-  r = sqlite3_exec (bookmarks_source->priv->db, sql, NULL, NULL, &sql_error);
-  g_free (sql);
-
-  if (r != SQLITE_OK) {
-    GRL_WARNING ("Failed to remove bookmark '%s': %s", bookmark_id, sql_error);
+  id = g_ascii_strtoll (bookmark_id, NULL, 0);
+  resource = g_object_new (BOOKMARKS_TYPE_RESOURCE, "id", id,
+                           "repository", bookmarks_source->priv->repository,
+                           NULL);
+  if (!gom_resource_delete_sync (resource, &local_error)) {
+    GRL_WARNING ("Failed to remove bookmark '%s': %s", bookmark_id, local_error->message);
     *error = g_error_new (GRL_CORE_ERROR,
                           GRL_CORE_ERROR_REMOVE_FAILED,
                           _("Failed to remove: %s"),
-                          sql_error);
-    sqlite3_free (sql_error);
+                          local_error->message);
+    g_error_free (local_error);
   }
 
-  /* Remove orphan nodes from database */
-  GRL_DEBUG ("%s", GRL_SQL_REMOVE_ORPHAN);
-  sqlite3_exec (bookmarks_source->priv->db,
-                GRL_SQL_REMOVE_ORPHAN,
-                NULL, NULL, NULL);
+  g_object_unref (resource);
 
   if (bookmarks_source->priv->notify_changes) {
     /* We can improve accuracy computing the parent container of removed
@@ -624,17 +620,19 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
                 GrlMedia *bookmark,
                 GError **error)
 {
-  gint r;
-  sqlite3_stmt *sql_stmt = NULL;
+  GomResource *resource;
   const gchar *title;
   const gchar *url;
   const gchar *desc;
   GTimeVal now;
-  const gchar *parent_id;
+  gint64 parent_id;
   const gchar *mime;
   gchar *date;
   guint type;
-  gchar *id;
+  gint64 id;
+  gchar *str_id;
+  GError *local_error = NULL;
+  gboolean ret;
 
   GRL_DEBUG ("store_bookmark");
 
@@ -646,27 +644,12 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
   date = g_time_val_to_iso8601 (&now);
 
   if (!parent) {
-    parent_id = "0";
+    parent_id = 0;
   } else {
-    parent_id = grl_media_get_id (GRL_MEDIA (parent));
+    parent_id = g_ascii_strtoll (grl_media_get_id (GRL_MEDIA (parent)), NULL, 0);
   }
-  if (!parent_id) {
-    parent_id = "0";
-  }
-
-  GRL_DEBUG ("%s", GRL_SQL_STORE_BOOKMARK);
-  r = sqlite3_prepare_v2 (bookmarks_source->priv->db,
-			  GRL_SQL_STORE_BOOKMARK,
-			  strlen (GRL_SQL_STORE_BOOKMARK),
-			  &sql_stmt, NULL);
-  if (r != SQLITE_OK) {
-    GRL_WARNING ("Failed to store bookmark '%s': %s", title,
-                 sqlite3_errmsg (bookmarks_source->priv->db));
-    *error = g_error_new (GRL_CORE_ERROR,
-                          GRL_CORE_ERROR_STORE_FAILED,
-                          _("Failed to store: %s"),
-                          sqlite3_errmsg (bookmarks_source->priv->db));
-    return;
+  if (parent_id < 0) {
+    parent_id = 0;
   }
 
   GRL_DEBUG ("URL: '%s'", url);
@@ -677,63 +660,59 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
     type = BOOKMARK_TYPE_STREAM;
   }
 
-  sqlite3_bind_text (sql_stmt, BOOKMARK_PARENT, parent_id, -1, SQLITE_STATIC);
-  sqlite3_bind_int (sql_stmt, BOOKMARK_TYPE, type);
+  resource = g_object_new (BOOKMARKS_TYPE_RESOURCE,
+                           "repository", bookmarks_source->priv->repository,
+                           "parent", parent_id,
+                           "type", type,
+                           NULL);
+
   if (type == BOOKMARK_TYPE_STREAM) {
-    sqlite3_bind_text (sql_stmt, BOOKMARK_URL, url, -1, SQLITE_STATIC);
+    g_object_set (G_OBJECT (resource), "url", url, NULL);
     *keylist = g_list_remove (*keylist,
                               GRLKEYID_TO_POINTER (GRL_METADATA_KEY_URL));
-  } else {
-    sqlite3_bind_null (sql_stmt, BOOKMARK_URL);
   }
   if (title) {
-    sqlite3_bind_text (sql_stmt, BOOKMARK_TITLE, title, -1, SQLITE_STATIC);
+    g_object_set (G_OBJECT (resource), "title", title, NULL);
     *keylist = g_list_remove (*keylist,
                               GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE));
   } else if (url) {
-    sqlite3_bind_text (sql_stmt, BOOKMARK_TITLE, url, -1, SQLITE_STATIC);
+    g_object_set (G_OBJECT (resource), "title", url, NULL);
   } else {
-    sqlite3_bind_text (sql_stmt, BOOKMARK_TITLE, "(unknown)", -1, SQLITE_STATIC);
+    g_object_set (G_OBJECT (resource), "title", "(unknown)", NULL);
   }
   if (date) {
-    sqlite3_bind_text (sql_stmt, BOOKMARK_DATE, date, -1, SQLITE_STATIC);
-  } else {
-    sqlite3_bind_null (sql_stmt, BOOKMARK_DATE);
+    g_object_set (G_OBJECT (resource), "date", date, NULL);
   }
   if (mime) {
-    sqlite3_bind_text (sql_stmt, BOOKMARK_MIME, mime, -1, SQLITE_STATIC);
+    g_object_set (G_OBJECT (resource), "mime", mime, NULL);
     *keylist = g_list_remove (*keylist,
                               GRLKEYID_TO_POINTER (GRL_METADATA_KEY_MIME));
-  } else {
-    sqlite3_bind_null (sql_stmt, BOOKMARK_MIME);
   }
   if (desc) {
-    sqlite3_bind_text (sql_stmt, BOOKMARK_DESC, desc, -1, SQLITE_STATIC);
+    g_object_set (G_OBJECT (resource), "desc", desc, NULL);
     *keylist = g_list_remove (*keylist,
                               GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DESCRIPTION));
-  } else {
-    sqlite3_bind_null (sql_stmt, BOOKMARK_DESC);
   }
 
-  while ((r = sqlite3_step (sql_stmt)) == SQLITE_BUSY);
-
-  if (r != SQLITE_DONE) {
+  ret = gom_resource_save_sync (resource, &local_error);
+  if (!ret) {
     GRL_WARNING ("Failed to store bookmark '%s': %s", title,
-                 sqlite3_errmsg (bookmarks_source->priv->db));
+                 local_error->message);
     *error = g_error_new (GRL_CORE_ERROR,
                           GRL_CORE_ERROR_STORE_FAILED,
                           _("Failed to store: %s"),
-                          sqlite3_errmsg (bookmarks_source->priv->db));
-    sqlite3_finalize (sql_stmt);
+                          local_error->message);
+    g_error_free (local_error);
+    g_object_unref (resource);
     return;
   }
 
-  sqlite3_finalize (sql_stmt);
+  g_object_get (resource, "id", &id, NULL);
+  str_id = g_strdup_printf ("%" G_GINT64_FORMAT, id);
+  grl_media_set_id (bookmark, str_id);
+  g_free (str_id);
 
-  id = g_strdup_printf ("%llu",
-                        sqlite3_last_insert_rowid (bookmarks_source->priv->db));
-  grl_media_set_id (bookmark, id);
-  g_free (id);
+  g_object_unref (resource);
 
   if (bookmarks_source->priv->notify_changes) {
     grl_source_notify_change (GRL_SOURCE (bookmarks_source),
@@ -772,7 +751,7 @@ grl_bookmarks_source_browse (GrlSource *source,
   GError *error = NULL;
 
   bookmarks_source = GRL_BOOKMARKS_SOURCE (source);
-  if (!bookmarks_source->priv->db) {
+  if (!bookmarks_source->priv->adapter) {
     GRL_WARNING ("Can't execute operation: no database connection.");
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_BROWSE_FAILED,
@@ -793,7 +772,6 @@ grl_bookmarks_source_browse (GrlSource *source,
   os->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
 
   produce_bookmarks_from_category (os, os->media_id ? os->media_id : "0");
-  g_slice_free (OperationSpec, os);
 }
 
 static void
@@ -807,7 +785,7 @@ grl_bookmarks_source_search (GrlSource *source,
   GError *error = NULL;
 
   bookmarks_source = GRL_BOOKMARKS_SOURCE (source);
-  if (!bookmarks_source->priv->db) {
+  if (!bookmarks_source->priv->adapter) {
     GRL_WARNING ("Can't execute operation: no database connection.");
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_QUERY_FAILED,
@@ -824,8 +802,7 @@ grl_bookmarks_source_search (GrlSource *source,
   os->callback = ss->callback;
   os->user_data = ss->user_data;
   os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
-  produce_bookmarks_by_text (os, ss->text);
-  g_slice_free (OperationSpec, os);
+  produce_bookmarks_from_text (os, ss->text);
 }
 
 static void
@@ -839,7 +816,7 @@ grl_bookmarks_source_query (GrlSource *source,
   GError *error = NULL;
 
   bookmarks_source = GRL_BOOKMARKS_SOURCE (source);
-  if (!bookmarks_source->priv->db) {
+  if (!bookmarks_source->priv->adapter) {
     GRL_WARNING ("Can't execute operation: no database connection.");
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_QUERY_FAILED,
@@ -856,8 +833,7 @@ grl_bookmarks_source_query (GrlSource *source,
   os->callback = qs->callback;
   os->user_data = qs->user_data;
   os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;
-  produce_bookmarks_by_query (os, qs->query);
-  g_slice_free (OperationSpec, os);
+  produce_bookmarks_from_query (os, qs->query);
 }
 
 static void
@@ -882,7 +858,7 @@ static void grl_bookmarks_source_remove (GrlSource *source,
   GRL_DEBUG (__FUNCTION__);
   GError *error = NULL;
   remove_bookmark (GRL_BOOKMARKS_SOURCE (rs->source),
-		   rs->media_id, rs->media, &error);
+                   rs->media_id, rs->media, &error);
   rs->callback (rs->source, rs->media, rs->user_data, error);
   g_clear_error (&error);
 }
@@ -897,7 +873,7 @@ grl_bookmarks_source_resolve (GrlSource *source,
   GError *error = NULL;
 
   bookmarks_source = GRL_BOOKMARKS_SOURCE (source);
-  if (!bookmarks_source->priv->db) {
+  if (!bookmarks_source->priv->repository) {
     GRL_WARNING ("Can't execute operation: no database connection.");
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_RESOLVE_FAILED,

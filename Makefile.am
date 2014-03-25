@@ -6,6 +6,7 @@
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 
 include $(top_srcdir)/gtester.mk
+include $(top_srcdir)/release.mk
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -62,17 +63,6 @@ distclean-local:
 	-rm -rf autom4te.cache
 
 dist-hook:
-	@if test -d "$(srcdir)/.git"; \
-	then \
-		echo Creating ChangeLog && \
-		( cd "$(top_srcdir)" && \
-		  $(top_srcdir)/missing --run git log --stat ) > ChangeLog.tmp \
-		&& mv -f ChangeLog.tmp $(top_distdir)/ChangeLog \
-		|| ( rm -f ChangeLog.tmp ; \
-		     echo Failed to generate ChangeLog >&2 ); \
-	else \
-		echo A git clone is required to generate a ChangeLog >&2; \
-	fi
 
 if GCOV_ENABLED
 lcov-clean:

@@ -224,16 +224,14 @@ grl_bookmarks_source_init (GrlBookmarksSource *source)
 
   source->priv = GRL_BOOKMARKS_GET_PRIVATE (source);
 
-  path = g_strconcat (g_get_user_data_dir (),
-                      G_DIR_SEPARATOR_S, "grilo-plugins",
-                      NULL);
+  path = g_build_filename (g_get_user_data_dir (), "grilo-plugins", NULL);
 
   if (!g_file_test (path, G_FILE_TEST_IS_DIR)) {
     g_mkdir_with_parents (path, 0775);
   }
 
   GRL_DEBUG ("Opening database connection...");
-  db_path = g_strconcat (path, G_DIR_SEPARATOR_S, GRL_SQL_DB, NULL);
+  db_path = g_build_filename (path, GRL_SQL_DB, NULL);
   g_free (path);
 
   source->priv->adapter = gom_adapter_new ();

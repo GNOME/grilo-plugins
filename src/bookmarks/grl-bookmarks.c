@@ -88,7 +88,6 @@ typedef struct {
   guint count;
   GrlSourceResultCb callback;
   guint error_code;
-  gboolean is_query;
   gpointer user_data;
 } OperationSpec;
 

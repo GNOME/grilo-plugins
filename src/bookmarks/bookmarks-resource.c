@@ -34,6 +34,7 @@ struct _BookmarksResourcePrivate
    char          *date;
    char          *mime;
    char          *desc;
+   char          *thumbnail_url;
 };
 
 enum
@@ -47,6 +48,7 @@ enum
    PROP_DATE,
    PROP_MIME,
    PROP_DESC,
+   PROP_THUMBNAIL_URL,
    LAST_PROP
 };
 
@@ -62,6 +64,7 @@ bookmarks_resource_finalize (GObject *object)
    g_free (priv->date);
    g_free (priv->mime);
    g_free (priv->desc);
+   g_free (priv->thumbnail_url);
 
    G_OBJECT_CLASS(bookmarks_resource_parent_class)->finalize(object);
 }
@@ -98,6 +101,9 @@ bookmarks_resource_get_property (GObject    *object,
       break;
    case PROP_DESC:
       g_value_set_string(value, resource->priv->desc);
+      break;
+   case PROP_THUMBNAIL_URL:
+      g_value_set_string(value, resource->priv->thumbnail_url);
       break;
    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -141,6 +147,10 @@ bookmarks_resource_set_property (GObject      *object,
    case PROP_DESC:
       g_free (resource->priv->desc);
       resource->priv->desc = g_value_dup_string (value);
+      break;
+   case PROP_THUMBNAIL_URL:
+      g_free (resource->priv->thumbnail_url);
+      resource->priv->thumbnail_url = g_value_dup_string (value);
       break;
    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -237,6 +247,16 @@ bookmarks_resource_class_init (BookmarksResourceClass *klass)
                           G_PARAM_READWRITE);
    g_object_class_install_property(object_class, PROP_DESC,
                                    specs[PROP_DESC]);
+   specs[PROP_THUMBNAIL_URL] =
+      g_param_spec_string("thumbnail-url",
+                          NULL,
+                          NULL,
+                          NULL,
+                          G_PARAM_READWRITE);
+   g_object_class_install_property(object_class, PROP_THUMBNAIL_URL,
+                                   specs[PROP_THUMBNAIL_URL]);
+   gom_resource_class_set_property_new_in_version(resource_class,
+                                                  "thumbnail-url", 2);
 }
 
 static void

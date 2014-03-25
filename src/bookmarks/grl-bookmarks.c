@@ -245,7 +245,7 @@ grl_bookmarks_source_init (GrlBookmarksSource *source)
 
   source->priv->repository = gom_repository_new (source->priv->adapter);
   object_types = g_list_prepend(NULL, GINT_TO_POINTER(BOOKMARKS_TYPE_RESOURCE));
-  gom_repository_automatic_migrate_async (source->priv->repository, 1, object_types, migrate_cb, source);
+  gom_repository_automatic_migrate_async (source->priv->repository, 2, object_types, migrate_cb, source);
   g_list_free(object_types);
 }
 
@@ -302,6 +302,7 @@ build_media_from_resource (GrlMedia    *content,
   gchar *desc;
   gchar *date;
   gchar *mime;
+  gchar *thumb;
   guint type;
 
   if (content) {
@@ -316,6 +317,7 @@ build_media_from_resource (GrlMedia    *content,
                   "date", &date,
                   "mime", &mime,
                   "type", &type,
+                  "thumbnail-url", &thumb,
                   NULL);
 
   if (!media) {
@@ -353,11 +355,16 @@ build_media_from_resource (GrlMedia    *content,
     }
   }
 
+  if (thumb) {
+    grl_media_set_thumbnail (media, thumb);
+  }
+
   g_free (title);
   g_free (url);
   g_free (desc);
   g_free (date);
   g_free (mime);
+  g_free (thumb);
 
   return media;
 }
@@ -621,6 +628,7 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
   const gchar *title;
   const gchar *url;
   const gchar *desc;
+  const gchar *thumb;
   GTimeVal now;
   gint64 parent_id;
   const gchar *mime;
@@ -635,6 +643,7 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
 
   title = grl_media_get_title (bookmark);
   url = grl_media_get_url (bookmark);
+  thumb = grl_media_get_thumbnail (bookmark);
   desc = grl_media_get_description (bookmark);
   mime = grl_media_get_mime (bookmark);
   g_get_current_time (&now);
@@ -690,6 +699,11 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
     *keylist = g_list_remove (*keylist,
                               GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DESCRIPTION));
   }
+  if (thumb) {
+    g_object_set (G_OBJECT (resource), "thumbnail-url", desc, NULL);
+    *keylist = g_list_remove (*keylist,
+                              GRLKEYID_TO_POINTER (GRL_METADATA_KEY_THUMBNAIL));
+  }
 
   ret = gom_resource_save_sync (resource, &local_error);
   if (!ret) {
@@ -731,6 +745,7 @@ grl_bookmarks_source_supported_keys (GrlSource *source)
                                       GRL_METADATA_KEY_URL,
                                       GRL_METADATA_KEY_CHILDCOUNT,
                                       GRL_METADATA_KEY_DESCRIPTION,
+                                      GRL_METADATA_KEY_THUMBNAIL,
                                       GRL_BOOKMARKS_KEY_BOOKMARK_TIME,
                                       NULL);
   }

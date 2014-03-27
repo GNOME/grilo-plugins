@@ -38,6 +38,7 @@ test_setup (void)
 static char *
 get_show_for_title (GrlSource  *source,
 		    const char *title,
+		    const char *url,
 		    int        *season,
 		    int        *episode)
 {
@@ -48,6 +49,7 @@ get_show_for_title (GrlSource  *source,
 
   media = grl_media_video_new ();
   grl_media_set_title (media, title);
+  grl_media_set_url (media, url);
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_SHOW,
 				    GRL_METADATA_KEY_SEASON,
@@ -83,13 +85,15 @@ test_episodes (void)
 
   struct {
     char *title;
+    char *url;
     char *show;
     int season;
     int episode;
   } episode_tests[] = {
-    { "The.Slap.S01E01.Hector.WS.PDTV.XviD-BWB.avi", "The Slap", 1, 1 },
-    { "metalocalypse.s02e01.dvdrip.xvid-ffndvd.avi", "metalocalypse", 2, 1 },
-    { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", "Boardwalk Empire", 4, 1 },
+    { "The.Slap.S01E01.Hector.WS.PDTV.XviD-BWB.avi", NULL, "The Slap", 1, 1 },
+    { "metalocalypse.s02e01.dvdrip.xvid-ffndvd.avi", NULL, "metalocalypse", 2, 1 },
+    { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", NULL, "Boardwalk Empire", 4, 1 },
+    { NULL, "file:///home/test/My%20super%20series.S01E01.mp4", "My super series", 1, 1 },
   };
 
 
@@ -101,7 +105,7 @@ test_episodes (void)
     char *show;
     int season, episode;
 
-    show = get_show_for_title (source, episode_tests[i].title, &season, &episode);
+    show = get_show_for_title (source, episode_tests[i].title, episode_tests[i].url, &season, &episode);
     g_assert_cmpstr (episode_tests[i].show, ==, show);
     if (show != NULL) {
       g_assert_cmpint (episode_tests[i].season, ==, season);

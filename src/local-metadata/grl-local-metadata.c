@@ -512,8 +512,14 @@ resolve_video (GrlSource *source,
                  FLAG_VIDEO_EPISODE)))
     return;
 
-  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_TITLE) ?
-    0 : FLAG_VIDEO_TITLE;
+  if (grl_data_has_key (data, GRL_METADATA_KEY_TITLE)) {
+    if (grl_data_get_boolean (data, GRL_METADATA_KEY_TITLE_FROM_FILENAME)) {
+      miss_flags = FLAG_VIDEO_TITLE;
+    } else
+      miss_flags = 0;
+  } else {
+    miss_flags = FLAG_VIDEO_TITLE;
+  }
   miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_SHOW) ?
     0 : FLAG_VIDEO_SHOWNAME;
   miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_PUBLICATION_DATE) ?
@@ -549,8 +555,9 @@ resolve_video (GrlSource *source,
              date != NULL ? g_date_time_get_year (date) : 0,
              season, episode);
 
-  /* As this is just a guess, don't erase already provided values. */
-  if (title) {
+  /* As this is just a guess, don't erase already provided values,
+   * unless GRL_METADATA_KEY_TITLE_FROM_FILENAME is set */
+  if (grl_data_get_boolean (data, GRL_METADATA_KEY_TITLE_FROM_FILENAME)) {
     if (fill_flags & FLAG_VIDEO_TITLE) {
       grl_data_set_string (data, GRL_METADATA_KEY_TITLE, title);
     }
@@ -846,6 +853,8 @@ grl_local_metadata_source_resolve (GrlSource *source,
   can_access = has_compatible_media_url (rs->media);
 
   flags = get_resolution_flags (rs->keys);
+  if (grl_data_get_boolean (GRL_DATA (rs->media), GRL_METADATA_KEY_TITLE_FROM_FILENAME))
+    flags |= FLAG_VIDEO_TITLE;
 
    if (!flags)
      error = g_error_new_literal (GRL_CORE_ERROR,

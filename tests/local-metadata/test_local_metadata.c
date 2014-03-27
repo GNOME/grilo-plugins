@@ -50,6 +50,7 @@ get_show_for_title (GrlSource  *source,
   media = grl_media_video_new ();
   grl_media_set_title (media, title);
   grl_media_set_url (media, url);
+  grl_data_set_boolean (GRL_DATA (media), GRL_METADATA_KEY_TITLE_FROM_FILENAME, TRUE);
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_SHOW,
 				    GRL_METADATA_KEY_SEASON,
@@ -123,6 +124,57 @@ test_episodes (void)
   }
 }
 
+static void
+test_title_override (void)
+{
+  GrlRegistry *registry;
+  GrlSource *source;
+  guint i;
+
+  struct {
+    char *title;
+    gboolean from_filename;
+    char *expected;
+  } filename_tests[] = {
+    { "Test.mp4", TRUE, "Test" },
+    { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", FALSE, "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4" }
+  };
+
+  registry = grl_registry_get_default ();
+  source = grl_registry_lookup_source (registry, "grl-local-metadata");
+  g_assert (source);
+
+  for (i = 0; i < G_N_ELEMENTS(filename_tests); i++) {
+    GrlMedia *media;
+    GrlOperationOptions *options;
+    GList *keys;
+    const gchar *title;
+
+    media = grl_media_video_new ();
+    grl_media_set_title (media, filename_tests[i].title);
+    grl_data_set_boolean (GRL_DATA (media), GRL_METADATA_KEY_TITLE_FROM_FILENAME, filename_tests[i].from_filename);
+
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, GRL_METADATA_KEY_SHOW, NULL);
+    options = grl_operation_options_new (NULL);
+    grl_operation_options_set_flags (options, GRL_RESOLVE_FULL);
+
+    grl_source_resolve_sync (source,
+			     media,
+			     keys,
+			     options,
+			     NULL);
+
+    g_list_free (keys);
+    g_object_unref (options);
+
+    title = grl_media_get_title(media);
+
+    g_assert_cmpstr (filename_tests[i].expected, ==, title);
+
+    g_object_unref (media);
+  }
+}
+
 int
 main(int argc, char **argv)
 {
@@ -139,6 +191,7 @@ main(int argc, char **argv)
   test_setup ();
 
   g_test_add_func ("/local-metadata/resolve/episodes", test_episodes);
+  g_test_add_func ("/local-metadata/resolve/title-override", test_title_override);
 
   gint result = g_test_run ();
 

@@ -265,17 +265,15 @@ video_sanitise_string (const gchar *str)
 
 /* tidies strings before we run them through the regexes */
 static gchar *
-video_uri_to_metadata (const gchar *uri)
+video_display_name_to_metadata (const gchar *display_name)
 {
-  gchar *ext, *basename, *name, *whitelisted;
+  gchar *ext, *name, *whitelisted;
 
-  basename = g_path_get_basename (uri);
-  ext = strrchr (basename, '.');
+  ext = strrchr (display_name, '.');
   if (ext) {
-    name = g_strndup (basename, ext - basename);
-    g_free (basename);
+    name = g_strndup (display_name, ext - display_name);
   } else {
-    name = basename;
+    name = g_strdup (display_name);
   }
 
   /* Replace _ <space> with . */
@@ -287,18 +285,18 @@ video_uri_to_metadata (const gchar *uri)
 }
 
 static void
-video_guess_values_from_uri (const gchar *uri,
-                             gchar      **title,
-                             gchar      **showname,
-                             GDateTime  **date,
-                             gint        *season,
-                             gint        *episode)
+video_guess_values_from_display_name (const gchar *display_name,
+                                      gchar      **title,
+                                      gchar      **showname,
+                                      GDateTime  **date,
+                                      gint        *season,
+                                      gint        *episode)
 {
   gchar      *metadata;
   GRegex     *regex;
   GMatchInfo *info;
 
-  metadata = video_uri_to_metadata (uri);
+  metadata = video_display_name_to_metadata (display_name);
 
   regex = g_regex_new (MOVIE_REGEX, 0, 0, NULL);
   g_regex_match (regex, metadata, 0, &info);
@@ -495,7 +493,7 @@ resolve_video (GrlSource *source,
                GrlKeyID key,
                resolution_flags_t flags)
 {
-  gchar *title, *showname;
+  gchar *title, *showname, *display_name;
   GDateTime *date;
   gint season, episode;
   GrlData *data = GRL_DATA (rs->media);
@@ -526,9 +524,19 @@ resolve_video (GrlSource *source,
   if (!fill_flags)
     return;
 
-  video_guess_values_from_uri (grl_data_get_string (GRL_DATA (rs->media), key),
-                               &title, &showname, &date,
-                               &season, &episode);
+  if (key == GRL_METADATA_KEY_URL) {
+    GFile *file;
+
+    file = g_file_new_for_uri (grl_media_get_url (rs->media));
+    display_name = g_file_get_basename (file);
+    g_object_unref (file);
+  } else {
+    display_name = g_strdup (grl_media_get_title (rs->media));
+  }
+
+  video_guess_values_from_display_name (display_name,
+                                        &title, &showname, &date,
+                                        &season, &episode);
 
   GRL_DEBUG ("\tfound title=%s/showname=%s/year=%i/season=%i/episode=%i",
              title, showname,

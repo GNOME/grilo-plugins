@@ -538,6 +538,8 @@ resolve_video (GrlSource *source,
                                         &title, &showname, &date,
                                         &season, &episode);
 
+  g_free (display_name);
+
   GRL_DEBUG ("\tfound title=%s/showname=%s/year=%i/season=%i/episode=%i",
              title, showname,
              date != NULL ? g_date_time_get_year (date) : 0,

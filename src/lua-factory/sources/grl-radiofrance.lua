@@ -84,6 +84,11 @@ function parse_playlist(playlist, francebleu)
   end
 
   local items = playlist:match('Flux = {.-' .. match1_prefix .. ' : {(.*)}.-}')
+  if not items then
+    grl.callback()
+    return false
+  end
+
   for item in items:gmatch(match2) do
     local media = create_media(item, francebleu)
     if media then

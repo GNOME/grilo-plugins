@@ -510,8 +510,7 @@ get_lua_sources (void)
     gchar **local_dirs;
 
     /* Environment-only plugins */
-    GRL_DEBUG ("'%s' %s", ENV_LUA_SOURCES_PATH,
-               "is setted - Getting lua-sources only from there.");
+    GRL_DEBUG ("'%s' is set - Getting lua-sources only from there.", ENV_LUA_SOURCES_PATH);
     local_dirs = g_strsplit (envvar, G_SEARCHPATH_SEPARATOR_S, -1);
     if (local_dirs) {
       while (local_dirs[i] != NULL) {

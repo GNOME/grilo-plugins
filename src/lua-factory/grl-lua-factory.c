@@ -501,6 +501,7 @@ get_lua_sources (void)
   gint i = 0;
   const gchar *envvar = NULL;
   const gchar *it_file = NULL;
+  GHashTable *ht;
 
   GRL_DEBUG ("get_lua_sources");
 
@@ -539,6 +540,8 @@ get_lua_sources (void)
                                                     NULL));
   }
 
+  ht = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
   for (it_path = l_locations; it_path; it_path = it_path->next) {
     dir = g_dir_open (it_path->data, 0, NULL);
     if (dir == NULL)
@@ -548,14 +551,18 @@ get_lua_sources (void)
          it_file;
          it_file = g_dir_read_name (dir)) {
       if (g_str_has_suffix (it_file, ".lua")) {
-        lua_sources = g_list_prepend (lua_sources,
-                                      g_build_filename (it_path->data,
-                                                        it_file, NULL));
+        if (g_hash_table_lookup (ht, it_file) == NULL) {
+          lua_sources = g_list_prepend (lua_sources,
+                                        g_build_filename (it_path->data,
+                                                          it_file, NULL));
+          g_hash_table_insert (ht, g_strdup (it_file), GINT_TO_POINTER(TRUE));
+        }
       }
     }
     g_dir_close (dir);
   }
 
+  g_hash_table_destroy (ht);
   g_list_free_full (l_locations, g_free);
   return g_list_reverse (lua_sources);
 }

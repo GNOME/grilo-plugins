@@ -805,31 +805,29 @@ send_toplevel_categories (GrlSourceBrowseSpec *bs)
   gint count = grl_operation_options_get_count (bs->options);
 
   /* Check if all elements must be skipped */
-  if (skip > 1 || count == 0) {
+  if (skip > 2 || count == 0) {
     bs->callback (bs->source, bs->operation_id, NULL, 0, bs->user_data, NULL);
     return;
   }
 
-  remaining = count;
+  count = MIN (count, 3);
+  remaining = MIN (count, 3 - skip);
 
-  if (skip == 0) {
+  while (remaining > 0) {
     media = grl_media_box_new ();
-    update_media_from_artists (media);
+    switch (skip) {
+    case 0:
+      update_media_from_artists (media);
+      break;
+    case 1:
+      update_media_from_albums (media);
+      break;
+    default:
+      update_media_from_feeds (media);
+    }
     remaining--;
+    skip++;
     bs->callback (bs->source, bs->operation_id, media, remaining, bs->user_data, NULL);
-  }
-
-  if (remaining) {
-    media = grl_media_box_new ();
-    update_media_from_albums (media);
-    bs->callback (bs->source, bs->operation_id, media, remaining, bs->user_data, NULL);
-    remaining--;
-  }
-
-  if (remaining) {
-    media = grl_media_box_new ();
-    update_media_from_feeds (media);
-    bs->callback (bs->source, bs->operation_id, media, 0, bs->user_data, NULL);
   }
 }
 

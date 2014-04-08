@@ -29,6 +29,7 @@ source = {
   name = "Musicbrainz Cover Art",
   description = "a source for coverart",
   supported_keys = { "thumbnail" },
+  supported_media = { 'audio', 'video' },
   resolve_keys = {
     ["type"] = "audio",
     required = { "mb-album-id" },

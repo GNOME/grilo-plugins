@@ -29,6 +29,7 @@ source = {
   name = "Metrolyrics",
   description = "a source for lyrics",
   supported_keys = { "lyrics" },
+  supported_media = { 'audio', 'video' },
   resolve_keys = {
     ["type"] = "audio",
     required = { "artist", "title" },

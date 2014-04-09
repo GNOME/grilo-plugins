@@ -855,7 +855,7 @@ AC_ARG_ENABLE(lua_factory,
                 esac
         ],
         [
-                if test "x$HAVE_LUA" = "xyes"; then
+                if test "x$HAVE_LUA" = "xyes" -a "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_JSON_GLIB" = "xyes"; then
                   enable_lua_factory=yes
                 else
                   enable_lua_factory=no

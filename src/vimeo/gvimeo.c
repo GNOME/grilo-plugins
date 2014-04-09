@@ -24,7 +24,8 @@
 
 #include "gvimeo.h"
 
-#include <gcrypt.h>
+#include <glib.h>
+#include <string.h>
 #include <net/grl-net.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
@@ -205,28 +206,22 @@ get_videos_search_params (GVimeo *vimeo, const gchar *text, gint page) {
   return params;
 }
 
+/* From gchecksum.c in glib */
+#define SHA1_DIGEST_LEN 20
+
 static gchar *
 sign_string (gchar *message, gchar *key)
 {
-  gchar *signed_message = NULL;
-  gcry_md_hd_t digest_obj;
-  unsigned char *hmac_digest;
-  guint digest_len;
+  GHmac *hmac;
+  guint8 buffer[SHA1_DIGEST_LEN];
+  gsize buffer_len = SHA1_DIGEST_LEN;
 
-  gcry_md_open(&digest_obj,
-	       GCRY_MD_SHA1,
-	       GCRY_MD_FLAG_SECURE | GCRY_MD_FLAG_HMAC);
-  gcry_md_setkey(digest_obj, key, strlen (key));
-  gcry_md_write (digest_obj, message, strlen (message));
-  gcry_md_final (digest_obj);
-  hmac_digest = gcry_md_read (digest_obj, 0);
+  hmac = g_hmac_new (G_CHECKSUM_SHA1, (guchar *) key, strlen (key));
+  g_hmac_update (hmac, (guchar *) message, strlen (message));
+  g_hmac_get_digest (hmac, buffer, &buffer_len);
+  g_hmac_unref (hmac);
 
-  digest_len = gcry_md_get_algo_dlen (GCRY_MD_SHA1);
-  signed_message = g_base64_encode (hmac_digest, digest_len);
-
-  gcry_md_close (digest_obj);
-
-  return signed_message;
+  return g_base64_encode (buffer, buffer_len);
 }
 
 static gboolean

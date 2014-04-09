@@ -180,9 +180,6 @@ PKG_CHECK_MODULES([TRACKER_SPARQL], [ ${trackerpkg} ],
                                     HAVE_TRACKER_SPARQL=no)
 
 
-AM_PATH_LIBGCRYPT(,HAVE_GCRYPT=yes, HAVE_GCRYPT=no)
-
-
 # ----------------------------------------------------------
 # CHECK GOA
 # ----------------------------------------------------------
@@ -938,9 +935,6 @@ AC_ARG_ENABLE(vimeo,
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-vimeo])
                         fi
-			               if test "x$HAVE_GCRYPT" = "xno"; then
-                           AC_MSG_ERROR([libgcrypt not found, install it or use --disable-vimeo])
-                        fi
                         if test "x$HAVE_TOTEM_PL_PARSER" = "xno"; then
                            AC_MSG_ERROR([totem-plparser >= 3.4.1 not found, install it or use --disable-vimeo])
                         fi
@@ -948,7 +942,7 @@ AC_ARG_ENABLE(vimeo,
                 esac
         ],
         [
-                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_GCRYPT" = "xyes" -a "x$HAVE_TOTEM_PL_PARSER" = "xyes"; then
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_TOTEM_PL_PARSER" = "xyes"; then
                    enable_vimeo=yes
                 else
                    enable_vimeo=no
@@ -966,9 +960,9 @@ VIMEO_PLUGIN_ID="grl-vimeo"
 AC_SUBST(VIMEO_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([VIMEO_PLUGIN_ID], ["$VIMEO_PLUGIN_ID"], [Vimeo plugin ID])
 
-DEPS_VIMEO_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS $LIBGCRYPT_CFLAGS $TOTEM_PL_PARSER_CFLAGS"
+DEPS_VIMEO_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS $TOTEM_PL_PARSER_CFLAGS"
 AC_SUBST(DEPS_VIMEO_CFLAGS)
-DEPS_VIMEO_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS $LIBGCRYPT_LIBS $TOTEM_PL_PARSER_LIBS"
+DEPS_VIMEO_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS $TOTEM_PL_PARSER_LIBS"
 AC_SUBST(DEPS_VIMEO_LIBS)
 
 # ----------------------------------------------------------

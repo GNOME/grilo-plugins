@@ -809,7 +809,7 @@ AC_ARG_ENABLE(magnatune,
                 esac
         ],
         [
-                if test "x$HAVE_SQLITE" = "xyes"; then
+                if test "x$HAVE_SQLITE" = "xyes" -a "x$HAVE_GRLNET" = "xyes"; then
                   enable_magnatune=yes
                 else
                   enable_magnatune=no

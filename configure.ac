@@ -254,7 +254,13 @@ AC_ARG_ENABLE(filesystem,
                         ;;
                 esac
         ],
-        [enable_filesystem=yes])
+        [
+                if test "x$HAVE_GRLPLS" = "xyes"; then
+                   enable_filesystem=yes
+                else
+                   enable_filesystem=no
+                fi
+        ])
 
 AM_CONDITIONAL([FILESYSTEM_PLUGIN], [test "x$enable_filesystem" = "xyes"])
 GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL filesystem"

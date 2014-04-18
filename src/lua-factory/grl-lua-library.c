@@ -32,7 +32,7 @@
 #define GRL_LOG_DOMAIN_DEFAULT lua_library_log_domain
 GRL_LOG_DOMAIN_STATIC (lua_library_log_domain);
 
-typedef struct _FetchOperation {
+typedef struct {
   lua_State *L;
   guint operation_id;
   gchar *lua_cb;

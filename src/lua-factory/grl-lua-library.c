@@ -367,6 +367,49 @@ grl_util_fetch_done (GObject *source_object,
   g_free (fo);
 }
 
+static GrlNetWc *
+net_wc_new_with_options(lua_State *L)
+{
+  GrlNetWc *wc;
+
+  wc = grl_net_wc_new ();
+  if (lua_istable (L, 3)) {
+    /* Set GrlNetWc options */
+    lua_pushnil (L);
+    while (lua_next (L, 3) != 0) {
+      const gchar *key = lua_tostring (L, -2);
+      if (g_strcmp0 (key, "user-agent") == 0 ||
+          g_strcmp0 (key, "user_agent") == 0) {
+        const gchar *user_agent = lua_tostring (L, -1);
+        g_object_set (wc, "user-agent", user_agent, NULL);
+
+      } else if (g_strcmp0 (key, "cache-size") == 0 ||
+                 g_strcmp0 (key, "cache_size") == 0) {
+        guint size = lua_tonumber (L, -1);
+        grl_net_wc_set_cache_size (wc, size);
+
+      } else if (g_strcmp0 (key, "cache") == 0) {
+        gboolean use_cache = lua_toboolean (L, -1);
+        grl_net_wc_set_cache (wc, use_cache);
+
+      } else if (g_strcmp0 (key, "throttling") == 0) {
+        guint throttling = lua_tonumber (L, -1);
+        grl_net_wc_set_throttling (wc, throttling);
+
+      } else if (g_strcmp0 (key, "loglevel") == 0) {
+        guint level = lua_tonumber (L, -1);
+        grl_net_wc_set_log_level (wc, level);
+
+      } else {
+        GRL_DEBUG ("GrlNetWc property not know: '%s'", key);
+      }
+      lua_pop (L, 1);
+    }
+  }
+
+  return wc;
+}
+
 /* ================== Lua-Library methods ================================== */
 
 /**
@@ -642,40 +685,7 @@ grl_l_fetch (lua_State *L)
 
   lua_callback = lua_tolstring (L, 2, NULL);
 
-  wc = grl_net_wc_new ();
-  if (lua_istable (L, 3)) {
-    /* Set GrlNetWc options */
-    lua_pushnil (L);
-    while (lua_next (L, 3) != 0) {
-      const gchar *key = lua_tostring (L, -2);
-      if (g_strcmp0 (key, "user-agent") == 0 ||
-          g_strcmp0 (key, "user_agent") == 0) {
-        const gchar *user_agent = lua_tostring (L, -1);
-        g_object_set (wc, "user-agent", user_agent, NULL);
-
-      } else if (g_strcmp0 (key, "cache-size") == 0 ||
-                 g_strcmp0 (key, "cache_size") == 0) {
-        guint size = lua_tonumber (L, -1);
-        grl_net_wc_set_cache_size (wc, size);
-
-      } else if (g_strcmp0 (key, "cache") == 0) {
-        gboolean use_cache = lua_toboolean (L, -1);
-        grl_net_wc_set_cache (wc, use_cache);
-
-      } else if (g_strcmp0 (key, "throttling") == 0) {
-        guint throttling = lua_tonumber (L, -1);
-        grl_net_wc_set_throttling (wc, throttling);
-
-      } else if (g_strcmp0 (key, "loglevel") == 0) {
-        guint level = lua_tonumber (L, -1);
-        grl_net_wc_set_log_level (wc, level);
-
-      } else {
-        GRL_DEBUG ("GrlNetWc property not know: '%s'", key);
-      }
-      lua_pop (L, 1);
-    }
-  }
+  wc = net_wc_new_with_options(L);
 
   /* shared data between urls */
   results = g_new0 (gchar *, num_urls);

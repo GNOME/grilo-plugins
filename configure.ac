@@ -140,6 +140,8 @@ PKG_CHECK_MODULES(LUA, lua >= 5.2.0,
                                                HAVE_LUA=yes,
                                                HAVE_LUA=no)])
 
+PKG_CHECK_MODULES(ARCHIVE, libarchive, HAVE_ARCHIVE=yes, HAVE_ARCHIVE=no)
+
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
 PKG_CHECK_MODULES(OAUTH, oauth, HAVE_OAUTH=yes, HAVE_OAUTH=no)
@@ -847,6 +849,9 @@ AC_ARG_ENABLE(lua_factory,
                         if test "x$HAVE_LUA" = "xno"; then
                            AC_MSG_ERROR([lua not found, install it or use --disable-lua-factory])
                         fi
+                        if test "x$HAVE_ARCHIVE" = "xno"; then
+                           AC_MSG_ERROR([libarchive not found, install it or use --disable-lua-factory])
+                        fi
                         if test "x$HAVE_GRLNET" = "xno"; then
                            AC_MSG_ERROR([grilo-net not found, install it or use --disable-lua-factory])
                         fi
@@ -857,7 +862,7 @@ AC_ARG_ENABLE(lua_factory,
                 esac
         ],
         [
-                if test "x$HAVE_LUA" = "xyes" -a "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_JSON_GLIB" = "xyes"; then
+                if test "x$HAVE_LUA" = "xyes" -a "x$HAVE_ARCHIVE" = "xyes" -a "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_JSON_GLIB" = "xyes"; then
                   enable_lua_factory=yes
                 else
                   enable_lua_factory=no
@@ -875,9 +880,9 @@ LUA_FACTORY_PLUGIN_ID="grl-lua-factory"
 AC_SUBST(LUA_FACTORY_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([LUA_FACTORY_PLUGIN_ID], ["$LUA_FACTORY_PLUGIN_ID"], [Lua Factory plugin ID])
 
-DEPS_LUA_FACTORY_CFLAGS="$DEPS_CFLAGS $LUA_CFLAGS $GRLNET_CFLAGS $JSON_CFLAGS"
+DEPS_LUA_FACTORY_CFLAGS="$DEPS_CFLAGS $LUA_CFLAGS $ARCHIVE_CFLAGS $GRLNET_CFLAGS $JSON_CFLAGS"
 AC_SUBST(DEPS_LUA_FACTORY_CFLAGS)
-DEPS_LUA_FACTORY_LIBS="$DEPS_LIBS $LUA_LIBS $GRLNET_LIBS $JSON_LIBS"
+DEPS_LUA_FACTORY_LIBS="$DEPS_LIBS $LUA_LIBS $ARCHIVE_LIBS $GRLNET_LIBS $JSON_LIBS"
 AC_SUBST(DEPS_LUA_FACTORY_LIBS)
 
 LUA_FACTORY_SOURCE_LOCATION="grilo-plugins/${LUA_FACTORY_PLUGIN_ID}"

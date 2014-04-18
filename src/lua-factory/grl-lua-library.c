@@ -24,6 +24,8 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <archive.h>
+#include <archive_entry.h>
 
 #include "grl-lua-common.h"
 #include "grl-lua-library.h"
@@ -42,6 +44,14 @@ typedef struct {
   gboolean is_table;
   gchar **results;
 } FetchOperation;
+
+typedef struct {
+  lua_State *L;
+  guint operation_id;
+  gchar *lua_cb;
+  gchar *url;
+  gchar **filenames;
+} UnzipOperation;
 
 /* ================== Lua-Library utils/helpers ============================ */
 
@@ -367,8 +377,145 @@ grl_util_fetch_done (GObject *source_object,
   g_free (fo);
 }
 
+static gboolean
+str_in_strv_at_index (const char **filenames,
+                      const char  *name,
+                      guint       *idx)
+{
+  guint i;
+
+  for (i = 0; filenames[i] != NULL; i++) {
+    if (g_strcmp0 (name, filenames[i]) == 0) {
+      *idx = i;
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+static char **
+get_zipped_contents (guchar        *data,
+                     gsize          size,
+                     const char   **filenames)
+{
+  GPtrArray *results;
+  struct archive *a;
+  struct archive_entry *entry;
+  int r;
+
+  a = archive_read_new ();
+  archive_read_support_format_zip (a); //FIXME more formats?
+  r = archive_read_open_memory (a, data, size);
+  if (r != ARCHIVE_OK) {
+    g_print ("Failed to open archive\n");
+    return NULL;
+  }
+
+  results = g_ptr_array_new ();
+  g_ptr_array_set_size (results, g_strv_length ((gchar **) filenames) + 1);
+
+  while (1) {
+    const char *name;
+    guint idx;
+
+    r = archive_read_next_header(a, &entry);
+
+    if (r != ARCHIVE_OK) {
+      if (r != ARCHIVE_EOF && r == ARCHIVE_FATAL)
+        g_warning ("Fatal error handling archive: %s", archive_error_string (a));
+      break;
+    }
+
+    name = archive_entry_pathname (entry);
+    if (str_in_strv_at_index (filenames, name, &idx) != FALSE) {
+      size_t size = archive_entry_size (entry);
+      char *buf;
+      ssize_t read;
+
+      buf = g_malloc (size + 1);
+      buf[size] = 0;
+      read = archive_read_data (a, buf, size);
+      if (read <= 0) {
+        g_free (buf);
+        if (read < 0)
+          g_warning ("Fatal error reading '%s' in archive: %s", name, archive_error_string (a));
+        else
+          g_warning ("Read an empty file from the archive");
+      } else {
+        g_message ("Setting content for %s at %d", name, idx);
+        //FIXME check for validity?
+        results->pdata[idx] = buf;
+      }
+    }
+    archive_read_data_skip(a);
+  }
+  archive_read_free(a);
+
+  return (gchar **) g_ptr_array_free (results, FALSE);
+}
+
+static void
+grl_util_unzip_done (GObject *source_object,
+                     GAsyncResult *res,
+                     gpointer user_data)
+{
+  gchar *data;
+  gsize len;
+  guint i;
+  GError *err = NULL;
+  OperationSpec *os;
+  UnzipOperation *uo = (UnzipOperation *) user_data;
+  lua_State *L = uo->L;
+  char **results;
+
+  grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                             res, &data, &len, &err);
+
+  if (err != NULL) {
+    guint len, i;
+    GRL_WARNING ("Can't fetch zip file (URL: %s): '%s'", uo->url, err->message);
+    g_error_free (err);
+    len = g_strv_length (uo->filenames);
+    results = g_new0 (gchar *, len + 1);
+    for (i = 0; i < len; i++)
+      results[i] = g_strdup("");
+  } else {
+    GRL_DEBUG ("fetch_done element (URL: %s)", uo->url);
+    results = get_zipped_contents ((guchar *) data, len, (const gchar **) uo->filenames);
+  }
+
+  grl_lua_library_set_current_operation (L, uo->operation_id);
+  os = grl_lua_library_get_current_operation (L);
+  os->pending_ops--;
+
+  lua_getglobal (L, uo->lua_cb);
+
+  lua_newtable (L);
+  for (i = 0; results[i] != NULL; i++) {
+    lua_pushnumber (L, i + 1);
+    lua_pushlstring (L, results[i], strlen (results[i]));
+    lua_settable (L, -3);
+  }
+
+  if (lua_pcall (L, 1, 0, 0)) {
+    GRL_WARNING ("%s (%s) '%s'", "calling source callback function fail",
+                 uo->lua_cb, lua_tolstring (L, -1, NULL));
+  }
+
+  grl_lua_library_set_current_operation (L, 0);
+
+  g_strfreev (results);
+
+  g_strfreev (uo->filenames);
+  g_free (uo->lua_cb);
+  g_free (uo->url);
+  g_free (uo);
+}
+
 static GrlNetWc *
-net_wc_new_with_options(lua_State *L)
+net_wc_new_with_options(lua_State *L,
+                        guint      arg_offset)
 {
   GrlNetWc *wc;
 
@@ -376,7 +523,7 @@ net_wc_new_with_options(lua_State *L)
   if (lua_istable (L, 3)) {
     /* Set GrlNetWc options */
     lua_pushnil (L);
-    while (lua_next (L, 3) != 0) {
+    while (lua_next (L, arg_offset) != 0) {
       const gchar *key = lua_tostring (L, -2);
       if (g_strcmp0 (key, "user-agent") == 0 ||
           g_strcmp0 (key, "user_agent") == 0) {
@@ -686,7 +833,7 @@ grl_l_fetch (lua_State *L)
 
   lua_callback = lua_tolstring (L, 2, NULL);
 
-  wc = net_wc_new_with_options(L);
+  wc = net_wc_new_with_options(L, 3);
 
   /* shared data between urls */
   results = g_new0 (gchar *, num_urls);
@@ -868,6 +1015,69 @@ grl_l_unescape (lua_State *L)
   return 1;
 }
 
+/**
+ * grl.unzip
+ *
+ * @url: (string) the URL of the zip file to fetch
+ * @filenames: (table) a table of filenames to get inside the zip file
+ * @callback: (string) The function to be called after fetch is complete.
+ * @netopts: (table) Options to set the GrlNetWc object.
+ * @return: Nothing.;
+ */
+static gint
+grl_l_unzip (lua_State *L)
+{
+  const gchar *lua_callback;
+  const gchar *url;
+  GrlNetWc *wc;
+  OperationSpec *os;
+  UnzipOperation *uo;
+  guint num_filenames, i;
+  gchar **filenames;
+
+  luaL_argcheck (L, lua_isstring (L, 1), 1,
+                 "expecting url as string");
+  luaL_argcheck (L, lua_istable (L, 2), 2,
+                 "expecting filenames as an array of filenames");
+  luaL_argcheck (L, lua_isstring (L, 3), 3,
+                 "expecting callback function as string");
+
+  os = grl_lua_library_get_current_operation (L);
+  g_return_val_if_fail (os != NULL, 0);
+  os->pending_ops++;
+
+  url = lua_tolstring (L, 1, NULL);
+  num_filenames = luaL_len(L, 2);
+  filenames = g_new0 (gchar *, num_filenames + 1);
+  for (i = 0; i < num_filenames; i++) {
+    lua_pushinteger (L, i + 1);
+    lua_gettable (L, 2);
+    if (lua_isstring (L, -1)) {
+      filenames[i] = g_strdup (lua_tostring (L, -1));
+    } else {
+      luaL_error (L, "Array of urls expect strings only: at index %d is %s",
+                  i + 1, luaL_typename (L, -1));
+    }
+    g_message ("grl.unzip() -> filenames[%d]: '%s'", i, filenames[i]);
+    lua_pop (L, 1);
+  }
+  GRL_DEBUG ("grl.unzip() -> '%s'", url);
+
+  lua_callback = lua_tolstring (L, 3, NULL);
+  wc = net_wc_new_with_options (L, 4);
+
+  uo = g_new0 (UnzipOperation, 1);
+  uo->L = L;
+  uo->operation_id = os->operation_id;
+  uo->lua_cb = g_strdup (lua_callback);
+  uo->url = g_strdup (url);
+  uo->filenames = filenames;
+
+  grl_net_wc_request_async (wc, url, NULL, grl_util_unzip_done, uo);
+  g_object_unref (wc);
+  return 1;
+}
+
 /* ================== Lua-Library initialization =========================== */
 
 gint
@@ -884,6 +1094,7 @@ luaopen_grilo (lua_State *L)
     {"dgettext", &grl_l_dgettext},
     {"decode", &grl_l_decode},
     {"unescape", &grl_l_unescape},
+    {"unzip", &grl_l_unzip},
     {NULL, NULL}
   };
 

@@ -144,7 +144,7 @@ grl_util_add_table_to_media (lua_State *L,
                              const gchar *key_name,
                              GType type)
 {
-  gint i = 0;
+  gint i;
   gint array_len = luaL_len (L, -1);
 
   /* Remove all current values of this key, if any */
@@ -184,7 +184,7 @@ static GrlMedia *
 grl_util_build_media (lua_State *L,
                       GrlMedia *user_media)
 {
-  GrlRegistry *registry = NULL;
+  GrlRegistry *registry;
   GrlMedia *media = user_media;
 
   if (!lua_istable (L, 1)) {
@@ -300,9 +300,9 @@ grl_util_fetch_done (GObject *source_object,
                      GAsyncResult *res,
                      gpointer user_data)
 {
-  gchar *data = NULL;
+  gchar *data;
   gsize len;
-  guint i = 0;
+  guint i;
   GError *err = NULL;
   OperationSpec *os;
   FetchOperation *fo = (FetchOperation *) user_data;
@@ -422,8 +422,8 @@ net_wc_new_with_options(lua_State *L)
 static gint
 grl_l_operation_get_options (lua_State *L)
 {
-  OperationSpec *os = NULL;
-  const gchar *option = NULL;
+  OperationSpec *os;
+  const gchar *option;
 
   luaL_argcheck (L, lua_isstring (L, 1), 1, "expecting option (string)");
 
@@ -537,11 +537,9 @@ grl_l_operation_get_options (lua_State *L)
 static gint
 grl_l_operation_get_keys (lua_State *L)
 {
-  OperationSpec *os = NULL;
-  GrlRegistry *registry = NULL;
-  GList *it = NULL;
-  GrlKeyID key_id;
-  const gchar *key_name = NULL;
+  OperationSpec *os;
+  GrlRegistry *registry;
+  GList *it;
   gint i = 0;
 
   os = grl_lua_library_get_current_operation (L);
@@ -550,13 +548,16 @@ grl_l_operation_get_keys (lua_State *L)
   registry = grl_registry_get_default ();
   lua_newtable (L);
   for (it = os->keys; it; it = g_list_next (it)) {
+    GrlKeyID key_id;
+    const gchar *key_name;
+
     key_id = GRLPOINTER_TO_KEYID (it->data);
     key_name = grl_registry_lookup_metadata_key_name (registry, key_id);
     if (key_id != GRL_METADATA_KEY_INVALID) {
       lua_pushinteger (L, i + 1);
       lua_pushstring (L, key_name);
       lua_settable (L, -3);
-      i = i + 1;
+      i++;
     }
   }
   return 1;
@@ -570,12 +571,10 @@ grl_l_operation_get_keys (lua_State *L)
 static gint
 grl_l_media_get_keys (lua_State *L)
 {
-  OperationSpec *os = NULL;
-  GrlRegistry *registry = NULL;
-  GList *it = NULL;
-  GList *list_keys = NULL;
-  GrlKeyID key_id;
-  gchar *key_name = NULL;
+  OperationSpec *os;
+  GrlRegistry *registry;
+  GList *it;
+  GList *list_keys;
 
   os = grl_lua_library_get_current_operation (L);
   g_return_val_if_fail (os != NULL, 0);
@@ -584,8 +583,11 @@ grl_l_media_get_keys (lua_State *L)
   lua_newtable (L);
   list_keys = grl_data_get_keys (GRL_DATA (os->media));
   for (it = list_keys; it; it = g_list_next (it)) {
+    GrlKeyID key_id;
+    gchar *key_name;
     gchar *ptr = NULL;
     GType type = G_TYPE_NONE;
+
     key_id = GRLPOINTER_TO_KEYID (it->data);
     key_name = g_strdup (grl_registry_lookup_metadata_key_name (registry,
                                                                 key_id));
@@ -642,13 +644,12 @@ grl_l_media_get_keys (lua_State *L)
 static gint
 grl_l_fetch (lua_State *L)
 {
-  guint i = 0;
-  guint num_urls = 0;
-  gchar **urls = NULL;
-  gchar **results = NULL;
-  const gchar *lua_callback = NULL;
-  GrlNetWc *wc = NULL;
-  FetchOperation *fo = NULL;
+  guint i;
+  guint num_urls;
+  gchar **urls;
+  gchar **results;
+  const gchar *lua_callback;
+  GrlNetWc *wc;
   gboolean is_table = FALSE;
   OperationSpec *os;
 
@@ -690,6 +691,8 @@ grl_l_fetch (lua_State *L)
   /* shared data between urls */
   results = g_new0 (gchar *, num_urls);
   for (i = 0; i < num_urls; i++) {
+    FetchOperation *fo;
+
     fo = g_new0 (FetchOperation, 1);
     fo->L = L;
     fo->operation_id = os->operation_id;
@@ -717,10 +720,10 @@ grl_l_fetch (lua_State *L)
 static gint
 grl_l_callback (lua_State *L)
 {
-  gint nparam = 0;
+  gint nparam;
   gint count = 0;
-  OperationSpec *os = NULL;
-  GrlMedia *media = NULL;
+  OperationSpec *os;
+  GrlMedia *media;
 
   GRL_DEBUG ("grl.callback()");
 

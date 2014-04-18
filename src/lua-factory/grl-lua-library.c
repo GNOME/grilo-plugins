@@ -301,6 +301,7 @@ grl_util_fetch_done (GObject *source_object,
                      gpointer user_data)
 {
   gchar *data = NULL;
+  gsize len;
   guint i = 0;
   GError *err = NULL;
   OperationSpec *os;
@@ -308,7 +309,12 @@ grl_util_fetch_done (GObject *source_object,
   lua_State *L = fo->L;
 
   grl_net_wc_request_finish (GRL_NET_WC (source_object),
-                             res, &data, NULL, &err);
+                             res, &data, &len, &err);
+  if (!g_utf8_validate(data, len, NULL)) {
+    data = NULL;
+    g_set_error_literal (&err, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                         "Fetched item is not valid UTF-8");
+  }
 
   fo->results[fo->index] = (err == NULL) ? g_strdup (data) : g_strdup ("");
   if (err != NULL) {

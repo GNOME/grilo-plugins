@@ -44,9 +44,13 @@ typedef enum {
 * @operation_id: The operation_id of operation that generate this structure.
 * @op_type: Witch operation its being executed.
 * @cb: union to user callback. The function parameters depends on operation.
+*      resolve is used for LUA_RESOLVE operations
+*      result is used for LUA_SEARCH, LUA_BROWSE and LUA_QUERY operations.
 * @content: Save the current user media if already have one.
 * @user_data: User data passed in user defined callback.
 * @error_code: To set GRL_CORE_ERROR of the operation.
+* @pending_ops: The number of pending async calls for this operation
+* @callback_done: Whether grl.callback() was called
 *
 * This structure is used to save important data in the communication between
 * lua-factory and lua-libraries.

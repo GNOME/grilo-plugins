@@ -46,6 +46,9 @@ typedef enum {
 * @cb: union to user callback. The function parameters depends on operation.
 *      resolve is used for LUA_RESOLVE operations
 *      result is used for LUA_SEARCH, LUA_BROWSE and LUA_QUERY operations.
+* @string: The text to search for for LUA_SEARCH operations,
+*      the query for LUA_QUERY operations and the media ID for
+*      LUA_BROWSE operations.
 * @content: Save the current user media if already have one.
 * @user_data: User data passed in user defined callback.
 * @error_code: To set GRL_CORE_ERROR of the operation.
@@ -65,6 +68,7 @@ typedef struct _OperationSpec {
     GrlSourceResultCb result;
     GrlSourceResolveCb resolve;
   } cb;
+  char *string;
   GrlMedia *media;
   gpointer user_data;
   guint error_code;

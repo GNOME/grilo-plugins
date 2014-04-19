@@ -578,6 +578,29 @@ grl_l_operation_get_options (lua_State *L)
   g_return_val_if_fail (os != NULL, 0);
   option = lua_tostring (L, 1);
 
+  if (g_strcmp0 (option, "type") == 0) {
+    const char *type;
+    switch (os->op_type) {
+    case LUA_SEARCH:
+      type = "search";
+      break;
+    case LUA_BROWSE:
+      type = "browse";
+      break;
+    case LUA_QUERY:
+      type = "query";
+      break;
+    case LUA_RESOLVE:
+      type = "resolve";
+      break;
+    default:
+      g_assert_not_reached ();
+    }
+
+    lua_pushstring (L, type);
+    return 1;
+  }
+
   if (g_strcmp0 (option, "count") == 0) {
     gint count = grl_operation_options_get_count (os->options);
 
@@ -669,6 +692,24 @@ grl_l_operation_get_options (lua_State *L)
 
   if (g_strcmp0 (option, "operation-id") == 0) {
     lua_pushnumber (L, (gint) os->operation_id);
+    return 1;
+  }
+
+  if (g_strcmp0 (option, "media-id") == 0 &&
+      os->op_type == LUA_BROWSE) {
+    lua_pushstring (L, os->string);
+    return 1;
+  }
+
+  if (g_strcmp0 (option, "query") == 0 &&
+      os->op_type == LUA_QUERY) {
+    lua_pushstring (L, os->string);
+    return 1;
+  }
+
+  if (g_strcmp0 (option, "search") == 0 &&
+      os->op_type == LUA_SEARCH) {
+    lua_pushstring (L, os->string);
     return 1;
   }
 

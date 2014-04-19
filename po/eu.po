@@ -1,0 +1,602 @@
+# Basque translation for grilo-plugins.
+# Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Iñaki Larrañaga Murgoitio <dooteo@zundan.com>, 2014.
+msgid ""
+msgstr ""
+"Project-Id-Version: grilo-plugins master\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
+"plugins&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2014-04-19 11:39+0200\n"
+"PO-Revision-Date: 2014-04-19 12:23+0200\n"
+"Last-Translator: Iñaki Larrañaga Murgoitio <dooteo@zundan.com>\n"
+"Language-Team: Basque <librezale@librezale.org>\n"
+"Language: eu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Lokalize 1.4\n"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:55
+msgid "Apple Movie Trailers"
+msgstr "Apple filmen aurrerakinak"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:56
+msgid "A plugin for browsing Apple Movie Trailers"
+msgstr "Apple filmen aurrerakinak arakatzeko plugina"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:468
+#: ../src/jamendo/grl-jamendo.c:333 ../src/jamendo/grl-jamendo.c:694
+#: ../src/shoutcast/grl-shoutcast.c:405 ../src/shoutcast/grl-shoutcast.c:459
+msgid "Failed to parse response"
+msgstr "Huts egin du erantzuna analizatzean"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:476
+#: ../src/jamendo/grl-jamendo.c:341 ../src/jamendo/grl-jamendo.c:348
+#: ../src/podcasts/grl-podcasts.c:1353 ../src/shoutcast/grl-shoutcast.c:413
+msgid "Empty response"
+msgstr "Erantzuna hutsik"
+
+#: ../src/apple-trailers/grl-apple-trailers.c:531
+#: ../src/jamendo/grl-jamendo.c:663
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:247
+#: ../src/shoutcast/grl-shoutcast.c:547
+#, c-format
+msgid "Failed to connect: %s"
+msgstr "Huts egin du konektatzean: %s"
+
+#: ../src/bliptv/grl-bliptv.c:60
+msgid "A source for browsing and searching Blip.tv videos"
+msgstr "Blip.tv bideoak arakatzeko eta bilatzeko iturburua"
+
+#: ../src/bookmarks/grl-bookmarks.c:119
+msgid "Bookmarks"
+msgstr "Laster-markak"
+
+#: ../src/bookmarks/grl-bookmarks.c:120
+msgid "A source for organizing media bookmarks"
+msgstr "Multimediaren laster-markak antolatzeko iturburua"
+
+#: ../src/bookmarks/grl-bookmarks.c:448 ../src/bookmarks/grl-bookmarks.c:463
+msgid "Failed to get bookmark metadata"
+msgstr "Huts egin du laster-markaren meta-datuak lortzean"
+
+#: ../src/bookmarks/grl-bookmarks.c:493 ../src/bookmarks/grl-bookmarks.c:513
+#, c-format
+msgid "Failed to get bookmarks list: %s"
+msgstr "Huts egin du laster-marken zerrenda lortzean: %s"
+
+#: ../src/bookmarks/grl-bookmarks.c:599 ../src/podcasts/grl-podcasts.c:813
+#: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
+#, c-format
+msgid "Failed to remove: %s"
+msgstr "Huts egin du kentzean: %s"
+
+#: ../src/bookmarks/grl-bookmarks.c:667 ../src/bookmarks/grl-bookmarks.c:725
+#: ../src/podcasts/grl-podcasts.c:918 ../src/podcasts/grl-podcasts.c:951
+#: ../src/podcasts/grl-podcasts.c:1796
+#, c-format
+msgid "Failed to store: %s"
+msgstr "Huts egin du gordetzean: %s"
+
+#: ../src/bookmarks/grl-bookmarks.c:779 ../src/bookmarks/grl-bookmarks.c:814
+#: ../src/bookmarks/grl-bookmarks.c:846 ../src/bookmarks/grl-bookmarks.c:904
+#: ../src/metadata-store/grl-metadata-store.c:849
+#: ../src/podcasts/grl-podcasts.c:1652 ../src/podcasts/grl-podcasts.c:1696
+#: ../src/podcasts/grl-podcasts.c:1730 ../src/podcasts/grl-podcasts.c:1765
+msgid "No database connection"
+msgstr "Ez dago datu-basearen konexiorik"
+
+#: ../src/dmap/grl-dmap.c:51
+#, c-format
+msgid "A source for browsing the DMAP server '%s'"
+msgstr "'%s' DMAP zerbitzaria arakatzeko iturburua"
+
+#: ../src/dmap/simple-dmap-db.c:62 ../src/jamendo/grl-jamendo.c:781
+#: ../src/magnatune/grl-magnatune.c:121
+msgid "Albums"
+msgstr "Albumak"
+
+#: ../src/dmap/simple-dmap-db.c:64 ../src/jamendo/grl-jamendo.c:770
+#: ../src/magnatune/grl-magnatune.c:120
+msgid "Artists"
+msgstr "Artistak"
+
+#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1108
+#: ../src/jamendo/grl-jamendo.c:1183 ../src/magnatune/grl-magnatune.c:829
+#, c-format
+msgid "Invalid container identifier %s"
+msgstr "Baliogabeko '%s' edukiontziaren identifikatzailea"
+
+#: ../src/filesystem/grl-filesystem.c:60
+msgid "Filesystem"
+msgstr "Fitxategi-sistema"
+
+#: ../src/filesystem/grl-filesystem.c:61
+msgid "A source for browsing the filesystem"
+msgstr "Fitxategi-sistema arakatzeko iturburua"
+
+#: ../src/filesystem/grl-filesystem.c:1142
+#, c-format
+msgid "File %s does not exist"
+msgstr "Ez da '%s' fitxategia existitzen"
+
+#: ../src/filesystem/grl-filesystem.c:1219 ../src/youtube/grl-youtube.c:1626
+#, c-format
+msgid "Cannot get media from %s"
+msgstr "Ezin da multimedia eskuratu '%s'(e)tik"
+
+#: ../src/flickr/grl-flickr.c:63
+msgid "A source for browsing and searching Flickr photos"
+msgstr "Flickr-eko argazkiak arakatzeko eta bilatzeko iturburua"
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:67
+#, c-format
+msgid "%s's Flickr"
+msgstr "'%s' Flickr-en"
+
+#. "%s" is a full user name, like "John Doe"
+#: ../src/flickr/grl-flickr.c:69
+#, c-format
+msgid "A source for browsing and searching %s's flickr photos"
+msgstr "'%s'(r)en Flickr-eko argazkiak arakatzeko eta bilatzeko iturburua"
+
+#: ../src/freebox/grl-freebox.c:49
+msgid "Freebox TV"
+msgstr "Freebox TV"
+
+#: ../src/freebox/grl-freebox.c:50
+msgid "A source for browsing Freebox TV channels"
+msgstr "Freebox TBko kanalak arakatzeko iturburua"
+
+#: ../src/gravatar/grl-gravatar.c:48
+msgid "Avatar provider from Gravatar"
+msgstr "Gravatar-ek eskainitako avatar-a"
+
+#: ../src/gravatar/grl-gravatar.c:49
+msgid "A plugin to get avatars for artist and author fields"
+msgstr "Artista eta Egilea eremuetatik avatar-ak eskuratzeko plugina"
+
+#: ../src/jamendo/grl-jamendo.c:93
+msgid "A source for browsing and searching Jamendo music"
+msgstr "Jamendo-ko musika arakatzeko eta bilatzeko iturburua"
+
+#: ../src/jamendo/grl-jamendo.c:149
+msgid "Albums of the week"
+msgstr "Asteko albuma"
+
+#: ../src/jamendo/grl-jamendo.c:151
+msgid "Tracks of the week"
+msgstr "Asteko pistak"
+
+#: ../src/jamendo/grl-jamendo.c:153
+msgid "New releases"
+msgstr "Argitalpen berriak"
+
+#: ../src/jamendo/grl-jamendo.c:155
+msgid "Top artists"
+msgstr "Goreneko artistak"
+
+#: ../src/jamendo/grl-jamendo.c:157
+msgid "Top albums"
+msgstr "Goreneko albumak"
+
+#: ../src/jamendo/grl-jamendo.c:159
+msgid "Top tracks"
+msgstr "Goreneko pistak"
+
+#: ../src/jamendo/grl-jamendo.c:792
+msgid "Feeds"
+msgstr "Iturriak"
+
+#: ../src/jamendo/grl-jamendo.c:976 ../src/jamendo/grl-jamendo.c:1021
+#: ../src/jamendo/grl-jamendo.c:1048
+#, c-format
+msgid "Invalid identifier %s"
+msgstr "Baliogabeko '%s' identifikatzailea"
+
+#: ../src/jamendo/grl-jamendo.c:1035 ../src/youtube/grl-youtube.c:1194
+#: ../src/youtube/grl-youtube.c:1335 ../src/youtube/grl-youtube.c:1553
+#, c-format
+msgid "Invalid category identifier %s"
+msgstr "Baliogabeko '%s' kategoria identifikatzailea"
+
+#: ../src/jamendo/grl-jamendo.c:1178
+#, c-format
+msgid "Failed to browse: %s is a track"
+msgstr "Huts egin du arakatzean: '%s' pista bat da"
+
+#: ../src/jamendo/grl-jamendo.c:1238
+#, c-format
+msgid "Malformed query \"%s\""
+msgstr "Gaizki osatutako '%s' kontsulta"
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
+msgid "Album art Provider from Last.FM"
+msgstr "Albumaren argazkien hornitzailea Last.FM gunetik"
+
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
+msgid "A plugin for getting album arts using Last.FM as backend"
+msgstr ""
+"Albumaren argazkiak eskuratzeko plugina (Last.FM atzeko plano gisa erabiliz)"
+
+#: ../src/local-metadata/grl-local-metadata.c:43
+msgid "Local Metadata Provider"
+msgstr "Lokaleko meta-datuen hornitzailea"
+
+#: ../src/local-metadata/grl-local-metadata.c:44
+msgid "A source providing locally available metadata"
+msgstr "Lokalean eskuragarri dauden meta-datuak hornitzen dituen iturburua"
+
+#: ../src/local-metadata/grl-local-metadata.c:482
+#: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:861
+#: ../src/tracker/grl-tracker-source-api.c:460
+#, c-format
+msgid "Failed to resolve: %s"
+msgstr "Huts egin du ebaztean: %s"
+
+#: ../src/local-metadata/grl-local-metadata.c:862
+msgid "Cannot resolve any of the given keys"
+msgstr "Ezin da emandako gakorik ebatzi"
+
+#: ../src/local-metadata/grl-local-metadata.c:866
+msgid "A GIO supported URL for images is required"
+msgstr "GIOk onartutako URLa behar da irudientzako"
+
+#: ../src/magnatune/grl-magnatune.c:122
+msgid "Genres"
+msgstr "Generoak"
+
+#: ../src/magnatune/grl-magnatune.c:130
+msgid "A source for browsing music"
+msgstr "Musika arakatzeko iturburua"
+
+#: ../src/magnatune/grl-magnatune.c:406
+#, c-format
+msgid "Failed to get database from magnatune: %s"
+msgstr "Huts egin du Magnatune-tik datu-basea eskuratzean: %s"
+
+#: ../src/magnatune/grl-magnatune.c:436
+#, c-format
+msgid "Failed to save database from magnatune - '%s'"
+msgstr "Huts egin du Magnatune-tik datu-basea gordetzean: '%s'"
+
+#: ../src/magnatune/grl-magnatune.c:684
+#, c-format
+msgid "Failed to get table from magnatune db: %s"
+msgstr "Huts egin du Magnatune-tik taula eskuratzean: %s"
+
+#: ../src/magnatune/grl-magnatune.c:700
+#, c-format
+msgid "Fail before returning media to user: %s"
+msgstr "Huts egin du multimedia erabiltzaileari itzuli aurretik: %s"
+
+#: ../src/metadata-store/grl-metadata-store.c:47
+msgid "Metadata Store"
+msgstr "Meta-datuen biltegia"
+
+#: ../src/metadata-store/grl-metadata-store.c:48
+msgid "A plugin for storing extra metadata information"
+msgstr "Meta-datuen informazio gehigarria gordetzeko plugina"
+
+#: ../src/metadata-store/grl-metadata-store.c:573
+#: ../src/metadata-store/grl-metadata-store.c:592
+#: ../src/metadata-store/grl-metadata-store.c:804
+#: ../src/tracker/grl-tracker-source-api.c:510
+#, c-format
+msgid "Failed to update metadata: %s"
+msgstr "Huts egin du meta-datuak eguneratzean: %s"
+
+#: ../src/metadata-store/grl-metadata-store.c:574
+msgid "specified keys are not writable"
+msgstr "zehaztutako gakoak ez dira idazgarriak"
+
+#: ../src/metadata-store/grl-metadata-store.c:614
+msgid "Failed to update metadata"
+msgstr "Huts egin du meta-datuak eguneratzean"
+
+#: ../src/metadata-store/grl-metadata-store.c:760
+#: ../src/metadata-store/grl-metadata-store.c:805
+msgid "\"source-id\" not available"
+msgstr "'source-id' ez dago erabilgarri"
+
+#: ../src/metadata-store/grl-metadata-store.c:780 ../src/upnp/grl-upnp.c:1484
+msgid "Failed to resolve"
+msgstr "Huts egin du ebaztean"
+
+#: ../src/metadata-store/grl-metadata-store.c:917
+#: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:419
+#: ../src/shoutcast/grl-shoutcast.c:745 ../src/vimeo/grl-vimeo.c:535
+#, c-format
+msgid "Failed to search: %s"
+msgstr "Huts egin du bilatzean: %s"
+
+#: ../src/optical-media/grl-optical-media.c:46
+msgid "Optical Media"
+msgstr "Euskarri optikoa"
+
+#: ../src/optical-media/grl-optical-media.c:47
+msgid "A source for browsing optical media"
+msgstr "Euskarri optikoa arakatzeko iturburua"
+
+#: ../src/pocket/grl-pocket.c:47
+msgid "Pocket"
+msgstr "Pocket"
+
+#: ../src/pocket/grl-pocket.c:48
+msgid "A source for browsing Pocket videos"
+msgstr "Pocket bideoak arakatzeko iturburua"
+
+#: ../src/podcasts/grl-podcasts.c:155
+msgid "A source for browsing podcasts"
+msgstr "Podcast-ak arakatzeko iturburua"
+
+#: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
+#, c-format
+msgid "Failed to get podcast streams: %s"
+msgstr "Huts egin du podcast-aren korrontea eskuratzean: %s"
+
+#: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
+#: ../src/podcasts/grl-podcasts.c:1254
+msgid "Failed to parse content"
+msgstr "Huts egin du edukia analizatzean"
+
+#: ../src/podcasts/grl-podcasts.c:1287
+msgid "Failed to parse podcast contents"
+msgstr "Huts egin du podcast-aren edukia analizatzean"
+
+#: ../src/podcasts/grl-podcasts.c:1442
+msgid "Failed to get podcast information"
+msgstr "Huts egin du podcast-aren informazioa eskuratzean"
+
+#: ../src/podcasts/grl-podcasts.c:1482 ../src/podcasts/grl-podcasts.c:1502
+#, c-format
+msgid "Failed to get podcasts list: %s"
+msgstr "Huts egin du podcast-en zerrenda lortzean: %s"
+
+#: ../src/podcasts/grl-podcasts.c:1555 ../src/podcasts/grl-podcasts.c:1570
+msgid "Failed to get podcast stream metadata"
+msgstr "Huts egin du podcast korrontearen meta-datuak lortzean"
+
+#: ../src/podcasts/grl-podcasts.c:1608
+msgid "Failed to get podcast metadata"
+msgstr "Huts egin du podcast-aren meta-datuak lortzean"
+
+#: ../src/podcasts/grl-podcasts.c:1792
+msgid "Cannot create containers. Only feeds are accepted"
+msgstr "Ezin dira edukiontziak sortu. Iturriak soilik onartzen dira"
+
+#: ../src/podcasts/grl-podcasts.c:1797
+msgid "URL required"
+msgstr "URLa beharrezkoa da"
+
+#: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
+msgid "Most Popular"
+msgstr "Ospetsuenak"
+
+#: ../src/raitv/grl-raitv.c:52
+msgid "Recent"
+msgstr "Duela gutxikoak"
+
+#: ../src/raitv/grl-raitv.c:95
+msgid "A source for browsing and searching Rai.tv videos"
+msgstr "Rai.tv bideoak arakatzeko eta bilatzeko iturburua"
+
+#: ../src/raitv/grl-raitv.c:173
+msgid "All"
+msgstr "Denak"
+
+#: ../src/raitv/grl-raitv.c:174
+msgid "Black and White"
+msgstr "Zuri-beltza"
+
+#: ../src/raitv/grl-raitv.c:175
+msgid "Cinema"
+msgstr "Zinema"
+
+#: ../src/raitv/grl-raitv.c:176
+msgid "Comedians"
+msgstr "Komikoak"
+
+#: ../src/raitv/grl-raitv.c:177
+msgid "Chronicle"
+msgstr "Kronika"
+
+#: ../src/raitv/grl-raitv.c:178
+msgid "Culture"
+msgstr "Kultura"
+
+#: ../src/raitv/grl-raitv.c:179
+msgid "Economy"
+msgstr "Ekonomia"
+
+#: ../src/raitv/grl-raitv.c:180
+msgid "Fiction"
+msgstr "Fikzioa"
+
+#: ../src/raitv/grl-raitv.c:181
+msgid "Junior"
+msgstr "Gazteentzako"
+
+#: ../src/raitv/grl-raitv.c:182
+msgid "Investigations"
+msgstr "Ikerkuntzak"
+
+#: ../src/raitv/grl-raitv.c:183
+msgid "Interviews"
+msgstr "Elkarrizketak"
+
+#: ../src/raitv/grl-raitv.c:184
+msgid "Music"
+msgstr "Musika"
+
+#: ../src/raitv/grl-raitv.c:185
+msgid "News"
+msgstr "Albisteak"
+
+#: ../src/raitv/grl-raitv.c:186
+msgid "Health"
+msgstr "Osasuna"
+
+#: ../src/raitv/grl-raitv.c:187
+msgid "Satire"
+msgstr "Satira"
+
+#: ../src/raitv/grl-raitv.c:189
+msgid "Society"
+msgstr "Gizartea"
+
+#: ../src/raitv/grl-raitv.c:190
+msgid "Show"
+msgstr "Ikuskizuna"
+
+#: ../src/raitv/grl-raitv.c:191
+msgid "Sport"
+msgstr "Kirola"
+
+#: ../src/raitv/grl-raitv.c:192
+msgid "History"
+msgstr "Historia"
+
+#: ../src/raitv/grl-raitv.c:193
+msgid "Politics"
+msgstr "Politika"
+
+#: ../src/raitv/grl-raitv.c:194
+msgid "Leisure"
+msgstr "Aisialdia"
+
+#: ../src/raitv/grl-raitv.c:195
+msgid "Travel"
+msgstr "Bidaia"
+
+#: ../src/raitv/grl-raitv.c:612
+#, c-format
+msgid "Failed to browse: %s"
+msgstr "Huts egin du arakatzean: %s"
+
+#: ../src/shoutcast/grl-shoutcast.c:67
+msgid "A source for browsing SHOUTcast radios"
+msgstr "SHOUTcast irratiak arakatzeko iturburua"
+
+#: ../src/shoutcast/grl-shoutcast.c:451
+#, c-format
+msgid "Cannot find media %s"
+msgstr "Ezin da '%s' multimedia bilatu"
+
+#: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:536
+msgid "non-NULL search text is required"
+msgstr "Nulua ez den bilaketa-testua behar da"
+
+#: ../src/tmdb/grl-tmdb.c:984
+msgid "Remote data does not contain valid identifier"
+msgstr "Urruneko datuek ez dute baliozko identifikatzailerik"
+
+#. I can haz templatze ??
+#. Only emit this last one if more result than expected
+#. Schedule the next line to parse
+#: ../src/tracker/grl-tracker-source-api.c:332
+#: ../src/tracker/grl-tracker-source-api.c:414
+#, c-format
+msgid "Failed to query: %s"
+msgstr "Huts egin du kontsultatzean: %s"
+
+#: ../src/tracker/grl-tracker-source-api.c:627
+msgid "Empty query"
+msgstr "Kontsulta hutsik"
+
+#: ../src/tracker/grl-tracker-source-priv.h:44
+msgid "A plugin for searching multimedia content using Tracker"
+msgstr "Tracker erabiliz multimediaren edukia bilatzeko plugina"
+
+#: ../src/tracker/grl-tracker-utils.c:659
+#, c-format
+msgid "Removable - %s"
+msgstr "Aldagarria - %s"
+
+#: ../src/tracker/grl-tracker-utils.c:671
+msgid "Local files"
+msgstr "Lokaleko fitxategiak"
+
+#: ../src/upnp/grl-upnp.c:54
+#, c-format
+msgid "A source for browsing the UPnP server '%s'"
+msgstr "'%s' UPnP zerbitzaria arakatzeko iturburua"
+
+#: ../src/upnp/grl-upnp.c:1314 ../src/upnp/grl-upnp.c:1371
+msgid "Failed to browse"
+msgstr "Huts egin du arakatzean"
+
+#: ../src/upnp/grl-upnp.c:1434
+msgid "Failed to query"
+msgstr "Huts egin du kontsultatzean"
+
+#: ../src/upnp/grl-upnp.c:1553
+#, c-format
+msgid "Unable to listen for changes in %s"
+msgstr "Ezin da aldaketarik entzun '%s'(e)n"
+
+#: ../src/vimeo/grl-vimeo.c:58
+msgid "A source for browsing and searching Vimeo videos"
+msgstr "Vimeo-ko bideoak arakatzeko eta bilatzeko iturburua"
+
+#: ../src/youtube/grl-youtube.c:60
+msgid "Standard feeds"
+msgstr "Iturri estandarrak"
+
+#: ../src/youtube/grl-youtube.c:63
+msgid "Categories"
+msgstr "Kategoriak"
+
+#: ../src/youtube/grl-youtube.c:69
+msgid "Top Rated"
+msgstr "Puntuazio onenak"
+
+#: ../src/youtube/grl-youtube.c:72
+msgid "Top Favorites"
+msgstr "Gogokoak"
+
+#: ../src/youtube/grl-youtube.c:75
+msgid "Most Viewed"
+msgstr "Ikusienak"
+
+#: ../src/youtube/grl-youtube.c:81
+msgid "Most Recent"
+msgstr "Duela gutxikoak"
+
+#: ../src/youtube/grl-youtube.c:84
+msgid "Most Discussed"
+msgstr "Gehien eztabaidatutakoak"
+
+#: ../src/youtube/grl-youtube.c:87
+msgid "Most Linked"
+msgstr "Estekatuenak"
+
+#: ../src/youtube/grl-youtube.c:90
+msgid "Most Responded"
+msgstr "Gehien erantzundakoak"
+
+#: ../src/youtube/grl-youtube.c:93
+msgid "Recently Featured"
+msgstr "Nabarmendutako azkenak"
+
+#: ../src/youtube/grl-youtube.c:96
+msgid "Watch On Mobile"
+msgstr "Ikusi mugikorrean"
+
+#: ../src/youtube/grl-youtube.c:117
+msgid "A source for browsing and searching YouTube videos"
+msgstr "Youtube-ko bideoak arakatzeko eta bilatzeko iturburua"
+
+#: ../src/youtube/grl-youtube.c:944
+msgid "Failed to get feed"
+msgstr "Huts egin du iturria eskuratzean"
+
+#: ../src/youtube/grl-youtube.c:1121 ../src/youtube/grl-youtube.c:1533
+#, c-format
+msgid "Invalid feed identifier %s"
+msgstr "Baliogabeko '%s' iturriaren identifikatzailea"
+

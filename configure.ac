@@ -1269,12 +1269,12 @@ AC_ARG_ENABLE([tmdb],
                        [enable TMDb metadata plugin (default: auto)]),
         [
          AS_IF([test "x$enableval" = "xyes"],
-               [AS_IF([test "x$HAVE_JSON_GLIB" = "xno" -o "x$HAVE_GRLNET" = "xno"],
-                      [AC_MSG_ERROR([json-glib-1.0 or ${GRLNET_NAME} not found, install it or use --disable-tmdb])
+               [AS_IF([test "x$HAVE_JSON_GLIB" = "xno" -o "x$HAVE_GRLNET" = "xno" -o "x$HAVE_LIBSOUP" = "xno"],
+                      [AC_MSG_ERROR([json-glib-1.0, ${GRLNET_NAME} or libsoup not found, install it or use --disable-tmdb])
                       ])
                ])],
         [
-         AS_IF([test "x$HAVE_JSON_GLIB" = "xyes" -a "x$HAVE_GRLNET" = "xyes"],
+         AS_IF([test "x$HAVE_JSON_GLIB" = "xyes" -a "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_LIBSOUP" = "xyes"],
                [enable_tmdb=yes],
                [enable_tmdb=no])
         ]

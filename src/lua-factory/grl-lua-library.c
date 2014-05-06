@@ -143,6 +143,8 @@ unescape_string (const char *orig_from)
     }
   }
 
+  *to = '\0';
+
   return ret;
 }
 

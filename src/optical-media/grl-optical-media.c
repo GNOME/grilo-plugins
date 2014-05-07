@@ -377,6 +377,8 @@ create_media_from_mount (GMount *mount)
 
   /* Is it an audio CD or a blank media */
   if (ignore_mount (mount)) {
+    GRL_DEBUG ("%s: Ignoring mount %s", __FUNCTION__,
+               g_mount_get_name (mount));
     g_object_unref (mount);
     return NULL;
   }
@@ -395,6 +397,9 @@ create_media_from_mount (GMount *mount)
 
   media_set_metadata (mount, media);
   grl_media_set_mime (media, "x-special/device-block");
+
+  GRL_DEBUG ("%s: Adding mount %s (id: %s)", __FUNCTION__,
+             g_mount_get_name (mount), grl_media_get_id (media));
 
   return media;
 }

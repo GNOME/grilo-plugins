@@ -522,7 +522,7 @@ net_wc_new_with_options(lua_State *L,
   GrlNetWc *wc;
 
   wc = grl_net_wc_new ();
-  if (lua_istable (L, 3)) {
+  if (lua_istable (L, arg_offset)) {
     /* Set GrlNetWc options */
     lua_pushnil (L);
     while (lua_next (L, arg_offset) != 0) {

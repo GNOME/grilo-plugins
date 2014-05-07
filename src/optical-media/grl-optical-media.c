@@ -310,7 +310,7 @@ ignore_drive (GDrive *drive)
   }
   g_clear_object (&icon);
 
-  return TRUE;
+  return FALSE;
 }
 
 static gboolean

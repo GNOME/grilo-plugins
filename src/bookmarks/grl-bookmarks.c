@@ -86,6 +86,7 @@ typedef struct {
   const gchar *media_id;
   guint skip;
   guint count;
+  GrlTypeFilter type_filter;
   GrlSourceResultCb callback;
   guint error_code;
   gpointer user_data;
@@ -96,6 +97,7 @@ static GrlBookmarksSource *grl_bookmarks_source_new (void);
 static void grl_bookmarks_source_finalize (GObject *plugin);
 
 static const GList *grl_bookmarks_source_supported_keys (GrlSource *source);
+static GrlCaps *grl_bookmarks_source_get_caps (GrlSource *source, GrlSupportedOps operation);
 static GrlSupportedOps grl_bookmarks_source_supported_operations (GrlSource *source);
 
 static void grl_bookmarks_source_search (GrlSource *source,
@@ -187,6 +189,7 @@ static gboolean grl_bookmarks_source_notify_change_stop (GrlSource *source,
 
    source_class->supported_operations = grl_bookmarks_source_supported_operations;
    source_class->supported_keys = grl_bookmarks_source_supported_keys;
+   source_class->get_caps = grl_bookmarks_source_get_caps;
    source_class->browse = grl_bookmarks_source_browse;
    source_class->search = grl_bookmarks_source_search;
    source_class->query = grl_bookmarks_source_query;
@@ -291,8 +294,9 @@ mime_is_image (const gchar *mime)
 }
 
 static GrlMedia *
-build_media_from_resource (GrlMedia    *content,
-                           GomResource *resource)
+build_media_from_resource (GrlMedia      *content,
+                           GomResource   *resource,
+                           GrlTypeFilter  type_filter)
 {
   GrlMedia *media = NULL;
   gint64 id;
@@ -324,15 +328,22 @@ build_media_from_resource (GrlMedia    *content,
     if (type == BOOKMARK_TYPE_CATEGORY) {
       media = GRL_MEDIA (grl_media_box_new ());
     } else if (mime_is_audio (mime)) {
-      media = GRL_MEDIA (grl_media_new ());
+      if (type_filter & GRL_TYPE_FILTER_AUDIO)
+        media = GRL_MEDIA (grl_media_new ());
     } else if (mime_is_video (mime)) {
-      media = GRL_MEDIA (grl_media_new ());
+      if (type_filter & GRL_TYPE_FILTER_VIDEO)
+        media = GRL_MEDIA (grl_media_new ());
     } else if (mime_is_image (mime)) {
-      media = GRL_MEDIA (grl_media_image_new ());
+      if (type_filter & GRL_TYPE_FILTER_IMAGE)
+        media = GRL_MEDIA (grl_media_image_new ());
     } else {
-      media = GRL_MEDIA (grl_media_new ());
+      if (type_filter != GRL_TYPE_FILTER_NONE)
+        media = GRL_MEDIA (grl_media_new ());
     }
   }
+
+  if (!media)
+    return NULL;
 
   str_id = g_strdup_printf ("%" G_GINT64_FORMAT, id);
   grl_media_set_id (media, str_id);
@@ -378,6 +389,7 @@ bookmark_resolve (GrlSourceResolveSpec *rs)
   GomResource *resource;
   GError *error = NULL;
   gint64 id;
+  GrlTypeFilter type_filter;
 
   GRL_DEBUG (__FUNCTION__);
 
@@ -413,7 +425,8 @@ bookmark_resolve (GrlSourceResolveSpec *rs)
     return;
   }
 
-  build_media_from_resource (rs->media, resource);
+  type_filter = grl_operation_options_get_type_filter (rs->options);
+  build_media_from_resource (rs->media, resource, type_filter);
   g_object_unref (resource);
   rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
 }
@@ -467,7 +480,13 @@ find_cb (GObject      *object,
     GrlMedia *media;
 
     resource = gom_resource_group_get_index (group, idx);
-    media = build_media_from_resource (NULL, resource);
+    media = build_media_from_resource (NULL, resource, os->type_filter);
+    if (media == NULL) {
+      num_left--;
+      if (num_left == 0)
+        os->callback (os->source, os->operation_id, NULL, 0, os->user_data, NULL);
+      continue;
+    }
     os->callback (os->source,
                   os->operation_id,
                   media,
@@ -752,6 +771,24 @@ grl_bookmarks_source_supported_keys (GrlSource *source)
   return keys;
 }
 
+static GrlCaps *
+grl_bookmarks_source_get_caps (GrlSource       *source,
+                               GrlSupportedOps  operation)
+{
+  GList *keys;
+  static GrlCaps *caps = NULL;
+
+  if (caps == NULL) {
+    caps = grl_caps_new ();
+    grl_caps_set_type_filter (caps, GRL_TYPE_FILTER_ALL);
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_MIME, NULL);
+    grl_caps_set_key_filter (caps, keys);
+    g_list_free (keys);
+  }
+
+  return caps;
+}
+
 static void
 grl_bookmarks_source_browse (GrlSource *source,
                              GrlSourceBrowseSpec *bs)
@@ -779,6 +816,7 @@ grl_bookmarks_source_browse (GrlSource *source,
   os->media_id = grl_media_get_id (bs->container);
   os->count = grl_operation_options_get_count (bs->options);
   os->skip = grl_operation_options_get_skip (bs->options);
+  os->type_filter = grl_operation_options_get_type_filter (bs->options);
   os->callback = bs->callback;
   os->user_data = bs->user_data;
   os->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
@@ -842,6 +880,7 @@ grl_bookmarks_source_query (GrlSource *source,
   os->operation_id = qs->operation_id;
   os->count = grl_operation_options_get_count (qs->options);
   os->skip = grl_operation_options_get_skip (qs->options);
+  os->type_filter = grl_operation_options_get_type_filter (qs->options);
   os->callback = qs->callback;
   os->user_data = qs->user_data;
   os->error_code = GRL_CORE_ERROR_SEARCH_FAILED;

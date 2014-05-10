@@ -445,8 +445,8 @@ get_zipped_contents (guchar        *data,
         else
           g_warning ("Read an empty file from the archive");
       } else {
-        g_message ("Setting content for %s at %d", name, idx);
-        //FIXME check for validity?
+        GRL_DEBUG ("Setting content for %s at %d", name, idx);
+        /* FIXME check for validity? */
         results->pdata[idx] = buf;
       }
     }
@@ -1102,7 +1102,7 @@ grl_l_unzip (lua_State *L)
       luaL_error (L, "Array of urls expect strings only: at index %d is %s",
                   i + 1, luaL_typename (L, -1));
     }
-    g_message ("grl.unzip() -> filenames[%d]: '%s'", i, filenames[i]);
+    GRL_DEBUG ("grl.unzip() -> filenames[%d]: '%s'", i, filenames[i]);
     lua_pop (L, 1);
   }
   GRL_DEBUG ("grl.unzip() -> '%s'", url);

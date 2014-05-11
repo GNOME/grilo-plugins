@@ -97,12 +97,9 @@ test_episodes (void)
     { NULL, "file:///home/test/My%20super%20series.S01E01.mp4", "My super series", 1, 1 },
     { "Adventure Time - 2x01 - It Came from the Nightosphere.mp4", NULL, "Adventure Time", 2, 1 },
 
-    /* FIXME: Incorrect checks below */
-
-    /* https://bugzilla.gnome.org/show_bug.cgi?id=725025 */
-    { "My.Neighbor.Totoro.1988.1080p.BluRay.X264.mkv", NULL, "My Neighbor Totoro", 19, 88 },
-    /* https://bugzilla.gnome.org/show_bug.cgi?id=727181 */
-    { NULL, "file:///home/hadess/.cache/totem/media/140127Mata-16x9%20(bug%20723166).mp4", "140127Mata-16x9 (bug", 72, 31 }
+    /* These below should not be detected as an episode of a series. */
+    { "My.Neighbor.Totoro.1988.1080p.BluRay.X264.mkv", NULL, NULL, 0, 0 },
+    { NULL, "file:///home/hadess/.cache/totem/media/140127Mata-16x9%20(bug%20723166).mp4", NULL, 0, 0 }
   };
 
 

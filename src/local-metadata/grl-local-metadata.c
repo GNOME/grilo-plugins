@@ -47,12 +47,12 @@ GRL_LOG_DOMAIN_STATIC(local_metadata_log_domain);
 
 #define TV_REGEX                                \
   "(?<showname>.*)\\."                          \
-  "(?<season>(?:\\d{1,2})|(?:[sS]\\K\\d{1,2}))" \
-  "(?<episode>(?:\\d{2})|(?:[eEx]\\K\\d{1,2}))"  \
+  "(?<season>[sS]\\d{1,2}|\\d{1,2})"            \
+  "(?<episode>(?:[eExX]\\d{1,2}))"              \
   "\\.?(?<name>.*)?"
 #define MOVIE_REGEX                             \
   "(?<name>.*)"                                 \
-  "\\.?[\\(\\[](?<year>[12][90]\\d{2})[\\)\\]]"
+  "(?<year>19\\d{2}|20\\d{2})"
 
 /**/
 

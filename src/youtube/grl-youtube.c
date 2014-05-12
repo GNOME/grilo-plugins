@@ -1427,7 +1427,7 @@ grl_youtube_source_browse (GrlSource *source,
   os->operation_id = bs->operation_id;
   os->container_id = container_id;
   os->keys = bs->keys;
-  os->flags = grl_operation_options_get_flags (bs->options);
+  os->flags = grl_operation_options_get_resolution_flags (bs->options);
   os->skip = grl_operation_options_get_skip (bs->options);
   os->count = grl_operation_options_get_count (bs->options);
   os->callback = bs->callback;

@@ -909,7 +909,7 @@ notify_parent_change (GrlSource *source, GFile *child, GrlSourceChangeType chang
 
   fs_source = GRL_FILESYSTEM_SOURCE (source);
   options = grl_operation_options_new (NULL);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_FAST_ONLY);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FAST_ONLY);
 
   parent = g_file_get_parent (child);
 

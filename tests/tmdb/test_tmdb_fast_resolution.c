@@ -55,7 +55,7 @@ test_fast_resolution (void)
 
   options = grl_operation_options_new (NULL);
   g_assert (options != NULL);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_FAST_ONLY);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FAST_ONLY);
 
   media = grl_media_video_new ();
   g_assert (media != NULL);

@@ -1357,7 +1357,7 @@ grl_tmdb_source_resolve (GrlSource *source,
 
   /* Disable slow resolution if slow keys where requested, but the operation
    * options explicitly ask for fast resolving only. */
-  if (grl_operation_options_get_flags (rs->options) & GRL_RESOLVE_FAST_ONLY)
+  if (grl_operation_options_get_resolution_flags (rs->options) & GRL_RESOLVE_FAST_ONLY)
     closure->slow = FALSE;
 
   /* We did not receive the config yet, queue request. Config callback will

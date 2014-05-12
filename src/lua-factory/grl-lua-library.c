@@ -651,7 +651,7 @@ grl_l_operation_get_options (lua_State *L)
   }
 
   if (g_strcmp0 (option, "flags") == 0) {
-    GrlResolutionFlags flags = grl_operation_options_get_flags (os->options);
+    GrlResolutionFlags flags = grl_operation_options_get_resolution_flags (os->options);
 
     lua_pushnumber (L, (gint) flags);
     return 1;

@@ -62,7 +62,7 @@ test_search_normal (void)
   g_assert (source);
   options = grl_operation_options_new (NULL);
   grl_operation_options_set_count (options, 2);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_FAST_ONLY);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FAST_ONLY);
   g_assert (options);
 
   medias = grl_source_search_sync (source,
@@ -124,7 +124,7 @@ test_search_null (void)
   g_assert (source);
   options = grl_operation_options_new (NULL);
   grl_operation_options_set_count (options, 2);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_FAST_ONLY);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FAST_ONLY);
   g_assert (options);
 
   medias = grl_source_search_sync (source,
@@ -156,7 +156,7 @@ test_search_empty (void)
   g_assert (source);
   options = grl_operation_options_new (NULL);
   grl_operation_options_set_count (options, 2);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_FAST_ONLY);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FAST_ONLY);
   g_assert (options);
 
   medias = grl_source_search_sync (source,
@@ -210,7 +210,7 @@ test_cancel (void)
   g_assert (source);
   options = grl_operation_options_new (NULL);
   grl_operation_options_set_count (options, 2);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_FAST_ONLY);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FAST_ONLY);
   g_assert (options);
 
   grl_source_search (source,

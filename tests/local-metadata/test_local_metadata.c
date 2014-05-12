@@ -60,7 +60,7 @@ get_show_for_title (GrlSource  *source,
 				    GRL_METADATA_KEY_EPISODE_TITLE,
 				    NULL);
   options = grl_operation_options_new (NULL);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_FULL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
 
   grl_source_resolve_sync (source,
 			   media,
@@ -166,7 +166,7 @@ test_title_override (void)
 
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, GRL_METADATA_KEY_SHOW, NULL);
     options = grl_operation_options_new (NULL);
-    grl_operation_options_set_flags (options, GRL_RESOLVE_FULL);
+    grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
 
     grl_source_resolve_sync (source,
 			     media,

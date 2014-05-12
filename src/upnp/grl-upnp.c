@@ -247,7 +247,7 @@ grl_upnp_source_new (const gchar *source_id,
 			 "source-name", name,
 			 "source-desc", source_desc,
 			 "source-icon", icon,
-                         "source-tags", tags,
+                         "source-tags", tags[0]? tags: NULL,
 			 NULL);
 
   source->priv->upnp_name = g_strdup (name);

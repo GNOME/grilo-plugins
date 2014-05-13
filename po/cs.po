@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-02-10 20:10+0000\n"
-"PO-Revision-Date: 2014-02-13 21:44+0100\n"
+"POT-Creation-Date: 2014-05-07 16:17+0000\n"
+"PO-Revision-Date: 2014-05-13 21:03+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -27,22 +27,22 @@ msgstr "Ukázky z Apple Movie"
 msgid "A plugin for browsing Apple Movie Trailers"
 msgstr "Zásuvný modul pro procházení ukázek z Apple Movie"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:462
-#: ../src/jamendo/grl-jamendo.c:336 ../src/jamendo/grl-jamendo.c:696
-#: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:472
+#: ../src/apple-trailers/grl-apple-trailers.c:468
+#: ../src/jamendo/grl-jamendo.c:333 ../src/jamendo/grl-jamendo.c:694
+#: ../src/shoutcast/grl-shoutcast.c:405 ../src/shoutcast/grl-shoutcast.c:459
 msgid "Failed to parse response"
 msgstr "Selhalo zpracování odpovědi"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:470
-#: ../src/jamendo/grl-jamendo.c:344 ../src/jamendo/grl-jamendo.c:351
-#: ../src/podcasts/grl-podcasts.c:1360 ../src/shoutcast/grl-shoutcast.c:424
+#: ../src/apple-trailers/grl-apple-trailers.c:476
+#: ../src/jamendo/grl-jamendo.c:341 ../src/jamendo/grl-jamendo.c:348
+#: ../src/podcasts/grl-podcasts.c:1353 ../src/shoutcast/grl-shoutcast.c:413
 msgid "Empty response"
 msgstr "Prázdná odpověď"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:529
-#: ../src/jamendo/grl-jamendo.c:666
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
-#: ../src/shoutcast/grl-shoutcast.c:565
+#: ../src/apple-trailers/grl-apple-trailers.c:531
+#: ../src/jamendo/grl-jamendo.c:663
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:247
+#: ../src/shoutcast/grl-shoutcast.c:547
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Selhalo připojení: %s"
@@ -51,41 +51,40 @@ msgstr "Selhalo připojení: %s"
 msgid "A source for browsing and searching Blip.tv videos"
 msgstr "Zdroj pro procházení a vyhledávání videí Blip.tv"
 
-#: ../src/bookmarks/grl-bookmarks.c:119
+#: ../src/bookmarks/grl-bookmarks.c:67
 msgid "Bookmarks"
 msgstr "Záložky"
 
-#: ../src/bookmarks/grl-bookmarks.c:120
+#: ../src/bookmarks/grl-bookmarks.c:68
 msgid "A source for organizing media bookmarks"
 msgstr "Zdroj pro organizování záložek médií"
 
-#: ../src/bookmarks/grl-bookmarks.c:441 ../src/bookmarks/grl-bookmarks.c:456
+#: ../src/bookmarks/grl-bookmarks.c:410
 msgid "Failed to get bookmark metadata"
 msgstr "Selhalo získání metadat záložky"
 
-#: ../src/bookmarks/grl-bookmarks.c:486 ../src/bookmarks/grl-bookmarks.c:506
+#: ../src/bookmarks/grl-bookmarks.c:439 ../src/bookmarks/grl-bookmarks.c:456
 #, c-format
-msgid "Failed to get bookmarks list: %s"
-msgstr "Selhalo získání seznamu záložek: %s"
+msgid "Failed to find bookmarks: %s"
+msgstr "Selhalo vyhledání záložek: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:592 ../src/podcasts/grl-podcasts.c:817
-#: ../src/podcasts/grl-podcasts.c:849 ../src/podcasts/grl-podcasts.c:881
+#: ../src/bookmarks/grl-bookmarks.c:603 ../src/podcasts/grl-podcasts.c:813
+#: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Selhalo odstranění: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:660 ../src/bookmarks/grl-bookmarks.c:718
-#: ../src/podcasts/grl-podcasts.c:922 ../src/podcasts/grl-podcasts.c:955
-#: ../src/podcasts/grl-podcasts.c:1804
+#: ../src/bookmarks/grl-bookmarks.c:714 ../src/podcasts/grl-podcasts.c:918
+#: ../src/podcasts/grl-podcasts.c:951 ../src/podcasts/grl-podcasts.c:1796
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Selhalo uložení: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:772 ../src/bookmarks/grl-bookmarks.c:807
-#: ../src/bookmarks/grl-bookmarks.c:839 ../src/bookmarks/grl-bookmarks.c:901
-#: ../src/metadata-store/grl-metadata-store.c:852
-#: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
-#: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
+#: ../src/bookmarks/grl-bookmarks.c:770 ../src/bookmarks/grl-bookmarks.c:804
+#: ../src/bookmarks/grl-bookmarks.c:835 ../src/bookmarks/grl-bookmarks.c:892
+#: ../src/metadata-store/grl-metadata-store.c:849
+#: ../src/podcasts/grl-podcasts.c:1652 ../src/podcasts/grl-podcasts.c:1696
+#: ../src/podcasts/grl-podcasts.c:1730 ../src/podcasts/grl-podcasts.c:1765
 msgid "No database connection"
 msgstr "Žádné připojení k databázi"
 
@@ -94,18 +93,18 @@ msgstr "Žádné připojení k databázi"
 msgid "A source for browsing the DMAP server '%s'"
 msgstr "Zdroj pro procházení serveru DMAP „%s“"
 
-#: ../src/dmap/simple-dmap-db.c:62 ../src/jamendo/grl-jamendo.c:785
+#: ../src/dmap/simple-dmap-db.c:62 ../src/jamendo/grl-jamendo.c:781
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Alba"
 
-#: ../src/dmap/simple-dmap-db.c:64 ../src/jamendo/grl-jamendo.c:774
+#: ../src/dmap/simple-dmap-db.c:64 ../src/jamendo/grl-jamendo.c:770
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Umělci"
 
-#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1116
-#: ../src/jamendo/grl-jamendo.c:1191 ../src/magnatune/grl-magnatune.c:829
+#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1108
+#: ../src/jamendo/grl-jamendo.c:1183 ../src/magnatune/grl-magnatune.c:829
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Neplatný identifikátor kontejneru %s"
@@ -118,12 +117,12 @@ msgstr "Souborový systém"
 msgid "A source for browsing the filesystem"
 msgstr "Zdroj pro procházení souborového systému"
 
-#: ../src/filesystem/grl-filesystem.c:1141
+#: ../src/filesystem/grl-filesystem.c:1142
 #, c-format
 msgid "File %s does not exist"
 msgstr "Soubor %s neexistuje"
 
-#: ../src/filesystem/grl-filesystem.c:1218 ../src/youtube/grl-youtube.c:1639
+#: ../src/filesystem/grl-filesystem.c:1219 ../src/youtube/grl-youtube.c:1626
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Nelze získat médium z %s"
@@ -160,14 +159,6 @@ msgstr "Poskytovatel avatarů z Gravatar"
 msgid "A plugin to get avatars for artist and author fields"
 msgstr "Zásuvný modul pro získávání avatarů pro pole s umělcem a autorem"
 
-#: ../src/guardian-videos/grl-guardianvideos.c:48
-msgid "The Guardian Videos"
-msgstr "Videa vydavatelství Guardian"
-
-#: ../src/guardian-videos/grl-guardianvideos.c:49
-msgid "A source for browsing videos from the Guardian"
-msgstr "Zdroj pro procházení videí z vydavatelství Guardian"
-
 #: ../src/jamendo/grl-jamendo.c:93
 msgid "A source for browsing and searching Jamendo music"
 msgstr "Zdroj pro procházení a vyhledávání hudby Jamendo"
@@ -196,28 +187,28 @@ msgstr "Přední alba"
 msgid "Top tracks"
 msgstr "Přední stopy"
 
-#: ../src/jamendo/grl-jamendo.c:796
+#: ../src/jamendo/grl-jamendo.c:792
 msgid "Feeds"
 msgstr "Kanály"
 
-#: ../src/jamendo/grl-jamendo.c:982 ../src/jamendo/grl-jamendo.c:1027
-#: ../src/jamendo/grl-jamendo.c:1054
+#: ../src/jamendo/grl-jamendo.c:976 ../src/jamendo/grl-jamendo.c:1021
+#: ../src/jamendo/grl-jamendo.c:1048
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Neplatný identifikátor %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1203
-#: ../src/youtube/grl-youtube.c:1346 ../src/youtube/grl-youtube.c:1566
+#: ../src/jamendo/grl-jamendo.c:1035 ../src/youtube/grl-youtube.c:1194
+#: ../src/youtube/grl-youtube.c:1335 ../src/youtube/grl-youtube.c:1553
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Neplatný identifikátor kategorie %s"
 
-#: ../src/jamendo/grl-jamendo.c:1186
+#: ../src/jamendo/grl-jamendo.c:1178
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Selhalo procházení: %s je stopa"
 
-#: ../src/jamendo/grl-jamendo.c:1248
+#: ../src/jamendo/grl-jamendo.c:1238
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Vadný dotaz „%s“"
@@ -230,26 +221,26 @@ msgstr "Poskytovatel přebalů alb z Last.FM"
 msgid "A plugin for getting album arts using Last.FM as backend"
 msgstr "Zásuvný modul pro získávání přebalů alb pomocí služby Last.FM"
 
-#: ../src/local-metadata/grl-local-metadata.c:42
+#: ../src/local-metadata/grl-local-metadata.c:43
 msgid "Local Metadata Provider"
 msgstr "Místní poskytovatel metadat"
 
-#: ../src/local-metadata/grl-local-metadata.c:43
+#: ../src/local-metadata/grl-local-metadata.c:44
 msgid "A source providing locally available metadata"
 msgstr "Zdroj poskytující místně dostupná metadata"
 
-#: ../src/local-metadata/grl-local-metadata.c:481
-#: ../src/metadata-store/grl-metadata-store.c:760 ../src/raitv/grl-raitv.c:869
+#: ../src/local-metadata/grl-local-metadata.c:482
+#: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:861
 #: ../src/tracker/grl-tracker-source-api.c:460
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Selhalo získání: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:1014
+#: ../src/local-metadata/grl-local-metadata.c:862
 msgid "Cannot resolve any of the given keys"
 msgstr "Nelze získat žádný z uvedených klíčů"
 
-#: ../src/local-metadata/grl-local-metadata.c:1018
+#: ../src/local-metadata/grl-local-metadata.c:866
 msgid "A GIO supported URL for images is required"
 msgstr "Je vyžadována adresa URL podporovaná GIO pro obrázky"
 
@@ -289,34 +280,34 @@ msgstr "Úložiště metadat"
 msgid "A plugin for storing extra metadata information"
 msgstr "Zásuvný modul pro uchovávání doplňujících metainformací"
 
-#: ../src/metadata-store/grl-metadata-store.c:574
-#: ../src/metadata-store/grl-metadata-store.c:593
-#: ../src/metadata-store/grl-metadata-store.c:805
-#: ../src/tracker/grl-tracker-source-api.c:511
+#: ../src/metadata-store/grl-metadata-store.c:573
+#: ../src/metadata-store/grl-metadata-store.c:592
+#: ../src/metadata-store/grl-metadata-store.c:804
+#: ../src/tracker/grl-tracker-source-api.c:510
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Selhala aktualizace metadat: %s"
 
-#: ../src/metadata-store/grl-metadata-store.c:575
+#: ../src/metadata-store/grl-metadata-store.c:574
 msgid "specified keys are not writable"
 msgstr "zadaný klíč není zapisovatelný"
 
-#: ../src/metadata-store/grl-metadata-store.c:615
+#: ../src/metadata-store/grl-metadata-store.c:614
 msgid "Failed to update metadata"
 msgstr "Selhala aktualizace metadat"
 
-#: ../src/metadata-store/grl-metadata-store.c:761
-#: ../src/metadata-store/grl-metadata-store.c:806
+#: ../src/metadata-store/grl-metadata-store.c:760
+#: ../src/metadata-store/grl-metadata-store.c:805
 msgid "\"source-id\" not available"
 msgstr "Není dostupný „source-id“"
 
-#: ../src/metadata-store/grl-metadata-store.c:781 ../src/upnp/grl-upnp.c:1459
+#: ../src/metadata-store/grl-metadata-store.c:780 ../src/upnp/grl-upnp.c:1484
 msgid "Failed to resolve"
 msgstr "Selhalo získání"
 
-#: ../src/metadata-store/grl-metadata-store.c:920
-#: ../src/metadata-store/grl-metadata-store.c:957 ../src/raitv/grl-raitv.c:420
-#: ../src/shoutcast/grl-shoutcast.c:759 ../src/vimeo/grl-vimeo.c:534
+#: ../src/metadata-store/grl-metadata-store.c:917
+#: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:419
+#: ../src/shoutcast/grl-shoutcast.c:745 ../src/vimeo/grl-vimeo.c:535
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Selhalo vyhledání: %s"
@@ -341,42 +332,42 @@ msgstr "Zdroj pro procházení videí Pocket"
 msgid "A source for browsing podcasts"
 msgstr "Zdroj pro procházení podcastů"
 
-#: ../src/podcasts/grl-podcasts.c:753 ../src/podcasts/grl-podcasts.c:773
+#: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "Selhalo získání vysílání podcastu: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1239 ../src/podcasts/grl-podcasts.c:1248
-#: ../src/podcasts/grl-podcasts.c:1258
+#: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
+#: ../src/podcasts/grl-podcasts.c:1254
 msgid "Failed to parse content"
 msgstr "Selhalo zpracování obsahu"
 
-#: ../src/podcasts/grl-podcasts.c:1291
+#: ../src/podcasts/grl-podcasts.c:1287
 msgid "Failed to parse podcast contents"
 msgstr "Selhalo zpracování obsahu podcastu"
 
-#: ../src/podcasts/grl-podcasts.c:1449
+#: ../src/podcasts/grl-podcasts.c:1442
 msgid "Failed to get podcast information"
 msgstr "Selhalo získání informací o podcastu"
 
-#: ../src/podcasts/grl-podcasts.c:1489 ../src/podcasts/grl-podcasts.c:1509
+#: ../src/podcasts/grl-podcasts.c:1482 ../src/podcasts/grl-podcasts.c:1502
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Selhalo získání seznamu podcastů: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1563 ../src/podcasts/grl-podcasts.c:1578
+#: ../src/podcasts/grl-podcasts.c:1555 ../src/podcasts/grl-podcasts.c:1570
 msgid "Failed to get podcast stream metadata"
 msgstr "Selhalo získání metadat o vysílání podcastu"
 
-#: ../src/podcasts/grl-podcasts.c:1616
+#: ../src/podcasts/grl-podcasts.c:1608
 msgid "Failed to get podcast metadata"
 msgstr "Selhalo získání metadat podcastu"
 
-#: ../src/podcasts/grl-podcasts.c:1800
+#: ../src/podcasts/grl-podcasts.c:1792
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Nelze vytvořit kontejner. Přijímány jsou pouze kanály"
 
-#: ../src/podcasts/grl-podcasts.c:1805
+#: ../src/podcasts/grl-podcasts.c:1797
 msgid "URL required"
 msgstr "Vyžadována adresa URL"
 
@@ -480,7 +471,7 @@ msgstr "Zábavné"
 msgid "Travel"
 msgstr "Cestování"
 
-#: ../src/raitv/grl-raitv.c:616
+#: ../src/raitv/grl-raitv.c:612
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Selhalo procházení: %s"
@@ -489,12 +480,12 @@ msgstr "Selhalo procházení: %s"
 msgid "A source for browsing SHOUTcast radios"
 msgstr "Zdroj pro procházení rádií SHOUTcast"
 
-#: ../src/shoutcast/grl-shoutcast.c:462
+#: ../src/shoutcast/grl-shoutcast.c:451
 #, c-format
 msgid "Cannot find media %s"
 msgstr "Nelze najít médium %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:760 ../src/vimeo/grl-vimeo.c:535
+#: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:536
 msgid "non-NULL search text is required"
 msgstr "Hledaný text musí být neprázdný"
 
@@ -511,7 +502,7 @@ msgstr "Vzdálená data neobsahují platný identifikátor"
 msgid "Failed to query: %s"
 msgstr "Selhal dotaz: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:628
+#: ../src/tracker/grl-tracker-source-api.c:627
 msgid "Empty query"
 msgstr "Prázdný dotaz"
 
@@ -520,29 +511,29 @@ msgid "A plugin for searching multimedia content using Tracker"
 msgstr ""
 "Zásuvný modul pro vyhledávání multimediálního obsahu pomocí aplikace Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:606
+#: ../src/tracker/grl-tracker-utils.c:659
 #, c-format
 msgid "Removable - %s"
 msgstr "Výměnné – %s"
 
-#: ../src/tracker/grl-tracker-utils.c:618
+#: ../src/tracker/grl-tracker-utils.c:671
 msgid "Local files"
 msgstr "Místní soubory"
 
-#: ../src/upnp/grl-upnp.c:53
+#: ../src/upnp/grl-upnp.c:54
 #, c-format
 msgid "A source for browsing the UPnP server '%s'"
 msgstr "Zdroj pro procházení serveru UPnP „%s“"
 
-#: ../src/upnp/grl-upnp.c:1289 ../src/upnp/grl-upnp.c:1346
+#: ../src/upnp/grl-upnp.c:1314 ../src/upnp/grl-upnp.c:1371
 msgid "Failed to browse"
 msgstr "Selhalo procházení"
 
-#: ../src/upnp/grl-upnp.c:1409
+#: ../src/upnp/grl-upnp.c:1434
 msgid "Failed to query"
 msgstr "Selhal dotaz"
 
-#: ../src/upnp/grl-upnp.c:1528
+#: ../src/upnp/grl-upnp.c:1553
 #, c-format
 msgid "Unable to listen for changes in %s"
 msgstr "Nelze naslouchat změnám v %s"
@@ -599,11 +590,11 @@ msgstr "Sledovat na mobilu"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Zdroj pro procházení a vyhledávání videí YouTube"
 
-#: ../src/youtube/grl-youtube.c:952
+#: ../src/youtube/grl-youtube.c:944
 msgid "Failed to get feed"
 msgstr "Selhalo získání kanálu"
 
-#: ../src/youtube/grl-youtube.c:1130 ../src/youtube/grl-youtube.c:1546
+#: ../src/youtube/grl-youtube.c:1121 ../src/youtube/grl-youtube.c:1533
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Neplatný identifikátor kanálu %s"

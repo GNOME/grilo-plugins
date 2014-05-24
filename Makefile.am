@@ -53,6 +53,7 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-apple-trailers \
                             --enable-optical-media \
                             --enable-pocket \
                             --enable-podcasts \
+                            --enable-thetvdb \
                             --enable-tmdb \
                             --enable-tracker \
                             --enable-upnp \

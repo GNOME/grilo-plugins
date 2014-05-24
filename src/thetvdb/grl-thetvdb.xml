@@ -1,0 +1,10 @@
+<plugin>
+  <info>
+    <name>The TVDB</name>
+    <module>libgrlthetvdb</module>
+    <description>A plugin for fetching metadata of television shows</description>
+    <author>Victor Toso</author>
+    <license>LGPL</license>
+    <site>http://victortoso.com</site>
+  </info>
+</plugin>

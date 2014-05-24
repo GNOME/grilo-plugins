@@ -1273,6 +1273,55 @@ DEPS_DMAP_LIBS="$DEPS_LIBS $DMAP_LIBS $XML_LIBS"
 AC_SUBST(DEPS_DMAP_LIBS)
 
 # ----------------------------------------------------------
+# BUILD THETVDB PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(thetvdb,
+        AC_HELP_STRING([--enable-thetvdb],
+                [enable thetvdb plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GRLNET" = "xno"; then
+                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-thetvdb])
+                        fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-thetvdb])
+                        fi
+                        if test "x$HAVE_ARCHIVE" = "xno"; then
+                           AC_MSG_ERROR([libarchive not found, install it or use --disable-thetvdb])
+                        fi
+                        if test "x$HAVE_GOM" = "xno"; then
+                           AC_MSG_ERROR([gom-1.0 not found, install it or use --disable-thetvdb])
+                        fi
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_ARCHIVE" = "xyes" -a "x$HAVE_GOM" = "xyes"; then
+                  enable_thetvdb=yes
+                else
+                  enable_thetvdb=no
+                fi
+        ])
+
+AM_CONDITIONAL([THETVDB_PLUGIN], [test "x$enable_thetvdb" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL thetvdb"
+if test "x$enable_thetvdb" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED thetvdb"
+fi
+
+THETVDB_PLUGIN_ID="grl-thetvdb"
+AC_SUBST(THETVDB_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([THETVDB_PLUGIN_ID], ["$THETVDB_PLUGIN_ID"], [thetvdb plugin ID])
+
+DEPS_THETVDB_CFLAGS="$DEPS_CFLAGS $ARCHIVE_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS $GOM_CFLAGS"
+AC_SUBST(DEPS_THETVDB_CFLAGS)
+DEPS_THETVDB_LIBS="$DEPS_LIBS $ARCHIVE_LIBS $GRLNET_LIBS $XML_LIBS $GOM_LIBS"
+AC_SUBST(DEPS_THETVDB_LIBS)
+
+# ----------------------------------------------------------
 # BUILD TMDB PLUGIN
 # ----------------------------------------------------------
 
@@ -1399,6 +1448,7 @@ AC_CONFIG_FILES([
   src/lua-factory/Makefile
   src/lua-factory/sources/Makefile
   src/magnatune/Makefile
+  src/thetvdb/Makefile
   src/metadata-store/Makefile
   src/optical-media/Makefile
   src/pocket/Makefile
@@ -1416,6 +1466,7 @@ AC_CONFIG_FILES([
   tests/dleyna/Makefile
   tests/dleyna/dbusmock/dleyna-server-mock.service
   tests/local-metadata/Makefile
+  tests/thetvdb/Makefile
   tests/tmdb/Makefile
   tests/vimeo/Makefile
 ])

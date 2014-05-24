@@ -86,6 +86,10 @@ if SHOUTCAST_PLUGIN
 SUBDIRS += shoutcast
 endif
 
+if THETVDB_PLUGIN
+SUBDIRS += thetvdb
+endif
+
 if TMDB_PLUGIN
 SUBDIRS += tmdb
 endif
@@ -113,7 +117,7 @@ endif
 DIST_SUBDIRS = \
    apple-trailers bliptv bookmarks dleyna dmap filesystem flickr freebox gravatar jamendo \
    lastfm-albumart local-metadata lua-factory magnatune metadata-store optical-media   \
-   pocket podcasts raitv shoutcast tmdb tracker upnp vimeo youtube
+   pocket podcasts raitv shoutcast thetvdb tmdb tracker upnp vimeo youtube
 
 MAINTAINERCLEANFILES =	\
         *.in		\

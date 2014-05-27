@@ -23,8 +23,8 @@
 #ifndef FLICKR_OAUTH_H
 #define FLICKR_OAUTH_H
 
-#define FLICKR_API_URL "http://api.flickr.com/services/rest"
-#define FLICKR_OAUTH_AUTHPOINT "http://www.flickr.com/services/oauth/authorize"
+#define FLICKR_API_URL "https://api.flickr.com/services/rest"
+#define FLICKR_OAUTH_AUTHPOINT "https://www.flickr.com/services/oauth/authorize"
 
 /* OAuth definitions */
 #define FLICKR_OAUTH_SIGNATURE_METHOD "HMAC-SHA1"

@@ -18,16 +18,16 @@
 #define GRL_LOG_DOMAIN_DEFAULT flickr_log_domain
 
 #define FLICKR_PHOTO_ORIG_URL                           \
-  "http://farm%s.static.flickr.com/%s/%s_%s_o.%s"
+  "https://farm%s.static.flickr.com/%s/%s_%s_o.%s"
 
 #define FLICKR_PHOTO_SMALL_URL                          \
-  "http://farm%s.static.flickr.com/%s/%s_%s_n.jpg"
+  "https://farm%s.static.flickr.com/%s/%s_%s_n.jpg"
 
 #define FLICKR_PHOTO_THUMB_URL                          \
-  "http://farm%s.static.flickr.com/%s/%s_%s_t.jpg"
+  "https://farm%s.static.flickr.com/%s/%s_%s_t.jpg"
 
 #define FLICKR_PHOTO_LARGEST_URL                        \
-  "http://farm%s.static.flickr.com/%s/%s_%s_b.jpg"
+  "https://farm%s.static.flickr.com/%s/%s_%s_b.jpg"
 
 
 #define FLICKR_PHOTOS_SEARCH_METHOD       "flickr.photos.search"

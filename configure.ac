@@ -152,7 +152,7 @@ PKG_CHECK_MODULES(GOA_WITH_POCKET, [goa-1.0 >= 3.11.4], HAVE_GOA_WITH_POCKET=yes
 
 PKG_CHECK_MODULES(TOTEM_PL_PARSER, totem-plparser >= 3.4.1, HAVE_TOTEM_PL_PARSER=yes, HAVE_TOTEM_PL_PARSER=no)
 
-PKG_CHECK_MODULES(REST, rest-0.7, HAVE_REST=yes, HAVE_REST=no)
+PKG_CHECK_MODULES(REST, [rest-0.7 >= 0.7.90], HAVE_REST=yes, HAVE_REST=no)
 
 PKG_CHECK_MODULES([JSON], [json-glib-1.0], HAVE_JSON_GLIB=yes, HAVE_JSON_GLIB=no)
 
@@ -576,7 +576,7 @@ AC_ARG_ENABLE(pocket,
                            AC_MSG_ERROR([goa-1.0 >= 3.11.4 not found, install it or use --disable-pocket])
                         fi
                         if test "x$HAVE_REST" = "xno"; then
-                           AC_MSG_ERROR([rest not found, install it or use --disable-pocket])
+                           AC_MSG_ERROR([rest >= 0.7.90 not found, install it or use --disable-pocket])
                         fi
                         if test "x$HAVE_TOTEM_PL_PARSER" = "xno"; then
                            AC_MSG_ERROR([totem-pl-parser not found, install it or use --disable-pocket])

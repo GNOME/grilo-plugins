@@ -249,7 +249,6 @@ grl_bookmarks_source_init (GrlBookmarksSource *source)
   source->priv->repository = gom_repository_new (source->priv->adapter);
   object_types = g_list_prepend(NULL, GINT_TO_POINTER(BOOKMARKS_TYPE_RESOURCE));
   gom_repository_automatic_migrate_async (source->priv->repository, 2, object_types, migrate_cb, source);
-  g_list_free(object_types);
 }
 
 G_DEFINE_TYPE (GrlBookmarksSource, grl_bookmarks_source, GRL_TYPE_SOURCE);

@@ -273,7 +273,12 @@ update_media (GrlMedia *media, GHashTable *video)
   str = g_hash_table_lookup (video, VIMEO_VIDEO_ID);
   if (str)
   {
+    char *external_url;
+
     grl_media_set_id (media, str);
+    external_url = g_strdup_printf ("http://vimeo.com/%s", str);
+    grl_media_set_external_url (media, external_url);
+    g_free (external_url);
   }
 
   str = g_hash_table_lookup (video, VIMEO_VIDEO_TITLE);
@@ -462,11 +467,12 @@ grl_vimeo_source_supported_keys (GrlSource *source)
 				      GRL_METADATA_KEY_DESCRIPTION,
 				      GRL_METADATA_KEY_URL,
 				      GRL_METADATA_KEY_AUTHOR,
-                  GRL_METADATA_KEY_PUBLICATION_DATE,
+				      GRL_METADATA_KEY_PUBLICATION_DATE,
 				      GRL_METADATA_KEY_THUMBNAIL,
 				      GRL_METADATA_KEY_DURATION,
 				      GRL_METADATA_KEY_WIDTH,
 				      GRL_METADATA_KEY_HEIGHT,
+				      GRL_METADATA_KEY_EXTERNAL_URL,
 				      GRL_METADATA_KEY_INVALID);
   }
   return keys;

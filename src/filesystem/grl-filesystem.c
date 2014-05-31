@@ -770,6 +770,7 @@ recursive_operation_initialize (RecursiveOperation *operation, GrlFilesystemSour
       GFile *directory = g_file_new_for_uri (uri->data);
       g_queue_push_tail (operation->directories,
                          recursive_entry_new (0, directory));
+      add_monitor (source, directory);
       g_object_unref (directory);
     }
   } else {
@@ -783,6 +784,7 @@ recursive_operation_initialize (RecursiveOperation *operation, GrlFilesystemSour
     directory = g_file_new_for_path (home);
     g_queue_push_tail (operation->directories,
                        recursive_entry_new (0, directory));
+    add_monitor (source, directory);
     g_object_unref (directory);
   }
 }

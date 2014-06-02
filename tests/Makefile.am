@@ -29,6 +29,10 @@ if TMDB_PLUGIN
 SUBDIRS += tmdb
 endif
 
+if THETVDB_PLUGIN
+SUBDIRS += thetvdb
+endif
+
 if VIMEO_PLUGIN
 SUBDIRS += vimeo
 endif
@@ -39,6 +43,7 @@ DIST_SUBDIRS =    \
    dleyna         \
    local-metadata \
    tmdb           \
+   thetvdb        \
    vimeo
 
 MAINTAINERCLEANFILES =  \

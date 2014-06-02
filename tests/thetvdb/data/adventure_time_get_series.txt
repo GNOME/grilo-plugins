@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Data>
+<Series>
+<seriesid>152831</seriesid>
+<language>en</language>
+<SeriesName>Adventure Time</SeriesName>
+<AliasNames>Adventure Time with Finn and Jake</AliasNames>
+<banner>graphical/152831-g2.jpg</banner>
+<Overview>Adventure Time (originally titled 'Adventure Time with Finn &amp; Jake') follows two best friends: Finn (a 12-year old boy) and Jake (a wise 28-year-old dog with magical powers), and the surreal adventures undertaken by the duo as they traverse the mystical Land of Ooo. A world built for adventure, Ooo is filled to the brim with various landscapes for the two buddies to explore and bizarre characters to assist.</Overview>
+<FirstAired>2010-04-05</FirstAired>
+<Network>Cartoon Network</Network>
+<IMDB_ID>tt1305826</IMDB_ID>
+<zap2it_id>EP01246265</zap2it_id>
+<id>152831</id>
+</Series>
+</Data>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Data>
+<Series>
+<seriesid>84947</seriesid>
+<language>en</language>
+<SeriesName>Boardwalk Empire</SeriesName>
+<banner>graphical/84947-g6.jpg</banner>
+<Overview>Boardwalk Empire is a period drama focusing on Enoch "Nucky" Thompson (based on the historical Enoch L. Johnson), a political figure who rose to prominence and controlled Atlantic City, New Jersey, during the Prohibition period of the 1920s and 1930s. Nucky interacts with several historical figures in both his personal and political life, including mobsters, politicians, government agents, and the common folk who look up to him. The federal government also takes an interest in the bootlegging and other illegal activities in the area, sending agents to investigate possible mob connections but also looking at Nucky's lifestyle?expensive and lavish for a county political figure.</Overview>
+<FirstAired>2010-09-19</FirstAired>
+<Network>HBO</Network>
+<IMDB_ID>tt0979432</IMDB_ID>
+<zap2it_id>SH01308836</zap2it_id>
+<id>84947</id>
+</Series>
+</Data>

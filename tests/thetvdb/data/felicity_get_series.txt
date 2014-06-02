@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Data>
+<Series>
+<seriesid>73980</seriesid>
+<language>en</language>
+<SeriesName>Felicity</SeriesName>
+<banner>graphical/253-g.jpg</banner>
+<Overview>This coming-of-age drama tracked the experiences of the naive Felicity Porter, who moves across the country to New York to attend college and pursue her high school crush, Ben Covington.  The show followed Felicity and her new friends as they made the transition to adulthood and dealt with an endless slew of crises. Felicity airs back-to-back episodes on WE (Women's Entertainment) weeknights at 6 PM Eastern/3 PM Pacific. WB Broadcast History September 1998 - May 1999: Tuesdays 9:00 PM September 1999 - February 2000: Sundays 8:00 PM April 2000 - May 2002: Wednesdays 9:00 PM</Overview>
+<FirstAired>1998-09-29</FirstAired>
+<Network>The WB</Network>
+<IMDB_ID>tt0134247</IMDB_ID>
+<zap2it_id>SH184561</zap2it_id>
+<id>73980</id>
+</Series>
+<Series>
+<seriesid>259111</seriesid>
+<language>en</language>
+<SeriesName>Felicity Kendals Indian Shakespeare Quest</SeriesName>
+<banner>graphical/259111-g.jpg</banner>
+<Overview>Long before she set foot on stage in England, Felicity Kendal launched her acting career in India, where her parents ran an eccentric touring theatre company called Shakespeareana. In this film she returns to the land of her childhood to discover the full story of India's enduring love-affair with Shakespeare - from the first days of Empire to Bollywood and beyond.
+
+Shaped by her enthusiasm to discover more about a drama in which her own family played a role, Felicity's emotional journey takes her to India's iconic cities and to other places far off the beaten track. Along the way she meets film stars and prison inmates, kings and market traders, schoolchildren, historians and her own Indian relatives, in a quest to understand how and why Shakespeare's plays made the transition from being symbols of British cultural dominance to inspiring a new generation of artists and film-makers in modern India.
+
+Full of surprises, personal revelations and historical insights, this compelling film reveals an unexpected side to one of the UK's favourite performers as she uncovers the story of how England's national dramatist became an iconic figure in a land far removed from the country of his birth.</Overview>
+<FirstAired>2012-05-16</FirstAired>
+<Network>BBC Two</Network>
+<IMDB_ID>tt2218716</IMDB_ID>
+<id>259111</id>
+</Series>
+</Data>

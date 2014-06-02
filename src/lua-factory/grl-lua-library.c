@@ -637,15 +637,15 @@ grl_l_operation_get_options (lua_State *L)
     value = grl_operation_options_get_key_filter (os->options, key);
     switch (grl_registry_lookup_metadata_key_type (registry, key)) {
     case G_TYPE_INT:
-      (value) ? lua_pushnumber (L, g_value_get_int (value)) : lua_pushnil (L);
+      (value) ? (void) lua_pushnumber (L, g_value_get_int (value)) : lua_pushnil (L);
       break;
 
     case G_TYPE_FLOAT:
-      (value) ? lua_pushnumber (L, g_value_get_float (value)) : lua_pushnil (L);
+      (value) ? (void) lua_pushnumber (L, g_value_get_float (value)) : lua_pushnil (L);
       break;
 
     case G_TYPE_STRING:
-      (value) ? lua_pushstring (L, g_value_get_string (value)) : lua_pushnil (L);
+      (value) ? (void) lua_pushstring (L, g_value_get_string (value)) : lua_pushnil (L);
       break;
 
     default:
@@ -670,18 +670,18 @@ grl_l_operation_get_options (lua_State *L)
       grl_operation_options_get_key_range_filter (os->options, key, &min, &max);
       switch (grl_registry_lookup_metadata_key_type (registry, key)) {
       case G_TYPE_INT:
-        (min) ? lua_pushnumber (L, g_value_get_int (min)) : lua_pushnil (L);
-        (max) ? lua_pushnumber (L, g_value_get_int (max)) : lua_pushnil (L);
+        (min) ? (void) lua_pushnumber (L, g_value_get_int (min)) : lua_pushnil (L);
+        (max) ? (void) lua_pushnumber (L, g_value_get_int (max)) : lua_pushnil (L);
         break;
 
       case G_TYPE_FLOAT:
-        (min) ? lua_pushnumber (L, g_value_get_float (min)) : lua_pushnil (L);
-        (max) ? lua_pushnumber (L, g_value_get_float (max)) : lua_pushnil (L);
+        (min) ? (void) lua_pushnumber (L, g_value_get_float (min)) : lua_pushnil (L);
+        (max) ? (void) lua_pushnumber (L, g_value_get_float (max)) : lua_pushnil (L);
         break;
 
       case G_TYPE_STRING:
-        (min) ? lua_pushstring (L, g_value_get_string (min)) : lua_pushnil (L);
-        (max) ? lua_pushstring (L, g_value_get_string (max)) : lua_pushnil (L);
+        (min) ? (void) lua_pushstring (L, g_value_get_string (min)) : lua_pushnil (L);
+        (max) ? (void) lua_pushstring (L, g_value_get_string (max)) : lua_pushnil (L);
         break;
 
       default:

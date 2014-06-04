@@ -63,7 +63,9 @@ function euronews_fetch_cb(results)
 
   for index, item in pairs(json.primary) do
     local media = create_media(index, item)
-    grl.callback(media, -1)
+    if media ~= nil then
+      grl.callback(media, -1)
+    end
   end
 
   grl.callback()
@@ -100,6 +102,10 @@ end
 
 function create_media(lang, item)
   local media = {}
+
+  if item.rtmp_flash["750"].name == 'UNAVAILABLE' then
+    return nil
+  end
 
   media.type = "video"
   media.id = lang

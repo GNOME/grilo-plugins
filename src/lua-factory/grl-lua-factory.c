@@ -533,6 +533,8 @@ get_lua_sources (void)
                                                       LUA_FACTORY_SOURCE_LOCATION,
                                                       NULL));
     }
+    l_locations = g_list_reverse (l_locations);
+
     /* User locations */
     l_locations = g_list_prepend (l_locations,
                                   g_build_filename (g_get_user_data_dir (),

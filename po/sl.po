@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-05-12 08:08+0000\n"
-"PO-Revision-Date: 2014-05-12 21:45+0100\n"
+"POT-Creation-Date: 2014-06-16 14:12+0000\n"
+"PO-Revision-Date: 2014-06-16 21:54+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenščina <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -62,34 +62,57 @@ msgstr "Zaznamki"
 msgid "A source for organizing media bookmarks"
 msgstr "Vir za organiziranje zaznamkov predstavnih predmetov"
 
-#: ../src/bookmarks/grl-bookmarks.c:422
+#: ../src/bookmarks/grl-bookmarks.c:421
 msgid "Failed to get bookmark metadata"
 msgstr "Pridobivanje metapodatkov zaznamka je spodletelo"
 
-#: ../src/bookmarks/grl-bookmarks.c:452 ../src/bookmarks/grl-bookmarks.c:469
+#: ../src/bookmarks/grl-bookmarks.c:451 ../src/bookmarks/grl-bookmarks.c:468
 #, c-format
 msgid "Failed to find bookmarks: %s"
 msgstr "Ni mogoče najti zaznamkov: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:622 ../src/podcasts/grl-podcasts.c:813
+#: ../src/bookmarks/grl-bookmarks.c:621 ../src/podcasts/grl-podcasts.c:813
 #: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Ni mogoče odstraniti: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:733 ../src/podcasts/grl-podcasts.c:918
+#: ../src/bookmarks/grl-bookmarks.c:732 ../src/podcasts/grl-podcasts.c:918
 #: ../src/podcasts/grl-podcasts.c:951 ../src/podcasts/grl-podcasts.c:1796
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Ni mogoče shraniti: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:807 ../src/bookmarks/grl-bookmarks.c:842
-#: ../src/bookmarks/grl-bookmarks.c:873 ../src/bookmarks/grl-bookmarks.c:931
+#: ../src/bookmarks/grl-bookmarks.c:806 ../src/bookmarks/grl-bookmarks.c:841
+#: ../src/bookmarks/grl-bookmarks.c:872 ../src/bookmarks/grl-bookmarks.c:930
 #: ../src/metadata-store/grl-metadata-store.c:849
 #: ../src/podcasts/grl-podcasts.c:1652 ../src/podcasts/grl-podcasts.c:1696
 #: ../src/podcasts/grl-podcasts.c:1730 ../src/podcasts/grl-podcasts.c:1765
 msgid "No database connection"
 msgstr "Ni povezave z zbirko podatkov"
+
+#: ../src/dleyna/grl-dleyna-source.c:33
+#, c-format
+msgid "A source for browsing the DLNA server '%s'"
+msgstr "Vir za brskanje po strežniku DLNA '%s'"
+
+#: ../src/dleyna/grl-dleyna-source.c:277
+msgid "Upload failed, target source destroyed"
+msgstr "Pošiljanje vzorca je spodletelo, ciljni vir je uničen"
+
+#: ../src/dleyna/grl-dleyna-source.c:379
+msgid "Upload failed, '%s', transferred %"
+msgstr "Pošiljanje vzorca je spodletelo, '%s', preneseno %"
+
+#: ../src/dleyna/grl-dleyna-source.c:877
+#, c-format
+msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
+msgstr "Ni mogoče pridobiti podrobnosti predmeta (napaka BrowseObjects %d: %s)"
+
+#: ../src/dleyna/grl-dleyna-source.c:1497
+#, c-format
+msgid "Upload failed, URL missing on the media object to be transferred"
+msgstr "Pošiljanje vzorca je spodletelo, manjka naslov URL predmeta za prenos"
 
 #: ../src/dmap/grl-dmap.c:51
 #, c-format
@@ -120,12 +143,12 @@ msgstr "Datotečni sistem"
 msgid "A source for browsing the filesystem"
 msgstr "Vir za brskanje po datotečnem sistemu"
 
-#: ../src/filesystem/grl-filesystem.c:1142
+#: ../src/filesystem/grl-filesystem.c:1148
 #, c-format
 msgid "File %s does not exist"
 msgstr "Datoteka %s ne obstaja"
 
-#: ../src/filesystem/grl-filesystem.c:1219 ../src/youtube/grl-youtube.c:1626
+#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1626
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Ni mogoče pridobiti vsebine iz %s"
@@ -241,11 +264,11 @@ msgstr "Vir krajevno dostopnih metapodatkov"
 msgid "Failed to resolve: %s"
 msgstr "Razreševanje je spodletelo: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:862
+#: ../src/local-metadata/grl-local-metadata.c:864
 msgid "Cannot resolve any of the given keys"
 msgstr "Ni mogoče razrešiti nobenega izmed podanih ključev"
 
-#: ../src/local-metadata/grl-local-metadata.c:866
+#: ../src/local-metadata/grl-local-metadata.c:868
 msgid "A GIO supported URL for images is required"
 msgstr "Zahtevan je z GIO podprt naslov URL slik"
 
@@ -313,7 +336,7 @@ msgstr "Razreševanje je spodletelo"
 
 #: ../src/metadata-store/grl-metadata-store.c:917
 #: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:419
-#: ../src/shoutcast/grl-shoutcast.c:745 ../src/vimeo/grl-vimeo.c:535
+#: ../src/shoutcast/grl-shoutcast.c:745 ../src/vimeo/grl-vimeo.c:541
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Iskanje je spodletelo: %s"
@@ -491,7 +514,7 @@ msgstr "Vir za brskanje po postajah SHOUTcast"
 msgid "Cannot find media %s"
 msgstr "Ni mogoče najti nosilca %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:536
+#: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:542
 msgid "non-NULL search text is required"
 msgstr "Iskalno besedilo ne more biti prazna vrednost"
 

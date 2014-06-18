@@ -8,8 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins 0.2.10\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-16 05:09+0300\n"
-"Last-Translator: Yosef Or Boczko <yoseforb@gmail.com>\n"
+"POT-Creation-Date: 2014-06-18 03:46+0300\n"
 "Last-Translator:Yosef Or Boczko <yoseforb@gnome.org>\n"
 "Language-Team: עברית <>\n"
 "Language: he\n"
@@ -59,34 +58,57 @@ msgstr "סימניות"
 msgid "A source for organizing media bookmarks"
 msgstr "מקור לארגון סימניות מדיה"
 
-#: ../src/bookmarks/grl-bookmarks.c:422
+#: ../src/bookmarks/grl-bookmarks.c:421
 msgid "Failed to get bookmark metadata"
 msgstr "Failed to get bookmark metadata"
 
-#: ../src/bookmarks/grl-bookmarks.c:452 ../src/bookmarks/grl-bookmarks.c:469
+#: ../src/bookmarks/grl-bookmarks.c:451 ../src/bookmarks/grl-bookmarks.c:468
 #, c-format
 msgid "Failed to find bookmarks: %s"
 msgstr "Failed to find bookmarks: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:622 ../src/podcasts/grl-podcasts.c:813
+#: ../src/bookmarks/grl-bookmarks.c:621 ../src/podcasts/grl-podcasts.c:813
 #: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Failed to remove: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:733 ../src/podcasts/grl-podcasts.c:918
+#: ../src/bookmarks/grl-bookmarks.c:732 ../src/podcasts/grl-podcasts.c:918
 #: ../src/podcasts/grl-podcasts.c:951 ../src/podcasts/grl-podcasts.c:1796
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Failed to store: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:807 ../src/bookmarks/grl-bookmarks.c:842
-#: ../src/bookmarks/grl-bookmarks.c:873 ../src/bookmarks/grl-bookmarks.c:931
+#: ../src/bookmarks/grl-bookmarks.c:806 ../src/bookmarks/grl-bookmarks.c:841
+#: ../src/bookmarks/grl-bookmarks.c:872 ../src/bookmarks/grl-bookmarks.c:930
 #: ../src/metadata-store/grl-metadata-store.c:849
 #: ../src/podcasts/grl-podcasts.c:1652 ../src/podcasts/grl-podcasts.c:1696
 #: ../src/podcasts/grl-podcasts.c:1730 ../src/podcasts/grl-podcasts.c:1765
 msgid "No database connection"
 msgstr "No database connection"
+
+#: ../src/dleyna/grl-dleyna-source.c:33
+#, c-format
+msgid "A source for browsing the DLNA server '%s'"
+msgstr "מקור לדפדוף בשרת DLNA ‏'%s'"
+
+#: ../src/dleyna/grl-dleyna-source.c:277
+msgid "Upload failed, target source destroyed"
+msgstr "נכשלה העלאה, מקור היעד נהרס"
+
+#: ../src/dleyna/grl-dleyna-source.c:379
+msgid "Upload failed, '%s', transferred %"
+msgstr "נכשלה העלאה, '%s', הועברו %"
+
+#: ../src/dleyna/grl-dleyna-source.c:877
+#, c-format
+msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
+msgstr "ארע כשל באחזור מאפיינים פריט (שגיאת BrowseObjects ‏%d: ‏%s)"
+
+#: ../src/dleyna/grl-dleyna-source.c:1497
+#, c-format
+msgid "Upload failed, URL missing on the media object to be transferred"
+msgstr "נכשלה העלאה, חסרה כתובת על עצם המדיה להעברה"
 
 #: ../src/dmap/grl-dmap.c:51
 #, c-format
@@ -117,12 +139,12 @@ msgstr "מערכת קבצים"
 msgid "A source for browsing the filesystem"
 msgstr "מקור לדפדוף במערכת הקבצים"
 
-#: ../src/filesystem/grl-filesystem.c:1142
+#: ../src/filesystem/grl-filesystem.c:1148
 #, c-format
 msgid "File %s does not exist"
 msgstr "File %s does not exist"
 
-#: ../src/filesystem/grl-filesystem.c:1219 ../src/youtube/grl-youtube.c:1626
+#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1626
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Cannot get media from %s"
@@ -236,11 +258,11 @@ msgstr "מקור המספק מידע מקומי זמין"
 msgid "Failed to resolve: %s"
 msgstr "Failed to resolve: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:862
+#: ../src/local-metadata/grl-local-metadata.c:864
 msgid "Cannot resolve any of the given keys"
 msgstr "Cannot resolve any of the given keys"
 
-#: ../src/local-metadata/grl-local-metadata.c:866
+#: ../src/local-metadata/grl-local-metadata.c:868
 msgid "A GIO supported URL for images is required"
 msgstr "A GIO supported URL for images is required"
 
@@ -307,7 +329,7 @@ msgstr "Failed to resolve"
 
 #: ../src/metadata-store/grl-metadata-store.c:917
 #: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:419
-#: ../src/shoutcast/grl-shoutcast.c:745 ../src/vimeo/grl-vimeo.c:535
+#: ../src/shoutcast/grl-shoutcast.c:745 ../src/vimeo/grl-vimeo.c:541
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Failed to search: %s"
@@ -485,7 +507,7 @@ msgstr "מקור לדפדוף רדיו SHOUTcast"
 msgid "Cannot find media %s"
 msgstr "Cannot find media %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:536
+#: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:542
 msgid "non-NULL search text is required"
 msgstr "non-NULL search text is required"
 

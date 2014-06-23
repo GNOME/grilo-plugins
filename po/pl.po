@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-16 16:09+0200\n"
-"PO-Revision-Date: 2014-06-16 16:11+0200\n"
+"POT-Creation-Date: 2014-06-23 20:14+0200\n"
+"PO-Revision-Date: 2014-06-23 20:15+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -521,6 +521,10 @@ msgstr "Nie można odnaleźć multimediów %s"
 #: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:542
 msgid "non-NULL search text is required"
 msgstr "Wymagane jest niepuste wyszukiwanie tekstu"
+
+#: ../src/thetvdb/grl-thetvdb.c:97
+msgid "A source for fetching metadata of television shows"
+msgstr "Źródło do pobierania metadanych programów telewizyjnych"
 
 #: ../src/tmdb/grl-tmdb.c:984
 msgid "Remote data does not contain valid identifier"

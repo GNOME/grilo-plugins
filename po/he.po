@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins 0.2.10\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-18 03:46+0300\n"
+"POT-Creation-Date: 2014-06-25 14:27+0300\n"
 "Last-Translator:Yosef Or Boczko <yoseforb@gnome.org>\n"
 "Language-Team: עברית <>\n"
 "Language: he\n"
@@ -510,6 +510,10 @@ msgstr "Cannot find media %s"
 #: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:542
 msgid "non-NULL search text is required"
 msgstr "non-NULL search text is required"
+
+#: ../src/thetvdb/grl-thetvdb.c:97
+msgid "A source for fetching metadata of television shows"
+msgstr "מקור למשיכת מידע על תכניות טלוויזיה"
 
 #: ../src/tmdb/grl-tmdb.c:984
 msgid "Remote data does not contain valid identifier"

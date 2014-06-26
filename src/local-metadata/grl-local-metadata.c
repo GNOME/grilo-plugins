@@ -310,6 +310,7 @@ video_guess_values_from_display_name (const gchar *display_name,
       *title = g_match_info_fetch_named (info, "name");
       /* Replace "." with <space> */
       g_strdelimit (*title, ".", ' ');
+      *title = g_strstrip (*title);
     }
 
     if (date) {
@@ -348,11 +349,13 @@ video_guess_values_from_display_name (const gchar *display_name,
     if (title) {
       *title = g_match_info_fetch_named (info, "name");
       g_strdelimit (*title, ".()", ' ');
+      *title = g_strstrip (*title);
     }
 
     if (showname) {
       *showname = g_match_info_fetch_named (info, "showname");
       g_strdelimit (*showname, ".", ' ');
+      *showname = g_strstrip (*showname);
     }
 
     if (season) {

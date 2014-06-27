@@ -24,6 +24,7 @@
 #include "config.h"
 #endif
 
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdlib.h>
 
@@ -255,7 +256,7 @@ video_sanitise_string (const gchar *str)
   for (i = 0; video_blacklisted_words[i]; i++) {
     gchar *end;
 
-    end = strstr (line, video_blacklisted_words[i]);
+    end = strcasestr (line, video_blacklisted_words[i]);
     if (end) {
       return g_strndup (line, end - line);
     }

@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-06-15 19:45+0000\n"
-"PO-Revision-Date: 2014-06-22 15:46+0300\n"
+"POT-Creation-Date: 2014-06-23 18:14+0000\n"
+"PO-Revision-Date: 2014-06-28 22:03+0300\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -91,7 +91,6 @@ msgstr "Nėra duomenų bazės ryšio"
 
 #: ../src/dleyna/grl-dleyna-source.c:33
 #, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
 msgid "A source for browsing the DLNA server '%s'"
 msgstr "Šaltinis DLNA serveriui „%s“ naršyti"
 
@@ -513,6 +512,10 @@ msgstr "Nepavyko rasti medijos %s"
 #: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:542
 msgid "non-NULL search text is required"
 msgstr "Reikalingas ne NULL paieškos tekstas"
+
+#: ../src/thetvdb/grl-thetvdb.c:97
+msgid "A source for fetching metadata of television shows"
+msgstr "Šaltinis televizijos laidų metaduomenims gauti"
 
 #: ../src/tmdb/grl-tmdb.c:984
 msgid "Remote data does not contain valid identifier"

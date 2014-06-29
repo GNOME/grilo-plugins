@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include "grl-dleyna-source.h"
+#include "grl-dleyna-utils.h"
 
 #include <grilo.h>
 #include <glib/gi18n-lib.h>
@@ -1176,8 +1177,11 @@ grl_dleyna_source_new (GrlDleynaServer *server)
 {
   GrlDleynaSource *source;
   GrlDleynaMediaDevice *device;
-  const gchar *friendly_name, *udn, *icon_url;
+  const gchar *friendly_name, *udn, *icon_url, *location;
+  gboolean localhost, localuser;
   gchar *id, *desc;
+  gchar *tags[3];
+  gint i;
   GIcon *icon = NULL;
 
   GRL_DEBUG (G_STRFUNC);
@@ -1197,9 +1201,25 @@ grl_dleyna_source_new (GrlDleynaServer *server)
     g_object_unref (file);
   }
 
-  source = g_object_new (GRL_DLEYNA_SOURCE_TYPE, "server", server, "source-id", id,
-                         "source-name", friendly_name, "source-desc", desc,
-                         "source-icon", icon, NULL);
+  location = grl_dleyna_media_device_get_location (device);
+  grl_dleyna_util_uri_is_localhost (location, &localhost, &localuser);
+  i = 0;
+  if (localhost) {
+    tags[i++] = "localhost";
+  }
+  if (localuser) {
+    tags[i++] = "localuser";
+  }
+  tags[i++] = NULL;
+
+  source = g_object_new (GRL_DLEYNA_SOURCE_TYPE,
+                         "server", server,
+                         "source-id", id,
+                         "source-name", friendly_name,
+                         "source-desc", desc,
+                         "source-icon", icon,
+                         "source-tags", tags[0]? tags: NULL,
+                         NULL);
   g_free (id);
   g_free (desc);
 

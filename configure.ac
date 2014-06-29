@@ -1192,12 +1192,15 @@ AC_ARG_ENABLE(dleyna,
                         if test "x$HAVE_GIO_UNIX" = "xno"; then
                            AC_MSG_ERROR([GIO Unix Extensions not found, install it or use --disable-dleyna])
                         fi
+                        if test "$xHAVE_LIBSOUP" = "xno"; then
+                           AC_MSG_ERROR([libsoup-2.4 not found, install it or use --disable-dleyna])
+                        fi
                         ;;
                   esac
 
                 ],
                 [
-                  if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_GIO_UNIX" = "xyes"; then
+                  if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_GIO_UNIX" = "xyes" -a "x$HAVE_LIBSOUP" = "xyes"; then
                      enable_dleyna=yes
                   else
                      enable_dleyna=no
@@ -1224,9 +1227,9 @@ DLEYNA_PLUGIN_ID="grl-dleyna"
 AC_SUBST(DLEYNA_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([DLEYNA_PLUGIN_ID], ["$DLEYNA_PLUGIN_ID"], [dLeyna DLNA plugin ID])
 
-DEPS_DLEYNA_CFLAGS="$DEPS_CFLAGS $GIO_UNIX_CFLAGS"
+DEPS_DLEYNA_CFLAGS="$DEPS_CFLAGS $GIO_UNIX_CFLAGS $LIBSOUP_CFLAGS"
 AC_SUBST(DEPS_DLEYNA_CFLAGS)
-DEPS_DLEYNA_LIBS="$DEPS_LIBS $GIO_UNIX_LIBS"
+DEPS_DLEYNA_LIBS="$DEPS_LIBS $GIO_UNIX_LIBS $LIBSOUP_LIBS"
 AC_SUBST(DEPS_DLEYNA_LIBS)
 
 

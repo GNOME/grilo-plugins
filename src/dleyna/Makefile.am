@@ -30,7 +30,7 @@ dbus_built_sources = \
 
 BUILT_SOURCES = $(dbus_built_sources)
 
-libgrldleyna_la_SOURCES =            \
+libgrldleyna_la_SOURCES =       \
 	$(dbus_built_sources)        \
 	grl-dleyna.c                 \
 	grl-dleyna-source.c          \
@@ -39,6 +39,8 @@ libgrldleyna_la_SOURCES =            \
 	grl-dleyna-server.h          \
 	grl-dleyna-servers-manager.c \
 	grl-dleyna-servers-manager.h \
+	grl-dleyna-utils.h           \
+	grl-dleyna-utils.c           \
 	$(NULL)
 
 extdir		= $(GRL_PLUGINS_DIR)

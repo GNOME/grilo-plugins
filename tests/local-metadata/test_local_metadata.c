@@ -39,6 +39,7 @@ static char *
 get_show_for_title (GrlSource  *source,
 		    const char *title,
 		    const char *url,
+		    char      **new_title,
 		    int        *season,
 		    int        *episode)
 {
@@ -46,6 +47,7 @@ get_show_for_title (GrlSource  *source,
   GrlOperationOptions *options;
   GList *keys;
   char *show;
+  const gchar *str;
 
   media = grl_media_video_new ();
   grl_media_set_title (media, title);
@@ -71,6 +73,8 @@ get_show_for_title (GrlSource  *source,
   *season = grl_data_get_int (GRL_DATA (media), GRL_METADATA_KEY_SEASON);
   *episode = grl_data_get_int (GRL_DATA (media), GRL_METADATA_KEY_EPISODE);
   show = g_strdup (grl_data_get_string (GRL_DATA (media), GRL_METADATA_KEY_SHOW));
+  str = grl_media_get_title (media);
+  *new_title = (str && str[0] == '\0') ? NULL : g_strdup (str);
 
   g_object_unref (media);
 
@@ -88,18 +92,19 @@ test_episodes (void)
     char *title;
     char *url;
     char *show;
+    char *episode_title;
     int season;
     int episode;
   } episode_tests[] = {
-    { "The.Slap.S01E01.Hector.WS.PDTV.XviD-BWB.avi", NULL, "The Slap", 1, 1 },
-    { "metalocalypse.s02e01.dvdrip.xvid-ffndvd.avi", NULL, "metalocalypse", 2, 1 },
-    { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", NULL, "Boardwalk Empire", 4, 1 },
-    { NULL, "file:///home/test/My%20super%20series.S01E01.mp4", "My super series", 1, 1 },
-    { "Adventure Time - 2x01 - It Came from the Nightosphere.mp4", NULL, "Adventure Time", 2, 1 },
+    { "The.Slap.S01E01.Hector.WS.PDTV.XviD-BWB.avi", NULL, "The Slap", "Hector", 1, 1 },
+    { "metalocalypse.s02e01.dvdrip.xvid-ffndvd.avi", NULL, "metalocalypse", NULL, 2, 1 },
+    { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", NULL, "Boardwalk Empire", NULL, 4, 1 },
+    { NULL, "file:///home/test/My%20super%20series.S01E01.mp4", "My super series", NULL, 1, 1 },
+    { "Adventure Time - 2x01 - It Came from the Nightosphere.mp4", NULL, "Adventure Time", "It Came from the Nightosphere", 2, 1 },
 
     /* These below should not be detected as an episode of a series. */
-    { "My.Neighbor.Totoro.1988.1080p.BluRay.X264.mkv", NULL, NULL, 0, 0 },
-    { NULL, "file:///home/hadess/.cache/totem/media/140127Mata-16x9%20(bug%20723166).mp4", NULL, 0, 0 }
+    { "My.Neighbor.Totoro.1988.1080p.BluRay.X264.mkv", NULL, NULL, NULL, 0, 0 },
+    { NULL, "file:///home/hadess/.cache/totem/media/140127Mata-16x9%20(bug%20723166).mp4", NULL, NULL, 0, 0 }
   };
 
 
@@ -108,16 +113,18 @@ test_episodes (void)
   g_assert (source);
 
   for (i = 0; i < G_N_ELEMENTS(episode_tests); i++) {
-    char *show;
+    char *show, *new_title;
     int season, episode;
 
-    show = get_show_for_title (source, episode_tests[i].title, episode_tests[i].url, &season, &episode);
+    show = get_show_for_title (source, episode_tests[i].title, episode_tests[i].url, &new_title, &season, &episode);
     g_assert_cmpstr (episode_tests[i].show, ==, show);
     if (show != NULL) {
+      g_assert_cmpstr (episode_tests[i].episode_title, ==, new_title);
       g_assert_cmpint (episode_tests[i].season, ==, season);
       g_assert_cmpint (episode_tests[i].episode, ==, episode);
     }
     g_free (show);
+    g_clear_pointer (&new_title, g_free);
   }
 }
 

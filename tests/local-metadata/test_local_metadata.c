@@ -102,6 +102,10 @@ test_episodes (void)
     { NULL, "file:///home/test/My%20super%20series.S01E01.mp4", "My super series", NULL, 1, 1 },
     { "Adventure Time - 2x01 - It Came from the Nightosphere.mp4", NULL, "Adventure Time", "It Came from the Nightosphere", 2, 1 },
 
+    /* Episode and Series separated by '.' and Title inside parenthesis */
+    { NULL, "file:///home/toso/Downloads/Felicity/Felicity%202.05%20(Crash).avi", "Felicity", "Crash", 2, 5 },
+    { "Felicity 4.08 (Last Thanksgiving).avi", NULL, "Felicity", "Last Thanksgiving", 4, 8 },
+
     /* These below should not be detected as an episode of a series. */
     { "My.Neighbor.Totoro.1988.1080p.BluRay.X264.mkv", NULL, NULL, NULL, 0, 0 },
     { NULL, "file:///home/hadess/.cache/totem/media/140127Mata-16x9%20(bug%20723166).mp4", NULL, NULL, 0, 0 }

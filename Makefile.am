@@ -23,6 +23,7 @@ MAINTAINERCLEANFILES = \
 # when creating tarball releases,
 # and make sure that we enable all plugins needed by the documentation.
 DISTCHECK_CONFIGURE_FLAGS = --enable-bookmarks \
+                            --enable-chromaprint \
                             --enable-dleyna \
                             --enable-dmap \
                             --enable-filesystem \

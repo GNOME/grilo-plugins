@@ -147,6 +147,8 @@ PKG_CHECK_MODULES(LUA, lua >= 5.3.0,
 
 PKG_CHECK_MODULES(ARCHIVE, libarchive, HAVE_ARCHIVE=yes, HAVE_ARCHIVE=no)
 
+PKG_CHECK_MODULES(GSTREAMER, gstreamer-1.0, HAVE_GSTREAMER=yes, HAVE_GSTREAMER=no)
+
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0, HAVE_GTHREAD=yes, HAVE_GTHREAD=no)
 
 PKG_CHECK_MODULES(OAUTH, oauth, HAVE_OAUTH=yes, HAVE_OAUTH=no)
@@ -1056,6 +1058,87 @@ DEPS_DMAP_LIBS="$DEPS_LIBS $DMAP_LIBS $XML_LIBS"
 AC_SUBST(DEPS_DMAP_LIBS)
 
 # ----------------------------------------------------------
+# BUILD CHROMAPRINT PLUGIN
+# ----------------------------------------------------------
+
+dnl Check for required plugins
+gst10_toolsdir=`$PKG_CONFIG --variable=toolsdir gstreamer-1.0`
+gst10_inspect="$gst10_toolsdir/gst-inspect-1.0"
+
+AC_ARG_ENABLE(gstreamer,
+        AC_HELP_STRING([--enable-chromaprint],
+                [enable chromaprint plugin (default: auto)]),
+        [
+                case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GSTREAMER" = "xno"; then
+                            AC_MSG_ERROR([gstreamer-1.0 not found, install it or use --disable-chromaprint])
+                        fi
+
+                        dnl Give error and exit if we don't have the gst_inspect tool
+                        AC_MSG_CHECKING([GStreamer 1.0 inspection tool])
+                        if test -r "$gst10_inspect"; then
+                            AC_MSG_RESULT([yes])
+                        else
+                            AC_MSG_RESULT([no])
+                            AC_MSG_ERROR([
+                                Cannot find required GStreamer-1.0 tool 'gst-inspect-1.0'.
+                                It should be part of gstreamer-1_0-utils.
+                                Please install or use --disable-chromaprint
+                            ])
+                        fi
+
+                        dnl Check for elements from gst-plugins-bad
+                        dnl Set plugins which contain below elements
+                        set -- chromaprint
+                        for bad_element in chromaprint
+                        do
+                            AC_MSG_CHECKING([GStreamer 1.0 $bad_element element])
+                            if $gst10_inspect $bad_element >/dev/null 2>/dev/null; then
+                                AC_MSG_RESULT([yes])
+                            else
+                                AC_MSG_RESULT([no])
+                                AC_MSG_ERROR([
+                                    Cannot find required GStreamer-1.0 plugin '$1'.
+                                    It should be part of gst-plugins-bad.
+                                    Please install or use --disable-chromaprint
+                                ])
+                            fi
+                            shift;
+                        done
+                        ;;
+                esac
+        ],
+        [
+                if test "x$HAVE_GSTREAMER" = "xyes" -a -r "$gst10_inspect"; then
+                  if $gst10_inspect chromaprint >/dev/null 2>/dev/null; then
+                    enable_chromaprint=yes
+                  else
+                    enable_chromaprint=no
+                  fi
+                else
+                  enable_chromaprint=no
+                fi
+        ])
+
+AM_CONDITIONAL([CHROMAPRINT_PLUGIN], [test "x$enable_chromaprint" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL chromaprint"
+if test "x$enable_chromaprint" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED chromaprint"
+fi
+
+CHROMAPRINT_PLUGIN_ID="grl-chromaprint"
+AC_SUBST(CHROMAPRINT_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([CHROMAPRINT_PLUGIN_ID], ["$CHROMAPRINT_PLUGIN_ID"], [chromaprint plugin ID])
+
+DEPS_CHROMAPRINT_CFLAGS="$DEPS_CFLAGS $GSTREAMER_CFLAGS"
+AC_SUBST(DEPS_CHROMAPRINT_CFLAGS)
+DEPS_CHROMAPRINT_LIBS="$DEPS_LIBS $GSTREAMER_LIBS"
+AC_SUBST(DEPS_CHROMAPRINT_LIBS)
+
+
+# ----------------------------------------------------------
 # BUILD THETVDB PLUGIN
 # ----------------------------------------------------------
 
@@ -1260,6 +1343,7 @@ AC_CONFIG_FILES([
   po/Makefile.in
   po/Makefile
   src/Makefile
+  src/chromaprint/Makefile
   src/bookmarks/Makefile
   src/dleyna/Makefile
   src/dmap/Makefile

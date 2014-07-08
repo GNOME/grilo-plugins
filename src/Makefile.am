@@ -14,6 +14,10 @@ if BOOKMARKS_PLUGIN
 SUBDIRS += bookmarks
 endif
 
+if CHROMAPRINT_PLUGIN
+SUBDIRS += chromaprint
+endif
+
 if DLEYNA_PLUGIN
 SUBDIRS += dleyna
 endif
@@ -97,9 +101,8 @@ endif
 if OPENSUBTITLES_PLUGIN
 SUBDIRS += opensubtitles
 endif
-
 DIST_SUBDIRS = \
-   bookmarks dleyna dmap filesystem flickr freebox gravatar jamendo \
+   bookmarks chromaprint dleyna dmap filesystem flickr freebox gravatar jamendo \
    local-metadata lua-factory magnatune metadata-store opensubtitles \
    optical-media podcasts raitv shoutcast thetvdb tmdb tracker vimeo youtube
 

@@ -9,6 +9,10 @@ include $(top_srcdir)/gtester.mk
 
 SUBDIRS =
 
+if CHROMAPRINT_PLUGIN
+SUBDIRS += chromaprint
+endif
+
 if DLEYNA_PLUGIN
 SUBDIRS += dleyna
 endif
@@ -38,6 +42,7 @@ endif
 DIST_SUBDIRS =    \
    dleyna         \
    games          \
+   chromaprint    \
    spotify-cover  \
    local-metadata \
    lua-factory    \

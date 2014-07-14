@@ -377,8 +377,10 @@ grl_dleyna_source_store_upload_update_cb (GrlDleynaSource      *self,
 
   if (!g_str_equal (upload_status, "COMPLETED")) {
     error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_STORE_FAILED,
-                          _("Upload failed, '%s', transferred %"G_GUINT64_FORMAT" bytes of %"G_GUINT64_FORMAT" bytes"),
-                          upload_status, length, total);
+                          _("Upload failed, '%s', transferred %lu of %lu bytes"),
+                          upload_status,
+                          (long unsigned int) length,
+                          (long unsigned int) total);
     GRL_WARNING ("%s error:%s", G_STRFUNC, error->message);
   }
 

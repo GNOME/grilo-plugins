@@ -463,7 +463,7 @@ properties_add_for_key (GPtrArray *properties,
       g_ptr_array_add (properties, "Date");
       break;
     default:
-      GRL_WARNING ("%s ignored non-supported key %s", G_STRFUNC, GRL_METADATA_KEY_GET_NAME (key_id));
+      GRL_DEBUG ("%s ignored non-supported key %s", G_STRFUNC, GRL_METADATA_KEY_GET_NAME (key_id));
     }
 }
 

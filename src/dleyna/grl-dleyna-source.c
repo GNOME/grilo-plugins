@@ -524,7 +524,7 @@ media_set_property (GrlMedia *media,
     }
   }
   else if (g_strcmp0 (key, "ChildCount") == 0) {
-    guint32 count = g_variant_get_uint32 (value);
+    gint32 count = g_variant_get_int32 (value);
     if (GRL_IS_MEDIA_BOX (media)) {
       grl_media_box_set_childcount (GRL_MEDIA_BOX (media), count);
     }

@@ -943,6 +943,7 @@ grl_l_callback (lua_State *L)
     g_object_unref (os->options);
     os->callback_done = TRUE;
     grl_lua_library_remove_operation_data (L, os->operation_id);
+    grl_lua_library_set_current_operation (L, 0);
     g_free (os->string);
     g_slice_free (OperationSpec, os);
   }

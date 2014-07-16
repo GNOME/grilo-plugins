@@ -24,6 +24,5 @@ src/tracker/grl-tracker.c
 src/tracker/grl-tracker-source-api.c
 src/tracker/grl-tracker-source-priv.h
 src/tracker/grl-tracker-utils.c
-src/upnp/grl-upnp.c
 src/vimeo/grl-vimeo.c
 src/youtube/grl-youtube.c

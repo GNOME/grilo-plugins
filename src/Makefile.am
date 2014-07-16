@@ -98,10 +98,6 @@ if TRACKER_PLUGIN
 SUBDIRS += tracker
 endif
 
-if UPNP_PLUGIN
-SUBDIRS += upnp
-endif
-
 if VIMEO_PLUGIN
 SUBDIRS += vimeo
 endif
@@ -117,7 +113,7 @@ endif
 DIST_SUBDIRS = \
    apple-trailers bliptv bookmarks dleyna dmap filesystem flickr freebox gravatar jamendo \
    lastfm-albumart local-metadata lua-factory magnatune metadata-store optical-media   \
-   pocket podcasts raitv shoutcast thetvdb tmdb tracker upnp vimeo youtube
+   pocket podcasts raitv shoutcast thetvdb tmdb tracker vimeo youtube
 
 MAINTAINERCLEANFILES =	\
         *.in		\

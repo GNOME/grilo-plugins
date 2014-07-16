@@ -151,11 +151,6 @@
 <para>This is a Grilo plugin for Tracker. Its plugin ID is <literal>"grl-tracker"</literal></para>
 </sect1>
 
-<sect1 id="sec-plugin-upnp">
-<title>UPnP</title>
-<para>This is a Grilo plugin for UPnP. Its plugin ID is <literal>"grl-upnp"</literal></para>
-</sect1>
-
 <sect1 id="sec-plugin-vimeo">
 <title>Vimeo</title>
 <para>This is a Grilo plugin for Vimeo. Its plugin ID is <literal>"grl-vimeo"</literal></para>

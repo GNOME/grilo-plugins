@@ -124,10 +124,6 @@ PKG_CHECK_MODULES(GIO_UNIX, gio-unix-2.0, HAVE_GIO_UNIX=yes, HAVE_GIO_UNIX=no)
 
 PKG_CHECK_MODULES(GSSDP, gssdp-1.0, HAVE_GSSDP=yes, HAVE_GSSDP=no)
 
-PKG_CHECK_MODULES(GUPNP, gupnp-1.0 >= 0.13, HAVE_GUPNP=yes, HAVE_GUPNP=no)
-
-PKG_CHECK_MODULES(GUPNPAV, gupnp-av-1.0 >= 0.5, HAVE_GUPNPAV=yes, HAVE_GUPNPAV=no)
-
 PKG_CHECK_MODULES(DMAP, libdmapsharing-3.0 >= 2.9.12, HAVE_DMAP=yes, HAVE_DMAP=no)
 
 PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
@@ -411,54 +407,6 @@ DEPS_LASTFM_ALBUMART_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS"
 AC_SUBST(DEPS_LASTFM_ALBUMART_CFLAGS)
 DEPS_LASTFM_ALBUMART_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS"
 AC_SUBST(DEPS_LASTFM_ALBUMART_LIBS)
-
-# ----------------------------------------------------------
-# BUILD UPNP PLUGIN
-# ----------------------------------------------------------
-
-AC_ARG_ENABLE(upnp,
-        AC_HELP_STRING([--enable-upnp],
-                [enable uPnP plugin (default: auto)]),
-        [
-                case "$enableval" in
-                     yes)
-                        if test "x$HAVE_GSSDP" = "xno"; then
-                           AC_MSG_ERROR([gssdp-1.0 not found, install it or use --disable-upnp])
-                        fi
-                        if test "x$HAVE_GUPNP" = "xno"; then
-                           AC_MSG_ERROR([gupnp-1.0 >= 0.13 not found, install it or use --disable-upnp])
-                        fi
-                        if test "x$HAVE_GUPNPAV" = "xno"; then
-                           AC_MSG_ERROR([gupnp-av-1.0 >= 0.5 not found, install it or use --disable-upnp])
-                        fi
-                        if test "$xHAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-upnp])
-                        fi
-                esac
-        ],
-        [
-                if test "x$HAVE_GSSDP" = "xyes" -a "x$HAVE_GUPNP" = "xyes" -a "x$HAVE_GUPNPAV" = "xyes" -a "x$HAVE_XML" = "xyes"; then
-                        enable_upnp=yes
-                else
-                        enable_upnp=no
-                fi
-        ])
-
-AM_CONDITIONAL([UPNP_PLUGIN], [test "x$enable_upnp" = "xyes"])
-GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL upnp"
-if test "x$enable_upnp" = "xyes"
-then
-	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED upnp"
-fi
-
-UPNP_PLUGIN_ID="grl-upnp"
-AC_SUBST(UPNP_PLUGIN_ID)
-AC_DEFINE_UNQUOTED([UPNP_PLUGIN_ID], ["$UPNP_PLUGIN_ID"], [UPnP plugin ID])
-
-DEPS_UPNP_CFLAGS="$DEPS_CFLAGS $GSSDP_CFLAGS $GUPNP_CFLAGS $GUPNPAV_CFLAGS $GTHREAD_CFLAGS $XML_CFLAGS"
-AC_SUBST(DEPS_UPNP_CFLAGS)
-DEPS_UPNP_LIBS="$DEPS_LIBS $GSSDP_LIBS $GUPNP_LIBS $GUPNPAV_LIBS $GTHREAD_LIBS $XML_LIBS"
-AC_SUBST(DEPS_UPNP_LIBS)
 
 # ----------------------------------------------------------
 # BUILD YOUTUBE PLUGIN
@@ -1460,7 +1408,6 @@ AC_CONFIG_FILES([
   src/shoutcast/Makefile
   src/tmdb/Makefile
   src/tracker/Makefile
-  src/upnp/Makefile
   src/vimeo/Makefile
   src/youtube/Makefile
   tests/Makefile

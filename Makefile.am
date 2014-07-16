@@ -57,7 +57,6 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-apple-trailers \
                             --enable-thetvdb \
                             --enable-tmdb \
                             --enable-tracker \
-                            --enable-upnp \
                             --enable-vimeo \
                             --enable-youtube
 

@@ -39,6 +39,7 @@ EXTRA_DIST += ./m4/grilo.m4
 DISTCHECK_CONFIGURE_FLAGS = --enable-apple-trailers \
                             --enable-bliptv \
                             --enable-bookmarks \
+                            --enable-dleyna \
                             --enable-dmap \
                             --enable-filesystem \
                             --enable-flickr \

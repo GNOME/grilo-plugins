@@ -166,6 +166,11 @@
 <para>This is a Grilo plugin for YouTube. Its plugin ID is <literal>"grl-youtube"</literal></para>
 </sect1>
 
+<sect1 id="sec-plugin-dleyna">
+<title>DLeyna</title>
+<para>This is a Grilo plugin for UPnP/DLNA. Its plugin ID is <literal>"grl-dleyna"</literal></para>
+</sect1>
+
 </chapter>
 
 </book>

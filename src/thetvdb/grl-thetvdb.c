@@ -1461,9 +1461,9 @@ thetvdb_execute_resolve_cache (OperationSpec *os)
   /* Get series async */
   g_value_init (&value, G_TYPE_STRING);
   g_value_set_string (&value, show);
-  query = gom_filter_new_eq (SERIES_TYPE_RESOURCE,
-                             SERIES_COLUMN_SERIES_NAME,
-                             &value);
+  query = gom_filter_new_like (SERIES_TYPE_RESOURCE,
+                               SERIES_COLUMN_SERIES_NAME,
+                               &value);
   g_value_unset (&value);
   gom_repository_find_one_async (tvdb_source->priv->repository,
                                  SERIES_TYPE_RESOURCE,

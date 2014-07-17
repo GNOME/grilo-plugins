@@ -1313,16 +1313,20 @@ cache_find_episode_done (GObject *object,
     if (os->fetched_web == FALSE) {
       /* Fetch web API in order to update current cache */
       thetvdb_execute_resolve_web (os);
+      return;
     }
-    return;
+    /* The cache is up-to-date and it doesn't have this episode */
+    goto episode_done_end;
   }
 
   thetvdb_update_media_from_resources (GRL_MEDIA_VIDEO (os->media),
                                        os->keys,
                                        os->serie_resource,
                                        EPISODE_RESOURCE (resource));
-  os->callback (os->source, os->operation_id, os->media, os->user_data, NULL);
   g_object_unref (resource);
+
+episode_done_end:
+  os->callback (os->source, os->operation_id, os->media, os->user_data, NULL);
   free_operation_spec (os);
 }
 

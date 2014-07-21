@@ -11,5 +11,4 @@ script:
   - make
   - make check
 after_success:
-  - find . -path "*/.libs/*" -name "*.gc??" | while read -r p ; do mv "$p" "${p%%/.libs/*}" ; done
   - coveralls --exclude tests --exclude help

@@ -1052,7 +1052,7 @@ grl_jamendo_source_resolve (GrlSource *source,
     }
   }
 
-  g_clear_pointer (&id_split, g_clear_pointer);
+  g_clear_pointer (&id_split, g_strfreev);
 
   if (url) {
     xpe = g_slice_new0 (XmlParseEntries);

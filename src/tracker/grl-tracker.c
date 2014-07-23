@@ -75,6 +75,7 @@ gboolean grl_tracker_plugin_init (GrlRegistry *registry,
 
 TrackerSparqlConnection *grl_tracker_connection = NULL;
 GrlPlugin *grl_tracker_plugin;
+GCancellable *grl_tracker_plugin_init_cancel = NULL;
 gboolean grl_tracker_upnp_present = FALSE;
 GrlTrackerQueue *grl_tracker_queue = NULL;
 
@@ -112,12 +113,19 @@ tracker_get_folder_class_cb (GObject      *object,
                              GAsyncResult *result,
                              gpointer       data)
 {
+  GError *error = NULL;
   TrackerSparqlCursor  *cursor;
 
   GRL_DEBUG ("%s", __FUNCTION__);
 
   cursor = tracker_sparql_connection_query_finish (grl_tracker_connection,
-                                                   result, NULL);
+                                                   result, &error);
+
+  if (error) {
+    GRL_INFO ("Could not execute sparql query for folder class: %s",
+              error->message);
+    g_error_free (error);
+  }
 
   if (!cursor) {
     init_sources ();
@@ -158,8 +166,8 @@ tracker_get_upnp_class_cb (GObject      *object,
   cursor = tracker_sparql_connection_query_finish (grl_tracker_connection,
                                                    result, &error);
   if (error) {
-    GRL_WARNING ("Could not execute sparql query for upnp class: %s",
-                 error->message);
+    GRL_INFO ("Could not execute sparql query for upnp class: %s",
+              error->message);
     g_error_free (error);
   } else {
     if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
@@ -173,7 +181,7 @@ tracker_get_upnp_class_cb (GObject      *object,
   if (grl_tracker_browse_filesystem)
     tracker_sparql_connection_query_async (grl_tracker_connection,
                                            TRACKER_FOLDER_CLASS_REQUEST,
-                                           NULL,
+                                           grl_tracker_plugin_init_cancel,
                                            tracker_get_folder_class_cb,
                                            NULL);
   else
@@ -201,7 +209,7 @@ tracker_get_connection_cb (GObject      *object,
 
   tracker_sparql_connection_query_async (grl_tracker_connection,
                                          TRACKER_UPNP_CLASS_REQUEST,
-                                         NULL,
+                                         grl_tracker_plugin_init_cancel,
                                          tracker_get_upnp_class_cb,
                                          NULL);
 }
@@ -243,12 +251,21 @@ grl_tracker_plugin_init (GrlRegistry *registry,
       grl_config_get_boolean (config, "show-documents");
   }
 
-  tracker_sparql_connection_get_async (NULL,
+  grl_tracker_plugin_init_cancel = g_cancellable_new ();
+  tracker_sparql_connection_get_async (grl_tracker_plugin_init_cancel,
                                        (GAsyncReadyCallback) tracker_get_connection_cb,
                                        (gpointer) plugin);
   return TRUE;
 }
 
+static void
+grl_tracker_plugin_deinit (GrlPlugin *plugin)
+{
+  g_cancellable_cancel (grl_tracker_plugin_init_cancel);
+  g_clear_object (&grl_tracker_plugin_init_cancel);
+}
+
+
 GRL_PLUGIN_REGISTER (grl_tracker_plugin_init,
-                     NULL,
+                     grl_tracker_plugin_deinit,
                      GRL_TRACKER_PLUGIN_ID);

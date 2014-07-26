@@ -77,7 +77,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "{ "                                          \
   "%s "                                         \
   "?urn tracker:available ?tr . "               \
-  "?urn fts:match '*%s*' . "                    \
+  "?urn fts:match \"%s\" . "                    \
   "%s "                                         \
   "} "                                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
@@ -802,6 +802,7 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
   gchar                *sparql_select;
   gchar                *sparql_final;
   gchar                *sparql_type_filter;
+  gchar                *escaped_text;
   GrlTrackerOp         *os;
   gint count = grl_operation_options_get_count (ss->options);
   guint skip = grl_operation_options_get_skip (ss->options);
@@ -817,9 +818,11 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
                                     constraint, sparql_type_filter,
                                     skip, count);
   } else {
+    escaped_text = tracker_sparql_escape_string (ss->text);
     sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
-                                    sparql_type_filter, ss->text,
+                                    sparql_type_filter, escaped_text,
                                     constraint, skip, count);
+    g_free (escaped_text);
   }
 
   GRL_IDEBUG ("\tselect: '%s'", sparql_final);

@@ -159,6 +159,26 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "DELETE { <%s> %s } WHERE { <%s> a nfo:Media . %s } " \
   "INSERT { <%s> a nfo:Media ; %s . }"
 
+#define TRACKER_TEST_MEDIA_FROM_URI_REQUEST             \
+  "SELECT ?urn "                                        \
+  "WHERE "                                              \
+  "{ "                                                  \
+  "?urn nie:url \"%s\" ; "                              \
+  "tracker:available true ; "                           \
+  "a nfo:Media . "                                      \
+  "%s "                                                 \
+  "}"
+
+#define TRACKER_TEST_MEDIA_FROM_URI_REQUEST_WITH_DOCUMENTS  \
+  "SELECT ?urn "                                            \
+  "WHERE "                                                  \
+  "{ "                                                      \
+  "?urn nie:url \"%s\" ; "                                  \
+  "tracker:available true . "                               \
+  "%s "                                                     \
+  "FILTER (?type IN ( nfo:Media, nfo:Document ))"           \
+  "}"
+
 /**/
 
 /**/
@@ -1110,3 +1130,52 @@ grl_tracker_source_get_caps (GrlSource *source,
 
   return caps;
 }
+
+gboolean
+grl_tracker_source_test_media_from_uri (GrlSource *source,
+                                        const gchar *uri)
+{
+  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  GError               *error = NULL;
+  TrackerSparqlCursor  *cursor;
+  gboolean              empty;
+  gchar                *constraint;
+  gchar                *sparql_final;
+
+  constraint = grl_tracker_source_get_device_constraint (priv);
+  if (grl_tracker_show_documents) {
+    sparql_final = g_strdup_printf (TRACKER_TEST_MEDIA_FROM_URI_REQUEST_WITH_DOCUMENTS,
+                                    uri,
+                                    constraint);
+  } else {
+    sparql_final = g_strdup_printf (TRACKER_TEST_MEDIA_FROM_URI_REQUEST,
+                                    uri,
+                                    constraint);
+  }
+
+  cursor = tracker_sparql_connection_query (grl_tracker_connection,
+                                            sparql_final,
+                                            NULL,
+                                            &error);
+  g_free (constraint);
+  g_free (sparql_final);
+
+  if (error) {
+    GRL_WARNING ("Error when executig sparql query: %s",
+                 error->message);
+    g_error_free (error);
+    return FALSE;
+  }
+
+  /* Check if there are results */
+  if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+    empty = FALSE;
+  } else {
+    empty = TRUE;
+  }
+
+  g_object_unref (cursor);
+
+  return !empty;
+}
+

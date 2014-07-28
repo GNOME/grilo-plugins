@@ -66,4 +66,7 @@ gboolean grl_tracker_source_change_stop (GrlSource *source,
 GrlCaps *grl_tracker_source_get_caps (GrlSource *source,
                                       GrlSupportedOps operation);
 
+gboolean grl_tracker_source_test_media_from_uri (GrlSource *source,
+                                                 const gchar *uri);
+
 #endif /* _GRL_TRACKER_SOURCE_API_H_ */

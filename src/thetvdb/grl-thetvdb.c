@@ -787,12 +787,11 @@ get_from_cache_episode_or_series (EpisodeResource *eres,
   return str;
 }
 
-/* Return a pointer to the media with updated values
- * or NULL if no keys were set
+/* Update the media with metadata
  *
  * NOTE: We give preference to an episode over the tv show for those metadatas
  * that could provide information for both. */
-static GrlMedia *
+static void
 thetvdb_update_media_from_resources (GrlMediaVideo *video,
                                      GList *keys,
                                      SeriesResource *sres,
@@ -802,7 +801,7 @@ thetvdb_update_media_from_resources (GrlMediaVideo *video,
   GList *it;
 
   if (sres == NULL)
-    return NULL;
+    return;
 
   for (it = keys; it != NULL; it = it->next) {
     GrlKeyID key_id = GRLPOINTER_TO_KEYID (it->data);
@@ -1006,7 +1005,10 @@ thetvdb_update_media_from_resources (GrlMediaVideo *video,
     }
   }
 
-  return (failed_keys == g_list_length (keys)) ? NULL : GRL_MEDIA (video);
+  if (failed_keys == g_list_length (keys)) {
+    GRL_DEBUG ("Couldn't resolve requested keys for %s",
+               grl_media_video_get_show (video));
+  }
 }
 
 static gboolean
@@ -1078,7 +1080,7 @@ web_request_failed (const OperationSpec *os)
     GRL_DEBUG ("Request with id %d failed. Show name is %s",
                os->operation_id, show);
 
-    os->callback (os->source, os->operation_id, NULL, os->user_data, NULL);
+    os->callback (os->source, os->operation_id, os->media, os->user_data, NULL);
   }
   g_list_free_full (wait_list, free_operation_spec);
   g_hash_table_remove (tvdb_source->priv->ht_wait_list, show);
@@ -1250,7 +1252,7 @@ web_get_series_done (GObject *source_object,
   return;
 
 get_series_done_error:
-  os->callback (os->source, os->operation_id, NULL, os->user_data, NULL);
+  os->callback (os->source, os->operation_id, os->media, os->user_data, NULL);
   web_request_failed (os);
 }
 
@@ -1296,7 +1298,6 @@ cache_find_episode_done (GObject *object,
   const gchar *show;
   OperationSpec *os;
   GomResource *resource;
-  GrlMedia *media;
   GError *err = NULL;
 
   os = (OperationSpec *) user_data;
@@ -1316,11 +1317,11 @@ cache_find_episode_done (GObject *object,
     return;
   }
 
-  media = thetvdb_update_media_from_resources (GRL_MEDIA_VIDEO (os->media),
-                                               os->keys,
-                                               os->serie_resource,
-                                               EPISODE_RESOURCE (resource));
-  os->callback (os->source, os->operation_id, media, os->user_data, NULL);
+  thetvdb_update_media_from_resources (GRL_MEDIA_VIDEO (os->media),
+                                       os->keys,
+                                       os->serie_resource,
+                                       EPISODE_RESOURCE (resource));
+  os->callback (os->source, os->operation_id, os->media, os->user_data, NULL);
   g_object_unref (resource);
   free_operation_spec (os);
 }
@@ -1331,7 +1332,6 @@ cache_find_episode (OperationSpec *os)
   GrlTheTVDBSource *tvdb_source;
   GomFilter *query, *by_series_id, *by_episode;
   GValue value_str = { 0, };
-  GrlMedia *media = NULL;
   gchar *series_id;
   gchar *show;
   const gchar *title;
@@ -1408,11 +1408,11 @@ cache_find_episode (OperationSpec *os)
 
 cache_episode_end:
   /* This media does not specify an episode: return series metadata */
-  media = thetvdb_update_media_from_resources (GRL_MEDIA_VIDEO (os->media),
-                                               os->keys,
-                                               os->serie_resource,
-                                               NULL);
-  os->callback (os->source, os->operation_id, media, os->user_data, NULL);
+  thetvdb_update_media_from_resources (GRL_MEDIA_VIDEO (os->media),
+                                       os->keys,
+                                       os->serie_resource,
+                                       NULL);
+  os->callback (os->source, os->operation_id, os->media, os->user_data, NULL);
   g_clear_pointer (&series_id, g_free);
   g_clear_pointer (&show, g_free);
   free_operation_spec (os);

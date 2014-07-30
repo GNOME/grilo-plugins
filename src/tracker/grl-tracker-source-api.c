@@ -179,6 +179,15 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "FILTER (?type IN ( nfo:Media, nfo:Document ))"           \
   "}"
 
+#define TRACKER_MEDIA_FROM_URI_REQUEST          \
+  "SELECT rdf:type(?urn) %s "                   \
+  "WHERE "                                      \
+  "{ "                                          \
+  "?urn nie:url \"%s\" ; "                      \
+  "tracker:available ?tr . "                    \
+  "%s "                                         \
+  "} "                                          \
+
 /**/
 
 /**/
@@ -499,6 +508,64 @@ tracker_resolve_cb (GObject      *source_object,
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   } else {
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+  }
+
+ end_operation:
+  g_clear_object (&cursor);
+
+  grl_tracker_queue_done (grl_tracker_queue, os);
+}
+
+static void
+tracker_media_from_uri_cb (GObject      *source_object,
+                           GAsyncResult *result,
+                           GrlTrackerOp *os)
+{
+  GrlSourceMediaFromUriSpec *mfus = (GrlSourceMediaFromUriSpec *) os->data;
+  GrlTrackerSourcePriv      *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (mfus->source);
+  GError                    *tracker_error = NULL, *error = NULL;
+  GrlMedia                  *media;
+  TrackerSparqlCursor       *cursor;
+  const gchar               *sparql_type;
+  gint                       col;
+
+  GRL_ODEBUG ("%s", __FUNCTION__);
+
+  cursor = tracker_sparql_connection_query_finish (priv->tracker_connection,
+                                                   result, &tracker_error);
+
+  if (tracker_error) {
+    GRL_WARNING ("Could not execute sparql media from uri query : %s",
+                 tracker_error->message);
+
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_MEDIA_FROM_URI_FAILED,
+                         _("Failed to get media from uri: %s"),
+                         tracker_error->message);
+
+    mfus->callback (mfus->source, mfus->operation_id, NULL, mfus->user_data, error);
+
+    g_error_free (tracker_error);
+    g_error_free (error);
+
+    goto end_operation;
+  }
+
+
+  if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+    /* Build grilo media */
+    sparql_type = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+    media = grl_tracker_build_grilo_media (sparql_type);
+
+    /* Translate Sparql result into Grilo result */
+    for (col = 0 ; col < tracker_sparql_cursor_get_n_columns (cursor) ; col++) {
+      fill_grilo_media_from_sparql (GRL_TRACKER_SOURCE (mfus->source),
+                                    media, cursor, col);
+    }
+
+    mfus->callback (mfus->source, mfus->operation_id, media, mfus->user_data, NULL);
+  } else {
+    mfus->callback (mfus->source, mfus->operation_id, NULL, mfus->user_data, NULL);
   }
 
  end_operation:
@@ -1179,3 +1246,34 @@ grl_tracker_source_test_media_from_uri (GrlSource *source,
   return !empty;
 }
 
+void
+grl_tracker_source_get_media_from_uri (GrlSource *source,
+                                       GrlSourceMediaFromUriSpec *mfus)
+{
+  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  gchar                *constraint;
+  gchar                *sparql_select;
+  gchar                *sparql_final;
+  GrlTrackerOp         *os;
+
+  GRL_IDEBUG ("%s: id=%u", __FUNCTION__, mfus->operation_id);
+
+  constraint = grl_tracker_source_get_device_constraint (priv);
+  sparql_select = grl_tracker_source_get_select_string (mfus->keys);
+  sparql_final = g_strdup_printf (TRACKER_MEDIA_FROM_URI_REQUEST,
+                                  sparql_select,
+                                  mfus->uri,
+                                  constraint);
+
+  GRL_IDEBUG ("\tselect: '%s'", sparql_final);
+
+  os = grl_tracker_op_initiate_metadata (sparql_final,
+                                         (GAsyncReadyCallback) tracker_media_from_uri_cb,
+                                         mfus);
+  os->keys  = mfus->keys;
+
+  grl_tracker_queue_push (grl_tracker_queue, os);
+
+  g_free (constraint);
+  g_free (sparql_select);
+}

@@ -112,6 +112,7 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
   source_class->notify_change_stop  = grl_tracker_source_change_stop;
   source_class->get_caps            = grl_tracker_source_get_caps;
   source_class->test_media_from_uri = grl_tracker_source_test_media_from_uri;
+  source_class->media_from_uri      = grl_tracker_source_get_media_from_uri;
 
   g_object_class_install_property (g_class,
                                    PROP_TRACKER_CONNECTION,

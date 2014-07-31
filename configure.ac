@@ -1413,6 +1413,7 @@ AC_CONFIG_FILES([
   tests/bliptv/Makefile
   tests/dleyna/Makefile
   tests/dleyna/dbusmock/dleyna-server-mock.service
+  tests/lastfm-albumart/Makefile
   tests/local-metadata/Makefile
   tests/thetvdb/Makefile
   tests/tmdb/Makefile

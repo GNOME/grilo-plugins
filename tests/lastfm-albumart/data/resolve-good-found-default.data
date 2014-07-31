@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<album artist="Madonna" title="Frocen">
+    <reach>1</reach>
+    <url>http://www.last.fm/music/Madonna/Frocen</url>
+    <releasedate>    </releasedate>
+    <coverart>
+        <small>http://cdn.last.fm/flatness/catalogue/noimage/2/default_album_medium.png</small>
+        <medium>http://cdn.last.fm/flatness/catalogue/noimage/2/default_album_medium.png</medium>
+        <large>http://cdn.last.fm/flatness/catalogue/noimage/2/default_album_medium.png</large>
+    </coverart>
+    <mbid></mbid>
+    <tracks>
+            </tracks>
+</album>

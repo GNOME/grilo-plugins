@@ -21,6 +21,10 @@ if DLEYNA_PLUGIN
 SUBDIRS += dleyna
 endif
 
+if LASTFM_ALBUMART_PLUGIN
+SUBDIRS += lastfm-albumart
+endif
+
 if LOCALMETADATA_PLUGIN
 SUBDIRS += local-metadata
 endif
@@ -41,6 +45,7 @@ DIST_SUBDIRS =    \
    apple-trailers \
    bliptv         \
    dleyna         \
+   lastfm-albumart\
    local-metadata \
    tmdb           \
    thetvdb        \

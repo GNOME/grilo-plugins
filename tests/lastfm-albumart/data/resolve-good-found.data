@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<album artist="Madonna" title="Frozen">
+    <reach>20831</reach>
+    <url>http://www.last.fm/music/Madonna/Frozen</url>
+    <releasedate>    17 Mar 1998, 00:00</releasedate>
+    <coverart>
+        <small>http://userserve-ak.last.fm/serve/34s/76737256.png</small>
+        <medium>http://userserve-ak.last.fm/serve/64s/76737256.png</medium>
+        <large>http://userserve-ak.last.fm/serve/126/76737256.png</large>
+    </coverart>
+    <mbid>e911cad9-dc8f-4134-8438-c392b9cf1a58</mbid>
+    <tracks>
+                <track title="Frozen">
+            <reach>388796</reach>
+            <url>http://www.last.fm/music/Madonna/_/Frozen</url>
+                    </track>
+                <track title="Don't Cry for Me Argentina">
+            <reach>55360</reach>
+            <url>http://www.last.fm/music/Madonna/_/Don%27t+Cry+for+Me+Argentina</url>
+                    </track>
+                <track title="Like a Prayer">
+            <reach>487462</reach>
+            <url>http://www.last.fm/music/Madonna/_/Like+a+Prayer</url>
+                    </track>
+                <track title="You'll See">
+            <reach>68196</reach>
+            <url>http://www.last.fm/music/Madonna/_/You%27ll+See</url>
+                    </track>
+                <track title="Deeper and Deeper">
+            <reach>61639</reach>
+            <url>http://www.last.fm/music/Madonna/_/Deeper+and+Deeper</url>
+                    </track>
+                <track title="La Isla Bonita">
+            <reach>321802</reach>
+            <url>http://www.last.fm/music/Madonna/_/La+Isla+Bonita</url>
+                    </track>
+                <track title="Take A Bonita">
+            <reach>6</reach>
+            <url>http://www.last.fm/music/Madonna/_/Take+A+Bonita</url>
+                    </track>
+                <track title="Holyday">
+            <reach>283</reach>
+            <url>http://www.last.fm/music/+noredirect/Madonna/_/Holyday</url>
+                    </track>
+                <track title="Crazy for You">
+            <reach>167426</reach>
+            <url>http://www.last.fm/music/Madonna/_/Crazy+for+You</url>
+                    </track>
+                <track title="Material Girl">
+            <reach>358192</reach>
+            <url>http://www.last.fm/music/Madonna/_/Material+Girl</url>
+                    </track>
+                <track title="Causing a Commotion">
+            <reach>12784</reach>
+            <url>http://www.last.fm/music/Madonna/_/Causing+a+Commotion</url>
+                    </track>
+                <track title="You Must Love Me">
+            <reach>27327</reach>
+            <url>http://www.last.fm/music/Madonna/_/You+Must+Love+Me</url>
+                    </track>
+                <track title="Papa Don't Preach">
+            <reach>269903</reach>
+            <url>http://www.last.fm/music/Madonna/_/Papa+Don%27t+Preach</url>
+                    </track>
+                <track title="Into The Groode">
+            <reach>1</reach>
+            <url>http://www.last.fm/music/Madonna/_/Into+The+Groode</url>
+                    </track>
+                <track title="Open Your Heart">
+            <reach>169657</reach>
+            <url>http://www.last.fm/music/Madonna/_/Open+Your+Heart</url>
+                    </track>
+                <track title="Live to Tell">
+            <reach>157781</reach>
+            <url>http://www.last.fm/music/Madonna/_/Live+to+Tell</url>
+                    </track>
+                <track title="True Blue">
+            <reach>62135</reach>
+            <url>http://www.last.fm/music/Madonna/_/True+Blue</url>
+                    </track>
+            </tracks>
+</album>

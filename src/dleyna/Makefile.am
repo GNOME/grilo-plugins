@@ -4,6 +4,8 @@
 # Copyright (C) 2010, 2011 Igalia S.L. All rights reserved.
 # Copyright (C) 2013 Intel Corp. All rights reserved.
 
+include $(top_srcdir)/gtester.mk
+
 ext_LTLIBRARIES	= libgrldleyna.la
 
 libgrldleyna_la_CFLAGS =	     \

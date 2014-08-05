@@ -35,7 +35,7 @@ extdir			= $(GRL_PLUGINS_DIR)
 luafactoryxmldir	= $(GRL_PLUGINS_DIR)
 luafactoryxml_DATA	= $(LUA_FACTORY_PLUGIN_ID).xml
 
-EXTRA_DIST = $(luafactoryxml_DATA)
+EXTRA_DIST += $(luafactoryxml_DATA)
 
 DIST_SUBDIRS = sources
 

@@ -37,7 +37,7 @@ copy-xml-to-libs-dir: libgrllocalmetadata.la
 
 all-local: copy-xml-to-libs-dir
 
-EXTRA_DIST = $(localmetadataxml_DATA)
+EXTRA_DIST += $(localmetadataxml_DATA)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

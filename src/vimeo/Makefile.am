@@ -49,7 +49,7 @@ vimeoresources.c: vimeo.gresource.xml vimeoresources.h channel-vimeo.svg
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/vimeo.gresource.xml \
 		--target=$@ --sourcedir=$(srcdir) --c-name _grl_vimeo --generate-source
 
-EXTRA_DIST = $(vimeoxml_DATA) channel-vimeo.svg vimeo.gresource.xml
+EXTRA_DIST += $(vimeoxml_DATA) channel-vimeo.svg vimeo.gresource.xml
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

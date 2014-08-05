@@ -37,7 +37,7 @@ copy-xml-to-libs-dir: libgrltmdb.la
 
 all-local: copy-xml-to-libs-dir
 
-EXTRA_DIST = $(tmdbxml_DATA)
+EXTRA_DIST += $(tmdbxml_DATA)
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

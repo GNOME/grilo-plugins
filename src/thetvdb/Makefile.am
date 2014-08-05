@@ -39,7 +39,7 @@ copy-xml-to-libs-dir: libgrlthetvdb.la
 
 all-local: copy-xml-to-libs-dir
 
-EXTRA_DIST = $(thetvdbxml_DATA)
+EXTRA_DIST += $(thetvdbxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

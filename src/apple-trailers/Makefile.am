@@ -47,7 +47,7 @@ apple-trailersresources.c: apple-trailers.gresource.xml apple-trailersresources.
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/apple-trailers.gresource.xml \
 		--target=$@ --sourcedir=$(srcdir) --c-name _grl_apple_trailers --generate-source
 
-EXTRA_DIST = $(appletrailersxml_DATA) channel-trailers.svg apple-trailers.gresource.xml
+EXTRA_DIST += $(appletrailersxml_DATA) channel-trailers.svg apple-trailers.gresource.xml
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

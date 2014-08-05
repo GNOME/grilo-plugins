@@ -32,7 +32,7 @@ extdir				= $(GRL_PLUGINS_DIR)
 bookmarksxmldir	= $(GRL_PLUGINS_DIR)
 bookmarksxml_DATA	= $(BOOKMARKS_PLUGIN_ID).xml
 
-EXTRA_DIST = $(bookmarksxml_DATA)
+EXTRA_DIST += $(bookmarksxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

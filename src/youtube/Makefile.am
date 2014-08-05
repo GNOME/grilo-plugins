@@ -35,7 +35,7 @@ youtuberesources.c: youtube.gresource.xml youtuberesources.h channel-youtube.svg
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/youtube.gresource.xml \
 		--target=$@ --sourcedir=$(srcdir) --c-name _grl_youtube --generate-source
 
-EXTRA_DIST = $(youtubexml_DATA) channel-youtube.svg youtube.gresource.xml
+EXTRA_DIST += $(youtubexml_DATA) channel-youtube.svg youtube.gresource.xml
 
 MAINTAINERCLEANFILES	 = \
 	*.in \

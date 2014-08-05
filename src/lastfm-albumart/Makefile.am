@@ -37,7 +37,7 @@ copy-xml-to-libs-dir: libgrllastfm-albumart.la
 all-local: copy-xml-to-libs-dir
 
 
-EXTRA_DIST = $(lastfmalbumartxml_DATA)
+EXTRA_DIST += $(lastfmalbumartxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in	\

@@ -43,7 +43,7 @@ extdir				= $(GRL_PLUGINS_DIR)
 trackerxmldir		= $(GRL_PLUGINS_DIR)
 trackerxml_DATA	= $(TRACKER_PLUGIN_ID).xml
 
-EXTRA_DIST = $(trackerxml_DATA)
+EXTRA_DIST += $(trackerxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

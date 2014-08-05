@@ -28,7 +28,7 @@ extdir				= $(GRL_PLUGINS_DIR)
 gravatarxmldir		= $(GRL_PLUGINS_DIR)
 gravatarxml_DATA	= $(GRAVATAR_PLUGIN_ID).xml
 
-EXTRA_DIST = $(gravatarxml_DATA)
+EXTRA_DIST += $(gravatarxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in	\

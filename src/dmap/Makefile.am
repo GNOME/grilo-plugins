@@ -36,7 +36,7 @@ extdir			= $(GRL_PLUGINS_DIR)
 dmapxmldir		= $(GRL_PLUGINS_DIR)
 dmapxml_DATA	= $(DMAP_PLUGIN_ID).xml
 
-EXTRA_DIST      = $(dmapxml_DATA)
+EXTRA_DIST    += $(dmapxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in						\

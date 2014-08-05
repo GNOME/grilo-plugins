@@ -48,7 +48,7 @@ bliptvresources.c: bliptv.gresource.xml bliptvresources.h channel-bliptv.svg
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/bliptv.gresource.xml \
 		--target=$@ --sourcedir=$(srcdir) --c-name _grl_bliptv --generate-source
 
-EXTRA_DIST = $(bliptvxml_DATA) channel-bliptv.svg bliptv.gresource.xml
+EXTRA_DIST += $(bliptvxml_DATA) channel-bliptv.svg bliptv.gresource.xml
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

@@ -28,7 +28,7 @@ extdir					= $(GRL_PLUGINS_DIR)
 filesystemxmldir		= $(GRL_PLUGINS_DIR)
 filesystemxml_DATA	= $(FILESYSTEM_PLUGIN_ID).xml
 
-EXTRA_DIST = $(filesystemxml_DATA)
+EXTRA_DIST += $(filesystemxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

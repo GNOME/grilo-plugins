@@ -34,7 +34,7 @@ libplugindir		= $(GRL_PLUGINS_DIR)
 flickrlibxmldir	= $(GRL_PLUGINS_DIR)
 flickrlibxml_DATA = $(FLICKR_PLUGIN_ID).xml
 
-EXTRA_DIST = $(flickrlibxml_DATA)
+EXTRA_DIST += $(flickrlibxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

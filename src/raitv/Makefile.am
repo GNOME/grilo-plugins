@@ -38,7 +38,7 @@ raitvresources.c: raitv.gresource.xml raitvresources.h channel-rai.svg
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/raitv.gresource.xml \
 		--target=$@ --sourcedir=$(srcdir) --c-name _grl_raitv --generate-source
 
-EXTRA_DIST = $(raitvxml_DATA) channel-rai.svg raitv.gresource.xml
+EXTRA_DIST += $(raitvxml_DATA) channel-rai.svg raitv.gresource.xml
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

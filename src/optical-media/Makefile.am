@@ -30,7 +30,7 @@ extdir						= $(GRL_PLUGINS_DIR)
 optical_mediaxmldir		= $(GRL_PLUGINS_DIR)
 optical_mediaxml_DATA	= $(OPTICAL_MEDIA_PLUGIN_ID).xml
 
-EXTRA_DIST = $(optical_mediaxml_DATA)
+EXTRA_DIST += $(optical_mediaxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

@@ -41,7 +41,7 @@ extdir		= $(GRL_PLUGINS_DIR)
 pocketxmldir	= $(GRL_PLUGINS_DIR)
 pocketxml_DATA	= $(POCKET_PLUGIN_ID).xml
 
-EXTRA_DIST = $(pocketxml_DATA) channel-pocket.svg pocket.gresource.xml
+EXTRA_DIST += $(pocketxml_DATA) channel-pocket.svg pocket.gresource.xml
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

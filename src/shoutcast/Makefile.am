@@ -28,7 +28,7 @@ extdir				= $(GRL_PLUGINS_DIR)
 shoutcastxmldir	= $(GRL_PLUGINS_DIR)
 shoutcastxml_DATA	= $(SHOUTCAST_PLUGIN_ID).xml
 
-EXTRA_DIST = $(shoutcastxml_DATA)
+EXTRA_DIST += $(shoutcastxml_DATA)
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

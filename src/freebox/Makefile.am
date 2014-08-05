@@ -41,7 +41,7 @@ extdir		= $(GRL_PLUGINS_DIR)
 freeboxxmldir	= $(GRL_PLUGINS_DIR)
 freeboxxml_DATA	= $(FREEBOX_PLUGIN_ID).xml
 
-EXTRA_DIST = $(freeboxxml_DATA) free.png freebox.gresource.xml
+EXTRA_DIST += $(freeboxxml_DATA) free.png freebox.gresource.xml
 
 MAINTAINERCLEANFILES =	\
 	*.in		\

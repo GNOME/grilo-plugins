@@ -77,7 +77,7 @@ grl-dleyna-proxy-mediadevice.h grl-dleyna-proxy-mediadevice.c: com.intel.dLeynaS
 		--interface-prefix com.intel.dLeynaServer. \
 		$^
 
-EXTRA_DIST =                                   \
+EXTRA_DIST +=										\
 	com.intel.dLeynaServer.Manager.xml     \
 	com.intel.dLeynaServer.MediaDevice.xml \
 	org.gnome.UPnP.MediaServer2.xml        \

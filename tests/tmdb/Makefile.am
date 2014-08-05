@@ -7,8 +7,6 @@
 
 include $(top_srcdir)/gtester.mk
 
-INCLUDES = @DEPS_CFLAGS@
-
 TEST_PROGS +=								\
 	test_tmdb_fast_resolution			\
 	test_tmdb_fast_resolution_by_id	\
@@ -37,6 +35,7 @@ test_tmdb_preconditions_LDADD =	\
 	@DEPS_LIBS@
 
 test_tmdb_preconditions_CFLAGS =	\
+	@DEPS_CFLAGS@						\
 	-DPREFIX=$(prefix)				\
 	$(test_tmdb_defines)
 
@@ -49,6 +48,7 @@ test_tmdb_missing_configuration_LDADD =	\
 	@DEPS_LIBS@
 
 test_tmdb_missing_configuration_CFLAGS =	\
+	@DEPS_CFLAGS@									\
 	-DPREFIX=$(prefix)							\
 	$(test_tmdb_defines)
 
@@ -60,6 +60,7 @@ test_tmdb_fast_resolution_LDADD =	\
 	@DEPS_LIBS@
 
 test_tmdb_fast_resolution_CFLAGS =	\
+	@DEPS_CFLAGS@							\
 	-DPREFIX=$(prefix)					\
 	$(test_tmdb_defines)
 
@@ -71,6 +72,7 @@ test_tmdb_fast_resolution_by_id_LDADD =	\
 	@DEPS_LIBS@
 
 test_tmdb_fast_resolution_by_id_CFLAGS =	\
+	@DEPS_CFLAGS@									\
 	-DPREFIX=$(prefix)							\
 	$(test_tmdb_defines)
 
@@ -82,6 +84,7 @@ test_tmdb_full_resolution_LDADD =	\
 	@DEPS_LIBS@
 
 test_tmdb_full_resolution_CFLAGS =	\
+	@DEPS_CFLAGS@							\
 	-DPREFIX=$(prefix)					\
 	$(test_tmdb_defines)
 

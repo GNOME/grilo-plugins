@@ -7,8 +7,6 @@
 
 include $(top_srcdir)/gtester.mk
 
-INCLUDES = @DEPS_CFLAGS@
-
 TEST_PROGS +=	\
    test_vimeo
 
@@ -23,6 +21,7 @@ test_vimeo_LDADD =	\
 	@DEPS_LIBS@
 
 test_vimeo_CFLAGS =	\
+	@DEPS_CFLAGS@		\
 	$(test_vimeo_defines)
 
 # Distribute the tests data:

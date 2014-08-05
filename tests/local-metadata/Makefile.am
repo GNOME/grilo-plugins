@@ -7,8 +7,6 @@
 
 include $(top_srcdir)/gtester.mk
 
-INCLUDES = @DEPS_CFLAGS@
-
 TEST_PROGS +=	\
    test_local_metadata
 
@@ -22,6 +20,7 @@ test_local_metadata_LDADD =	\
 	@DEPS_LIBS@
 
 test_local_metadata_CFLAGS =	\
+	@DEPS_CFLAGS@					\
 	$(test_local_metadata_defines)
 
 noinst_PROGRAMS = $(TEST_PROGS)

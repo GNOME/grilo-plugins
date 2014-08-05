@@ -7,8 +7,6 @@
 
 include $(top_srcdir)/gtester.mk
 
-INCLUDES = @DEPS_CFLAGS@
-
 TEST_PROGS +=	\
 	test_thetvdb_resolve_shows	\
 	test_thetvdb_resolve_episodes \
@@ -26,6 +24,7 @@ test_thetvdb_resolve_shows_LDADD =	\
 	@DEPS_LIBS@
 
 test_thetvdb_resolve_shows_CFLAGS =	\
+	@DEPS_CFLAGS@							\
 	$(test_thetvdb_defines)
 
 test_thetvdb_resolve_episodes_SOURCES =	\
@@ -36,6 +35,7 @@ test_thetvdb_resolve_episodes_LDADD =	\
 	@DEPS_LIBS@
 
 test_thetvdb_resolve_episodes_CFLAGS =	\
+	@DEPS_CFLAGS@								\
 	$(test_thetvdb_defines)
 
 test_thetvdb_resolve_stress_SOURCES =	\
@@ -46,6 +46,7 @@ test_thetvdb_resolve_stress_LDADD =	\
 	@DEPS_LIBS@
 
 test_thetvdb_resolve_stress_CFLAGS =	\
+	@DEPS_CFLAGS@								\
 	$(test_thetvdb_defines)
 
 dist_noinst_DATA =		\

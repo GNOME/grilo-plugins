@@ -7,8 +7,6 @@
 
 include $(top_srcdir)/gtester.mk
 
-INCLUDES = @DEPS_CFLAGS@
-
 TEST_PROGS +=	\
    test_lastfm_albumart
 
@@ -23,6 +21,7 @@ test_lastfm_albumart_LDADD =	\
 	@DEPS_LIBS@
 
 test_lastfm_albumart_CFLAGS =	\
+	@DEPS_CFLAGS@					\
 	$(test_lastfm_albumart_defines)
 
 # Distribute the tests data:

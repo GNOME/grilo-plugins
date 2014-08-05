@@ -7,8 +7,6 @@
 
 include $(top_srcdir)/gtester.mk
 
-INCLUDES = @DEPS_CFLAGS@
-
 TEST_PROGS +=	\
    test_apple_trailers
 
@@ -23,6 +21,7 @@ test_apple_trailers_LDADD =	\
 	@DEPS_LIBS@
 
 test_apple_trailers_CFLAGS =	\
+	@DEPS_CFLAGS@					\
 	$(test_apple_trailers_defines)
 
 # Distribute the tests data:

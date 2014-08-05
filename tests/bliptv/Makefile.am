@@ -7,8 +7,6 @@
 
 include $(top_srcdir)/gtester.mk
 
-INCLUDES = @DEPS_CFLAGS@
-
 TEST_PROGS +=	\
    test_bliptv
 
@@ -23,6 +21,7 @@ test_bliptv_LDADD =	\
 	@DEPS_LIBS@
 
 test_bliptv_CFLAGS =	\
+	@DEPS_CFLAGS@		\
 	$(test_bliptv_defines)
 
 # Distribute the tests data:

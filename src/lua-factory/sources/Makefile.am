@@ -5,6 +5,8 @@
 #
 # Copyright (C) 2013 Victor Toso. All rights reserved.
 
+include $(top_srcdir)/gtester.mk
+
 lua_sources_DATA =					\
 	grl-metrolyrics.lua				\
 	grl-radiofrance.lua				\

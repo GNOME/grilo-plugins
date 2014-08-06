@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-06-23 20:13+0000\n"
-"PO-Revision-Date: 2014-06-23 22:37+0100\n"
+"POT-Creation-Date: 2014-08-06 08:19+0000\n"
+"PO-Revision-Date: 2014-08-06 14:01+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenščina <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -91,25 +91,26 @@ msgstr "Ni mogoče shraniti: %s"
 msgid "No database connection"
 msgstr "Ni povezave z zbirko podatkov"
 
-#: ../src/dleyna/grl-dleyna-source.c:33
+#: ../src/dleyna/grl-dleyna-source.c:34
 #, c-format
 msgid "A source for browsing the DLNA server '%s'"
 msgstr "Vir za brskanje po strežniku DLNA '%s'"
 
-#: ../src/dleyna/grl-dleyna-source.c:277
+#: ../src/dleyna/grl-dleyna-source.c:278
 msgid "Upload failed, target source destroyed"
 msgstr "Pošiljanje vzorca je spodletelo, ciljni vir je uničen"
 
-#: ../src/dleyna/grl-dleyna-source.c:379
-msgid "Upload failed, '%s', transferred %"
-msgstr "Pošiljanje vzorca je spodletelo, '%s', preneseno %"
+#: ../src/dleyna/grl-dleyna-source.c:380
+#, c-format
+msgid "Upload failed, '%s', transferred %lu of %lu bytes"
+msgstr "Pošiljanje je spodletelo, '%s', preneseno %lu od %lu bajtov"
 
-#: ../src/dleyna/grl-dleyna-source.c:877
+#: ../src/dleyna/grl-dleyna-source.c:880
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr "Ni mogoče pridobiti podrobnosti predmeta (napaka BrowseObjects %d: %s)"
 
-#: ../src/dleyna/grl-dleyna-source.c:1497
+#: ../src/dleyna/grl-dleyna-source.c:1519
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr "Pošiljanje vzorca je spodletelo, manjka naslov URL predmeta za prenos"
@@ -249,26 +250,26 @@ msgstr ""
 "Vstavek za pridobivanje ovitkov albumov, kjer se Last.FM uporablja kot "
 "ozadnje okolje"
 
-#: ../src/local-metadata/grl-local-metadata.c:43
+#: ../src/local-metadata/grl-local-metadata.c:44
 msgid "Local Metadata Provider"
 msgstr "Krajevni ponudnik metapodatkov"
 
-#: ../src/local-metadata/grl-local-metadata.c:44
+#: ../src/local-metadata/grl-local-metadata.c:45
 msgid "A source providing locally available metadata"
 msgstr "Vir krajevno dostopnih metapodatkov"
 
-#: ../src/local-metadata/grl-local-metadata.c:482
+#: ../src/local-metadata/grl-local-metadata.c:486
 #: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:861
 #: ../src/tracker/grl-tracker-source-api.c:460
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Razreševanje je spodletelo: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:864
+#: ../src/local-metadata/grl-local-metadata.c:868
 msgid "Cannot resolve any of the given keys"
 msgstr "Ni mogoče razrešiti nobenega izmed podanih ključev"
 
-#: ../src/local-metadata/grl-local-metadata.c:868
+#: ../src/local-metadata/grl-local-metadata.c:872
 msgid "A GIO supported URL for images is required"
 msgstr "Zahtevan je z GIO podprt naslov URL slik"
 
@@ -330,7 +331,7 @@ msgstr "Posodabljanje metapodatkov je spodletelo"
 msgid "\"source-id\" not available"
 msgstr "\"source-id\" ni na voljo"
 
-#: ../src/metadata-store/grl-metadata-store.c:780 ../src/upnp/grl-upnp.c:1484
+#: ../src/metadata-store/grl-metadata-store.c:780
 msgid "Failed to resolve"
 msgstr "Razreševanje je spodletelo"
 
@@ -552,24 +553,6 @@ msgstr "Odstranljivo - %s"
 msgid "Local files"
 msgstr "Krajevne datoteke"
 
-#: ../src/upnp/grl-upnp.c:54
-#, c-format
-msgid "A source for browsing the UPnP server '%s'"
-msgstr "Vir za brskanje po strežniku UPnP '%s'"
-
-#: ../src/upnp/grl-upnp.c:1314 ../src/upnp/grl-upnp.c:1371
-msgid "Failed to browse"
-msgstr "Brskanje je spodletelo"
-
-#: ../src/upnp/grl-upnp.c:1434
-msgid "Failed to query"
-msgstr "Poizvedba je spodletela"
-
-#: ../src/upnp/grl-upnp.c:1553
-#, c-format
-msgid "Unable to listen for changes in %s"
-msgstr "Sprememb v %s ni mogoče spremljati"
-
 #: ../src/vimeo/grl-vimeo.c:58
 msgid "A source for browsing and searching Vimeo videos"
 msgstr "Vir za brskanje in iskanje videov Vimeo"
@@ -630,3 +613,15 @@ msgstr "Pridobivanje vira je spodletelo"
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Določilo obvestilnika %s je neveljavno "
+
+#~ msgid "A source for browsing the UPnP server '%s'"
+#~ msgstr "Vir za brskanje po strežniku UPnP '%s'"
+
+#~ msgid "Failed to browse"
+#~ msgstr "Brskanje je spodletelo"
+
+#~ msgid "Failed to query"
+#~ msgstr "Poizvedba je spodletela"
+
+#~ msgid "Unable to listen for changes in %s"
+#~ msgstr "Sprememb v %s ni mogoče spremljati"

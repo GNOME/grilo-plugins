@@ -23,6 +23,8 @@
 RADIOFRANCE_URL               = 'http://app2.radiofrance.fr/rfdirect/config/Radio.js'
 FRANCEBLEU_URL                = 'http://app2.radiofrance.fr/rfdirect/config/FranceBleu.js'
 
+local stations = { 'franceinter', 'franceinfo', 'franceculture', 'francemusique', 'fipradio', 'lemouv' }
+
 ---------------------------
 -- Source initialization --
 ---------------------------
@@ -45,7 +47,12 @@ function grl_source_browse(media_id)
   if grl.get_options("skip") > 0 then
     grl.callback()
   else
-    grl.fetch(RADIOFRANCE_URL, "radiofrance_fetch_cb")
+    local urls = {}
+    for index, item in pairs(stations) do
+      local url = 'http://www.' .. item .. '.fr/api/now&full=true'
+      table.insert(urls, url)
+    end
+    grl.fetch(urls, "radiofrance_now_fetch_cb")
   end
 end
 
@@ -54,90 +61,67 @@ end
 ------------------------
 
 -- return all the media found
-function radiofrance_fetch_cb(playlist)
-  if parse_playlist(playlist, false) then
-    grl.fetch(FRANCEBLEU_URL, "francebleu_fetch_cb")
-  end
-end
+function radiofrance_now_fetch_cb(results)
+  for index, result in pairs(results) do
+    local json = {}
+    json = grl.lua.json.string_to_table(result)
 
-function francebleu_fetch_cb(playlist)
-  parse_playlist(playlist, true)
+    if not json or json.stat == "fail" or not json.stations then
+      local url = 'http://www.' .. stations[index] .. '.fr/api/now&full=true'
+      grl.warning ('Could not fetch ' .. url .. ' failed')
+      grl.callback()
+      return
+    end
+
+    local media = create_media(stations[index], json.stations[1])
+    grl.callback(media, -1)
+  end
+
+  grl.callback()
 end
 
 -------------
 -- Helpers --
 -------------
 
-function parse_playlist(playlist, francebleu)
-  local match1_prefix, match2
-  if francebleu then
-    match1_prefix = '_frequence'
-    match2 = '{(.-logo_region.-)}'
-  else
-    match1_prefix = '_radio'
-    match2 = '{(.-#rfdirect.-)}'
-  end
-
-  if not playlist then
-    grl.callback()
-    return false
-  end
-
-  local items = playlist:match('Flux = {.-' .. match1_prefix .. ' : {(.*)}.-}')
-  if not items then
-    grl.callback()
-    return false
-  end
-
-  for item in items:gmatch(match2) do
-    local media = create_media(item, francebleu)
-    if media then
-      grl.callback(media, -1)
-    end
-  end
-
-  if francebleu then
-    grl.callback()
-  end
-
-  return true
-end
-
 function get_thumbnail(id)
   local images = {}
-  images['FranceInter'] = 'http://www.franceinter.fr/sites/all/themes/franceinter/logo.png'
-  images['FranceInfo'] = 'http://www.franceinfo.fr/sites/all/themes/franceinfo/logo.png'
-  images['FranceCulture'] = 'http://www.franceculture.fr/sites/all/themes/franceculture/images/logo.png'
-  images['FranceMusique'] = 'http://www.francemusique.fr/sites/all/themes/custom/france_musique/logo.png'
-  images['Fip'] = 'http://www.fipradio.fr/sites/all/themes/fip2/images/logo_121x121.png'
-  images['LeMouv'] = 'http://www.lemouv.fr/sites/all/themes/mouv/images/logo_119x119.png'
-  images['FranceBleu'] = 'http://www.francebleu.fr/sites/all/themes/francebleu/logo.png'
+  images['franceinter'] = 'http://www.franceinter.fr/sites/all/themes/franceinter/logo.png'
+  images['franceinfo'] = 'http://www.franceinfo.fr/sites/all/themes/custom/france_info/logo.png'
+  images['franceculture'] = 'http://www.franceculture.fr/sites/all/themes/franceculture/images/logo.png'
+  images['francemusique'] = 'http://www.francemusique.fr/sites/all/themes/custom/france_musique/logo.png'
+  images['fipradio'] = 'http://www.fipradio.fr/sites/all/themes/custom/fip/logo.png'
+  images['lemouv'] = 'http://www.lemouv.fr/sites/all/themes/mouv/images/logo_119x119.png'
 
   return images[id]
 end
 
-function create_media(item, francebleu)
-  local media = {}
+function get_title(id)
+  local names = {}
+  names['franceinter'] = 'France Inter'
+  names['franceinfo'] = 'France Info'
+  names['franceculture'] = 'France Culture'
+  names['francemusique'] = 'France Musique'
+  names['fipradio'] = 'Fip Radio'
+  names['lemouv'] = "Le Mouv'"
 
-  if francebleu then
-    media.url = item:match("mp3_direct : '(http://.-)'")
-  else
-    media.url = item:match("hifi :'(.-)'")
-  end
-  if not media.url or media.url == '' then
-    return nil
-  end
+  return names[id]
+end
+
+function create_media(id, station)
+  local media = {}
 
   media.type = "audio"
   media.mime_type = "audio/mpeg"
-  media.id = item:match("id : '(.-)',")
-  media.title = item:match("nom : '(.-)',")
-  media.title = media.title:gsub("\\'", "'")
-  if francebleu then
-    media.thumbnail = get_thumbnail('FranceBleu')
-  else
-    media.thumbnail = get_thumbnail(media.id)
+  media.id = id
+  if media.id == 'fipradio' then
+    media.id = 'fip'
   end
 
+  media.url = 'http://mp3lg.tdf-cdn.com/' .. media.id .. '/all/' .. media.id .. 'hautdebit.mp3'
+  media.title = get_title(id)
+  media.thumbnail = get_thumbnail(id)
+
+  -- FIXME Add metadata about the currently playing tracks
   return media
 end

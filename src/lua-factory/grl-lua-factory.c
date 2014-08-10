@@ -107,6 +107,8 @@ static void grl_lua_factory_source_finalize (GObject *object);
 
 static const GList *grl_lua_factory_source_supported_keys (GrlSource *source);
 
+static const GList *grl_lua_factory_source_slow_keys(GrlSource *source);
+
 static void grl_lua_factory_source_search (GrlSource *source,
                                            GrlSourceSearchSpec *ss);
 
@@ -314,6 +316,7 @@ grl_lua_factory_source_class_init (GrlLuaFactorySourceClass *klass)
   g_class->finalize = grl_lua_factory_source_finalize;
 
   source_class->supported_keys = grl_lua_factory_source_supported_keys;
+  source_class->slow_keys= grl_lua_factory_source_slow_keys;
   source_class->supported_operations = grl_lua_factory_source_supported_operations;
   source_class->search = grl_lua_factory_source_search;
   source_class->browse = grl_lua_factory_source_browse;
@@ -958,6 +961,13 @@ grl_lua_factory_source_supported_keys (GrlSource *source)
 {
   GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
   return lua_source->priv->supported_keys;
+}
+
+static const GList *
+grl_lua_factory_source_slow_keys (GrlSource *source)
+{
+  GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
+  return lua_source->priv->slow_keys;
 }
 
 static GrlSupportedOps

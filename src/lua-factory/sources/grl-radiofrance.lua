@@ -118,7 +118,11 @@ function create_media(id, station)
     media.id = 'fip'
   end
 
-  media.url = 'http://mp3lg.tdf-cdn.com/' .. media.id .. '/all/' .. media.id .. 'hautdebit.mp3'
+  if id == 'franceinfo' then
+    media.url = 'http://mp3lg.tdf-cdn.com/' .. media.id .. '/all/' .. media.id .. '-32k.mp3'
+  else
+    media.url = 'http://mp3lg.tdf-cdn.com/' .. media.id .. '/all/' .. media.id .. 'hautdebit.mp3'
+  end
   media.title = get_title(id)
   media.thumbnail = get_thumbnail(id)
 

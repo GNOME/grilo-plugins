@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-06-02 14:01+0000\n"
-"PO-Revision-Date: 2014-02-22 18:50+0100\n"
+"POT-Creation-Date: 2014-08-08 23:56+0000\n"
+"PO-Revision-Date: 2014-08-16 23:59+0200\n"
 "Last-Translator: Gil Forcada <gilforcada@guifi.net>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "Language: ca\n"
@@ -87,6 +87,33 @@ msgstr "No s'ha pogut emmagatzemar: %s"
 msgid "No database connection"
 msgstr "No hi ha cap connexió a la base de dades"
 
+#: ../src/dleyna/grl-dleyna-source.c:34
+#, c-format
+msgid "A source for browsing the DLNA server '%s'"
+msgstr "Una font per navegar pel servidor DLNA «%s»"
+
+#: ../src/dleyna/grl-dleyna-source.c:278
+msgid "Upload failed, target source destroyed"
+msgstr "Ha fallat la pujada, s'ha destruït la font objectiu"
+
+#: ../src/dleyna/grl-dleyna-source.c:380
+#, c-format
+msgid "Upload failed, '%s', transferred %lu of %lu bytes"
+msgstr "Ha fallat la pujada, «%s», s'han transferit %lu de %lu bytes"
+
+#: ../src/dleyna/grl-dleyna-source.c:880
+#, c-format
+msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
+msgstr ""
+"No s'han pogut obtenir les propietats de l'element (error de BrowseObjects "
+"%d: %s)"
+
+#: ../src/dleyna/grl-dleyna-source.c:1519
+#, c-format
+msgid "Upload failed, URL missing on the media object to be transferred"
+msgstr ""
+"Ha fallat la pujada, manca l'URL en l'objecte mèdia que s'ha de transferir"
+
 #: ../src/dmap/grl-dmap.c:51
 #, c-format
 msgid "A source for browsing the DMAP server '%s'"
@@ -116,12 +143,12 @@ msgstr "Sistema de fitxers"
 msgid "A source for browsing the filesystem"
 msgstr "Una font per navegar pel sistema de fitxers"
 
-#: ../src/filesystem/grl-filesystem.c:1142
+#: ../src/filesystem/grl-filesystem.c:1148
 #, c-format
 msgid "File %s does not exist"
 msgstr "No existeix el fitxer «%s»"
 
-#: ../src/filesystem/grl-filesystem.c:1219 ../src/youtube/grl-youtube.c:1626
+#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1626
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "No es pot obtenir els suports des de %s"
@@ -220,26 +247,26 @@ msgstr "Proveïdor de cobertes d'àlbums del Last.FM"
 msgid "A plugin for getting album arts using Last.FM as backend"
 msgstr "Un connector per obtenir cobertes d'àlbums del Last.FM"
 
-#: ../src/local-metadata/grl-local-metadata.c:43
+#: ../src/local-metadata/grl-local-metadata.c:44
 msgid "Local Metadata Provider"
 msgstr "Proveïdor de metadades locals"
 
-#: ../src/local-metadata/grl-local-metadata.c:44
+#: ../src/local-metadata/grl-local-metadata.c:45
 msgid "A source providing locally available metadata"
 msgstr "Una font que proporciona les metadades locals disponibles"
 
-#: ../src/local-metadata/grl-local-metadata.c:482
+#: ../src/local-metadata/grl-local-metadata.c:486
 #: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:861
-#: ../src/tracker/grl-tracker-source-api.c:460
+#: ../src/tracker/grl-tracker-source-api.c:489
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "No s'ha pogut resoldre: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:862
+#: ../src/local-metadata/grl-local-metadata.c:868
 msgid "Cannot resolve any of the given keys"
 msgstr "No s'ha pogut resoldre cap de les claus donades"
 
-#: ../src/local-metadata/grl-local-metadata.c:866
+#: ../src/local-metadata/grl-local-metadata.c:872
 msgid "A GIO supported URL for images is required"
 msgstr "Es requereix un URL d'imatges admès per la GIO"
 
@@ -282,7 +309,7 @@ msgstr "Un connector per l'emmagatzematge de metadades d'informació extra"
 #: ../src/metadata-store/grl-metadata-store.c:573
 #: ../src/metadata-store/grl-metadata-store.c:592
 #: ../src/metadata-store/grl-metadata-store.c:804
-#: ../src/tracker/grl-tracker-source-api.c:510
+#: ../src/tracker/grl-tracker-source-api.c:597
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "No s'han pogut actualitzar les metadades: %s"
@@ -300,7 +327,7 @@ msgstr "No s'han pogut actualitzar les metadades"
 msgid "\"source-id\" not available"
 msgstr "No està disponible el «source-id»"
 
-#: ../src/metadata-store/grl-metadata-store.c:780 ../src/upnp/grl-upnp.c:1484
+#: ../src/metadata-store/grl-metadata-store.c:780
 msgid "Failed to resolve"
 msgstr "No s'ha pogut resoldre"
 
@@ -488,6 +515,10 @@ msgstr "No s'ha pogut obtenir el suport %s"
 msgid "non-NULL search text is required"
 msgstr "Hi ha d'haver text de cerca"
 
+#: ../src/thetvdb/grl-thetvdb.c:97
+msgid "A source for fetching metadata of television shows"
+msgstr "Una font per obtenir metadades de xous televisius"
+
 #: ../src/tmdb/grl-tmdb.c:984
 msgid "Remote data does not contain valid identifier"
 msgstr "Les dades remotes no contenen un identificador vàlid"
@@ -495,13 +526,18 @@ msgstr "Les dades remotes no contenen un identificador vàlid"
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:332
-#: ../src/tracker/grl-tracker-source-api.c:414
+#: ../src/tracker/grl-tracker-source-api.c:361
+#: ../src/tracker/grl-tracker-source-api.c:443
 #, c-format
 msgid "Failed to query: %s"
 msgstr "No s'ha pogut consultar: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:627
+#: ../src/tracker/grl-tracker-source-api.c:543
+#, c-format
+msgid "Failed to get media from uri: %s"
+msgstr "No s'ha pogut obtenir el medi de l'URI: %s"
+
+#: ../src/tracker/grl-tracker-source-api.c:714
 msgid "Empty query"
 msgstr "La consulta està buida"
 
@@ -517,24 +553,6 @@ msgstr "Extraïble - %s"
 #: ../src/tracker/grl-tracker-utils.c:671
 msgid "Local files"
 msgstr "Fitxers locals"
-
-#: ../src/upnp/grl-upnp.c:54
-#, c-format
-msgid "A source for browsing the UPnP server '%s'"
-msgstr "Una font per navegar pel servidor UPnP «%s»"
-
-#: ../src/upnp/grl-upnp.c:1314 ../src/upnp/grl-upnp.c:1371
-msgid "Failed to browse"
-msgstr "No s'ha pogut navegar"
-
-#: ../src/upnp/grl-upnp.c:1434
-msgid "Failed to query"
-msgstr "No s'ha pogut consultar"
-
-#: ../src/upnp/grl-upnp.c:1553
-#, c-format
-msgid "Unable to listen for changes in %s"
-msgstr "No es pot fer un seguiment dels canvis a %s"
 
 #: ../src/vimeo/grl-vimeo.c:58
 msgid "A source for browsing and searching Vimeo videos"

@@ -13,8 +13,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-07-17 15:15+0000\n"
-"PO-Revision-Date: 2014-07-22 11:29+0200\n"
+"POT-Creation-Date: 2014-08-08 23:56+0000\n"
+"PO-Revision-Date: 2014-08-19 12:32+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
 "Language: es\n"
@@ -104,7 +104,6 @@ msgstr "Falló la subida, fuente objetivo destruida"
 
 #: ../src/dleyna/grl-dleyna-source.c:380
 #, c-format
-#| msgid "Upload failed, '%s', transferred %"
 msgid "Upload failed, '%s', transferred %lu of %lu bytes"
 msgstr "Falló la subida, «%s», transferidos %lu de %lu bytes"
 
@@ -265,7 +264,7 @@ msgstr "Una fuente que proporciona metadatos locales"
 
 #: ../src/local-metadata/grl-local-metadata.c:486
 #: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:861
-#: ../src/tracker/grl-tracker-source-api.c:460
+#: ../src/tracker/grl-tracker-source-api.c:489
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Falló al resolver: %s"
@@ -317,7 +316,7 @@ msgstr "Un complemento para almacenar información adicional de metadatos"
 #: ../src/metadata-store/grl-metadata-store.c:573
 #: ../src/metadata-store/grl-metadata-store.c:592
 #: ../src/metadata-store/grl-metadata-store.c:804
-#: ../src/tracker/grl-tracker-source-api.c:510
+#: ../src/tracker/grl-tracker-source-api.c:597
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Falló al actualizar los metadatos: %s"
@@ -534,13 +533,19 @@ msgstr "Los datos remotos no contienen identificadores válidos"
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:332
-#: ../src/tracker/grl-tracker-source-api.c:414
+#: ../src/tracker/grl-tracker-source-api.c:361
+#: ../src/tracker/grl-tracker-source-api.c:443
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Falló al consultar: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:627
+#: ../src/tracker/grl-tracker-source-api.c:543
+#, c-format
+#| msgid "Failed to get database from magnatune: %s"
+msgid "Failed to get media from uri: %s"
+msgstr "Falló al obtener los medios del URI: %s"
+
+#: ../src/tracker/grl-tracker-source-api.c:714
 msgid "Empty query"
 msgstr "Consulta vacía"
 

@@ -399,7 +399,7 @@ msgstr "URL ৰ প্ৰয়োজন"
 
 #: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
 msgid "Most Popular"
-msgstr "সৰ্বাধিক জনপ্ৰীয়"
+msgstr "সৰ্বাধিক জনপ্ৰিয়"
 
 #: ../src/raitv/grl-raitv.c:52
 msgid "Recent"

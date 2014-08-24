@@ -1,3 +1,158 @@
+NEW in 0.2.13
+=============
+
+  * Several fixes in build system
+  * Generate AUTHORS file automatically
+  * BGO#706877 - Let TheMovieDb resolver perform searches based on file name
+  * BGO#727901 - Some filesystem plugin related build fixes
+  * Added/updated i18n support
+    * Assamese (new)
+    * Basque (new)
+    * Brazilian/Portuguese
+    * Catalan
+    * Catalan
+    * Catalan/Valencian
+    * Chinese
+    * Czech
+    * Danish
+    * French
+    * Galician
+    * German
+    * Greek
+    * Hebrew
+    * Hungarian
+    * Indonesian
+    * Italian
+    * Lithuanian
+    * Polish
+    * Russian
+    * Serbian
+    * Slovenian
+    * Spanish
+    * Traditional Chinese
+
+  * Bookmarks plugin
+    * Reimplemented using GOM as backend, instead of SQLite directly
+    * BGO#729787 - Application crashes at startup
+
+  * dLeyna plugin
+    * New plugin based on dLeyna to access UPnP/DLNA sources
+    * BGO#707346 - dleyna: Plugin to access DLNA contents using the dLeyna DBus
+      service
+    * BGO#732016 - Bad string construction
+    * BGO#733253 - UPnP/DLeyna bug fixes
+
+  * Filesystem plugin
+    * BGO#725203 - Filesystem plugin bug fixes
+    * BGO#730841 - grl-file-system: no notification changes for root container
+
+  * Flickr plugin
+    * BGO#730812 - flickr: Use SSL
+
+  * Jamendo plugin
+    * Fix browsing root category
+    * Fix wrong free
+
+  * LastFM Album Art plugin
+    * Added tests
+
+  * Local Metadata plugin
+    * BGO#725025 - local-metadata: Movies detected as episodes of a series
+    * BGO#725026 - Add support for SeasonxEpisode filename format
+    * BGO#725456 - grilo sometimes calls plugins with %20 instead of spaces
+    * BGO#727181 - local-metadata: Another bad TV show parsing
+    * BGO#732261 - local-metadata: new regexp match
+    * BGO#734636 - Tracker plugin doesn't get thumbnails
+
+  * Lua Factory plugin
+    * Several fixes
+    * BDO#750038 - grilo-plugins: Conditional operator does not typecheck
+    * BGO#727570 - lua-factory: Fix typo in debug statement
+    * BGO#727571 - lua-factory: Don't add duplicate sources
+    * BGO#728525 - lua-factory: Add grl.unzip fetch function
+    * BGO#728882 - lua-factory: Add more keys to grl.get_options()
+    * BGO#729649 - lua-factory: Fix garbage after escaped text in grl.unescape()
+    * BGO#733259 - lua-factory: Fix use after free
+    * BGO#733289 - lua-factory: don't iterate on lua env table
+    * BGO#733303 - lua-factory: GrlMediaBoxes cannot have their metadata
+      resolved
+    * Euronews source
+      * BGO#731224 - Crash in can_remove if g_uri_parse_scheme fails
+    * Musicbrainz source
+      * BGO#727766 - lua-factory: Add Musicbrainz Cover Art plugin
+    * Radiofrance source
+      * BGO#727569 - radiofrance: Don't break when run behind a portal
+      * BGO#734234 - RadioFrance source does not work in grilo
+
+  * Optical Media plugin
+    * BGO#729704 - optical-media: Fix physical optical drives being ignored
+
+  * Pocket plugin
+    * Request librest >= 0.7.90
+
+  * TheTVDB plugin
+    * BGO#672933 - Add thetvdb.com metadata
+    * BGO#733287 - thetvdb: fetch show in cache with case insensitive
+
+  * Tracker plugin
+    * Add deinit() function
+    * BGO#678519 - grl_media_source_get_media_from_uri not implemented for
+      tracker media source plugin
+    * BGO#701651 - Use OpenSubtitles.org to look up IMDB ID
+    * BGO#730399 - Search strings should be escaped
+
+  * UPnP plugin
+    * Removed this plugin, replaced by new dLeyna plugin
+    * BGO#723780 - upnp: filter out devices on the local machine
+    * BGO#733253 - UPnP/DLeyna bug fixes
+
+  * Vimeo plugin
+    * BGO#727899 - vimeo: Remove libgcrypt dependency
+    * BGO#730900 - Vimeo not work!
+
+  * Contributors to this release:
+    * AlainLojewski <allomervan@gmail.com>
+    * Alberto Garcia <berto@igalia.com>
+    * Andika Triwidada <andika@gmail.com>
+    * Ask H. Larsen <asklarsen@gmail.com>
+    * Aurimas Černius <aurisc4@gmail.com>
+    * Bastien Nocera <hadess@hadess.net>
+    * Benjamin Steinwender <b@stbe.at>
+    * Carles Ferrando <carles.ferrando@gmail.com>
+    * Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>
+    * Christian Kirbach <Christian.Kirbach@gmail.com>
+    * Claudio Arseni <claudio.arseni@gmail.com>
+    * Daniel Mustieles <daniel.mustieles@gmail.com>
+    * Daniel Mustieles <dnaiel.mustieles@gmail.com>
+    * Debarshi Ray <debarshir@gnome.org>
+    * Elad Alfassa <elad@fedoraproject.org>
+    * Emanuele Aina <emanuele.aina@collabora.com>
+    * Enrico Nicoletto <liverig@gmail.com>
+    * Fran Diéguez <fran.dieguez@mabishu.com>
+    * Gábor Kelemen <kelemeng@openscope.org>
+    * Gil Forcada <gforcada@gnome.org>
+    * Giovanni Campagna <gcampagna@src.gnome.org>
+    * Inaki Larranaga Murgoitio <dooteo@zundan.com>
+    * Jeremy Whiting <jpwhiting@kde.org>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * marablack3 <marablack3@gmail.com>
+    * Marek Černocký <marek@manet.cz>
+    * MarMav <mavridou@gmail.com>
+    * Matej Urbančič <mateju@svn.gnome.org>
+    * Milo Casagrande <milo@ubuntu.com>
+    * Nilamdyuti Goswami <ngoswami@redhat.com>
+    * Olav Vitters <olav@vitters.nl>
+    * Piotr Drąg <piotrdrag@gmail.com>
+    * Rafael Ferreira <rafael.f.f1@gmail.com>
+    * Tom Tryfonidis <tomtryf@gmail.com>
+    * Victor Toso <me@victortoso.com>
+    * Wolfgang Stöggl <c72578@yahoo.de>
+    * Yosef Or Boczko <yoseforb@src.gnome.org>
+    * YunQiang Su <yqsu@src.gnome.org>
+    * Yuri Myasoedov <ymyasoedov@yandex.ru>
+    * Мирослав Николић <miroslavnikolic@rocketmail.com>
+
+
 NEW in 0.2.12
 =============
 

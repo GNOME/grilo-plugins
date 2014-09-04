@@ -69,12 +69,10 @@ function radiofrance_now_fetch_cb(results)
     if not json or json.stat == "fail" or not json.stations then
       local url = 'http://www.' .. stations[index] .. '.fr/api/now&full=true'
       grl.warning ('Could not fetch ' .. url .. ' failed')
-      grl.callback()
-      return
+    else
+      local media = create_media(stations[index], json.stations[1])
+      grl.callback(media, -1)
     end
-
-    local media = create_media(stations[index], json.stations[1])
-    grl.callback(media, -1)
   end
 
   grl.callback()

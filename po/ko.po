@@ -16,9 +16,9 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-03-11 21:16+0000\n"
-"PO-Revision-Date: 2014-03-12 14:18+0900\n"
-"Last-Translator: Seong-ho Cho <darkcircle.0426@gmail.com>\n"
+"POT-Creation-Date: 2014-09-07 08:19+0000\n"
+"PO-Revision-Date: 2014-09-07 20:55+0900\n"
+"Last-Translator: Seong-ho Cho <shcho@gnome.org>\n"
 "Language-Team: Korean <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
@@ -33,7 +33,7 @@ msgstr "애플 동영상 트레일러"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:56
 msgid "A plugin for browsing Apple Movie Trailers"
-msgstr "애플 동영상 트레일러를 탐색하는 플러그인"
+msgstr "애플 동영상 트레일러 탐색 플러그인"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:468
 #: ../src/jamendo/grl-jamendo.c:333 ../src/jamendo/grl-jamendo.c:694
@@ -59,48 +59,72 @@ msgstr "연결에 실패했습니다: %s"
 msgid "A source for browsing and searching Blip.tv videos"
 msgstr "Blip.tv 동영상을 탐색하고 검색할 원본"
 
-#: ../src/bookmarks/grl-bookmarks.c:119
+#: ../src/bookmarks/grl-bookmarks.c:67
 msgid "Bookmarks"
 msgstr "즐겨찾기"
 
-#: ../src/bookmarks/grl-bookmarks.c:120
+#: ../src/bookmarks/grl-bookmarks.c:68
 msgid "A source for organizing media bookmarks"
 msgstr "미디어 즐겨찾기를 정리할 원본"
 
-#: ../src/bookmarks/grl-bookmarks.c:448 ../src/bookmarks/grl-bookmarks.c:463
+#: ../src/bookmarks/grl-bookmarks.c:421
 msgid "Failed to get bookmark metadata"
-msgstr "즐겨찾기 메타데이터를 가져오는데 실패했습니다"
+msgstr "즐겨찾기 메타데이터 가져오기에 실패했습니다"
 
-#: ../src/bookmarks/grl-bookmarks.c:493 ../src/bookmarks/grl-bookmarks.c:513
+#: ../src/bookmarks/grl-bookmarks.c:451 ../src/bookmarks/grl-bookmarks.c:468
 #, c-format
-msgid "Failed to get bookmarks list: %s"
-msgstr "즐겨찾기 목록을 가져오는데 실패했습니다: %s"
+msgid "Failed to find bookmarks: %s"
+msgstr "즐겨찾기 검색에 실패했습니다: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:598 ../src/podcasts/grl-podcasts.c:813
+#: ../src/bookmarks/grl-bookmarks.c:621 ../src/podcasts/grl-podcasts.c:813
 #: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "제거에 실패했습니다: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:666 ../src/bookmarks/grl-bookmarks.c:724
-#: ../src/podcasts/grl-podcasts.c:918 ../src/podcasts/grl-podcasts.c:951
-#: ../src/podcasts/grl-podcasts.c:1796
+#: ../src/bookmarks/grl-bookmarks.c:732 ../src/podcasts/grl-podcasts.c:918
+#: ../src/podcasts/grl-podcasts.c:951 ../src/podcasts/grl-podcasts.c:1796
 #, c-format
 msgid "Failed to store: %s"
 msgstr "저장에 실패했습니다: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:778 ../src/bookmarks/grl-bookmarks.c:813
-#: ../src/bookmarks/grl-bookmarks.c:845 ../src/bookmarks/grl-bookmarks.c:903
+#: ../src/bookmarks/grl-bookmarks.c:806 ../src/bookmarks/grl-bookmarks.c:841
+#: ../src/bookmarks/grl-bookmarks.c:872 ../src/bookmarks/grl-bookmarks.c:930
 #: ../src/metadata-store/grl-metadata-store.c:849
 #: ../src/podcasts/grl-podcasts.c:1652 ../src/podcasts/grl-podcasts.c:1696
 #: ../src/podcasts/grl-podcasts.c:1730 ../src/podcasts/grl-podcasts.c:1765
 msgid "No database connection"
 msgstr "데이터베이스 연결이 없습니다"
 
+#: ../src/dleyna/grl-dleyna-source.c:34
+#, c-format
+msgid "A source for browsing the DLNA server '%s'"
+msgstr "'%s' DLNA 서버 탐색 원본"
+
+#: ../src/dleyna/grl-dleyna-source.c:278
+msgid "Upload failed, target source destroyed"
+msgstr "업로드에 실패하였고, 대상 원본이 깨졌습니다"
+
+#: ../src/dleyna/grl-dleyna-source.c:380
+#, c-format
+msgid "Upload failed, '%s', transferred %lu of %lu bytes"
+msgstr ""
+"업로드에 실패하였고, '%1$s', %3$lu 바이트 중 %2$lu 바이트를 전송했습니다"
+
+#: ../src/dleyna/grl-dleyna-source.c:880
+#, c-format
+msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
+msgstr "항목 속성 가져오기에 실패했습니다(BrowseObjects 오류 %d: %s)"
+
+#: ../src/dleyna/grl-dleyna-source.c:1519
+#, c-format
+msgid "Upload failed, URL missing on the media object to be transferred"
+msgstr "업로드에 실패하였고, 전송할 미디어 객체의 URL이 빠졌습니다"
+
 #: ../src/dmap/grl-dmap.c:51
 #, c-format
 msgid "A source for browsing the DMAP server '%s'"
-msgstr "'%s' DMAP 서버를 탐색할 원본"
+msgstr "'%s' DMAP 서버 탐색 원본"
 
 #: ../src/dmap/simple-dmap-db.c:62 ../src/jamendo/grl-jamendo.c:781
 #: ../src/magnatune/grl-magnatune.c:121
@@ -112,8 +136,8 @@ msgstr "앨범"
 msgid "Artists"
 msgstr "음악가"
 
-#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1110
-#: ../src/jamendo/grl-jamendo.c:1185 ../src/magnatune/grl-magnatune.c:829
+#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1108
+#: ../src/jamendo/grl-jamendo.c:1183 ../src/magnatune/grl-magnatune.c:829
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "잘못된 컨테이너 식별자 %s 입니다"
@@ -124,14 +148,14 @@ msgstr "파일 시스템"
 
 #: ../src/filesystem/grl-filesystem.c:61
 msgid "A source for browsing the filesystem"
-msgstr "파일 시스템을 탐색할 원본"
+msgstr "파일 시스템 탐색 원본"
 
-#: ../src/filesystem/grl-filesystem.c:1142
+#: ../src/filesystem/grl-filesystem.c:1148
 #, c-format
 msgid "File %s does not exist"
 msgstr "%s 파일이 없습니다"
 
-#: ../src/filesystem/grl-filesystem.c:1219 ../src/youtube/grl-youtube.c:1626
+#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1626
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "%s에서 미디어를 가져올 수 없습니다"
@@ -158,7 +182,7 @@ msgstr "프리박스 TV"
 
 #: ../src/freebox/grl-freebox.c:50
 msgid "A source for browsing Freebox TV channels"
-msgstr "프리박스 TV 채널을 탐색할 원본"
+msgstr "프리박스 TV 채널 탐색 원본"
 
 #: ../src/gravatar/grl-gravatar.c:48
 msgid "Avatar provider from Gravatar"
@@ -200,24 +224,24 @@ msgstr "상위 트랙"
 msgid "Feeds"
 msgstr "피드"
 
-#: ../src/jamendo/grl-jamendo.c:978 ../src/jamendo/grl-jamendo.c:1023
-#: ../src/jamendo/grl-jamendo.c:1050
+#: ../src/jamendo/grl-jamendo.c:976 ../src/jamendo/grl-jamendo.c:1021
+#: ../src/jamendo/grl-jamendo.c:1048
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "잘못된 식별자 %s 입니다"
 
-#: ../src/jamendo/grl-jamendo.c:1037 ../src/youtube/grl-youtube.c:1194
+#: ../src/jamendo/grl-jamendo.c:1035 ../src/youtube/grl-youtube.c:1194
 #: ../src/youtube/grl-youtube.c:1335 ../src/youtube/grl-youtube.c:1553
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "잘못된 카테고리 식별지 %s 입니다"
 
-#: ../src/jamendo/grl-jamendo.c:1180
+#: ../src/jamendo/grl-jamendo.c:1178
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "탐색에 실패했습니다: %s 요소는 트랙입니다"
 
-#: ../src/jamendo/grl-jamendo.c:1240
+#: ../src/jamendo/grl-jamendo.c:1238
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "잘못된 쿼리 \"%s\" 입니다"
@@ -230,26 +254,26 @@ msgstr "Last.FM의 앨범 표지 제공자"
 msgid "A plugin for getting album arts using Last.FM as backend"
 msgstr "Last.FM을 백엔드로 사용하여 앨범 표지를 가져오는 플러그인"
 
-#: ../src/local-metadata/grl-local-metadata.c:43
+#: ../src/local-metadata/grl-local-metadata.c:44
 msgid "Local Metadata Provider"
 msgstr "로컬 메타데이터 제공자"
 
-#: ../src/local-metadata/grl-local-metadata.c:44
+#: ../src/local-metadata/grl-local-metadata.c:45
 msgid "A source providing locally available metadata"
-msgstr "로컬에서 사용할 수 있는 메타데이터를 제공하는 원본"
+msgstr "로컬에서 사용할 수 있는 메타데이터의 제공 원본"
 
-#: ../src/local-metadata/grl-local-metadata.c:480
+#: ../src/local-metadata/grl-local-metadata.c:486
 #: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:861
-#: ../src/tracker/grl-tracker-source-api.c:460
+#: ../src/tracker/grl-tracker-source-api.c:489
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "분석에 실패했습니다: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:839
+#: ../src/local-metadata/grl-local-metadata.c:875
 msgid "Cannot resolve any of the given keys"
 msgstr "주어진 그 어떤 키 조차도 분석할 수 없습니다"
 
-#: ../src/local-metadata/grl-local-metadata.c:843
+#: ../src/local-metadata/grl-local-metadata.c:879
 msgid "A GIO supported URL for images is required"
 msgstr "그림에 대한 GIO 지원 URL이 필요합니다"
 
@@ -259,22 +283,22 @@ msgstr "장르"
 
 #: ../src/magnatune/grl-magnatune.c:130
 msgid "A source for browsing music"
-msgstr "음악을 탐색할 원본"
+msgstr "음악 탐색 원본"
 
 #: ../src/magnatune/grl-magnatune.c:406
 #, c-format
 msgid "Failed to get database from magnatune: %s"
-msgstr "매그너튠에서 데이터베이스를 가져오는데 실패했습니다: %s"
+msgstr "매그너튠 데이터베이스 가져오기에 실패했습니다: %s"
 
 #: ../src/magnatune/grl-magnatune.c:436
 #, c-format
 msgid "Failed to save database from magnatune - '%s'"
-msgstr "매그터튠에서 데이터베이스를 저장하는데 실패했습니다 - '%s'"
+msgstr "매그너튠 데이터베이스 저장에 실패했습니다 - '%s'"
 
 #: ../src/magnatune/grl-magnatune.c:684
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
-msgstr "매그너튠 데이터베이스에서 테이블을 가져오는데 실패했습니다: %s"
+msgstr "매그너튠 데이터베이스에서 테이블 가져오기에 실패했습니다: %s"
 
 #: ../src/magnatune/grl-magnatune.c:700
 #, c-format
@@ -292,10 +316,10 @@ msgstr "추가 메타데이터 정보를 저장하는 플러그인"
 #: ../src/metadata-store/grl-metadata-store.c:573
 #: ../src/metadata-store/grl-metadata-store.c:592
 #: ../src/metadata-store/grl-metadata-store.c:804
-#: ../src/tracker/grl-tracker-source-api.c:510
+#: ../src/tracker/grl-tracker-source-api.c:597
 #, c-format
 msgid "Failed to update metadata: %s"
-msgstr "메타데이터를 업데이트하는데 실패했습니다: %s"
+msgstr "메타데이터 업데이트에 실패했습니다: %s"
 
 #: ../src/metadata-store/grl-metadata-store.c:574
 msgid "specified keys are not writable"
@@ -303,20 +327,20 @@ msgstr "지정한 키에 기록할 수 없습니다"
 
 #: ../src/metadata-store/grl-metadata-store.c:614
 msgid "Failed to update metadata"
-msgstr "메타데이터를 업데이트하는데 실패했습니다"
+msgstr "메타데이터 업데이트에 실패했습니다"
 
 #: ../src/metadata-store/grl-metadata-store.c:760
 #: ../src/metadata-store/grl-metadata-store.c:805
 msgid "\"source-id\" not available"
 msgstr "\"source-id\"가 없습니다"
 
-#: ../src/metadata-store/grl-metadata-store.c:780 ../src/upnp/grl-upnp.c:1460
+#: ../src/metadata-store/grl-metadata-store.c:780
 msgid "Failed to resolve"
 msgstr "분석에 실패했습니다"
 
 #: ../src/metadata-store/grl-metadata-store.c:917
 #: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:419
-#: ../src/shoutcast/grl-shoutcast.c:745 ../src/vimeo/grl-vimeo.c:535
+#: ../src/shoutcast/grl-shoutcast.c:745 ../src/vimeo/grl-vimeo.c:541
 #, c-format
 msgid "Failed to search: %s"
 msgstr "검색에 실패했습니다: %s"
@@ -327,7 +351,7 @@ msgstr "광 미디어"
 
 #: ../src/optical-media/grl-optical-media.c:47
 msgid "A source for browsing optical media"
-msgstr "광 미디어를 탐색할 원본"
+msgstr "광 미디어 탐색 원본"
 
 #: ../src/pocket/grl-pocket.c:47
 msgid "Pocket"
@@ -335,42 +359,42 @@ msgstr "포켓"
 
 #: ../src/pocket/grl-pocket.c:48
 msgid "A source for browsing Pocket videos"
-msgstr "포켓 동영상을 탐색할 원본"
+msgstr "포켓 동영상 탐색 원본"
 
 #: ../src/podcasts/grl-podcasts.c:155
 msgid "A source for browsing podcasts"
-msgstr "팟캐스트를 탐색할 원본"
+msgstr "팟캐스트 탐색 원본"
 
 #: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
 #, c-format
 msgid "Failed to get podcast streams: %s"
-msgstr "팟캐스트 스트림을 가져오는데 실패했습니다: %s"
+msgstr "팟캐스트 스트림 가져오기에 실패했습니다: %s"
 
 #: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
 #: ../src/podcasts/grl-podcasts.c:1254
 msgid "Failed to parse content"
-msgstr "컨텐트를 해석하는데 실패했습니다"
+msgstr "컨텐트 해석에 실패했습니다"
 
 #: ../src/podcasts/grl-podcasts.c:1287
 msgid "Failed to parse podcast contents"
-msgstr "팟캐스트 컨텐트를 해석하는데 실패했습니다"
+msgstr "팟캐스트 컨텐트 해석에 실패했습니다"
 
 #: ../src/podcasts/grl-podcasts.c:1442
 msgid "Failed to get podcast information"
-msgstr "팟캐스트 정보를 가져오는데 실패했습니다"
+msgstr "팟캐스트 정보 가져오기에 실패했습니다"
 
 #: ../src/podcasts/grl-podcasts.c:1482 ../src/podcasts/grl-podcasts.c:1502
 #, c-format
 msgid "Failed to get podcasts list: %s"
-msgstr "팟캐스트 목록을 가져오는데 실패했습니다: %s"
+msgstr "팟캐스트 목록 가져오기에 실패했습니다: %s"
 
 #: ../src/podcasts/grl-podcasts.c:1555 ../src/podcasts/grl-podcasts.c:1570
 msgid "Failed to get podcast stream metadata"
-msgstr "팟캐스트 스트림 메타데이터를 가져오는데 실패했습니다"
+msgstr "팟캐스트 스트림 메타데이터 가져오기에 실패했습니다"
 
 #: ../src/podcasts/grl-podcasts.c:1608
 msgid "Failed to get podcast metadata"
-msgstr "팟캐스트 메타데이터를 가져오는데 실패했습니다"
+msgstr "팟캐스트 메타데이터 가져오기에 실패했습니다"
 
 #: ../src/podcasts/grl-podcasts.c:1792
 msgid "Cannot create containers. Only feeds are accepted"
@@ -488,16 +512,20 @@ msgstr "탐색에 실패했습니다: %s"
 
 #: ../src/shoutcast/grl-shoutcast.c:67
 msgid "A source for browsing SHOUTcast radios"
-msgstr "샤우트캐스트 라디오를 탐색하려는 원본"
+msgstr "샤우트캐스트 라디오 탐색 원본"
 
 #: ../src/shoutcast/grl-shoutcast.c:451
 #, c-format
 msgid "Cannot find media %s"
 msgstr "%s 미디어를 찾을 수 없습니다"
 
-#: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:536
+#: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:542
 msgid "non-NULL search text is required"
 msgstr "비어있지 않은 검색 텍스트가 필요합니다"
+
+#: ../src/thetvdb/grl-thetvdb.c:97
+msgid "A source for fetching metadata of television shows"
+msgstr "텔레비전 쇼 프로그램의 메타데이터 가져오기 원본"
 
 #: ../src/tmdb/grl-tmdb.c:984
 msgid "Remote data does not contain valid identifier"
@@ -506,50 +534,37 @@ msgstr "원격 데이터에 유효한 식별자가 없습니다"
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:332
-#: ../src/tracker/grl-tracker-source-api.c:414
+#: ../src/tracker/grl-tracker-source-api.c:361
+#: ../src/tracker/grl-tracker-source-api.c:443
 #, c-format
 msgid "Failed to query: %s"
 msgstr "쿼리에 실패했습니다: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:627
+#: ../src/tracker/grl-tracker-source-api.c:543
+#, c-format
+msgid "Failed to get media from uri: %s"
+msgstr "URI에서 미디어 가져오기에 실패했습니다: %s"
+
+#: ../src/tracker/grl-tracker-source-api.c:714
 msgid "Empty query"
 msgstr "빈 쿼리입니다"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
-msgstr "Tracker를 사용하여 멀티미디어 컨텐트를 검색하는 플러그인"
+msgstr "Tracker를 활용한 멀티미디어 컨텐트 검색 플러그인"
 
-#: ../src/tracker/grl-tracker-utils.c:606
+#: ../src/tracker/grl-tracker-utils.c:659
 #, c-format
 msgid "Removable - %s"
 msgstr "이동식 - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:618
+#: ../src/tracker/grl-tracker-utils.c:671
 msgid "Local files"
 msgstr "로컬 파일"
 
-#: ../src/upnp/grl-upnp.c:53
-#, c-format
-msgid "A source for browsing the UPnP server '%s'"
-msgstr "'%s' UPnP 서버를 탐색하려는 원본"
-
-#: ../src/upnp/grl-upnp.c:1290 ../src/upnp/grl-upnp.c:1347
-msgid "Failed to browse"
-msgstr "탐색에 실패했습니다"
-
-#: ../src/upnp/grl-upnp.c:1410
-msgid "Failed to query"
-msgstr "쿼리에 실패했습니다"
-
-#: ../src/upnp/grl-upnp.c:1529
-#, c-format
-msgid "Unable to listen for changes in %s"
-msgstr "%s에서 바꾼 내용을 가져올 수 없습니다"
-
 #: ../src/vimeo/grl-vimeo.c:58
 msgid "A source for browsing and searching Vimeo videos"
-msgstr "비메오 동영상을 탐색하고 검색하려는 원본"
+msgstr "비미오 동영상을 탐색하고 검색할 원본"
 
 #: ../src/youtube/grl-youtube.c:60
 msgid "Standard feeds"
@@ -597,13 +612,25 @@ msgstr "모바일 버전으로 보기"
 
 #: ../src/youtube/grl-youtube.c:117
 msgid "A source for browsing and searching YouTube videos"
-msgstr "유튜브 동영상을 탐색하고 검색하려는 원본"
+msgstr "유튜브 동영상을 탐색하고 검색할 원본"
 
 #: ../src/youtube/grl-youtube.c:944
 msgid "Failed to get feed"
-msgstr "피드를 가져오는데 실패했습니다"
+msgstr "피드 가져오기에 실패했습니다"
 
 #: ../src/youtube/grl-youtube.c:1121 ../src/youtube/grl-youtube.c:1533
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "잘못된 피드 식별자 %s 입니다"
+
+#~ msgid "A source for browsing the UPnP server '%s'"
+#~ msgstr "'%s' UPnP 서버를 탐색하려는 원본"
+
+#~ msgid "Failed to browse"
+#~ msgstr "탐색에 실패했습니다"
+
+#~ msgid "Failed to query"
+#~ msgstr "쿼리에 실패했습니다"
+
+#~ msgid "Unable to listen for changes in %s"
+#~ msgstr "%s에서 바꾼 내용을 가져올 수 없습니다"

@@ -20,7 +20,10 @@
  *
 --]]
 
-GUARDIANVIDEOS_URL               = 'http://content.guardianapis.com/search?tag=video&page=%s&page-size=%s&show-fields=all'
+-- Test the API at:
+-- http://explorer.content.guardianapis.com/search?api-key=rppwmmu3mfqj6gkbs8kcjg23&show-fields=all&page-size=50&tag=type/video
+API_KEY                          = 'rppwmmu3mfqj6gkbs8kcjg23'
+GUARDIANVIDEOS_URL               = 'http://content.guardianapis.com/search?tag=type/video&page=%s&page-size=%s&show-fields=all&api-key=%s'
 
 ---------------------------
 -- Source initialization --
@@ -47,15 +50,15 @@ function grl_source_browse(media_id)
 
   local page = skip / count + 1
   if page > math.floor(page) then
-    local url = string.format(GUARDIANVIDEOS_URL, math.floor(page), count)
+    local url = string.format(GUARDIANVIDEOS_URL, math.floor(page), count, API_KEY)
     grl.debug ("Fetching URL #1: " .. url .. " (count: " .. count .. " skip: " .. skip .. ")")
     table.insert(urls, url)
 
-    url = string.format(GUARDIANVIDEOS_URL, math.floor(page) + 1, count)
+    url = string.format(GUARDIANVIDEOS_URL, math.floor(page) + 1, count, API_KEY)
     grl.debug ("Fetching URL #2: " .. url .. " (count: " .. count .. " skip: " .. skip .. ")")
     table.insert(urls, url)
   else
-    local url = string.format(GUARDIANVIDEOS_URL, page, count)
+    local url = string.format(GUARDIANVIDEOS_URL, page, count, API_KEY)
     grl.debug ("Fetching URL: " .. url .. " (count: " .. count .. " skip: " .. skip .. ")")
     table.insert(urls, url)
   end

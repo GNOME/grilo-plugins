@@ -320,9 +320,10 @@ grl_util_fetch_done (GObject *source_object,
   FetchOperation *fo = (FetchOperation *) user_data;
   lua_State *L = fo->L;
 
-  grl_net_wc_request_finish (GRL_NET_WC (source_object),
-                             res, &data, &len, &err);
-  if (!g_utf8_validate(data, len, NULL)) {
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                                  res, &data, &len, &err)) {
+    data = NULL;
+  } else if (!g_utf8_validate(data, len, NULL)) {
     data = NULL;
     g_set_error_literal (&err, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
                          "Fetched item is not valid UTF-8");

@@ -718,7 +718,7 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
                               GRLKEYID_TO_POINTER (GRL_METADATA_KEY_DESCRIPTION));
   }
   if (thumb) {
-    g_object_set (G_OBJECT (resource), "thumbnail-url", desc, NULL);
+    g_object_set (G_OBJECT (resource), "thumbnail-url", thumb, NULL);
     *keylist = g_list_remove (*keylist,
                               GRLKEYID_TO_POINTER (GRL_METADATA_KEY_THUMBNAIL));
   }

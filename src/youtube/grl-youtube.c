@@ -444,6 +444,8 @@ release_operation_data (guint operation_id)
   GCancellable *cancellable = grl_operation_get_data (operation_id);
 
   g_clear_object (&cancellable);
+
+  grl_operation_set_data (operation_id, NULL);
 }
 
 static OperationSpec *
@@ -797,6 +799,9 @@ build_media_from_entry_search_cb (GrlMedia *media, gpointer user_data)
 
   if (os->emitted < os->count) {
     remaining = os->count - os->emitted - 1;
+    if (remaining == 0) {
+      release_operation_data (os->operation_id);
+    }
     os->callback (os->source,
 		  os->operation_id,
 		  media,

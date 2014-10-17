@@ -1662,11 +1662,16 @@ static void
 grl_youtube_source_cancel (GrlSource *source,
                            guint operation_id)
 {
-  GCancellable *cancellable;
+  GCancellable *cancellable = NULL;
+  gpointer data;
 
   GRL_DEBUG (__FUNCTION__);
 
-  cancellable = G_CANCELLABLE (grl_operation_get_data (operation_id));
+  data = grl_operation_get_data (operation_id);
+
+  if (data) {
+    cancellable = G_CANCELLABLE (data);
+  }
 
   if (cancellable) {
     g_cancellable_cancel (cancellable);

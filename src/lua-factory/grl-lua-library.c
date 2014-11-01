@@ -284,9 +284,15 @@ grl_util_build_media (lua_State *L,
         /* Non-fundamental types don't reduce to ints, so can't be
          * in the switch statement */
         if (type == G_TYPE_DATE_TIME) {
-          GDateTime *date = grl_date_time_from_iso8601 (lua_tostring (L, -1));
-          grl_data_set_boxed (GRL_DATA (media), key_id, date);
-          g_date_time_unref (date);
+          GDateTime *date;
+          const char *date_str = lua_tostring (L, -1);
+          date = grl_date_time_from_iso8601 (date_str);
+          if (date) {
+            grl_data_set_boxed (GRL_DATA (media), key_id, date);
+            g_date_time_unref (date);
+          } else {
+            GRL_WARNING ("'%s' is not a valid ISO-8601 date", date_str);
+          }
         } else if (type == G_TYPE_BYTE_ARRAY) {
            gsize size = luaL_len (L, -1);
            const guint8 *binary = (const guint8 *) lua_tostring (L, -1);

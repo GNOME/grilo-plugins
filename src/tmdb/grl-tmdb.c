@@ -1299,6 +1299,12 @@ grl_tmdb_source_resolve (GrlSource *source,
     return;
   }
 
+  /* If the media is a TV show, don't handle it */
+  if (grl_media_video_get_show (GRL_MEDIA_VIDEO (rs->media)) != NULL) {
+    rs->callback (source, rs->operation_id, rs->media, rs->user_data, NULL);
+    return;
+  }
+
   /* Prefer resolving by movie-id: This is more reliable and saves the search query. */
   str_movie_id = grl_data_get_string (GRL_DATA (rs->media),
                                       GRL_TMDB_METADATA_KEY_TMDB_ID);

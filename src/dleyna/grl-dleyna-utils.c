@@ -213,7 +213,6 @@ is_our_user_ipv6 (struct sockaddr_in6 *address)
 
   status = g_io_channel_read_line (file, &line, NULL, NULL, NULL);
   while (status == G_IO_STATUS_NORMAL) {
-    char *line;
     int j, k, l;
     /* 4*8 for IP, 4 for port, 1 for :, 1 for NUL */
     char buffer[4*8 + 4 + 1 + 1];

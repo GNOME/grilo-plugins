@@ -472,7 +472,6 @@ find_cb (GObject      *object,
     goto out;
   }
 
-  idx = os->skip;
   num_left = MIN (count - os->skip, os->count);
   for (idx = os->skip; num_left > 0 ; idx++) {
     GomResource *resource;

@@ -307,9 +307,6 @@ grl_flickr_source_personal_new (GrlPlugin *plugin,
   data->plugin = plugin;
   data->goa_account_id = goa_account_id;
 
-  f = g_flickr_new (flickr_api_key, flickr_secret,
-                    flickr_token, flickr_token_secret);
-
   g_flickr_auth_checkToken (f, flickr_token, token_info_cb,
                             (gpointer) data);
 #else

@@ -213,7 +213,7 @@ fill_grilo_media_from_sparql (GrlTrackerSource    *source,
   tracker_grl_sparql_t *assoc =
     grl_tracker_get_mapping_from_sparql (sparql_key);
   union {
-    gint int_val;
+    gint64 int_val;
     gdouble double_val;
     const gchar *str_val;
   } val;
@@ -265,6 +265,9 @@ fill_grilo_media_from_sparql (GrlTrackerSource    *source,
     } else if (grl_type == G_TYPE_INT) {
       val.int_val = tracker_sparql_cursor_get_integer (cursor, column);
       grl_data_set_int (GRL_DATA (media), grl_key, val.int_val);
+    } else if (grl_type == G_TYPE_INT64) {
+      val.int_val = tracker_sparql_cursor_get_integer (cursor, column);
+      grl_data_set_int64 (GRL_DATA (media), grl_key, val.int_val);
     } else if (grl_type == G_TYPE_FLOAT) {
       val.double_val = tracker_sparql_cursor_get_double (cursor, column);
       grl_data_set_float (GRL_DATA (media), grl_key, (gfloat) val.double_val);

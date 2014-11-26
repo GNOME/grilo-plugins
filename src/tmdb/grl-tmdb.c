@@ -717,6 +717,7 @@ on_request_ready (GObject *source,
     value = grl_tmdb_request_get (request, "$.title");
     if (value != NULL) {
       grl_media_set_title (closure->rs->media, g_value_get_string (value));
+      grl_data_set_boolean (GRL_DATA (closure->rs->media), GRL_METADATA_KEY_TITLE_FROM_FILENAME, FALSE);
       g_value_unset (value);
       g_free (value);
     }
@@ -1004,6 +1005,7 @@ on_search_ready (GObject *source,
     value = grl_tmdb_request_get (request, "$.results[0].title");
     if (value) {
       grl_media_set_title (closure->rs->media, g_value_get_string (value));
+      grl_data_set_boolean (GRL_DATA (closure->rs->media), GRL_METADATA_KEY_TITLE_FROM_FILENAME, FALSE);
       g_value_unset (value);
       g_free (value);
     }

@@ -495,7 +495,7 @@ xml_parse_and_save_episodes (GomRepository *repository,
     GError *error = NULL;
     gint tmp_season_number = -1;
     gint tmp_episode_number = -1;
-    gchar *tmp_title;
+    gchar *tmp_title = NULL;
     gboolean episode_found = FALSE;
     EpisodeResource *eres;
 

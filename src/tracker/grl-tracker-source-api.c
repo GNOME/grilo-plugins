@@ -203,6 +203,39 @@ static GHashTable *grl_tracker_operations;
 /**/
 
 static void
+set_title_from_filename (GrlMedia *media)
+{
+  const gchar *url;
+  gchar *path, *display_name, *ext, *title;
+  guint suffix_len;
+
+  url = grl_media_get_url (media);
+  if (url == NULL)
+    return;
+
+  path = g_filename_from_uri (url, NULL, NULL);
+  if (!path)
+    return;
+  display_name = g_filename_display_basename (path);
+  g_free (path);
+  ext = strrchr (display_name, '.');
+  if (!ext)
+    goto out;
+
+  suffix_len = strlen (ext);
+  if (suffix_len != 4 && suffix_len != 5)
+    goto out;
+
+  title = g_strndup (display_name, ext - display_name);
+  if (g_strcmp0 (grl_media_get_title (media), title) == 0)
+    grl_data_set_boolean (GRL_DATA (media), GRL_METADATA_KEY_TITLE_FROM_FILENAME, TRUE);
+  g_free (title);
+
+out:
+  g_free (display_name);
+}
+
+static void
 fill_grilo_media_from_sparql (GrlTrackerSource    *source,
                               GrlMedia            *media,
                               TrackerSparqlCursor *cursor,
@@ -402,6 +435,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
         fill_grilo_media_from_sparql (GRL_TRACKER_SOURCE (spec->source), \
                                       media, os->cursor, col);          \
       }                                                                 \
+      set_title_from_filename (media);                                  \
                                                                         \
       spec->callback (spec->source,                                     \
                       spec->operation_id,                               \
@@ -507,6 +541,7 @@ tracker_resolve_cb (GObject      *source_object,
       fill_grilo_media_from_sparql (GRL_TRACKER_SOURCE (rs->source),
                                     rs->media, cursor, col);
     }
+    set_title_from_filename (rs->media);
 
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   } else {
@@ -565,6 +600,7 @@ tracker_media_from_uri_cb (GObject      *source_object,
       fill_grilo_media_from_sparql (GRL_TRACKER_SOURCE (mfus->source),
                                     media, cursor, col);
     }
+    set_title_from_filename (media);
 
     mfus->callback (mfus->source, mfus->operation_id, media, mfus->user_data, NULL);
   } else {

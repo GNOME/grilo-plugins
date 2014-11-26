@@ -835,6 +835,7 @@ thetvdb_update_media_from_resources (GrlMediaVideo *video,
 
       if (str != NULL) {
         grl_media_set_title (GRL_MEDIA (video), str);
+        grl_data_set_boolean (GRL_DATA (video), GRL_METADATA_KEY_TITLE_FROM_FILENAME, FALSE);
         g_free (str);
       } else
         failed_keys++;

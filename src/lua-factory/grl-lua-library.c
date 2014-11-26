@@ -796,7 +796,6 @@ grl_l_media_get_keys (lua_State *L)
     }
 
     lua_pushstring (L, key_name);
-    g_free (key_name);
     if (key_id != GRL_METADATA_KEY_INVALID) {
       type = grl_registry_lookup_metadata_key_type (registry, key_id);
       switch (type) {
@@ -819,12 +818,14 @@ grl_l_media_get_keys (lua_State *L)
         } else {
           GRL_DEBUG ("'%s' is being ignored as G_TYPE is not being handled.",
                      key_name);
+          g_free (key_name);
           lua_pop (L, 1);
           continue;
         }
       }
       lua_settable (L, -3);
     }
+    g_free (key_name);
   }
   g_list_free (list_keys);
   return 1;

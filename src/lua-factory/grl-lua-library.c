@@ -808,6 +808,9 @@ grl_l_media_get_keys (lua_State *L)
       case G_TYPE_STRING:
         lua_pushstring (L, grl_data_get_string (GRL_DATA (os->media), key_id));
         break;
+      case G_TYPE_INT64:
+        lua_pushnumber (L, grl_data_get_int64 (GRL_DATA (os->media), key_id));
+        break;
       default:
         if (type == G_TYPE_DATE_TIME) {
           GDateTime *date = grl_data_get_boxed (GRL_DATA (os->media), key_id);

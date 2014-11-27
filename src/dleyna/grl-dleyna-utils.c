@@ -136,8 +136,10 @@ is_our_user_ipv4 (struct sockaddr_in *address)
       j++;
 
     /* skip the first field */
-    while (line[j] != ' ')
+    while (line[j] != ' ' && line[j] != '\0')
       j++;
+    if (line[j] == '\0' )
+      continue;
     while (line[j] == ' ')
       j++;
 
@@ -227,8 +229,10 @@ is_our_user_ipv6 (struct sockaddr_in6 *address)
       j++;
 
     /* skip the first field */
-    while (line[j] != ' ')
+    while (line[j] != ' ' && line[j] != '\0')
       j++;
+    if (line[j] == '\0' )
+      continue;
     while (line[j] == ' ')
       j++;
 

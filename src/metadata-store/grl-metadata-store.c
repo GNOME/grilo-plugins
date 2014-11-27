@@ -315,8 +315,16 @@ fill_metadata_from_stmt (GrlMedia *media, GList *keys, sqlite3_stmt *stmt)
       rating = sqlite3_column_double (stmt, STORE_RATING);
       grl_media_set_rating (media, rating, 5.00);
     } else if (key == GRL_METADATA_KEY_LAST_PLAYED) {
+      GDateTime *date;
       last_played = (gchar *) sqlite3_column_text (stmt, STORE_LAST_PLAYED);
-      grl_media_set_last_played (media, last_played);
+      date = grl_date_time_from_iso8601 (last_played);
+      if (date) {
+        grl_media_set_last_played (media, date);
+        g_date_time_unref (date);
+      } else {
+        GRL_WARNING ("Unable to set 'last-played', as '%s' date is invalid",
+                     last_played);
+      }
     } else if (key == GRL_METADATA_KEY_LAST_POSITION) {
       last_position = sqlite3_column_int (stmt, STORE_LAST_POSITION);
       grl_media_set_last_position (media, last_position);
@@ -395,7 +403,6 @@ bind_and_exec (sqlite3 *db,
 	       GrlMedia *media)
 {
   gint r;
-  const gchar *char_value;
   gint int_value;
   double double_value;
   GList *iter_names, *iter_keys;
@@ -433,8 +440,14 @@ bind_and_exec (sqlite3 *db,
 	int_value = grl_media_get_last_position (media);
 	sqlite3_bind_int (stmt, count, int_value);
       } else if (key == GRL_METADATA_KEY_LAST_PLAYED) {
-	char_value = grl_media_get_last_played (media);
-	sqlite3_bind_text (stmt, count, char_value, -1, SQLITE_STATIC);
+	GDateTime *date;
+	char *date_str;
+	date = grl_media_get_last_played (media);
+	if (date) {
+	  date_str = g_date_time_format (date, "%F %T");
+	  sqlite3_bind_text (stmt, count, date_str, -1, SQLITE_STATIC);
+	  g_free (date_str);
+	}
       } else if (key == GRL_METADATA_KEY_FAVOURITE) {
         int_value = (gint) grl_media_get_favourite (media);
         sqlite3_bind_int (stmt, count, int_value);

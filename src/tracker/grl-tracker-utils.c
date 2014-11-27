@@ -249,9 +249,11 @@ grl_tracker_setup_key_mappings (void)
                       "tracker:id(?urn)",
                       "file");
 
-  /* insert_key_mapping (GRL_METADATA_KEY_LAST_PLAYED, */
-  /*                     "nfo:fileLastAccessed(?urn)", */
-  /*                     "file"); */
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_LAST_PLAYED,
+                                  "nfo:fileLastAccessed",
+                                  "nfo:fileLastAccessed(?urn)",
+                                  "file",
+                                  set_date);
 
   insert_key_mapping (GRL_METADATA_KEY_MIME,
                       "nie:mimeType",

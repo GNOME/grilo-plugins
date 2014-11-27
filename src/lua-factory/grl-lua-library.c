@@ -30,6 +30,7 @@
 #include "grl-lua-common.h"
 #include "grl-lua-library.h"
 #include "lua-library/lua-libraries.h"
+#include "lua-library/htmlentity.h"
 
 #define GRL_LOG_DOMAIN_DEFAULT lua_library_log_domain
 GRL_LOG_DOMAIN_STATIC (lua_library_log_domain);
@@ -122,23 +123,15 @@ unescape_string (const char *orig_from)
         } else {
           continue;
         }
-      } else if (strncmp (from, "lt;", 3) == 0) {
-        *to = '<';
-        from += 2;
-      } else if (strncmp (from, "gt;", 3) == 0) {
-        *to = '>';
-        from += 2;
-      } else if (strncmp (from, "amp;", 4) == 0) {
-        *to = '&';
-        from += 3;
-      } else if (strncmp (from, "quot;", 5) == 0) {
-        *to = '"';
-        from += 4;
-      } else if (strncmp (from, "apos;", 5) == 0) {
-        *to = '\'';
-        from += 4;
       } else {
-        continue;
+        gchar *end = NULL;
+
+        end = strstr (from, ";");
+        if (!end)
+          continue;
+
+        *to = html_entity_parse (from, end - from);
+        from = end;
       }
     }
   }

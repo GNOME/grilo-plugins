@@ -1348,6 +1348,50 @@ DEPS_FREEBOX_LIBS="$DEPS_LIBS $GRLPLS_LIBS $AVAHI_LIBS"
 AC_SUBST(DEPS_FREEBOX_LIBS)
 
 # ----------------------------------------------------------
+# BUILD OPENSUBTITLES PLUGIN
+# ----------------------------------------------------------
+
+AC_ARG_ENABLE(opensubtitles,
+        AC_HELP_STRING([--enable-opensubtitles],
+                [enable DLNA plugin using the OpenSubtitles DBus services (default: yes)]),
+                [
+                  case "$enableval" in
+                     yes)
+                        if test "x$HAVE_GIO" = "xno"; then
+                           AC_MSG_ERROR([GIO not found, install it or use --disable-opensubtitles])
+                        fi
+                        if test "$xHAVE_LIBSOUP" = "xno"; then
+                           AC_MSG_ERROR([libsoup-2.4 not found, install it or use --disable-opensubtitles])
+                        fi
+                        ;;
+                  esac
+
+                ],
+                [
+                  if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_LIBSOUP" = "xyes"; then
+                     enable_opensubtitles=yes
+                  else
+                     enable_opensubtitles=no
+                  fi
+                ])
+
+AM_CONDITIONAL([OPENSUBTITLES_PLUGIN], [test "x$enable_opensubtitles" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL opensubtitles"
+if test "x$enable_opensubtitles" = "xyes"
+then
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED opensubtitles"
+fi
+
+OPENSUBTITLES_PLUGIN_ID="grl-opensubtitles"
+AC_SUBST(OPENSUBTITLES_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([OPENSUBTITLES_PLUGIN_ID], ["$OPENSUBTITLES_PLUGIN_ID"], [OpenSubtitles plugin ID])
+
+DEPS_OPENSUBTITLES_CFLAGS="$DEPS_CFLAGS $GIO_CFLAGS $LIBSOUP_CFLAGS"
+AC_SUBST(DEPS_OPENSUBTITLES_CFLAGS)
+DEPS_OPENSUBTITLES_LIBS="$DEPS_LIBS $GIO_LIBS $LIBSOUP_LIBS"
+AC_SUBST(DEPS_OPENSUBTITLES_LIBS)
+
+# ----------------------------------------------------------
 # GETTEXT/INTLTOOL
 # ----------------------------------------------------------
 
@@ -1399,6 +1443,7 @@ AC_CONFIG_FILES([
   src/magnatune/Makefile
   src/thetvdb/Makefile
   src/metadata-store/Makefile
+  src/opensubtitles/Makefile
   src/optical-media/Makefile
   src/pocket/Makefile
   src/podcasts/Makefile

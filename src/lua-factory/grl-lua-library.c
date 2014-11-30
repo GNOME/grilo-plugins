@@ -279,6 +279,14 @@ grl_util_build_media (lua_State *L,
                        lua_typename (L, -1), key_name);
         }
         break;
+      case G_TYPE_BOOLEAN:
+        if (lua_isboolean (L, -1)) {
+          grl_data_set_boolean (GRL_DATA (media), key_id, lua_toboolean (L, -1));
+        } else if (!lua_isnil (L, -1)) {
+          GRL_WARNING ("'%s' is not compatible for '%s'",
+                       lua_typename (L, -1), key_name);
+        }
+        break;
 
       default:
         /* Non-fundamental types don't reduce to ints, so can't be
@@ -655,6 +663,10 @@ grl_l_operation_get_options (lua_State *L)
       (value) ? (void) lua_pushstring (L, g_value_get_string (value)) : lua_pushnil (L);
       break;
 
+    case G_TYPE_BOOLEAN:
+      (value) ? (void) lua_pushboolean (L, g_value_get_boolean (value)) : lua_pushnil (L);
+      break;
+
     default:
       GRL_DEBUG ("'%s' is being ignored as G_TYPE is not being handled.",
                  key_name);
@@ -810,6 +822,9 @@ grl_l_media_get_keys (lua_State *L)
         break;
       case G_TYPE_INT64:
         lua_pushnumber (L, grl_data_get_int64 (GRL_DATA (os->media), key_id));
+        break;
+      case G_TYPE_BOOLEAN:
+        lua_pushboolean (L, grl_data_get_boolean (GRL_DATA (os->media), key_id));
         break;
       default:
         if (type == G_TYPE_DATE_TIME) {

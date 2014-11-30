@@ -74,12 +74,12 @@ struct _GrlLocalMetadataSourcePriv {
 /**/
 
 typedef enum {
-  FLAG_VIDEO_TITLE    = 0x1,
-  FLAG_VIDEO_SHOWNAME = 0x2,
-  FLAG_VIDEO_DATE     = 0x4,
-  FLAG_VIDEO_SEASON   = 0x8,
-  FLAG_VIDEO_EPISODE  = 0x10,
-  FLAG_THUMBNAIL      = 0x20,
+  FLAG_VIDEO_TITLE    = 1,
+  FLAG_VIDEO_SHOWNAME = 1 << 1,
+  FLAG_VIDEO_DATE     = 1 << 2,
+  FLAG_VIDEO_SEASON   = 1 << 3,
+  FLAG_VIDEO_EPISODE  = 1 << 4,
+  FLAG_THUMBNAIL      = 1 << 5,
 } resolution_flags_t;
 
 const gchar *video_blacklisted_prefix[] = {

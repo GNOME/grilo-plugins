@@ -69,6 +69,7 @@ enum {
 
 struct _GrlLocalMetadataSourcePriv {
   gboolean guess_video;
+  GrlKeyID hash_keyid;
 };
 
 /**/
@@ -80,6 +81,7 @@ typedef enum {
   FLAG_VIDEO_SEASON   = 1 << 3,
   FLAG_VIDEO_EPISODE  = 1 << 4,
   FLAG_THUMBNAIL      = 1 << 5,
+  FLAG_GIBEST_HASH    = 1 << 6
 } resolution_flags_t;
 
 const gchar *video_blacklisted_prefix[] = {
@@ -120,6 +122,8 @@ static gboolean grl_local_metadata_source_may_resolve (GrlSource *source,
 gboolean grl_local_metadata_source_plugin_init (GrlRegistry *registry,
                                                 GrlPlugin *plugin,
                                                 GList *configs);
+static resolution_flags_t get_resolution_flags (GList                      *keys,
+                                                GrlLocalMetadataSourcePriv *priv);
 
 /**/
 
@@ -427,6 +431,95 @@ video_guess_values_from_display_name (const gchar *display_name,
 }
 
 static void
+extract_gibest_hash_done (GObject      *source_object,
+                          GAsyncResult *res,
+                          gpointer      user_data)
+{
+  GError *error = NULL;
+  gboolean ret;
+  GrlSourceResolveSpec *rs = user_data;
+
+  ret =  g_task_propagate_boolean (G_TASK (res), &error);
+  if (!ret)
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
+  else
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+}
+
+#define CHUNK_N_BYTES (2 << 15)
+
+static void
+extract_gibest_hash (GTask        *task,
+                     gpointer      source_object,
+                     gpointer      task_data,
+                     GCancellable *cancellable)
+{
+  GFile *file = source_object;
+  guint64 buffer[2][CHUNK_N_BYTES/8];
+  GInputStream *stream = NULL;
+  gssize n_bytes, file_size;
+  GError *error = NULL;
+  guint64 hash = 0;
+  gint i;
+  char *str;
+  GrlSourceResolveSpec *rs = task_data;
+  GrlLocalMetadataSourcePriv *priv;
+
+  priv = GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (g_object_get_data (source_object, "self-source"));
+
+  stream = G_INPUT_STREAM (g_file_read (file, cancellable, &error));
+  if (stream == NULL)
+    goto fail;
+
+  /* Extract start/end chunks of the file */
+  n_bytes = g_input_stream_read (stream, buffer[0], CHUNK_N_BYTES, cancellable, &error);
+  if (n_bytes == -1)
+    goto fail;
+
+  if (!g_seekable_seek (G_SEEKABLE (stream), -CHUNK_N_BYTES, G_SEEK_END, cancellable, &error))
+    goto fail;
+
+  n_bytes = g_input_stream_read (stream, buffer[1], CHUNK_N_BYTES, cancellable, &error);
+  if (n_bytes == -1)
+    goto fail;
+
+  for (i = 0; i < G_N_ELEMENTS (buffer[0]); i++)
+    hash += buffer[0][i] + buffer[1][i];
+
+  file_size = g_seekable_tell (G_SEEKABLE (stream));
+
+  if (file_size < CHUNK_N_BYTES)
+    goto fail;
+
+  /* Include file size */
+  hash += file_size;
+  g_object_unref (stream);
+
+  str = g_strdup_printf ("%" G_GINT64_FORMAT, hash);
+  grl_data_set_string (GRL_DATA (rs->media), priv->hash_keyid, str);
+  g_free (str);
+
+  g_task_return_boolean (task, TRUE);
+  return;
+
+fail:
+  GRL_DEBUG ("Could not get file hash: %s\n", error ? error->message : "Unknown error");
+  g_task_return_error (task, error);
+  g_clear_object (&stream);
+}
+
+static void
+extract_gibest_hash_async (GrlSourceResolveSpec *rs,
+                           GFile                *file,
+                           GCancellable         *cancellable)
+{
+  GTask *task;
+
+  task = g_task_new (G_OBJECT (file), cancellable, extract_gibest_hash_done, rs);
+  g_task_run_in_thread (task, extract_gibest_hash);
+}
+
+static void
 got_file_info (GFile *file,
                GAsyncResult *result,
                GrlSourceResolveSpec *rs)
@@ -436,13 +529,13 @@ got_file_info (GFile *file,
   GError *error = NULL;
   const gchar *thumbnail_path;
   gboolean thumbnail_is_valid;
+  GrlLocalMetadataSourcePriv *priv;
 
   GRL_DEBUG ("got_file_info");
 
-  /* Free stored operation data */
-  cancellable = grl_operation_get_data (rs->operation_id);
+  priv = GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (g_object_get_data (G_OBJECT (file), "self-source"));
 
-  g_clear_object (&cancellable);
+  cancellable = grl_operation_get_data (rs->operation_id);
 
   info = g_file_query_info_finish (file, result, &error);
   if (error)
@@ -475,7 +568,12 @@ got_file_info (GFile *file,
               grl_media_get_url (rs->media));
   }
 
-  rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+  if (get_resolution_flags (rs->keys, priv) & FLAG_GIBEST_HASH) {
+    extract_gibest_hash_async (rs, file, cancellable);
+  } else {
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+    g_clear_object (&cancellable);
+  }
 
   goto exit;
 
@@ -490,6 +588,7 @@ error:
       g_error_free (error);
       g_error_free (new_error);
     }
+    g_clear_object (&cancellable);
 
 exit:
     g_clear_object (&info);
@@ -616,6 +715,8 @@ resolve_image (GrlSource *source,
     attributes = G_FILE_ATTRIBUTE_THUMBNAIL_PATH;
 #endif
 
+    g_object_set_data (G_OBJECT (file), "self-source", source);
+
     g_file_query_info_async (file, attributes,
                              G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT, cancellable,
                              (GAsyncReadyCallback)got_file_info, rs);
@@ -717,7 +818,8 @@ has_compatible_media_url (GrlMedia *media)
 }
 
 static resolution_flags_t
-get_resolution_flags (GList *keys)
+get_resolution_flags (GList                      *keys,
+                      GrlLocalMetadataSourcePriv *priv)
 {
   GList *iter = keys;
   resolution_flags_t flags = 0;
@@ -736,6 +838,8 @@ get_resolution_flags (GList *keys)
       flags |= FLAG_VIDEO_EPISODE;
     else if (key == GRL_METADATA_KEY_THUMBNAIL)
       flags |= FLAG_THUMBNAIL;
+    else if (key == priv->hash_keyid)
+      flags |= FLAG_GIBEST_HASH;
 
     iter = iter->next;
   }
@@ -745,10 +849,23 @@ get_resolution_flags (GList *keys)
 
 /* ================== API Implementation ================ */
 
+static void
+ensure_hash_keyid (GrlLocalMetadataSourcePriv *priv)
+{
+  if (priv->hash_keyid == GRL_METADATA_KEY_INVALID) {
+    GrlRegistry *registry = grl_registry_get_default ();
+    priv->hash_keyid = grl_registry_lookup_metadata_key (registry, "gibest-hash");
+  }
+}
+
 static const GList *
 grl_local_metadata_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
+  GrlLocalMetadataSourcePriv *priv =
+          GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (source);
+
+  ensure_hash_keyid (priv);
   if (!keys) {
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL,
                                       GRL_METADATA_KEY_TITLE,
@@ -756,6 +873,7 @@ grl_local_metadata_source_supported_keys (GrlSource *source)
                                       GRL_METADATA_KEY_PUBLICATION_DATE,
                                       GRL_METADATA_KEY_SEASON,
                                       GRL_METADATA_KEY_EPISODE,
+                                      priv->hash_keyid,
                                       NULL);
   }
   return keys;
@@ -830,6 +948,9 @@ grl_local_metadata_source_may_resolve (GrlSource *source,
       if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL) == FALSE)
         goto missing_url;
       return has_compatible_media_url (media);
+    default:
+      if (key_id == priv->hash_keyid)
+        return has_compatible_media_url (media);
     }
   }
 
@@ -865,7 +986,7 @@ grl_local_metadata_source_resolve (GrlSource *source,
   /* Can we access the media through gvfs? */
   can_access = has_compatible_media_url (rs->media);
 
-  flags = get_resolution_flags (rs->keys);
+  flags = get_resolution_flags (rs->keys, priv);
   if (grl_data_get_boolean (GRL_DATA (rs->media), GRL_METADATA_KEY_TITLE_FROM_FILENAME))
     flags |= FLAG_VIDEO_TITLE;
 

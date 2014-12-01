@@ -193,6 +193,24 @@ GRL_PLUGIN_REGISTER (grl_lua_factory_plugin_init, NULL, LUA_FACTORY_PLUGIN_ID);
 
 /* ================== Lua-Factory GObject ================================== */
 
+static GResource *
+load_gresource (const char *script_path)
+{
+  GResource *resource;
+  GString *str;
+  char *resource_path;
+
+  str = g_string_new (NULL);
+  g_string_insert_len (str, -1, script_path, strlen (script_path) - strlen (".lua"));
+  g_string_insert (str, -1, ".gresource");
+  resource_path = g_string_free (str, FALSE);
+
+  resource = g_resource_load (resource_path, NULL);
+  g_free (resource_path);
+
+  return resource;
+}
+
 static GrlLuaFactorySource *
 grl_lua_factory_source_new (gchar *lua_plugin_path,
                             GList *configs)
@@ -208,6 +226,7 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   guint auto_split_threshold;
   gchar **source_tags;
   gint ret = 0;
+  GResource *resource;
 
   GRL_DEBUG ("grl_lua_factory_source_new");
 
@@ -225,6 +244,11 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   /* Grilo library */
   luaL_requiref (L, GRILO_LUA_LIBRARY_NAME, &luaopen_grilo, TRUE);
   lua_pop (L, 1);
+
+  /* Load .gresource file */
+  resource = load_gresource (lua_plugin_path);
+  if (resource)
+    g_resources_register (resource);
 
   /* Load the plugin */
   ret = luaL_loadfile (L, lua_plugin_path);
@@ -260,6 +284,8 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   g_free (source_desc);
   g_clear_pointer (&source_tags, g_strfreev);
   g_clear_object (&source_icon);
+
+  g_object_set_data_full (G_OBJECT (source), "resources", resource, g_object_unref);
 
   ret = lua_plugin_source_operations (L, source->priv->fn);
   if (ret != LUA_OK)
@@ -302,6 +328,7 @@ bail:
     g_list_free (source->priv->slow_keys);
   }
 
+  g_clear_object (&resource);
   g_free (source_id);
   lua_close (L);
   return NULL;

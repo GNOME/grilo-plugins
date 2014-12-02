@@ -176,7 +176,6 @@ register_gravatar_key (GrlRegistry *registry,
                               G_PARAM_READWRITE);
 
   key = grl_registry_register_metadata_key (registry, spec, NULL);
-  g_param_spec_unref (spec);
 
   /* If key was not registered, could be that it is already registered. If so,
      check if type is the expected one, and reuse it */

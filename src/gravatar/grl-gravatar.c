@@ -87,7 +87,24 @@ grl_gravatar_source_plugin_init (GrlRegistry *registry,
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
-  /* Register keys */
+  if (!GRL_METADATA_KEY_ARTIST_AVATAR &&
+      !GRL_METADATA_KEY_AUTHOR_AVATAR) {
+    GRL_WARNING ("Unable to register \"author-avatar\" nor \"artist-avatar\"");
+    return FALSE;
+  }
+
+  GrlGravatarSource *source = grl_gravatar_source_new ();
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
+  return TRUE;
+}
+
+static void
+grl_gravatar_source_plugin_register_keys (GrlRegistry *registry,
+                                          GrlPlugin   *plugin)
+{
   GRL_METADATA_KEY_ARTIST_AVATAR =
     register_gravatar_key (registry,
                            "artist-avatar",
@@ -99,11 +116,6 @@ grl_gravatar_source_plugin_init (GrlRegistry *registry,
                            "author-avatar",
                             "AuthorAvatar",
                             "Avatar for the author");
-  if (!GRL_METADATA_KEY_ARTIST_AVATAR &&
-      !GRL_METADATA_KEY_AUTHOR_AVATAR) {
-    GRL_WARNING ("Unable to register \"author-avatar\" nor \"artist-avatar\"");
-    return FALSE;
-  }
 
   /* Create relationship */
   grl_registry_register_metadata_key_relation (registry,
@@ -113,18 +125,12 @@ grl_gravatar_source_plugin_init (GrlRegistry *registry,
   grl_registry_register_metadata_key_relation (registry,
                                                GRL_METADATA_KEY_AUTHOR,
                                                GRL_METADATA_KEY_AUTHOR_AVATAR);
-
-  GrlGravatarSource *source = grl_gravatar_source_new ();
-  grl_registry_register_source (registry,
-                                plugin,
-                                GRL_SOURCE (source),
-                                NULL);
-  return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_gravatar_source_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_REGISTER_FULL (grl_gravatar_source_plugin_init,
+                          NULL,
+                          grl_gravatar_source_plugin_register_keys,
+                          PLUGIN_ID);
 
 /* ================== Gravatar GObject ================ */
 

@@ -383,7 +383,6 @@ register_metadata_key (GrlRegistry *registry,
                               | G_PARAM_STATIC_STRINGS);
 
   key = grl_registry_register_metadata_key (registry, spec, NULL);
-  g_param_spec_unref (spec);
 
   if (key == GRL_METADATA_KEY_INVALID) {
     key = grl_registry_lookup_metadata_key (registry, name);

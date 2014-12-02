@@ -1199,21 +1199,8 @@ grl_tracker_source_init_requests (void)
 {
   GrlRegistry *registry = grl_registry_get_default ();
 
-  /* Check if "tracker-category" is registered; if not, the register it */
   grl_metadata_key_tracker_category =
     grl_registry_lookup_metadata_key (registry, "tracker-category");
-
-  if (grl_metadata_key_tracker_category == GRL_METADATA_KEY_INVALID) {
-    grl_metadata_key_tracker_category =
-      grl_registry_register_metadata_key (grl_registry_get_default (),
-                                          g_param_spec_string ("tracker-category",
-                                                               "Tracker category",
-                                                               "Category a media belongs to",
-                                                               NULL,
-                                                               G_PARAM_STATIC_STRINGS |
-                                                               G_PARAM_READWRITE),
-                                          NULL);
-  }
 
   grl_tracker_operations = g_hash_table_new (g_direct_hash, g_direct_equal);
 

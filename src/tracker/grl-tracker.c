@@ -265,7 +265,37 @@ grl_tracker_plugin_deinit (GrlPlugin *plugin)
   g_clear_object (&grl_tracker_plugin_init_cancel);
 }
 
+static void
+grl_tracker_plugin_register_keys (GrlRegistry *registry,
+                                  GrlPlugin   *plugin)
+{
+  grl_registry_register_metadata_key (grl_registry_get_default (),
+                                      g_param_spec_string ("tracker-category",
+                                                           "Tracker category",
+                                                           "Category a media belongs to",
+                                                           NULL,
+                                                           G_PARAM_STATIC_STRINGS |
+                                                           G_PARAM_READWRITE),
+                                      NULL);
+  grl_registry_register_metadata_key (grl_registry_get_default (),
+                                      g_param_spec_string ("gibest-hash",
+                                                           "Gibest hash",
+                                                           "Gibest hash of the video file",
+                                                           NULL,
+                                                           G_PARAM_STATIC_STRINGS |
+                                                           G_PARAM_READWRITE),
+                                      NULL);
+  grl_registry_register_metadata_key (grl_registry_get_default (),
+                                      g_param_spec_string ("tracker-urn",
+                                                           "Tracker URN",
+                                                           "Universal resource number in Tracker's store",
+                                                           NULL,
+                                                           G_PARAM_STATIC_STRINGS |
+                                                           G_PARAM_READWRITE),
+                                      NULL);
+}
 
-GRL_PLUGIN_REGISTER (grl_tracker_plugin_init,
-                     grl_tracker_plugin_deinit,
-                     GRL_TRACKER_PLUGIN_ID);
+GRL_PLUGIN_REGISTER_FULL (grl_tracker_plugin_init,
+                          grl_tracker_plugin_deinit,
+                          grl_tracker_plugin_register_keys,
+                          GRL_TRACKER_PLUGIN_ID);

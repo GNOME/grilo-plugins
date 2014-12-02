@@ -189,7 +189,6 @@ grl_thetvdb_plugin_init (GrlRegistry *registry,
                          GList *configs)
 {
   GrlTheTVDBSource *source;
-  GParamSpec *spec;
   GrlConfig *config;
   char *api_key = NULL;
 
@@ -206,6 +205,21 @@ grl_thetvdb_plugin_init (GrlRegistry *registry,
     GRL_INFO ("Cannot load plugin: missing API Key");
     return FALSE;
   }
+
+  source = grl_thetvdb_source_new (api_key);
+  grl_registry_register_source (registry,
+                                plugin,
+                                GRL_SOURCE (source),
+                                NULL);
+  g_free (api_key);
+  return TRUE;
+}
+
+static void
+grl_thetvdb_plugin_register_keys (GrlRegistry *registry,
+                                  GrlPlugin   *plugin)
+{
+  GParamSpec *spec;
 
   spec = g_param_spec_string ("thetvdb-id",
                               "thetvdb-id",
@@ -270,17 +284,9 @@ grl_thetvdb_plugin_init (GrlRegistry *registry,
                               G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
   GRL_THETVDB_METADATA_KEY_EPISODE_SS =
     grl_registry_register_metadata_key (registry, spec, NULL);
-
-  source = grl_thetvdb_source_new (api_key);
-  grl_registry_register_source (registry,
-                                plugin,
-                                GRL_SOURCE (source),
-                                NULL);
-  g_free (api_key);
-  return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_thetvdb_plugin_init, NULL, SOURCE_ID);
+GRL_PLUGIN_REGISTER_FULL (grl_thetvdb_plugin_init, NULL, grl_thetvdb_plugin_register_keys, SOURCE_ID);
 
 /* ================== TheTVDB GObject ================= */
 

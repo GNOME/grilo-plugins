@@ -126,7 +126,6 @@ static gboolean grl_bookmarks_source_notify_change_stop (GrlSource *source,
                             GrlPlugin *plugin,
                             GList *configs)
  {
-   GParamSpec *spec;
    GRL_LOG_DOMAIN_INIT (bookmarks_log_domain, "bookmarks");
 
    GRL_DEBUG ("grl_bookmarks_plugin_init");
@@ -134,25 +133,6 @@ static gboolean grl_bookmarks_source_notify_change_stop (GrlSource *source,
    /* Initialize i18n */
    bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-
-   spec = g_param_spec_boxed ("bookmark-date",
-                              "Bookmark date",
-                              "When the media was bookmarked",
-                              G_TYPE_DATE_TIME,
-                              G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
-   GRL_BOOKMARKS_KEY_BOOKMARK_TIME =
-       grl_registry_register_metadata_key (registry, spec, NULL);
-   /* If key was not registered, could be that it is already registered. If so,
-      check if type is the expected one, and reuse it */
-   if (GRL_BOOKMARKS_KEY_BOOKMARK_TIME == GRL_METADATA_KEY_INVALID) {
-     g_param_spec_unref (spec);
-     GRL_BOOKMARKS_KEY_BOOKMARK_TIME =
-         grl_registry_lookup_metadata_key (registry, "bookmark-date");
-     if (grl_metadata_key_get_type (GRL_BOOKMARKS_KEY_BOOKMARK_TIME)
-         != G_TYPE_DATE_TIME) {
-       GRL_BOOKMARKS_KEY_BOOKMARK_TIME = GRL_METADATA_KEY_INVALID;
-     }
-   }
 
    GrlBookmarksSource *source = grl_bookmarks_source_new ();
    grl_registry_register_source (registry,
@@ -162,9 +142,36 @@ static gboolean grl_bookmarks_source_notify_change_stop (GrlSource *source,
    return TRUE;
  }
 
- GRL_PLUGIN_REGISTER (grl_bookmarks_plugin_init,
-                      NULL,
-                      PLUGIN_ID);
+static void
+grl_bookmarks_plugin_register_keys (GrlRegistry *registry,
+                                    GrlPlugin   *plugin)
+{
+  GParamSpec *spec;
+
+  spec = g_param_spec_boxed ("bookmark-date",
+                             "Bookmark date",
+                             "When the media was bookmarked",
+                             G_TYPE_DATE_TIME,
+                             G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
+  GRL_BOOKMARKS_KEY_BOOKMARK_TIME =
+      grl_registry_register_metadata_key (registry, spec, NULL);
+  /* If key was not registered, could be that it is already registered. If so,
+     check if type is the expected one, and reuse it */
+  if (GRL_BOOKMARKS_KEY_BOOKMARK_TIME == GRL_METADATA_KEY_INVALID) {
+    g_param_spec_unref (spec);
+    GRL_BOOKMARKS_KEY_BOOKMARK_TIME =
+        grl_registry_lookup_metadata_key (registry, "bookmark-date");
+    if (grl_metadata_key_get_type (GRL_BOOKMARKS_KEY_BOOKMARK_TIME)
+        != G_TYPE_DATE_TIME) {
+      GRL_BOOKMARKS_KEY_BOOKMARK_TIME = GRL_METADATA_KEY_INVALID;
+    }
+  }
+}
+
+ GRL_PLUGIN_REGISTER_FULL (grl_bookmarks_plugin_init,
+                           NULL,
+                           grl_bookmarks_plugin_register_keys,
+                           PLUGIN_ID);
 
  /* ================== Bookmarks GObject ================ */
 

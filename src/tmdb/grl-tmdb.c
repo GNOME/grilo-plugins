@@ -153,6 +153,19 @@ grl_tmdb_source_plugin_init (GrlRegistry *registry,
     return FALSE;
   }
 
+  GrlTmdbSource *source = grl_tmdb_source_new (api_key);
+  grl_registry_register_source (registry,
+                                       plugin,
+                                       GRL_SOURCE (source),
+                                       NULL);
+  g_free (api_key);
+  return TRUE;
+}
+
+static void
+grl_tmdb_source_plugin_register_keys (GrlRegistry *registry,
+                                      GrlPlugin   *plugin)
+{
   GRL_TMDB_METADATA_KEY_BACKDROP =
     register_metadata_key (registry,
                            "tmdb-backdrop",
@@ -176,19 +189,12 @@ grl_tmdb_source_plugin_init (GrlRegistry *registry,
                            "tmdb-id",
                            "tmdb-id",
                            "ID of this movie at tmdb.org");
-
-  GrlTmdbSource *source = grl_tmdb_source_new (api_key);
-  grl_registry_register_source (registry,
-                                       plugin,
-                                       GRL_SOURCE (source),
-                                       NULL);
-  g_free (api_key);
-  return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_tmdb_source_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_REGISTER_FULL (grl_tmdb_source_plugin_init,
+                          NULL,
+                          grl_tmdb_source_plugin_register_keys,
+                          PLUGIN_ID);
 
 /* ================== GrlTmdbMetadata GObject ================ */
 

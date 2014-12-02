@@ -78,7 +78,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "%s "                                         \
   "?urn tracker:available ?tr . "               \
   "?urn fts:match \"%s\" . "                    \
-  "%s "                                         \
+  "%s %s "                                      \
   "} "                                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
   "OFFSET %u "                                  \
@@ -90,7 +90,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "{ "                                          \
   "%s "                                         \
   "?urn tracker:available ?tr . "               \
-  "%s "                                         \
+  "%s %s "                                      \
   "} "                                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
   "OFFSET %u "                                  \
@@ -106,6 +106,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "?urn a %s . "                                \
   "?urn nie:isStoredAs ?file . "                \
   "?file tracker:available ?tr . "              \
+  "%s "                                         \
   "%s "                                         \
   "} "                                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
@@ -662,6 +663,54 @@ grl_tracker_source_writable_keys (GrlSource *source)
   return keys;
 }
 
+static void
+grl_tracker_source_get_duration_min_max (GrlOperationOptions *options,
+                                         int                 *min,
+                                         int                 *max)
+{
+  GValue *min_val, *max_val;
+
+  grl_operation_options_get_key_range_filter (options, GRL_METADATA_KEY_DURATION,
+                                              &min_val, &max_val);
+  if (min_val)
+    *min = g_value_get_int (min_val);
+  else
+    *min = -1;
+  if (max_val)
+    *max = g_value_get_int (max_val);
+  else
+    *max = -1;
+}
+
+static char *
+grl_tracker_source_create_constraint (int min, int max)
+{
+  if (min <= 0 && max <= 0)
+    return g_strdup ("");
+  if (max <= 0) {
+    return g_strdup_printf ("?urn a nfo:FileDataObject . "
+                            "OPTIONAL {"
+                            "  ?urn nfo:duration ?duration "
+                            "} . "
+                            "FILTER(?duration > %d || !BOUND(?duration))",
+                             min);
+  }
+  if (min <= 0) {
+    return g_strdup_printf ("?urn a nfo:FileDataObject . "
+                            "OPTIONAL {"
+                            "  ?urn nfo:duration ?duration "
+                            "} . "
+                            "FILTER(?duration < %d || !BOUND(?duration))",
+                             max);
+  }
+  return g_strdup_printf ("?urn a nfo:FileDataObject . "
+                          "OPTIONAL {"
+                          "  ?urn nfo:duration ?duration "
+                          "} . "
+                          "FILTER(?duration < %d || ?duration > %d || !BOUND(?duration))",
+                           max, min);
+}
+
 /**
  * Query is a SPARQL query.
  *
@@ -932,22 +981,25 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
   GrlTrackerOp         *os;
   gint count = grl_operation_options_get_count (ss->options);
   guint skip = grl_operation_options_get_skip (ss->options);
-
+  int min_dur, max_dur;
+  char *duration_constraint;
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, ss->operation_id);
 
   constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_select = grl_tracker_source_get_select_string (ss->keys);
   sparql_type_filter = get_sparql_type_filter (ss->options, FALSE);
+  grl_tracker_source_get_duration_min_max (ss->options, &min_dur, &max_dur);
+  duration_constraint = grl_tracker_source_create_constraint (min_dur, max_dur);
   if (!ss->text || ss->text[0] == '\0') {
     /* Search all */
     sparql_final = g_strdup_printf (TRACKER_SEARCH_ALL_REQUEST, sparql_select,
-                                    constraint, sparql_type_filter,
+                                    constraint, duration_constraint, sparql_type_filter,
                                     skip, count);
   } else {
     escaped_text = tracker_sparql_escape_string (ss->text);
     sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
                                     sparql_type_filter, escaped_text,
-                                    constraint, skip, count);
+                                    constraint, duration_constraint, skip, count);
     g_free (escaped_text);
   }
 
@@ -966,6 +1018,7 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
   g_free (constraint);
   g_free (sparql_select);
   g_free (sparql_type_filter);
+  g_free (duration_constraint);
 }
 
 static void
@@ -983,6 +1036,8 @@ grl_tracker_source_browse_category (GrlSource *source,
   gint count = grl_operation_options_get_count (bs->options);
   guint skip = grl_operation_options_get_skip (bs->options);
   GrlTypeFilter filter = grl_operation_options_get_type_filter (bs->options);
+  int min_dur, max_dur;
+  char *duration_constraint;
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->operation_id);
 
@@ -1071,12 +1126,15 @@ grl_tracker_source_browse_category (GrlSource *source,
                                     grl_metadata_key_tracker_category);
   }
 
+  grl_tracker_source_get_duration_min_max (bs->options, &min_dur, &max_dur);
+  duration_constraint = grl_tracker_source_create_constraint (min_dur, max_dur);
   constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_select = grl_tracker_source_get_select_string (bs->keys);
   sparql_final = g_strdup_printf (TRACKER_BROWSE_CATEGORY_REQUEST,
                                   sparql_select,
                                   category,
                                   constraint,
+                                  duration_constraint,
                                   skip, count);
 
   GRL_IDEBUG ("\tselect: '%s'", sparql_final);
@@ -1093,6 +1151,7 @@ grl_tracker_source_browse_category (GrlSource *source,
 
   g_free (constraint);
   g_free (sparql_select);
+  g_free (duration_constraint);
 }
 
 static void
@@ -1107,12 +1166,16 @@ grl_tracker_source_browse_filesystem (GrlSource *source,
   GrlTrackerOp         *os;
   gint count = grl_operation_options_get_count (bs->options);
   guint skip = grl_operation_options_get_skip (bs->options);
+  int min_dur, max_dur;
+  char *duration_constraint;
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->operation_id);
 
   sparql_select = grl_tracker_source_get_select_string (bs->keys);
   constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_type_filter = get_sparql_type_filter (bs->options, TRUE);
+  grl_tracker_source_get_duration_min_max (bs->options, &min_dur, &max_dur);
+  duration_constraint = grl_tracker_source_create_constraint (min_dur, max_dur);
 
   if (bs->container == NULL ||
       !grl_media_get_id (bs->container)) {
@@ -1148,6 +1211,7 @@ grl_tracker_source_browse_filesystem (GrlSource *source,
   g_free (sparql_type_filter);
   g_free (constraint);
   g_free (sparql_select);
+  g_free (duration_constraint);
 }
 
 void
@@ -1217,8 +1281,13 @@ grl_tracker_source_get_caps (GrlSource *source,
   static GrlCaps *caps;
 
   if (!caps) {
+    GList *range_list;
     caps = grl_caps_new ();
     grl_caps_set_type_filter (caps, GRL_TYPE_FILTER_ALL);
+    range_list = grl_metadata_key_list_new (GRL_METADATA_KEY_DURATION,
+                                            GRL_METADATA_KEY_INVALID);
+    grl_caps_set_key_range_filter (caps, range_list);
+    g_list_free (range_list);
   }
 
   return caps;

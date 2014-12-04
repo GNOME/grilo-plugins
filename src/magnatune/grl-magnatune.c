@@ -215,6 +215,10 @@ grl_magnatune_source_new(void)
 {
   GObject *object;
   GrlMagnatuneSource *source;
+  const char *tags[] = {
+    "net:internet",
+    NULL
+  };
 
   GRL_DEBUG("magnatune_source_new");
 
@@ -223,6 +227,7 @@ grl_magnatune_source_new(void)
                         "source-name", SOURCE_NAME,
                         "source-desc", SOURCE_DESC,
                         "supported-media", GRL_MEDIA_TYPE_AUDIO,
+                        "source-tags", tags,
                         NULL);
 
   source = GRL_MAGNATUNE_SOURCE(object);

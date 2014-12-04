@@ -163,6 +163,7 @@ grl_apple_trailers_source_new (gboolean high_definition,
   const char *tags[] = {
     "country:us",
     "cinema",
+    "net:internet",
     NULL
   };
 

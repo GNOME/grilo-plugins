@@ -261,6 +261,10 @@ grl_flickr_source_public_new (const gchar *flickr_api_key,
                               const gchar *flickr_secret)
 {
   GrlFlickrSource *source;
+  const char *tags[] = {
+    "net:internet",
+    NULL
+  };
 
   GRL_DEBUG ("grl_flickr_public_source_new");
 
@@ -269,6 +273,7 @@ grl_flickr_source_public_new (const gchar *flickr_api_key,
                          "source-name", PUBLIC_SOURCE_NAME,
                          "source-desc", PUBLIC_SOURCE_DESC,
                          "supported-media", GRL_MEDIA_TYPE_IMAGE,
+                         "source-tags", tags,
                          NULL);
   source->priv->flickr = g_flickr_new (flickr_api_key, flickr_secret,
                                        NULL, NULL);

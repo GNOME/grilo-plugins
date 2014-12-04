@@ -289,6 +289,10 @@ grl_thetvdb_source_new (const gchar *api_key)
 {
   GObject *object;
   GrlTheTVDBSource *source;
+  const char *tags[] = {
+    "tv",
+    NULL
+  };
 
   GRL_DEBUG ("thetvdb_source_new");
 
@@ -297,6 +301,7 @@ grl_thetvdb_source_new (const gchar *api_key)
                          "source-name", SOURCE_NAME,
                          "source-desc", SOURCE_DESC,
                          "supported-media", GRL_MEDIA_TYPE_VIDEO,
+                         "source-tags", tags,
                          NULL);
 
   source = GRL_THETVDB_SOURCE (object);

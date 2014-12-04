@@ -36,7 +36,7 @@ source = {
   supported_keys = { "id", "thumbnail", "title", "url" },
   supported_media = 'video',
   auto_split_threshold = 50,
-  tags = { 'news' }
+  tags = { 'news', 'net:internet' }
 }
 
 ------------------

@@ -36,7 +36,7 @@ source = {
   supported_keys = { "id", "thumbnail", "title", "url", "mime-type" },
   icon = 'http://www.radiofrance.fr/sites/all/themes/custom/rftheme/logo.png',
   supported_media = 'audio',
-  tags = { 'radio', 'country:fr' }
+  tags = { 'radio', 'country:fr', 'net:internet' }
 }
 
 ------------------

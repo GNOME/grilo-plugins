@@ -116,11 +116,16 @@ GRL_PLUGIN_REGISTER (grl_lastfm_albumart_source_plugin_init,
 static GrlLastfmAlbumartSource *
 grl_lastfm_albumart_source_new (void)
 {
+  const char *tags[] = {
+    "net:internet",
+    NULL
+  };
   GRL_DEBUG ("grl_lastfm_albumart_source_new");
   return g_object_new (GRL_LASTFM_ALBUMART_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
 		       "source-desc", SOURCE_DESC,
+		       "source-tags", tags,
 		       NULL);
 }
 

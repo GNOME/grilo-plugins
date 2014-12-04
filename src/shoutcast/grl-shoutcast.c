@@ -177,6 +177,10 @@ static GrlShoutcastSource *
 grl_shoutcast_source_new (const gchar *dev_key)
 {
   GrlShoutcastSource *source;
+  const char *tags[] = {
+    "net:internet",
+    NULL
+  };
 
   GRL_DEBUG (__FUNCTION__);
 
@@ -185,6 +189,7 @@ grl_shoutcast_source_new (const gchar *dev_key)
                           "source-name", SOURCE_NAME,
                           "source-desc", SOURCE_DESC,
                           "supported-media", GRL_MEDIA_TYPE_AUDIO,
+                          "source-tags", tags,
                           NULL);
 
   source->priv->dev_key = g_strdup (dev_key);

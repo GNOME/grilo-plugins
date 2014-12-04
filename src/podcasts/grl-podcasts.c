@@ -326,11 +326,16 @@ GRL_PLUGIN_REGISTER (grl_podcasts_plugin_init,
 static GrlPodcastsSource *
 grl_podcasts_source_new (void)
 {
+  const char *tags[] = {
+    "net:internet",
+    NULL
+  };
   GRL_DEBUG ("grl_podcasts_source_new");
   return g_object_new (GRL_PODCASTS_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
 		       "source-desc", SOURCE_DESC,
+		       "source-tags", tags,
 		       NULL);
 }
 

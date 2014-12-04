@@ -152,6 +152,10 @@ grl_bliptv_source_new (void)
   GIcon *icon;
   GFile *file;
   GrlBliptvSource *source;
+  const char *tags[] = {
+    "net:internet",
+    NULL
+  };
 
   file = g_file_new_for_uri ("resource:///org/gnome/grilo/plugins/bliptv/channel-bliptv.svg");
   icon = g_file_icon_new (file);
@@ -162,6 +166,7 @@ grl_bliptv_source_new (void)
                          "source-desc", SOURCE_DESC,
                          "supported-media", GRL_MEDIA_TYPE_VIDEO,
                          "source-icon", icon,
+                         "source-tags", tags,
                          NULL);
   g_object_unref (icon);
 

@@ -225,12 +225,18 @@ GRL_PLUGIN_REGISTER (grl_jamendo_plugin_init,
 static GrlJamendoSource *
 grl_jamendo_source_new (void)
 {
+  const char *tags[] = {
+    "net:internet",
+    NULL
+  };
+
   GRL_TRACE();
   return g_object_new (GRL_JAMENDO_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
 		       "source-desc", SOURCE_DESC,
 		       "supported-media", GRL_MEDIA_TYPE_AUDIO,
+		       "source-tags", tags,
 		       NULL);
 }
 

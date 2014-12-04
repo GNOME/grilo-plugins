@@ -180,6 +180,10 @@ grl_vimeo_source_new (void)
   GIcon *icon;
   GFile *file;
   GrlVimeoSource *source;
+  const char *tags[] = {
+    "net:internet",
+    NULL
+  };
 
   GRL_DEBUG ("grl_vimeo_source_new");
 
@@ -193,6 +197,7 @@ grl_vimeo_source_new (void)
                          "source-desc", SOURCE_DESC,
                          "supported-media", GRL_MEDIA_TYPE_VIDEO,
                          "source-icon", icon,
+                         "source-tags", tags,
                          NULL);
   g_object_unref (icon);
 

@@ -32,7 +32,7 @@ source = {
   description = "A source for watching Euronews online",
   supported_keys = { "id", "title", "url" },
   supported_media = 'video',
-  tags = { 'news', 'tv' }
+  tags = { 'news', 'tv', 'net:internet' }
 }
 
 ------------------

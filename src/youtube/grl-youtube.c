@@ -320,6 +320,10 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id, const gcha
   GDataYouTubeService *service;
   GIcon *icon;
   GFile *file;
+  const char *tags[] = {
+    "net:internet",
+    NULL
+  };
 
   GRL_DEBUG ("grl_youtube_source_new");
 
@@ -348,6 +352,7 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id, const gcha
                                              "yt-service", service,
                                              "supported-media", GRL_MEDIA_TYPE_VIDEO,
                                              "source-icon", icon,
+                                             "source-tags", tags,
 					     NULL));
 
   g_object_unref (icon);

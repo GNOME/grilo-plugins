@@ -195,12 +195,18 @@ GRL_PLUGIN_REGISTER (grl_tmdb_source_plugin_init,
 static GrlTmdbSource *
 grl_tmdb_source_new (const char *api_key)
 {
+  const char *tags[] = {
+    "cinema",
+    "net:internet",
+    NULL
+  };
   GRL_DEBUG ("grl_tmdb_source_new");
   return g_object_new (GRL_TMDB_SOURCE_TYPE,
                        "source-id", SOURCE_ID,
                        "source-name", SOURCE_NAME,
                        "source-desc", SOURCE_DESC,
                        "api-key", api_key,
+                       "source-tags", tags,
                        NULL);
 }
 

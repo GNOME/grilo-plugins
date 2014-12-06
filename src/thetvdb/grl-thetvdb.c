@@ -582,7 +582,7 @@ xml_parse_and_save_episodes (GomRepository *repository,
     }
 
     if (title != NULL && tmp_title != NULL
-        && g_ascii_strncasecmp (title, tmp_title, 0) == 0) {
+        && g_ascii_strcasecmp (title, tmp_title) == 0) {
       episode_found = TRUE;
       episode_resource = eres;
     }

@@ -285,7 +285,7 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   g_clear_pointer (&source_tags, g_strfreev);
   g_clear_object (&source_icon);
 
-  g_object_set_data_full (G_OBJECT (source), "resources", resource, g_object_unref);
+  g_object_set_data_full (G_OBJECT (source), "resources", resource, g_resource_unref);
 
   ret = lua_plugin_source_operations (L, source->priv->fn);
   if (ret != LUA_OK)

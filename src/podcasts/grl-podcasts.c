@@ -383,6 +383,7 @@ grl_podcasts_source_init (GrlPodcastsSource *source)
     g_critical ("Failed to open database '%s': %s",
 		db_path, sqlite3_errmsg (source->priv->db));
     sqlite3_close (source->priv->db);
+    source->priv->db = NULL;
     return;
   }
   GRL_DEBUG ("  OK");
@@ -404,6 +405,7 @@ grl_podcasts_source_init (GrlPodcastsSource *source)
       GRL_WARNING ("Failed to create database tables.");
     }
     sqlite3_close (source->priv->db);
+    source->priv->db = NULL;
     return;
   }
   GRL_DEBUG ("  OK");
@@ -422,7 +424,8 @@ grl_podcasts_source_finalize (GObject *object)
 
   g_clear_object (&source->priv->wc);
 
-  sqlite3_close (source->priv->db);
+  if (source->priv->db)
+    sqlite3_close (source->priv->db);
 
   G_OBJECT_CLASS (grl_podcasts_source_parent_class)->finalize (object);
 }

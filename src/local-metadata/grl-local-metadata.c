@@ -75,13 +75,14 @@ struct _GrlLocalMetadataSourcePriv {
 /**/
 
 typedef enum {
-  FLAG_VIDEO_TITLE    = 1,
-  FLAG_VIDEO_SHOWNAME = 1 << 1,
-  FLAG_VIDEO_DATE     = 1 << 2,
-  FLAG_VIDEO_SEASON   = 1 << 3,
-  FLAG_VIDEO_EPISODE  = 1 << 4,
-  FLAG_THUMBNAIL      = 1 << 5,
-  FLAG_GIBEST_HASH    = 1 << 6
+  FLAG_VIDEO_TITLE         = 1,
+  FLAG_VIDEO_SHOWNAME      = 1 << 1,
+  FLAG_VIDEO_DATE          = 1 << 2,
+  FLAG_VIDEO_SEASON        = 1 << 3,
+  FLAG_VIDEO_EPISODE       = 1 << 4,
+  FLAG_VIDEO_EPISODE_TITLE = 1 << 5,
+  FLAG_THUMBNAIL           = 1 << 6,
+  FLAG_GIBEST_HASH         = 1 << 7
 } resolution_flags_t;
 
 const gchar *video_blacklisted_prefix[] = {
@@ -355,6 +356,10 @@ video_guess_values_from_display_name (const gchar *display_name,
       *title = g_match_info_fetch_named (info, "name");
       g_strdelimit (*title, ".()", ' ');
       *title = g_strstrip (*title);
+      if (*title[0] == '\0') {
+        g_free (*title);
+        *title = NULL;
+      }
     }
 
     if (showname) {
@@ -612,7 +617,8 @@ resolve_video (GrlSource *source,
                  FLAG_VIDEO_SHOWNAME |
                  FLAG_VIDEO_DATE |
                  FLAG_VIDEO_SEASON |
-                 FLAG_VIDEO_EPISODE)))
+                 FLAG_VIDEO_EPISODE |
+                 FLAG_VIDEO_EPISODE_TITLE)))
     return;
 
   if (grl_data_has_key (data, GRL_METADATA_KEY_TITLE)) {
@@ -631,6 +637,8 @@ resolve_video (GrlSource *source,
     0 : FLAG_VIDEO_SEASON;
   miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_EPISODE) ?
     0 : FLAG_VIDEO_EPISODE;
+  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_EPISODE_TITLE) ?
+    0 : FLAG_VIDEO_EPISODE_TITLE;
 
   fill_flags = flags & miss_flags;
 
@@ -658,21 +666,26 @@ resolve_video (GrlSource *source,
              date != NULL ? g_date_time_get_year (date) : 0,
              season, episode);
 
-  /* As this is just a guess, don't erase already provided values,
-   * unless GRL_METADATA_KEY_TITLE_FROM_FILENAME is set */
-  if (grl_data_get_boolean (data, GRL_METADATA_KEY_TITLE_FROM_FILENAME)) {
-    if (fill_flags & FLAG_VIDEO_TITLE) {
-      grl_data_set_string (data, GRL_METADATA_KEY_TITLE, title);
-    }
-    g_free (title);
-  }
-
   if (showname) {
     if (fill_flags & FLAG_VIDEO_SHOWNAME) {
       grl_data_set_string (data, GRL_METADATA_KEY_SHOW, showname);
     }
     g_free (showname);
+
+    if (fill_flags & FLAG_VIDEO_EPISODE_TITLE &&
+        title != NULL) {
+      grl_data_set_string (data, GRL_METADATA_KEY_EPISODE_TITLE, title);
+    }
+  } else {
+    /* As this is just a guess, don't erase already provided values,
+     * unless GRL_METADATA_KEY_TITLE_FROM_FILENAME is set */
+    if (grl_data_get_boolean (data, GRL_METADATA_KEY_TITLE_FROM_FILENAME)) {
+      if (fill_flags & FLAG_VIDEO_TITLE) {
+        grl_data_set_string (data, GRL_METADATA_KEY_TITLE, title);
+      }
+    }
   }
+  g_free (title);
 
   if (date) {
     if (fill_flags & FLAG_VIDEO_DATE) {
@@ -840,6 +853,8 @@ get_resolution_flags (GList                      *keys,
       flags |= FLAG_THUMBNAIL;
     else if (key == priv->hash_keyid)
       flags |= FLAG_GIBEST_HASH;
+    else if (key == GRL_METADATA_KEY_EPISODE_TITLE)
+      flags |= FLAG_VIDEO_EPISODE_TITLE;
 
     iter = iter->next;
   }
@@ -873,6 +888,7 @@ grl_local_metadata_source_supported_keys (GrlSource *source)
                                       GRL_METADATA_KEY_PUBLICATION_DATE,
                                       GRL_METADATA_KEY_SEASON,
                                       GRL_METADATA_KEY_EPISODE,
+                                      GRL_METADATA_KEY_EPISODE_TITLE,
                                       priv->hash_keyid,
                                       NULL);
   }
@@ -936,6 +952,7 @@ grl_local_metadata_source_may_resolve (GrlSource *source,
     case GRL_METADATA_KEY_PUBLICATION_DATE:
     case GRL_METADATA_KEY_SEASON:
     case GRL_METADATA_KEY_EPISODE:
+    case GRL_METADATA_KEY_EPISODE_TITLE:
       if (!priv->guess_video)
         return FALSE;
       if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL) &&

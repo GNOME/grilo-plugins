@@ -335,11 +335,11 @@ grl_thetvdb_source_init (GrlTheTVDBSource *source)
     grl_metadata_key_list_new (GRL_METADATA_KEY_SEASON,
                                GRL_METADATA_KEY_EPISODE,
                                GRL_METADATA_KEY_GENRE,
-                               GRL_METADATA_KEY_TITLE,
                                GRL_METADATA_KEY_PERFORMER,
                                GRL_METADATA_KEY_DIRECTOR,
                                GRL_METADATA_KEY_PUBLICATION_DATE,
                                GRL_METADATA_KEY_DESCRIPTION,
+                               GRL_METADATA_KEY_EPISODE_TITLE,
                                GRL_THETVDB_METADATA_KEY_THETVDB_ID,
                                GRL_THETVDB_METADATA_KEY_IMDB_ID,
                                GRL_THETVDB_METADATA_KEY_ZAP2IT_ID,
@@ -821,13 +821,12 @@ thetvdb_update_media_from_resources (GrlMediaVideo *video,
         failed_keys++;
       break;
 
-    case GRL_METADATA_KEY_TITLE:
+    case GRL_METADATA_KEY_EPISODE_TITLE:
       if (eres != NULL)
         g_object_get (eres, EPISODE_COLUMN_EPISODE_NAME, &str, NULL);
 
       if (str != NULL) {
-        grl_media_set_title (GRL_MEDIA (video), str);
-        grl_data_set_boolean (GRL_DATA (video), GRL_METADATA_KEY_TITLE_FROM_FILENAME, FALSE);
+        grl_media_video_set_episode_title (video, str);
         g_free (str);
       } else
         failed_keys++;
@@ -1522,15 +1521,15 @@ grl_thetvdb_source_may_resolve (GrlSource *source,
 
   /* For season and episode number, we need the the title of the episode */
   if ((key_id == GRL_METADATA_KEY_SEASON || key_id == GRL_METADATA_KEY_EPISODE)
-      && !grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_TITLE)) {
+      && !grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_EPISODE_TITLE)) {
       if (missing_keys)
-        *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, NULL);
+        *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_EPISODE_TITLE, NULL);
 
       return FALSE;
   }
 
   /* For the title of the episode, we need season and episode number */
-  if (key_id == GRL_METADATA_KEY_TITLE) {
+  if (key_id == GRL_METADATA_KEY_EPISODE_TITLE) {
     GList *l = NULL;
     if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_SEASON))
         l = g_list_prepend (l, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_SEASON));
@@ -1550,7 +1549,7 @@ grl_thetvdb_source_may_resolve (GrlSource *source,
    * and episode number or the title of the episode */
   if ((key_id == GRL_METADATA_KEY_DIRECTOR
        || key_id == GRL_THETVDB_METADATA_KEY_GUEST_STARS)
-      && !grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_TITLE)) {
+      && !grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_EPISODE_TITLE)) {
     GList *l = NULL;
     if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_SEASON))
         l = g_list_prepend (l, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_SEASON));

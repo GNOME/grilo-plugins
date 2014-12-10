@@ -57,6 +57,7 @@ get_show_for_title (GrlSource  *source,
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_SHOW,
 				    GRL_METADATA_KEY_SEASON,
 				    GRL_METADATA_KEY_EPISODE,
+				    GRL_METADATA_KEY_EPISODE_TITLE,
 				    NULL);
   options = grl_operation_options_new (NULL);
   grl_operation_options_set_flags (options, GRL_RESOLVE_FULL);
@@ -73,7 +74,7 @@ get_show_for_title (GrlSource  *source,
   *season = grl_data_get_int (GRL_DATA (media), GRL_METADATA_KEY_SEASON);
   *episode = grl_data_get_int (GRL_DATA (media), GRL_METADATA_KEY_EPISODE);
   show = g_strdup (grl_data_get_string (GRL_DATA (media), GRL_METADATA_KEY_SHOW));
-  str = grl_media_get_title (media);
+  str = grl_media_video_get_episode_title (GRL_MEDIA_VIDEO (media));
   *new_title = (str && str[0] == '\0') ? NULL : g_strdup (str);
 
   g_object_unref (media);

@@ -203,7 +203,7 @@ check_videos_metadata (GrlSource    *source,
 
   video = GRL_MEDIA_VIDEO (media);
 
-  title = grl_media_get_title (GRL_MEDIA (video));
+  title = grl_media_video_get_episode_title (video);
   g_assert_cmpstr (videos[i].title, ==, title);
 
   imdb = grl_data_get_string (GRL_DATA (video), imdb_key);
@@ -262,7 +262,7 @@ test_episodes_stress (void)
   options = grl_operation_options_new (caps);
   grl_operation_options_set_flags (options, GRL_RESOLVE_NORMAL);
 
-  keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE,
+  keys = grl_metadata_key_list_new (GRL_METADATA_KEY_EPISODE_TITLE,
                                     GRL_METADATA_KEY_PUBLICATION_DATE,
                                     tvdb_key,
                                     imdb_key,

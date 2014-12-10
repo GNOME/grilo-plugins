@@ -59,7 +59,7 @@ get_episode_metadata_from_episode (GrlSource *source,
   grl_media_video_set_season (video, season);
   grl_media_video_set_episode (video, episode);
 
-  keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE,
+  keys = grl_metadata_key_list_new (GRL_METADATA_KEY_EPISODE_TITLE,
                                     GRL_METADATA_KEY_PUBLICATION_DATE,
                                     tvdb_key,
                                     imdb_key,
@@ -75,7 +75,7 @@ get_episode_metadata_from_episode (GrlSource *source,
                            keys,
                            options,
                            NULL);
-  *title = g_strdup (grl_media_get_title (GRL_MEDIA (video)));
+  *title = g_strdup (grl_media_video_get_episode_title (video));
   *imdb = g_strdup (grl_data_get_string (GRL_DATA (video), imdb_key));
   *tvdb_id = g_strdup (grl_data_get_string (GRL_DATA (video), tvdb_key));
   *zap2it = g_strdup (grl_data_get_string (GRL_DATA (video), zap2it_key));

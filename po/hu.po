@@ -4,22 +4,21 @@
 #
 # Gabor Kelemen <kelemeng at gnome dot hu>, 2013, 2014.
 # Balázs Úr <urbalazs at gmail dot com>, 2014.
-# Balázs Úr <urbalazs@gmail.com>, 2014.
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-08-08 23:56+0000\n"
-"PO-Revision-Date: 2014-09-19 11:57+0200\n"
-"Last-Translator: Gabor Kelemen <kelemeng at gnome dot hu>\n"
+"POT-Creation-Date: 2014-12-09 00:40+0000\n"
+"PO-Revision-Date: 2014-12-11 18:38+0100\n"
+"Last-Translator: Balázs Úr <urbalazs@gmail.com>\n"
 "Language-Team: Hungarian <openscope at gmail dot com>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 1.5\n"
+"X-Generator: Lokalize 1.2\n"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:55
 msgid "Apple Movie Trailers"
@@ -37,7 +36,7 @@ msgstr "A válasz feldolgozása sikertelen"
 
 #: ../src/apple-trailers/grl-apple-trailers.c:476
 #: ../src/jamendo/grl-jamendo.c:341 ../src/jamendo/grl-jamendo.c:348
-#: ../src/podcasts/grl-podcasts.c:1353 ../src/shoutcast/grl-shoutcast.c:413
+#: ../src/podcasts/grl-podcasts.c:1356 ../src/shoutcast/grl-shoutcast.c:413
 msgid "Empty response"
 msgstr "Üres válasz"
 
@@ -70,29 +69,28 @@ msgstr "A könyvjelző metaadatainak lekérése sikertelen"
 msgid "Failed to find bookmarks: %s"
 msgstr "Nem találhatók könyvjelzők: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:621 ../src/podcasts/grl-podcasts.c:813
-#: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
+#: ../src/bookmarks/grl-bookmarks.c:620 ../src/podcasts/grl-podcasts.c:816
+#: ../src/podcasts/grl-podcasts.c:848 ../src/podcasts/grl-podcasts.c:880
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Az eltávolítás meghiúsult: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:732 ../src/podcasts/grl-podcasts.c:918
-#: ../src/podcasts/grl-podcasts.c:951 ../src/podcasts/grl-podcasts.c:1796
+#: ../src/bookmarks/grl-bookmarks.c:760 ../src/podcasts/grl-podcasts.c:921
+#: ../src/podcasts/grl-podcasts.c:954 ../src/podcasts/grl-podcasts.c:1799
 #, c-format
 msgid "Failed to store: %s"
 msgstr "A tárolás meghiúsult: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:806 ../src/bookmarks/grl-bookmarks.c:841
-#: ../src/bookmarks/grl-bookmarks.c:872 ../src/bookmarks/grl-bookmarks.c:930
+#: ../src/bookmarks/grl-bookmarks.c:834 ../src/bookmarks/grl-bookmarks.c:869
+#: ../src/bookmarks/grl-bookmarks.c:900 ../src/bookmarks/grl-bookmarks.c:958
 #: ../src/metadata-store/grl-metadata-store.c:849
-#: ../src/podcasts/grl-podcasts.c:1652 ../src/podcasts/grl-podcasts.c:1696
-#: ../src/podcasts/grl-podcasts.c:1730 ../src/podcasts/grl-podcasts.c:1765
+#: ../src/podcasts/grl-podcasts.c:1655 ../src/podcasts/grl-podcasts.c:1699
+#: ../src/podcasts/grl-podcasts.c:1733 ../src/podcasts/grl-podcasts.c:1768
 msgid "No database connection"
 msgstr "Nincs adatbázis-kapcsolat"
 
 #: ../src/dleyna/grl-dleyna-source.c:34
 #, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
 msgid "A source for browsing the DLNA server '%s'"
 msgstr "Bővítmény a(z) „%s” DLNA kiszolgáló tallózására"
 
@@ -115,7 +113,8 @@ msgstr ""
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr ""
-"A feltöltés meghiúsult, az URL hiányzik az átvinni kívánt médiaobjektum mellől"
+"A feltöltés meghiúsult, az URL hiányzik az átvinni kívánt médiaobjektum "
+"mellől"
 
 #: ../src/dmap/grl-dmap.c:51
 #, c-format
@@ -151,7 +150,7 @@ msgstr "Bővítmény a fájlrendszer tallózására"
 msgid "File %s does not exist"
 msgstr "A(z) %s fájl nem létezik"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1626
+#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1631
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Nem kérhető le média innen: %s"
@@ -226,8 +225,8 @@ msgstr "Hírforrások"
 msgid "Invalid identifier %s"
 msgstr "Érvénytelen azonosító: %s"
 
-#: ../src/jamendo/grl-jamendo.c:1035 ../src/youtube/grl-youtube.c:1194
-#: ../src/youtube/grl-youtube.c:1335 ../src/youtube/grl-youtube.c:1553
+#: ../src/jamendo/grl-jamendo.c:1035 ../src/youtube/grl-youtube.c:1199
+#: ../src/youtube/grl-youtube.c:1340 ../src/youtube/grl-youtube.c:1558
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Érvénytelen kategóriaazonosító: %s"
@@ -260,18 +259,18 @@ msgstr "Helyi metaadat-szolgáltató"
 msgid "A source providing locally available metadata"
 msgstr "Helyileg elérhető metaadatokat biztosító forrás"
 
-#: ../src/local-metadata/grl-local-metadata.c:486
+#: ../src/local-metadata/grl-local-metadata.c:584
 #: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:861
-#: ../src/tracker/grl-tracker-source-api.c:489
+#: ../src/tracker/grl-tracker-source-api.c:526
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Nem sikerült feloldani ezt: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:868
+#: ../src/local-metadata/grl-local-metadata.c:996
 msgid "Cannot resolve any of the given keys"
 msgstr "Nem lehet feloldani az egyik megadott kulcsot sem"
 
-#: ../src/local-metadata/grl-local-metadata.c:872
+#: ../src/local-metadata/grl-local-metadata.c:1000
 msgid "A GIO supported URL for images is required"
 msgstr "A képekhez egy GIO által támogatott URL szükséges"
 
@@ -314,7 +313,7 @@ msgstr "Bővítmény extra metaadat-információk tárolására"
 #: ../src/metadata-store/grl-metadata-store.c:573
 #: ../src/metadata-store/grl-metadata-store.c:592
 #: ../src/metadata-store/grl-metadata-store.c:804
-#: ../src/tracker/grl-tracker-source-api.c:597
+#: ../src/tracker/grl-tracker-source-api.c:636
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "A metaadatok frissítése sikertelen: %s"
@@ -343,6 +342,14 @@ msgstr "Nem sikerült feloldani"
 msgid "Failed to search: %s"
 msgstr "A keresés meghiúsult: %s"
 
+#: ../src/opensubtitles/grl-opensubtitles.c:42
+msgid "OpenSubtitles Provider"
+msgstr "OpenSubtitles szolgáltató"
+
+#: ../src/opensubtitles/grl-opensubtitles.c:43
+msgid "A source providing a list of subtitles for a video"
+msgstr "Feliratok listáját biztosító forrás egy videóhoz"
+
 #: ../src/optical-media/grl-optical-media.c:46
 msgid "Optical Media"
 msgstr "Optikai média"
@@ -363,42 +370,42 @@ msgstr "Bővítmény Pocket videók tallózására"
 msgid "A source for browsing podcasts"
 msgstr "Bővítmény podcastok tallózására"
 
-#: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
+#: ../src/podcasts/grl-podcasts.c:752 ../src/podcasts/grl-podcasts.c:772
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "A podcast műsorfolyamok lekérése meghiúsult: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
-#: ../src/podcasts/grl-podcasts.c:1254
+#: ../src/podcasts/grl-podcasts.c:1238 ../src/podcasts/grl-podcasts.c:1247
+#: ../src/podcasts/grl-podcasts.c:1257
 msgid "Failed to parse content"
 msgstr "A tartalom feldolgozása meghiúsult"
 
-#: ../src/podcasts/grl-podcasts.c:1287
+#: ../src/podcasts/grl-podcasts.c:1290
 msgid "Failed to parse podcast contents"
 msgstr "A podcast tartalom feldolgozása meghiúsult"
 
-#: ../src/podcasts/grl-podcasts.c:1442
+#: ../src/podcasts/grl-podcasts.c:1445
 msgid "Failed to get podcast information"
 msgstr "A podcast információk lekérése meghiúsult"
 
-#: ../src/podcasts/grl-podcasts.c:1482 ../src/podcasts/grl-podcasts.c:1502
+#: ../src/podcasts/grl-podcasts.c:1485 ../src/podcasts/grl-podcasts.c:1505
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "A podcastok listájának lekérése sikertelen: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1555 ../src/podcasts/grl-podcasts.c:1570
+#: ../src/podcasts/grl-podcasts.c:1558 ../src/podcasts/grl-podcasts.c:1573
 msgid "Failed to get podcast stream metadata"
 msgstr "A podcast műsorfolyam metaadatainak lekérése sikertelen"
 
-#: ../src/podcasts/grl-podcasts.c:1608
+#: ../src/podcasts/grl-podcasts.c:1611
 msgid "Failed to get podcast metadata"
 msgstr "A podcast metaadatainak lekérése sikertelen"
 
-#: ../src/podcasts/grl-podcasts.c:1792
+#: ../src/podcasts/grl-podcasts.c:1795
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Nem hozhatók létre konténerek. Csak műsorfolyamok fogadhatók el"
 
-#: ../src/podcasts/grl-podcasts.c:1797
+#: ../src/podcasts/grl-podcasts.c:1800
 msgid "URL required"
 msgstr "URL szükséges"
 
@@ -531,19 +538,18 @@ msgstr "A távoli adatok nem tartalmaznak érvényes azonosítót"
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:361
-#: ../src/tracker/grl-tracker-source-api.c:443
+#: ../src/tracker/grl-tracker-source-api.c:397
+#: ../src/tracker/grl-tracker-source-api.c:480
 #, c-format
 msgid "Failed to query: %s"
 msgstr "A lekérés sikertelen: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:543
+#: ../src/tracker/grl-tracker-source-api.c:581
 #, c-format
-#| msgid "Failed to get database from magnatune: %s"
 msgid "Failed to get media from uri: %s"
 msgstr "A média lekérése lekérése az URI-ról sikertelen: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:714
+#: ../src/tracker/grl-tracker-source-api.c:753
 msgid "Empty query"
 msgstr "Üres lekérdezés"
 
@@ -612,11 +618,11 @@ msgstr "Megjelenítés mobilon"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Bővítmény YouTube videók tallózására és keresésére"
 
-#: ../src/youtube/grl-youtube.c:944
+#: ../src/youtube/grl-youtube.c:949
 msgid "Failed to get feed"
 msgstr "A forrás lekérése meghiúsult"
 
-#: ../src/youtube/grl-youtube.c:1121 ../src/youtube/grl-youtube.c:1533
+#: ../src/youtube/grl-youtube.c:1126 ../src/youtube/grl-youtube.c:1538
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Érvénytelen forrásazonosító: %s"

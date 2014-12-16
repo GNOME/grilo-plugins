@@ -571,6 +571,7 @@ grl_tracker_build_grilo_media (const gchar *rdf_type)
   GrlMedia *media = NULL;
   gchar **rdf_single_type;
   int i;
+  GHashTable *ht;
 
   if (!rdf_type) {
     return NULL;
@@ -579,26 +580,27 @@ grl_tracker_build_grilo_media (const gchar *rdf_type)
   /* As rdf_type can be formed by several types, split them */
   rdf_single_type = g_strsplit (rdf_type, ",", -1);
   i = g_strv_length (rdf_single_type) - 1;
+  ht = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  for (; i>= 0; i--)
+    g_hash_table_insert (ht, g_path_get_basename (rdf_single_type[i]), GINT_TO_POINTER(TRUE));
 
-  while (!media && i >= 0) {
-    if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_MUSIC)) {
-      media = grl_media_audio_new ();
-    } else if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_VIDEO)) {
-      media = grl_media_video_new ();
-    } else if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_IMAGE)) {
-      media = grl_media_image_new ();
-    } else if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_ARTIST)) {
-      media = grl_media_box_new ();
-    } else if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_ALBUM)) {
-      media = grl_media_box_new ();
-    } else if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_BOX)) {
-      media = grl_media_box_new ();
-    } else if (g_str_has_suffix (rdf_single_type[i], RDF_TYPE_FOLDER)) {
-      media = grl_media_box_new ();
-    }
-    i--;
+  if (g_hash_table_lookup (ht, RDF_TYPE_MUSIC)) {
+    media = grl_media_audio_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_VIDEO)) {
+    media = grl_media_video_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_IMAGE)) {
+    media = grl_media_image_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_ARTIST)) {
+    media = grl_media_box_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_ALBUM)) {
+    media = grl_media_box_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_BOX)) {
+    media = grl_media_box_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_FOLDER)) {
+    media = grl_media_box_new ();
   }
 
+  g_hash_table_destroy (ht);
   g_strfreev (rdf_single_type);
 
   if (!media)

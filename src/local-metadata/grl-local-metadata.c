@@ -49,8 +49,8 @@ GRL_LOG_DOMAIN_STATIC(local_metadata_log_domain);
 #define TV_REGEX                                \
   "(?<showname>.*)\\."                          \
   "(?<season>[sS\\.]\\d{1,2}|\\d{1,2})"         \
-  "(?<episode>(?:[eExX\\.]\\d{1,2}))"           \
-  "\\.?(?<name>.*|(?:\().*))?"
+  "\\.?(?<episode>(?:(?i)ep|[ex\\.])\\d{1,2})"  \
+  "\\.?(?<name>(?:\().*|.*))?"
 #define MOVIE_REGEX                             \
   "(?<name>.*)"                                 \
   "(?<year>19\\d{2}|20\\d{2})"
@@ -404,7 +404,9 @@ video_guess_values_from_display_name (const gchar *display_name,
     if (episode) {
       gchar *e = g_match_info_fetch_named (info, "episode");
       if (e) {
-        if (*e == 'e' || *e == 'E' || *e == 'x' || *e == '.') {
+        if (g_ascii_strncasecmp (e, "ep", 2) == 0) {
+          *episode = atoi (e + 2);
+        } else if (*e == 'e' || *e == 'E' || *e == 'x' || *e == '.') {
           *episode = atoi (e + 1);
         } else {
           *episode = atoi (e);

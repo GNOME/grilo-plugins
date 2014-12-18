@@ -102,6 +102,7 @@ test_episodes (void)
     { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", NULL, "Boardwalk Empire", NULL, 4, 1 },
     { NULL, "file:///home/test/My%20super%20series.S01E01.mp4", "My super series", NULL, 1, 1 },
     { "Adventure Time - 2x01 - It Came from the Nightosphere.mp4", NULL, "Adventure Time", "It Came from the Nightosphere", 2, 1 },
+    { "Real Humans S01 EP01 [X264] [HD 720p] [FR] [SWE] [SRT FR] [MRPHU].mkv", NULL, "Real Humans", NULL, 1, 1 },
 
     /* Episode and Series separated by '.' and Title inside parenthesis */
     { NULL, "file:///home/toso/Downloads/Felicity/Felicity%202.05%20(Crash).avi", "Felicity", "Crash", 2, 5 },

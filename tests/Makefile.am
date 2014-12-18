@@ -29,6 +29,10 @@ if LOCALMETADATA_PLUGIN
 SUBDIRS += local-metadata
 endif
 
+if LUA_FACTORY_PLUGIN
+SUBDIRS += lua-factory
+endif
+
 if TMDB_PLUGIN
 SUBDIRS += tmdb
 endif
@@ -47,6 +51,7 @@ DIST_SUBDIRS =    \
    dleyna         \
    lastfm-albumart\
    local-metadata \
+   lua-factory    \
    tmdb           \
    thetvdb        \
    vimeo

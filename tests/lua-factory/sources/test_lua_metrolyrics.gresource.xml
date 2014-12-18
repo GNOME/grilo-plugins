@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/gnome/grilo/plugins/test/metrolyrics">
+    <file compressed="false">data/lyrics_back_it_up.txt</file>
+    <file compressed="false">data/lyrics_bohemian_rhapsody.txt</file>
+    <file compressed="false">data/lyrics_nobodys_perfect.txt</file>
+    <file compressed="false">data/lyrics_ring_of_fire.txt</file>
+  </gresource>
+</gresources>

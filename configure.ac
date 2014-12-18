@@ -1450,6 +1450,8 @@ AC_CONFIG_FILES([
   tests/dleyna/dbusmock/dleyna-server-mock.service
   tests/lastfm-albumart/Makefile
   tests/local-metadata/Makefile
+  tests/lua-factory/Makefile
+  tests/lua-factory/sources/Makefile
   tests/thetvdb/Makefile
   tests/tmdb/Makefile
   tests/vimeo/Makefile

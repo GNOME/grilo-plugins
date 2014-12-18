@@ -90,7 +90,7 @@ const gchar *video_blacklisted_prefix[] = {
 };
 
 const char *video_blacklisted_words[] = {
-  "720p", "1080p",
+  "720p", "1080p", "x264",
   "ws", "WS", "proper", "PROPER",
   "repack", "real.repack",
   "hdtv", "HDTV", "pdtv", "PDTV", "notv", "NOTV",
@@ -246,7 +246,7 @@ static gchar *
 video_sanitise_string (const gchar *str)
 {
   int    i;
-  gchar *line;
+  gchar *line, *line_end;
   GRegex *regex;
 
   line = (gchar *) str;
@@ -258,14 +258,32 @@ video_sanitise_string (const gchar *str)
     }
   }
 
+  /* Get the substring limited by the first blacklisted word */
+  line_end = line + strlen (line);
   for (i = 0; video_blacklisted_words[i]; i++) {
     gchar *end;
 
     end = strcasestr (line, video_blacklisted_words[i]);
-    if (end) {
-      return g_strndup (line, end - line);
+    if (end && end < line_end) {
+      line_end = end;
     }
   }
+
+  if (*line_end != '\0') {
+    line_end = g_utf8_find_prev_char (line, line_end);
+
+    /* After removing substring with blacklisted word, ignore non alpha-numeric
+     * char in the end of the sanitised string */
+    while (g_unichar_isalnum (*line_end) == FALSE &&
+           *line_end != '!' &&
+           *line_end != '?' &&
+           *line_end != '.') {
+      line_end = g_utf8_find_prev_char (line, line_end);
+    }
+
+    return g_strndup (line, line_end - line);
+  }
+
   regex = g_regex_new ("\\.-\\.", 0, 0, NULL);
   line = g_regex_replace_literal(regex, line, -1, 0, ".", 0, NULL);
   g_regex_unref(regex);

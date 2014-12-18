@@ -40,6 +40,12 @@ extdir			= $(GRL_PLUGINS_DIR)
 luafactoryxmldir	= $(GRL_PLUGINS_DIR)
 luafactoryxml_DATA	= $(LUA_FACTORY_PLUGIN_ID).xml
 
+# Rules to enable tests
+copy-xml-to-libs-dir: libgrlluafactory.la
+	cp -f $(srcdir)/$(luafactoryxml_DATA) $(builddir)/.libs/
+
+all-local: copy-xml-to-libs-dir
+
 EXTRA_DIST += $(luafactoryxml_DATA) lua-library/htmlentity.gperf
 
 DIST_SUBDIRS = sources

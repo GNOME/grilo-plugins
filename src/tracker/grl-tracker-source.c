@@ -228,7 +228,7 @@ grl_tracker_add_source (GrlTrackerSource *source)
                          grl_tracker_source_get_tracker_source (source));
     g_hash_table_insert (grl_tracker_source_sources,
                          (gpointer) grl_tracker_source_get_tracker_source (source),
-                         source);
+                         g_object_ref (source));
     priv->state = GRL_TRACKER_SOURCE_STATE_RUNNING;
     grl_registry_register_source (grl_registry_get_default (),
                                   grl_tracker_plugin,
@@ -364,6 +364,7 @@ tracker_get_datasource_cb (GObject             *object,
                              "tracker-datasource", datasource,
                              NULL);
       grl_tracker_add_source (source);
+      g_object_unref (source);
       g_free (source_name);
     }
   }
@@ -407,9 +408,12 @@ grl_tracker_source_sources_init (void)
 
   grl_tracker_item_cache =
     grl_tracker_source_cache_new (TRACKER_ITEM_CACHE_SIZE);
-  grl_tracker_source_sources = g_hash_table_new (g_str_hash, g_str_equal);
-  grl_tracker_source_sources_modified = g_hash_table_new (g_str_hash,
-                                                          g_str_equal);
+  grl_tracker_source_sources = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                      NULL, g_object_unref);
+  grl_tracker_source_sources_modified = g_hash_table_new_full (g_str_hash,
+                                                               g_str_equal,
+                                                               NULL,
+                                                               g_object_unref);
 
 
   if (grl_tracker_connection != NULL) {
@@ -426,8 +430,12 @@ grl_tracker_source_sources_init (void)
                                              (GAsyncReadyCallback) tracker_get_datasources_cb,
                                              NULL);
     } else {
+      GrlTrackerSource *source;
+
       /* One source to rule them all. */
-      grl_tracker_add_source (grl_tracker_source_new (grl_tracker_connection));
+      source = grl_tracker_source_new (grl_tracker_connection);
+      grl_tracker_add_source (source);
+      g_object_unref (source);
     }
   }
 }

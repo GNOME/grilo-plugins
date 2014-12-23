@@ -122,7 +122,9 @@ tracker_evt_update_source_add (tracker_evt_update_t *evt,
 			   NULL);
     g_hash_table_insert (grl_tracker_source_sources_modified,
                          (gpointer) grl_tracker_source_get_tracker_source (source),
-                        source);
+                         g_object_ref (source));
+  } else {
+    g_object_ref (source);
   }
 
   priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
@@ -133,6 +135,8 @@ tracker_evt_update_source_add (tracker_evt_update_t *evt,
 
   GRL_DEBUG ("Preadd source p=%p name=%s id=%s count=%u",
              source, source_name, id, priv->notification_ref);
+
+  g_object_unref (source);
 }
 
 static void

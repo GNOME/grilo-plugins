@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-09-13 08:23+0000\n"
-"PO-Revision-Date: 2014-09-13 19:54+0100\n"
+"POT-Creation-Date: 2014-12-25 09:22+0000\n"
+"PO-Revision-Date: 2014-12-25 18:51+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenščina <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -30,22 +30,22 @@ msgstr "Filmski napovedniki Apple"
 msgid "A plugin for browsing Apple Movie Trailers"
 msgstr "Vstavek za brskanje po filmskih napovednikih Apple"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:468
-#: ../src/jamendo/grl-jamendo.c:333 ../src/jamendo/grl-jamendo.c:694
-#: ../src/shoutcast/grl-shoutcast.c:405 ../src/shoutcast/grl-shoutcast.c:459
+#: ../src/apple-trailers/grl-apple-trailers.c:469
+#: ../src/jamendo/grl-jamendo.c:339 ../src/jamendo/grl-jamendo.c:700
+#: ../src/shoutcast/grl-shoutcast.c:410 ../src/shoutcast/grl-shoutcast.c:464
 msgid "Failed to parse response"
 msgstr "Razčlenjevanje odgovora je spodletelo"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:476
-#: ../src/jamendo/grl-jamendo.c:341 ../src/jamendo/grl-jamendo.c:348
-#: ../src/podcasts/grl-podcasts.c:1353 ../src/shoutcast/grl-shoutcast.c:413
+#: ../src/apple-trailers/grl-apple-trailers.c:477
+#: ../src/jamendo/grl-jamendo.c:347 ../src/jamendo/grl-jamendo.c:354
+#: ../src/podcasts/grl-podcasts.c:1361 ../src/shoutcast/grl-shoutcast.c:418
 msgid "Empty response"
 msgstr "Odziv brez vsebine"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:531
-#: ../src/jamendo/grl-jamendo.c:663
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:247
-#: ../src/shoutcast/grl-shoutcast.c:547
+#: ../src/apple-trailers/grl-apple-trailers.c:532
+#: ../src/jamendo/grl-jamendo.c:669
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:252
+#: ../src/shoutcast/grl-shoutcast.c:552
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Napaka med povezovanjem: %s"
@@ -71,23 +71,23 @@ msgstr "Pridobivanje metapodatkov zaznamka je spodletelo"
 msgid "Failed to find bookmarks: %s"
 msgstr "Ni mogoče najti zaznamkov: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:621 ../src/podcasts/grl-podcasts.c:813
-#: ../src/podcasts/grl-podcasts.c:845 ../src/podcasts/grl-podcasts.c:877
+#: ../src/bookmarks/grl-bookmarks.c:620 ../src/podcasts/grl-podcasts.c:821
+#: ../src/podcasts/grl-podcasts.c:853 ../src/podcasts/grl-podcasts.c:885
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Ni mogoče odstraniti: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:732 ../src/podcasts/grl-podcasts.c:918
-#: ../src/podcasts/grl-podcasts.c:951 ../src/podcasts/grl-podcasts.c:1796
+#: ../src/bookmarks/grl-bookmarks.c:760 ../src/podcasts/grl-podcasts.c:926
+#: ../src/podcasts/grl-podcasts.c:959 ../src/podcasts/grl-podcasts.c:1804
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Ni mogoče shraniti: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:806 ../src/bookmarks/grl-bookmarks.c:841
-#: ../src/bookmarks/grl-bookmarks.c:872 ../src/bookmarks/grl-bookmarks.c:930
+#: ../src/bookmarks/grl-bookmarks.c:834 ../src/bookmarks/grl-bookmarks.c:869
+#: ../src/bookmarks/grl-bookmarks.c:900 ../src/bookmarks/grl-bookmarks.c:958
 #: ../src/metadata-store/grl-metadata-store.c:849
-#: ../src/podcasts/grl-podcasts.c:1652 ../src/podcasts/grl-podcasts.c:1696
-#: ../src/podcasts/grl-podcasts.c:1730 ../src/podcasts/grl-podcasts.c:1765
+#: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
+#: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
 msgid "No database connection"
 msgstr "Ni povezave z zbirko podatkov"
 
@@ -120,18 +120,18 @@ msgstr "Pošiljanje vzorca je spodletelo, manjka naslov URL predmeta za prenos"
 msgid "A source for browsing the DMAP server '%s'"
 msgstr "Vir za brskanje po strežniku DMAP '%s'"
 
-#: ../src/dmap/simple-dmap-db.c:62 ../src/jamendo/grl-jamendo.c:781
+#: ../src/dmap/simple-dmap-db.c:62 ../src/jamendo/grl-jamendo.c:787
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Albumi"
 
-#: ../src/dmap/simple-dmap-db.c:64 ../src/jamendo/grl-jamendo.c:770
+#: ../src/dmap/simple-dmap-db.c:64 ../src/jamendo/grl-jamendo.c:776
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Izvajalci"
 
-#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1108
-#: ../src/jamendo/grl-jamendo.c:1183 ../src/magnatune/grl-magnatune.c:829
+#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1114
+#: ../src/jamendo/grl-jamendo.c:1189 ../src/magnatune/grl-magnatune.c:834
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Določilo vsebnika %s je neveljavno "
@@ -149,7 +149,7 @@ msgstr "Vir za brskanje po datotečnem sistemu"
 msgid "File %s does not exist"
 msgstr "Datoteka %s ne obstaja"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1626
+#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1636
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Ni mogoče pridobiti vsebine iz %s"
@@ -214,28 +214,28 @@ msgstr "Naj albumi"
 msgid "Top tracks"
 msgstr "Najboljši posnetki"
 
-#: ../src/jamendo/grl-jamendo.c:792
+#: ../src/jamendo/grl-jamendo.c:798
 msgid "Feeds"
 msgstr "Viri"
 
-#: ../src/jamendo/grl-jamendo.c:976 ../src/jamendo/grl-jamendo.c:1021
-#: ../src/jamendo/grl-jamendo.c:1048
+#: ../src/jamendo/grl-jamendo.c:982 ../src/jamendo/grl-jamendo.c:1027
+#: ../src/jamendo/grl-jamendo.c:1054
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Neveljaven določilnik %s"
 
-#: ../src/jamendo/grl-jamendo.c:1035 ../src/youtube/grl-youtube.c:1194
-#: ../src/youtube/grl-youtube.c:1335 ../src/youtube/grl-youtube.c:1553
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1204
+#: ../src/youtube/grl-youtube.c:1345 ../src/youtube/grl-youtube.c:1563
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Določilo kategorije %s je neveljavno "
 
-#: ../src/jamendo/grl-jamendo.c:1178
+#: ../src/jamendo/grl-jamendo.c:1184
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Brskanje je spodletelo: %s je posnetek"
 
-#: ../src/jamendo/grl-jamendo.c:1238
+#: ../src/jamendo/grl-jamendo.c:1244
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Napačno oblikovana zahteva poizvedbe \"%s\""
@@ -258,18 +258,18 @@ msgstr "Krajevni ponudnik metapodatkov"
 msgid "A source providing locally available metadata"
 msgstr "Vir krajevno dostopnih metapodatkov"
 
-#: ../src/local-metadata/grl-local-metadata.c:486
-#: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:861
-#: ../src/tracker/grl-tracker-source-api.c:489
+#: ../src/local-metadata/grl-local-metadata.c:609
+#: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:868
+#: ../src/tracker/grl-tracker-source-api.c:526
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Razreševanje je spodletelo: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:875
+#: ../src/local-metadata/grl-local-metadata.c:1033
 msgid "Cannot resolve any of the given keys"
 msgstr "Ni mogoče razrešiti nobenega izmed podanih ključev"
 
-#: ../src/local-metadata/grl-local-metadata.c:879
+#: ../src/local-metadata/grl-local-metadata.c:1037
 msgid "A GIO supported URL for images is required"
 msgstr "Zahtevan je z GIO podprt naslov URL slik"
 
@@ -281,23 +281,23 @@ msgstr "Zvrsti"
 msgid "A source for browsing music"
 msgstr "Vir brskanja glasbenih datotek"
 
-#: ../src/magnatune/grl-magnatune.c:406
+#: ../src/magnatune/grl-magnatune.c:411
 #, c-format
 msgid "Failed to get database from magnatune: %s"
 msgstr "Pridobivanje podatkovne zbirke magnatune je spodletelo: %s"
 
-#: ../src/magnatune/grl-magnatune.c:436
+#: ../src/magnatune/grl-magnatune.c:441
 #, c-format
 msgid "Failed to save database from magnatune - '%s'"
 msgstr "Shranjevanje podatkovne zbirke iz magnatune je spodletelo - '%s'"
 
-#: ../src/magnatune/grl-magnatune.c:684
+#: ../src/magnatune/grl-magnatune.c:689
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
 msgstr ""
 "Pridobivanje razpredelnice podatkovne zbirke magnatune je spodletelo: %s"
 
-#: ../src/magnatune/grl-magnatune.c:700
+#: ../src/magnatune/grl-magnatune.c:705
 #, c-format
 msgid "Fail before returning media to user: %s"
 msgstr "Opravilo je spodletelo pred posredovanjem vsebine uporabniku: %s"
@@ -313,7 +313,7 @@ msgstr "Vstavek za shranjevanje dodatnih metapodatkov"
 #: ../src/metadata-store/grl-metadata-store.c:573
 #: ../src/metadata-store/grl-metadata-store.c:592
 #: ../src/metadata-store/grl-metadata-store.c:804
-#: ../src/tracker/grl-tracker-source-api.c:597
+#: ../src/tracker/grl-tracker-source-api.c:636
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Posodabljanje metapodatkov je spodletelo: %s"
@@ -336,11 +336,19 @@ msgid "Failed to resolve"
 msgstr "Razreševanje je spodletelo"
 
 #: ../src/metadata-store/grl-metadata-store.c:917
-#: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:419
-#: ../src/shoutcast/grl-shoutcast.c:745 ../src/vimeo/grl-vimeo.c:541
+#: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:426
+#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:546
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Iskanje je spodletelo: %s"
+
+#: ../src/opensubtitles/grl-opensubtitles.c:42
+msgid "OpenSubtitles Provider"
+msgstr "Ponudnik OpenSubtitles"
+
+#: ../src/opensubtitles/grl-opensubtitles.c:43
+msgid "A source providing a list of subtitles for a video"
+msgstr "Vir, kjer je mogoče iskati podnapise video posnetkov"
 
 #: ../src/optical-media/grl-optical-media.c:46
 msgid "Optical Media"
@@ -362,42 +370,42 @@ msgstr "Vir za brskanje posnetkov Pocket"
 msgid "A source for browsing podcasts"
 msgstr "Vir za brskanje podcastov"
 
-#: ../src/podcasts/grl-podcasts.c:749 ../src/podcasts/grl-podcasts.c:769
+#: ../src/podcasts/grl-podcasts.c:757 ../src/podcasts/grl-podcasts.c:777
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "Pridobivanje pretokov podcastov je spodletelo: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1235 ../src/podcasts/grl-podcasts.c:1244
-#: ../src/podcasts/grl-podcasts.c:1254
+#: ../src/podcasts/grl-podcasts.c:1243 ../src/podcasts/grl-podcasts.c:1252
+#: ../src/podcasts/grl-podcasts.c:1262
 msgid "Failed to parse content"
 msgstr "Razčlenitev vsebine je spodletela"
 
-#: ../src/podcasts/grl-podcasts.c:1287
+#: ../src/podcasts/grl-podcasts.c:1295
 msgid "Failed to parse podcast contents"
 msgstr "Razčlenjevanje vsebine podcastov je spodletelo"
 
-#: ../src/podcasts/grl-podcasts.c:1442
+#: ../src/podcasts/grl-podcasts.c:1450
 msgid "Failed to get podcast information"
 msgstr "Pridobivanje podrobnosti podcastov je spodletelo"
 
-#: ../src/podcasts/grl-podcasts.c:1482 ../src/podcasts/grl-podcasts.c:1502
+#: ../src/podcasts/grl-podcasts.c:1490 ../src/podcasts/grl-podcasts.c:1510
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Pridobivanje seznama podcastov je spodletelo: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1555 ../src/podcasts/grl-podcasts.c:1570
+#: ../src/podcasts/grl-podcasts.c:1563 ../src/podcasts/grl-podcasts.c:1578
 msgid "Failed to get podcast stream metadata"
 msgstr "Pridobivanje metapodatkov pretoka podcasta je spodletelo"
 
-#: ../src/podcasts/grl-podcasts.c:1608
+#: ../src/podcasts/grl-podcasts.c:1616
 msgid "Failed to get podcast metadata"
 msgstr "Pridobivanje metapodatkov podcasta je spodletelo."
 
-#: ../src/podcasts/grl-podcasts.c:1792
+#: ../src/podcasts/grl-podcasts.c:1800
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Vsebnikov ni mogoče ustvariti. Sprejmejo se le viri"
 
-#: ../src/podcasts/grl-podcasts.c:1797
+#: ../src/podcasts/grl-podcasts.c:1805
 msgid "URL required"
 msgstr "Zahtevani URL"
 
@@ -501,7 +509,7 @@ msgstr "Prosti čas"
 msgid "Travel"
 msgstr "Potovanja"
 
-#: ../src/raitv/grl-raitv.c:612
+#: ../src/raitv/grl-raitv.c:619
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Brskanje je spodletelo: %s"
@@ -510,12 +518,12 @@ msgstr "Brskanje je spodletelo: %s"
 msgid "A source for browsing SHOUTcast radios"
 msgstr "Vir za brskanje po postajah SHOUTcast"
 
-#: ../src/shoutcast/grl-shoutcast.c:451
+#: ../src/shoutcast/grl-shoutcast.c:456
 #, c-format
 msgid "Cannot find media %s"
 msgstr "Ni mogoče najti nosilca %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:542
+#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:547
 msgid "non-NULL search text is required"
 msgstr "Iskalno besedilo ne more biti prazna vrednost"
 
@@ -523,25 +531,25 @@ msgstr "Iskalno besedilo ne more biti prazna vrednost"
 msgid "A source for fetching metadata of television shows"
 msgstr "Vir za pridobivanje metapodatkov televizijskih oddaj"
 
-#: ../src/tmdb/grl-tmdb.c:984
+#: ../src/tmdb/grl-tmdb.c:990
 msgid "Remote data does not contain valid identifier"
 msgstr "Oddaljeni podatki ne vsebujejo veljavnih določil"
 
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:361
-#: ../src/tracker/grl-tracker-source-api.c:443
+#: ../src/tracker/grl-tracker-source-api.c:397
+#: ../src/tracker/grl-tracker-source-api.c:480
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Poizvedba je spodletela: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:543
+#: ../src/tracker/grl-tracker-source-api.c:581
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Pridobivanje predstavne vsebine je spodletelo: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:714
+#: ../src/tracker/grl-tracker-source-api.c:753
 msgid "Empty query"
 msgstr "Prazna poizvedba"
 
@@ -610,11 +618,11 @@ msgstr "Oglej si na mobilni napravi"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Vir za brskanje in iskanje videov YouTube"
 
-#: ../src/youtube/grl-youtube.c:944
+#: ../src/youtube/grl-youtube.c:954
 msgid "Failed to get feed"
 msgstr "Pridobivanje vira je spodletelo"
 
-#: ../src/youtube/grl-youtube.c:1121 ../src/youtube/grl-youtube.c:1533
+#: ../src/youtube/grl-youtube.c:1131 ../src/youtube/grl-youtube.c:1543
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Določilo obvestilnika %s je neveljavno "

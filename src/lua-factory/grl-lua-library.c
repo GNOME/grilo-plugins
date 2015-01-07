@@ -141,6 +141,31 @@ unescape_string (const char *orig_from)
   return ret;
 }
 
+static void
+grl_data_set_lua_string (GrlData    *data,
+                         GrlKeyID    key_id,
+                         const char *key_name,
+                         const char *str)
+{
+  char *fixed = NULL;
+
+  /* Check for UTF-8 or ISO8859-1 string */
+  if (g_utf8_validate (str, -1, NULL) == FALSE) {
+    fixed = g_convert (str, -1, "UTF-8", "ISO8859-1", NULL, NULL, NULL);
+    if (fixed == NULL) {
+      g_warning ("Ignored non-UTF-8 and non-ISO8859-1 string for field '%s'", key_name);
+      return;
+    }
+  }
+
+  if (fixed) {
+    grl_data_set_string (data, key_id, fixed);
+    g_free (fixed);
+  } else {
+    grl_data_set_string (data, key_id, str);
+  }
+}
+
 /* Top of the stack must be a table */
 static void
 grl_util_add_table_to_media (lua_State *L,
@@ -174,7 +199,7 @@ grl_util_add_table_to_media (lua_State *L,
 
     case G_TYPE_STRING:
       if (lua_isstring (L, -1))
-        grl_data_add_string (GRL_DATA (media), key_id, lua_tostring (L, -1));
+        grl_data_set_lua_string (GRL_DATA (media), key_id, key_name, lua_tostring (L, -1));
       break;
 
     default:
@@ -264,7 +289,7 @@ grl_util_build_media (lua_State *L,
 
       case G_TYPE_STRING:
         if (lua_isstring (L, -1)) {
-          grl_data_set_string (GRL_DATA (media), key_id, lua_tostring (L, -1));
+          grl_data_set_lua_string (GRL_DATA (media), key_id, key_name, lua_tostring (L, -1));
         } else if (lua_istable (L, -1)) {
           grl_util_add_table_to_media (L, media, key_id, key_name, type);
         } else if (!lua_isnil (L, -1)) {

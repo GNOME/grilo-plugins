@@ -32,6 +32,7 @@ source = {
   description = "A source for watching Euronews online",
   supported_keys = { "id", "title", "url" },
   supported_media = 'video',
+  icon = 'resource:///org/gnome/grilo/plugins/euronews/euronews.svg',
   tags = { 'news', 'tv', 'net:internet' }
 }
 

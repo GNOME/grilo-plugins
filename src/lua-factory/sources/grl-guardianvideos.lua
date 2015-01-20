@@ -36,6 +36,7 @@ source = {
   supported_keys = { "id", "thumbnail", "title", "url" },
   supported_media = 'video',
   auto_split_threshold = 50,
+  icon = 'resource:///org/gnome/grilo/plugins/guardianvideos/guardianvideos.svg',
   tags = { 'news', 'net:internet' }
 }
 

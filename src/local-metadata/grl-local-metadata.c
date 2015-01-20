@@ -776,7 +776,7 @@ resolve_album_art (GrlSource *source,
   if (!artist || !album)
     return TRUE;
 
-  media_art_get_path (artist, album, "album", NULL, &cache_uri, &thumbnail_uri);
+  media_art_get_path (artist, album, "album", &cache_uri);
 
   if (thumbnail_uri)
     grl_media_set_thumbnail (rs->media, thumbnail_uri);

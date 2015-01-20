@@ -34,7 +34,7 @@ source = {
   name = "Radio France",
   description = "A source for browsing Radio France radio stations",
   supported_keys = { "id", "thumbnail", "title", "url", "mime-type" },
-  icon = 'http://www.radiofrance.fr/sites/all/themes/custom/rftheme/logo.png',
+  icon = 'resource:///org/gnome/grilo/plugins/radiofrance/radiofrance.png',
   supported_media = 'audio',
   tags = { 'radio', 'country:fr', 'net:internet' }
 }

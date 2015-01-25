@@ -38,7 +38,7 @@ GRL_LOG_DOMAIN_STATIC(gravatar_log_domain);
 
 /* -------- Gravatar API -------- */
 
-#define GRAVATAR_URL "http://www.gravatar.com/avatar/%s.jpg"
+#define GRAVATAR_URL "https://www.gravatar.com/avatar/%s.jpg"
 
 /* ------- Pluging Info -------- */
 

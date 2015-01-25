@@ -56,7 +56,7 @@ GRL_LOG_DOMAIN_STATIC(jamendo_log_domain);
 
 /* ---- Jamendo Web API  ---- */
 
-#define JAMENDO_BASE_ENTRY "http://api.jamendo.com/get2"
+#define JAMENDO_BASE_ENTRY "https://api.jamendo.com/get2"
 #define JAMENDO_FORMAT     "xml"
 #define JAMENDO_RANGE      "n=%u&pn=%u"
 

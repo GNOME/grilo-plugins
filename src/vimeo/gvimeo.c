@@ -38,7 +38,7 @@
 
 #define PLUGIN_USER_AGENT             "Grilo Vimeo Plugin"
 
-#define VIMEO_HOST                    "http://vimeo.com"
+#define VIMEO_HOST                    "https://vimeo.com"
 #define VIMEO_ENDPOINT                VIMEO_HOST "/api/rest/v2"
 #define VIMEO_VIDEO_LOAD_URL          VIMEO_HOST "/moogaloop/load/clip:"
 #define VIMEO_VIDEO_PLAY_URL          VIMEO_HOST "/moogaloop/play/clip:"

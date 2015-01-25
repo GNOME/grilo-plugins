@@ -281,7 +281,7 @@ update_media (GrlMedia *media, GHashTable *video)
     char *external_url;
 
     grl_media_set_id (media, str);
-    external_url = g_strdup_printf ("http://vimeo.com/%s", str);
+    external_url = g_strdup_printf ("https://vimeo.com/%s", str);
     grl_media_set_external_url (media, external_url);
     g_free (external_url);
   }

@@ -41,7 +41,7 @@ GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 
 /* -------- Last.FM API -------- */
 
-#define LASTFM_GET_ALBUM "http://ws.audioscrobbler.com/1.0/album/%s/%s/info.xml"
+#define LASTFM_GET_ALBUM "https://ws.audioscrobbler.com/1.0/album/%s/%s/info.xml"
 
 #define LASTFM_DEFAULT_IMAGE "http://cdn.last.fm/flatness/catalogue/noimage/2/default_album_medium.png"
 #define LASTFM_BASE_IMAGE    "http://userserve-ak.last.fm/serve/%s/%s"

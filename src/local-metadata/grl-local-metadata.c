@@ -768,7 +768,6 @@ resolve_album_art (GrlSource *source,
 {
   const gchar *artist, *album;
   char *cache_uri = NULL;
-  char *thumbnail_uri = NULL;
 
   artist = grl_media_audio_get_artist (GRL_MEDIA_AUDIO (rs->media));
   album = grl_media_audio_get_album (GRL_MEDIA_AUDIO (rs->media));
@@ -778,9 +777,7 @@ resolve_album_art (GrlSource *source,
 
   media_art_get_path (artist, album, "album", &cache_uri);
 
-  if (thumbnail_uri)
-    grl_media_set_thumbnail (rs->media, thumbnail_uri);
-  else if (cache_uri)
+  if (cache_uri)
     grl_media_set_thumbnail (rs->media, cache_uri);
   else
     GRL_DEBUG ("Found no thumbnail for artist %s and album %s", artist, album);
@@ -788,7 +785,6 @@ resolve_album_art (GrlSource *source,
   rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
 
   g_free (cache_uri);
-  g_free (thumbnail_uri);
 
   return FALSE;
 }

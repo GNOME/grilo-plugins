@@ -126,7 +126,7 @@ PKG_CHECK_MODULES(DMAP, libdmapsharing-3.0 >= 2.9.12, HAVE_DMAP=yes, HAVE_DMAP=n
 
 PKG_CHECK_MODULES(SQLITE, sqlite3, HAVE_SQLITE=yes, HAVE_SQLITE=no)
 
-PKG_CHECK_MODULES(GDATA, libgdata >= 0.7.0, HAVE_GDATA=yes, HAVE_GDATA=no)
+PKG_CHECK_MODULES(GDATA, libgdata >= 0.9.1, HAVE_GDATA=yes, HAVE_GDATA=no)
 
 PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4, HAVE_LIBSOUP=yes, HAVE_LIBSOUP=no)
 
@@ -203,16 +203,6 @@ AC_ARG_ENABLE(goa,
 
 if test "x$enable_goa" = "xyes"; then
         AC_DEFINE(GOA_ENABLED, 1, [Let plugins use goa])
-fi
-
-# ----------------------------------------------------------
-# GDATA VERSION
-# ----------------------------------------------------------
-
-if test "x$HAVE_GDATA" = "xyes"; then
-   if `$PKG_CONFIG --atleast-version=0.9.1 libgdata`; then
-      AC_DEFINE(HAVE_LIBGDATA_0_9, 1, [libgdata is 0.9.1 or higher])
-   fi
 fi
 
 # ----------------------------------------------------------
@@ -423,7 +413,7 @@ AC_ARG_ENABLE(youtube,
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-youtube])
                         fi
                         if test "x$HAVE_GDATA" = "xno"; then
-                           AC_MSG_ERROR([libgdata >= 0.7.0 not found, install it or use --disable-youtube])
+                           AC_MSG_ERROR([libgdata >= 0.9.1 not found, install it or use --disable-youtube])
                         fi
                         if test "x$HAVE_TOTEM_PL_PARSER" = "xno"; then
                            AC_MSG_ERROR([totem-plparser >= 3.4.1 not found, install it or use --disable-youtube])

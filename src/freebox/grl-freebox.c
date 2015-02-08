@@ -34,7 +34,8 @@
 #include "grl-freebox.h"
 #include "freebox-monitor.h"
 
-#define FREEBOX_URL "http://mafreebox.freebox.fr/freeboxtv/playlist.m3u"
+#define FREEBOXTV_URL    "http://mafreebox.freebox.fr/freeboxtv/playlist.m3u"
+#define FREEBOXRADIO_URL "resource:///org/gnome/grilo/plugins/freebox/radios.m3u"
 
 /* --------- Logging  -------- */
 
@@ -45,9 +46,13 @@ GRL_LOG_DOMAIN_STATIC(freebox_log_domain);
 
 #define PLUGIN_ID   FREEBOX_PLUGIN_ID
 
-#define SOURCE_ID   "grl-freebox"
-#define SOURCE_NAME _("Freebox TV")
-#define SOURCE_DESC _("A source for browsing Freebox TV channels")
+#define TV_SOURCE_ID   "grl-freeboxtv"
+#define TV_SOURCE_NAME _("Freebox TV")
+#define TV_SOURCE_DESC _("A source for browsing Freebox TV channels")
+
+#define RADIO_SOURCE_ID   "grl-freeboxradio"
+#define RADIO_SOURCE_NAME _("Freebox Radio")
+#define RADIO_SOURCE_DESC _("A source for browsing Freebox radio channels")
 
 /* --- Grilo Freebox Private --- */
 
@@ -63,7 +68,8 @@ struct _GrlFreeboxSourcePrivate {
 
 /* --- Data types --- */
 
-static GrlFreeboxSource *grl_freebox_source_new (void);
+static GrlFreeboxSource *grl_freebox_source_new_tv (void);
+static GrlFreeboxSource *grl_freebox_source_new_radio (void);
 
 static void grl_freebox_source_finalize (GObject *object);
 
@@ -85,20 +91,31 @@ freebox_found (FreeboxMonitor *mon,
 {
   GrlFreeboxSource *source;
   GrlRegistry *registry;
+  const char *sources[] = {
+    "source-tv",
+    "source-radio"
+  };
+  guint i;
 
-  if (g_object_get_data (G_OBJECT (plugin), "source") != NULL)
-    return;
+  for (i = 0; i < G_N_ELEMENTS(sources); i++) {
+    if (g_object_get_data (G_OBJECT (plugin), sources[i]) != NULL)
+      return;
 
-  GRL_DEBUG ("Found a Freebox: %s", name);
+    GRL_DEBUG ("Found a Freebox: %s", name);
 
-  source = grl_freebox_source_new ();
-  registry = grl_registry_get_default ();
+    if (g_strcmp0 (sources[i], "source-tv") == 0)
+      source = grl_freebox_source_new_tv ();
+    else
+      source = grl_freebox_source_new_radio ();
 
-  g_object_set_data (G_OBJECT (plugin), "source", source);
-  grl_registry_register_source (registry,
-                                plugin,
-                                GRL_SOURCE (source),
-                                NULL);
+    registry = grl_registry_get_default ();
+
+    g_object_set_data (G_OBJECT (plugin), sources[i], source);
+    grl_registry_register_source (registry,
+                                  plugin,
+                                  GRL_SOURCE (source),
+                                  NULL);
+  }
 }
 
 static void
@@ -106,20 +123,26 @@ freebox_lost (FreeboxMonitor *mon,
               const char     *name,
               GrlPlugin      *plugin)
 {
-  GrlFreeboxSource *source;
   GrlRegistry *registry;
+  const char *sources[] = {
+    "source-tv",
+    "source-radio"
+  };
+  guint i;
 
-  source = g_object_get_data (G_OBJECT (plugin), "source");
-  if (source == NULL)
-    return;
+  for (i = 0; i < G_N_ELEMENTS(sources); i++) {
+    GrlFreeboxSource *source = g_object_get_data (G_OBJECT (plugin), sources[i]);
+    if (source == NULL)
+      continue;
 
-  GRL_DEBUG ("Remove a Freebox: %s", name);
+    GRL_DEBUG ("Remove a Freebox: %s", name);
 
-  registry = grl_registry_get_default ();
+    registry = grl_registry_get_default ();
 
-  grl_registry_unregister_source (registry,
-                                  GRL_SOURCE (source),
-                                  NULL);
+    grl_registry_unregister_source (registry,
+                                    GRL_SOURCE (source),
+                                    NULL);
+  }
 }
 
 gboolean
@@ -158,7 +181,7 @@ G_DEFINE_TYPE (GrlFreeboxSource,
                GRL_TYPE_SOURCE);
 
 static GrlFreeboxSource *
-grl_freebox_source_new (void)
+grl_freebox_source_new_tv (void)
 {
   GIcon *icon;
   GFile *file;
@@ -175,13 +198,45 @@ grl_freebox_source_new (void)
   icon = g_file_icon_new (file);
   g_object_unref (file);
   object = g_object_new (GRL_FREEBOX_SOURCE_TYPE,
-                         "source-id", SOURCE_ID,
-                         "source-name", SOURCE_NAME,
-                         "source-desc", SOURCE_DESC,
+                         "source-id", TV_SOURCE_ID,
+                         "source-name", TV_SOURCE_NAME,
+                         "source-desc", TV_SOURCE_DESC,
                          "supported-media", GRL_MEDIA_TYPE_VIDEO,
                          "source-icon", icon,
                          "source-tags", tags,
                          NULL);
+  grl_media_set_url (GRL_FREEBOX_SOURCE(object)->priv->media, FREEBOXTV_URL);
+  g_object_unref (icon);
+
+  return object;
+}
+
+static GrlFreeboxSource *
+grl_freebox_source_new_radio (void)
+{
+  GIcon *icon;
+  GFile *file;
+  GrlFreeboxSource *object;
+  const char *tags[] = {
+    "radio",
+    "country:fr",
+    NULL
+  };
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  file = g_file_new_for_uri ("resource:///org/gnome/grilo/plugins/freebox/free.png"); //FIXME
+  icon = g_file_icon_new (file);
+  g_object_unref (file);
+  object = g_object_new (GRL_FREEBOX_SOURCE_TYPE,
+                         "source-id", RADIO_SOURCE_ID,
+                         "source-name", RADIO_SOURCE_NAME,
+                         "source-desc", RADIO_SOURCE_DESC,
+                         "supported-media", GRL_MEDIA_TYPE_AUDIO,
+                         "source-icon", icon,
+                         "source-tags", tags,
+                         NULL);
+  grl_media_set_url (GRL_FREEBOX_SOURCE(object)->priv->media, FREEBOXRADIO_URL);
   g_object_unref (icon);
 
   return object;
@@ -209,7 +264,6 @@ grl_freebox_source_init (GrlFreeboxSource *source)
   priv = source->priv = GRL_FREEBOX_SOURCE_GET_PRIVATE(source);
 
   priv->media = grl_media_new ();
-  grl_media_set_url (priv->media, FREEBOX_URL);
 }
 
 static void
@@ -273,9 +327,9 @@ remove_flavour (const char *url)
 }
 
 static GrlMedia *
-filter_func (GrlSource   *source,
-             GrlMedia    *media,
-             gpointer     user_data)
+filter_func_tv (GrlSource   *source,
+                GrlMedia    *media,
+                gpointer     user_data)
 {
   GrlFreeboxSourcePrivate *priv = GRL_FREEBOX_SOURCE (source)->priv;
   GrlMedia *ret;
@@ -322,17 +376,61 @@ filter_func (GrlSource   *source,
   return ret;
 }
 
+static GrlMedia *
+filter_func_radio (GrlSource   *source,
+                   GrlMedia    *media,
+                   gpointer     user_data)
+{
+  GrlMedia *ret;
+  const gchar *title;
+  char *new_title;
+
+  title = grl_media_get_title (media);
+  if (title == NULL) {
+    g_object_unref (media);
+    return NULL;
+  }
+
+  /* Title are of the form:
+   * channel_num - Name
+   * such as:
+   * 100003 - France Inter */
+  new_title = cleanup_title (title);
+
+  ret = grl_media_audio_new ();
+  grl_media_set_url (ret, grl_media_get_url (media));
+  grl_media_set_id (ret, grl_media_get_url (media));
+  grl_data_set_int (GRL_DATA (ret), GRL_METADATA_KEY_AUDIO_TRACK,
+                    grl_data_get_int (GRL_DATA (media), GRL_METADATA_KEY_AUDIO_TRACK));
+  grl_media_set_title (ret, new_title);
+  g_free (new_title);
+
+  g_object_unref (media);
+
+  return ret;
+}
+
 static void
 grl_freebox_source_browse (GrlSource           *source,
                            GrlSourceBrowseSpec *bs)
 {
   GrlFreeboxSourcePrivate *priv = GRL_FREEBOX_SOURCE (source)->priv;
 
-  grl_pls_browse (source,
-                  priv->media,
-                  bs->keys,
-                  bs->options,
-                  filter_func,
-                  bs->callback,
-                  bs->user_data);
+  if (g_strcmp0 (grl_source_get_id (source), TV_SOURCE_ID) == 0) {
+    grl_pls_browse (source,
+                    priv->media,
+                    bs->keys,
+                    bs->options,
+                    filter_func_tv,
+                    bs->callback,
+                    bs->user_data);
+  } else {
+    grl_pls_browse (source,
+                    priv->media,
+                    bs->keys,
+                    bs->options,
+                    filter_func_radio,
+                    bs->callback,
+                    bs->user_data);
+  }
 }

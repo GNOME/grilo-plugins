@@ -2,5 +2,6 @@
 <gresources>
   <gresource prefix="/org/gnome/grilo/plugins/freebox">
     <file compressed="false">free.png</file>
+    <file compressed="false">radios.m3u</file>
   </gresource>
 </gresources>

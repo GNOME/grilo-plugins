@@ -1182,6 +1182,13 @@ grl_lua_factory_source_may_resolve (GrlSource *source,
     return FALSE;
   }
 
+  /* If no media is given the caller wants to know all required keys for this source */
+  if (media == NULL) {
+    if (missing_keys)
+      *missing_keys = g_list_copy (lua_source->priv->resolve_keys);
+    return FALSE;
+  }
+
   /* Verify if the source resolve type and media type match */
   res_type = lua_source->priv->resolve_type;
   if ((GRL_IS_MEDIA_BOX (media) && (res_type != GRL_MEDIA_TYPE_ALL))

@@ -416,21 +416,15 @@ grl_freebox_source_browse (GrlSource           *source,
 {
   GrlFreeboxSourcePrivate *priv = GRL_FREEBOX_SOURCE (source)->priv;
 
+  bs->container = g_object_ref (priv->media);
+
   if (g_strcmp0 (grl_source_get_id (source), TV_SOURCE_ID) == 0) {
-    grl_pls_browse (source,
-                    priv->media,
-                    bs->keys,
-                    bs->options,
-                    filter_func_tv,
-                    bs->callback,
-                    bs->user_data);
+    grl_pls_browse_by_spec (source,
+                            filter_func_tv,
+                            bs);
   } else {
-    grl_pls_browse (source,
-                    priv->media,
-                    bs->keys,
-                    bs->options,
-                    filter_func_radio,
-                    bs->callback,
-                    bs->user_data);
+    grl_pls_browse_by_spec (source,
+                            filter_func_radio,
+                            bs);
   }
 }

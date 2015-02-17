@@ -1,3 +1,116 @@
+NEW in 0.2.14
+=============
+
+  * General
+    * BGO#724308 - Make it possible to pass "flags" to "remove()
+    * BGO#725148 - Automatic network awareness
+    * BGO#740942 - core: Fix excessive ref'ing when registering new keys
+    * BGO#740943 - core: Add register_keys plugin function
+    * BGO#741207 - Minor fixes at local-metadata and thetvdb
+    * BGO#743449 - Use HTTPS whenever possible
+    * Added/updated i18n support
+      * Added Turkish
+
+  * Bookmarks plugin
+    * Fix thumbnail URL not getting saved
+    * Fix updating bookmarks
+    * Emit "item-removed" only when item is actually removed
+
+  * dLeyna plugin
+    * BGO#740052 - Crash in the dLeyna plugin
+
+  * Euronews source
+    * BGO#736548 - Folder icons for Euronews and The Guardian Videos
+
+  * Flickr plugin
+    * Small fixes
+
+  * Freebox plugin
+    * BGO#744168 - core: Add "audio-track" property
+
+  * Local Metadata plugin
+    * BGO#740927 - local-metadata: Add support for getting gibest hash
+    * BGO#741562 - local-metadata: Broken title with another TV episode format
+
+  * Lua Factory plugin
+    * BGO#725147 - lua-factory: Support embedded resources
+    * BGO#729680 - Some HTML entities not unescaped by grl.unescape()
+    * BGO#737169 - lua-factory: Avoid warning if fetching an item failed
+    * BGO#739508 - lua-factory: Warn when dates are in an invalid format
+    * BGO#740761 - Correct "file size" metadata key
+    * BGO#740765 - lua-factory: Fix use-after-free
+    * BGO#740928 - lua-factory: Add support for boolean media properties
+    * BGO#742523 - lua-factory: Work-around websites that still use ISO8859-1
+    * BGO#744353 - lua-factory: may_resolve doesn't handle media being NULL
+
+  * OpenSubtitles plugin
+    * New plugin
+    * BGO#740871 - opensubtitles: Add plugin
+
+  * Podcasts plugin
+    * BGO#741258 - podcasts: Fix crasher when DB could not be opened
+
+  * Radiofrance source:
+    * Support EPG down
+    * Added icon
+
+  * TheTVDB plugin
+    * BGO#740763 - Unset "title-from-filename" when changing title
+
+  * TMDb plugin
+    * BGO#739502 - tmdb: Don't try to resolve TV series
+    * BGO#740763 - Unset "title-from-filename" when changing title
+    * BGO#743316 - Add libsoup as dependency to tmdb plugin in configure.ac
+
+  * Tracker plugin
+    * BGO#740707 - tracker: Add range filter support
+    * BGO#740756 - tracker: Correctly set "title-from-filename"
+    * BGO#740761 - Correct "file size" metadata key
+
+  * The Guardian Videos source
+    * BGO#736548 - Folder icons for Euronews and The Guardian Videos
+    * BGO#737176 - guardianvideos: Update for new API
+
+  * YouTube plugin
+    * Small fixes
+    * BGO#744015 - Remove code supporting libgdata < 0.9.1
+
+  * Contributors to this release:
+    * Alexandre Franke <alexandre.franke@gmail.com>
+    * Andika Triwidada <andika@gmail.com>
+    * Ask H. Larsen <asklarsen@gmail.com>
+    * Aurimas Černius <aurisc4@gmail.com>
+    * Balázs Úr <urbalazs@gmail.com>
+    * Bastien Nocera <hadess@hadess.net>
+    * Christian Kirbach <Christian.Kirbach@gmail.com>
+    * Claudio Arseni <claudio.arseni@gmail.com>
+    * Elad Alfassa <elad@fedoraproject.org>
+    * Enrique Ocaña González <eocanha@igalia.com>
+    * Fran Diéguez <fran.dieguez@mabishu.com>
+    * Guilhem Bonnefille <guilhem.bonnefille@gmail.com>
+    * Gábor Kelemen <kelemeng@openscope.org>
+    * Inaki Larranaga Murgoitio <dooteo@zundan.com>
+    * Iris Gou <gouyingqiyanxuan321@gmail.com>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Kjartan Maraas <kmaraas@gnome.org>
+    * Marek Černocký <marek@manet.cz>
+    * Matej Urbančič <mateju@svn.gnome.org>
+    * Mattias Eriksson <snaggen@gmail.com>
+    * Miguel Rodríguez Núñez <bokerones.fritos@gmail.com>
+    * Muhammet Kara <muhammetk@gmail.com>
+    * Pedro Albuquerque <palbuquerque73@gmail.com>
+    * Piotr Drąg <piotrdrag@gmail.com>
+    * Rafael Ferreira <rafael.f.f1@gmail.com>
+    * Rūdolfs Mazurs <rudolfsm@src.gnome.org>
+    * Sebastian Keller <sebastian-keller@gmx.de>
+    * Seong-ho Cho <shcho@gnome.org>
+    * Victor Toso <me@victortoso.com>
+    * Yanko Kaneti <yaneti@declera.com>
+    * Yosef Or Boczko <yoseforb@src.gnome.org>
+    * Yuri Myasoedov <ymyasoedov@yandex.ru>
+    * Мирослав Николић <miroslavnikolic@rocketmail.com>
+
+
 NEW in 0.2.13
 =============
 

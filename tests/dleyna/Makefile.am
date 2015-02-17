@@ -17,8 +17,8 @@ noinst_PROGRAMS = \
 	test_dleyna
 
 if DLEYNA_TESTS_RUN_DBUSMOCK
-TEST_PROGS += \
-	test_dleyna
+#TEST_PROGS += \
+#	test_dleyna
 endif
 
 # Let the .c source code know about these paths, even when sourcedir!=builddir,

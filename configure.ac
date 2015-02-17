@@ -162,7 +162,7 @@ PKG_CHECK_MODULES(AVAHI, [avahi-gobject avahi-glib avahi-client], HAVE_AVAHI=yes
 
 PKG_CHECK_MODULES(MEDIAART, [libmediaart-2.0], HAVE_MEDIAART=yes, HAVE_MEDIAART=no)
 
-PKG_CHECK_MODULES(GOM, [gom-1.0 >= 0.2.1], HAVE_GOM=yes, HAVE_GOM=no)
+PKG_CHECK_MODULES(GOM, [gom-1.0 >= 0.3.0], HAVE_GOM=yes, HAVE_GOM=no)
 
 # Search available Tracker version
 trackerpkg="tracker-sparql-0.10"

@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-02-19 09:45+0000\n"
-"PO-Revision-Date: 2015-02-19 16:07+0300\n"
+"POT-Creation-Date: 2015-02-19 13:12+0000\n"
+"PO-Revision-Date: 2015-02-19 16:10+0300\n"
 "Last-Translator: Yuri Myasoedov <ymyasoedov@yandex.ru>\n"
 "Language-Team: русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
@@ -626,3 +626,9 @@ msgstr "Источник для обзора и поиска видео YouTube"
 #: ../src/youtube/grl-youtube.c:950
 msgid "Failed to get feed"
 msgstr "Не удалось получить канал"
+
+#: ../src/youtube/grl-youtube.c:1127 ../src/youtube/grl-youtube.c:1508
+#, c-format
+#| msgid "Invalid identifier %s"
+msgid "Invalid feed identifier %s"
+msgstr "Некорректный идентификатор канала %s"

@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-02-12 21:29+0000\n"
-"PO-Revision-Date: 2015-02-14 12:39+0300\n"
+"POT-Creation-Date: 2015-02-19 09:45+0000\n"
+"PO-Revision-Date: 2015-02-19 16:07+0300\n"
 "Last-Translator: Yuri Myasoedov <ymyasoedov@yandex.ru>\n"
 "Language-Team: русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
@@ -170,13 +170,21 @@ msgstr "Flickr пользователя %s"
 msgid "A source for browsing and searching %s's flickr photos"
 msgstr "Источник для обзора и поиска фотографий flickr пользователя %s"
 
-#: ../src/freebox/grl-freebox.c:49
+#: ../src/freebox/grl-freebox.c:50
 msgid "Freebox TV"
 msgstr "Freebox TV"
 
-#: ../src/freebox/grl-freebox.c:50
+#: ../src/freebox/grl-freebox.c:51
 msgid "A source for browsing Freebox TV channels"
 msgstr "Источник для просмотра каналов Freebox TV"
+
+#: ../src/freebox/grl-freebox.c:54
+msgid "Freebox Radio"
+msgstr "Радио Freebox"
+
+#: ../src/freebox/grl-freebox.c:55
+msgid "A source for browsing Freebox radio channels"
+msgstr "Источник для просмотра каналов радио Freebox"
 
 #: ../src/gravatar/grl-gravatar.c:48
 msgid "Avatar provider from Gravatar"
@@ -554,12 +562,12 @@ msgstr "Пустой запрос"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Модуль поиска мультимедиа-контента с помощью трекера"
 
-#: ../src/tracker/grl-tracker-utils.c:633
+#: ../src/tracker/grl-tracker-utils.c:635
 #, c-format
 msgid "Removable - %s"
 msgstr "Сменный - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:645
+#: ../src/tracker/grl-tracker-utils.c:647
 msgid "Local files"
 msgstr "Локальные файлы"
 
@@ -618,8 +626,3 @@ msgstr "Источник для обзора и поиска видео YouTube"
 #: ../src/youtube/grl-youtube.c:950
 msgid "Failed to get feed"
 msgstr "Не удалось получить канал"
-
-#: ../src/youtube/grl-youtube.c:1127 ../src/youtube/grl-youtube.c:1508
-#, c-format
-msgid "Invalid feed identifier %s"
-msgstr "Некорректный идентификатор канала %s"

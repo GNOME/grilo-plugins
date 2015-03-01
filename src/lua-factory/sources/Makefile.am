@@ -15,7 +15,8 @@ lua_sources_DATA =					\
 	grl-musicbrainz.lua				\
 	grl-euronews.gresource.xml			\
 	grl-guardianvideos.gresource.xml		\
-	grl-radiofrance.gresource.xml
+	grl-radiofrance.gresource.xml \
+	grl-video-title-parsing.lua
 
 lua_sourcesdir = $(datadir)/$(LUA_FACTORY_SOURCE_LOCATION)
 

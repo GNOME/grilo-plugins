@@ -23,6 +23,7 @@
 #include <grilo.h>
 
 #define LOCAL_METADATA_ID "grl-local-metadata"
+#define LUA_FACTORY_ID "grl-lua-factory"
 
 static void
 test_setup (void)
@@ -60,7 +61,7 @@ get_show_for_title (GrlSource  *source,
 				    GRL_METADATA_KEY_EPISODE_TITLE,
 				    NULL);
   options = grl_operation_options_new (NULL);
-  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_NORMAL);
 
   grl_source_resolve_sync (source,
 			   media,
@@ -83,7 +84,8 @@ get_show_for_title (GrlSource  *source,
 }
 
 static void
-test_episodes (void)
+test_episodes_by_source (const gchar *source_name,
+                         gboolean check_for_uris)
 {
   GrlRegistry *registry;
   GrlSource *source;
@@ -113,7 +115,6 @@ test_episodes (void)
     { NULL, "file:///home/hadess/.cache/totem/media/140127Mata-16x9%20(bug%20723166).mp4", NULL, NULL, 0, 0 }
   };
 
-
   registry = grl_registry_get_default ();
   source = grl_registry_lookup_source (registry, "grl-local-metadata");
   g_assert (source);
@@ -121,6 +122,10 @@ test_episodes (void)
   for (i = 0; i < G_N_ELEMENTS(episode_tests); i++) {
     char *show, *new_title;
     int season, episode;
+
+    /* grl-video-title-parsing needs title */
+    if (episode_tests[i].title == NULL && check_for_uris == FALSE)
+      continue;
 
     show = get_show_for_title (source, episode_tests[i].title, episode_tests[i].url, &new_title, &season, &episode);
     g_assert_cmpstr (episode_tests[i].show, ==, show);
@@ -132,6 +137,18 @@ test_episodes (void)
     g_free (show);
     g_clear_pointer (&new_title, g_free);
   }
+}
+
+static void
+test_episodes (void)
+{
+  test_episodes_by_source (LOCAL_METADATA_ID, TRUE);
+}
+
+static void
+test_episodes_lua (void)
+{
+  test_episodes_by_source (LUA_FACTORY_ID, FALSE);
 }
 
 static void
@@ -188,8 +205,13 @@ test_title_override (void)
 int
 main(int argc, char **argv)
 {
-  g_setenv ("GRL_PLUGIN_PATH", LOCAL_METADATA_PLUGIN_PATH, TRUE);
-  g_setenv ("GRL_PLUGIN_LIST", LOCAL_METADATA_ID, TRUE);
+  gchar *plugins = g_strdup_printf ("%s:%s", LOCAL_METADATA_ID, LUA_FACTORY_ID);
+  gchar *plugins_path = g_strdup_printf ("%s:%s", LOCAL_METADATA_PLUGIN_PATH, LUA_FACTORY_PLUGIN_PATH);
+  g_setenv ("GRL_PLUGIN_PATH", plugins_path, TRUE);
+  g_setenv ("GRL_PLUGIN_LIST", plugins, TRUE);
+  g_setenv ("GRL_LUA_SOURCES_PATH", LUA_SOURCES_PATH, TRUE);
+  g_free (plugins);
+  g_free (plugins_path);
 
   grl_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
@@ -202,6 +224,7 @@ main(int argc, char **argv)
 
   g_test_add_func ("/local-metadata/resolve/episodes", test_episodes);
   g_test_add_func ("/local-metadata/resolve/title-override", test_title_override);
+  g_test_add_func ("/lua-factory/video-title-parsing/resolve/episodes", test_episodes_lua);
 
   gint result = g_test_run ();
 

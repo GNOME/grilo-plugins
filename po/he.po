@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins 0.2.10\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-12 12:36+0200\n"
-"PO-Revision-Date: 2014-12-12 12:37+0200\n"
-"Last-Translator: Yosef Or Boczko <yoseforb@gnome.org>\n"
+"POT-Creation-Date: 2015-03-02 01:14+0200\n"
+"PO-Revision-Date: 2015-03-02 01:15+0200\n"
+"Last-Translator: Yosef Or Boczko <yoseforb@gmail.com>\n"
 "Language-Team: עברית <>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
@@ -59,29 +59,29 @@ msgstr "סימניות"
 msgid "A source for organizing media bookmarks"
 msgstr "מקור לארגון סימניות מדיה"
 
-#: ../src/bookmarks/grl-bookmarks.c:421
+#: ../src/bookmarks/grl-bookmarks.c:428
 msgid "Failed to get bookmark metadata"
 msgstr "Failed to get bookmark metadata"
 
-#: ../src/bookmarks/grl-bookmarks.c:451 ../src/bookmarks/grl-bookmarks.c:468
+#: ../src/bookmarks/grl-bookmarks.c:458 ../src/bookmarks/grl-bookmarks.c:475
 #, c-format
 msgid "Failed to find bookmarks: %s"
 msgstr "Failed to find bookmarks: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:620 ../src/podcasts/grl-podcasts.c:821
+#: ../src/bookmarks/grl-bookmarks.c:627 ../src/podcasts/grl-podcasts.c:821
 #: ../src/podcasts/grl-podcasts.c:853 ../src/podcasts/grl-podcasts.c:885
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Failed to remove: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:760 ../src/podcasts/grl-podcasts.c:926
+#: ../src/bookmarks/grl-bookmarks.c:767 ../src/podcasts/grl-podcasts.c:926
 #: ../src/podcasts/grl-podcasts.c:959 ../src/podcasts/grl-podcasts.c:1804
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Failed to store: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:834 ../src/bookmarks/grl-bookmarks.c:869
-#: ../src/bookmarks/grl-bookmarks.c:900 ../src/bookmarks/grl-bookmarks.c:958
+#: ../src/bookmarks/grl-bookmarks.c:841 ../src/bookmarks/grl-bookmarks.c:876
+#: ../src/bookmarks/grl-bookmarks.c:907 ../src/bookmarks/grl-bookmarks.c:965
 #: ../src/metadata-store/grl-metadata-store.c:849
 #: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
 #: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
@@ -146,7 +146,7 @@ msgstr "מקור לדפדוף במערכת הקבצים"
 msgid "File %s does not exist"
 msgstr "File %s does not exist"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1636
+#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1591
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Cannot get media from %s"
@@ -167,13 +167,21 @@ msgstr "‏Flickr של %s"
 msgid "A source for browsing and searching %s's flickr photos"
 msgstr "מקור לדפסוף ולחיפוש תמונות Flickr של %s"
 
-#: ../src/freebox/grl-freebox.c:49
+#: ../src/freebox/grl-freebox.c:50
 msgid "Freebox TV"
 msgstr "Freebox TV"
 
-#: ../src/freebox/grl-freebox.c:50
+#: ../src/freebox/grl-freebox.c:51
 msgid "A source for browsing Freebox TV channels"
 msgstr "מקור לדפדוף ערוצי Freebox TV"
+
+#: ../src/freebox/grl-freebox.c:54
+msgid "Freebox Radio"
+msgstr "רדיו Freebox"
+
+#: ../src/freebox/grl-freebox.c:55
+msgid "A source for browsing Freebox radio channels"
+msgstr "מקור לדפדפוף בערוצי רדיו של Freebox"
 
 #: ../src/gravatar/grl-gravatar.c:48
 msgid "Avatar provider from Gravatar"
@@ -221,8 +229,8 @@ msgstr "הזנות"
 msgid "Invalid identifier %s"
 msgstr "Invalid identifier %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1204
-#: ../src/youtube/grl-youtube.c:1345 ../src/youtube/grl-youtube.c:1563
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1189
+#: ../src/youtube/grl-youtube.c:1320 ../src/youtube/grl-youtube.c:1528
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Invalid category identifier %s"
@@ -253,18 +261,18 @@ msgstr "ספק מידע מקומי"
 msgid "A source providing locally available metadata"
 msgstr "מקור המספק מידע מקומי זמין"
 
-#: ../src/local-metadata/grl-local-metadata.c:589
+#: ../src/local-metadata/grl-local-metadata.c:609
 #: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:868
-#: ../src/tracker/grl-tracker-source-api.c:526
+#: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Failed to resolve: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:1013
+#: ../src/local-metadata/grl-local-metadata.c:1033
 msgid "Cannot resolve any of the given keys"
 msgstr "Cannot resolve any of the given keys"
 
-#: ../src/local-metadata/grl-local-metadata.c:1017
+#: ../src/local-metadata/grl-local-metadata.c:1037
 msgid "A GIO supported URL for images is required"
 msgstr "A GIO supported URL for images is required"
 
@@ -307,7 +315,7 @@ msgstr "תוסף לאחסון מידע חיצוני נוסף"
 #: ../src/metadata-store/grl-metadata-store.c:573
 #: ../src/metadata-store/grl-metadata-store.c:592
 #: ../src/metadata-store/grl-metadata-store.c:804
-#: ../src/tracker/grl-tracker-source-api.c:636
+#: ../src/tracker/grl-tracker-source-api.c:637
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Failed to update metadata: %s"
@@ -525,25 +533,25 @@ msgstr "non-NULL search text is required"
 msgid "A source for fetching metadata of television shows"
 msgstr "מקור למשיכת מידע על תכניות טלוויזיה"
 
-#: ../src/tmdb/grl-tmdb.c:990
+#: ../src/tmdb/grl-tmdb.c:996
 msgid "Remote data does not contain valid identifier"
 msgstr "Remote data does not contain valid identifier"
 
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:397
-#: ../src/tracker/grl-tracker-source-api.c:480
+#: ../src/tracker/grl-tracker-source-api.c:398
+#: ../src/tracker/grl-tracker-source-api.c:481
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Failed to query: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:581
+#: ../src/tracker/grl-tracker-source-api.c:582
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Failed to get media from uri: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:753
+#: ../src/tracker/grl-tracker-source-api.c:802
 msgid "Empty query"
 msgstr "Empty query"
 
@@ -551,12 +559,12 @@ msgstr "Empty query"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "תוסף לחיפוש תוכן מולטימדיה באמצעות Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:659
+#: ../src/tracker/grl-tracker-utils.c:635
 #, c-format
 msgid "Removable - %s"
 msgstr "ניתן למחיקה - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:671
+#: ../src/tracker/grl-tracker-utils.c:647
 msgid "Local files"
 msgstr "קבצים מקומיים"
 
@@ -612,11 +620,11 @@ msgstr "נצפה בנייד"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "מקור לדפדוף ולחיפוש סרטוני YouTube"
 
-#: ../src/youtube/grl-youtube.c:954
+#: ../src/youtube/grl-youtube.c:950
 msgid "Failed to get feed"
 msgstr "Failed to get feed"
 
-#: ../src/youtube/grl-youtube.c:1131 ../src/youtube/grl-youtube.c:1543
+#: ../src/youtube/grl-youtube.c:1127 ../src/youtube/grl-youtube.c:1508
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Invalid feed identifier %s"

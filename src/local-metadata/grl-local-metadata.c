@@ -288,7 +288,7 @@ video_sanitise_string (const gchar *str)
   line = g_regex_replace_literal(regex, line, -1, 0, ".", 0, NULL);
   g_regex_unref(regex);
 
-  return g_strdup (line);
+  return line;
 }
 
 /* tidies strings before we run them through the regexes */

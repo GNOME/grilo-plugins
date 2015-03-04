@@ -86,24 +86,23 @@ end
 
 function metrolyrics_get_lyrics(feed)
   local media = {}
-  local res = {}
-  local lyrics_body = '<div class="lyrics%-body">(.-)</div>'
-  local lyrics_verse = "<p class='verse'>(.-)</p>"
+  local lyrics_body = '<div id="lyrics%-body%-text">(.-)</div>'
+  local noise_array = {
+    { noise = "<p class='verse'><p class='verse'>",  sub = "\n\n" },
+    { noise = "<p class='verse'>",  sub = "" },
+    { noise = "<br/>",  sub = "" },
+  }
 
-  -- from html, get lyrics line by line into table res
+  -- remove html noise
   feed = feed:match(lyrics_body)
-  for verse in feed:gmatch(lyrics_verse) do
-    local start = 1
-    local e, s = verse:find("<br/>")
-    while (e) do
-      res[#res + 1] = verse:sub(start, e-1)
-      start = s+1
-      e, s = verse:find("<br/>", start)
-    end
-    res[#res + 1] = verse:sub(start, #verse) .. '\n\n'
+  for _, it in ipairs (noise_array) do
+    feed = feed:gsub(it.noise, it.sub)
   end
 
+  -- strip the lyrics
+  feed = feed:gsub("^[%s%W]*(.-)[%s%W]*$", "%1")
+
   -- switch table to string
-  media.lyrics = table.concat(res)
+  media.lyrics = feed
   return media
 end

@@ -20,7 +20,7 @@ lua_sources_DATA =					\
 
 lua_sourcesdir = $(datadir)/$(LUA_FACTORY_SOURCE_LOCATION)
 
-grl-euronews.gresource: grl-guardianvideos.gresource.xml
+grl-euronews.gresource: grl-euronews.gresource.xml
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-euronews.gresource.xml
 
 grl-guardianvideos.gresource: grl-guardianvideos.gresource.xml

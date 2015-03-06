@@ -13,9 +13,9 @@ lua_sources_DATA =					\
 	grl-euronews.lua				\
 	grl-guardianvideos.lua				\
 	grl-musicbrainz.lua				\
-	grl-euronews.gresource.xml			\
-	grl-guardianvideos.gresource.xml		\
-	grl-radiofrance.gresource.xml \
+	grl-euronews.gresource				\
+	grl-guardianvideos.gresource			\
+	grl-radiofrance.gresource			\
 	grl-video-title-parsing.lua
 
 lua_sourcesdir = $(datadir)/$(LUA_FACTORY_SOURCE_LOCATION)
@@ -31,7 +31,14 @@ grl-radiofrance.gresource: grl-radiofrance.gresource.xml
 
 CLEANFILES = grl-euronews.gresource grl-guardianvideos.gresource grl-radiofrance.gresource
 
-EXTRA_DIST += $(lua_sources_DATA) euronews.svg guardianvideos.svg radiofrance.png
+EXTRA_DIST +=						\
+	$(lua_sources_DATA)				\
+	grl-euronews.gresource.xml			\
+	grl-guardianvideos.gresource.xml		\
+	grl-radiofrance.gresource.xml			\
+	euronews.svg					\
+	guardianvideos.svg				\
+	radiofrance.png
 
 MAINTAINERCLEANFILES = *.in *~
 

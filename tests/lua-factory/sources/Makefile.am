@@ -50,4 +50,6 @@ MAINTAINERCLEANFILES = 	\
    *.in		\
    *~
 
+EXTRA_DIST = $(metrolyrics_resources_files) test_lua_metrolyrics.gresource.xml
+
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)

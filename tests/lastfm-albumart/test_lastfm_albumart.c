@@ -161,7 +161,7 @@ test_resolve_good_found (void)
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
 
   options = grl_operation_options_new (NULL);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_FULL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
 
   grl_source_resolve_sync (source, media, keys, options, &error);
 
@@ -211,7 +211,7 @@ test_resolve_good_found_default (void)
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
 
   options = grl_operation_options_new (NULL);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_FULL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
 
   grl_source_resolve_sync (source, media, keys, options, &error);
 
@@ -247,7 +247,7 @@ test_resolve_good_not_found (void)
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
 
   options = grl_operation_options_new (NULL);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_FULL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
 
   grl_source_resolve_sync (source, media, keys, options, &error);
 
@@ -283,7 +283,7 @@ test_resolve_missing_key (void)
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
 
   options = grl_operation_options_new (NULL);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_FULL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
 
   grl_source_resolve_sync (source, media, keys, options, &error);
 

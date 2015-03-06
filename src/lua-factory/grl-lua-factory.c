@@ -328,7 +328,7 @@ bail:
     g_list_free (source->priv->slow_keys);
   }
 
-  g_clear_object (&resource);
+  g_clear_pointer (&resource, g_resource_unref);
   g_free (source_id);
   lua_close (L);
   return NULL;

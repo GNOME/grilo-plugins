@@ -376,6 +376,10 @@ parse_results (GrlMedia    *media,
   data_val = g_hash_table_lookup (response, "data");
   if (!data_val)
     goto out;
+  if (!G_VALUE_HOLDS_BOXED (data_val)) {
+    GRL_DEBUG ("No matching subtitles in response");
+    goto out;
+  }
   data = g_value_get_boxed (data_val);
   subs = g_hash_table_new_full (g_str_hash, g_str_equal,
 				g_free, (GDestroyNotify) subtitle_data_free);

@@ -68,7 +68,7 @@ get_episode_metadata_from_episode (GrlSource *source,
                                     NULL);
 
   options = grl_operation_options_new (NULL);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_NORMAL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_NORMAL);
 
   grl_source_resolve_sync (source,
                            GRL_MEDIA (video),

@@ -260,7 +260,7 @@ test_episodes_stress (void)
 
   caps = grl_source_get_caps (source, GRL_OP_RESOLVE);
   options = grl_operation_options_new (caps);
-  grl_operation_options_set_flags (options, GRL_RESOLVE_NORMAL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_NORMAL);
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_EPISODE_TITLE,
                                     GRL_METADATA_KEY_PUBLICATION_DATE,

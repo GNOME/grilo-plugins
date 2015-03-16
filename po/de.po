@@ -3,15 +3,15 @@
 # This file is distributed under the same license as the grilo-plugins package.
 # Christian Kirbach <christian.kirbach@gmail.com>, 2013.
 # Wolfgang Stöggl <c72578@yahoo.de>, 2014.
+# Paul Seyfert <pseyfert@mathphys.fsk.uni-heidelberg.de>, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
-"plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-12-09 00:40+0000\n"
-"PO-Revision-Date: 2014-12-23 23:09+0100\n"
-"Last-Translator: Christian Kirbach <christian.kirbach@gmail.com>\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-plugins&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2015-02-17 17:06+0000\n"
+"PO-Revision-Date: 2015-03-16 16:04+0100\n"
+"Last-Translator: Paul Seyfert <pseyfert@mathphys.fsk.uni-heidelberg.de>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -28,22 +28,26 @@ msgstr "Apple Filmvorschau"
 msgid "A plugin for browsing Apple Movie Trailers"
 msgstr "Ein Plugin zum Durchsuchen von Apple Filmvorschauen"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:468
-#: ../src/jamendo/grl-jamendo.c:333 ../src/jamendo/grl-jamendo.c:694
-#: ../src/shoutcast/grl-shoutcast.c:405 ../src/shoutcast/grl-shoutcast.c:459
+#: ../src/apple-trailers/grl-apple-trailers.c:469
+#: ../src/jamendo/grl-jamendo.c:339
+#: ../src/jamendo/grl-jamendo.c:700
+#: ../src/shoutcast/grl-shoutcast.c:410
+#: ../src/shoutcast/grl-shoutcast.c:464
 msgid "Failed to parse response"
 msgstr "Verarbeitung der Antwort ist gescheitert"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:476
-#: ../src/jamendo/grl-jamendo.c:341 ../src/jamendo/grl-jamendo.c:348
-#: ../src/podcasts/grl-podcasts.c:1356 ../src/shoutcast/grl-shoutcast.c:413
+#: ../src/apple-trailers/grl-apple-trailers.c:477
+#: ../src/jamendo/grl-jamendo.c:347
+#: ../src/jamendo/grl-jamendo.c:354
+#: ../src/podcasts/grl-podcasts.c:1361
+#: ../src/shoutcast/grl-shoutcast.c:418
 msgid "Empty response"
 msgstr "Leere Antwort"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:531
-#: ../src/jamendo/grl-jamendo.c:663
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:247
-#: ../src/shoutcast/grl-shoutcast.c:547
+#: ../src/apple-trailers/grl-apple-trailers.c:532
+#: ../src/jamendo/grl-jamendo.c:669
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:252
+#: ../src/shoutcast/grl-shoutcast.c:552
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Verbindung fehlgeschlagen: %s"
@@ -60,32 +64,41 @@ msgstr "Lesezeichen"
 msgid "A source for organizing media bookmarks"
 msgstr "Eine Quelle zum Organisieren von Medien-Lesezeichen"
 
-#: ../src/bookmarks/grl-bookmarks.c:421
+#: ../src/bookmarks/grl-bookmarks.c:428
 msgid "Failed to get bookmark metadata"
 msgstr "Ermitteln der Metadaten der Lesezeichen gescheitert: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:451 ../src/bookmarks/grl-bookmarks.c:468
+#: ../src/bookmarks/grl-bookmarks.c:458
+#: ../src/bookmarks/grl-bookmarks.c:475
 #, c-format
 msgid "Failed to find bookmarks: %s"
 msgstr "Ermitteln der Lesezeichen ist gescheitert: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:620 ../src/podcasts/grl-podcasts.c:816
-#: ../src/podcasts/grl-podcasts.c:848 ../src/podcasts/grl-podcasts.c:880
+#: ../src/bookmarks/grl-bookmarks.c:627
+#: ../src/podcasts/grl-podcasts.c:821
+#: ../src/podcasts/grl-podcasts.c:853
+#: ../src/podcasts/grl-podcasts.c:885
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Entfernen ist fehlgeschlagen: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:760 ../src/podcasts/grl-podcasts.c:921
-#: ../src/podcasts/grl-podcasts.c:954 ../src/podcasts/grl-podcasts.c:1799
+#: ../src/bookmarks/grl-bookmarks.c:767
+#: ../src/podcasts/grl-podcasts.c:926
+#: ../src/podcasts/grl-podcasts.c:959
+#: ../src/podcasts/grl-podcasts.c:1804
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Speichern gescheitert: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:834 ../src/bookmarks/grl-bookmarks.c:869
-#: ../src/bookmarks/grl-bookmarks.c:900 ../src/bookmarks/grl-bookmarks.c:958
+#: ../src/bookmarks/grl-bookmarks.c:841
+#: ../src/bookmarks/grl-bookmarks.c:876
+#: ../src/bookmarks/grl-bookmarks.c:907
+#: ../src/bookmarks/grl-bookmarks.c:965
 #: ../src/metadata-store/grl-metadata-store.c:849
-#: ../src/podcasts/grl-podcasts.c:1655 ../src/podcasts/grl-podcasts.c:1699
-#: ../src/podcasts/grl-podcasts.c:1733 ../src/podcasts/grl-podcasts.c:1768
+#: ../src/podcasts/grl-podcasts.c:1660
+#: ../src/podcasts/grl-podcasts.c:1704
+#: ../src/podcasts/grl-podcasts.c:1738
+#: ../src/podcasts/grl-podcasts.c:1773
 msgid "No database connection"
 msgstr "Keine Datenbank-Verbindung"
 
@@ -106,33 +119,34 @@ msgstr "Hochladen schlug fehl, »%s«, %lu von %lu Bytes wurden übertragen"
 #: ../src/dleyna/grl-dleyna-source.c:880
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
-msgstr ""
-"Ermitteln der Objekt-Eigenschaften schlug fehl (BrowseObjects-Fehler %d: %s)"
+msgstr "Ermitteln der Objekt-Eigenschaften schlug fehl (BrowseObjects-Fehler %d: %s)"
 
 #: ../src/dleyna/grl-dleyna-source.c:1519
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
-msgstr ""
-"Hochladen schlug fehl. Adresse fehlt auf dem Medienobjekt, welches "
-"übertragen werden soll"
+msgstr "Hochladen schlug fehl. Adresse fehlt auf dem Medienobjekt, welches übertragen werden soll"
 
 #: ../src/dmap/grl-dmap.c:51
 #, c-format
 msgid "A source for browsing the DMAP server '%s'"
 msgstr "Eine Quelle zum Durchsuchen des DMAP-Servers »%s«"
 
-#: ../src/dmap/simple-dmap-db.c:62 ../src/jamendo/grl-jamendo.c:781
+#: ../src/dmap/simple-dmap-db.c:62
+#: ../src/jamendo/grl-jamendo.c:787
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Alben"
 
-#: ../src/dmap/simple-dmap-db.c:64 ../src/jamendo/grl-jamendo.c:770
+#: ../src/dmap/simple-dmap-db.c:64
+#: ../src/jamendo/grl-jamendo.c:776
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Künstler"
 
-#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1108
-#: ../src/jamendo/grl-jamendo.c:1183 ../src/magnatune/grl-magnatune.c:829
+#: ../src/dmap/simple-dmap-db.c:293
+#: ../src/jamendo/grl-jamendo.c:1114
+#: ../src/jamendo/grl-jamendo.c:1189
+#: ../src/magnatune/grl-magnatune.c:834
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Ungültiger Container-Bezeichner %s"
@@ -150,7 +164,8 @@ msgstr "Eine Quelle zum Durchsuchen des Dateisystems"
 msgid "File %s does not exist"
 msgstr "Die Datei %s existiert nicht"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1631
+#: ../src/filesystem/grl-filesystem.c:1226
+#: ../src/youtube/grl-youtube.c:1591
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Holen von Medien auf %s fehlgeschlagen"
@@ -171,13 +186,21 @@ msgstr "Flickr von %s"
 msgid "A source for browsing and searching %s's flickr photos"
 msgstr "Eine Quelle zum Durchsuchen der flickr-Fotos von %s"
 
-#: ../src/freebox/grl-freebox.c:49
+#: ../src/freebox/grl-freebox.c:50
 msgid "Freebox TV"
 msgstr "Freebox TV"
 
-#: ../src/freebox/grl-freebox.c:50
+#: ../src/freebox/grl-freebox.c:51
 msgid "A source for browsing Freebox TV channels"
 msgstr "Eine Quelle zum Durchsuchen von Freebox TV-Kanälen"
+
+#: ../src/freebox/grl-freebox.c:54
+msgid "Freebox Radio"
+msgstr "Freebox Radio"
+
+#: ../src/freebox/grl-freebox.c:55
+msgid "A source for browsing Freebox radio channels"
+msgstr "Eine Quelle zum Durchsuchen von Freebox Radio-Kanälen"
 
 #: ../src/gravatar/grl-gravatar.c:48
 msgid "Avatar provider from Gravatar"
@@ -185,8 +208,7 @@ msgstr "Benutzerbilder von Gravatar"
 
 #: ../src/gravatar/grl-gravatar.c:49
 msgid "A plugin to get avatars for artist and author fields"
-msgstr ""
-"Ein Plugin zum Holen von Benutzerbildern für Künstler und Künstler-Felder"
+msgstr "Ein Plugin zum Holen von Benutzerbildern für Künstler und Künstler-Felder"
 
 #: ../src/jamendo/grl-jamendo.c:93
 msgid "A source for browsing and searching Jamendo music"
@@ -216,28 +238,31 @@ msgstr "Beliebteste Alben"
 msgid "Top tracks"
 msgstr "Beste Titel"
 
-#: ../src/jamendo/grl-jamendo.c:792
+#: ../src/jamendo/grl-jamendo.c:798
 msgid "Feeds"
 msgstr "Quellen"
 
-#: ../src/jamendo/grl-jamendo.c:976 ../src/jamendo/grl-jamendo.c:1021
-#: ../src/jamendo/grl-jamendo.c:1048
+#: ../src/jamendo/grl-jamendo.c:982
+#: ../src/jamendo/grl-jamendo.c:1027
+#: ../src/jamendo/grl-jamendo.c:1054
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Ungültiger Bezeichner %s"
 
-#: ../src/jamendo/grl-jamendo.c:1035 ../src/youtube/grl-youtube.c:1199
-#: ../src/youtube/grl-youtube.c:1340 ../src/youtube/grl-youtube.c:1558
+#: ../src/jamendo/grl-jamendo.c:1041
+#: ../src/youtube/grl-youtube.c:1189
+#: ../src/youtube/grl-youtube.c:1320
+#: ../src/youtube/grl-youtube.c:1528
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Ungültiger Kategorie-Bezeichner %s"
 
-#: ../src/jamendo/grl-jamendo.c:1178
+#: ../src/jamendo/grl-jamendo.c:1184
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Durchsuchen fehlgeschlagen: %s ist ein Musiktitel"
 
-#: ../src/jamendo/grl-jamendo.c:1238
+#: ../src/jamendo/grl-jamendo.c:1244
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Fehlerhafte Anfrage »%s«"
@@ -258,18 +283,19 @@ msgstr "Lokale Metadaten"
 msgid "A source providing locally available metadata"
 msgstr "Eine Quelle, die lokal verfügbare Metadaten liefert"
 
-#: ../src/local-metadata/grl-local-metadata.c:584
-#: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:861
-#: ../src/tracker/grl-tracker-source-api.c:526
+#: ../src/local-metadata/grl-local-metadata.c:609
+#: ../src/metadata-store/grl-metadata-store.c:759
+#: ../src/raitv/grl-raitv.c:868
+#: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Es konnte nicht aufgelöst werden: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:996
+#: ../src/local-metadata/grl-local-metadata.c:1033
 msgid "Cannot resolve any of the given keys"
 msgstr "Auflösen von allen Schlüsselwörtern fehlgeschlagen"
 
-#: ../src/local-metadata/grl-local-metadata.c:1000
+#: ../src/local-metadata/grl-local-metadata.c:1037
 msgid "A GIO supported URL for images is required"
 msgstr "Eine von GIO unterstützte Adresse für Bilder wird benötigt"
 
@@ -281,22 +307,22 @@ msgstr "Genres"
 msgid "A source for browsing music"
 msgstr "Eine Quelle zum Durchsuchen von Musik"
 
-#: ../src/magnatune/grl-magnatune.c:406
+#: ../src/magnatune/grl-magnatune.c:411
 #, c-format
 msgid "Failed to get database from magnatune: %s"
 msgstr "Ermitteln der Datenbank von Magnatune ist fehlgeschlagen: %s"
 
-#: ../src/magnatune/grl-magnatune.c:436
+#: ../src/magnatune/grl-magnatune.c:441
 #, c-format
 msgid "Failed to save database from magnatune - '%s'"
 msgstr "Speichern der Magnatune-Datenbank ist fehlgeschlagen - »%s«"
 
-#: ../src/magnatune/grl-magnatune.c:684
+#: ../src/magnatune/grl-magnatune.c:689
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
 msgstr "Holen der Datenbank von Magnatune ist fehlgeschlagen: %s"
 
-#: ../src/magnatune/grl-magnatune.c:700
+#: ../src/magnatune/grl-magnatune.c:705
 #, c-format
 msgid "Fail before returning media to user: %s"
 msgstr "Fehlschlag beim Zurücksenden der Medien zum Benutzer: %s"
@@ -312,7 +338,7 @@ msgstr "Ein Plugin zur Speicherung von zusätzlichen Metadaten"
 #: ../src/metadata-store/grl-metadata-store.c:573
 #: ../src/metadata-store/grl-metadata-store.c:592
 #: ../src/metadata-store/grl-metadata-store.c:804
-#: ../src/tracker/grl-tracker-source-api.c:636
+#: ../src/tracker/grl-tracker-source-api.c:637
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Aktualisieren der Metadaten ist fehlgeschlagen: %s"
@@ -335,8 +361,10 @@ msgid "Failed to resolve"
 msgstr "Auflösen schlug fehl"
 
 #: ../src/metadata-store/grl-metadata-store.c:917
-#: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:419
-#: ../src/shoutcast/grl-shoutcast.c:745 ../src/vimeo/grl-vimeo.c:541
+#: ../src/metadata-store/grl-metadata-store.c:954
+#: ../src/raitv/grl-raitv.c:426
+#: ../src/shoutcast/grl-shoutcast.c:750
+#: ../src/vimeo/grl-vimeo.c:546
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Suche ist fehlgeschlagen: %s"
@@ -369,46 +397,51 @@ msgstr "Eine Quelle zum Durchsuchen von Videos des Online-Dienstes Pocket"
 msgid "A source for browsing podcasts"
 msgstr "Eine Quelle zum Durchsuchen von Podcasts"
 
-#: ../src/podcasts/grl-podcasts.c:752 ../src/podcasts/grl-podcasts.c:772
+#: ../src/podcasts/grl-podcasts.c:757
+#: ../src/podcasts/grl-podcasts.c:777
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "Empfang des Podcast-Stroms ist fehlgeschlagen: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1238 ../src/podcasts/grl-podcasts.c:1247
-#: ../src/podcasts/grl-podcasts.c:1257
+#: ../src/podcasts/grl-podcasts.c:1243
+#: ../src/podcasts/grl-podcasts.c:1252
+#: ../src/podcasts/grl-podcasts.c:1262
 msgid "Failed to parse content"
 msgstr "Verarbeitung des Inhalts ist fehlgeschlagen"
 
-#: ../src/podcasts/grl-podcasts.c:1290
+#: ../src/podcasts/grl-podcasts.c:1295
 msgid "Failed to parse podcast contents"
 msgstr "Verarbeitung des Podcast-Inhalts ist fehlgeschlagen"
 
-#: ../src/podcasts/grl-podcasts.c:1445
+#: ../src/podcasts/grl-podcasts.c:1450
 msgid "Failed to get podcast information"
 msgstr "Holen der Podcast-Informationen ist fehlgeschlagen"
 
-#: ../src/podcasts/grl-podcasts.c:1485 ../src/podcasts/grl-podcasts.c:1505
+#: ../src/podcasts/grl-podcasts.c:1490
+#: ../src/podcasts/grl-podcasts.c:1510
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Holen der Podcast-Liste ist fehlgeschlagen: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1558 ../src/podcasts/grl-podcasts.c:1573
+#: ../src/podcasts/grl-podcasts.c:1563
+#: ../src/podcasts/grl-podcasts.c:1578
 msgid "Failed to get podcast stream metadata"
 msgstr "Ermitteln der Podcast-Strom-Metadaten ist fehlgeschlagen"
 
-#: ../src/podcasts/grl-podcasts.c:1611
+#: ../src/podcasts/grl-podcasts.c:1616
 msgid "Failed to get podcast metadata"
 msgstr "Ermitteln der Podcast-Metadaten ist fehlgeschlagen"
 
-#: ../src/podcasts/grl-podcasts.c:1795
+#: ../src/podcasts/grl-podcasts.c:1800
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Container kann nicht erstellt werden. Es werden nur Quellen akzeptiert"
 
-#: ../src/podcasts/grl-podcasts.c:1800
+#: ../src/podcasts/grl-podcasts.c:1805
 msgid "URL required"
 msgstr "Adresse erforderlich"
 
-#: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
+#: ../src/raitv/grl-raitv.c:49
+#: ../src/youtube/grl-youtube.c:78
 msgid "Most Popular"
 msgstr "Am beliebtesten"
 
@@ -509,7 +542,7 @@ msgstr "Vergnügen"
 msgid "Travel"
 msgstr "Reise"
 
-#: ../src/raitv/grl-raitv.c:612
+#: ../src/raitv/grl-raitv.c:619
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Durchsuchen ist fehlgeschlagen: %s"
@@ -518,12 +551,13 @@ msgstr "Durchsuchen ist fehlgeschlagen: %s"
 msgid "A source for browsing SHOUTcast radios"
 msgstr "Eine Quelle zum Durchsuchen von SHOUTcast-Radiosendern"
 
-#: ../src/shoutcast/grl-shoutcast.c:451
+#: ../src/shoutcast/grl-shoutcast.c:456
 #, c-format
 msgid "Cannot find media %s"
 msgstr "Medium %s kann nicht gefunden werden"
 
-#: ../src/shoutcast/grl-shoutcast.c:746 ../src/vimeo/grl-vimeo.c:542
+#: ../src/shoutcast/grl-shoutcast.c:751
+#: ../src/vimeo/grl-vimeo.c:547
 msgid "non-NULL search text is required"
 msgstr "Suchtext wird benötigt"
 
@@ -531,25 +565,25 @@ msgstr "Suchtext wird benötigt"
 msgid "A source for fetching metadata of television shows"
 msgstr "Eine Quelle zum Holen von Metadaten von Fernseh-Serien"
 
-#: ../src/tmdb/grl-tmdb.c:984
+#: ../src/tmdb/grl-tmdb.c:996
 msgid "Remote data does not contain valid identifier"
 msgstr "Ferndaten enthalten keine gültigen Bezeichner"
 
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:397
-#: ../src/tracker/grl-tracker-source-api.c:480
+#: ../src/tracker/grl-tracker-source-api.c:398
+#: ../src/tracker/grl-tracker-source-api.c:481
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Anfrage ist fehlgeschlagen: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:581
+#: ../src/tracker/grl-tracker-source-api.c:582
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Holen der Medien von folgender Adresse ist fehlgeschlagen: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:753
+#: ../src/tracker/grl-tracker-source-api.c:802
 msgid "Empty query"
 msgstr "Leere Anfrage"
 
@@ -557,12 +591,12 @@ msgstr "Leere Anfrage"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Ein Plugin zum Durchsuchen von Multimedia-Inhalten mittels Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:659
+#: ../src/tracker/grl-tracker-utils.c:635
 #, c-format
 msgid "Removable - %s"
 msgstr "Entfernbar - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:671
+#: ../src/tracker/grl-tracker-utils.c:647
 msgid "Local files"
 msgstr "Lokale Dateien"
 
@@ -618,11 +652,12 @@ msgstr "Mobil ansehen"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Eine Quelle zum Durchsuchen von YouTube-Videos"
 
-#: ../src/youtube/grl-youtube.c:949
+#: ../src/youtube/grl-youtube.c:950
 msgid "Failed to get feed"
 msgstr "Holen der Quelle fehlgeschlagen"
 
-#: ../src/youtube/grl-youtube.c:1126 ../src/youtube/grl-youtube.c:1538
+#: ../src/youtube/grl-youtube.c:1127
+#: ../src/youtube/grl-youtube.c:1508
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Ungültiger Quellen-Bezeichner %s"

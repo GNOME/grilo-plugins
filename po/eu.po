@@ -2,15 +2,15 @@
 # Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
-# Iñaki Larrañaga Murgoitio <dooteo@zundan.com>, 2014.
+# Iñaki Larrañaga Murgoitio <dooteo@zundan.com>, 2014, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-12-31 17:24+0100\n"
-"PO-Revision-Date: 2014-12-31 17:26+0100\n"
+"POT-Creation-Date: 2015-03-21 14:42+0100\n"
+"PO-Revision-Date: 2015-03-21 14:43+0100\n"
 "Last-Translator: Iñaki Larrañaga Murgoitio <dooteo@zundan.com>\n"
 "Language-Team: Basque <librezale@librezale.org>\n"
 "Language: eu\n"
@@ -60,29 +60,29 @@ msgstr "Laster-markak"
 msgid "A source for organizing media bookmarks"
 msgstr "Multimediaren laster-markak antolatzeko iturburua"
 
-#: ../src/bookmarks/grl-bookmarks.c:421
+#: ../src/bookmarks/grl-bookmarks.c:428
 msgid "Failed to get bookmark metadata"
 msgstr "Huts egin du laster-markaren meta-datuak lortzean"
 
-#: ../src/bookmarks/grl-bookmarks.c:451 ../src/bookmarks/grl-bookmarks.c:468
+#: ../src/bookmarks/grl-bookmarks.c:458 ../src/bookmarks/grl-bookmarks.c:475
 #, c-format
 msgid "Failed to find bookmarks: %s"
 msgstr "Huts egin du laster-markak bilatzean: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:620 ../src/podcasts/grl-podcasts.c:821
+#: ../src/bookmarks/grl-bookmarks.c:627 ../src/podcasts/grl-podcasts.c:821
 #: ../src/podcasts/grl-podcasts.c:853 ../src/podcasts/grl-podcasts.c:885
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Huts egin du kentzean: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:760 ../src/podcasts/grl-podcasts.c:926
+#: ../src/bookmarks/grl-bookmarks.c:767 ../src/podcasts/grl-podcasts.c:926
 #: ../src/podcasts/grl-podcasts.c:959 ../src/podcasts/grl-podcasts.c:1804
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Huts egin du gordetzean: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:834 ../src/bookmarks/grl-bookmarks.c:869
-#: ../src/bookmarks/grl-bookmarks.c:900 ../src/bookmarks/grl-bookmarks.c:958
+#: ../src/bookmarks/grl-bookmarks.c:841 ../src/bookmarks/grl-bookmarks.c:876
+#: ../src/bookmarks/grl-bookmarks.c:907 ../src/bookmarks/grl-bookmarks.c:965
 #: ../src/metadata-store/grl-metadata-store.c:849
 #: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
 #: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
@@ -150,7 +150,7 @@ msgstr "Fitxategi-sistema arakatzeko iturburua"
 msgid "File %s does not exist"
 msgstr "Ez da '%s' fitxategia existitzen"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1636
+#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1591
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Ezin da multimedia eskuratu '%s'(e)tik"
@@ -171,13 +171,21 @@ msgstr "'%s' Flickr-en"
 msgid "A source for browsing and searching %s's flickr photos"
 msgstr "'%s'(r)en Flickr-eko argazkiak arakatzeko eta bilatzeko iturburua"
 
-#: ../src/freebox/grl-freebox.c:49
-msgid "Freebox TV"
-msgstr "Freebox TV"
-
 #: ../src/freebox/grl-freebox.c:50
+msgid "Freebox TV"
+msgstr "Freebox TB"
+
+#: ../src/freebox/grl-freebox.c:51
 msgid "A source for browsing Freebox TV channels"
 msgstr "Freebox TBko kanalak arakatzeko iturburua"
+
+#: ../src/freebox/grl-freebox.c:54
+msgid "Freebox Radio"
+msgstr "Freebox irratia"
+
+#: ../src/freebox/grl-freebox.c:55
+msgid "A source for browsing Freebox radio channels"
+msgstr "Freebox irratiaren kanalak arakatzeko iturburua"
 
 #: ../src/gravatar/grl-gravatar.c:48
 msgid "Avatar provider from Gravatar"
@@ -225,8 +233,8 @@ msgstr "Iturriak"
 msgid "Invalid identifier %s"
 msgstr "Baliogabeko '%s' identifikatzailea"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1204
-#: ../src/youtube/grl-youtube.c:1345 ../src/youtube/grl-youtube.c:1563
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1189
+#: ../src/youtube/grl-youtube.c:1320 ../src/youtube/grl-youtube.c:1528
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Baliogabeko '%s' kategoria identifikatzailea"
@@ -260,7 +268,7 @@ msgstr "Lokalean eskuragarri dauden meta-datuak hornitzen dituen iturburua"
 
 #: ../src/local-metadata/grl-local-metadata.c:609
 #: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:868
-#: ../src/tracker/grl-tracker-source-api.c:526
+#: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Huts egin du ebaztean: %s"
@@ -312,7 +320,7 @@ msgstr "Meta-datuen informazio gehigarria gordetzeko plugina"
 #: ../src/metadata-store/grl-metadata-store.c:573
 #: ../src/metadata-store/grl-metadata-store.c:592
 #: ../src/metadata-store/grl-metadata-store.c:804
-#: ../src/tracker/grl-tracker-source-api.c:636
+#: ../src/tracker/grl-tracker-source-api.c:637
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Huts egin du meta-datuak eguneratzean: %s"
@@ -530,25 +538,25 @@ msgstr "Nulua ez den bilaketa-testua behar da"
 msgid "A source for fetching metadata of television shows"
 msgstr "Iturburua (telebistako programen metadatuak eskuratzeko)"
 
-#: ../src/tmdb/grl-tmdb.c:990
+#: ../src/tmdb/grl-tmdb.c:996
 msgid "Remote data does not contain valid identifier"
 msgstr "Urruneko datuek ez dute baliozko identifikatzailerik"
 
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:397
-#: ../src/tracker/grl-tracker-source-api.c:480
+#: ../src/tracker/grl-tracker-source-api.c:398
+#: ../src/tracker/grl-tracker-source-api.c:481
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Huts egin du kontsultatzean: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:581
+#: ../src/tracker/grl-tracker-source-api.c:582
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Huts egin du URItik multimedia eskuratzean: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:753
+#: ../src/tracker/grl-tracker-source-api.c:802
 msgid "Empty query"
 msgstr "Kontsulta hutsik"
 
@@ -556,12 +564,12 @@ msgstr "Kontsulta hutsik"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Tracker erabiliz multimediaren edukia bilatzeko plugina"
 
-#: ../src/tracker/grl-tracker-utils.c:659
+#: ../src/tracker/grl-tracker-utils.c:635
 #, c-format
 msgid "Removable - %s"
 msgstr "Aldagarria - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:671
+#: ../src/tracker/grl-tracker-utils.c:647
 msgid "Local files"
 msgstr "Lokaleko fitxategiak"
 
@@ -617,11 +625,11 @@ msgstr "Ikusi mugikorrean"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Youtube-ko bideoak arakatzeko eta bilatzeko iturburua"
 
-#: ../src/youtube/grl-youtube.c:954
+#: ../src/youtube/grl-youtube.c:950
 msgid "Failed to get feed"
 msgstr "Huts egin du iturria eskuratzean"
 
-#: ../src/youtube/grl-youtube.c:1131 ../src/youtube/grl-youtube.c:1543
+#: ../src/youtube/grl-youtube.c:1127 ../src/youtube/grl-youtube.c:1508
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Baliogabeko '%s' iturriaren identifikatzailea"

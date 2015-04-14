@@ -11,4 +11,4 @@ script:
   - make
   - make check
 after_success:
-  - coveralls --exclude tests --exclude help -i src/lua-factory/lua-library/lua-json.c
+  - coveralls --exclude tests --exclude help --exclude src/lua-factory/lua-library

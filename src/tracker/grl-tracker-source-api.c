@@ -1293,6 +1293,28 @@ grl_tracker_source_get_caps (GrlSource *source,
   return caps;
 }
 
+GrlSupportedOps
+grl_tracker_source_supported_operations (GrlSource *source)
+{
+  gboolean is_extractor;
+  GrlSupportedOps ops;
+
+  /* Always supported operations. */
+  ops = GRL_OP_RESOLVE | GRL_OP_MEDIA_FROM_URI | GRL_OP_SEARCH | GRL_OP_QUERY |
+        GRL_OP_STORE_METADATA | GRL_OP_NOTIFY_CHANGE;
+
+  /* The extractor doesn’t support browsing; only resolving. */
+  is_extractor = g_str_has_prefix (grl_source_get_id (source),
+                                   "http://www.tracker-project.org"
+                                   "/ontologies/tracker"
+                                   "#extractor-data-source,");
+  if (!is_extractor) {
+    ops |= GRL_OP_BROWSE;
+  }
+
+  return ops;
+}
+
 gboolean
 grl_tracker_source_test_media_from_uri (GrlSource *source,
                                         const gchar *uri)

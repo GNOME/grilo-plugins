@@ -23,7 +23,7 @@
 -- Test the API at:
 -- http://explorer.content.guardianapis.com/search?api-key=rppwmmu3mfqj6gkbs8kcjg23&show-fields=all&page-size=50&tag=type/video
 API_KEY                          = 'rppwmmu3mfqj6gkbs8kcjg23'
-GUARDIANVIDEOS_URL               = 'http://content.guardianapis.com/search?tag=type/video&page=%s&page-size=%s&show-fields=all&api-key=%s'
+GUARDIANVIDEOS_URL               = 'http://content.guardianapis.com/search?tag=type/video&page=%d&page-size=%d&show-fields=all&api-key=%s'
 
 ---------------------------
 -- Source initialization --

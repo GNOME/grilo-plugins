@@ -147,6 +147,7 @@ typedef struct {
 } OperationSpec;
 
 typedef struct {
+  GrlSource *source;
   GSourceFunc callback;
   gpointer user_data;
 } BuildCategorySpec;
@@ -480,70 +481,6 @@ operation_spec_ref (OperationSpec *os)
   os->ref_count++;
 }
 
-inline static GrlNetWc *
-get_wc (void)
-{
-  if (ytsrc && !ytsrc->priv->wc)
-    ytsrc->priv->wc = grl_net_wc_new ();
-  else if (!ytsrc)
-    return NULL;
-
-  return ytsrc->priv->wc;
-}
-
-static void
-read_done_cb (GObject *source_object,
-              GAsyncResult *res,
-              gpointer user_data)
-{
-  AsyncReadCb *arc = (AsyncReadCb *) user_data;
-  GError *wc_error = NULL;
-  gchar *content = NULL;
-
-  grl_net_wc_request_finish (GRL_NET_WC (source_object),
-                         res,
-                         &content,
-                         NULL,
-                         &wc_error);
-  if (wc_error) {
-    if (wc_error->code != GRL_NET_WC_ERROR_CANCELLED) {
-      GRL_WARNING ("Failed to open '%s': %s", arc->url, wc_error->message);
-    }
-    arc->callback (NULL, arc->user_data);
-    g_error_free (wc_error);
-  } else {
-    arc->callback (content, arc->user_data);
-  }
-  g_free (arc->url);
-  g_slice_free (AsyncReadCb, arc);
-}
-
-static void
-read_url_async (const gchar *url,
-                GCancellable *cancellable,
-                AsyncReadCbFunc callback,
-                gpointer user_data)
-{
-  AsyncReadCb *arc;
-  GrlNetWc *wc;
-
-  wc = get_wc ();
-  if (!wc)
-    return;
-
-  arc = g_slice_new0 (AsyncReadCb);
-  arc->url = g_strdup (url);
-  arc->callback = callback;
-  arc->user_data = user_data;
-
-  GRL_DEBUG ("Opening async '%s'", url);
-  grl_net_wc_request_async (wc,
-                        url,
-                        cancellable,
-                        read_done_cb,
-                        arc);
-}
-
 static void
 build_media_from_entry (GrlYoutubeSource *source,
                         GrlMedia *content,
@@ -643,24 +580,45 @@ build_media_from_entry (GrlYoutubeSource *source,
 }
 
 static void
-parse_categories (xmlDocPtr doc, xmlNodePtr node, BuildCategorySpec *bcs)
+build_categories_directory_read_cb (GObject *source_object,
+                                    GAsyncResult *result,
+                                    gpointer user_data)
 {
+  GDataYouTubeService *service;
+  BuildCategorySpec *bcs;
+  GDataAPPCategories *app_categories = NULL;
+  GList *categories = NULL;  /*<unowned GDataCategory>*/
+  GError *error = NULL;
   guint total = 0;
   GList *all = NULL, *iter;
   CategoryInfo *cat_info;
   gchar *id;
   guint index = 0;
 
-  GRL_DEBUG ("parse_categories");
+  GRL_DEBUG (G_STRFUNC);
 
-  while (node) {
+  service = GDATA_YOUTUBE_SERVICE (source_object);
+  bcs = user_data;
+
+  app_categories = gdata_youtube_service_get_categories_finish (service,
+                                                                result,
+                                                                &error);
+
+  if (error != NULL) {
+    g_error_free (error);
+    return;
+  }
+
+  categories = gdata_app_categories_get_categories (app_categories);
+
+  for (; categories != NULL; categories = categories->next) {
+    GDataCategory *category = GDATA_CATEGORY (categories->data);
+
     cat_info = g_slice_new (CategoryInfo);
-    id = (gchar *) xmlGetProp (node, (xmlChar *) "term");
-    cat_info->id = g_strconcat (YOUTUBE_CATEGORIES_ID, "/", id, NULL);
-    cat_info->name = (gchar *) xmlGetProp (node, (xmlChar *) "label");
+    cat_info->id = g_strconcat (YOUTUBE_CATEGORIES_ID, "/",
+                                gdata_category_get_term (category));
+    cat_info->name = g_strdup (gdata_category_get_label (category));
     all = g_list_prepend (all, cat_info);
-    g_free (id);
-    node = node->next;
     total++;
     GRL_DEBUG ("  Found category: '%d - %s'", index++, cat_info->name);
   }
@@ -684,47 +642,6 @@ parse_categories (xmlDocPtr doc, xmlNodePtr node, BuildCategorySpec *bcs)
     bcs->callback (bcs);
     g_slice_free (BuildCategorySpec, bcs);
   }
-}
-
-static void
-build_categories_directory_read_cb (gchar *xmldata, gpointer user_data)
-{
-  xmlDocPtr doc;
-  xmlNodePtr node;
-
-  if (!xmldata) {
-    g_critical ("Failed to build category directory (1)");
-    return;
-  }
-
-  doc = xmlReadMemory (xmldata, strlen (xmldata), NULL, NULL,
-                       XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
-  if (!doc) {
-    g_critical ("Failed to build category directory (2)");
-    goto free_resources;
-  }
-
-  node = xmlDocGetRootElement (doc);
-  if (!node) {
-    g_critical ("Failed to build category directory (3)");
-    goto free_resources;
-  }
-
-  if (xmlStrcmp (node->name, (const xmlChar *) "categories")) {
-    g_critical ("Failed to build category directory (4)");
-    goto free_resources;
-  }
-
-  node = node->xmlChildrenNode;
-  if (!node) {
-    g_critical ("Failed to build category directory (5)");
-    goto free_resources;
-  }
-
-  parse_categories (doc, node, user_data);
-
- free_resources:
-  xmlFreeDoc (doc);
 }
 
 static gint
@@ -821,12 +738,16 @@ build_media_from_entry_search_cb (GrlMedia *media, gpointer user_data)
 static void
 build_category_directory (BuildCategorySpec *bcs)
 {
+  GrlYoutubeSource *source;
+  GDataService *service;
+
   GRL_DEBUG (__FUNCTION__);
 
-  read_url_async (YOUTUBE_CATEGORIES_URL,
-                  NULL,
-                  build_categories_directory_read_cb,
-                  bcs);
+  source = GRL_YOUTUBE_SOURCE (bcs->source);
+  service = GDATA_SERVICE (source->priv->service);
+  gdata_youtube_service_get_categories_async (service, NULL,
+                                              build_categories_directory_read_cb,
+                                              bcs);
 }
 
 static void
@@ -1452,6 +1373,7 @@ grl_youtube_source_browse (GrlSource *source,
     case YOUTUBE_MEDIA_TYPE_CATEGORIES:
       if (!categories_dir) {
         bcs = g_slice_new0 (BuildCategorySpec);
+        bcs->source = bs->source;
         bcs->callback = (GSourceFunc) produce_from_category_cb;
         bcs->user_data = os;
         build_category_directory (bcs);
@@ -1520,6 +1442,7 @@ grl_youtube_source_resolve (GrlSource *source,
     {
       if (!categories_dir) {
         bcs = g_slice_new0 (BuildCategorySpec);
+        bcs->source = source;
         bcs->callback = (GSourceFunc) produce_container_from_category_cb;
         bcs->user_data = rs;
         build_category_directory (bcs);

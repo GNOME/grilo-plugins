@@ -27,6 +27,7 @@ libgrlthetvdb_la_SOURCES = \
 	 grl-thetvdb.h \
 	 thetvdb-resources-series.c \
 	 thetvdb-resources-episodes.c \
+	 thetvdb-resources-fuzzy-names.c \
 	 thetvdb-resources.h
 
 extdir				= $(GRL_PLUGINS_DIR)

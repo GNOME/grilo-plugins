@@ -154,4 +154,56 @@ struct _EpisodeResourceClass
 
 GType episode_resource_get_type (void);
 
+/*----- Series Fuzzy Names ----- */
+#define FUZZY_SERIES_NAMES_TYPE_RESOURCE   \
+  (fuzzy_series_names_resource_get_type())
+
+#define FUZZY_SERIES_NAMES_TYPE_TYPE  \
+  (fuzzy_series_names_type_get_type())
+
+#define FUZZY_SERIES_NAMES_RESOURCE(obj)                         \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj),                            \
+                               FUZZY_SERIES_NAMES_TYPE_RESOURCE, \
+                               FuzzySeriesNamesResource))
+
+#define FUZZY_SERIES_NAMES_RESOURCE_CLASS(klass)              \
+  (G_TYPE_CHECK_CLASS_CAST ((klass),                          \
+                            FUZZY_SERIES_NAMES_TYPE_RESOURCE, \
+                            FuzzySeriesNamesResourceClass))
+
+#define FUZZY_SERIES_NAMES_IS_RESOURCE(obj)                       \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj),                             \
+                               FUZZY_SERIES_NAMES_TYPE_RESOURCE))
+
+#define FUZZY_SERIES_NAMES_IS_RESOURCE_CLASS(klass)             \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass),                            \
+                            FUZZY_SERIES_NAMES_TYPE_RESOURCE))
+
+#define FUZZY_SERIES_NAMES_RESOURCE_GET_CLASS(obj)              \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj),                            \
+                              FUZZY_SERIES_NAMES_TYPE_RESOURCE, \
+                              FuzzySeriesNamesResourceClass))
+
+#define FUZZY_SERIES_NAMES_TABLE_NAME           "fuzzy_series_names"
+#define FUZZY_SERIES_NAMES_COLUMN_ID            "id"
+#define FUZZY_SERIES_NAMES_COLUMN_SERIES_ID     "tvdb-series-id"
+#define FUZZY_SERIES_NAMES_COLUMN_FUZZY_NAME    "fuzzy-name"
+
+typedef struct _FuzzySeriesNamesResource        FuzzySeriesNamesResource;
+typedef struct _FuzzySeriesNamesResourceClass   FuzzySeriesNamesResourceClass;
+typedef struct _FuzzySeriesNamesResourcePrivate FuzzySeriesNamesResourcePrivate;
+
+struct _FuzzySeriesNamesResource
+{
+   GomResource parent;
+   FuzzySeriesNamesResourcePrivate *priv;
+};
+
+struct _FuzzySeriesNamesResourceClass
+{
+   GomResourceClass parent_class;
+};
+
+GType fuzzy_series_names_resource_get_type (void);
+
 #endif /* _GRL_THETVDB_RESOURCES_H_ */

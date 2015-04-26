@@ -62,6 +62,7 @@ GRL_LOG_DOMAIN_STATIC (thetvdb_log_domain);
 #define THETVDB_STR_DELIMITER   "|"
 #define THETVDB_DEFAULT_LANG    "en"
 #define GRL_SQL_DB              "grl-thetvdb.db"
+#define GOM_DB_VERSION          3
 
 /* --- XML Fields --- */
 #define THETVDB_ID              BAD_CAST "id"
@@ -394,8 +395,9 @@ grl_thetvdb_source_init (GrlTheTVDBSource *source)
   source->priv->repository = gom_repository_new (source->priv->adapter);
   tables = g_list_prepend (NULL, GINT_TO_POINTER (SERIES_TYPE_RESOURCE));
   tables = g_list_prepend (tables, GINT_TO_POINTER (EPISODE_TYPE_RESOURCE));
-  gom_repository_automatic_migrate_async (source->priv->repository, 2, tables,
-                                          thetvdb_migrate_db_done, source);
+  tables = g_list_prepend (tables, GINT_TO_POINTER (FUZZY_SERIES_NAMES_TYPE_RESOURCE));
+  gom_repository_automatic_migrate_async (source->priv->repository, GOM_DB_VERSION,
+                                          tables, thetvdb_migrate_db_done, source);
 }
 
 G_DEFINE_TYPE (GrlTheTVDBSource, grl_thetvdb_source, GRL_TYPE_SOURCE);
@@ -641,15 +643,38 @@ xml_parse_get_series_id (xmlDocPtr doc)
   return series_id;
 }
 
+static void
+cache_save_fuzzy_series_names (GomRepository *repository,
+                               const gchar *fuzzy_name,
+                               const gchar *series_id)
+{
+  GError *error = NULL;
+  FuzzySeriesNamesResource *fsres =
+    g_object_new (FUZZY_SERIES_NAMES_TYPE_RESOURCE,
+                  "repository", repository,
+                  FUZZY_SERIES_NAMES_COLUMN_FUZZY_NAME, fuzzy_name,
+                  FUZZY_SERIES_NAMES_COLUMN_SERIES_ID, series_id,
+                  NULL);
+  gom_resource_save_sync (GOM_RESOURCE (fsres), &error);
+  if (error != NULL) {
+    GRL_DEBUG ("Failed to store fuzzy series name '%s' due %s",
+               fuzzy_name, error->message);
+    g_error_free (error);
+  }
+  g_object_unref (fsres);
+}
+
 static SeriesResource *
 xml_parse_and_save_serie (GomRepository *repository,
-                          xmlDocPtr doc)
+                          xmlDocPtr doc,
+                          const gchar *requested_show)
 {
   xmlNodePtr node;
   xmlChar *node_data = NULL;
   SeriesResource *sres;
   GError *error = NULL;
   gchar *show = NULL;
+  gchar *series_id = NULL;
 
   sres = g_object_new (SERIES_TYPE_RESOURCE,
                        "repository", repository,
@@ -705,6 +730,7 @@ xml_parse_and_save_serie (GomRepository *repository,
     } else if (xmlStrcmp (node->name, THETVDB_ID) == 0) {
       g_object_set (G_OBJECT (sres), SERIES_COLUMN_SERIES_ID,
                     (gchar *) node_data, NULL);
+      series_id = g_strdup ((gchar *) node_data);
 
     } else if (xmlStrcmp (node->name, THETVDB_BANNER) == 0) {
       gchar *str = g_strdup_printf (THETVDB_BASE_IMG, (gchar *) node_data);
@@ -737,9 +763,20 @@ xml_parse_and_save_serie (GomRepository *repository,
     GRL_DEBUG ("Failed to store series '%s' due %s",
                 show, error->message);
     g_error_free (error);
+
+  } else if (series_id != NULL) {
+    /* This is a new series to our db. Keep it on fuzzy naming db as well */
+      cache_save_fuzzy_series_names (repository, show, series_id);
+  }
+
+  if (series_id != NULL && requested_show != NULL &&
+      g_strcmp0 (show, requested_show) != 0) {
+    /* Always save the user's requested show to our fuzzy naming db */
+    cache_save_fuzzy_series_names (repository, requested_show, series_id);
   }
 
   g_clear_pointer (&show, g_free);
+  g_clear_pointer (&series_id, g_free);
   return sres;
 }
 
@@ -1194,7 +1231,8 @@ web_get_all_zipped_done (GObject *source_object,
   }
   g_free (xml_data);
 
-  sres = xml_parse_and_save_serie (tvdb_source->priv->repository, doc);
+  sres = xml_parse_and_save_serie (tvdb_source->priv->repository, doc,
+                                   grl_media_video_get_show (video));
   eres = xml_parse_and_save_episodes (tvdb_source->priv->repository, doc,
                                       grl_media_get_title (os->media),
                                       grl_media_video_get_season (video),
@@ -1459,6 +1497,65 @@ cache_find_serie_done (GObject *object,
 }
 
 static void
+cache_find_fuzzy_series_done (GObject *object,
+                              GAsyncResult *res,
+                              gpointer user_data)
+{
+  GrlTheTVDBSource *tvdb_source;
+  OperationSpec *os;
+  GomResource *resource;
+  GError *err = NULL;
+  GomFilter *query;
+  GValue value = { 0, };
+  gchar *series_id;
+
+  os = (OperationSpec *) user_data;
+  tvdb_source = GRL_THETVDB_SOURCE (os->source);
+
+  /* we are interested in the series-id */
+  resource = gom_repository_find_one_finish (GOM_REPOSITORY (object),
+                                             res,
+                                             &err);
+  if (resource == NULL)
+    goto cache_miss;
+
+  g_object_get (G_OBJECT (resource),
+                FUZZY_SERIES_NAMES_COLUMN_SERIES_ID, &series_id,
+                NULL);
+  g_object_unref (resource);
+
+  /* Get series async */
+  g_value_init (&value, G_TYPE_STRING);
+  g_value_set_string (&value, series_id);
+  g_free (series_id);
+  query = gom_filter_new_like (SERIES_TYPE_RESOURCE,
+                               SERIES_COLUMN_SERIES_ID,
+                               &value);
+  g_value_unset (&value);
+  gom_repository_find_one_async (tvdb_source->priv->repository,
+                                 SERIES_TYPE_RESOURCE,
+                                 query,
+                                 cache_find_serie_done,
+                                 os);
+  g_object_unref (query);
+  return;
+
+cache_miss:
+  if (err != NULL) {
+    const gchar *show = grl_media_video_get_show (GRL_MEDIA_VIDEO (os->media));
+    GRL_DEBUG ("[Series] Cache miss with '%s' due '%s'", show, err->message);
+    g_error_free (err);
+  }
+
+  if (os->cache_only == FALSE) {
+    thetvdb_execute_resolve_web (os);
+  } else {
+    os->callback (os->source, os->operation_id, os->media, os->user_data, NULL);
+    free_operation_spec (os);
+  }
+}
+
+static void
 thetvdb_execute_resolve_cache (OperationSpec *os)
 {
   const gchar *show;
@@ -1474,14 +1571,14 @@ thetvdb_execute_resolve_cache (OperationSpec *os)
   /* Get series async */
   g_value_init (&value, G_TYPE_STRING);
   g_value_set_string (&value, show);
-  query = gom_filter_new_like (SERIES_TYPE_RESOURCE,
-                               SERIES_COLUMN_SERIES_NAME,
+  query = gom_filter_new_like (FUZZY_SERIES_NAMES_TYPE_RESOURCE,
+                               FUZZY_SERIES_NAMES_COLUMN_FUZZY_NAME,
                                &value);
   g_value_unset (&value);
   gom_repository_find_one_async (tvdb_source->priv->repository,
-                                 SERIES_TYPE_RESOURCE,
+                                 FUZZY_SERIES_NAMES_TYPE_RESOURCE,
                                  query,
-                                 cache_find_serie_done,
+                                 cache_find_fuzzy_series_done,
                                  os);
   g_object_unref (query);
 }

@@ -72,7 +72,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   TRACKER_QUERY_LIMIT
 
 #define TRACKER_SEARCH_REQUEST                  \
-  "SELECT rdf:type(?urn) %s "                   \
+  "SELECT DISTINCT rdf:type(?urn) %s "          \
   "WHERE "                                      \
   "{ "                                          \
   "%s "                                         \
@@ -85,7 +85,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "LIMIT %u"
 
 #define TRACKER_SEARCH_ALL_REQUEST              \
-  "SELECT rdf:type(?urn) %s "                   \
+  "SELECT DISTINCT rdf:type(?urn) %s "          \
   "WHERE "                                      \
   "{ "                                          \
   "%s "                                         \

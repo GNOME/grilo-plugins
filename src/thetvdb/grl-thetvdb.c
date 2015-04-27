@@ -126,6 +126,7 @@ typedef struct _OperationSpec {
   guint           error_code;
   gchar          *lang;
   gboolean        fetched_web;
+  gboolean        cache_only;
   SeriesResource *serie_resource;
   GrlSourceResolveCb callback;
 } OperationSpec;
@@ -1313,7 +1314,7 @@ cache_find_episode_done (GObject *object,
     GRL_DEBUG ("[Episode] Cache miss with '%s' due '%s'", show, err->message);
     g_error_free (err);
 
-    if (os->fetched_web == FALSE) {
+    if (os->fetched_web == FALSE && os->cache_only == FALSE) {
       /* Fetch web API in order to update current cache */
       thetvdb_execute_resolve_web (os);
       return;
@@ -1444,7 +1445,12 @@ cache_find_serie_done (GObject *object,
   if (resource == NULL) {
     GRL_DEBUG ("[Series] Cache miss with '%s' due '%s'", show, err->message);
     g_error_free (err);
-    thetvdb_execute_resolve_web (os);
+    if (os->cache_only == FALSE) {
+      thetvdb_execute_resolve_web (os);
+    } else {
+      os->callback (os->source, os->operation_id, os->media, os->user_data, NULL);
+      free_operation_spec (os);
+    }
     return;
   }
 
@@ -1486,8 +1492,10 @@ grl_thetvdb_source_resolve (GrlSource *source,
                             GrlSourceResolveSpec *rs)
 {
   OperationSpec *os = NULL;
+  GrlResolutionFlags res;
 
   GRL_DEBUG ("thetvdb_resolve");
+  res = grl_operation_options_get_resolution_flags (rs->options);
 
   os = g_slice_new0 (OperationSpec);
   os->source = rs->source;
@@ -1499,6 +1507,9 @@ grl_thetvdb_source_resolve (GrlSource *source,
   os->error_code = GRL_CORE_ERROR_RESOLVE_FAILED;
   os->lang = get_pref_language (GRL_THETVDB_SOURCE (source));
   os->fetched_web = FALSE;
+  os->cache_only = (res & GRL_RESOLVE_FAST_ONLY);
+
+  GRL_DEBUG ("cache-only: %s", (os->cache_only) ? "yes" : "no");
 
   thetvdb_execute_resolve_cache (os);
 }

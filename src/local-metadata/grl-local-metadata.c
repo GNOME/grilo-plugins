@@ -272,6 +272,13 @@ video_sanitise_string (const gchar *str)
   if (*line_end != '\0') {
     line_end = g_utf8_find_prev_char (line, line_end);
 
+
+    /* If everything in the string is blacklisted, just ignore
+     * the blackisting logic.
+     */
+    if (line_end == NULL)
+      return g_strdup (str);
+
     /* After removing substring with blacklisted word, ignore non alpha-numeric
      * char in the end of the sanitised string */
     while (g_unichar_isalnum (*line_end) == FALSE &&

@@ -123,8 +123,8 @@ typedef void (*AsyncReadCbFunc) (gchar *data, gpointer user_data);
 typedef void (*BuildMediaFromEntryCbFunc) (GrlMedia *media, gpointer user_data);
 
 typedef struct {
-  gchar *id;
-  gchar *name;
+  const gchar *id;
+  const gchar *name;
   guint count;
 } CategoryInfo;
 
@@ -218,7 +218,7 @@ static void grl_youtube_get_media_from_uri (GrlSource *source,
 static void grl_youtube_source_cancel (GrlSource *source,
                                        guint operation_id);
 
-static void produce_from_directory (CategoryInfo *dir, gint dir_size, OperationSpec *os);
+static void produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os);
 
 /* ==================== Global Data  ================= */
 
@@ -679,7 +679,7 @@ get_category_term_from_id (const gchar *category_id)
 static gint
 get_category_index_from_id (const gchar *category_id)
 {
-  gint i;
+  guint i;
 
   for (i=0; i<root_dir[ROOT_DIR_CATEGORIES_INDEX].count; i++) {
     if (!strcmp (categories_dir[i].id, category_id)) {
@@ -990,7 +990,7 @@ produce_container_from_directory (GDataService *service,
 }
 
 static void
-produce_from_directory (CategoryInfo *dir, gint dir_size, OperationSpec *os)
+produce_from_directory (CategoryInfo *dir, guint dir_size, OperationSpec *os)
 {
   guint index, remaining;
 

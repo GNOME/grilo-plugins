@@ -164,7 +164,8 @@ test_title_override (void)
     char *expected;
   } filename_tests[] = {
     { "Test.mp4", TRUE, "Test" },
-    { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", FALSE, "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4" }
+    { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", FALSE, "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4" },
+    { "wsb.wmv", TRUE, "wsb" },
   };
 
   registry = grl_registry_get_default ();

@@ -606,7 +606,7 @@ build_categories_directory_read_cb (GObject *source_object,
 
   if (error != NULL) {
     g_error_free (error);
-    return;
+    goto done;
   }
 
   categories = gdata_app_categories_get_categories (app_categories);
@@ -638,10 +638,11 @@ build_categories_directory_read_cb (GObject *source_object,
       iter = g_list_next (iter);
     } while (iter);
     g_list_free (all);
-
-    bcs->callback (bcs);
-    g_slice_free (BuildCategorySpec, bcs);
   }
+
+done:
+  bcs->callback (bcs);
+  g_slice_free (BuildCategorySpec, bcs);
 }
 
 static gint

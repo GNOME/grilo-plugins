@@ -254,6 +254,27 @@ test_shows_normal(void)
   test_shows (GRL_RESOLVE_NORMAL, FALSE);
 }
 
+static void
+test_shows_fast_only_empty_db(void)
+{
+  test_reset_thetvdb ();
+  test_shows (GRL_RESOLVE_FAST_ONLY, TRUE);
+}
+
+static void
+test_shows_fast_only_full_db(void)
+{
+  gchar *mock = g_strdup (g_getenv ("GRL_NET_MOCKED"));
+  test_reset_thetvdb ();
+  /* Fill database */
+  test_shows (GRL_RESOLVE_NORMAL, FALSE);
+  /* Fail all web requests for cache-only test */
+  g_setenv ("GRL_NET_MOCKED", "/does/not/exist/config.ini", TRUE);
+  test_shows (GRL_RESOLVE_FAST_ONLY, FALSE);
+  g_setenv ("GRL_NET_MOCKED", mock, TRUE);
+  g_free (mock);
+}
+
 gint
 main (gint argc, gchar **argv)
 {
@@ -271,6 +292,8 @@ main (gint argc, gchar **argv)
   test_setup_thetvdb ();
 
   g_test_add_func ("/thetvdb/resolve/normal/shows", test_shows_normal);
+  g_test_add_func ("/thetvdb/resolve/fast-only/empty-db/shows", test_shows_fast_only_empty_db);
+  g_test_add_func ("/thetvdb/resolve/fast-only/full-db/shows", test_shows_fast_only_full_db);
   g_test_add_func ("/thetvdb/resolve/fuzzy-name-shows", test_shows_fuzzy_name);
 
   gint result = g_test_run ();

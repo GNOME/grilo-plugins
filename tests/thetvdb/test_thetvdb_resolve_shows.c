@@ -23,9 +23,10 @@
 #include "test_thetvdb_utils.h"
 #include <grilo.h>
 
-static void
+/* Returns whether it could find tvdb-id */
+static gboolean
 get_show_metadata (GrlSource *source,
-                   gboolean cache_only,
+                   GrlResolutionFlags resolution,
                    const gchar *show,
                    gchar **imdb,
                    gchar **tvdb_id,
@@ -41,6 +42,7 @@ get_show_metadata (GrlSource *source,
   GDateTime *date;
   GrlRegistry *registry;
   GrlKeyID tvdb_key, imdb_key, zap2it_key, fanart_key, banner_key, poster_key;
+  gboolean success = TRUE;
 
   registry = grl_registry_get_default ();
 
@@ -71,20 +73,23 @@ get_show_metadata (GrlSource *source,
                                     NULL);
 
   options = grl_operation_options_new (NULL);
-  if (cache_only)
-      grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FAST_ONLY);
-  else
-      grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_NORMAL);
+  grl_operation_options_set_resolution_flags (options, resolution);
 
   grl_source_resolve_sync (source,
                            GRL_MEDIA (video),
                            keys,
                            options,
                            NULL);
+  if (tvdb_id) {
+      *tvdb_id = g_strdup (grl_data_get_string (GRL_DATA (video), tvdb_key));
+      if (*tvdb_id == NULL) {
+        success = FALSE;
+        goto end;
+      }
+  }
+
   if (imdb)
       *imdb = g_strdup (grl_data_get_string (GRL_DATA (video), imdb_key));
-  if (tvdb_id)
-      *tvdb_id = g_strdup (grl_data_get_string (GRL_DATA (video), tvdb_key));
   if (zap2it)
       *zap2it = g_strdup (grl_data_get_string (GRL_DATA (video), zap2it_key));
   if (banner)
@@ -99,13 +104,16 @@ get_show_metadata (GrlSource *source,
       *publication_date = g_date_time_format (date, "%Y-%m-%d");
   }
 
+end:
   g_list_free (keys);
   g_object_unref (options);
   g_object_unref (video);
+  return success;
 }
 
 static void
-test_shows (void)
+test_shows (GrlResolutionFlags resolution,
+            gboolean should_fail)
 {
   GrlSource *source;
   guint i;
@@ -147,10 +155,16 @@ test_shows (void)
 
   for (i = 0; i < G_N_ELEMENTS (videos); i++) {
     gchar *imdb, *tvdb_id, *zap2it, *pdate, *banner, *fanart, *poster;
+    gboolean success;
 
-    get_show_metadata (source, FALSE, videos[i].show,
-                       &imdb, &tvdb_id, &zap2it, &pdate,
-                       &banner, &fanart, &poster);
+    success = get_show_metadata (source, resolution, videos[i].show,
+                                 &imdb, &tvdb_id, &zap2it, &pdate,
+                                 &banner, &fanart, &poster);
+    if (should_fail) {
+      g_assert_false (success);
+      continue;
+    }
+
     g_assert_cmpstr (videos[i].tvdb_id, ==, tvdb_id);
     g_free (tvdb_id);
     g_assert_cmpstr (videos[i].imdb, ==, imdb);
@@ -201,6 +215,7 @@ test_shows_fuzzy_name (void)
     { "CSI: Miami", "les experts miami", "78310", "tt0313043" }
   };
 
+  test_reset_thetvdb ();
   source = test_get_source ();
   g_assert (source);
 
@@ -209,27 +224,34 @@ test_shows_fuzzy_name (void)
   for (i = 0; i < G_N_ELEMENTS (videos); i++) {
     gchar *imdb, *tvdb_id;
 
-    get_show_metadata (source, FALSE, videos[i].fuzzy_name, &imdb, &tvdb_id,
+    get_show_metadata (source, GRL_RESOLVE_NORMAL, videos[i].fuzzy_name, &imdb, &tvdb_id,
                        NULL, NULL, NULL, NULL, NULL);
     g_assert_cmpstr (videos[i].tvdb_id, ==, tvdb_id);
     g_free (tvdb_id);
     g_assert_cmpstr (videos[i].imdb, ==, imdb);
     g_free (imdb);
 
-    get_show_metadata (source, TRUE, videos[i].name_in_tvdb, &imdb, &tvdb_id,
+    get_show_metadata (source, GRL_RESOLVE_FAST_ONLY, videos[i].name_in_tvdb, &imdb, &tvdb_id,
                        NULL, NULL, NULL, NULL, NULL);
     g_assert_cmpstr (videos[i].tvdb_id, ==, tvdb_id);
     g_free (tvdb_id);
     g_assert_cmpstr (videos[i].imdb, ==, imdb);
     g_free (imdb);
 
-    get_show_metadata (source, TRUE, videos[i].fuzzy_name, &imdb, &tvdb_id,
+    get_show_metadata (source, GRL_RESOLVE_FAST_ONLY, videos[i].fuzzy_name, &imdb, &tvdb_id,
                        NULL, NULL, NULL, NULL, NULL);
     g_assert_cmpstr (videos[i].tvdb_id, ==, tvdb_id);
     g_free (tvdb_id);
     g_assert_cmpstr (videos[i].imdb, ==, imdb);
     g_free (imdb);
   }
+}
+
+static void
+test_shows_normal(void)
+{
+  test_reset_thetvdb ();
+  test_shows (GRL_RESOLVE_NORMAL, FALSE);
 }
 
 gint
@@ -248,7 +270,7 @@ main (gint argc, gchar **argv)
 
   test_setup_thetvdb ();
 
-  g_test_add_func ("/thetvdb/resolve/shows", test_shows);
+  g_test_add_func ("/thetvdb/resolve/normal/shows", test_shows_normal);
   g_test_add_func ("/thetvdb/resolve/fuzzy-name-shows", test_shows_fuzzy_name);
 
   gint result = g_test_run ();

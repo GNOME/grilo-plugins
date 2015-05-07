@@ -23,9 +23,9 @@ libgrlraitv_la_LDFLAGS = \
 
 libgrlraitv_la_SOURCES = 		\
 	grl-raitv.c			\
-	grl-raitv.h			\
-	raitvresources.h		\
-	raitvresources.c
+	grl-raitv.h
+nodist_libgrlraitv_la_SOURCES = \
+	$(resource_sources)
 
 extdir 			= $(GRL_PLUGINS_DIR)
 raitvxmldir 	= $(GRL_PLUGINS_DIR)
@@ -37,6 +37,12 @@ raitvresources.h: raitv.gresource.xml
 raitvresources.c: raitv.gresource.xml raitvresources.h channel-rai.svg
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/raitv.gresource.xml \
 		--target=$@ --sourcedir=$(srcdir) --c-name _grl_raitv --generate-source
+
+resource_sources = \
+	raitvresources.c \
+	raitvresources.h \
+	$(NULL)
+CLEANFILES = $(resource_sources)
 
 EXTRA_DIST += $(raitvxml_DATA) channel-rai.svg raitv.gresource.xml
 

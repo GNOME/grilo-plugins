@@ -22,7 +22,10 @@ libgrlyoutube_la_LDFLAGS = \
 	-module		   \
 	-avoid-version
 
-libgrlyoutube_la_SOURCES = grl-youtube.c grl-youtube.h youtuberesources.h youtuberesources.c
+libgrlyoutube_la_SOURCES = grl-youtube.c grl-youtube.h
+nodist_libgrlyoutube_la_SOURCES = \
+	youtuberesources.h \
+	youtuberesources.c
 
 extdir				= $(GRL_PLUGINS_DIR)
 youtubexmldir		= $(GRL_PLUGINS_DIR)
@@ -34,6 +37,12 @@ youtuberesources.h: youtube.gresource.xml
 youtuberesources.c: youtube.gresource.xml youtuberesources.h channel-youtube.svg
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/youtube.gresource.xml \
 		--target=$@ --sourcedir=$(srcdir) --c-name _grl_youtube --generate-source
+
+resource_sources = \
+	youtuberesources.c \
+	youtuberesources.h \
+	$(NULL)
+CLEANFILES = $(resource_sources)
 
 EXTRA_DIST += $(youtubexml_DATA) channel-youtube.svg youtube.gresource.xml
 

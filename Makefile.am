@@ -48,11 +48,6 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-apple-trailers \
                             --enable-vimeo \
                             --enable-youtube
 
-distclean-local:
-	-rm -rf autom4te.cache
-
-dist-hook:
-
 if GCOV_ENABLED
 lcov-clean:
 	@rm -fr coverage

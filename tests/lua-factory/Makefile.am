@@ -9,7 +9,4 @@ include $(top_srcdir)/gtester.mk
 
 SUBDIRS = sources
 
-DIST_SUBDIRS =    \
-   sources
-
 -include $(top_srcdir)/git.mk

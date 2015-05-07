@@ -50,3 +50,5 @@ MAINTAINERCLEANFILES =	\
 CLEANFILES = pocketresources.h pocketresources.c
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)
+
+-include $(top_srcdir)/git.mk

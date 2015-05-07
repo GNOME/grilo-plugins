@@ -13,3 +13,5 @@ HELP_LINGUAS =
 XMLLINT = xmllint
 validate: $(srcdir)/C/grilo-plugins.xml
 	$(XMLLINT) --xinclude --postvalid --noout $<
+
+-include $(top_srcdir)/git.mk

@@ -57,3 +57,5 @@ MAINTAINERCLEANFILES =	\
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)
 
 CLEANFILES = bliptvresources.h bliptvresources.c
+
+-include $(top_srcdir)/git.mk

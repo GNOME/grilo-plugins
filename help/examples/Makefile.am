@@ -13,3 +13,5 @@ LDADD = $(DEPS_LIBS)
 noinst_PROGRAMS = example-tmdb
 
 example_tmdb_SOURCES = example-tmdb.c
+
+-include $(top_srcdir)/git.mk

@@ -32,3 +32,5 @@ MAINTAINERCLEANFILES =  \
    *~
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)
+
+-include $(top_srcdir)/git.mk

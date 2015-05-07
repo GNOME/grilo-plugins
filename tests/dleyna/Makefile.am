@@ -62,3 +62,5 @@ clean-local:
 
 CLEANFILES = \
 	dbusmock/*.pyc
+
+-include $(top_srcdir)/git.mk

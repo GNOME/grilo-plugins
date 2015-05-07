@@ -50,3 +50,5 @@ MAINTAINERCLEANFILES =	\
 CLEANFILES = freeboxresources.h freeboxresources.c
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)
+
+-include $(top_srcdir)/git.mk

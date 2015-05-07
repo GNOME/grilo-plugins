@@ -13,23 +13,11 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src help po tests
 
 MAINTAINERCLEANFILES = \
-        aclocal.m4 \
-        compile \
-	config.guess \
-        config.sub \
-        configure \
-	depcomp \
-	install-sh \
-	ltmain.sh \
-	missing \
-	libtool \
-	stamp-h1 \
-	Makefile.in \
-	*.make \
-	mkinstalldirs \
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
+	$(GITIGNORE_MAINTAINERCLEANFILES_TOPLEVEL) \
+	$(GITIGNORE_MAINTAINERCLEANFILES_MAKEFILE_IN) \
+	$(GITIGNORE_MAINTAINERCLEANFILES_M4_LIBTOOL) \
+	m4/intltool.m4 \
+	$(NULL)
 
 EXTRA_DIST += ./m4/grilo.m4
 
@@ -76,3 +64,5 @@ lcov:
 	@lcov --compat-libtool --directory src --capture --output-file coverage/grilo.info
 	@genhtml -o coverage/ coverage/grilo.info
 endif
+
+-include $(top_srcdir)/git.mk

@@ -43,3 +43,5 @@ EXTRA_DIST +=						\
 MAINTAINERCLEANFILES = *.in *~
 
 DISTCLEANFILES = $(MAINTAINERCLEANFILES)
+
+-include $(top_srcdir)/git.mk

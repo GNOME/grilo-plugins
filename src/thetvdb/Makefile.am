@@ -41,10 +41,4 @@ all-local: copy-xml-to-libs-dir
 
 EXTRA_DIST += $(thetvdbxml_DATA)
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

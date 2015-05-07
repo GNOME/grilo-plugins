@@ -43,12 +43,6 @@ freeboxxml_DATA	= $(FREEBOX_PLUGIN_ID).xml
 
 EXTRA_DIST += $(freeboxxml_DATA) free.png radios.m3u freebox.gresource.xml
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
 CLEANFILES = freeboxresources.h freeboxresources.c
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
 
 -include $(top_srcdir)/git.mk

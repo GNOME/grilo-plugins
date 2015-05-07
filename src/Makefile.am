@@ -119,10 +119,4 @@ DIST_SUBDIRS = \
    lastfm-albumart local-metadata lua-factory magnatune metadata-store opensubtitles \
    optical-media pocket podcasts raitv shoutcast thetvdb tmdb tracker vimeo youtube
 
-MAINTAINERCLEANFILES =	\
-        *.in		\
-        *~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

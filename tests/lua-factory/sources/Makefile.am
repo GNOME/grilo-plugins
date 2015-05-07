@@ -46,12 +46,6 @@ CLEANFILES = \
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-MAINTAINERCLEANFILES = 	\
-   *.in		\
-   *~
-
 EXTRA_DIST = $(metrolyrics_resources_files) test_lua_metrolyrics.gresource.xml
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
 
 -include $(top_srcdir)/git.mk

@@ -83,10 +83,4 @@ EXTRA_DIST +=										\
 	org.gnome.UPnP.MediaServer2.xml        \
 	$(dleynaxml_DATA)
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

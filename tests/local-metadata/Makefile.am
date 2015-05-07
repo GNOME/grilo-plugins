@@ -27,10 +27,4 @@ test_local_metadata_CFLAGS =	\
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-MAINTAINERCLEANFILES =  \
-   *.in                 \
-   *~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

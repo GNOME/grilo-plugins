@@ -55,10 +55,4 @@ CLEANFILES = $(resource_sources)
 
 EXTRA_DIST += $(appletrailersxml_DATA) channel-trailers.svg apple-trailers.gresource.xml
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

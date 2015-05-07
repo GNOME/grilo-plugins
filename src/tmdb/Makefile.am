@@ -39,10 +39,4 @@ all-local: copy-xml-to-libs-dir
 
 EXTRA_DIST += $(tmdbxml_DATA)
 
-MAINTAINERCLEANFILES	 = \
-	*.in \
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

@@ -46,10 +46,4 @@ CLEANFILES = $(resource_sources)
 
 EXTRA_DIST += $(raitvxml_DATA) channel-rai.svg raitv.gresource.xml
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

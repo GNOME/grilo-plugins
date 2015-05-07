@@ -40,8 +40,4 @@ EXTRA_DIST +=						\
 	guardianvideos.svg				\
 	radiofrance.png
 
-MAINTAINERCLEANFILES = *.in *~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

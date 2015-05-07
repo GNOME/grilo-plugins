@@ -50,12 +50,6 @@ bliptvresources.c: bliptv.gresource.xml bliptvresources.h channel-bliptv.svg
 
 EXTRA_DIST += $(bliptvxml_DATA) channel-bliptv.svg bliptv.gresource.xml
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 CLEANFILES = bliptvresources.h bliptvresources.c
 
 -include $(top_srcdir)/git.mk

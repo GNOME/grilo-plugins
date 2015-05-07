@@ -32,10 +32,4 @@ optical_mediaxml_DATA	= $(OPTICAL_MEDIA_PLUGIN_ID).xml
 
 EXTRA_DIST += $(optical_mediaxml_DATA)
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

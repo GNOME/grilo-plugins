@@ -43,12 +43,6 @@ pocketxml_DATA	= $(POCKET_PLUGIN_ID).xml
 
 EXTRA_DIST += $(pocketxml_DATA) channel-pocket.svg pocket.gresource.xml
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
 CLEANFILES = pocketresources.h pocketresources.c
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
 
 -include $(top_srcdir)/git.mk

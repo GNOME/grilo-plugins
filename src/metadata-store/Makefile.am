@@ -30,10 +30,4 @@ metadatastorexml_DATA	= $(METADATA_STORE_PLUGIN_ID).xml
 
 EXTRA_DIST += $(metadatastorexml_DATA)
 
-MAINTAINERCLEANFILES	 = \
-	*.in \
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

@@ -46,10 +46,4 @@ CLEANFILES = $(resource_sources)
 
 EXTRA_DIST += $(youtubexml_DATA) channel-youtube.svg youtube.gresource.xml
 
-MAINTAINERCLEANFILES	 = \
-	*.in \
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

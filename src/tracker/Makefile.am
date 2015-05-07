@@ -45,10 +45,4 @@ trackerxml_DATA	= $(TRACKER_PLUGIN_ID).xml
 
 EXTRA_DIST += $(trackerxml_DATA)
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

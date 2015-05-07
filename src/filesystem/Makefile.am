@@ -30,10 +30,4 @@ filesystemxml_DATA	= $(FILESYSTEM_PLUGIN_ID).xml
 
 EXTRA_DIST += $(filesystemxml_DATA)
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

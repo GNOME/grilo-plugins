@@ -36,10 +36,4 @@ flickrlibxml_DATA = $(FLICKR_PLUGIN_ID).xml
 
 EXTRA_DIST += $(flickrlibxml_DATA)
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

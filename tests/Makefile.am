@@ -56,10 +56,4 @@ DIST_SUBDIRS =    \
    thetvdb        \
    vimeo
 
-MAINTAINERCLEANFILES =  \
-   *.in                 \
-   *~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

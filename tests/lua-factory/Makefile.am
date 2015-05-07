@@ -12,10 +12,4 @@ SUBDIRS = sources
 DIST_SUBDIRS =    \
    sources
 
-MAINTAINERCLEANFILES =  \
-   *.in                 \
-   *~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

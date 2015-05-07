@@ -50,7 +50,4 @@ EXTRA_DIST += $(luafactoryxml_DATA) lua-library/htmlentity.gperf
 
 DIST_SUBDIRS = sources
 
-MAINTAINERCLEANFILES =	*.in *~
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

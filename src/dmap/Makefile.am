@@ -38,10 +38,4 @@ dmapxml_DATA	= $(DMAP_PLUGIN_ID).xml
 
 EXTRA_DIST    += $(dmapxml_DATA)
 
-MAINTAINERCLEANFILES =	\
-	*.in						\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

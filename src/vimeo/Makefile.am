@@ -57,10 +57,4 @@ CLEANFILES = $(resource_sources)
 
 EXTRA_DIST += $(vimeoxml_DATA) channel-vimeo.svg vimeo.gresource.xml
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

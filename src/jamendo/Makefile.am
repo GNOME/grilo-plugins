@@ -32,10 +32,4 @@ jamendoxml_DATA	= $(JAMENDO_PLUGIN_ID).xml
 
 EXTRA_DIST += $(jamendoxml_DATA)
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

@@ -34,10 +34,4 @@ bookmarksxml_DATA	= $(BOOKMARKS_PLUGIN_ID).xml
 
 EXTRA_DIST += $(bookmarksxml_DATA)
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

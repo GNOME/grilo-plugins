@@ -30,10 +30,4 @@ podcastsxml_DATA	= $(PODCASTS_PLUGIN_ID).xml
 
 EXTRA_DIST += $(podcastsxml_DATA)
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

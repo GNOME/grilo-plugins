@@ -30,10 +30,4 @@ magnatunexml_DATA	= $(MAGNATUNE_PLUGIN_ID).xml
 
 EXTRA_DIST += $(magnatunexml_DATA)
 
-MAINTAINERCLEANFILES =	\
-	*.in		\
-	*~
-
-DISTCLEANFILES = $(MAINTAINERCLEANFILES)
-
 -include $(top_srcdir)/git.mk

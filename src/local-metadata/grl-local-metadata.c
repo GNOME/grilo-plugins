@@ -242,6 +242,28 @@ grl_local_metadata_source_set_property (GObject      *object,
 
 /* ======================= Utilities ==================== */
 
+static gboolean
+is_nonalnum (const gchar *str)
+{
+  gunichar uchar;
+
+  if (str == NULL) {
+    return FALSE;
+  }
+
+  uchar = g_utf8_get_char (str);
+
+  if (g_unichar_isalnum (uchar)) {
+    return FALSE;
+  }
+
+  if (uchar == '!' || uchar == '?' || uchar == '.') {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
 static gchar *
 video_sanitise_string (const gchar *str)
 {
@@ -270,22 +292,17 @@ video_sanitise_string (const gchar *str)
   }
 
   if (*line_end != '\0') {
-    line_end = g_utf8_find_prev_char (line, line_end);
-
+    /* After removing substring with blacklisted word, ignore non alpha-numeric
+     * char in the end of the sanitised string */
+    do {
+      line_end = g_utf8_find_prev_char (line, line_end);
+    } while (is_nonalnum (line_end));
 
     /* If everything in the string is blacklisted, just ignore
      * the blackisting logic.
      */
-    if (line_end == NULL)
+    if (line_end == NULL) {
       return g_strdup (str);
-
-    /* After removing substring with blacklisted word, ignore non alpha-numeric
-     * char in the end of the sanitised string */
-    while (g_unichar_isalnum (*line_end) == FALSE &&
-           *line_end != '!' &&
-           *line_end != '?' &&
-           *line_end != '.') {
-      line_end = g_utf8_find_prev_char (line, line_end);
     }
 
     return g_strndup (line, line_end - line);

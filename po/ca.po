@@ -112,7 +112,7 @@ msgstr ""
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr ""
-"Ha fallat la pujada, manca l'URL en l'objecte mèdia que s'ha de transferir"
+"Ha fallat la pujada, manca l'URL en l'objecte multimèdia que s'ha de transferir"
 
 #: ../src/dmap/grl-dmap.c:51
 #, c-format
@@ -559,7 +559,7 @@ msgstr "La consulta està buida"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
-msgstr "Una connector per cercar continguts multimèdia mitjançant el Tracker"
+msgstr "Un connector per cercar continguts multimèdia mitjançant el Tracker"
 
 #: ../src/tracker/grl-tracker-utils.c:635
 #, c-format

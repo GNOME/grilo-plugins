@@ -1204,7 +1204,7 @@ grl_dleyna_source_new (GrlDleynaServer *server)
   }
 
   location = grl_dleyna_media_device_get_location (device);
-  grl_dleyna_util_uri_is_localhost (location, &localhost, &localuser);
+  grl_dleyna_util_uri_is_localhost (location, &localuser, &localhost);
   i = 0;
   if (localhost) {
     tags[i++] = "localhost";

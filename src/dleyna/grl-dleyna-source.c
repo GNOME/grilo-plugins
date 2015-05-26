@@ -417,6 +417,7 @@ properties_add_for_key (GPtrArray *properties,
     {
     case GRL_METADATA_KEY_ID:
       g_ptr_array_add (properties, "UDN");
+      break;
     case GRL_METADATA_KEY_TITLE:
       g_ptr_array_add (properties, "DisplayName");
       break;

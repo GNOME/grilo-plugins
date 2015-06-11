@@ -90,11 +90,8 @@ const gchar *video_blacklisted_prefix[] = {
 };
 
 const char *video_blacklisted_words[] = {
-  "720p", "1080p", "x264",
-  "ws", "WS", "proper", "PROPER",
-  "repack", "real.repack",
-  "hdtv", "HDTV", "pdtv", "PDTV", "notv", "NOTV",
-  "dsr", "DSR", "DVDRip", "divx", "DIVX", "xvid", "Xvid",
+  "720p", "1080p", "x264", "ws", "proper", "repack", "real.repack",
+  "hdtv", "pdtv", "notv", "dsr", "dvdrip", "divx", "xvid",
   NULL
 };
 

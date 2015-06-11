@@ -153,7 +153,7 @@ test_episodes_lua (void)
 }
 
 static void
-test_title_override (void)
+test_title_override_by_source (const char *source_name)
 {
   GrlRegistry *registry;
   GrlSource *source;
@@ -171,7 +171,7 @@ test_title_override (void)
   };
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, "grl-local-metadata");
+  source = grl_registry_lookup_source (registry, source_name);
   g_assert (source);
 
   for (i = 0; i < G_N_ELEMENTS(filename_tests); i++) {
@@ -205,6 +205,18 @@ test_title_override (void)
   }
 }
 
+static void
+test_title_override (void)
+{
+  test_title_override_by_source (LOCAL_METADATA_ID);
+}
+
+static void
+test_title_override_lua (void)
+{
+  test_title_override_by_source (VIDEO_TITLE_PARSING_ID);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -228,6 +240,7 @@ main(int argc, char **argv)
   g_test_add_func ("/local-metadata/resolve/episodes", test_episodes);
   g_test_add_func ("/local-metadata/resolve/title-override", test_title_override);
   g_test_add_func ("/lua-factory/video-title-parsing/resolve/episodes", test_episodes_lua);
+  g_test_add_func ("/lua-factory/video-title-parsing/resolve/title-override", test_title_override_lua);
 
   gint result = g_test_run ();
 

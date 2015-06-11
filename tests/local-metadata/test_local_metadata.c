@@ -24,6 +24,7 @@
 
 #define LOCAL_METADATA_ID "grl-local-metadata"
 #define LUA_FACTORY_ID "grl-lua-factory"
+#define VIDEO_TITLE_PARSING_ID "grl-video-title-parsing"
 
 static void
 test_setup (void)
@@ -116,7 +117,7 @@ test_episodes_by_source (const gchar *source_name,
   };
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, "grl-local-metadata");
+  source = grl_registry_lookup_source (registry, source_name);
   g_assert (source);
 
   for (i = 0; i < G_N_ELEMENTS(episode_tests); i++) {
@@ -148,7 +149,7 @@ test_episodes (void)
 static void
 test_episodes_lua (void)
 {
-  test_episodes_by_source (LUA_FACTORY_ID, FALSE);
+  test_episodes_by_source (VIDEO_TITLE_PARSING_ID, FALSE);
 }
 
 static void

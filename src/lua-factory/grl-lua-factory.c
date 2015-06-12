@@ -435,6 +435,23 @@ lua_plugin_source_init (GrlLuaFactorySource *lua_source)
         lua_pushstring (L, key);
         lua_pushstring (L, value);
         lua_settable (L, -3);
+
+        /* Also add the underscore version of the key if necessary,
+         * eg. configs.api_key is available as well as configs['api-key'] */
+        if (strchr (key, '-') != NULL) {
+          char *lua_key;
+          char *ptr = NULL;
+
+          lua_key = g_strdup (key);
+          while ((ptr = strchr (lua_key, '-')) != NULL)
+            *ptr = '_';
+
+          lua_pushstring (L, lua_key);
+          lua_pushstring (L, value);
+          lua_settable (L, -3);
+
+          g_free (lua_key);
+        }
       }
     }
     g_list_free (list_keys);

@@ -130,7 +130,8 @@ static GrlConfig *merge_all_configs (const gchar *source_id,
                                      GHashTable *source_configs,
                                      GList *available_configs);
 
-static gboolean all_mandatory_options_has_value (GHashTable *source_configs,
+static gboolean all_mandatory_options_has_value (const gchar *source_id,
+                                                 GHashTable *source_configs,
                                                  GrlConfig *merged_configs);
 
 static gboolean lua_plugin_source_init (GrlLuaFactorySource *lua_source);
@@ -326,7 +327,7 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
     goto bail;
 
   source->priv->configs = merge_all_configs (source_id, config_keys, configs);
-  if (!all_mandatory_options_has_value (config_keys, source->priv->configs))
+  if (!all_mandatory_options_has_value (source_id, config_keys, source->priv->configs))
     goto bail;
 
   g_free (source_id);
@@ -601,7 +602,8 @@ get_lua_sources (void)
  * If any mandatory option is not settled, return FALSE.
  */
 static gboolean
-all_mandatory_options_has_value (GHashTable *source_configs,
+all_mandatory_options_has_value (const gchar *source_id,
+                                 GHashTable *source_configs,
                                  GrlConfig *merged_configs)
 {
   const gchar *key = NULL;
@@ -617,6 +619,8 @@ all_mandatory_options_has_value (GHashTable *source_configs,
 
     if (g_strcmp0 (is_mandatory, "true") == 0
         && grl_config_get_string (merged_configs, key) == NULL) {
+
+      GRL_DEBUG ("Source %s is missing config for required key '%s'", source_id, key);
 
       g_list_free (list_keys);
       return FALSE;

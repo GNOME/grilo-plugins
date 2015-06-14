@@ -616,7 +616,7 @@ build_categories_directory_read_cb (GObject *source_object,
 
     cat_info = g_slice_new (CategoryInfo);
     cat_info->id = g_strconcat (YOUTUBE_CATEGORIES_ID, "/",
-                                gdata_category_get_term (category));
+                                gdata_category_get_term (category), NULL);
     cat_info->name = g_strdup (gdata_category_get_label (category));
     all = g_list_prepend (all, cat_info);
     total++;

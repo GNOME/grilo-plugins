@@ -1125,6 +1125,29 @@ grl_l_dgettext (lua_State *L)
 }
 
 /**
+ * grl.encode
+ *
+ * @text: (string) the string to %-encode
+ * @return: the %-encoded version of @text
+ */
+static gint
+grl_l_encode (lua_State *L)
+{
+  const gchar *text;
+  gchar *output;
+
+  luaL_argcheck (L, lua_isstring (L, 1), 1, "expecting part as string");
+
+  text = lua_tolstring (L, 1, NULL);
+
+  output = g_uri_escape_string (text, NULL, FALSE);
+  lua_pushstring (L, output);
+  g_free (output);
+
+  return 1;
+}
+
+/**
  * grl.decode
  *
  * @part: (string) the %-encoded part string to decode
@@ -1273,6 +1296,7 @@ luaopen_grilo (lua_State *L)
     {"debug", &grl_l_debug},
     {"warning", &grl_l_warning},
     {"dgettext", &grl_l_dgettext},
+    {"encode", &grl_l_encode},
     {"decode", &grl_l_decode},
     {"unescape", &grl_l_unescape},
     {"unzip", &grl_l_unzip},

@@ -53,7 +53,6 @@ GRL_LOG_DOMAIN_STATIC (lua_factory_log_domain);
 #define LUA_SOURCE_SUPPORTED_KEYS   "supported_keys"
 #define LUA_SOURCE_SLOW_KEYS        "slow_keys"
 #define LUA_SOURCE_RESOLVE_KEYS     "resolve_keys"
-#define LUA_SOURCE_MODULES_DEPS     "dependencies"
 #define LUA_REQUIRED_TABLE          "required"
 #define LUA_OPTIONAL_TABLE          "optional"
 
@@ -92,8 +91,6 @@ static gint lua_plugin_source_info (lua_State *L,
 
 static gint lua_plugin_source_operations (lua_State *L,
                                           gboolean fn[LUA_NUM_OPERATIONS]);
-
-static gint lua_plugin_source_all_dependencies (lua_State *L);
 
 static gint lua_plugin_source_all_keys (lua_State *L,
                                         const gchar *source_id,
@@ -318,10 +315,6 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   if (ret != LUA_OK)
     goto bail;
 
-  ret = lua_plugin_source_all_dependencies (L);
-  if (ret != LUA_OK)
-    goto bail;
-
   ret = lua_plugin_source_all_keys (L,
                                     source_id,
                                     &source->priv->supported_keys,
@@ -521,31 +514,6 @@ keys_table_array_to_list (lua_State *L,
   g_list_free_full (list, g_free);
 
   return g_list_reverse (filtered_list);
-}
-
-static gboolean
-lua_module_exists (const gchar *lua_module)
-{
-  gboolean exists = TRUE;
-  lua_State *L;
-
-  L = luaL_newstate ();
-  if (L == NULL) {
-    GRL_WARNING ("Unable to create new lua state.");
-    return FALSE;
-  }
-  lua_load_safe_libs (L);
-
-  lua_getglobal (L, "require");
-  lua_pushstring (L, lua_module);
-  if (lua_pcall (L, 1, 0, 0) != LUA_OK) {
-    GRL_DEBUG ("%s", lua_tolstring (L, -1, NULL));
-    exists = FALSE;
-    lua_pop (L, 1);
-  }
-
-  lua_close (L);
-  return exists;
 }
 
 static GList *
@@ -884,37 +852,6 @@ lua_plugin_source_operations (lua_State *L,
   }
 
   return LUA_OK;
-}
-
-static gint
-lua_plugin_source_all_dependencies (lua_State *L)
-{
-  GList *it = NULL;
-  GList *table_list = NULL;
-  gboolean module_fail = FALSE;
-
-  GRL_DEBUG ("lua_plugin_source_all_dependencies");
-
-  /* Dependencies are in the main table */
-  lua_getglobal (L, LUA_SOURCE_TABLE);
-
-  /* Check if lua modules dependencies are installed */
-  table_list = table_array_to_list (L, LUA_SOURCE_MODULES_DEPS);
-  if (table_list != NULL) {
-    gchar *lua_module = NULL;
-
-    for (it = table_list; it; it = g_list_next (it)) {
-      lua_module = it->data;
-
-      if (lua_module_exists (lua_module) == FALSE) {
-        module_fail = TRUE;
-        GRL_INFO ("%s %s", lua_module, "lua module is not installed");
-      }
-    }
-  }
-
-  g_list_free_full (table_list, g_free);
-  return (module_fail) ? !LUA_OK : LUA_OK;
 }
 
 static gint

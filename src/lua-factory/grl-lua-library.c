@@ -65,6 +65,24 @@ char_str (gunichar c,
   return buf;
 }
 
+/* ANSI HTML entities
+ * http://www.w3schools.com/charsets/ref_html_ansi.asp */
+static gchar *
+ansi_char_str (gunichar c,
+               gchar   *buf)
+{
+  gchar from_c[2], *tmp;
+
+  memset (buf, 0, 8);
+  from_c[0] = c;
+  from_c[1] = '\0';
+  tmp = g_convert (from_c, 2, "UTF-8", "Windows-1252", NULL, NULL, NULL);
+  strcpy (buf, tmp);
+  g_free (tmp);
+
+  return buf;
+}
+
 /* Adapted from unescape_gstring_inplace() in gmarkup.c in glib */
 static char *
 unescape_string (const char *orig_from)
@@ -116,7 +134,10 @@ unescape_string (const char *orig_from)
             (0xE000 <= l && l <= 0xFFFD) ||
             (0x10000 <= l && l <= 0x10FFFF)) {
           gchar buf[8];
-          char_str (l, buf);
+          if (l >= 128 && l <= 255)
+            ansi_char_str (l, buf);
+          else
+            char_str (l, buf);
           strcpy (to, buf);
           to += strlen (buf) - 1;
           from = end;

@@ -1194,6 +1194,32 @@ grl_l_unzip (lua_State *L)
 
 /* ================== Lua-Library initialization =========================== */
 
+/** Load library included as GResource and run it with lua_pcall.
+  * Caller should handle the stack aftwards.
+ **/
+static gboolean
+load_gresource_library (lua_State   *L,
+                        const gchar *uri)
+{
+  GFile *file;
+  gchar *data;
+  gsize size;
+  GError *error = NULL;
+  gboolean ret = TRUE;
+
+  file = g_file_new_for_uri (uri);
+  g_file_load_contents (file, NULL, &data, &size, NULL, &error);
+  g_assert_no_error (error);
+  g_clear_pointer (&file, g_object_unref);
+
+  if (luaL_dostring (L, data)) {
+    GRL_WARNING ("Failed to load %s due %s", uri, lua_tostring (L, -1));
+    ret = FALSE;
+  }
+  g_free (data);
+  return ret;
+}
+
 gint
 luaopen_grilo (lua_State *L)
 {
@@ -1224,6 +1250,23 @@ luaopen_grilo (lua_State *L)
   lua_pushstring (L, GRILO_LUA_LIBRARY_JSON);
   luaopen_json (L);
   lua_settable (L, -3);
+
+  /* Load inspect.lua and save object in global environment table */
+  lua_getglobal (L, LUA_ENV_TABLE);
+  if (load_gresource_library (L, URI_LUA_LIBRARY_INSPECT) &&
+      lua_istable (L, -1)) {
+      /* Top of the stack is inspect table from inspect.lua */
+      lua_getfield (L, -1, "inspect");
+      /* Top of the stack is inspect.inspect */
+      lua_setfield (L, -4, GRILO_LUA_LIBRARY_INSPECT);
+      /* grl.lua.inspect points to inspect.inspect */
+
+      /* Save inspect table in LUA_ENV_TABLE */
+      lua_setfield (L, -2, GRILO_LUA_INSPECT_INDEX);
+  } else {
+      GRL_WARNING ("Failed to load inspect.lua");
+  }
+  lua_pop (L, 1);
 
   /* Those modules are called in 'lua' table, inside 'grl' */
   lua_settable (L, -3);

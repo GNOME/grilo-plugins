@@ -35,6 +35,7 @@
 #define LUA_ENV_TABLE "_G"
 
 #define GRILO_LUA_OPERATION_INDEX "grl-lua-operation-spec"
+#define GRILO_LUA_INSPECT_INDEX   "grl-lua-data-inspect"
 
 gint luaopen_grilo (lua_State *L);
 

@@ -31,6 +31,8 @@ libgrlluafactory_la_SOURCES =					\
 	grl-lua-library.c					\
 	grl-lua-library.h					\
 	grl-lua-common.h					\
+	luafactoryresources.c					\
+	luafactoryresources.h					\
 	lua-library/htmlentity.c				\
 	lua-library/htmlentity.h				\
 	lua-library/lua-json.c					\
@@ -40,13 +42,32 @@ extdir			= $(GRL_PLUGINS_DIR)
 luafactoryxmldir	= $(GRL_PLUGINS_DIR)
 luafactoryxml_DATA	= $(LUA_FACTORY_PLUGIN_ID).xml
 
+lua_factory_resources_files =	\
+  lua-library/inspect.lua
+
+luafactoryresources.c: grl-lua-factory.gresource.xml luafactoryresources.h $(lua_factory_resources_files)
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-lua-factory.gresource.xml \
+		--target=$@ --sourcedir=$(srcdir) --c-name _grl_lua_factory --generate-source
+
+luafactoryresources.h: grl-lua-factory.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-lua-factory.gresource.xml \
+		--target=$@ --sourcedir=$(srcdir) --c-name _grl_lua_factory --generate-header
+
 # Rules to enable tests
 copy-xml-to-libs-dir: libgrlluafactory.la
 	cp -f $(srcdir)/$(luafactoryxml_DATA) $(builddir)/.libs/
 
 all-local: copy-xml-to-libs-dir
 
-EXTRA_DIST += $(luafactoryxml_DATA) lua-library/htmlentity.gperf
+CLEANFILES =				\
+	luafactoryresources.h		\
+	luafactoryresources.c
+
+EXTRA_DIST +=					\
+	$(luafactoryxml_DATA)			\
+	$(lua_factory_resources_files)		\
+	grl-lua-factory.gresource.xml 		\
+	lua-library/htmlentity.gperf
 
 DIST_SUBDIRS = sources
 

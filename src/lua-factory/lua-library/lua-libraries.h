@@ -29,6 +29,10 @@
 #ifndef _GRL_LUA_LIBRARY_JSON_H_
 #define _GRL_LUA_LIBRARY_JSON_H_
 
+#define GRESOURCE_LIBRARY_PREFIX    "resource:///org/gnome/grilo/plugins/lua-factory/lua-library/"
+#define URI_LUA_LIBRARY_INSPECT     GRESOURCE_LIBRARY_PREFIX "inspect.lua"
+
+#define GRILO_LUA_LIBRARY_INSPECT   "inspect"
 #define GRILO_LUA_LIBRARY_JSON  "json"
 
 gint luaopen_json (lua_State *L);

@@ -193,6 +193,32 @@ GRL_PLUGIN_REGISTER (grl_lua_factory_plugin_init, NULL, LUA_FACTORY_PLUGIN_ID);
 
 /* ================== Lua-Factory GObject ================================== */
 
+static void
+lua_load_safe_libs (lua_State *L)
+{
+  /* http://www.lua.org/manual/5.3/manual.html#luaL_requiref
+   * http://www.lua.org/source/5.3/linit.c.html */
+  static const luaL_Reg loadedlibs[] = {
+    {"_G", luaopen_base},
+    /* {LUA_LOADLIBNAME, luaopen_package}, */
+    /* {LUA_COLIBNAME, luaopen_coroutine}, */
+    {LUA_TABLIBNAME, luaopen_table},
+    /* {LUA_IOLIBNAME, luaopen_io}, */
+    /* {LUA_OSLIBNAME, luaopen_os}, */
+    {LUA_STRLIBNAME, luaopen_string},
+    {LUA_MATHLIBNAME, luaopen_math},
+    {LUA_UTF8LIBNAME, luaopen_utf8},
+    {LUA_DBLIBNAME, luaopen_debug},
+    {NULL, NULL}
+  };
+  const luaL_Reg *lib;
+
+  for (lib = loadedlibs; lib->func; lib++) {
+    luaL_requiref(L, lib->name, lib->func, 1);
+    lua_pop(L, 1);
+  }
+}
+
 static GResource *
 load_gresource (const char *script_path)
 {
@@ -239,7 +265,7 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   GRL_DEBUG ("Loading '%s'", lua_plugin_path);
 
   /* Standard Lua libraries */
-  luaL_openlibs (L);
+  lua_load_safe_libs (L);
 
   /* Grilo library */
   luaL_requiref (L, GRILO_LUA_LIBRARY_NAME, &luaopen_grilo, TRUE);
@@ -508,7 +534,7 @@ lua_module_exists (const gchar *lua_module)
     GRL_WARNING ("Unable to create new lua state.");
     return FALSE;
   }
-  luaL_openlibs (L);
+  lua_load_safe_libs (L);
 
   lua_getglobal (L, "require");
   lua_pushstring (L, lua_module);

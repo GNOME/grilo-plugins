@@ -106,7 +106,7 @@ function create_media(item)
   media.type = "video"
   media.id = item.id
   media.url = item.webUrl
-  media.title = item.webTitle
+  media.title = grl.unescape(item.webTitle)
   media.thumbnail = item.fields.thumbnail
 
   return media

@@ -402,6 +402,7 @@ filter_func_radio (GrlSource   *source,
   grl_media_set_id (ret, grl_media_get_url (media));
   grl_data_set_int (GRL_DATA (ret), GRL_METADATA_KEY_AUDIO_TRACK,
                     grl_data_get_int (GRL_DATA (media), GRL_METADATA_KEY_AUDIO_TRACK));
+  /* We'll add icon when http://dev.freebox.fr/bugs/task/14946 is fixed */
   grl_media_set_title (ret, new_title);
   g_free (new_title);
 

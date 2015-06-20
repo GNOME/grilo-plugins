@@ -248,7 +248,7 @@ grl_thetvdb_plugin_register_keys (GrlRegistry *registry,
 
   spec = g_param_spec_string ("thetvdb-guest-stars",
                               "thetvdb-guest-stars",
-                              "Guest stars perfoming in the episode.",
+                              "Guest stars performing in the episode.",
                               NULL,
                               G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
   GRL_THETVDB_METADATA_KEY_GUEST_STARS =

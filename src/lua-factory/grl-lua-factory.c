@@ -171,6 +171,7 @@ grl_lua_factory_plugin_init (GrlRegistry *registry,
     if (!grl_registry_register_source (registry, plugin,
                                        GRL_SOURCE (source), &err)) {
       GRL_DEBUG ("Fail to register source: %s", err->message);
+      g_clear_object (&source);
       g_error_free (err);
       continue;
     }

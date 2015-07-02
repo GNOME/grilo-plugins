@@ -187,6 +187,31 @@ grl_data_set_lua_string (GrlData    *data,
   }
 }
 
+static gboolean
+verify_plaintext_fetch (GrlSource  *source,
+                        char      **urls,
+                        guint       num_urls)
+{
+  const char **tags;
+  gboolean has_plaintext_tag;
+  guint i;
+
+  tags = grl_source_get_tags (source);
+  has_plaintext_tag = (tags && g_strv_contains (tags, "net:plaintext"));
+
+  /* No need to verify the URLs, the source is saying that they do
+   * plaintext queries, so nothing for us to block */
+  if (has_plaintext_tag)
+    return TRUE;
+
+  for (i = 0; i < num_urls; i++) {
+    if (g_str_has_prefix (urls[i], "http:"))
+      return FALSE;
+  }
+
+  return TRUE;
+}
+
 /* Top of the stack must be a table */
 static void
 grl_util_add_table_to_media (lua_State *L,
@@ -937,6 +962,14 @@ grl_l_fetch (lua_State *L)
       GRL_DEBUG ("grl.fetch() -> urls[%d]: '%s'", i, urls[i]);
       lua_pop (L, 1);
     }
+  }
+
+  if (!verify_plaintext_fetch (os->source, urls, num_urls)) {
+    GRL_WARNING ("Source '%s' is broken, it makes plaintext network queries but "
+                 "does not set the 'net:plaintext' tag", grl_source_get_id (os->source));
+    g_free (urls);
+    os->pending_ops--;
+    return 1;
   }
 
   lua_callback = lua_tolstring (L, 2, NULL);

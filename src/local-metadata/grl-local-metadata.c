@@ -239,6 +239,56 @@ grl_local_metadata_source_set_property (GObject      *object,
 
 /* ======================= Utilities ==================== */
 
+typedef struct {
+  GrlSource *source;  /* owned */
+  GrlSourceResolveSpec *rs;  /* unowned */
+  guint n_pending_operations;  /* always ≥ 1 */
+  gboolean has_invoked_callback;
+} ResolveData;
+
+static void
+resolve_data_start_operation (ResolveData  *data,
+                              const gchar  *op_name)
+{
+  g_assert (data->n_pending_operations >= 1);
+  data->n_pending_operations++;
+
+  GRL_DEBUG ("Starting operation %s; %u operations now pending.",
+             op_name, data->n_pending_operations);
+}
+
+/* The caller is responsible for freeing @error. */
+static void
+resolve_data_finish_operation (ResolveData   *data,
+                               const gchar   *op_name,
+                               const GError  *error)
+{
+  g_assert (data->n_pending_operations >= 1);
+  data->n_pending_operations--;
+
+  GRL_DEBUG ("Finishing operation %s; %u operations still pending.",
+             op_name, data->n_pending_operations);
+
+  if (!data->has_invoked_callback &&
+      (data->n_pending_operations == 0 || error != NULL)) {
+    GrlSourceResolveSpec *rs = data->rs;
+
+    /* All sub-operations have finished (or one has errored), so the callback
+     * can be invoked. */
+    data->has_invoked_callback = TRUE;
+    rs->callback (data->source, rs->operation_id, rs->media,
+                  rs->user_data, error);
+  }
+
+  /* All sub-operations have finished, so we can free the closure. */
+  if (data->n_pending_operations == 0) {
+    g_assert (data->has_invoked_callback);
+
+    g_object_unref (data->source);
+    g_slice_free (ResolveData, data);
+  }
+}
+
 static gboolean
 is_nonalnum (const gchar *str)
 {
@@ -482,14 +532,11 @@ extract_gibest_hash_done (GObject      *source_object,
                           gpointer      user_data)
 {
   GError *error = NULL;
-  gboolean ret;
-  GrlSourceResolveSpec *rs = user_data;
+  ResolveData *resolve_data = user_data;
 
-  ret =  g_task_propagate_boolean (G_TASK (res), &error);
-  if (!ret)
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
-  else
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+  g_task_propagate_boolean (G_TASK (res), &error);
+  resolve_data_finish_operation (resolve_data, "image", error);
+  g_clear_error (&error);
 }
 
 #define CHUNK_N_BYTES (2 << 15)
@@ -508,10 +555,10 @@ extract_gibest_hash (GTask        *task,
   guint64 hash = 0;
   gint i;
   char *str;
-  GrlSourceResolveSpec *rs = task_data;
+  ResolveData *resolve_data = task_data;
   GrlLocalMetadataSourcePriv *priv;
 
-  priv = GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (g_object_get_data (source_object, "self-source"));
+  priv = GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (resolve_data->source);
 
   stream = G_INPUT_STREAM (g_file_read (file, cancellable, &error));
   if (stream == NULL)
@@ -542,7 +589,7 @@ extract_gibest_hash (GTask        *task,
   g_object_unref (stream);
 
   str = g_strdup_printf ("%" G_GINT64_FORMAT, hash);
-  grl_data_set_string (GRL_DATA (rs->media), priv->hash_keyid, str);
+  grl_data_set_string (GRL_DATA (resolve_data->rs->media), priv->hash_keyid, str);
   g_free (str);
 
   g_task_return_boolean (task, TRUE);
@@ -555,20 +602,21 @@ fail:
 }
 
 static void
-extract_gibest_hash_async (GrlSourceResolveSpec *rs,
+extract_gibest_hash_async (ResolveData          *resolve_data,
                            GFile                *file,
                            GCancellable         *cancellable)
 {
   GTask *task;
 
-  task = g_task_new (G_OBJECT (file), cancellable, extract_gibest_hash_done, rs);
+  task = g_task_new (G_OBJECT (file), cancellable, extract_gibest_hash_done,
+                     resolve_data);
   g_task_run_in_thread (task, extract_gibest_hash);
 }
 
 static void
 got_file_info (GFile *file,
                GAsyncResult *result,
-               GrlSourceResolveSpec *rs)
+               gpointer user_data)
 {
   GCancellable *cancellable;
   GFileInfo *info;
@@ -576,10 +624,12 @@ got_file_info (GFile *file,
   const gchar *thumbnail_path;
   gboolean thumbnail_is_valid;
   GrlLocalMetadataSourcePriv *priv;
+  ResolveData *resolve_data = user_data;
+  GrlSourceResolveSpec *rs = resolve_data->rs;
 
   GRL_DEBUG ("got_file_info");
 
-  priv = GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (g_object_get_data (G_OBJECT (file), "self-source"));
+  priv = GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (resolve_data->source);
 
   cancellable = grl_operation_get_data (rs->operation_id);
 
@@ -615,9 +665,9 @@ got_file_info (GFile *file,
   }
 
   if (get_resolution_flags (rs->keys, priv) & FLAG_GIBEST_HASH) {
-    extract_gibest_hash_async (rs, file, cancellable);
+    extract_gibest_hash_async (resolve_data, file, cancellable);
   } else {
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+    resolve_data_finish_operation (resolve_data, "image", NULL);
     g_clear_object (&cancellable);
   }
 
@@ -629,7 +679,7 @@ error:
                                        GRL_CORE_ERROR_RESOLVE_FAILED,
                                        _("Failed to resolve: %s"),
                                        error->message);
-      rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, new_error);
+      resolve_data_finish_operation (resolve_data, "image", new_error);
 
       g_error_free (error);
       g_error_free (new_error);
@@ -641,26 +691,29 @@ exit:
 }
 
 static void
-resolve_video (GrlSource *source,
-               GrlSourceResolveSpec *rs,
-               GrlKeyID key,
-               resolution_flags_t flags)
+resolve_video (ResolveData         *resolve_data,
+               GrlKeyID             key,
+               resolution_flags_t   flags)
 {
   gchar *title, *showname, *display_name;
   GDateTime *date;
   gint season, episode;
-  GrlData *data = GRL_DATA (rs->media);
+  GrlData *data = GRL_DATA (resolve_data->rs->media);
   resolution_flags_t miss_flags = 0, fill_flags;
 
   GRL_DEBUG ("%s",__FUNCTION__);
+
+  resolve_data_start_operation (resolve_data, "video");
 
   if (!(flags & (FLAG_VIDEO_TITLE |
                  FLAG_VIDEO_SHOWNAME |
                  FLAG_VIDEO_DATE |
                  FLAG_VIDEO_SEASON |
                  FLAG_VIDEO_EPISODE |
-                 FLAG_VIDEO_EPISODE_TITLE)))
+                 FLAG_VIDEO_EPISODE_TITLE))) {
+    resolve_data_finish_operation (resolve_data, "video", NULL);
     return;
+  }
 
   if (grl_data_has_key (data, GRL_METADATA_KEY_TITLE)) {
     if (grl_data_get_boolean (data, GRL_METADATA_KEY_TITLE_FROM_FILENAME)) {
@@ -683,17 +736,19 @@ resolve_video (GrlSource *source,
 
   fill_flags = flags & miss_flags;
 
-  if (!fill_flags)
+  if (!fill_flags) {
+    resolve_data_finish_operation (resolve_data, "video", NULL);
     return;
+  }
 
   if (key == GRL_METADATA_KEY_URL) {
     GFile *file;
 
-    file = g_file_new_for_uri (grl_media_get_url (rs->media));
+    file = g_file_new_for_uri (grl_media_get_url (resolve_data->rs->media));
     display_name = g_file_get_basename (file);
     g_object_unref (file);
   } else {
-    display_name = g_strdup (grl_media_get_title (rs->media));
+    display_name = g_strdup (grl_media_get_title (resolve_data->rs->media));
   }
 
   video_guess_values_from_display_name (display_name,
@@ -742,25 +797,28 @@ resolve_video (GrlSource *source,
   if (episode && (fill_flags & FLAG_VIDEO_EPISODE)) {
     grl_data_set_int (data, GRL_METADATA_KEY_EPISODE, episode);
   }
+
+  resolve_data_finish_operation (resolve_data, "video", NULL);
 }
 
-static gboolean
-resolve_image (GrlSource *source,
-               GrlSourceResolveSpec *rs,
-               resolution_flags_t flags)
+static void
+resolve_image (ResolveData         *resolve_data,
+               resolution_flags_t   flags)
 {
   GFile *file;
   GCancellable *cancellable;
 
   GRL_DEBUG ("resolve_image");
 
+  resolve_data_start_operation (resolve_data, "image");
+
   if (flags & FLAG_THUMBNAIL) {
     const gchar *attributes;
 
-    file = g_file_new_for_uri (grl_media_get_url (rs->media));
+    file = g_file_new_for_uri (grl_media_get_url (resolve_data->rs->media));
 
     cancellable = g_cancellable_new ();
-    grl_operation_set_data (rs->operation_id, cancellable);
+    grl_operation_set_data (resolve_data->rs->operation_id, cancellable);
 
 #if GLIB_CHECK_VERSION (2, 39, 0)
     attributes = G_FILE_ATTRIBUTE_THUMBNAIL_PATH "," \
@@ -769,45 +827,42 @@ resolve_image (GrlSource *source,
     attributes = G_FILE_ATTRIBUTE_THUMBNAIL_PATH;
 #endif
 
-    g_object_set_data (G_OBJECT (file), "self-source", source);
-
     g_file_query_info_async (file, attributes,
                              G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT, cancellable,
-                             (GAsyncReadyCallback)got_file_info, rs);
+                             (GAsyncReadyCallback)got_file_info, resolve_data);
     g_object_unref (file);
-
-    return FALSE;
+  } else {
+    resolve_data_finish_operation (resolve_data, "image", NULL);
   }
-
-  return TRUE;
 }
 
-static gboolean
-resolve_album_art (GrlSource *source,
-                   GrlSourceResolveSpec *rs,
-                   resolution_flags_t flags)
+static void
+resolve_album_art (ResolveData         *resolve_data,
+                   resolution_flags_t   flags)
 {
   const gchar *artist, *album;
   char *cache_uri = NULL;
 
-  artist = grl_media_audio_get_artist (GRL_MEDIA_AUDIO (rs->media));
-  album = grl_media_audio_get_album (GRL_MEDIA_AUDIO (rs->media));
+  resolve_data_start_operation (resolve_data, "album-art");
 
-  if (!artist || !album)
-    return TRUE;
+  artist = grl_media_audio_get_artist (GRL_MEDIA_AUDIO (resolve_data->rs->media));
+  album = grl_media_audio_get_album (GRL_MEDIA_AUDIO (resolve_data->rs->media));
+
+  if (!artist || !album) {
+    resolve_data_finish_operation (resolve_data, "album-art", NULL);
+    return;
+  }
 
   media_art_get_path (artist, album, "album", &cache_uri);
 
   if (cache_uri)
-    grl_media_set_thumbnail (rs->media, cache_uri);
+    grl_media_set_thumbnail (resolve_data->rs->media, cache_uri);
   else
     GRL_DEBUG ("Found no thumbnail for artist %s and album %s", artist, album);
 
-  rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+  resolve_data_finish_operation (resolve_data, "album-art", NULL);
 
   g_free (cache_uri);
-
-  return FALSE;
 }
 
 static gboolean
@@ -1033,9 +1088,16 @@ grl_local_metadata_source_resolve (GrlSource *source,
   GrlLocalMetadataSourcePriv *priv =
     GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (source);
   gboolean can_access;
-  gboolean done;
+  ResolveData *data = NULL;
 
   GRL_DEBUG (__FUNCTION__);
+
+  /* Wrap the whole resolve operation in a GTask, as there are various async
+   * components which need to run in parallel. */
+  data = g_slice_new0 (ResolveData);
+  data->source = g_object_ref (source);
+  data->rs = rs;
+  data->n_pending_operations = 1;  /* to track the initial checks */
 
   /* Can we access the media through gvfs? */
   can_access = has_compatible_media_url (rs->media);
@@ -1055,31 +1117,27 @@ grl_local_metadata_source_resolve (GrlSource *source,
 
   if (error) {
     /* No can do! */
-    rs->callback (source, rs->operation_id, rs->media, rs->user_data, error);
+    resolve_data_finish_operation (data, "root", error);
     g_error_free (error);
     return;
   }
 
   GRL_DEBUG ("\ttrying to resolve for: %s", grl_media_get_url (rs->media));
 
-  done = FALSE;
-
   if (GRL_IS_MEDIA_VIDEO (rs->media)) {
-    done = TRUE;
     if (priv->guess_video)
-      resolve_video (source, rs, can_access ? GRL_METADATA_KEY_URL : GRL_METADATA_KEY_TITLE, flags);
+      resolve_video (data, can_access ? GRL_METADATA_KEY_URL : GRL_METADATA_KEY_TITLE, flags);
     if (can_access)
-      done = resolve_image (source, rs, flags);
+      resolve_image (data, flags);
   } else if (GRL_IS_MEDIA_IMAGE (rs->media)) {
-    done = resolve_image (source, rs, flags);
+    resolve_image (data, flags);
   } else if (GRL_IS_MEDIA_AUDIO (rs->media)) {
-    done = resolve_album_art (source, rs, flags);
+    resolve_album_art (data, flags);
   }
 
-  /* Only call the callback if there are no async jobs left-over,
-   * such as resolve_image() checking for thumbnails */
-  if (done)
-    rs->callback (source, rs->operation_id, rs->media, rs->user_data, NULL);
+  /* Finish the overall operation (this might not call the callback if there
+   * are still some sub-operations pending). */
+  resolve_data_finish_operation (data, "root", NULL);
 }
 
 static void

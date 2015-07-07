@@ -631,7 +631,7 @@ remove_bookmark (GrlBookmarksSource *bookmarks_source,
 
   g_object_unref (resource);
 
-  if (*error != NULL && bookmarks_source->priv->notify_changes) {
+  if (*error == NULL && bookmarks_source->priv->notify_changes) {
     /* We can improve accuracy computing the parent container of removed
        element */
     grl_source_notify_change (GRL_SOURCE (bookmarks_source),

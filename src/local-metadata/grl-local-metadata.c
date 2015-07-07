@@ -837,32 +837,77 @@ resolve_image (ResolveData         *resolve_data,
 }
 
 static void
+resolve_album_art_cb (GObject       *source_object,
+                      GAsyncResult  *result,
+                      gpointer       user_data)
+{
+  GFile *cache_file;
+  ResolveData *resolve_data;
+  GCancellable *cancellable = NULL;
+  GFileInfo *info = NULL;
+  GError *error = NULL;
+
+  cache_file = G_FILE (source_object);
+  resolve_data = user_data;
+
+  cancellable = grl_operation_get_data (resolve_data->rs->operation_id);
+  info = g_file_query_info_finish (cache_file, result, &error);
+
+  if (info != NULL) {
+    /* Success, the album art exists. */
+    gchar *cache_uri = g_file_get_uri (cache_file);
+    grl_media_set_thumbnail (resolve_data->rs->media, cache_uri);
+    g_free (cache_uri);
+  } else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND)) {
+    /* Ignore G_IO_ERROR_NOT_FOUND. */
+    g_clear_error (&error);
+  }
+
+  resolve_data_finish_operation (resolve_data, "album-art", error);
+
+  g_clear_object (&info);
+  g_clear_error (&error);
+  g_clear_object (&cancellable);
+}
+
+static void
 resolve_album_art (ResolveData         *resolve_data,
                    resolution_flags_t   flags)
 {
   const gchar *artist, *album;
-  char *cache_uri = NULL;
+  GCancellable *cancellable = NULL;
+  GFile *cache_file = NULL;
 
   resolve_data_start_operation (resolve_data, "album-art");
 
   artist = grl_media_audio_get_artist (GRL_MEDIA_AUDIO (resolve_data->rs->media));
   album = grl_media_audio_get_album (GRL_MEDIA_AUDIO (resolve_data->rs->media));
 
-  if (!artist || !album) {
-    resolve_data_finish_operation (resolve_data, "album-art", NULL);
-    return;
+  if (!artist || !album)
+    goto done;
+
+  cancellable = g_cancellable_new ();
+  grl_operation_set_data_full (resolve_data->rs->operation_id,
+                               g_object_ref (cancellable),
+                               (GDestroyNotify) g_object_unref);
+
+  media_art_get_file (artist, album, "album", &cache_file);
+
+  if (cache_file) {
+    /* Check whether the cache file exists. */
+    resolve_data_start_operation (resolve_data, "album-art");
+    g_file_query_info_async (cache_file, G_FILE_ATTRIBUTE_ACCESS_CAN_READ,
+                             G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT,
+                             cancellable, resolve_album_art_cb, resolve_data);
+  } else {
+    GRL_DEBUG ("Found no thumbnail for artist %s and album %s", artist, album);
   }
 
-  media_art_get_path (artist, album, "album", &cache_uri);
-
-  if (cache_uri)
-    grl_media_set_thumbnail (resolve_data->rs->media, cache_uri);
-  else
-    GRL_DEBUG ("Found no thumbnail for artist %s and album %s", artist, album);
-
+done:
   resolve_data_finish_operation (resolve_data, "album-art", NULL);
 
-  g_free (cache_uri);
+  g_clear_object (&cache_file);
+  g_clear_object (&cancellable);
 }
 
 static gboolean

@@ -984,7 +984,11 @@ grl_l_callback (lua_State *L)
 
   nparam = lua_gettop (L);
   os = grl_lua_library_get_current_operation (L);
-  g_return_val_if_fail (os != NULL, 0);
+  if (os == NULL) {
+    luaL_error (L, "Source is broken as grl.callback() was called "
+                "after last operation has been finalized");
+    return 0;
+  }
 
   media = (os->op_type == LUA_RESOLVE) ? os->media : NULL;
   if (nparam > 0) {

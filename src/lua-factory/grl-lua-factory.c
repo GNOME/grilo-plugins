@@ -20,6 +20,8 @@
  *
  */
 
+#include "config.h"
+
 #include "grl-lua-common.h"
 #include "grl-lua-factory.h"
 

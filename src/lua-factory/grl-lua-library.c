@@ -20,6 +20,8 @@
  *
  */
 
+#include "config.h"
+
 #include <net/grl-net.h>
 #include <string.h>
 #include <errno.h>

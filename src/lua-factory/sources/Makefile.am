@@ -16,7 +16,9 @@ lua_sources_DATA =					\
 	grl-euronews.gresource				\
 	grl-guardianvideos.gresource			\
 	grl-radiofrance.gresource			\
-	grl-video-title-parsing.lua
+	grl-video-title-parsing.lua			\
+	grl-pocket.lua					\
+	grl-pocket.gresource
 
 lua_sourcesdir = $(datadir)/$(LUA_FACTORY_SOURCE_LOCATION)
 
@@ -29,7 +31,14 @@ grl-guardianvideos.gresource: grl-guardianvideos.gresource.xml
 grl-radiofrance.gresource: grl-radiofrance.gresource.xml
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-radiofrance.gresource.xml
 
-CLEANFILES = grl-euronews.gresource grl-guardianvideos.gresource grl-radiofrance.gresource
+grl-pocket.gresource: grl-pocket.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-pocket.gresource.xml
+
+CLEANFILES =						\
+	grl-euronews.gresource				\
+	grl-guardianvideos.gresource			\
+	grl-radiofrance.gresource			\
+	grl-pocket.gresource
 
 EXTRA_DIST +=						\
 	$(lua_sources_DATA)				\
@@ -38,6 +47,7 @@ EXTRA_DIST +=						\
 	grl-radiofrance.gresource.xml			\
 	euronews.svg					\
 	guardianvideos.svg				\
-	radiofrance.png
+	radiofrance.png					\
+	pocket.svg
 
 -include $(top_srcdir)/git.mk

@@ -920,10 +920,15 @@ magnatune_execute_search(OperationSpec *os)
 
   g_list_free(list_medias);
 
+  g_slice_free(OperationSpec, os);
+  return;
+
 end_search:
   if (err != NULL) {
     os->callback(os->source, os->operation_id, NULL, 0, os->user_data, err);
     g_error_free(err);
+  } else {
+    os->callback(os->source, os->operation_id, NULL, 0, os->user_data, NULL);
   }
 
   g_slice_free(OperationSpec, os);

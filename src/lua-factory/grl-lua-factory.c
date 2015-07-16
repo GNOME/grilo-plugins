@@ -55,6 +55,8 @@ GRL_LOG_DOMAIN_STATIC (lua_factory_log_domain);
 #define LUA_SOURCE_SUPPORTED_KEYS   "supported_keys"
 #define LUA_SOURCE_SLOW_KEYS        "slow_keys"
 #define LUA_SOURCE_RESOLVE_KEYS     "resolve_keys"
+#define LUA_GOA_ACCOUNT_PROVIDER    "goa_account_provider"
+#define LUA_GOA_ACCOUNT_FEATURE     "goa_account_feature"
 #define LUA_REQUIRED_TABLE          "required"
 #define LUA_OPTIONAL_TABLE          "optional"
 
@@ -77,10 +79,32 @@ struct _GrlLuaFactorySourcePrivate {
   GrlConfig *configs;
 };
 
+#ifdef GOA_ENABLED
+typedef struct {
+  GrlPlugin *plugin;
+  GrlRegistry *registry;
+  GList *configs;
+  GoaClient *client;
+  gchar *lua_source_path;
+  gchar *account_provider;
+  gchar *account_feature;
+  GHashTable *sources;
+} GrlLuaGoaData;
+
+typedef struct {
+  gchar *lua_source_path;
+  gchar *lua_account_provider;
+  gchar *lua_account_feature;
+} GrlLuaGoaInitData;
+#endif
+
 static GList *get_lua_sources (void);
 
-static GrlLuaFactorySource *grl_lua_factory_source_new (gchar *lua_plugin_path,
-                                                        GList *configs);
+static GrlLuaFactorySource *grl_lua_factory_source_new (gchar       *lua_plugin_path,
+                                                        GList       *configs,
+                                                        const gchar *source_id_suffix,
+                                                        const gchar *account_name,
+                                                        gpointer     goa_object);
 
 static gint lua_plugin_source_info (lua_State *L,
                                     gchar **source_id,
@@ -90,6 +114,8 @@ static gint lua_plugin_source_info (lua_State *L,
                                     GIcon **source_icon,
                                     guint *auto_split_threshold,
                                     gchar ***source_tags);
+
+static void lua_load_safe_libs (lua_State *L);
 
 static gint lua_plugin_source_operations (lua_State *L,
                                           gboolean fn[LUA_NUM_OPERATIONS]);
@@ -138,6 +164,16 @@ static gboolean all_mandatory_options_has_value (const gchar *source_id,
 
 static gboolean lua_plugin_source_init (GrlLuaFactorySource *lua_source);
 
+static GList *handle_goa_sources (GList  *lua_sources,
+                                  GList **goa_sources);
+
+#ifdef GOA_ENABLED
+static void grl_lua_factory_goa_init (GObject *source_object,
+                                      GAsyncResult *res,
+                                      gpointer user_data);
+static void grl_lua_goa_data_free (GrlLuaGoaData *data);
+#endif
+
 /* ================== Lua-Factory Plugin  ================================== */
 
 static gboolean
@@ -146,9 +182,13 @@ grl_lua_factory_plugin_init (GrlRegistry *registry,
                              GList *configs)
 {
   GList *it = NULL;
-  GList *lua_sources = NULL;
+  GList *lua_sources, *goa_sources;
   GError *err = NULL;
   gboolean source_loaded = FALSE;
+  GCancellable *cancellable;
+#ifdef GOA_ENABLED
+  GList *lua_init_sources = NULL;
+#endif
 
   GRL_LOG_DOMAIN_INIT (lua_factory_log_domain, "lua-factory");
 
@@ -158,10 +198,42 @@ grl_lua_factory_plugin_init (GrlRegistry *registry,
   if (!lua_sources)
     return TRUE;
 
+  cancellable = g_cancellable_new ();
+  g_object_set_data (G_OBJECT (plugin), "cancellable", cancellable);
+
+  lua_sources = handle_goa_sources (lua_sources, &goa_sources);
+
+#ifdef GOA_ENABLED
+  for (it = goa_sources; it; it = g_list_next (it)) {
+    GrlLuaGoaInitData *data = it->data;
+    GrlLuaGoaData *goa_data;
+
+    goa_data = g_new0 (GrlLuaGoaData, 1);
+    goa_data->plugin = plugin;
+    goa_data->registry = registry;
+    goa_data->configs = configs;
+    goa_data->account_provider = data->lua_account_provider;
+    goa_data->account_feature = data->lua_account_feature;
+    goa_data->lua_source_path = data->lua_source_path;
+
+    /* All struct members in GrlLuaGoaInitData have been taken */
+    g_free (data);
+
+    goa_client_new (cancellable, grl_lua_factory_goa_init, goa_data);
+
+    lua_init_sources = g_list_prepend (lua_init_sources, goa_data);
+  }
+
+  g_list_free (goa_sources);
+  g_object_set_data (G_OBJECT (plugin), "lua-init-sources", lua_init_sources);
+#else
+  g_assert (goa_sources == NULL);
+#endif
+
   for (it = lua_sources; it; it = g_list_next (it)) {
     GrlLuaFactorySource *source;
 
-    source = grl_lua_factory_source_new (it->data, configs);
+    source = grl_lua_factory_source_new (it->data, configs, NULL, NULL, NULL);
     if (source == NULL) {
       GRL_DEBUG ("Fail to initialize.");
       continue;
@@ -190,7 +262,27 @@ grl_lua_factory_plugin_init (GrlRegistry *registry,
   return source_loaded;
 }
 
-GRL_PLUGIN_REGISTER (grl_lua_factory_plugin_init, NULL, LUA_FACTORY_PLUGIN_ID);
+static void
+grl_lua_factory_plugin_deinit (GrlPlugin *plugin)
+{
+  GCancellable *cancellable;
+  GList *lua_init_sources, *it;
+
+  cancellable = g_object_get_data (G_OBJECT (plugin), "cancellable");
+  if (cancellable) {
+    g_cancellable_cancel (cancellable);
+    g_object_unref (cancellable);
+    g_object_set_data (G_OBJECT (plugin), "cancellable", NULL);
+  }
+
+  lua_init_sources = g_object_get_data (G_OBJECT (plugin), "lua-init-sources");
+  for (it = lua_init_sources; it != NULL; it = it->next)
+    grl_lua_goa_data_free (it->data);
+  g_list_free (lua_init_sources);
+  g_object_set_data (G_OBJECT (plugin), "lua-init-sources", NULL);
+}
+
+GRL_PLUGIN_REGISTER (grl_lua_factory_plugin_init, grl_lua_factory_plugin_deinit, LUA_FACTORY_PLUGIN_ID);
 
 /* ================== Lua-Factory GObject ================================== */
 
@@ -239,8 +331,11 @@ load_gresource (const char *script_path)
 }
 
 static GrlLuaFactorySource *
-grl_lua_factory_source_new (gchar *lua_plugin_path,
-                            GList *configs)
+grl_lua_factory_source_new (gchar       *lua_plugin_path,
+                            GList       *configs,
+                            const gchar *source_id_suffix,
+                            const gchar *account_name,
+                            gpointer     goa_object)
 {
   GrlLuaFactorySource *source = NULL;
   lua_State *L = NULL;
@@ -296,6 +391,26 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   if (ret != LUA_OK)
     goto bail;
 
+  /* Override source id, name and description for GOA sources */
+  if (source_id_suffix) {
+    gchar *new_source_id = g_strdup_printf ("%s-%s", source_id, source_id_suffix);
+    g_free (source_id);
+    source_id = new_source_id;
+  }
+
+  if (account_name) {
+    gchar *new_source_name;
+    gchar *new_source_desc;
+
+    new_source_name = g_strdup_printf ("%s (%s)", source_name, account_name);
+    g_free (source_name);
+    source_name = new_source_name;
+
+    new_source_desc = g_strdup_printf ("%s (%s)", source_desc, account_name);
+    g_free (source_desc);
+    source_desc = new_source_desc;
+  }
+
   GRL_DEBUG ("source_info ok! source_id: '%s'", source_id);
 
   source = g_object_new (GRL_LUA_FACTORY_SOURCE_TYPE,
@@ -336,6 +451,9 @@ grl_lua_factory_source_new (gchar *lua_plugin_path,
   g_free (source_id);
   source->priv->config_keys = config_keys;
   source->priv->l_st = L;
+
+  if (goa_object != NULL)
+    grl_lua_library_save_goa_data (source->priv->l_st, goa_object);
 
   if (lua_plugin_source_init (source) == FALSE) {
     g_clear_object (&source);
@@ -475,6 +593,230 @@ lua_plugin_source_init (GrlLuaFactorySource *lua_source)
   return ret;
 }
 
+#ifdef GOA_ENABLED
+/* ===================== GOA functions ==================================== */
+
+static void
+grl_lua_factory_add_goa_source (GrlLuaGoaData *lua_data,
+                                GoaObject     *object,
+                                const gchar   *source_id_suffix,
+                                const gchar   *account_name)
+{
+  GError *error = NULL;
+  GrlLuaFactorySource *source;
+
+  source = grl_lua_factory_source_new (lua_data->lua_source_path, lua_data->configs,
+                                       source_id_suffix, account_name, object);
+
+  if (source == NULL) {
+    GRL_DEBUG ("[%s] Fail to initialize.", lua_data->lua_source_path);
+    return;
+  }
+
+  /* In case the plugin gets unref'ed during registration */
+  g_object_add_weak_pointer (G_OBJECT (source), (gpointer *) &source);
+
+  if (!grl_registry_register_source (lua_data->registry, lua_data->plugin,
+                                     GRL_SOURCE (source), &error)) {
+    GRL_DEBUG ("[%s] Fail to register source: %s.", lua_data->lua_source_path, error->message);
+    g_clear_object (&source);
+    g_error_free (error);
+    return;
+  }
+
+  if (!source)
+    return;
+
+  g_object_remove_weak_pointer (G_OBJECT (source), (gpointer *) &source);
+  g_hash_table_insert (lua_data->sources, g_strdup (source_id_suffix), source);
+}
+
+typedef enum {
+  GOA_ADD,
+  GOA_REMOVE,
+  GOA_NOTHING
+} GoaTristate;
+
+static GoaTristate
+enable_goa_source (GrlLuaGoaData *lua_data,
+		   GoaObject     *object,
+		   GoaAccount    *acc,
+		   const gchar   *feature,
+		   gchar        **source_id_suffix)
+{
+  const gchar *account_id;
+
+  account_id = goa_account_get_id (acc);
+  *source_id_suffix = g_strdup_printf ("%s-%s", account_id, feature);
+
+  if (g_strcmp0 (feature, "photos") == 0) {
+    if (!goa_object_peek_photos (object))
+      return GOA_NOTHING;
+    if (!goa_account_get_photos_disabled (acc) &&
+        !g_hash_table_contains (lua_data->sources, *source_id_suffix))
+      return GOA_ADD;
+    if (goa_account_get_photos_disabled (acc) &&
+        g_hash_table_contains (lua_data->sources, *source_id_suffix))
+      return GOA_REMOVE;
+  } else if (g_strcmp0 (feature, "music") == 0) {
+    if (!goa_object_peek_music (object))
+      return GOA_NOTHING;
+    if (!goa_account_get_music_disabled (acc) &&
+        !g_hash_table_contains (lua_data->sources, *source_id_suffix))
+      return GOA_ADD;
+    if (goa_account_get_music_disabled (acc) &&
+        g_hash_table_contains (lua_data->sources, *source_id_suffix))
+      return GOA_REMOVE;
+  } else if (g_strcmp0 (feature, "read-later") == 0) {
+    if (!goa_object_peek_read_later (object))
+      return GOA_NOTHING;
+    if (!goa_account_get_read_later_disabled (acc) &&
+        !g_hash_table_contains (lua_data->sources, *source_id_suffix))
+      return GOA_ADD;
+    if (goa_account_get_read_later_disabled (acc) &&
+        g_hash_table_contains (lua_data->sources, *source_id_suffix))
+      return GOA_REMOVE;
+  }
+
+  return GOA_NOTHING;
+}
+
+static void
+grl_lua_factory_goa_update (GoaClient *client,
+                            GoaObject *object,
+                            gpointer   user_data)
+{
+  GrlLuaGoaData *lua_data = user_data;
+  GoaAccount *acc;
+  gchar *source_id_suffix;
+
+  acc = goa_object_peek_account (object);
+
+  if (g_strcmp0 (goa_account_get_provider_type (acc), lua_data->account_provider) != 0)
+    return;
+
+  switch (enable_goa_source (lua_data, object, acc, lua_data->account_feature, &source_id_suffix)) {
+  case GOA_ADD: {
+    const gchar *account_name;
+    account_name = goa_account_get_presentation_identity (acc);
+    GRL_DEBUG("[%s] GOA update: creating new source for %s support",
+              lua_data->lua_source_path,
+              lua_data->account_feature);
+    grl_lua_factory_add_goa_source (lua_data, object, source_id_suffix, account_name);
+    }
+    break;
+  case GOA_REMOVE: {
+    GrlLuaFactorySource *source = g_hash_table_lookup (lua_data->sources, source_id_suffix);
+    grl_registry_unregister_source (lua_data->registry, GRL_SOURCE (source), NULL);
+    g_hash_table_remove (lua_data->sources, source_id_suffix);
+    GRL_DEBUG ("[%s] GOA update: removed source for %s support",
+               source_id_suffix, lua_data->account_feature);
+    }
+    break;
+  case GOA_NOTHING:
+    /* Nothing changed */
+    break;
+  default:
+    g_assert_not_reached ();
+  }
+
+  g_free (source_id_suffix);
+}
+
+static void
+grl_lua_factory_goa_remove (GoaClient *client,
+                            GoaObject *object,
+                            gpointer   user_data)
+{
+  GrlLuaGoaData *lua_data = user_data;
+  GoaAccount *acc;
+  const gchar *account_id;
+  gchar *source_id;
+
+  acc = goa_object_peek_account (object);
+
+  if (g_strcmp0 (goa_account_get_provider_type (acc), lua_data->account_provider) != 0)
+    return;
+
+  account_id = goa_account_get_id (acc);
+
+  source_id = g_strdup_printf ("%s-%s", account_id, lua_data->account_feature);
+  if (g_hash_table_contains (lua_data->sources, source_id)) {
+    GrlLuaFactorySource *source = g_hash_table_lookup (lua_data->sources, source_id);
+    grl_registry_unregister_source (lua_data->registry, GRL_SOURCE (source), NULL);
+    g_hash_table_remove (lua_data->sources, account_id);
+    g_object_unref (source);
+    GRL_DEBUG ("[%s] GOA update: removed source for %s support", account_id, lua_data->account_feature);
+  }
+  g_free (source_id);
+}
+
+static void
+grl_lua_goa_data_free (GrlLuaGoaData *data)
+{
+  if (data == NULL)
+    return;
+
+  g_clear_object (&data->client);
+  g_free (data->lua_source_path);
+  g_free (data->account_provider);
+  g_free (data->account_feature);
+  g_clear_pointer (&data->sources, g_hash_table_destroy);
+}
+
+static void
+grl_lua_factory_goa_init (GObject *source_object,
+                          GAsyncResult *res,
+                          gpointer user_data)
+{
+  GError *error = NULL;
+  GList *tmp;
+  GList *acc_list;
+  GList *lua_acc_list = NULL;
+  GrlLuaGoaData *lua_data = user_data;
+  GoaClient *client;
+
+  client = goa_client_new_finish (res, &error);
+
+  if (error) {
+    if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+      GRL_MESSAGE ("Can't connect to GOA: %s\n", error->message);
+    g_error_free (error);
+    grl_lua_goa_data_free (lua_data);
+    return;
+  }
+
+  lua_data->client = client;
+
+  acc_list = goa_client_get_accounts (client);
+  for (tmp = acc_list; tmp != NULL; tmp = tmp->next) {
+    GoaAccount *acc = goa_object_peek_account (tmp->data);
+
+    if (g_strcmp0 (goa_account_get_provider_type (acc), lua_data->account_provider) == 0)
+      lua_acc_list = g_list_append (lua_acc_list, tmp->data);
+    else
+      g_object_unref(tmp->data);
+  }
+
+  g_list_free (acc_list);
+
+  lua_data->sources = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+  g_signal_connect (client, "account-added", G_CALLBACK (grl_lua_factory_goa_update), user_data);
+  g_signal_connect (client, "account-removed", G_CALLBACK (grl_lua_factory_goa_remove), user_data);
+  g_signal_connect (client, "account-changed", G_CALLBACK (grl_lua_factory_goa_update), user_data);
+
+  for (tmp = lua_acc_list; tmp != NULL; tmp = tmp->next) {
+    /* the initial adding of the accounts should be done manually, */
+    /* but we can re-use the update function */
+    grl_lua_factory_goa_update (client, (GoaObject *)tmp->data, user_data);
+    g_object_unref (tmp->data);
+  }
+  g_list_free (lua_acc_list);
+}
+
+#endif /* GOA_ENABLED */
+
 /* ======================= Utilities ======================================= */
 
 static GList *
@@ -535,6 +877,116 @@ keys_table_array_to_list (lua_State *L,
   g_list_free_full (list, g_free);
 
   return g_list_reverse (filtered_list);
+}
+
+static gboolean
+validate_account_feature (const char *lua_account_feature)
+{
+  const char const *features[] = {
+    "photos",
+    "read-later",
+    "music",
+    NULL
+  };
+
+  return g_strv_contains (features, lua_account_feature);
+}
+
+static GList *
+handle_goa_sources (GList  *lua_sources,
+		    GList **goa_sources)
+{
+  GList *new_lua_sources = NULL;
+  GList *new_goa_sources = NULL;
+  GList *it;
+
+  for (it = lua_sources; it; it = g_list_next (it)) {
+    lua_State *L;
+    GrlLuaGoaInitData *data;
+    const char *lua_account_provider;
+    const char *lua_account_feature;
+    int ret;
+
+    L = luaL_newstate ();
+    if (L == NULL) {
+      GRL_WARNING ("Unable to create new lua state for '%s'.", (gchar *)it->data);
+      continue;
+    }
+
+    /* Standard Lua libraries */
+    lua_load_safe_libs (L);
+
+    /* Load the plugin */
+    ret = luaL_loadfile (L, it->data);
+    if (ret != LUA_OK) {
+      GRL_WARNING ("[%s] failed to load: %s", (gchar *)it->data, lua_tostring (L, -1));
+      lua_close (L);
+      continue;
+    }
+
+    ret = lua_pcall (L, 0, 0, 0);
+    if (ret != LUA_OK) {
+      GRL_WARNING ("[%s] failed to run: %s", (gchar *)it->data, lua_tostring (L, -1));
+      lua_close (L);
+      continue;
+    }
+
+    lua_getglobal (L, LUA_SOURCE_TABLE);
+    if (!lua_istable (L, -1)) {
+      GRL_DEBUG ("'%s' %s", LUA_SOURCE_TABLE, "table is not defined");
+      lua_close (L);
+      continue;
+    }
+
+    lua_getfield (L, -1, LUA_GOA_ACCOUNT_PROVIDER);
+    lua_account_provider = lua_tolstring (L, -1, NULL);
+    lua_getfield (L, -2, LUA_GOA_ACCOUNT_FEATURE);
+    lua_account_feature = lua_tolstring (L, -1, NULL);
+
+    lua_pop (L, 3);
+
+    if ((lua_account_provider == NULL && lua_account_feature != NULL)
+        || (lua_account_provider != NULL && lua_account_feature == NULL)) {
+      GRL_WARNING ("GOA requirements not well defined for %s", (char *) it->data);
+      lua_close (L);
+      continue;
+    }
+
+#ifndef GOA_ENABLED
+    if (lua_account_provider != NULL && lua_account_feature != NULL) {
+      GRL_DEBUG ("GOA required for source %s but Lua factory compiled without support",
+                 (char *) it->data);
+      lua_close (L);
+      continue;
+    }
+#endif
+
+    if (lua_account_provider == NULL && lua_account_feature == NULL) {
+      new_lua_sources = g_list_prepend (new_lua_sources, g_strdup (it->data));
+      lua_close (L);
+      continue;
+    }
+
+    if (!validate_account_feature (lua_account_feature)) {
+      GRL_WARNING ("Invalid or unsupported account feature '%s' for %s",
+                   lua_account_feature, (char *) it->data);
+      lua_close (L);
+      continue;
+    }
+
+    data = g_new0 (GrlLuaGoaInitData, 1);
+    data->lua_source_path = g_strdup (it->data);
+    data->lua_account_provider = g_strdup (lua_account_provider);
+    data->lua_account_feature = g_strdup (lua_account_feature);
+
+    new_goa_sources = g_list_prepend (new_goa_sources, data);
+
+    lua_close (L);
+  }
+
+  g_list_free_full (lua_sources, g_free);
+  *goa_sources = g_list_reverse (new_goa_sources);
+  return g_list_reverse (new_lua_sources);
 }
 
 static GList *

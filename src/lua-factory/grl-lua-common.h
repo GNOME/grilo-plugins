@@ -29,6 +29,13 @@
 #include "grl-lua-library.h"
 #include <glib/gi18n-lib.h>
 
+#ifdef GOA_ENABLED
+#define GOA_API_IS_SUBJECT_TO_CHANGE
+#include <goa/goa.h>
+#endif
+
+#define GOA_LUA_NAME "goa_object"
+
 typedef enum {
   LUA_SEARCH,
   LUA_BROWSE,
@@ -82,5 +89,8 @@ OperationSpec *grl_lua_library_load_operation_data (lua_State *L, guint operatio
 
 void grl_lua_library_set_current_operation (lua_State *L, guint operation_id);
 OperationSpec * grl_lua_library_get_current_operation (lua_State *L);
+
+void grl_lua_library_save_goa_data (lua_State *L, gpointer goa_object);
+gpointer grl_lua_library_load_goa_data (lua_State *L);
 
 #endif /* _GRL_LUA_LIBRARY_COMMON_H_ */

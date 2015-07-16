@@ -1479,3 +1479,49 @@ grl_lua_library_get_current_operation (lua_State *L)
 
   return os;
 }
+
+/**
+ * grl_lua_library_save_goa_data
+ *
+ * @L: LuaState where the data will be stored.
+ * @goa_object: #GoaObject to store.
+ * @return: Nothing.
+ *
+ * Stores the GoaObject from Lua-Factory in the global environment of
+ * lua_State.
+ **/
+void
+grl_lua_library_save_goa_data (lua_State *L, gpointer goa_object)
+{
+  g_return_if_fail (goa_object != NULL);
+
+#ifdef GOA_ENABLED
+  lua_pushlightuserdata (L, goa_object);
+  lua_setglobal (L, GOA_LUA_NAME);
+#else
+  GRL_WARNING ("grl_lua_library_save_goa_data() called but GOA support disabled.");
+#endif /* GOA_ENABLED */
+}
+
+/**
+ * grl_lua_library_load_goa_data
+ *
+ * @L: LuaState where the data is stored.
+ * @return: The #GoaObject.
+ **/
+gpointer
+grl_lua_library_load_goa_data (lua_State *L)
+{
+#ifdef GOA_ENABLED
+  GoaObject *goa_object;
+
+  lua_getglobal (L, GOA_LUA_NAME);
+  goa_object = (lua_islightuserdata(L, -1)) ? lua_touserdata(L, -1) : NULL;
+  lua_pop(L, 1);
+
+  return goa_object;
+#else
+  GRL_WARNING ("grl_lua_library_load_goa_data() called but GOA support disabled.");
+  return NULL;
+#endif /* GOA_ENABLED */
+}

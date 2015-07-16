@@ -526,6 +526,25 @@ video_guess_values_from_display_name (const gchar *display_name,
   }
 }
 
+/* Returns: (transfer none) */
+static GCancellable *
+resolve_data_ensure_cancellable (ResolveData *resolve_data)
+{
+  GCancellable *cancellable;
+
+  cancellable = grl_operation_get_data (resolve_data->rs->operation_id);
+
+  if (cancellable)
+    return cancellable;
+
+  cancellable = g_cancellable_new ();
+  /* The operation owns the cancellable */
+  grl_operation_set_data_full (resolve_data->rs->operation_id,
+                               cancellable,
+                               (GDestroyNotify) g_object_unref);
+  return cancellable;
+}
+
 static void
 extract_gibest_hash_done (GObject      *source_object,
                           GAsyncResult *res,
@@ -631,7 +650,7 @@ got_file_info (GFile *file,
 
   priv = GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (resolve_data->source);
 
-  cancellable = grl_operation_get_data (rs->operation_id);
+  cancellable = resolve_data_ensure_cancellable (resolve_data);
 
   info = g_file_query_info_finish (file, result, &error);
   if (error)
@@ -815,11 +834,7 @@ resolve_image (ResolveData         *resolve_data,
 
     file = g_file_new_for_uri (grl_media_get_url (resolve_data->rs->media));
 
-    cancellable = g_cancellable_new ();
-    /* The operation owns the cancellable */
-    grl_operation_set_data_full (resolve_data->rs->operation_id,
-                                 cancellable,
-                                 (GDestroyNotify) g_object_unref);
+    cancellable = resolve_data_ensure_cancellable (resolve_data);
 
 #if GLIB_CHECK_VERSION (2, 39, 0)
     attributes = G_FILE_ATTRIBUTE_THUMBNAIL_PATH "," \
@@ -884,10 +899,7 @@ resolve_album_art (ResolveData         *resolve_data,
   if (!artist || !album)
     goto done;
 
-  cancellable = g_cancellable_new ();
-  grl_operation_set_data_full (resolve_data->rs->operation_id,
-                               g_object_ref (cancellable),
-                               (GDestroyNotify) g_object_unref);
+  cancellable = resolve_data_ensure_cancellable (resolve_data);
 
   media_art_get_file (artist, album, "album", &cache_file);
 
@@ -905,7 +917,6 @@ done:
   resolve_data_finish_operation (resolve_data, "album-art", NULL);
 
   g_clear_object (&cache_file);
-  g_clear_object (&cancellable);
 }
 
 static gboolean

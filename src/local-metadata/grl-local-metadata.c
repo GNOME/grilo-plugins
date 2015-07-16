@@ -632,6 +632,9 @@ extract_gibest_hash_async (ResolveData          *resolve_data,
   g_task_run_in_thread (task, extract_gibest_hash);
 }
 
+static void resolve_album_art (ResolveData         *resolve_data,
+                               resolution_flags_t   flags);
+
 static void
 got_file_info (GFile *file,
                GAsyncResult *result,
@@ -645,6 +648,7 @@ got_file_info (GFile *file,
   GrlLocalMetadataSourcePriv *priv;
   ResolveData *resolve_data = user_data;
   GrlSourceResolveSpec *rs = resolve_data->rs;
+  resolution_flags_t flags;
 
   GRL_DEBUG ("got_file_info");
 
@@ -683,7 +687,16 @@ got_file_info (GFile *file,
               grl_media_get_url (rs->media));
   }
 
-  if (get_resolution_flags (rs->keys, priv) & FLAG_GIBEST_HASH) {
+  flags = get_resolution_flags (rs->keys, priv);
+
+  if (GRL_IS_MEDIA_AUDIO (rs->media) &&
+      !(thumbnail_path && thumbnail_is_valid)) {
+    /* We couldn't get a per-track thumbnail; try for a per-album one,
+     * using libmediaart */
+    resolve_album_art (resolve_data, flags);
+  }
+
+  if (flags & FLAG_GIBEST_HASH) {
     extract_gibest_hash_async (resolve_data, file, cancellable);
   } else {
     resolve_data_finish_operation (resolve_data, "image", NULL);
@@ -1186,7 +1199,9 @@ grl_local_metadata_source_resolve (GrlSource *source,
   } else if (GRL_IS_MEDIA_IMAGE (rs->media)) {
     resolve_image (data, flags);
   } else if (GRL_IS_MEDIA_AUDIO (rs->media)) {
-    resolve_album_art (data, flags);
+    /* Try for a per-track thumbnail first; we'll fall back to album art
+     * if the track doesn't have one */
+    resolve_image (data, flags);
   }
 
   /* Finish the overall operation (this might not call the callback if there

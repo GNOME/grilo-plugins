@@ -843,14 +843,12 @@ resolve_album_art_cb (GObject       *source_object,
 {
   GFile *cache_file;
   ResolveData *resolve_data;
-  GCancellable *cancellable = NULL;
   GFileInfo *info = NULL;
   GError *error = NULL;
 
   cache_file = G_FILE (source_object);
   resolve_data = user_data;
 
-  cancellable = grl_operation_get_data (resolve_data->rs->operation_id);
   info = g_file_query_info_finish (cache_file, result, &error);
 
   if (info != NULL) {
@@ -867,7 +865,6 @@ resolve_album_art_cb (GObject       *source_object,
 
   g_clear_object (&info);
   g_clear_error (&error);
-  g_clear_object (&cancellable);
 }
 
 static void

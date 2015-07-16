@@ -1256,6 +1256,92 @@ grl_l_unzip (lua_State *L)
   return 1;
 }
 
+/**
+ * grl.goa_consumer_key
+ *
+ * Only available for gnome-online-accounts sources.
+ *
+ * @return: The consumer key for the configured account or
+ * nil if gnome-online-accounts isn't available.
+ */
+static gint
+grl_l_goa_consumer_key (lua_State *L)
+{
+#ifndef GOA_ENABLED
+  GRL_WARNING ("Source '%s' is broken as it tries to access gnome-online-accounts "
+               "information, but it should not have been created");
+  return 0;
+#else
+  {
+    GoaObject *object;
+    GoaOAuth2Based *oauth2 = NULL;
+
+    object = grl_lua_library_load_goa_data (L);
+    if (object != NULL) {
+      /* FIXME handle other types of object? */
+      oauth2 = goa_object_get_oauth2_based (object);
+    }
+    if (oauth2 == NULL) {
+      GRL_WARNING ("Source is broken as it tries to access gnome-online-accounts "
+                   "information, but it doesn't declare what account data it needs, or"
+                   "the account type is not supported.");
+      lua_pushnil (L);
+      return 1;
+    } else {
+      lua_pushstring (L, goa_oauth2_based_get_client_id (GOA_OAUTH2_BASED (oauth2)));
+      return 1;
+    }
+  }
+#endif
+}
+
+/**
+ * grl.goa_access_token
+ *
+ * Only available for gnome-online-accounts sources.
+ *
+ * @return: The access token for the configured account or
+ * nil if gnome-online-accounts isn't available.
+ */
+static gint
+grl_l_goa_access_token (lua_State *L)
+{
+#ifndef GOA_ENABLED
+  GRL_WARNING ("Source '%s' is broken as it tries to access gnome-online-accounts "
+               "information, but it should not have been created",
+               grl_source_get_id (os->source));
+  return 0;
+#else
+  {
+    GoaObject *object;
+    GoaOAuth2Based *oauth2 = NULL;
+
+    object = grl_lua_library_load_goa_data (L);
+
+    if (object != NULL) {
+      /* FIXME handle other types of object? */
+      oauth2 = goa_object_get_oauth2_based (object);
+    }
+    if (oauth2 == NULL) {
+      GRL_WARNING ("Source is broken as it tries to access gnome-online-accounts "
+                   "information, but it doesn't declare what account data it needs, or "
+                   "the account type is not supported.");
+      lua_pushnil (L);
+      return 1;
+    } else {
+      gchar *access_token;
+
+      goa_oauth2_based_call_get_access_token_sync (oauth2,
+                                                   &access_token,
+                                                   NULL, NULL, NULL);
+      lua_pushstring (L, access_token);
+      g_free (access_token);
+      return 1;
+    }
+  }
+#endif
+}
+
 /* ================== Lua-Library initialization =========================== */
 
 /** Load library included as GResource and run it with lua_pcall.
@@ -1300,6 +1386,8 @@ luaopen_grilo (lua_State *L)
     {"decode", &grl_l_decode},
     {"unescape", &grl_l_unescape},
     {"unzip", &grl_l_unzip},
+    {"goa_access_token", &grl_l_goa_access_token},
+    {"goa_consumer_key", &grl_l_goa_consumer_key},
     {NULL, NULL}
   };
 

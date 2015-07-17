@@ -668,7 +668,6 @@ got_file_info (GFile *file,
     extract_gibest_hash_async (resolve_data, file, cancellable);
   } else {
     resolve_data_finish_operation (resolve_data, "image", NULL);
-    g_clear_object (&cancellable);
   }
 
   goto exit;
@@ -684,7 +683,6 @@ error:
       g_error_free (error);
       g_error_free (new_error);
     }
-    g_clear_object (&cancellable);
 
 exit:
     g_clear_object (&info);
@@ -818,7 +816,10 @@ resolve_image (ResolveData         *resolve_data,
     file = g_file_new_for_uri (grl_media_get_url (resolve_data->rs->media));
 
     cancellable = g_cancellable_new ();
-    grl_operation_set_data (resolve_data->rs->operation_id, cancellable);
+    /* The operation owns the cancellable */
+    grl_operation_set_data_full (resolve_data->rs->operation_id,
+                                 cancellable,
+                                 (GDestroyNotify) g_object_unref);
 
 #if GLIB_CHECK_VERSION (2, 39, 0)
     attributes = G_FILE_ATTRIBUTE_THUMBNAIL_PATH "," \

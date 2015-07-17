@@ -34,7 +34,7 @@ source = {
     ["type"] = "audio",
     required = { "artist", "title" },
   },
-  tags = { 'music', 'net:internet' },
+  tags = { 'music', 'net:internet', 'net:plaintext' },
 }
 
 netopts = {

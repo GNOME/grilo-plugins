@@ -37,7 +37,7 @@ source = {
   supported_media = 'video',
   auto_split_threshold = 50,
   icon = 'resource:///org/gnome/grilo/plugins/guardianvideos/guardianvideos.svg',
-  tags = { 'news', 'net:internet' }
+  tags = { 'news', 'net:internet', 'net:plaintext' }
 }
 
 ------------------

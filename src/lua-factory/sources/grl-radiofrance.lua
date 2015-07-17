@@ -36,7 +36,7 @@ source = {
   supported_keys = { "id", "thumbnail", "title", "url", "mime-type" },
   icon = 'resource:///org/gnome/grilo/plugins/radiofrance/radiofrance.png',
   supported_media = 'audio',
-  tags = { 'radio', 'country:fr', 'net:internet' }
+  tags = { 'radio', 'country:fr', 'net:internet', 'net:plaintext' }
 }
 
 ------------------

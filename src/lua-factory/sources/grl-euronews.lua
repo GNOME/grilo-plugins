@@ -33,7 +33,7 @@ source = {
   supported_keys = { "id", "title", "url" },
   supported_media = 'video',
   icon = 'resource:///org/gnome/grilo/plugins/euronews/euronews.svg',
-  tags = { 'news', 'tv', 'net:internet' }
+  tags = { 'news', 'tv', 'net:internet', 'net:plaintext' }
 }
 
 ------------------

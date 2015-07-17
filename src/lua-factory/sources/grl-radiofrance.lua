@@ -20,9 +20,6 @@
  *
 --]]
 
-RADIOFRANCE_URL               = 'http://app2.radiofrance.fr/rfdirect/config/Radio.js'
-FRANCEBLEU_URL                = 'http://app2.radiofrance.fr/rfdirect/config/FranceBleu.js'
-
 local stations = { 'franceinter', 'franceinfo', 'franceculture', 'francemusique', 'fipradio', 'lemouv' }
 
 ---------------------------
@@ -49,7 +46,7 @@ function grl_source_browse(media_id)
   else
     local urls = {}
     for index, item in pairs(stations) do
-      local url = 'http://www.' .. item .. '.fr/api/now&full=true'
+      local url = 'http://www.' .. item .. '.fr/player'
       table.insert(urls, url)
     end
     grl.fetch(urls, "radiofrance_now_fetch_cb")
@@ -63,16 +60,8 @@ end
 -- return all the media found
 function radiofrance_now_fetch_cb(results)
   for index, result in pairs(results) do
-    local json = {}
-    json = grl.lua.json.string_to_table(result)
-
-    if not json or json.stat == "fail" or not json.stations then
-      local url = 'http://www.' .. stations[index] .. '.fr/api/now&full=true'
-      grl.warning ('Could not fetch ' .. url .. ' failed')
-    else
-      local media = create_media(stations[index], json.stations[1])
-      grl.callback(media, -1)
-    end
+    local media = create_media(stations[index], result)
+    grl.callback(media, -1)
   end
 
   grl.callback()
@@ -106,7 +95,7 @@ function get_title(id)
   return names[id]
 end
 
-function create_media(id, station)
+function create_media(id, result)
   local media = {}
 
   media.type = "audio"
@@ -116,14 +105,15 @@ function create_media(id, station)
     media.id = 'fip'
   end
 
-  if id == 'franceinfo' then
-    media.url = 'http://mp3lg.tdf-cdn.com/' .. media.id .. '/all/' .. media.id .. '-32k.mp3'
-  else
-    media.url = 'http://mp3lg.tdf-cdn.com/' .. media.id .. '/all/' .. media.id .. 'hautdebit.mp3'
+  media.url = result:match("liveUrl: '(.-)',")
+  if not media.url then
+    media.url = result:match('"player" href="(http.-%.mp3)')
   end
+
   media.title = get_title(id)
   media.thumbnail = get_thumbnail(id)
 
   -- FIXME Add metadata about the currently playing tracks
+  -- Available in 'http://www.' .. item .. '.fr/api/now&full=true'
   return media
 end

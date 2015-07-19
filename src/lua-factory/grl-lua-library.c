@@ -34,6 +34,10 @@
 #include "lua-library/lua-libraries.h"
 #include "lua-library/htmlentity.h"
 
+#ifdef HAVE_TOTEM_PLPARSER_MINI
+#include <totem-pl-parser-mini.h>
+#endif
+
 #define GRL_LOG_DOMAIN_DEFAULT lua_library_log_domain
 GRL_LOG_DOMAIN_STATIC (lua_library_log_domain);
 
@@ -1342,6 +1346,28 @@ grl_l_goa_access_token (lua_State *L)
 #endif
 }
 
+static gint
+grl_l_is_video_site (lua_State *L)
+{
+  const char *url;
+  gboolean ret = FALSE;
+
+  luaL_argcheck (L, lua_isstring (L, 1), 1,
+                 "expecting url as string");
+
+  url = lua_tolstring (L, 1, NULL);
+
+#ifdef HAVE_TOTEM_PLPARSER_MINI
+  ret = totem_pl_parser_can_parse_from_uri (url, FALSE);
+#else
+  GRL_DEBUG ("Return FALSE for whether '%s' is a video site, as compiled without totem-plparser-mini support", url);
+#endif
+
+  lua_pushboolean (L, ret);
+
+  return 1;
+}
+
 /* ================== Lua-Library initialization =========================== */
 
 /** Load library included as GResource and run it with lua_pcall.
@@ -1388,6 +1414,7 @@ luaopen_grilo (lua_State *L)
     {"unzip", &grl_l_unzip},
     {"goa_access_token", &grl_l_goa_access_token},
     {"goa_consumer_key", &grl_l_goa_consumer_key},
+    {"is_video_site", &grl_l_is_video_site},
     {NULL, NULL}
   };
 

@@ -70,10 +70,6 @@ if OPTICAL_MEDIA_PLUGIN
 SUBDIRS += optical-media
 endif
 
-if POCKET_PLUGIN
-SUBDIRS += pocket
-endif
-
 if PODCASTS_PLUGIN
 SUBDIRS += podcasts
 endif
@@ -117,6 +113,6 @@ endif
 DIST_SUBDIRS = \
    apple-trailers bliptv bookmarks dleyna dmap filesystem flickr freebox gravatar jamendo \
    lastfm-albumart local-metadata lua-factory magnatune metadata-store opensubtitles \
-   optical-media pocket podcasts raitv shoutcast thetvdb tmdb tracker vimeo youtube
+   optical-media podcasts raitv shoutcast thetvdb tmdb tracker vimeo youtube
 
 -include $(top_srcdir)/git.mk

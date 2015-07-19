@@ -46,6 +46,6 @@ CLEANFILES = \
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-EXTRA_DIST = $(metrolyrics_resources_files) test_lua_metrolyrics.gresource.xml
+EXTRA_DIST += $(metrolyrics_resources_files) test_lua_metrolyrics.gresource.xml
 
 -include $(top_srcdir)/git.mk

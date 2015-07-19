@@ -361,11 +361,17 @@ grl_util_build_media (lua_State *L,
           GDateTime *date;
           const char *date_str = lua_tostring (L, -1);
           date = grl_date_time_from_iso8601 (date_str);
+          /* Try a number of seconds since Epoch */
+          if (!date) {
+            gint64 date_int = g_ascii_strtoll (date_str, NULL, 0);
+            if (date_int)
+              date = g_date_time_new_from_unix_utc (date_int);
+          }
           if (date) {
             grl_data_set_boxed (GRL_DATA (media), key_id, date);
             g_date_time_unref (date);
           } else {
-            GRL_WARNING ("'%s' is not a valid ISO-8601 date", date_str);
+            GRL_WARNING ("'%s' is not a valid ISO-8601 or Epoch date", date_str);
           }
         } else if (type == G_TYPE_BYTE_ARRAY) {
            gsize size = luaL_len (L, -1);

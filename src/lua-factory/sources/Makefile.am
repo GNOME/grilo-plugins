@@ -45,6 +45,7 @@ EXTRA_DIST +=						\
 	grl-euronews.gresource.xml			\
 	grl-guardianvideos.gresource.xml		\
 	grl-radiofrance.gresource.xml			\
+	grl-pocket.gresource.xml			\
 	euronews.svg					\
 	guardianvideos.svg				\
 	radiofrance.png					\

@@ -244,6 +244,11 @@ grl_util_add_table_to_media (lua_State *L,
         grl_data_add_int (GRL_DATA (media), key_id, lua_tointeger (L, -1));
       break;
 
+    case G_TYPE_INT64:
+      if (lua_isnumber (L, -1))
+        grl_data_add_int64 (GRL_DATA (media), key_id, lua_tointeger (L, -1));
+      break;
+
     case G_TYPE_FLOAT:
       if (lua_isnumber (L, -1))
         grl_data_add_float (GRL_DATA (media), key_id, lua_tointeger (L, -1));
@@ -331,6 +336,17 @@ grl_util_build_media (lua_State *L,
       case G_TYPE_FLOAT:
         if (lua_isnumber (L, -1)) {
           grl_data_set_float (GRL_DATA (media), key_id, lua_tonumber (L, -1));
+        } else if (lua_istable (L, -1)) {
+          grl_util_add_table_to_media (L, media, key_id, key_name, type);
+        } else if (!lua_isnil (L, -1)) {
+          GRL_WARNING ("'%s' is not compatible for '%s'",
+                       lua_typename (L, -1), key_name);
+        }
+        break;
+
+      case G_TYPE_INT64:
+        if (lua_isnumber (L, -1)) {
+          grl_data_set_int64 (GRL_DATA (media), key_id, lua_tointeger (L, -1));
         } else if (lua_istable (L, -1)) {
           grl_util_add_table_to_media (L, media, key_id, key_name, type);
         } else if (!lua_isnil (L, -1)) {

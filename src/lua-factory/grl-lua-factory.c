@@ -232,6 +232,7 @@ grl_lua_factory_plugin_init (GrlRegistry *registry,
 
   for (it = lua_sources; it; it = g_list_next (it)) {
     GrlLuaFactorySource *source;
+    char *id;
 
     source = grl_lua_factory_source_new (it->data, configs, NULL, NULL, NULL);
     if (source == NULL) {
@@ -241,22 +242,27 @@ grl_lua_factory_plugin_init (GrlRegistry *registry,
 
     /* In case the plugin gets unref'ed during registration */
     g_object_add_weak_pointer (G_OBJECT (source), (gpointer *) &source);
+    id = g_strdup (grl_source_get_id (GRL_SOURCE (source)));
 
     if (!grl_registry_register_source (registry, plugin,
                                        GRL_SOURCE (source), &err)) {
-      GRL_DEBUG ("Fail to register source: %s", err->message);
+      GRL_DEBUG ("Fail to register source %s: %s", id, err->message);
+      g_free (id);
       g_clear_object (&source);
       g_error_free (err);
       continue;
     }
 
-    if (!source)
+    if (!source) {
+      GRL_DEBUG ("Source %s got destroyed when created", id);
+      g_free (id);
       continue;
+    }
 
     g_object_remove_weak_pointer (G_OBJECT (source), (gpointer *) &source);
     source_loaded = TRUE;
-    GRL_DEBUG ("Successfully initialized: %s",
-               grl_source_get_id (GRL_SOURCE (source)));
+    GRL_DEBUG ("Successfully initialized: %s", id);
+    g_free (id);
   }
   g_list_free_full (lua_sources, g_free);
   return source_loaded;

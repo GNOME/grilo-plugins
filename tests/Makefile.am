@@ -9,10 +9,6 @@ include $(top_srcdir)/gtester.mk
 
 SUBDIRS =
 
-if APPLE_TRAILERS_PLUGIN
-SUBDIRS += apple-trailers
-endif
-
 if BLIPTV_PLUGIN
 SUBDIRS += bliptv
 endif
@@ -46,7 +42,6 @@ SUBDIRS += vimeo
 endif
 
 DIST_SUBDIRS =    \
-   apple-trailers \
    bliptv         \
    dleyna         \
    lastfm-albumart\

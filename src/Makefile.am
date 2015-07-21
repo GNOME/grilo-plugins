@@ -10,10 +10,6 @@ include $(top_srcdir)/gtester.mk
 
 SUBDIRS =
 
-if APPLE_TRAILERS_PLUGIN
-SUBDIRS += apple-trailers
-endif
-
 if BLIPTV_PLUGIN
 SUBDIRS += bliptv
 endif
@@ -111,7 +107,7 @@ SUBDIRS += opensubtitles
 endif
 
 DIST_SUBDIRS = \
-   apple-trailers bliptv bookmarks dleyna dmap filesystem flickr freebox gravatar jamendo \
+   bliptv bookmarks dleyna dmap filesystem flickr freebox gravatar jamendo \
    lastfm-albumart local-metadata lua-factory magnatune metadata-store opensubtitles \
    optical-media podcasts raitv shoutcast thetvdb tmdb tracker vimeo youtube
 

@@ -644,49 +644,6 @@ DEPS_SHOUTCAST_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS"
 AC_SUBST(DEPS_SHOUTCAST_LIBS)
 
 # ----------------------------------------------------------
-# BUILD APPLE TRAILERS PLUGIN
-# ----------------------------------------------------------
-
-AC_ARG_ENABLE(apple_trailers,
-        AC_HELP_STRING([--enable-apple-trailers],
-                [enable Apple Movie Trailers plugin (default: auto)]),
-        [
-                case "$enableval" in
-                     yes)
-                        if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-apple-trailers])
-                        fi
-                        if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-apple-trailers])
-                        fi
-                        ;;
-                esac
-        ],
-        [
-                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
-                   enable_apple_trailers=yes
-                else
-                   enable_apple_trailers=no
-                fi
-        ])
-
-AM_CONDITIONAL([APPLE_TRAILERS_PLUGIN], [test "x$enable_apple_trailers" = "xyes"])
-GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL apple-trailers"
-if test "x$enable_apple_trailers" = "xyes"
-then
-	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED apple-trailers"
-fi
-
-APPLE_TRAILERS_PLUGIN_ID="grl-apple-trailers"
-AC_SUBST(APPLE_TRAILERS_PLUGIN_ID)
-AC_DEFINE_UNQUOTED([APPLE_TRAILERS_PLUGIN_ID], ["$APPLE_TRAILERS_PLUGIN_ID"], [Apple Trailers plugin ID])
-
-DEPS_APPLE_TRAILERS_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS"
-AC_SUBST(DEPS_APPLE_TRAILERS_CFLAGS)
-DEPS_APPLE_TRAILERS_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS"
-AC_SUBST(DEPS_APPLE_TRAILERS_LIBS)
-
-# ----------------------------------------------------------
 # BUILD MAGNATUNE PLUGIN
 # ----------------------------------------------------------
 
@@ -1375,7 +1332,6 @@ AC_CONFIG_FILES([
   po/Makefile.in
   po/Makefile
   src/Makefile
-  src/apple-trailers/Makefile
   src/bliptv/Makefile
   src/bookmarks/Makefile
   src/dleyna/Makefile
@@ -1402,7 +1358,6 @@ AC_CONFIG_FILES([
   src/vimeo/Makefile
   src/youtube/Makefile
   tests/Makefile
-  tests/apple-trailers/Makefile
   tests/bliptv/Makefile
   tests/dleyna/Makefile
   tests/dleyna/dbusmock/dleyna-server-mock.service

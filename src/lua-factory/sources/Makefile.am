@@ -18,7 +18,9 @@ lua_sources_DATA =					\
 	grl-radiofrance.gresource			\
 	grl-video-title-parsing.lua			\
 	grl-pocket.lua					\
-	grl-pocket.gresource
+	grl-pocket.gresource				\
+	grl-appletrailers.lua				\
+	grl-appletrailers.gresource
 
 lua_sourcesdir = $(datadir)/$(LUA_FACTORY_SOURCE_LOCATION)
 
@@ -34,11 +36,15 @@ grl-radiofrance.gresource: grl-radiofrance.gresource.xml
 grl-pocket.gresource: grl-pocket.gresource.xml
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-pocket.gresource.xml
 
+grl-appletrailers.gresource: grl-appletrailers.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-appletrailers.gresource.xml
+
 CLEANFILES =						\
 	grl-euronews.gresource				\
 	grl-guardianvideos.gresource			\
 	grl-radiofrance.gresource			\
-	grl-pocket.gresource
+	grl-pocket.gresource				\
+	grl-appletrailers.gresource
 
 EXTRA_DIST +=						\
 	$(lua_sources_DATA)				\
@@ -46,6 +52,7 @@ EXTRA_DIST +=						\
 	grl-guardianvideos.gresource.xml		\
 	grl-radiofrance.gresource.xml			\
 	grl-pocket.gresource.xml			\
+	grl-appletrailers.gresource.xml			\
 	euronews.svg					\
 	guardianvideos.svg				\
 	radiofrance.png					\

@@ -180,7 +180,7 @@ grl_data_set_lua_string (GrlData    *data,
   if (g_utf8_validate (str, -1, NULL) == FALSE) {
     fixed = g_convert (str, -1, "UTF-8", "ISO8859-1", NULL, NULL, NULL);
     if (fixed == NULL) {
-      g_warning ("Ignored non-UTF-8 and non-ISO8859-1 string for field '%s'", key_name);
+      GRL_WARNING ("Ignored non-UTF-8 and non-ISO8859-1 string for field '%s'", key_name);
       return;
     }
   }
@@ -557,7 +557,7 @@ get_zipped_contents (guchar        *data,
 
     if (r != ARCHIVE_OK) {
       if (r != ARCHIVE_EOF && r == ARCHIVE_FATAL)
-        g_warning ("Fatal error handling archive: %s", archive_error_string (a));
+        GRL_WARNING ("Fatal error handling archive: %s", archive_error_string (a));
       break;
     }
 
@@ -573,9 +573,9 @@ get_zipped_contents (guchar        *data,
       if (read <= 0) {
         g_free (buf);
         if (read < 0)
-          g_warning ("Fatal error reading '%s' in archive: %s", name, archive_error_string (a));
+          GRL_WARNING ("Fatal error reading '%s' in archive: %s", name, archive_error_string (a));
         else
-          g_warning ("Read an empty file from the archive");
+          GRL_WARNING ("Read an empty file from the archive");
       } else {
         GRL_DEBUG ("Setting content for %s at %d", name, idx);
         /* FIXME check for validity? */
@@ -1590,8 +1590,8 @@ grl_lua_library_set_current_operation (lua_State *L, guint operation_id)
   os = grl_lua_library_get_current_operation (L);
   if (os) {
     if (os->pending_ops == 0 && !os->callback_done) {
-      g_warning ("Source '%s' is broken, as there are no pending operations "
-                 "and grl.callback() was not called", grl_source_get_id (os->source));
+      GRL_WARNING ("Source '%s' is broken, as there are no pending operations "
+                   "and grl.callback() was not called", grl_source_get_id (os->source));
       switch (os->op_type) {
       case LUA_RESOLVE:
         os->cb.resolve (os->source, os->operation_id, NULL, os->user_data, NULL);

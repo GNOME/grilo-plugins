@@ -199,6 +199,8 @@ function parse_results(results)
     media.thumbnail = item.poster.xlarge[1]
     media.url = item.preview.large[1]
     media.size = item.preview.filesize
+    local mins, secs = item.info.runtime[1]:match('(%d):(%d)')
+    media.duration = tonumber(mins) * 60 + tonumber(secs)
 
     if skip > 0 then
       skip = skip - 1

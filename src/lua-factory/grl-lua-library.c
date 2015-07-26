@@ -455,9 +455,15 @@ grl_util_fetch_done (GObject *source_object,
                                   res, &data, &len, &err)) {
     data = NULL;
   } else if (!g_utf8_validate(data, len, NULL)) {
-    data = NULL;
-    g_set_error_literal (&err, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                         "Fetched item is not valid UTF-8");
+    char *fixed;
+    fixed = g_convert (data, len, "UTF-8", "ISO8859-1", NULL, NULL, NULL);
+    if (!fixed) {
+      g_set_error_literal (&err, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                           "Fetched item is not valid UTF-8 or ISO8859-1");
+      data = NULL;
+    } else {
+      data = fixed;
+    }
   }
 
   fo->results[fo->index] = (err == NULL) ? g_strdup (data) : g_strdup ("");

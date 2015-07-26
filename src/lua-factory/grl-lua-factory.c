@@ -664,15 +664,6 @@ enable_goa_source (GrlLuaGoaData *lua_data,
     if (goa_account_get_photos_disabled (acc) &&
         g_hash_table_contains (lua_data->sources, *source_id_suffix))
       return GOA_REMOVE;
-  } else if (g_strcmp0 (feature, "music") == 0) {
-    if (!goa_object_peek_music (object))
-      return GOA_NOTHING;
-    if (!goa_account_get_music_disabled (acc) &&
-        !g_hash_table_contains (lua_data->sources, *source_id_suffix))
-      return GOA_ADD;
-    if (goa_account_get_music_disabled (acc) &&
-        g_hash_table_contains (lua_data->sources, *source_id_suffix))
-      return GOA_REMOVE;
   } else if (g_strcmp0 (feature, "read-later") == 0) {
     if (!goa_object_peek_read_later (object))
       return GOA_NOTHING;
@@ -891,7 +882,6 @@ validate_account_feature (const char *lua_account_feature)
   const char const *features[] = {
     "photos",
     "read-later",
-    "music",
     NULL
   };
 

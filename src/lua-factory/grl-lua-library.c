@@ -450,12 +450,12 @@ grl_util_fetch_done (GObject *source_object,
   OperationSpec *os;
   FetchOperation *fo = (FetchOperation *) user_data;
   lua_State *L = fo->L;
+  gchar *fixed = NULL;
 
   if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
                                   res, &data, &len, &err)) {
     data = NULL;
   } else if (!g_utf8_validate(data, len, NULL)) {
-    char *fixed;
     fixed = g_convert (data, len, "UTF-8", "ISO8859-1", NULL, NULL, NULL);
     if (!fixed) {
       g_set_error_literal (&err, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
@@ -467,6 +467,8 @@ grl_util_fetch_done (GObject *source_object,
   }
 
   fo->results[fo->index] = (err == NULL) ? g_strdup (data) : g_strdup ("");
+  g_free (fixed);
+
   if (err != NULL) {
     GRL_WARNING ("Can't fetch element %d (URL: %s): '%s'", fo->index + 1, fo->url, err->message);
     g_error_free (err);

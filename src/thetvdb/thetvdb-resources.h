@@ -55,6 +55,7 @@
                               SERIES_TYPE_RESOURCE, \
                               SeriesResourceClass))
 
+#define SERIES_TABLE_NAME           "series"
 #define SERIES_COLUMN_ID            "id"
 #define SERIES_COLUMN_LANGUAGE      "language"
 #define SERIES_COLUMN_SERIES_NAME   "series-name"
@@ -118,6 +119,7 @@ GType series_resource_get_type (void);
                               EPISODE_TYPE_RESOURCE, \
                               EpisodeResourceClass))
 
+#define EPISODE_TABLE_NAME                "episodes"
 #define EPISODE_COLUMN_ID                 "id"
 #define EPISODE_COLUMN_LANGUAGE           "language"
 #define EPISODE_COLUMN_SERIES_ID          "series-id"

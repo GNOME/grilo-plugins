@@ -232,7 +232,7 @@ series_resource_class_init (SeriesResourceClass *klass)
   g_type_class_add_private(object_class, sizeof(SeriesResourcePrivate));
 
   resource_class = GOM_RESOURCE_CLASS(klass);
-  gom_resource_class_set_table(resource_class, "series");
+  gom_resource_class_set_table(resource_class, SERIES_TABLE_NAME);
 
   specs[PROP_DB_ID] = g_param_spec_int64 (SERIES_COLUMN_ID,
                                           NULL, NULL,

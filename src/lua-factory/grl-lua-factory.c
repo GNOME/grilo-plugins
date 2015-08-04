@@ -1274,7 +1274,7 @@ lua_plugin_source_info (lua_State *L,
 
   /* Auto-split-threshold */
   lua_getfield (L, -6, LUA_SOURCE_AUTO_SPLIT_THRESHOLD);
-  lua_auto_split_threshold = lua_tonumber (L, -1);
+  lua_auto_split_threshold = lua_tointeger (L, -1);
 
   /* Source Tags */
   lua_getfield (L, -7, LUA_SOURCE_TAGS);

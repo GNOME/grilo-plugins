@@ -1332,7 +1332,7 @@ grl_l_goa_consumer_key (lua_State *L)
     object = grl_lua_library_load_goa_data (L);
     if (object != NULL) {
       /* FIXME handle other types of object? */
-      oauth2 = goa_object_get_oauth2_based (object);
+      oauth2 = goa_object_peek_oauth2_based (object);
     }
     if (oauth2 == NULL) {
       GRL_WARNING ("Source is broken as it tries to access gnome-online-accounts "
@@ -1373,7 +1373,7 @@ grl_l_goa_access_token (lua_State *L)
 
     if (object != NULL) {
       /* FIXME handle other types of object? */
-      oauth2 = goa_object_get_oauth2_based (object);
+      oauth2 = goa_object_peek_oauth2_based (object);
     }
     if (oauth2 == NULL) {
       GRL_WARNING ("Source is broken as it tries to access gnome-online-accounts "

@@ -806,8 +806,8 @@ grl_l_operation_get_options (lua_State *L)
     const gchar *key_name = NULL;
     GrlRegistry *registry = grl_registry_get_default ();
 
-    luaL_argcheck (L, lua_isstring (L, 3), 3, "expecting key name");
-    key_name = lua_tostring (L, 3);
+    luaL_argcheck (L, lua_isstring (L, 2), 2, "expecting key name");
+    key_name = lua_tostring (L, 2);
 
     key = grl_registry_lookup_metadata_key (registry, key_name);
     if (key != GRL_METADATA_KEY_INVALID) {

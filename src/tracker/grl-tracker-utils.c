@@ -353,6 +353,11 @@ grl_tracker_setup_key_mappings (void)
                         "upnp:thumbnail(?urn)",
                         "media");
   }
+
+  insert_key_mapping (GRL_METADATA_KEY_TRACK_NUMBER,
+                      "nmm:trackNumber",
+                      "nmm:trackNumber(?urn)",
+                      "audio");
 }
 
 tracker_grl_sparql_t *

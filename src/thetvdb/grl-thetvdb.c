@@ -51,7 +51,7 @@ GRL_LOG_DOMAIN_STATIC (thetvdb_log_domain);
 #define THETVDB_BASE_API    THETVDB_BASE "api/"
 #define THETVDB_BASE_IMG    THETVDB_BASE "banners/%s"
 
-#define THETVDB_GET_SERIES    THETVDB_BASE_API "GetSeries.php?seriesname=%s"
+#define THETVDB_GET_SERIES    THETVDB_BASE_API "GetSeries.php?language=all&seriesname=%s"
 #define THETVDB_GET_EPISODES  THETVDB_BASE_API "%s/series/%s/all/%s.zip"
 
 /* --- Files and Path to Images --- */

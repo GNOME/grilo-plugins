@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Data>
+<Series>
+<seriesid>78310</seriesid>
+<language>en</language>
+<SeriesName>CSI: Miami</SeriesName>
+<banner>graphical/78310-g4.jpg</banner>
+<Overview>CSI's gritty approach to crime known as forensic science makes its way from Las Vegas to the streets of Florida in CSI: Miami. A whole new team of crime scene investigators is on hand to probe the seamy underside of Miami.</Overview>
+<FirstAired>2002-08-05</FirstAired>
+<Network>CBS</Network>
+<IMDB_ID>tt0313043</IMDB_ID>
+<zap2it_id>EP00524061</zap2it_id>
+<id>78310</id>
+</Series>
+</Data>

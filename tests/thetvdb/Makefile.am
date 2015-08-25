@@ -55,6 +55,8 @@ dist_noinst_DATA =		\
 	data/adventure_time_series_all_en.zip		\
 	data/boardwalk_empire_get_series.txt		\
 	data/boardwalk_empire_series_all_en.zip		\
+	data/csi_miami_get_series.txt		\
+	data/csi_miami_series_all_en.zip	\
 	data/felicity_get_series.txt		\
 	data/felicity_series_all_en.zip		\
 	data/house_get_series.txt		\

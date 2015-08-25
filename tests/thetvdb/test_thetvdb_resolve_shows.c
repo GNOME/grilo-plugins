@@ -178,6 +178,59 @@ test_shows (void)
   }
 }
 
+/* As the net is mocked we ensure that request with fuzzy name returns the same
+ * data that the correct name in tvdb's database. Note that tvdb has its own
+ * fuzzy name handling and the response could change in the future;
+ * Current wiki for GetSeries API says:
+ * "This is the string you want to search for. If there is an exact match for
+ *  the parameter, it will be the first result returned."
+ */
+static void
+test_shows_fuzzy_name (void)
+{
+  GrlSource *source;
+  guint i;
+
+  struct {
+    gchar *name_in_tvdb;
+    gchar *fuzzy_name;
+    gchar *tvdb_id;
+    gchar *imdb;
+  } videos[] = {
+    { "CSI: Miami", "CSI - Miami", "78310", "tt0313043" }
+  };
+
+  source = test_get_source ();
+  g_assert (source);
+
+  /* First we search and populate the db using the fuzzy name and then we do
+   * a cache-only request with both, correct and fuzzy name */
+  for (i = 0; i < G_N_ELEMENTS (videos); i++) {
+    gchar *imdb, *tvdb_id;
+
+    get_show_metadata (source, FALSE, videos[i].fuzzy_name, &imdb, &tvdb_id,
+                       NULL, NULL, NULL, NULL, NULL);
+    g_assert_cmpstr (videos[i].tvdb_id, ==, tvdb_id);
+    g_free (tvdb_id);
+    g_assert_cmpstr (videos[i].imdb, ==, imdb);
+    g_free (imdb);
+
+    get_show_metadata (source, TRUE, videos[i].name_in_tvdb, &imdb, &tvdb_id,
+                       NULL, NULL, NULL, NULL, NULL);
+    g_assert_cmpstr (videos[i].tvdb_id, ==, tvdb_id);
+    g_free (tvdb_id);
+    g_assert_cmpstr (videos[i].imdb, ==, imdb);
+    g_free (imdb);
+
+    get_show_metadata (source, TRUE, videos[i].fuzzy_name, &imdb, &tvdb_id,
+                       NULL, NULL, NULL, NULL, NULL);
+    g_assert_cmpstr (videos[i].tvdb_id, ==, tvdb_id);
+    g_free (tvdb_id);
+    g_assert_cmpstr (videos[i].imdb, ==, imdb);
+    g_free (imdb);
+  }
+}
+
 gint
 main (gint argc, gchar **argv)
 {
@@ -195,6 +248,7 @@ main (gint argc, gchar **argv)
   test_setup_thetvdb ();
 
   g_test_add_func ("/thetvdb/resolve/shows", test_shows);
+  g_test_add_func ("/thetvdb/resolve/fuzzy-name-shows", test_shows_fuzzy_name);
 
   gint result = g_test_run ();
 

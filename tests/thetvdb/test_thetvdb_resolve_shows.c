@@ -197,7 +197,8 @@ test_shows_fuzzy_name (void)
     gchar *tvdb_id;
     gchar *imdb;
   } videos[] = {
-    { "CSI: Miami", "CSI - Miami", "78310", "tt0313043" }
+    { "CSI: Miami", "CSI - Miami", "78310", "tt0313043" },
+    { "CSI: Miami", "les experts miami", "78310", "tt0313043" }
   };
 
   source = test_get_source ();

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Data>
+<Series>
+<seriesid>78310</seriesid>
+<language>fr</language>
+<SeriesName>Les Experts : Miami</SeriesName>
+<AliasNames>CSI: Miami</AliasNames>
+<banner>graphical/78310-g4.jpg</banner>
+<Overview>Miami, Floride, USA. Nous suivons les enquêtes d'Horatio Caine, à la tête d'une équipe d'enquêteurs et d'experts scientifiques : Calleig Duquesne, l'experte en armes, Tim Speedle, l'expert en recherche d'indices, Eric Delko, le plongeur et expert en drogue, Alexx Woods, le medecin légiste de l'équipe et Megan Donner, la spécialiste en ADN (qui a quitté l'équipe au bout de 10 épisodes). Comme à Las Vegas dans Les Experts, ils enquêtent sur des crimes et cherchent des indices, à l'aide des experts</Overview>
+<FirstAired>2002-08-05</FirstAired>
+<Network>CBS</Network>
+<IMDB_ID>tt0313043</IMDB_ID>
+<zap2it_id>EP00524061</zap2it_id>
+<id>78310</id>
+</Series>
+</Data>

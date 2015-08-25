@@ -25,6 +25,7 @@
 
 static void
 get_show_metadata (GrlSource *source,
+                   gboolean cache_only,
                    const gchar *show,
                    gchar **imdb,
                    gchar **tvdb_id,
@@ -70,22 +71,33 @@ get_show_metadata (GrlSource *source,
                                     NULL);
 
   options = grl_operation_options_new (NULL);
-  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_NORMAL);
+  if (cache_only)
+      grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FAST_ONLY);
+  else
+      grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_NORMAL);
 
   grl_source_resolve_sync (source,
                            GRL_MEDIA (video),
                            keys,
                            options,
                            NULL);
-  *imdb = g_strdup (grl_data_get_string (GRL_DATA (video), imdb_key));
-  *tvdb_id = g_strdup (grl_data_get_string (GRL_DATA (video), tvdb_key));
-  *zap2it = g_strdup (grl_data_get_string (GRL_DATA (video), zap2it_key));
-  *banner = g_strdup (grl_data_get_string (GRL_DATA (video), banner_key));
-  *fanart = g_strdup (grl_data_get_string (GRL_DATA (video), fanart_key));
-  *poster = g_strdup (grl_data_get_string (GRL_DATA (video), poster_key));
+  if (imdb)
+      *imdb = g_strdup (grl_data_get_string (GRL_DATA (video), imdb_key));
+  if (tvdb_id)
+      *tvdb_id = g_strdup (grl_data_get_string (GRL_DATA (video), tvdb_key));
+  if (zap2it)
+      *zap2it = g_strdup (grl_data_get_string (GRL_DATA (video), zap2it_key));
+  if (banner)
+      *banner = g_strdup (grl_data_get_string (GRL_DATA (video), banner_key));
+  if (fanart)
+      *fanart = g_strdup (grl_data_get_string (GRL_DATA (video), fanart_key));
+  if (poster)
+      *poster = g_strdup (grl_data_get_string (GRL_DATA (video), poster_key));
 
-  date = grl_media_get_publication_date (GRL_MEDIA (video));
-  *publication_date = g_date_time_format (date, "%Y-%m-%d");
+  if (publication_date) {
+      date = grl_media_get_publication_date (GRL_MEDIA (video));
+      *publication_date = g_date_time_format (date, "%Y-%m-%d");
+  }
 
   g_list_free (keys);
   g_object_unref (options);
@@ -136,7 +148,7 @@ test_shows (void)
   for (i = 0; i < G_N_ELEMENTS (videos); i++) {
     gchar *imdb, *tvdb_id, *zap2it, *pdate, *banner, *fanart, *poster;
 
-    get_show_metadata (source, videos[i].show,
+    get_show_metadata (source, FALSE, videos[i].show,
                        &imdb, &tvdb_id, &zap2it, &pdate,
                        &banner, &fanart, &poster);
     g_assert_cmpstr (videos[i].tvdb_id, ==, tvdb_id);

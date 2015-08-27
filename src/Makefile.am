@@ -10,10 +10,6 @@ include $(top_srcdir)/gtester.mk
 
 SUBDIRS =
 
-if BLIPTV_PLUGIN
-SUBDIRS += bliptv
-endif
-
 if BOOKMARKS_PLUGIN
 SUBDIRS += bookmarks
 endif
@@ -107,7 +103,7 @@ SUBDIRS += opensubtitles
 endif
 
 DIST_SUBDIRS = \
-   bliptv bookmarks dleyna dmap filesystem flickr freebox gravatar jamendo \
+   bookmarks dleyna dmap filesystem flickr freebox gravatar jamendo \
    lastfm-albumart local-metadata lua-factory magnatune metadata-store opensubtitles \
    optical-media podcasts raitv shoutcast thetvdb tmdb tracker vimeo youtube
 

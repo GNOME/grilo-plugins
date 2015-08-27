@@ -900,49 +900,6 @@ DEPS_TRACKER_LIBS="$DEPS_LIBS $TRACKER_SPARQL_LIBS"
 AC_SUBST(DEPS_TRACKER_LIBS)
 
 # ----------------------------------------------------------
-# BUILD BLIP.TV PLUGIN
-# ----------------------------------------------------------
-
-AC_ARG_ENABLE(bliptv,
-        AC_HELP_STRING([--enable-bliptv],
-                [enable Blip.tv plugin (default: auto)]),
-        [
-                case "$enableval" in
-                     yes)
-                        if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-bliptv])
-                        fi
-                        if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-bliptv])
-                        fi
-                        ;;
-                esac
-        ],
-        [
-                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
-                   enable_bliptv=yes
-                else
-                   enable_bliptv=no
-                fi
-        ])
-
-AM_CONDITIONAL([BLIPTV_PLUGIN], [test "x$enable_bliptv" = "xyes"])
-GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL blip.tv"
-if test "x$enable_bliptv" = "xyes"
-then
-	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED blip.tv"
-fi
-
-BLIPTV_PLUGIN_ID="grl-bliptv"
-AC_SUBST(BLIPTV_PLUGIN_ID)
-AC_DEFINE_UNQUOTED([BLIPTV_PLUGIN_ID], ["$BLIPTV_PLUGIN_ID"], [Blip.tv plugin ID])
-
-DEPS_BLIPTV_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS"
-AC_SUBST(DEPS_BLIPTV_CFLAGS)
-DEPS_BLIPTV_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS"
-AC_SUBST(DEPS_BLIPTV_LIBS)
-
-# ----------------------------------------------------------
 # BUILD RAI.TV PLUGIN
 # ----------------------------------------------------------
 
@@ -1332,7 +1289,6 @@ AC_CONFIG_FILES([
   po/Makefile.in
   po/Makefile
   src/Makefile
-  src/bliptv/Makefile
   src/bookmarks/Makefile
   src/dleyna/Makefile
   src/dmap/Makefile
@@ -1358,7 +1314,6 @@ AC_CONFIG_FILES([
   src/vimeo/Makefile
   src/youtube/Makefile
   tests/Makefile
-  tests/bliptv/Makefile
   tests/dleyna/Makefile
   tests/dleyna/dbusmock/dleyna-server-mock.service
   tests/lastfm-albumart/Makefile

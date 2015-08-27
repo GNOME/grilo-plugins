@@ -9,10 +9,6 @@ include $(top_srcdir)/gtester.mk
 
 SUBDIRS =
 
-if BLIPTV_PLUGIN
-SUBDIRS += bliptv
-endif
-
 if DLEYNA_PLUGIN
 SUBDIRS += dleyna
 endif
@@ -42,7 +38,6 @@ SUBDIRS += vimeo
 endif
 
 DIST_SUBDIRS =    \
-   bliptv         \
    dleyna         \
    lastfm-albumart\
    local-metadata \

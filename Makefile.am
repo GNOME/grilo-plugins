@@ -25,7 +25,6 @@ EXTRA_DIST += ./m4/grilo.m4
 # when creating tarball releases,
 # and make sure that we enable all plugins needed by the documentation.
 DISTCHECK_CONFIGURE_FLAGS = --enable-apple-trailers \
-                            --enable-bliptv \
                             --enable-bookmarks \
                             --enable-dleyna \
                             --enable-dmap \

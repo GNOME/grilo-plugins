@@ -34,11 +34,14 @@ test_setup_thetvdb (void)
   GrlRegistry *registry;
   GError *error = NULL;
 
-  tmp_dir = g_build_filename (g_get_tmp_dir (), "test-thetvdb-XXXXXX", NULL);
-  tmp_dir = g_mkdtemp (tmp_dir);
-  g_assert_nonnull (tmp_dir);
+  if (tmp_dir == NULL) {
+    /* Only create tmp dir and set the XDG_DATA_HOME once */
+    tmp_dir = g_build_filename (g_get_tmp_dir (), "test-thetvdb-XXXXXX", NULL);
+    tmp_dir = g_mkdtemp (tmp_dir);
+    g_assert_nonnull (tmp_dir);
 
-  g_setenv ("XDG_DATA_HOME", tmp_dir, TRUE);
+    g_setenv ("XDG_DATA_HOME", tmp_dir, TRUE);
+  }
 
   config = grl_config_new (THETVDB_ID, NULL);
   grl_config_set_api_key (config, "THETVDB_TEST_MOCK_API_KEY");
@@ -61,8 +64,8 @@ GrlSource* test_get_source (void)
   return source;
 }
 
-void
-test_shutdown_thetvdb (void)
+static void
+test_unload (void)
 {
   GrlRegistry *registry;
   GError *error = NULL;
@@ -76,5 +79,18 @@ test_shutdown_thetvdb (void)
   db_path = g_build_filename (tmp_dir, "grilo-plugins", "grl-thetvdb.db", NULL);
   g_remove (db_path);
   g_free (db_path);
+}
+
+void
+test_reset_thetvdb (void)
+{
+  test_unload ();
+  test_setup_thetvdb ();
+}
+
+void
+test_shutdown_thetvdb (void)
+{
+  test_unload ();
   g_clear_pointer (&tmp_dir, g_free);
 }

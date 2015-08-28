@@ -143,7 +143,7 @@ typedef struct {
   CategoryInfo *category_info;
   guint emitted;
   guint matches;
-  guint ref_count;
+  gint ref_count;
 } OperationSpec;
 
 typedef struct {
@@ -458,7 +458,7 @@ operation_spec_new (void)
   GRL_DEBUG ("Allocating new spec");
 
   os =  g_slice_new0 (OperationSpec);
-  os->ref_count = 1;
+  g_atomic_int_set (&os->ref_count, 1);
 
   return os;
 }
@@ -466,8 +466,7 @@ operation_spec_new (void)
 static void
 operation_spec_unref (OperationSpec *os)
 {
-  os->ref_count--;
-  if (os->ref_count == 0) {
+  if (g_atomic_int_dec_and_test (&os->ref_count)) {
     g_clear_object (&os->cancellable);
     g_slice_free (OperationSpec, os);
     GRL_DEBUG ("freeing spec");
@@ -478,7 +477,7 @@ static void
 operation_spec_ref (OperationSpec *os)
 {
   GRL_DEBUG ("Reffing spec");
-  os->ref_count++;
+  g_atomic_int_inc (&os->ref_count);
 }
 
 static void

@@ -30,6 +30,7 @@
 
 void test_setup_thetvdb (void);
 GrlSource* test_get_source (void);
+void test_reset_thetvdb (void);
 void test_shutdown_thetvdb (void);
 
 #endif /* _GRL_THETVDB_TEST_UTILS_H_ */

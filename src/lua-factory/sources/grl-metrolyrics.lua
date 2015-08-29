@@ -96,6 +96,11 @@ function metrolyrics_get_lyrics(feed)
 
   -- remove html noise
   feed = feed:match(lyrics_body)
+  if not feed then
+    grl.warning ("This Lyrics do not match our parser! Please file a bug!")
+    return nil
+  end
+
   for _, it in ipairs (noise_array) do
     feed = feed:gsub(it.noise, it.sub)
   end

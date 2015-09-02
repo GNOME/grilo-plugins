@@ -558,9 +558,9 @@ grl_opensubtitles_source_may_resolve (GrlSource *source,
       !grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_SIZE)) {
     if (missing_keys) {
       GList *keys = NULL;
-      if (!grl_data_has_key (GRL_DATA (media), priv->hash_keyid))
+      if (!media || !grl_data_has_key (GRL_DATA (media), priv->hash_keyid))
         keys = g_list_prepend (keys, GRLKEYID_TO_POINTER (priv->hash_keyid));
-      if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_SIZE))
+      if (!media || !grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_SIZE))
         keys = g_list_prepend (keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_SIZE));
       *missing_keys = keys;
     }

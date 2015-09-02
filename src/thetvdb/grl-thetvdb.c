@@ -47,7 +47,7 @@ GRL_LOG_DOMAIN_STATIC (thetvdb_log_domain);
 
 /* --- URLs --- */
 
-#define THETVDB_BASE        "http://thetvdb.com/"
+#define THETVDB_BASE        "https://thetvdb.com/"
 #define THETVDB_BASE_API    THETVDB_BASE "api/"
 #define THETVDB_BASE_IMG    THETVDB_BASE "banners/%s"
 

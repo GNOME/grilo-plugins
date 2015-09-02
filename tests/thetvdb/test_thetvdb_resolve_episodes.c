@@ -108,19 +108,19 @@ test_episodes_from_episode (void)
   } videos[] = {
     { "Boardwalk Empire", "New York Sour", 4, 1,
       "tt2483070", "4596908", "SH01308836", "2013-09-08",
-      "http://thetvdb.com/banners/episodes/84947/4596908.jpg" },
+      "https://thetvdb.com/banners/episodes/84947/4596908.jpg" },
     { "Adventure Time", "It Came from the Nightosphere", 2, 1,
       "tt1305826", "2923061", "EP01246265", "2010-10-11",
-      "http://thetvdb.com/banners/episodes/152831/2923061.jpg" },
+      "https://thetvdb.com/banners/episodes/152831/2923061.jpg" },
     { "Felicity", "The Last Stand", 1, 2,
       "tt0134247", "133911", "SH184561", "1998-10-06",
-      "http://thetvdb.com/banners/episodes/73980/133911.jpg" },
+      "https://thetvdb.com/banners/episodes/73980/133911.jpg" },
     { "House", "Everybody Dies", 8, 22,
       "tt2121965", "4265769", "EP00688359", "2012-05-21",
-      "http://thetvdb.com/banners/episodes/73255/4265769.jpg" },
+      "https://thetvdb.com/banners/episodes/73255/4265769.jpg" },
     { "Naruto", "Yakumo's Sealed Power", 5, 25,
       "tt0409591", "446714", "SH774951", "2006-10-05",
-      "http://thetvdb.com/banners/episodes/78857/446714.jpg" }
+      "https://thetvdb.com/banners/episodes/78857/446714.jpg" }
   };
 
   source = test_get_source();

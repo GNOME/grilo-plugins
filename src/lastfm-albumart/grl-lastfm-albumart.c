@@ -41,16 +41,17 @@ GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 
 /* -------- Last.FM API -------- */
 
-#define LASTFM_GET_ALBUM "https://ws.audioscrobbler.com/1.0/album/%s/%s/info.xml"
+#define LASTFM_GET_ALBUM "http://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key=7a2461fe34c9c8124fb28ac750ba12fa&artist=%s&album=%s"
 
 #define LASTFM_DEFAULT_IMAGE "http://cdn.last.fm/flatness/catalogue/noimage/2/default_album_medium.png"
 #define LASTFM_BASE_IMAGE    "http://userserve-ak.last.fm/serve/%s/%s"
 
-#define LASTFM_XML_COVER_MEDIUM "/album/coverart/medium"
-#define LASTFM_XML_COVER_LARGE  "/album/coverart/large"
-#define LASTFM_XML_COVER_SMALL  "/album/coverart/small"
-#define LASTFM_XML_COVER_EXTRA  "/album/coverart/extralarge"
-#define LASTFM_XML_COVER_MEGA   "/album/coverart/mega"
+#define LASTFM_XML_COVER        "/lfm/album/image"
+#define LASTFM_XML_COVER_MEDIUM "medium"
+#define LASTFM_XML_COVER_LARGE  "large"
+#define LASTFM_XML_COVER_SMALL  "small"
+#define LASTFM_XML_COVER_EXTRA  "extralarge"
+#define LASTFM_XML_COVER_MEGA   "mega"
 
 /* ------- Pluging Info -------- */
 
@@ -163,7 +164,7 @@ grl_lastfm_albumart_source_finalize (GObject *object)
 /* ======================= Utilities ==================== */
 
 static gchar *
-xml_get_image (const gchar *xmldata, const gchar *image_node)
+xml_get_image (const gchar *xmldata, const gchar *image_attr)
 {
   xmlDocPtr doc;
   xmlXPathContextPtr xpath_ctx;
@@ -182,7 +183,7 @@ xml_get_image (const gchar *xmldata, const gchar *image_node)
     return NULL;
   }
 
-  xpath_res = xmlXPathEvalExpression ((xmlChar *) image_node, xpath_ctx);
+  xpath_res = xmlXPathEvalExpression ((xmlChar *) LASTFM_XML_COVER, xpath_ctx);
   if (!xpath_res) {
     xmlXPathFreeContext (xpath_ctx);
     xmlFreeDoc (doc);
@@ -190,10 +191,19 @@ xml_get_image (const gchar *xmldata, const gchar *image_node)
   }
 
   if (xpath_res->nodesetval->nodeTab) {
-    image =
-      (gchar *) xmlNodeListGetString (doc,
-                                      xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
-                                      1);
+    gint i;
+
+    for (i = 0; i < xpath_res->nodesetval->nodeNr; i++) {
+      xmlAttrPtr attrib =  xpath_res->nodesetval->nodeTab[i]->properties;
+
+      if (g_strcmp0 ((gchar*) attrib->children->content, image_attr) == 0) {
+        image =
+          (gchar *) xmlNodeListGetString (doc,
+                                          xpath_res->nodesetval->nodeTab[i]->children,
+                                          1);
+        break;
+      }
+    }
   }
   xmlXPathFreeObject (xpath_res);
   xmlXPathFreeContext (xpath_ctx);

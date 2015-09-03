@@ -41,9 +41,14 @@ static void
 test_setup (void)
 {
   GError *error = NULL;
+  GrlConfig *config;
   GrlRegistry *registry;
 
+  config = grl_config_new (LASTFM_ALBUMART_ID, NULL);
+  grl_config_set_api_key (config, "7a2461fe34c9c8124fb28ac750ba12fa");
+
   registry = grl_registry_get_default ();
+  grl_registry_add_config (registry, config, NULL);
   grl_registry_load_all_plugins (registry, &error);
   g_assert_no_error (error);
 }

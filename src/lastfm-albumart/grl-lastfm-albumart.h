@@ -53,11 +53,13 @@
                               GRL_LASTFM_ALBUMART_SOURCE_TYPE,          \
                               GrlLastfmAlbumartSourceClass))
 
+typedef struct _GrlLastfmAlbumartSourcePrivate GrlLastfmAlbumartSourcePrivate;
 typedef struct _GrlLastfmAlbumartSource GrlLastfmAlbumartSource;
 
 struct _GrlLastfmAlbumartSource {
 
   GrlSource parent;
+  GrlLastfmAlbumartSourcePrivate *priv;
 
 };
 

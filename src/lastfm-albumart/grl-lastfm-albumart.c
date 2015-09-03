@@ -34,6 +34,11 @@
 
 #include "grl-lastfm-albumart.h"
 
+#define GRL_LASTFM_ALBUMART_GET_PRIVATE(object)                  \
+  (G_TYPE_INSTANCE_GET_PRIVATE((object),                         \
+                               GRL_LASTFM_ALBUMART_SOURCE_TYPE,  \
+                               GrlLastfmAlbumartSourcePrivate))
+
 /* ---------- Logging ---------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT lastfm_albumart_log_domain
@@ -41,16 +46,17 @@ GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 
 /* -------- Last.FM API -------- */
 
-#define LASTFM_GET_ALBUM "https://ws.audioscrobbler.com/1.0/album/%s/%s/info.xml"
+#define LASTFM_GET_ALBUM "http://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key=%s&artist=%s&album=%s"
 
 #define LASTFM_DEFAULT_IMAGE "http://cdn.last.fm/flatness/catalogue/noimage/2/default_album_medium.png"
 #define LASTFM_BASE_IMAGE    "http://userserve-ak.last.fm/serve/%s/%s"
 
-#define LASTFM_XML_COVER_MEDIUM "/album/coverart/medium"
-#define LASTFM_XML_COVER_LARGE  "/album/coverart/large"
-#define LASTFM_XML_COVER_SMALL  "/album/coverart/small"
-#define LASTFM_XML_COVER_EXTRA  "/album/coverart/extralarge"
-#define LASTFM_XML_COVER_MEGA   "/album/coverart/mega"
+#define LASTFM_XML_COVER        "/lfm/album/image"
+#define LASTFM_XML_COVER_MEDIUM "medium"
+#define LASTFM_XML_COVER_LARGE  "large"
+#define LASTFM_XML_COVER_SMALL  "small"
+#define LASTFM_XML_COVER_EXTRA  "extralarge"
+#define LASTFM_XML_COVER_MEGA   "mega"
 
 /* ------- Pluging Info -------- */
 
@@ -60,9 +66,13 @@ GRL_LOG_DOMAIN_STATIC(lastfm_albumart_log_domain);
 #define SOURCE_NAME _("Album art Provider from Last.FM")
 #define SOURCE_DESC _("A plugin for getting album arts using Last.FM as backend")
 
+struct _GrlLastfmAlbumartSourcePrivate {
+  gchar *api_key;
+};
+
 static GrlNetWc *wc;
 
-static GrlLastfmAlbumartSource *grl_lastfm_albumart_source_new (void);
+static GrlLastfmAlbumartSource *grl_lastfm_albumart_source_new (const gchar *api_key);
 
 static void grl_lastfm_albumart_source_finalize (GObject *object);
 
@@ -91,6 +101,10 @@ grl_lastfm_albumart_source_plugin_init (GrlRegistry *registry,
                                         GrlPlugin *plugin,
                                         GList *configs)
 {
+  GrlLastfmAlbumartSource *source;
+  GrlConfig *config;
+  gchar *api_key = NULL;
+
   GRL_LOG_DOMAIN_INIT (lastfm_albumart_log_domain, "lastfm-albumart");
 
   GRL_DEBUG ("grl_lastfm_albumart_source_plugin_init");
@@ -99,12 +113,22 @@ grl_lastfm_albumart_source_plugin_init (GrlRegistry *registry,
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
-  GrlLastfmAlbumartSource *source = grl_lastfm_albumart_source_new ();
-  grl_registry_register_source (registry,
-                                plugin,
-                                GRL_SOURCE (source),
-                                NULL);
-  return TRUE;
+  if (configs) {
+    config = GRL_CONFIG (configs->data);
+    api_key = grl_config_get_api_key (config);
+
+    if (!api_key) {
+      GRL_INFO ("Cannot load plugin: missing API Key");
+      return FALSE;
+    }
+  }
+
+  source = grl_lastfm_albumart_source_new (api_key);
+
+  return grl_registry_register_source (registry,
+                                       plugin,
+                                       GRL_SOURCE (source),
+                                       NULL);
 }
 
 GRL_PLUGIN_REGISTER (grl_lastfm_albumart_source_plugin_init,
@@ -114,19 +138,26 @@ GRL_PLUGIN_REGISTER (grl_lastfm_albumart_source_plugin_init,
 /* ================== Last.FM-AlbumArt GObject ================ */
 
 static GrlLastfmAlbumartSource *
-grl_lastfm_albumart_source_new (void)
+grl_lastfm_albumart_source_new (const gchar *api_key)
 {
+  GrlLastfmAlbumartSource *source;
+
   const char *tags[] = {
     "net:internet",
     NULL
   };
   GRL_DEBUG ("grl_lastfm_albumart_source_new");
-  return g_object_new (GRL_LASTFM_ALBUMART_SOURCE_TYPE,
+
+  source = g_object_new (GRL_LASTFM_ALBUMART_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
 		       "source-desc", SOURCE_DESC,
 		       "source-tags", tags,
 		       NULL);
+
+  source->priv->api_key = g_strdup (api_key);
+
+  return source;
 }
 
 static void
@@ -146,6 +177,7 @@ grl_lastfm_albumart_source_class_init (GrlLastfmAlbumartSourceClass * klass)
 static void
 grl_lastfm_albumart_source_init (GrlLastfmAlbumartSource *source)
 {
+  source->priv = GRL_LASTFM_ALBUMART_GET_PRIVATE (source);
 }
 
 G_DEFINE_TYPE (GrlLastfmAlbumartSource,
@@ -155,7 +187,12 @@ G_DEFINE_TYPE (GrlLastfmAlbumartSource,
 static void
 grl_lastfm_albumart_source_finalize (GObject *object)
 {
+  GrlLastfmAlbumartSourcePrivate *priv;
+
+  priv = GRL_LASTFM_ALBUMART_SOURCE (object)->priv;
+
   g_clear_object (&wc);
+  g_clear_pointer (&priv->api_key, g_free);
 
   G_OBJECT_CLASS (grl_lastfm_albumart_source_parent_class)->finalize (object);
 }
@@ -163,7 +200,7 @@ grl_lastfm_albumart_source_finalize (GObject *object)
 /* ======================= Utilities ==================== */
 
 static gchar *
-xml_get_image (const gchar *xmldata, const gchar *image_node)
+xml_get_image (const gchar *xmldata, const gchar *image_attr)
 {
   xmlDocPtr doc;
   xmlXPathContextPtr xpath_ctx;
@@ -182,7 +219,7 @@ xml_get_image (const gchar *xmldata, const gchar *image_node)
     return NULL;
   }
 
-  xpath_res = xmlXPathEvalExpression ((xmlChar *) image_node, xpath_ctx);
+  xpath_res = xmlXPathEvalExpression ((xmlChar *) LASTFM_XML_COVER, xpath_ctx);
   if (!xpath_res) {
     xmlXPathFreeContext (xpath_ctx);
     xmlFreeDoc (doc);
@@ -190,10 +227,19 @@ xml_get_image (const gchar *xmldata, const gchar *image_node)
   }
 
   if (xpath_res->nodesetval->nodeTab) {
-    image =
-      (gchar *) xmlNodeListGetString (doc,
-                                      xpath_res->nodesetval->nodeTab[0]->xmlChildrenNode,
-                                      1);
+    gint i;
+
+    for (i = 0; i < xpath_res->nodesetval->nodeNr; i++) {
+      xmlAttrPtr attrib =  xpath_res->nodesetval->nodeTab[i]->properties;
+
+      if (g_strcmp0 ((gchar*) attrib->children->content, image_attr) == 0) {
+        image =
+          (gchar *) xmlNodeListGetString (doc,
+                                          xpath_res->nodesetval->nodeTab[i]->children,
+                                          1);
+        break;
+      }
+    }
   }
   xmlXPathFreeObject (xpath_res);
   xmlXPathFreeContext (xpath_ctx);
@@ -362,6 +408,7 @@ static void
 grl_lastfm_albumart_source_resolve (GrlSource *source,
                                     GrlSourceResolveSpec *rs)
 {
+  GrlLastfmAlbumartSourcePrivate *priv;
   const gchar *artist = NULL;
   const gchar *album = NULL;
   gchar *esc_artist = NULL;
@@ -369,6 +416,8 @@ grl_lastfm_albumart_source_resolve (GrlSource *source,
   gchar *url = NULL;
 
   GRL_DEBUG (__FUNCTION__);
+
+  priv = GRL_LASTFM_ALBUMART_SOURCE (source)->priv;
 
   GList *iter;
 
@@ -399,7 +448,7 @@ grl_lastfm_albumart_source_resolve (GrlSource *source,
     } else {
       esc_artist = g_uri_escape_string (artist, NULL, TRUE);
       esc_album = g_uri_escape_string (album, NULL, TRUE);
-      url = g_strdup_printf (LASTFM_GET_ALBUM, esc_artist, esc_album);
+      url = g_strdup_printf (LASTFM_GET_ALBUM, priv->api_key, esc_artist, esc_album);
       read_url_async (source, url, rs);
       g_free (esc_artist);
       g_free (esc_album);

@@ -1071,7 +1071,7 @@ produce_from_feed (OperationSpec *os)
   operation_spec_ref (os);
 
   os->cancellable = g_cancellable_new ();
-  grl_operation_set_data (os->operation_id, os->cancellable);
+  grl_operation_set_data (os->operation_id, g_object_ref (os->cancellable));
 
   service = GRL_YOUTUBE_SOURCE (os->source)->priv->service;
 
@@ -1314,7 +1314,7 @@ grl_youtube_source_search (GrlSource *source,
   /* Look for OPERATION_SPEC_REF_RATIONALE for details */
   operation_spec_ref (os);
 
-  grl_operation_set_data (ss->operation_id, os->cancellable);
+  grl_operation_set_data (ss->operation_id, g_object_ref (os->cancellable));
 
   /* Index in GData starts at 1 */
   query = gdata_youtube_query_new (ss->text);

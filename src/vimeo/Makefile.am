@@ -26,7 +26,8 @@ libgrlvimeo_la_SOURCES =	\
 	grl-vimeo.c		\
 	grl-vimeo.h		\
 	gvimeo.c		\
-	gvimeo.h		\
+	gvimeo.h
+
 nodist_libgrlvimeo_la_SOURCES = \
 	$(resource_sources)
 

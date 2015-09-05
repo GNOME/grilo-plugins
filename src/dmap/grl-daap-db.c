@@ -153,6 +153,9 @@ set_insert (GHashTable *category, const char *category_name, char *set_name, Grl
 static guint
 grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
 {
+  g_assert (IS_GRL_DAAP_DB (_db));
+  g_assert (IS_DAAP_RECORD (_record));
+
   GrlDAAPDb *db = GRL_DAAP_DB (_db);
   DAAPRecord *record = DAAP_RECORD (_record);
 
@@ -254,6 +257,8 @@ grl_daap_db_browse (GrlDAAPDb *db,
                     GrlSourceResultCb func,
                     gpointer user_data)
 {
+  g_assert (IS_GRL_DAAP_DB (db));
+
   int i;
   guint remaining;
   GHashTable *hash_table;
@@ -310,6 +315,8 @@ grl_daap_db_search (GrlDAAPDb *db,
                     GrlSourceResultCb func,
                     gpointer user_data)
 {
+  g_assert (IS_GRL_DAAP_DB (db));
+
   gint i, j, k;
   guint remaining = 0;
   gpointer key1, val1, key2, val2;
@@ -353,6 +360,8 @@ static void
 dmap_db_interface_init (gpointer iface, gpointer data)
 {
   DMAPDbIface *daap_db = iface;
+
+  g_assert (G_TYPE_FROM_INTERFACE (daap_db) == DMAP_TYPE_DB);
 
   daap_db->add = grl_daap_db_add;
   daap_db->lookup_by_id = grl_daap_db_lookup_by_id;

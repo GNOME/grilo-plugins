@@ -244,7 +244,7 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
 static gboolean
 same_media (GrlMedia *a, GrlMedia *b)
 {
-  return ! strcmp (grl_media_get_id (a), grl_media_get_id (b));
+  return (strcmp (grl_media_get_id (a), grl_media_get_id (b)) == 0);
 }
 
 void

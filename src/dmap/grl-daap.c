@@ -33,31 +33,31 @@
 #include <stdlib.h>
 #include <libdmapsharing/dmap.h>
 
-#include "grl-dmap.h"
-#include "simple-dmap-db.h"
-#include "simple-daap-record.h"
-#include "simple-daap-record-factory.h"
+#include "grl-daap.h"
+#include "grl-daap-db.h"
+#include "grl-daap-record.h"
+#include "grl-daap-record-factory.h"
 
 /* --------- Logging  -------- */
 
-#define GRL_LOG_DOMAIN_DEFAULT dmap_log_domain
-GRL_LOG_DOMAIN_STATIC(dmap_log_domain);
+#define GRL_LOG_DOMAIN_DEFAULT daap_log_domain
+GRL_LOG_DOMAIN_STATIC(daap_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   DMAP_PLUGIN_ID
+#define PLUGIN_ID   DAAP_PLUGIN_ID
 
-#define SOURCE_ID_TEMPLATE   "grl-dmap-%s"
-#define SOURCE_DESC_TEMPLATE _("A source for browsing the DMAP server '%s'")
+#define SOURCE_ID_TEMPLATE   "grl-daap-%s"
+#define SOURCE_DESC_TEMPLATE _("A source for browsing the DAAP server '%s'")
 
-/* --- Grilo DMAP Private --- */
+/* --- Grilo DAAP Private --- */
 
-#define GRL_DMAP_SOURCE_GET_PRIVATE(object)           \
+#define GRL_DAAP_SOURCE_GET_PRIVATE(object)           \
   (G_TYPE_INSTANCE_GET_PRIVATE((object),              \
-                               GRL_DMAP_SOURCE_TYPE,  \
-                               GrlDmapSourcePrivate))
+                               GRL_DAAP_SOURCE_TYPE,  \
+                               GrlDaapSourcePrivate))
 
-struct _GrlDmapSourcePrivate {
+struct _GrlDaapSourcePrivate {
   DMAPMdnsBrowserService *service;
 };
 
@@ -77,23 +77,23 @@ typedef struct _ResultCbAndArgs {
 
 typedef struct _ResultCbAndArgsAndDb {
   ResultCbAndArgs cb;
-  SimpleDMAPDb *db;
+  GrlDAAPDb *db;
 } ResultCbAndArgsAndDb;
 
-static GrlDmapSource *grl_dmap_source_new (DMAPMdnsBrowserService *service);
+static GrlDaapSource *grl_daap_source_new (DMAPMdnsBrowserService *service);
 
-static void grl_dmap_source_finalize (GObject *object);
+static void grl_daap_source_finalize (GObject *object);
 
-gboolean grl_dmap_plugin_init (GrlRegistry *registry,
+gboolean grl_daap_plugin_init (GrlRegistry *registry,
                                GrlPlugin *plugin,
                                GList *configs);
 
-static const GList *grl_dmap_source_supported_keys (GrlSource *source);
+static const GList *grl_daap_source_supported_keys (GrlSource *source);
 
-static void grl_dmap_source_browse (GrlSource *source,
+static void grl_daap_source_browse (GrlSource *source,
                                     GrlSourceBrowseSpec *bs);
 
-static void grl_dmap_source_search (GrlSource *source,
+static void grl_daap_source_search (GrlSource *source,
                                     GrlSourceSearchSpec *ss);
 
 
@@ -109,21 +109,21 @@ static void service_removed_cb (DMAPMdnsBrowser *browser,
 static DMAPMdnsBrowser *browser;
 /* Maps URIs to DBs */
 static GHashTable *connections;
-/* Map DMAP services to Grilo media sources */
+/* Map DAAP services to Grilo media sources */
 static GHashTable *sources;
 
-/* =================== DMAP Plugin ====================== */
+/* =================== DAAP Plugin ====================== */
 
 gboolean
-grl_dmap_plugin_init (GrlRegistry *registry,
+grl_daap_plugin_init (GrlRegistry *registry,
                       GrlPlugin *plugin,
                       GList *configs)
 {
   GError *error = NULL;
 
-  GRL_LOG_DOMAIN_INIT (dmap_log_domain, "dmap");
+  GRL_LOG_DOMAIN_INIT (daap_log_domain, "daap");
 
-  GRL_DEBUG ("dmap_plugin_init");
+  GRL_DEBUG ("daap_plugin_init");
 
   /* Initialize i18n */
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
@@ -158,30 +158,30 @@ grl_dmap_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_dmap_plugin_init,
+GRL_PLUGIN_REGISTER (grl_daap_plugin_init,
                      NULL,
                      PLUGIN_ID);
 
-/* ================== DMAP GObject ====================== */
+/* ================== DAAP GObject ====================== */
 
-G_DEFINE_TYPE (GrlDmapSource,
-               grl_dmap_source,
+G_DEFINE_TYPE (GrlDaapSource,
+               grl_daap_source,
                GRL_TYPE_SOURCE);
 
-static GrlDmapSource *
-grl_dmap_source_new (DMAPMdnsBrowserService *service)
+static GrlDaapSource *
+grl_daap_source_new (DMAPMdnsBrowserService *service)
 {
   gchar *source_desc;
   gchar *source_id;
 
-  GrlDmapSource *source;
+  GrlDaapSource *source;
 
-  GRL_DEBUG ("grl_dmap_source_new");
+  GRL_DEBUG ("grl_daap_source_new");
 
   source_desc = g_strdup_printf (SOURCE_DESC_TEMPLATE, service->name);
   source_id = g_strdup_printf (SOURCE_ID_TEMPLATE, service->name);
 
-  source = g_object_new (GRL_DMAP_SOURCE_TYPE,
+  source = g_object_new (GRL_DAAP_SOURCE_TYPE,
                          "source-id",   source_id,
                          "source-name", service->name,
                          "source-desc", source_desc,
@@ -196,29 +196,29 @@ grl_dmap_source_new (DMAPMdnsBrowserService *service)
 }
 
 static void
-grl_dmap_source_class_init (GrlDmapSourceClass * klass)
+grl_daap_source_class_init (GrlDaapSourceClass * klass)
 {
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
 
-  source_class->browse = grl_dmap_source_browse;
-  source_class->search = grl_dmap_source_search;
-  source_class->supported_keys = grl_dmap_source_supported_keys;
+  source_class->browse = grl_daap_source_browse;
+  source_class->search = grl_daap_source_search;
+  source_class->supported_keys = grl_daap_source_supported_keys;
 
-  G_OBJECT_CLASS (source_class)->finalize = grl_dmap_source_finalize;
+  G_OBJECT_CLASS (source_class)->finalize = grl_daap_source_finalize;
 
-  g_type_class_add_private (klass, sizeof (GrlDmapSourcePrivate));
+  g_type_class_add_private (klass, sizeof (GrlDaapSourcePrivate));
 }
 
 static void
-grl_dmap_source_init (GrlDmapSource *source)
+grl_daap_source_init (GrlDaapSource *source)
 {
-  source->priv = GRL_DMAP_SOURCE_GET_PRIVATE (source);
+  source->priv = GRL_DAAP_SOURCE_GET_PRIVATE (source);
 }
 
 static void
-grl_dmap_source_finalize (GObject *object)
+grl_daap_source_finalize (GObject *object)
 {
-  G_OBJECT_CLASS (grl_dmap_source_parent_class)->finalize (object);
+  G_OBJECT_CLASS (grl_daap_source_parent_class)->finalize (object);
 }
 
 /* ======================= Utilities ==================== */
@@ -235,7 +235,7 @@ build_url (DMAPMdnsBrowserService *service)
 static void
 do_browse (ResultCbAndArgsAndDb *cb_and_db)
 {
-  simple_dmap_db_browse (cb_and_db->db,
+  grl_daap_db_browse (cb_and_db->db,
                          cb_and_db->cb.container,
                          cb_and_db->cb.source,
                          cb_and_db->cb.op_id,
@@ -250,7 +250,7 @@ do_browse (ResultCbAndArgsAndDb *cb_and_db)
 static void
 do_search (ResultCbAndArgsAndDb *cb_and_db)
 {
-  simple_dmap_db_search (cb_and_db->db,
+  grl_daap_db_search (cb_and_db->db,
                          cb_and_db->cb.source,
                          cb_and_db->cb.op_id,
                          (GHRFunc) cb_and_db->cb.predicate,
@@ -317,7 +317,7 @@ service_added_cb (DMAPMdnsBrowser *browser,
                   GrlPlugin *plugin)
 {
   GrlRegistry   *registry = grl_registry_get_default ();
-  GrlDmapSource *source   = grl_dmap_source_new (service);
+  GrlDaapSource *source   = grl_daap_source_new (service);
 
   GRL_DEBUG (__FUNCTION__);
 
@@ -338,7 +338,7 @@ service_removed_cb (DMAPMdnsBrowser *browser,
                     GrlPlugin *plugin)
 {
   GrlRegistry   *registry = grl_registry_get_default ();
-  GrlDmapSource *source   = g_hash_table_lookup (sources, service_name);
+  GrlDaapSource *source   = g_hash_table_lookup (sources, service_name);
 
   GRL_DEBUG (__FUNCTION__);
 
@@ -349,12 +349,12 @@ service_removed_cb (DMAPMdnsBrowser *browser,
 }
 
 static void
-grl_dmap_connect (gchar *name, gchar *host, guint port, ResultCbAndArgsAndDb *cb_and_db, DMAPConnectionCallback callback)
+grl_daap_connect (gchar *name, gchar *host, guint port, ResultCbAndArgsAndDb *cb_and_db, DMAPConnectionCallback callback)
 {
   DMAPRecordFactory *factory;
   DMAPConnection *connection;
 
-  factory = DMAP_RECORD_FACTORY (simple_daap_record_factory_new ());
+  factory = DMAP_RECORD_FACTORY (grl_daap_record_factory_new ());
   connection = DMAP_CONNECTION (daap_connection_new (name, host, port, DMAP_DB (cb_and_db->db), factory));
   dmap_connection_connect (connection, (DMAPConnectionCallback) callback, cb_and_db);
 }
@@ -375,7 +375,7 @@ match (GrlMedia *media, gpointer val, gpointer user_data)
 /* ================== API Implementation ================ */
 
 static const GList *
-grl_dmap_source_supported_keys (GrlSource *source)
+grl_daap_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
 
@@ -397,11 +397,11 @@ grl_dmap_source_supported_keys (GrlSource *source)
 }
 
 static void
-grl_dmap_source_browse (GrlSource *source,
+grl_daap_source_browse (GrlSource *source,
                         GrlSourceBrowseSpec *bs)
 {
-  GrlDmapSource *dmap_source = GRL_DMAP_SOURCE (source);
-  gchar *url = build_url (dmap_source->priv->service);
+  GrlDaapSource *daap_source = GRL_DAAP_SOURCE (source);
+  gchar *url = build_url (daap_source->priv->service);
 
   GRL_DEBUG (__func__);
 
@@ -422,11 +422,11 @@ grl_dmap_source_browse (GrlSource *source,
     browse_connected_cb (NULL, TRUE, NULL, cb_and_db);
   } else {
     /* Connect */
-    cb_and_db->db = simple_dmap_db_new ();
+    cb_and_db->db = grl_daap_db_new ();
 
-    grl_dmap_connect (dmap_source->priv->service->name,
-                      dmap_source->priv->service->host,
-                      dmap_source->priv->service->port,
+    grl_daap_connect (daap_source->priv->service->name,
+                      daap_source->priv->service->host,
+                      daap_source->priv->service->port,
                       cb_and_db,
                       (DMAPConnectionCallback) browse_connected_cb);
 
@@ -436,13 +436,13 @@ grl_dmap_source_browse (GrlSource *source,
   g_free (url);
 }
 
-static void grl_dmap_source_search (GrlSource *source,
+static void grl_daap_source_search (GrlSource *source,
                                     GrlSourceSearchSpec *ss)
 {
-  GrlDmapSource *dmap_source = GRL_DMAP_SOURCE (source);
+  GrlDaapSource *daap_source = GRL_DAAP_SOURCE (source);
 
   ResultCbAndArgsAndDb *cb_and_db;
-  DMAPMdnsBrowserService *service = dmap_source->priv->service;
+  DMAPMdnsBrowserService *service = daap_source->priv->service;
   gchar *url = build_url (service);
 
   cb_and_db = g_new (ResultCbAndArgsAndDb, 1);
@@ -460,8 +460,8 @@ static void grl_dmap_source_search (GrlSource *source,
     search_connected_cb (NULL, TRUE, NULL, cb_and_db);
   } else {
     /* Connect */
-    cb_and_db->db = simple_dmap_db_new ();
-    grl_dmap_connect (service->name, service->host, service->port, cb_and_db, (DMAPConnectionCallback) search_connected_cb);
+    cb_and_db->db = grl_daap_db_new ();
+    grl_daap_connect (service->name, service->host, service->port, cb_and_db, (DMAPConnectionCallback) search_connected_cb);
     g_hash_table_insert (connections, g_strdup (url), cb_and_db->db);
   }
 

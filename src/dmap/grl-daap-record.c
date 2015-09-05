@@ -20,9 +20,9 @@
  *
  */
 
-#include "simple-daap-record.h"
+#include "grl-daap-record.h"
 
-struct SimpleDAAPRecordPrivate {
+struct GrlDAAPRecordPrivate {
   guint64 filesize;
   char *location;
   char *format;
@@ -68,12 +68,12 @@ enum {
 };
 
 static void
-simple_daap_record_set_property (GObject *object,
+grl_daap_record_set_property (GObject *object,
                                  guint prop_id,
                                  const GValue *value,
                                  GParamSpec *pspec)
 {
-  SimpleDAAPRecord *record = SIMPLE_DAAP_RECORD (object);
+  GrlDAAPRecord *record = SIMPLE_DAAP_RECORD (object);
 
   switch (prop_id) {
   case PROP_LOCATION:
@@ -150,12 +150,12 @@ simple_daap_record_set_property (GObject *object,
 }
 
 static void
-simple_daap_record_get_property (GObject *object,
+grl_daap_record_get_property (GObject *object,
                                  guint prop_id,
                                  GValue *value,
                                  GParamSpec *pspec)
 {
-  SimpleDAAPRecord *record = SIMPLE_DAAP_RECORD (object);
+  GrlDAAPRecord *record = SIMPLE_DAAP_RECORD (object);
 
   switch (prop_id) {
   case PROP_LOCATION:
@@ -223,14 +223,14 @@ simple_daap_record_get_property (GObject *object,
   }
 }
 
-SimpleDAAPRecord *
-simple_daap_record_new (void)
+GrlDAAPRecord *
+grl_daap_record_new (void)
 {
   return SIMPLE_DAAP_RECORD (g_object_new (TYPE_SIMPLE_DAAP_RECORD, NULL));
 }
 
 GInputStream *
-simple_daap_record_read (DAAPRecord *record, GError **error)
+grl_daap_record_read (DAAPRecord *record, GError **error)
 {
   GFile *file;
   GInputStream *stream;
@@ -244,23 +244,23 @@ simple_daap_record_read (DAAPRecord *record, GError **error)
 }
 
 static void
-simple_daap_record_init (SimpleDAAPRecord *record)
+grl_daap_record_init (GrlDAAPRecord *record)
 {
   record->priv = SIMPLE_DAAP_RECORD_GET_PRIVATE (record);
 }
 
-static void simple_daap_record_finalize (GObject *object);
+static void grl_daap_record_finalize (GObject *object);
 
 static void
-simple_daap_record_class_init (SimpleDAAPRecordClass *klass)
+grl_daap_record_class_init (GrlDAAPRecordClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (klass, sizeof (SimpleDAAPRecordPrivate));
+  g_type_class_add_private (klass, sizeof (GrlDAAPRecordPrivate));
 
-  gobject_class->set_property = simple_daap_record_set_property;
-  gobject_class->get_property = simple_daap_record_get_property;
-  gobject_class->finalize     = simple_daap_record_finalize;
+  gobject_class->set_property = grl_daap_record_set_property;
+  gobject_class->get_property = grl_daap_record_get_property;
+  gobject_class->finalize     = grl_daap_record_finalize;
 
   g_object_class_override_property (gobject_class, PROP_LOCATION, "location");
   g_object_class_override_property (gobject_class, PROP_TITLE, "title");
@@ -284,17 +284,17 @@ simple_daap_record_class_init (SimpleDAAPRecordClass *klass)
 }
 
 static void
-simple_daap_record_daap_iface_init (gpointer iface, gpointer data)
+grl_daap_record_daap_iface_init (gpointer iface, gpointer data)
 {
   DAAPRecordIface *daap_record = iface;
 
   g_assert (G_TYPE_FROM_INTERFACE (daap_record) == DAAP_TYPE_RECORD);
 
-  daap_record->read = simple_daap_record_read;
+  daap_record->read = grl_daap_record_read;
 }
 
 static void
-simple_daap_record_dmap_iface_init (gpointer iface, gpointer data)
+grl_daap_record_dmap_iface_init (gpointer iface, gpointer data)
 {
   DMAPRecordIface *dmap_record = iface;
 
@@ -302,14 +302,14 @@ simple_daap_record_dmap_iface_init (gpointer iface, gpointer data)
 }
 
 
-G_DEFINE_TYPE_WITH_CODE (SimpleDAAPRecord, simple_daap_record, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (DAAP_TYPE_RECORD, simple_daap_record_daap_iface_init)
-                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD, simple_daap_record_dmap_iface_init))
+G_DEFINE_TYPE_WITH_CODE (GrlDAAPRecord, grl_daap_record, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (DAAP_TYPE_RECORD, grl_daap_record_daap_iface_init)
+                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD, grl_daap_record_dmap_iface_init))
 
 static void
-simple_daap_record_finalize (GObject *object)
+grl_daap_record_finalize (GObject *object)
 {
-  SimpleDAAPRecord *record = SIMPLE_DAAP_RECORD (object);
+  GrlDAAPRecord *record = SIMPLE_DAAP_RECORD (object);
 
   g_free (record->priv->location);
   g_free (record->priv->title);
@@ -320,5 +320,5 @@ simple_daap_record_finalize (GObject *object)
   g_free (record->priv->genre);
   g_free (record->priv->format);
 
-  G_OBJECT_CLASS (simple_daap_record_parent_class)->finalize (object);
+  G_OBJECT_CLASS (grl_daap_record_parent_class)->finalize (object);
 }

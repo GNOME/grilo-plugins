@@ -26,17 +26,17 @@
 G_BEGIN_DECLS
 
 #define TYPE_SIMPLE_DAAP_RECORD                 \
-  (simple_daap_record_get_type ())
+  (grl_daap_record_get_type ())
 
 #define SIMPLE_DAAP_RECORD(o)                            \
   (G_TYPE_CHECK_INSTANCE_CAST((o),                       \
                               TYPE_SIMPLE_DAAP_RECORD,   \
-                              SimpleDAAPRecord))
+                              GrlDAAPRecord))
 
 #define SIMPLE_DAAP_RECORD_CLASS(k)                   \
   (G_TYPE_CHECK_CLASS_CAST((k),                       \
                            TYPE_SIMPLE_DAAP_RECORD,   \
-                           SimpleDAAPRecordClass))
+                           GrlDAAPRecordClass))
 
 #define IS_SIMPLE_DAAP_RECORD(o)                         \
   (G_TYPE_CHECK_INSTANCE_TYPE((o),                       \
@@ -49,29 +49,29 @@ G_BEGIN_DECLS
 #define SIMPLE_DAAP_RECORD_GET_CLASS(o)               \
   (G_TYPE_INSTANCE_GET_CLASS((o),                     \
                              TYPE_SIMPLE_DAAP_RECORD, \
-                             SimpleDAAPRecordClass))
+                             GrlDAAPRecordClass))
 
 #define SIMPLE_DAAP_RECORD_GET_PRIVATE(o)                \
   (G_TYPE_INSTANCE_GET_PRIVATE((o),                      \
                                TYPE_SIMPLE_DAAP_RECORD,  \
-                               SimpleDAAPRecordPrivate))
+                               GrlDAAPRecordPrivate))
 
-typedef struct SimpleDAAPRecordPrivate SimpleDAAPRecordPrivate;
+typedef struct GrlDAAPRecordPrivate GrlDAAPRecordPrivate;
 
 typedef struct {
   GObject parent;
-  SimpleDAAPRecordPrivate *priv;
-} SimpleDAAPRecord;
+  GrlDAAPRecordPrivate *priv;
+} GrlDAAPRecord;
 
 typedef struct {
   GObjectClass parent;
-} SimpleDAAPRecordClass;
+} GrlDAAPRecordClass;
 
-GType simple_daap_record_get_type (void);
+GType grl_daap_record_get_type (void);
 
-SimpleDAAPRecord *simple_daap_record_new    (void);
-GInputStream     *simple_daap_record_read   (DAAPRecord *record, GError **error);
-gint              simple_daap_record_get_id (DAAPRecord *record);
+GrlDAAPRecord *grl_daap_record_new    (void);
+GInputStream     *grl_daap_record_read   (DAAPRecord *record, GError **error);
+gint              grl_daap_record_get_id (DAAPRecord *record);
 
 #endif /* __SIMPLE_DAAP_RECORD */
 

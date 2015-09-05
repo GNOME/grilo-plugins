@@ -18,18 +18,18 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-/* This DMAP database implementation maintains a series of hash tables that
+/* This DAAP database implementation maintains a series of hash tables that
  * represent sets of media. The tables include: root, albums, and artists.
  * Root contains albums and artists, and albums and artists each contain
  * the set of albums and artists in the database, respectively. Thus this
- * database implementation imposes a hierarchical structure, whereas DMAP
+ * database implementation imposes a hierarchical structure, whereas DAAP
  * normally provides a flat structure.
  *
  * Each hash table/set is a mapping between a GrlMediaBox and a series of
  * GrlMedia objects (either more GrlMediaBox objects, or, in the case of a
  * leaf, GrlMediaAudio objects). The constant GrlMediaBox objects (e.g.,
  * albums_box and artists_box) facilitate this, along with additional
- * GrlMediaAudio objects that the simple_dmap_db_add function creates.
+ * GrlMediaAudio objects that the grl_daap_db_add function creates.
  *
  * An application will normally first browse using the NULL container,
  * and thus will first receive albums_box and artists_box. Browsing
@@ -56,7 +56,7 @@
 #include <glib.h>
 #include <string.h>
 
-#include "simple-dmap-db.h"
+#include "grl-daap-db.h"
 
 #define ALBUMS_ID    "albums"
 #define ALBUMS_NAME  _("Albums")
@@ -66,7 +66,7 @@
 /* Media ID's start at max and go down. Container ID's start at 1 and go up. */
 static guint nextid = G_MAXINT; /* NOTE: this should be G_MAXUINT, but iPhoto can't handle it. */
 
-struct SimpleDMAPDbPrivate {
+struct GrlDAAPDbPrivate {
   /* Contains each album box (tracked with albums hash table) */
   GrlMediaBox *albums_box;
 
@@ -95,23 +95,23 @@ box_equal (gconstpointer a, gconstpointer b)
   return g_str_equal (grl_media_get_id (GRL_MEDIA (a)), grl_media_get_id (GRL_MEDIA (b)));
 }
 
-SimpleDMAPDb *
-simple_dmap_db_new (void)
+GrlDAAPDb *
+grl_daap_db_new (void)
 {
-  SimpleDMAPDb *db = g_object_new (TYPE_SIMPLE_DMAP_DB, NULL);
+  GrlDAAPDb *db = g_object_new (TYPE_GRL_DAAP_DB, NULL);
 
   return db;
 }
 
 static DMAPRecord *
-simple_dmap_db_lookup_by_id (const DMAPDb *db, guint id)
+grl_daap_db_lookup_by_id (const DMAPDb *db, guint id)
 {
   g_error ("Not implemented");
   return NULL;
 }
 
 static void
-simple_dmap_db_foreach (const DMAPDb *db,
+grl_daap_db_foreach (const DMAPDb *db,
                         GHFunc func,
                         gpointer data)
 {
@@ -119,7 +119,7 @@ simple_dmap_db_foreach (const DMAPDb *db,
 }
 
 static gint64
-simple_dmap_db_count (const DMAPDb *db)
+grl_daap_db_count (const DMAPDb *db)
 {
   g_error ("Not implemented");
   return 0;
@@ -151,9 +151,9 @@ set_insert (GHashTable *category, const char *category_name, char *set_name, Grl
 }
 
 static guint
-simple_dmap_db_add (DMAPDb *_db, DMAPRecord *record)
+grl_daap_db_add (DMAPDb *_db, DMAPRecord *record)
 {
-  SimpleDMAPDb *db = SIMPLE_DMAP_DB (_db);
+  GrlDAAPDb *db = GRL_DAAP_DB (_db);
   gint   duration = 0;
   gint32  bitrate = 0,
             track = 0;
@@ -237,16 +237,16 @@ simple_dmap_db_add (DMAPDb *_db, DMAPRecord *record)
 }
 
 static void
-simple_dmap_db_interface_init (gpointer iface, gpointer data)
+grl_daap_db_interface_init (gpointer iface, gpointer data)
 {
-  DMAPDbIface *dmap_db = iface;
+  DMAPDbIface *daap_db = iface;
 
-  g_assert (G_TYPE_FROM_INTERFACE (dmap_db) == DMAP_TYPE_DB);
+  g_assert (G_TYPE_FROM_INTERFACE (daap_db) == DMAP_TYPE_DB);
 
-  dmap_db->add = simple_dmap_db_add;
-  dmap_db->lookup_by_id = simple_dmap_db_lookup_by_id;
-  dmap_db->foreach = simple_dmap_db_foreach;
-  dmap_db->count = simple_dmap_db_count;
+  daap_db->add = grl_daap_db_add;
+  daap_db->lookup_by_id = grl_daap_db_lookup_by_id;
+  daap_db->foreach = grl_daap_db_foreach;
+  daap_db->count = grl_daap_db_count;
 }
 
 static gboolean
@@ -256,14 +256,14 @@ same_media (GrlMedia *a, GrlMedia *b)
 }
 
 void
-simple_dmap_db_browse (SimpleDMAPDb *db,
-                       GrlMedia *container,
-                       GrlSource *source,
-                       guint op_id,
-                       guint skip,
-                       guint count,
-                       GrlSourceResultCb func,
-                       gpointer user_data)
+grl_daap_db_browse (GrlDAAPDb *db,
+                    GrlMedia *container,
+                    GrlSource *source,
+                    guint op_id,
+                    guint skip,
+                    guint count,
+                    GrlSourceResultCb func,
+                    gpointer user_data)
 {
   int i;
   guint remaining;
@@ -313,13 +313,13 @@ done:
 }
 
 void
-simple_dmap_db_search (SimpleDMAPDb *db,
-                       GrlSource *source,
-                       guint op_id,
-                       GHRFunc predicate,
-                       gpointer pred_user_data,
-                       GrlSourceResultCb func,
-                       gpointer user_data)
+grl_daap_db_search (GrlDAAPDb *db,
+                    GrlSource *source,
+                    guint op_id,
+                    GHRFunc predicate,
+                    gpointer pred_user_data,
+                    GrlSourceResultCb func,
+                    gpointer user_data)
 {
   gint i, j, k;
   guint remaining = 0;
@@ -360,23 +360,23 @@ simple_dmap_db_search (SimpleDMAPDb *db,
   }
 }
 
-G_DEFINE_TYPE_WITH_CODE (SimpleDMAPDb, simple_dmap_db, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_DB, simple_dmap_db_interface_init))
+G_DEFINE_TYPE_WITH_CODE (GrlDAAPDb, grl_daap_db, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_DB, grl_daap_db_interface_init))
 
 static GObject*
-simple_dmap_db_constructor (GType type, guint n_construct_params, GObjectConstructParam *construct_params)
+grl_daap_db_constructor (GType type, guint n_construct_params, GObjectConstructParam *construct_params)
 {
   GObject *object;
 
-  object = G_OBJECT_CLASS (simple_dmap_db_parent_class)->constructor (type, n_construct_params, construct_params);
+  object = G_OBJECT_CLASS (grl_daap_db_parent_class)->constructor (type, n_construct_params, construct_params);
 
   return object;
 }
 
 static void
-simple_dmap_db_init (SimpleDMAPDb *db)
+grl_daap_db_init (GrlDAAPDb *db)
 {
-  db->priv = SIMPLE_DMAP_DB_GET_PRIVATE (db);
+  db->priv = GRL_DAAP_DB_GET_PRIVATE (db);
 
   db->priv->albums_box  = g_object_new (GRL_TYPE_MEDIA_BOX, NULL);
   db->priv->artists_box = g_object_new (GRL_TYPE_MEDIA_BOX, NULL);
@@ -396,11 +396,11 @@ simple_dmap_db_init (SimpleDMAPDb *db)
 }
 
 static void
-simple_dmap_db_finalize (GObject *object)
+grl_daap_db_finalize (GObject *object)
 {
-  SimpleDMAPDb *db = SIMPLE_DMAP_DB (object);
+  GrlDAAPDb *db = GRL_DAAP_DB (object);
 
-  GRL_DEBUG ("Finalizing SimpleDMAPDb");
+  GRL_DEBUG ("Finalizing GrlDAAPDb");
 
   g_object_unref (db->priv->albums_box);
   g_object_unref (db->priv->artists_box);
@@ -410,7 +410,7 @@ simple_dmap_db_finalize (GObject *object)
 }
 
 static void
-simple_dmap_db_set_property (GObject *object,
+grl_daap_db_set_property (GObject *object,
                              guint prop_id,
                              const GValue *value,
                              GParamSpec *pspec)
@@ -423,7 +423,7 @@ simple_dmap_db_set_property (GObject *object,
 }
 
 static void
-simple_dmap_db_get_property (GObject *object,
+grl_daap_db_get_property (GObject *object,
                              guint prop_id,
                              GValue *value,
                              GParamSpec *pspec)
@@ -437,14 +437,14 @@ simple_dmap_db_get_property (GObject *object,
 
 
 static void
-simple_dmap_db_class_init (SimpleDMAPDbClass *klass)
+grl_daap_db_class_init (GrlDAAPDbClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (klass, sizeof (SimpleDMAPDbPrivate));
+  g_type_class_add_private (klass, sizeof (GrlDAAPDbPrivate));
 
-  object_class->finalize = simple_dmap_db_finalize;
-  object_class->constructor = simple_dmap_db_constructor;
-  object_class->set_property = simple_dmap_db_set_property;
-  object_class->get_property = simple_dmap_db_get_property;
+  object_class->finalize = grl_daap_db_finalize;
+  object_class->constructor = grl_daap_db_constructor;
+  object_class->set_property = grl_daap_db_set_property;
+  object_class->get_property = grl_daap_db_get_property;
 }

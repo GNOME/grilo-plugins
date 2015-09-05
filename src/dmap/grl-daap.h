@@ -21,56 +21,56 @@
  *
  */
 
-#ifndef _GRL_DMAP_SOURCE_H_
-#define _GRL_DMAP_SOURCE_H_
+#ifndef _GRL_DAAP_SOURCE_H_
+#define _GRL_DAAP_SOURCE_H_
 
 #include <grilo.h>
 
-#define GRL_DMAP_SOURCE_TYPE                    \
-  (grl_dmap_source_get_type ())
+#define GRL_DAAP_SOURCE_TYPE                    \
+  (grl_daap_source_get_type ())
 
-#define GRL_DMAP_SOURCE(obj)                          \
+#define GRL_DAAP_SOURCE(obj)                          \
   (G_TYPE_CHECK_INSTANCE_CAST ((obj),                 \
-                               GRL_DMAP_SOURCE_TYPE,  \
-                               GrlDmapSource))
+                               GRL_DAAP_SOURCE_TYPE,  \
+                               GrlDaapSource))
 
-#define GRL_IS_DMAP_SOURCE(obj)                       \
+#define GRL_IS_DAAP_SOURCE(obj)                       \
   (G_TYPE_CHECK_INSTANCE_TYPE ((obj),                 \
-                               GRL_DMAP_SOURCE_TYPE))
+                               GRL_DAAP_SOURCE_TYPE))
 
-#define GRL_DMAP_SOURCE_CLASS(klass)               \
+#define GRL_DAAP_SOURCE_CLASS(klass)               \
   (G_TYPE_CHECK_CLASS_CAST((klass),                \
-                           GRL_DMAP_SOURCE_TYPE,   \
-                           GrlDmapSourceClass))
+                           GRL_DAAP_SOURCE_TYPE,   \
+                           GrlDaapSourceClass))
 
-#define GRL_IS_DMAP_SOURCE_CLASS(klass)            \
+#define GRL_IS_DAAP_SOURCE_CLASS(klass)            \
   (G_TYPE_CHECK_CLASS_TYPE((klass),                \
-                           GRL_DMAP_SOURCE_TYPE))
+                           GRL_DAAP_SOURCE_TYPE))
 
-#define GRL_DMAP_SOURCE_GET_CLASS(obj)                \
+#define GRL_DAAP_SOURCE_GET_CLASS(obj)                \
   (G_TYPE_INSTANCE_GET_CLASS ((obj),                  \
-                              GRL_DMAP_SOURCE_TYPE,   \
-                              GrlDmapSourceClass))
+                              GRL_DAAP_SOURCE_TYPE,   \
+                              GrlDaapSourceClass))
 
-typedef struct _GrlDmapSourcePrivate GrlDmapSourcePrivate;
-typedef struct _GrlDmapSource  GrlDmapSource;
+typedef struct _GrlDaapSourcePrivate GrlDaapSourcePrivate;
+typedef struct _GrlDaapSource  GrlDaapSource;
 
-struct _GrlDmapSource {
+struct _GrlDaapSource {
 
   GrlSource parent;
 
   /*< private >*/
-  GrlDmapSourcePrivate *priv;
+  GrlDaapSourcePrivate *priv;
 };
 
-typedef struct _GrlDmapSourceClass GrlDmapSourceClass;
+typedef struct _GrlDaapSourceClass GrlDaapSourceClass;
 
-struct _GrlDmapSourceClass {
+struct _GrlDaapSourceClass {
 
   GrlSourceClass parent_class;
 
 };
 
-GType grl_dmap_source_get_type (void);
+GType grl_daap_source_get_type (void);
 
-#endif /* _GRL_DMAP_SOURCE_H_ */
+#endif /* _GRL_DAAP_SOURCE_H_ */

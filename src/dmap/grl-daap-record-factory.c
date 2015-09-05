@@ -18,41 +18,41 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "simple-daap-record-factory.h"
-#include "simple-daap-record.h"
+#include "grl-daap-record-factory.h"
+#include "grl-daap-record.h"
 
 DMAPRecord *
-simple_daap_record_factory_create  (DMAPRecordFactory *factory, gpointer user_data)
+grl_daap_record_factory_create  (DMAPRecordFactory *factory, gpointer user_data)
 {
-	return DMAP_RECORD (simple_daap_record_new ());
+	return DMAP_RECORD (grl_daap_record_new ());
 }
 
 static void
-simple_daap_record_factory_init (SimpleDAAPRecordFactory *factory)
-{
-}
-
-static void
-simple_daap_record_factory_class_init (SimpleDAAPRecordFactoryClass *klass)
+grl_daap_record_factory_init (GrlDAAPRecordFactory *factory)
 {
 }
 
 static void
-simple_daap_record_factory_interface_init (gpointer iface, gpointer data)
+grl_daap_record_factory_class_init (GrlDAAPRecordFactoryClass *klass)
+{
+}
+
+static void
+grl_daap_record_factory_interface_init (gpointer iface, gpointer data)
 {
 	DMAPRecordFactoryIface *factory = iface;
 
 	g_assert (G_TYPE_FROM_INTERFACE (factory) == DMAP_TYPE_RECORD_FACTORY);
 
-	factory->create = simple_daap_record_factory_create;
+	factory->create = grl_daap_record_factory_create;
 }
 
-G_DEFINE_TYPE_WITH_CODE (SimpleDAAPRecordFactory, simple_daap_record_factory, G_TYPE_OBJECT,
+G_DEFINE_TYPE_WITH_CODE (GrlDAAPRecordFactory, grl_daap_record_factory, G_TYPE_OBJECT,
 			 G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD_FACTORY,
-					        simple_daap_record_factory_interface_init))
+					        grl_daap_record_factory_interface_init))
 
-SimpleDAAPRecordFactory *
-simple_daap_record_factory_new (void)
+GrlDAAPRecordFactory *
+grl_daap_record_factory_new (void)
 {
 	return SIMPLE_DAAP_RECORD_FACTORY (g_object_new (TYPE_SIMPLE_DAAP_RECORD_FACTORY, NULL));
 }

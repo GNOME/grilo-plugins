@@ -7,35 +7,35 @@
 
 include $(top_srcdir)/gtester.mk
 
-ext_LTLIBRARIES	= libgrldmap.la
+ext_LTLIBRARIES	= libgrldaap.la
 
-libgrldmap_la_CFLAGS =	\
+libgrldaap_la_CFLAGS =	\
 	$(DEPS_DMAP_CFLAGS)	\
 	-DG_LOG_DOMAIN=\"GrlDmap\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
-libgrldmap_la_LIBADD =	\
+libgrldaap_la_LIBADD =	\
 	$(DEPS_DMAP_LIBS)
 
-libgrldmap_la_LDFLAGS =	\
+libgrldaap_la_LDFLAGS =	\
 	-no-undefined			\
 	-module					\
 	-avoid-version
 
-libgrldmap_la_SOURCES =				\
-	grl-dmap.c							\
-	grl-dmap.h							\
-	simple-daap-record.c				\
-	simple-daap-record.h				\
-	simple-daap-record-factory.c	\
-	simple-daap-record-factory.h	\
-	simple-dmap-db.c					\
-	simple-dmap-db.h
+libgrldaap_la_SOURCES =				\
+	grl-daap.c							\
+	grl-daap.h							\
+	grl-daap-record.c				\
+	grl-daap-record.h				\
+	grl-daap-record-factory.c	\
+	grl-daap-record-factory.h	\
+	grl-daap-db.c					\
+	grl-daap-db.h
 
 extdir			= $(GRL_PLUGINS_DIR)
-dmapxmldir		= $(GRL_PLUGINS_DIR)
-dmapxml_DATA	= $(DMAP_PLUGIN_ID).xml
+daapxmldir		= $(GRL_PLUGINS_DIR)
+daapxml_DATA	= $(DAAP_PLUGIN_ID).xml
 
-EXTRA_DIST    += $(dmapxml_DATA)
+EXTRA_DIST    += $(daapxml_DATA)
 
 -include $(top_srcdir)/git.mk

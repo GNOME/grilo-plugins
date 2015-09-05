@@ -23,6 +23,8 @@ libgrldaap_la_LDFLAGS =	\
 	-avoid-version
 
 libgrldaap_la_SOURCES =				\
+	grl-common.c						\
+	grl-common.h						\
 	grl-daap.c							\
 	grl-daap.h							\
 	grl-daap-record.c				\

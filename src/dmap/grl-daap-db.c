@@ -151,9 +151,11 @@ set_insert (GHashTable *category, const char *category_name, char *set_name, Grl
 }
 
 static guint
-grl_daap_db_add (DMAPDb *_db, DMAPRecord *record)
+grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
 {
   GrlDAAPDb *db = GRL_DAAP_DB (_db);
+  DAAPRecord *record = DAAP_RECORD (_record);
+
   gint   duration = 0;
   gint32  bitrate = 0,
             track = 0;
@@ -234,19 +236,6 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *record)
   g_object_unref (media);
 
   return --nextid;
-}
-
-static void
-grl_daap_db_interface_init (gpointer iface, gpointer data)
-{
-  DMAPDbIface *daap_db = iface;
-
-  g_assert (G_TYPE_FROM_INTERFACE (daap_db) == DMAP_TYPE_DB);
-
-  daap_db->add = grl_daap_db_add;
-  daap_db->lookup_by_id = grl_daap_db_lookup_by_id;
-  daap_db->foreach = grl_daap_db_foreach;
-  daap_db->count = grl_daap_db_count;
 }
 
 static gboolean
@@ -360,8 +349,19 @@ grl_daap_db_search (GrlDAAPDb *db,
   }
 }
 
+static void
+dmap_db_interface_init (gpointer iface, gpointer data)
+{
+  DMAPDbIface *daap_db = iface;
+
+  daap_db->add = grl_daap_db_add;
+  daap_db->lookup_by_id = grl_daap_db_lookup_by_id;
+  daap_db->foreach = grl_daap_db_foreach;
+  daap_db->count = grl_daap_db_count;
+}
+
 G_DEFINE_TYPE_WITH_CODE (GrlDAAPDb, grl_daap_db, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_DB, grl_daap_db_interface_init))
+                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_DB, dmap_db_interface_init))
 
 static GObject*
 grl_daap_db_constructor (GType type, guint n_construct_params, GObjectConstructParam *construct_params)

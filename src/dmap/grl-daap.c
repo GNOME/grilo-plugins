@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <libdmapsharing/dmap.h>
 
+#include "grl-common.h"
 #include "grl-daap.h"
 #include "grl-daap-db.h"
 #include "grl-daap-record.h"
@@ -63,23 +64,6 @@ struct _GrlDaapSourcePrivate {
 
 /* --- Data types --- */
 
-typedef struct _ResultCbAndArgs {
-  GrlSourceResultCb callback;
-  GrlSource *source;
-  GrlMedia *container;
-  guint op_id;
-  GHRFunc predicate;
-  gchar *predicate_data;
-  guint skip;
-  guint count;
-  gpointer user_data;
-} ResultCbAndArgs;
-
-typedef struct _ResultCbAndArgsAndDb {
-  ResultCbAndArgs cb;
-  GrlDAAPDb *db;
-} ResultCbAndArgsAndDb;
-
 static GrlDaapSource *grl_daap_source_new (DMAPMdnsBrowserService *service);
 
 static void grl_daap_source_finalize (GObject *object);
@@ -97,13 +81,13 @@ static void grl_daap_source_search (GrlSource *source,
                                     GrlSourceSearchSpec *ss);
 
 
-static void service_added_cb (DMAPMdnsBrowser *browser,
-                              DMAPMdnsBrowserService *service,
-                              GrlPlugin *plugin);
+static void grl_daap_service_added_cb (DMAPMdnsBrowser *browser,
+                                       DMAPMdnsBrowserService *service,
+                                       GrlPlugin *plugin);
 
-static void service_removed_cb (DMAPMdnsBrowser *browser,
-                                const gchar *service_name,
-                                GrlPlugin *plugin);
+static void grl_daap_service_removed_cb (DMAPMdnsBrowser *browser,
+                                         const gchar *service_name,
+                                         GrlPlugin *plugin);
 
 /* ===================== Globals  ======================= */
 static DMAPMdnsBrowser *browser;
@@ -135,12 +119,12 @@ grl_daap_plugin_init (GrlRegistry *registry,
 
   g_signal_connect (G_OBJECT (browser),
                     "service-added",
-                    G_CALLBACK (service_added_cb),
+                    G_CALLBACK (grl_daap_service_added_cb),
                     (gpointer) plugin);
 
   g_signal_connect (G_OBJECT (browser),
                     "service-removed",
-                    G_CALLBACK (service_removed_cb),
+                    G_CALLBACK (grl_daap_service_removed_cb),
                     (gpointer) plugin);
 
   if (!dmap_mdns_browser_start (browser, &error)) {
@@ -223,40 +207,31 @@ grl_daap_source_finalize (GObject *object)
 
 /* ======================= Utilities ==================== */
 
-static gchar *
-build_url (DMAPMdnsBrowserService *service)
-{
-  return g_strdup_printf ("%s://%s:%u",
-                          service->service_name,
-                          service->host,
-                          service->port);
-}
-
 static void
-do_browse (ResultCbAndArgsAndDb *cb_and_db)
+grl_daap_do_browse (ResultCbAndArgsAndDb *cb_and_db)
 {
-  grl_daap_db_browse (cb_and_db->db,
-                         cb_and_db->cb.container,
-                         cb_and_db->cb.source,
-                         cb_and_db->cb.op_id,
-                         cb_and_db->cb.skip,
-                         cb_and_db->cb.count,
-                         cb_and_db->cb.callback,
-                         cb_and_db->cb.user_data);
+  grl_daap_db_browse(GRL_DAAP_DB(cb_and_db->db),
+                     cb_and_db->cb.container,
+                     cb_and_db->cb.source,
+                     cb_and_db->cb.op_id,
+                     cb_and_db->cb.skip,
+                     cb_and_db->cb.count,
+                     cb_and_db->cb.callback,
+                     cb_and_db->cb.user_data);
 
   g_free (cb_and_db);
 }
 
 static void
-do_search (ResultCbAndArgsAndDb *cb_and_db)
+grl_daap_do_search (ResultCbAndArgsAndDb *cb_and_db)
 {
-  grl_daap_db_search (cb_and_db->db,
-                         cb_and_db->cb.source,
-                         cb_and_db->cb.op_id,
-                         (GHRFunc) cb_and_db->cb.predicate,
-                         cb_and_db->cb.predicate_data,
-                         cb_and_db->cb.callback,
-                         cb_and_db->cb.user_data);
+  grl_daap_db_search(GRL_DAAP_DB(cb_and_db->db),
+                     cb_and_db->cb.source,
+                     cb_and_db->cb.op_id,
+                     (GHRFunc) cb_and_db->cb.predicate,
+                     cb_and_db->cb.predicate_data,
+                     cb_and_db->cb.callback,
+                     cb_and_db->cb.user_data);
 
   g_free (cb_and_db);
 }
@@ -282,7 +257,7 @@ browse_connected_cb (DMAPConnection       *connection,
                             error);
     g_error_free (error);
   } else {
-    do_browse (cb_and_db);
+    grl_daap_do_browse (cb_and_db);
   }
 }
 
@@ -307,14 +282,14 @@ search_connected_cb (DMAPConnection       *connection,
                             error);
     g_error_free (error);
   } else {
-    do_search (cb_and_db);
+    grl_daap_do_search (cb_and_db);
   }
 }
 
 static void
-service_added_cb (DMAPMdnsBrowser *browser,
-                  DMAPMdnsBrowserService *service,
-                  GrlPlugin *plugin)
+grl_daap_service_added_cb (DMAPMdnsBrowser *browser,
+                           DMAPMdnsBrowserService *service,
+                           GrlPlugin *plugin)
 {
   GrlRegistry   *registry = grl_registry_get_default ();
   GrlDaapSource *source   = grl_daap_source_new (service);
@@ -333,9 +308,9 @@ service_added_cb (DMAPMdnsBrowser *browser,
 }
 
 static void
-service_removed_cb (DMAPMdnsBrowser *browser,
-                    const gchar *service_name,
-                    GrlPlugin *plugin)
+grl_daap_service_removed_cb (DMAPMdnsBrowser *browser,
+                             const gchar *service_name,
+                             GrlPlugin *plugin)
 {
   GrlRegistry   *registry = grl_registry_get_default ();
   GrlDaapSource *source   = g_hash_table_lookup (sources, service_name);
@@ -360,7 +335,7 @@ grl_daap_connect (gchar *name, gchar *host, guint port, ResultCbAndArgsAndDb *cb
 }
 
 static gboolean
-match (GrlMedia *media, gpointer val, gpointer user_data)
+grl_daap_match (GrlMedia *media, gpointer val, gpointer user_data)
 {
   g_assert (GRL_IS_MEDIA_AUDIO (media) || GRL_IS_MEDIA_VIDEO (media));
 
@@ -400,8 +375,8 @@ static void
 grl_daap_source_browse (GrlSource *source,
                         GrlSourceBrowseSpec *bs)
 {
-  GrlDaapSource *daap_source = GRL_DAAP_SOURCE (source);
-  gchar *url = build_url (daap_source->priv->service);
+  GrlDaapSource *dmap_source = GRL_DAAP_SOURCE (source);
+  gchar *url = grl_dmap_build_url (dmap_source->priv->service);
 
   GRL_DEBUG (__func__);
 
@@ -422,11 +397,11 @@ grl_daap_source_browse (GrlSource *source,
     browse_connected_cb (NULL, TRUE, NULL, cb_and_db);
   } else {
     /* Connect */
-    cb_and_db->db = grl_daap_db_new ();
+    cb_and_db->db = DMAP_DB (grl_daap_db_new ());
 
-    grl_daap_connect (daap_source->priv->service->name,
-                      daap_source->priv->service->host,
-                      daap_source->priv->service->port,
+    grl_daap_connect (dmap_source->priv->service->name,
+                      dmap_source->priv->service->host,
+                      dmap_source->priv->service->port,
                       cb_and_db,
                       (DMAPConnectionCallback) browse_connected_cb);
 
@@ -439,11 +414,11 @@ grl_daap_source_browse (GrlSource *source,
 static void grl_daap_source_search (GrlSource *source,
                                     GrlSourceSearchSpec *ss)
 {
-  GrlDaapSource *daap_source = GRL_DAAP_SOURCE (source);
+  GrlDaapSource *dmap_source = GRL_DAAP_SOURCE (source);
 
   ResultCbAndArgsAndDb *cb_and_db;
-  DMAPMdnsBrowserService *service = daap_source->priv->service;
-  gchar *url = build_url (service);
+  DMAPMdnsBrowserService *service = dmap_source->priv->service;
+  gchar *url = grl_dmap_build_url (service);
 
   cb_and_db = g_new (ResultCbAndArgsAndDb, 1);
 
@@ -451,7 +426,7 @@ static void grl_daap_source_search (GrlSource *source,
   cb_and_db->cb.source         = ss->source;
   cb_and_db->cb.container      = NULL;
   cb_and_db->cb.op_id          = ss->operation_id;
-  cb_and_db->cb.predicate      = (GHRFunc) match;
+  cb_and_db->cb.predicate      = (GHRFunc) grl_daap_match;
   cb_and_db->cb.predicate_data = ss->text;
   cb_and_db->cb.user_data      = ss->user_data;
 
@@ -460,7 +435,7 @@ static void grl_daap_source_search (GrlSource *source,
     search_connected_cb (NULL, TRUE, NULL, cb_and_db);
   } else {
     /* Connect */
-    cb_and_db->db = grl_daap_db_new ();
+    cb_and_db->db = DMAP_DB (grl_daap_db_new ());
     grl_daap_connect (service->name, service->host, service->port, cb_and_db, (DMAPConnectionCallback) search_connected_cb);
     g_hash_table_insert (connections, g_strdup (url), cb_and_db->db);
   }

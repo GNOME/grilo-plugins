@@ -313,7 +313,7 @@ grl_daap_db_search (GrlDAAPDb *db,
   gint i, j, k;
   guint remaining = 0;
   gpointer key1, val1, key2, val2;
-  GHashTable *hash_table[] = { db->priv->albums, db->priv->artists };
+  GHashTable *hash_tables[] = { db->priv->albums, db->priv->artists };
 
   /* Use hash table to avoid duplicates */
   GHashTable *results = NULL;
@@ -322,8 +322,8 @@ grl_daap_db_search (GrlDAAPDb *db,
   results = g_hash_table_new (g_str_hash, g_str_equal);
 
   /* For albums and artists... */
-  for (i = 0; i < G_N_ELEMENTS(hash_table); i++) {
-    g_hash_table_iter_init (&iter1, hash_table[i]);
+  for (i = 0; i < G_N_ELEMENTS(hash_tables); i++) {
+    g_hash_table_iter_init (&iter1, hash_tables[i]);
     /* For each album or artist in above... */
     for (j = 0; g_hash_table_iter_next (&iter1, &key1, &val1); j++) {
       if (GRL_IS_MEDIA_BOX (key1)) {

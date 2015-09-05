@@ -322,7 +322,7 @@ grl_daap_db_search (GrlDAAPDb *db,
   results = g_hash_table_new (g_str_hash, g_str_equal);
 
   /* For albums and artists... */
-  for (i = 0; i < 2; i++) {
+  for (i = 0; i < G_N_ELEMENTS(hash_table); i++) {
     g_hash_table_iter_init (&iter1, hash_table[i]);
     /* For each album or artist in above... */
     for (j = 0; g_hash_table_iter_next (&iter1, &key1, &val1); j++) {

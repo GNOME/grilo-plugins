@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-25 18:47+0200\n"
-"PO-Revision-Date: 2015-08-25 18:48+0200\n"
+"POT-Creation-Date: 2015-09-07 00:48+0200\n"
+"PO-Revision-Date: 2015-09-07 00:49+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -22,11 +22,6 @@ msgstr ""
 "|| n%100>=20) ? 1 : 2);\n"
 "X-Poedit-Language: Polish\n"
 "X-Poedit-Country: Poland\n"
-
-#: ../src/bliptv/grl-bliptv.c:60
-msgid "A source for browsing and searching Blip.tv videos"
-msgstr ""
-"Źródło do przeglądania i przeszukiwania nagrań wideo w serwisie Blip.tv"
 
 #: ../src/bookmarks/grl-bookmarks.c:67
 msgid "Bookmarks"
@@ -92,26 +87,35 @@ msgstr ""
 "Wysłanie się nie powiodło, brak adresu URL na obiekcie multimediów do "
 "przesłania"
 
-#: ../src/dmap/grl-dmap.c:51
+#: ../src/dmap/grl-daap.c:52
 #, c-format
-msgid "A source for browsing the DMAP server '%s'"
-msgstr "Źródło do przeglądania serwera DMAP „%s”"
+msgid "A source for browsing the DAAP server '%s'"
+msgstr "Źródło do przeglądania serwera DAAP „%s”"
 
-#: ../src/dmap/simple-dmap-db.c:62 ../src/jamendo/grl-jamendo.c:787
+#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:787
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Albumy"
 
-#: ../src/dmap/simple-dmap-db.c:64 ../src/jamendo/grl-jamendo.c:776
+#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:776
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Wykonawcy"
 
-#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1114
+#: ../src/dmap/grl-daap-db.c:287 ../src/jamendo/grl-jamendo.c:1114
 #: ../src/jamendo/grl-jamendo.c:1189 ../src/magnatune/grl-magnatune.c:834
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Nieprawidłowy identyfikator kontenera %s"
+
+#: ../src/dmap/grl-dpap.c:52
+#, c-format
+msgid "A source for browsing the DPAP server '%s'"
+msgstr "Źródło do przeglądania serwera DPAP „%s”"
+
+#: ../src/dmap/grl-dpap-db.c:36
+msgid "Photos"
+msgstr "Zdjęcia"
 
 #: ../src/filesystem/grl-filesystem.c:60
 msgid "Filesystem"
@@ -126,7 +130,7 @@ msgstr "Źródło do przeglądania systemu plików"
 msgid "File %s does not exist"
 msgstr "Plik %s nie istnieje"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1521
+#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1520
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Nie można pobrać multimediów z %s"
@@ -228,8 +232,8 @@ msgstr "Kanały"
 msgid "Invalid identifier %s"
 msgstr "Nieprawidłowy identyfikator %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1113
-#: ../src/youtube/grl-youtube.c:1246 ../src/youtube/grl-youtube.c:1458
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1112
+#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Nieprawidłowy identyfikator kategorii %s"
@@ -613,11 +617,11 @@ msgid "A source for browsing and searching YouTube videos"
 msgstr ""
 "Źródło do przeglądania i przeszukiwania nagrań wideo w serwisie YouTube"
 
-#: ../src/youtube/grl-youtube.c:872
+#: ../src/youtube/grl-youtube.c:871
 msgid "Failed to get feed"
 msgstr "Pobranie kanału się nie powiodło"
 
-#: ../src/youtube/grl-youtube.c:1049 ../src/youtube/grl-youtube.c:1437
+#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Nieprawidłowy identyfikator kanału %s"

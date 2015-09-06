@@ -1,6 +1,9 @@
 src/bookmarks/grl-bookmarks.c
 src/dleyna/grl-dleyna-source.c
+src/dmap/grl-daap.c
 src/dmap/grl-daap-db.c
+src/dmap/grl-dpap.c
+src/dmap/grl-dpap-db.c
 src/filesystem/grl-filesystem.c
 src/flickr/grl-flickr.c
 src/freebox/grl-freebox.c

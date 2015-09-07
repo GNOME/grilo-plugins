@@ -1,3 +1,137 @@
+NEW in 0.2.15
+=============
+
+  * Updated i18n
+  * Lot of improvements in Lua Factory
+  * Removed Blip.tv source (service shutdown)
+  * Apple Trailers plugin ported to Lua
+  * Pocket plugin ported to Lua
+
+  * General
+    * BGO#749063 - build: General git.mk and MAINTAINERCLEANFILES fixes
+
+  * Apple Trailers plugin
+    * BGO#752681 - Port Apple Trailers source to Lua
+
+  * Blip.tv plugin
+    * BGO#725031 - bliptv: Search return recent items' RSS instead of results
+
+  * Bookmarks plugin
+    * BGO#752066 - grl-bookmarks doesn't notify of removals
+
+  * dLeyna plugin
+    * BGO#749889 - dleyna: Fix grl_dleyna_util_uri_is_localhost() usage
+    * BGO#749890 - dleyna: Fix incorrect properties passed to applications
+
+  * DMAP plugin
+    * BGO#746722 - Add DPAP (iPhoto sharing) plugin
+
+  * Freebox plugin
+    * BGO#745179 - radios.m3u missing in the 0.2.14 tarball, build fails.
+
+  * Guardian Videos plugin
+    * BGO#748224 - guardianvideos: fix URL format string
+    * BGO#750990 - Fix unescaping Guardian Videos titles
+
+  * Local Mmetadata plugin
+    * BGO#746776 - local-metadata: Remove unused variable
+    * BGO#748604 - local-metadata: Don't crash on files named wsb.wmv
+    * BGO#752057 - local-metadata: Query for media art existence
+
+  * Lua Factory plugin
+    * BGO#741607 - WIP: Use lua to parse video titles
+    * BGO#741784 - lua-factory: testing
+    * BGO#747953 - Information leak via plain text HTTP connection
+    * BGO#750903 - Make it easier to access the API key config
+    * BGO#750955 - CRITICAL **: grl_l_callback: assertion 'os != NULL' failed
+    * BGO#750982 - Better sandboxing
+    * BGO#750983 - lua-factory: Add inspect.lua helper
+    * BGO#750990 - Fix unescaping Guardian Videos titles
+    * BGO#751786 - lua-factory: Fix possible memleak if source registration
+      fails
+    * BGO#751981 - Add support for GOA in lua-factory
+    * BGO#752593 - lua-factory: Add support for dates in Epoch format
+    * BGO#752594 - tests: Fix lua-factory Makefile generation
+    * BGO#752595 - lua-factory: Add grl.is_video_site() function
+    * BGO#752681 - Port Apple Trailers source to Lua
+    * BGO#752895 - lua-factory: Also try convert HTML from ISO8859-1
+    * BGO#752899 - lua-factory: Re-add "Music" GOA support
+
+  * Magnatune plugin
+    * BGO#751890 - Magnatune plugin doesn't invoke the callback in search
+      operations with 0 result
+
+  * Metrolyrics plugin
+    * BGO#754275 - Fix metrolyrics source and test
+
+  * OpenSubtitles plugin
+    * BGO#754451 - Opensubtitles plugin causes many warnings
+
+  * TheTVDB plugin
+    * BGO#748422 - thetvdb: Make it possible to hit only cache
+    * BGO#748423 - thetvdb: Fuzzy series name matching
+    * BGO#754489 - thetvdb: use https rather than insecure http
+
+  * Tracker plugin
+    * BGO#733582 - rhythmbox crashes with SIGSEGV in
+      tracker_evt_update_orphan_item_cb
+    * BGO#748173 - tracker: Do not advertise browse support for the Tracker
+      extractor
+    * BGO#748539 - Eliminate duplicates in grl-tracker search results
+    * BGO#753732 - tracker: track number is missing from grilo information
+
+  * YouTube plugin
+    * BGO#741634 - youtube: Home-made refcounting?!
+    * BGO#748395 - Update libgdata API usage
+    * BGO#754244 - Grilo YouTube plugin crash
+
+  * Contributors to this release:
+    Alberto Garcia <berto@igalia.com>
+    Alexandre Franke <alexandre.franke@gmail.com>
+    Anders Jonsson <anders.jonsson@norsjovallen.se>
+    Andika Triwidada <andika@gmail.com>
+    Ask H. Larsen <asklarsen@gmail.com>
+    Aurimas Černius <aurisc4@gmail.com>
+    Balázs Úr <urbalazs@gmail.com>
+    Bastien Nocera <hadess@hadess.net>
+    Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>
+    Claudio Arseni <claudio.arseni@gmail.com>
+    Colin Walters <walters@verbum.org>
+    Daniel Mustieles <daniel.mustieles@gmail.com>
+    Dušan Kazik <prescott66@gmail.com>
+    Efstathios Iosifidis <iefstathios@gmail.com>
+    Elad Alfassa <elad@fedoraproject.org>
+    Fran Dieguez <fran.dieguez@mabishu.com>
+    George Sedov <radist.morse@gmail.com>
+    Gil Forcada <gforcada@gnome.org>
+    Giovanni Campagna <gcampagn@cs.stanford.edu>
+    Iain Lane <iain@orangesquash.org.uk>
+    Inaki Larranaga Murgoitio <dooteo@zundan.com>
+    Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+    Jeremy Whiting <jpwhiting@kde.org>
+    Jordi Mas <jmas@softcatala.org>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Marek Černocký <marek@manet.cz>
+    Mathieu Duponchelle <mathieu.duponchelle@opencreed.com>
+    Necdet Yücel <necdetyucel@gmail.com>
+    Olivier Crête <olivier.crete@collabora.com>
+    Paul Seyfert <pseyfert@mathphys.fsk.uni-heidelberg.de>
+    Pedro Albuquerque <palbuquerque73@gmail.com>
+    Philip Withnall <philip@tecnocode.co.uk>
+    Philip Withnall <philip.withnall@collabora.co.uk>
+    Piotr Drąg <piotrdrag@gmail.com>
+    Rafael Ferreira <rafael.f.f1@gmail.com>
+    Samir Ribic <samir.ribic@etf.unsa.ba>
+    Seong-ho Cho <shcho@gnome.org>
+    Simon McVittie <simon.mcvittie@collabora.co.uk>
+    Victor Toso <me@victortoso.com>
+    W. Michael Petullo <mike@flyn.org>
+    Xavier Claessens <xavier.claessens@collabora.com>
+    Yosef Or Boczko <yoseforb@src.gnome.org>
+    Yuri Myasoedov <ymyasoedov@yandex.ru>
+    Мирослав Николић <miroslavnikolic@rocketmail.com>
+
+
 NEW in 0.2.14
 =============
 

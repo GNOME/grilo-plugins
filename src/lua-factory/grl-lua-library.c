@@ -265,18 +265,18 @@ grl_util_add_table_to_media (lua_State *L,
     lua_gettable (L, -2);
     switch (type) {
     case G_TYPE_INT:
-      if (lua_isinteger (L, -1))
+      if (lua_isnumber (L, -1))
         grl_data_add_int (GRL_DATA (media), key_id, lua_tointeger (L, -1));
       break;
 
     case G_TYPE_INT64:
-      if (lua_isinteger (L, -1))
+      if (lua_isnumber (L, -1))
         grl_data_add_int64 (GRL_DATA (media), key_id, lua_tointeger (L, -1));
       break;
 
     case G_TYPE_FLOAT:
       if (lua_isnumber (L, -1))
-        grl_data_add_float (GRL_DATA (media), key_id, lua_tonumber (L, -1));
+        grl_data_add_float (GRL_DATA (media), key_id, lua_tointeger (L, -1));
       break;
 
     case G_TYPE_STRING:
@@ -348,7 +348,7 @@ grl_util_build_media (lua_State *L,
 
       switch (type) {
       case G_TYPE_INT:
-        if (lua_isinteger (L, -1)) {
+        if (lua_isnumber (L, -1)) {
           grl_data_set_int (GRL_DATA (media), key_id, lua_tointeger (L, -1));
         } else if (lua_istable (L, -1)) {
           grl_util_add_table_to_media (L, media, key_id, key_name, type);
@@ -370,7 +370,7 @@ grl_util_build_media (lua_State *L,
         break;
 
       case G_TYPE_INT64:
-        if (lua_isinteger (L, -1)) {
+        if (lua_isnumber (L, -1)) {
           grl_data_set_int64 (GRL_DATA (media), key_id, lua_tointeger (L, -1));
         } else if (lua_istable (L, -1)) {
           grl_util_add_table_to_media (L, media, key_id, key_name, type);
@@ -498,7 +498,7 @@ grl_util_fetch_done (GObject *source_object,
   } else {
     lua_newtable (L);
     for (i = 0; i < fo->num_urls; i++) {
-      lua_pushinteger (L, i + 1);
+      lua_pushnumber (L, i + 1);
       lua_pushlstring (L, fo->results[i], strlen (fo->results[i]));
       lua_settable (L, -3);
     }
@@ -635,7 +635,7 @@ grl_util_unzip_done (GObject *source_object,
 
   lua_newtable (L);
   for (i = 0; results[i] != NULL; i++) {
-    lua_pushinteger (L, i + 1);
+    lua_pushnumber (L, i + 1);
     lua_pushlstring (L, results[i], strlen (results[i]));
     lua_settable (L, -3);
   }
@@ -674,7 +674,7 @@ net_wc_new_with_options(lua_State *L,
 
       } else if (g_strcmp0 (key, "cache-size") == 0 ||
                  g_strcmp0 (key, "cache_size") == 0) {
-        guint size = lua_tointeger (L, -1);
+        guint size = lua_tonumber (L, -1);
         grl_net_wc_set_cache_size (wc, size);
 
       } else if (g_strcmp0 (key, "cache") == 0) {
@@ -682,11 +682,11 @@ net_wc_new_with_options(lua_State *L,
         grl_net_wc_set_cache (wc, use_cache);
 
       } else if (g_strcmp0 (key, "throttling") == 0) {
-        guint throttling = lua_tointeger (L, -1);
+        guint throttling = lua_tonumber (L, -1);
         grl_net_wc_set_throttling (wc, throttling);
 
       } else if (g_strcmp0 (key, "loglevel") == 0) {
-        guint level = lua_tointeger (L, -1);
+        guint level = lua_tonumber (L, -1);
         grl_net_wc_set_log_level (wc, level);
 
       } else {
@@ -746,21 +746,21 @@ grl_l_operation_get_options (lua_State *L)
   if (g_strcmp0 (option, "count") == 0) {
     gint count = grl_operation_options_get_count (os->options);
 
-    lua_pushinteger (L, count);
+    lua_pushnumber (L, count);
     return 1;
   }
 
   if (g_strcmp0 (option, "skip") == 0) {
     guint skip = grl_operation_options_get_skip (os->options);
 
-    lua_pushinteger (L, skip);
+    lua_pushnumber (L, skip);
     return 1;
   }
 
   if (g_strcmp0 (option, "flags") == 0) {
     GrlResolutionFlags flags = grl_operation_options_get_resolution_flags (os->options);
 
-    lua_pushinteger (L, (gint) flags);
+    lua_pushnumber (L, (gint) flags);
     return 1;
   }
 
@@ -777,7 +777,7 @@ grl_l_operation_get_options (lua_State *L)
     value = grl_operation_options_get_key_filter (os->options, key);
     switch (grl_registry_lookup_metadata_key_type (registry, key)) {
     case G_TYPE_INT:
-      (value) ? (void) lua_pushinteger (L, g_value_get_int (value)) : lua_pushnil (L);
+      (value) ? (void) lua_pushnumber (L, g_value_get_int (value)) : lua_pushnil (L);
       break;
 
     case G_TYPE_FLOAT:
@@ -814,8 +814,8 @@ grl_l_operation_get_options (lua_State *L)
       grl_operation_options_get_key_range_filter (os->options, key, &min, &max);
       switch (grl_registry_lookup_metadata_key_type (registry, key)) {
       case G_TYPE_INT:
-        (min) ? (void) lua_pushinteger (L, g_value_get_int (min)) : lua_pushnil (L);
-        (max) ? (void) lua_pushinteger (L, g_value_get_int (max)) : lua_pushnil (L);
+        (min) ? (void) lua_pushnumber (L, g_value_get_int (min)) : lua_pushnil (L);
+        (max) ? (void) lua_pushnumber (L, g_value_get_int (max)) : lua_pushnil (L);
         break;
 
       case G_TYPE_FLOAT:
@@ -837,7 +837,7 @@ grl_l_operation_get_options (lua_State *L)
   }
 
   if (g_strcmp0 (option, "operation-id") == 0) {
-    lua_pushinteger (L, (gint) os->operation_id);
+    lua_pushnumber (L, (gint) os->operation_id);
     return 1;
   }
 
@@ -937,7 +937,7 @@ grl_l_media_get_keys (lua_State *L)
       type = grl_registry_lookup_metadata_key_type (registry, key_id);
       switch (type) {
       case G_TYPE_INT:
-        lua_pushinteger (L, grl_data_get_int (GRL_DATA (os->media), key_id));
+        lua_pushnumber (L, grl_data_get_int (GRL_DATA (os->media), key_id));
         break;
       case G_TYPE_FLOAT:
         lua_pushnumber (L, grl_data_get_float (GRL_DATA (os->media), key_id));
@@ -946,7 +946,7 @@ grl_l_media_get_keys (lua_State *L)
         lua_pushstring (L, grl_data_get_string (GRL_DATA (os->media), key_id));
         break;
       case G_TYPE_INT64:
-        lua_pushinteger (L, grl_data_get_int64 (GRL_DATA (os->media), key_id));
+        lua_pushnumber (L, grl_data_get_int64 (GRL_DATA (os->media), key_id));
         break;
       case G_TYPE_BOOLEAN:
         lua_pushboolean (L, grl_data_get_boolean (GRL_DATA (os->media), key_id));
@@ -1063,7 +1063,7 @@ grl_l_fetch (lua_State *L)
 * grl.callback
 *
 * @media: (table) The media content to be returned.
-* @count: (integer) Number of media remaining to the application.
+* @count: (number) Number of media remaining to the application.
 * @return: Nothing;
 */
 static gint
@@ -1087,7 +1087,7 @@ grl_l_callback (lua_State *L)
   media = (os->op_type == LUA_RESOLVE) ? os->media : NULL;
   if (nparam > 0) {
     media = grl_util_build_media (L, media);
-    count = (lua_isinteger (L, 2)) ? lua_tointeger (L, 2) : 0;
+    count = (lua_isnumber (L, 2)) ? lua_tonumber (L, 2) : 0;
   }
 
   switch (os->op_type) {

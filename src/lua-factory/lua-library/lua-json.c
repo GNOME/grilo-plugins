@@ -79,7 +79,7 @@ build_table_from_json_reader (lua_State *L,
     lua_createtable (L, num_elements, 0);
     for (index_element = 0; index_element < num_elements; index_element++) {
       json_reader_read_element (reader, index_element);
-      lua_pushinteger (L, index_element + 1);
+      lua_pushnumber (L, index_element + 1);
       build_table_from_json_reader (L, reader);
       json_reader_end_element (reader);
     }
@@ -95,7 +95,7 @@ build_table_from_json_reader (lua_State *L,
         lua_pushstring (L, json_reader_get_string_value (reader));
         break;
       case G_TYPE_INT64:
-        lua_pushinteger (L, json_reader_get_int_value (reader));
+        lua_pushnumber (L, json_reader_get_int_value (reader));
         break;
       case G_TYPE_DOUBLE:
         lua_pushnumber (L, json_reader_get_double_value (reader));

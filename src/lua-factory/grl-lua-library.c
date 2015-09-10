@@ -1321,7 +1321,7 @@ static gint
 grl_l_goa_consumer_key (lua_State *L)
 {
 #ifndef GOA_ENABLED
-  GRL_WARNING ("Source '%s' is broken as it tries to access gnome-online-accounts "
+  GRL_WARNING ("Source is broken as it tries to access gnome-online-accounts "
                "information, but it should not have been created");
   return 0;
 #else
@@ -1360,9 +1360,8 @@ static gint
 grl_l_goa_access_token (lua_State *L)
 {
 #ifndef GOA_ENABLED
-  GRL_WARNING ("Source '%s' is broken as it tries to access gnome-online-accounts "
-               "information, but it should not have been created",
-               grl_source_get_id (os->source));
+  GRL_WARNING ("Source is broken as it tries to access gnome-online-accounts "
+               "information, but it should not have been created");
   return 0;
 #else
   {

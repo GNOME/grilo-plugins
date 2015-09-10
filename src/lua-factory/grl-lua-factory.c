@@ -272,7 +272,9 @@ static void
 grl_lua_factory_plugin_deinit (GrlPlugin *plugin)
 {
   GCancellable *cancellable;
+#ifdef GOA_ENABLED
   GList *lua_init_sources, *it;
+#endif
 
   cancellable = g_object_get_data (G_OBJECT (plugin), "cancellable");
   if (cancellable) {
@@ -281,11 +283,13 @@ grl_lua_factory_plugin_deinit (GrlPlugin *plugin)
     g_object_set_data (G_OBJECT (plugin), "cancellable", NULL);
   }
 
+#ifdef GOA_ENABLED
   lua_init_sources = g_object_get_data (G_OBJECT (plugin), "lua-init-sources");
   for (it = lua_init_sources; it != NULL; it = it->next)
     grl_lua_goa_data_free (it->data);
   g_list_free (lua_init_sources);
   g_object_set_data (G_OBJECT (plugin), "lua-init-sources", NULL);
+#endif
 }
 
 GRL_PLUGIN_REGISTER (grl_lua_factory_plugin_init, grl_lua_factory_plugin_deinit, LUA_FACTORY_PLUGIN_ID);
@@ -908,7 +912,9 @@ handle_goa_sources (GList  *lua_sources,
 
   for (it = lua_sources; it; it = g_list_next (it)) {
     lua_State *L;
+#ifdef GOA_ENABLED
     GrlLuaGoaInitData *data;
+#endif
     const char *lua_account_provider;
     const char *lua_account_feature;
     int ret;
@@ -980,12 +986,14 @@ handle_goa_sources (GList  *lua_sources,
       continue;
     }
 
+#ifdef GOA_ENABLED
     data = g_new0 (GrlLuaGoaInitData, 1);
     data->lua_source_path = g_strdup (it->data);
     data->lua_account_provider = g_strdup (lua_account_provider);
     data->lua_account_feature = g_strdup (lua_account_feature);
 
     new_goa_sources = g_list_prepend (new_goa_sources, data);
+#endif
 
     lua_close (L);
   }

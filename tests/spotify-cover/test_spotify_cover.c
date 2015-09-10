@@ -22,7 +22,7 @@
 
 #include <grilo.h>
 
-#define LASTFM_ALBUMART_ID "grl-lastfm-albumart"
+#define LASTFM_ALBUMART_ID "grl-spotify-cover"
 
 static GrlMedia *
 build_media_audio (const gchar *artist,
@@ -156,7 +156,7 @@ test_resolve_good_found (void)
   source = grl_registry_lookup_source (registry, LASTFM_ALBUMART_ID);
   g_assert (source);
 
-  media = build_media_audio ("madonna", "frozen");
+  media = build_media_audio ("madonna", "ray of light");
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
 
@@ -169,58 +169,16 @@ test_resolve_good_found (void)
 
   /* We should get 5 thumbnails */
   expected_n_thumbnails = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_THUMBNAIL);
-  g_assert_cmpuint (expected_n_thumbnails, ==, 5);
+  g_assert_cmpuint (expected_n_thumbnails, ==, 3);
   g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 0),
                    ==,
-                   "http://userserve-ak.last.fm/serve/500/76737256.png");
+                   "https://i.scdn.co/image/246565c45ea4085d5b3889619fa1112ec6d42eed");
   g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 1),
                    ==,
-                   "http://userserve-ak.last.fm/serve/252/76737256.png");
+                   "https://i.scdn.co/image/f89849d36862a9dd2807be1d6d07eb0159c26673");
   g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 2),
                    ==,
-                   "http://userserve-ak.last.fm/serve/126/76737256.png");
-  g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 3),
-                   ==,
-                   "http://userserve-ak.last.fm/serve/64s/76737256.png");
-  g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 4),
-                   ==,
-                   "http://userserve-ak.last.fm/serve/34s/76737256.png");
-
-  g_list_free (keys);
-  g_object_unref (options);
-  g_object_unref (media);
-}
-
-static void
-test_resolve_good_found_default (void)
-{
-  GError *error = NULL;
-  GList *keys;
-  GrlMedia *media;
-  GrlOperationOptions *options;
-  GrlRegistry *registry;
-  GrlSource *source;
-  guint expected_n_thumbnails;
-
-  registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, LASTFM_ALBUMART_ID);
-  g_assert (source);
-
-  media = build_media_audio ("madonna", "frocen");
-
-  keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
-
-  options = grl_operation_options_new (NULL);
-  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
-
-  grl_source_resolve_sync (source, media, keys, options, &error);
-
-  g_assert_no_error (error);
-
-  /* We should get 0 thumbnails */
-  expected_n_thumbnails = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_THUMBNAIL);
-  g_assert_cmpuint (expected_n_thumbnails, ==, 0);
-  g_assert (!grl_media_get_thumbnail (media));
+                   "https://i.scdn.co/image/cfa2d86696ff7cd8ea862f50ed05d086f1d66521");
 
   g_list_free (keys);
   g_object_unref (options);
@@ -242,12 +200,12 @@ test_resolve_good_not_found (void)
   source = grl_registry_lookup_source (registry, LASTFM_ALBUMART_ID);
   g_assert (source);
 
-  media = build_media_audio ("madonna", "unknown");
+  media = build_media_audio ("madonna", "ray of darkness");
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
 
   options = grl_operation_options_new (NULL);
-  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_NORMAL);
 
   grl_source_resolve_sync (source, media, keys, options, &error);
 
@@ -283,7 +241,7 @@ test_resolve_missing_key (void)
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL, NULL);
 
   options = grl_operation_options_new (NULL);
-  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_NORMAL);
 
   grl_source_resolve_sync (source, media, keys, options, &error);
 
@@ -302,9 +260,10 @@ test_resolve_missing_key (void)
 int
 main(int argc, char **argv)
 {
-  g_setenv ("GRL_PLUGIN_PATH", LASTFM_ALBUMART_PLUGIN_PATH, TRUE);
-  g_setenv ("GRL_PLUGIN_LIST", LASTFM_ALBUMART_ID, TRUE);
-  g_setenv ("GRL_NET_MOCKED", LASTFM_ALBUMART_DATA_PATH "network-data.ini", TRUE);
+  g_setenv ("GRL_PLUGIN_PATH", LUA_FACTORY_PLUGIN_PATH, TRUE);
+  g_setenv ("GRL_LUA_SOURCES_PATH", LUA_SOURCES_PATH, TRUE);
+  g_setenv ("GRL_PLUGIN_LIST", "grl-lua-factory", TRUE);
+  g_setenv ("GRL_NET_MOCKED", SPOTIFY_COVER_DATA_PATH "network-data.ini", TRUE);
 
   grl_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
@@ -315,14 +274,13 @@ main(int argc, char **argv)
 
   test_setup ();
 
-  g_test_add_func ("/lastfm-albumart/may-resolve/good", test_may_resolve_good);
-  g_test_add_func ("/lastfm-albumart/may-resolve/wrong-key", test_may_resolve_wrong_key);
-  g_test_add_func ("/lastfm-albumart/may-resolve/missing-key", test_may_resolve_missing_key);
-  g_test_add_func ("/lastfm-albumart/may-resolve/missing-media", test_may_resolve_missing_media);
-  g_test_add_func ("/lastfm-albumart/resolve/good-found", test_resolve_good_found);
-  g_test_add_func ("/lastfm-albumart/resolve/good-found-default", test_resolve_good_found_default);
-  g_test_add_func ("/lastfm-albumart/resolve/good-not-found", test_resolve_good_not_found);
-  g_test_add_func ("/lastfm-albumart/resolve/missing-key", test_resolve_missing_key);
+  g_test_add_func ("/spotify-cover/may-resolve/good", test_may_resolve_good);
+  g_test_add_func ("/spotify-cover/may-resolve/wrong-key", test_may_resolve_wrong_key);
+  g_test_add_func ("/spotify-cover/may-resolve/missing-key", test_may_resolve_missing_key);
+  g_test_add_func ("/spotify-cover/may-resolve/missing-media", test_may_resolve_missing_media);
+  g_test_add_func ("/spotify-cover/resolve/good-found", test_resolve_good_found);
+  g_test_add_func ("/spotify-cover/resolve/good-not-found", test_resolve_good_not_found);
+  g_test_add_func ("/spotify-cover/resolve/missing-key", test_resolve_missing_key);
 
   gint result = g_test_run ();
 

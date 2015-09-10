@@ -1276,7 +1276,7 @@ AC_CONFIG_FILES([
   tests/Makefile
   tests/dleyna/Makefile
   tests/dleyna/dbusmock/dleyna-server-mock.service
-  tests/lastfm-albumart/Makefile
+  tests/spotify-cover/Makefile
   tests/local-metadata/Makefile
   tests/lua-factory/Makefile
   tests/lua-factory/sources/Makefile

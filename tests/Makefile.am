@@ -13,16 +13,12 @@ if DLEYNA_PLUGIN
 SUBDIRS += dleyna
 endif
 
-if LASTFM_ALBUMART_PLUGIN
-SUBDIRS += lastfm-albumart
-endif
-
 if LOCALMETADATA_PLUGIN
 SUBDIRS += local-metadata
 endif
 
 if LUA_FACTORY_PLUGIN
-SUBDIRS += lua-factory
+SUBDIRS += lua-factory spotify-cover
 endif
 
 if TMDB_PLUGIN
@@ -39,7 +35,7 @@ endif
 
 DIST_SUBDIRS =    \
    dleyna         \
-   lastfm-albumart\
+   spotify-cover  \
    local-metadata \
    lua-factory    \
    tmdb           \

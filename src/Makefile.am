@@ -38,10 +38,6 @@ if JAMENDO_PLUGIN
 SUBDIRS += jamendo
 endif
 
-if LASTFM_ALBUMART_PLUGIN
-SUBDIRS += lastfm-albumart
-endif
-
 if LOCALMETADATA_PLUGIN
 SUBDIRS += local-metadata
 endif
@@ -104,7 +100,7 @@ endif
 
 DIST_SUBDIRS = \
    bookmarks dleyna dmap filesystem flickr freebox gravatar jamendo \
-   lastfm-albumart local-metadata lua-factory magnatune metadata-store opensubtitles \
+   local-metadata lua-factory magnatune metadata-store opensubtitles \
    optical-media podcasts raitv shoutcast thetvdb tmdb tracker vimeo youtube
 
 -include $(top_srcdir)/git.mk

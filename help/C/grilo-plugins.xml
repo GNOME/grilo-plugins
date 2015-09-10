@@ -95,11 +95,6 @@
 <para>This is a Grilo plugin for Jamendo. Its plugin ID is <literal>"grl-jamendo"</literal></para>
 </sect1>
 
-<sect1 id="sec-plugin-lastfm-albumart">
-<title>LastFM Album Art</title>
-<para>This is a Grilo plugin for LastFM album art. Its plugin ID is <literal>"grl-lastfm-albumart"</literal></para>
-</sect1>
-
 <sect1 id="sec-plugin-local-metadata">
 <title>Local Metadata</title>
 <para>This is a Grilo plugin for Local metadata. Its plugin ID is <literal>"grl-local-metadata"</literal></para>

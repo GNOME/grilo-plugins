@@ -357,49 +357,6 @@ DEPS_JAMENDO_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS"
 AC_SUBST(DEPS_JAMENDO_LIBS)
 
 # ----------------------------------------------------------
-# BUILD LASTFM ALBUM ART PLUGIN
-# ----------------------------------------------------------
-
-AC_ARG_ENABLE(lastfm_albumart,
-        AC_HELP_STRING([--enable-lastfm-albumart],
-                [enable Last.FM Album Art plugin (default: auto)]),
-        [
-                case "$enableval" in
-                     yes)
-                        if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-lastfm-albumart])
-                        fi
-                        if test "x$HAVE_XML" = "xno"; then
-                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-lastfm-albumart])
-                        fi
-                        ;;
-                esac
-        ],
-        [
-                if test "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_XML" = "xyes"; then
-                   enable_lastfm_albumart=yes
-                else
-                   enable_lastfm_albumart=no
-                fi
-        ])
-
-AM_CONDITIONAL([LASTFM_ALBUMART_PLUGIN], [test "x$enable_lastfm_albumart" = "xyes"])
-GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL lastfm-albumart"
-if test "x$enable_lastfm_albumart" = "xyes"
-then
-	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED lastfm-albumart"
-fi
-
-LASTFM_ALBUMART_PLUGIN_ID="grl-lastfm-albumart"
-AC_SUBST(LASTFM_ALBUMART_PLUGIN_ID)
-AC_DEFINE_UNQUOTED([LASTFM_ALBUMART_PLUGIN_ID], ["$LASTFM_ALBUMART_PLUGIN_ID"], [Last.fm album art plugin ID])
-
-DEPS_LASTFM_ALBUMART_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS"
-AC_SUBST(DEPS_LASTFM_ALBUMART_CFLAGS)
-DEPS_LASTFM_ALBUMART_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS"
-AC_SUBST(DEPS_LASTFM_ALBUMART_LIBS)
-
-# ----------------------------------------------------------
 # BUILD YOUTUBE PLUGIN
 # ----------------------------------------------------------
 
@@ -1301,7 +1258,6 @@ AC_CONFIG_FILES([
   src/freebox/Makefile
   src/gravatar/Makefile
   src/jamendo/Makefile
-  src/lastfm-albumart/Makefile
   src/local-metadata/Makefile
   src/lua-factory/Makefile
   src/lua-factory/sources/Makefile

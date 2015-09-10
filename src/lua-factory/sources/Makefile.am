@@ -10,6 +10,7 @@ include $(top_srcdir)/gtester.mk
 lua_sources_DATA =					\
 	grl-metrolyrics.lua				\
 	grl-spotify-cover.lua				\
+	grl-lastfm-cover.lua				\
 	grl-radiofrance.lua				\
 	grl-euronews.lua				\
 	grl-guardianvideos.lua				\

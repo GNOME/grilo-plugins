@@ -33,7 +33,6 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-apple-trailers \
                             --enable-freebox \
                             --enable-gravatar \
                             --enable-jamendo \
-                            --enable-lastfm-albumart \
                             --enable-localmetadata \
                             --enable-lua-factory \
                             --enable-magnatune \

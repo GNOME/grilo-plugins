@@ -73,8 +73,8 @@ struct _GrlFilesystemSourcePrivate {
   gboolean handle_pls;
   /* a mapping operation_id -> GCancellable to cancel this operation */
   GHashTable *cancellables;
-  /* Monitors for changes in directories */
-  GList *monitors;
+  /* URI -> GFileMonitor */
+  GHashTable *monitors;
   GCancellable *cancellable_monitors;
 };
 
@@ -247,6 +247,8 @@ grl_filesystem_source_init (GrlFilesystemSource *source)
 {
   source->priv = GRL_FILESYSTEM_SOURCE_GET_PRIVATE (source);
   source->priv->cancellables = g_hash_table_new (NULL, NULL);
+  source->priv->monitors = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                  g_free, g_object_unref);
 }
 
 static void
@@ -255,6 +257,7 @@ grl_filesystem_source_finalize (GObject *object)
   GrlFilesystemSource *filesystem_source = GRL_FILESYSTEM_SOURCE (object);
   g_list_free_full (filesystem_source->priv->chosen_uris, g_free);
   g_hash_table_unref (filesystem_source->priv->cancellables);
+  g_hash_table_unref (filesystem_source->priv->monitors);
   G_OBJECT_CLASS (grl_filesystem_source_parent_class)->finalize (object);
 }
 
@@ -928,73 +931,108 @@ directory_changed (GFileMonitor *monitor,
                    gpointer data)
 {
   GrlSource *source = GRL_SOURCE (data);
-  GFile *file_parent, *other_file_parent;
+  GrlFilesystemSource *fs_source = GRL_FILESYSTEM_SOURCE (data);
+  GFileInfo *info = NULL;
 
-  if (event == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT ||
-      event == G_FILE_MONITOR_EVENT_CREATED) {
-    GFileInfo *info;
-    info = g_file_query_info (file, grl_pls_get_file_attributes (), G_FILE_QUERY_INFO_NONE, NULL, NULL);
-    if (info && file_is_valid_content (info, TRUE, NULL)) {
-      notify_parent_change (source,
-                            file,
-                            (event == G_FILE_MONITOR_EVENT_CREATED)? GRL_CONTENT_ADDED: GRL_CONTENT_CHANGED);
-      if (event == G_FILE_MONITOR_EVENT_CREATED) {
-        if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-          add_monitor (GRL_FILESYSTEM_SOURCE (source), file);
-        }
-      }
-    }
-    g_object_unref (info);
-  } else if (event == G_FILE_MONITOR_EVENT_DELETED) {
-    notify_parent_change (source, file, GRL_CONTENT_REMOVED);
-  } else if (event == G_FILE_MONITOR_EVENT_MOVED) {
-    GFileInfo *info;
-    info = g_file_query_info (file, grl_pls_get_file_attributes (), G_FILE_QUERY_INFO_NONE, NULL, NULL);
-    if (file_is_valid_content (info, TRUE, NULL)) {
-      file_parent = g_file_get_parent (file);
-      other_file_parent = g_file_get_parent (other_file);
+  /* Keep only signals we are interested in */
+  if (event != G_FILE_MONITOR_EVENT_CREATED &&
+      event != G_FILE_MONITOR_EVENT_CHANGED &&
+      event != G_FILE_MONITOR_EVENT_MOVED &&
+      event != G_FILE_MONITOR_EVENT_DELETED)
+    return;
 
-      if (g_file_equal (file_parent, other_file_parent) == 0) {
-        notify_parent_change (source, file, GRL_CONTENT_CHANGED);
-      } else {
-        notify_parent_change (source, file, GRL_CONTENT_REMOVED);
-        notify_parent_change (source, other_file, GRL_CONTENT_ADDED);
-      }
-      g_object_unref (file_parent);
-      g_object_unref (other_file_parent);
-    }
+  /* File DELETED */
+  if (event == G_FILE_MONITOR_EVENT_DELETED) {
+    gchar *uri;
+
+    /* Avoid duplicated notification when a directory being monitored is
+     * deleted. The signal will be emitted by the monitor tracking its parent.
+     */
+    uri = g_file_get_uri (file);
+    if (g_hash_table_lookup (fs_source->priv->monitors, uri) != monitor)
+      notify_parent_change (source, file, GRL_CONTENT_REMOVED);
+    g_free (uri);
+
+    goto out;
   }
+
+  /* Query the file and leave if we are not interested in it */
+  info = g_file_query_info (file,
+                            grl_pls_get_file_attributes (),
+                            G_FILE_QUERY_INFO_NONE,
+                            NULL, NULL);
+  if (!info || !file_is_valid_content (info, TRUE, NULL))
+    goto out;
+
+  /* File CHANGED */
+  if (event == G_FILE_MONITOR_EVENT_CHANGED) {
+    notify_parent_change (source, file, GRL_CONTENT_CHANGED);
+    goto out;
+  }
+
+  /* File CREATED */
+  if (event == G_FILE_MONITOR_EVENT_CREATED) {
+    notify_parent_change (source, file, GRL_CONTENT_ADDED);
+    if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY)
+      add_monitor (GRL_FILESYSTEM_SOURCE (source), file);
+    goto out;
+  }
+
+  /* File MOVED */
+  if (event == G_FILE_MONITOR_EVENT_MOVED) {
+    GFile *file_parent = g_file_get_parent (file);
+    GFile *other_file_parent = g_file_get_parent (other_file);
+
+    if (g_file_equal (file_parent, other_file_parent)) {
+      notify_parent_change (source, file, GRL_CONTENT_CHANGED);
+    } else {
+      notify_parent_change (source, file, GRL_CONTENT_REMOVED);
+      notify_parent_change (source, other_file, GRL_CONTENT_ADDED);
+    }
+
+    g_object_unref (file_parent);
+    g_object_unref (other_file_parent);
+    goto out;
+  }
+
+out:
+  g_clear_object (&info);
 }
 
 static void
 cancel_monitors (GrlFilesystemSource *fs_source)
 {
-  g_list_foreach (fs_source->priv->monitors,
-                  (GFunc) g_file_monitor_cancel,
-                  NULL);
-  g_list_free_full (fs_source->priv->monitors, g_object_unref);
-  fs_source->priv->monitors = NULL;
+  /* That table holds the only ref to our GFileMonitor, and dispose will
+   * cancel them. */
+  g_hash_table_remove_all (fs_source->priv->monitors);
 }
 
 static void
 add_monitor (GrlFilesystemSource *fs_source, GFile *dir)
 {
   GFileMonitor *monitor;
+  gchar *uri;
+
+  uri = g_file_get_uri (dir);
+  if (g_hash_table_contains (fs_source->priv->monitors, uri))
+    goto out;
 
   monitor = g_file_monitor_directory (dir, G_FILE_MONITOR_SEND_MOVED, NULL, NULL);
-  if (monitor) {
-    fs_source->priv->monitors = g_list_prepend (fs_source->priv->monitors,
-                                                monitor);
-    g_signal_connect (monitor,
-                      "changed",
-                      G_CALLBACK (directory_changed),
-                      fs_source);
-  } else {
-    char *uri;
-    uri = g_file_get_uri (dir);
+  if (!monitor) {
     GRL_DEBUG ("Unable to set up monitor in %s\n", uri);
-    g_free (uri);
+    goto out;
   }
+
+  /* transfer ownership of uri and monitor */
+  g_hash_table_insert (fs_source->priv->monitors, uri, monitor);
+  g_signal_connect (monitor,
+                    "changed",
+                    G_CALLBACK (directory_changed),
+                    fs_source);
+  uri = NULL;
+
+out:
+  g_free (uri);
 }
 
 static gboolean

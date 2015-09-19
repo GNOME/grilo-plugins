@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/gnome/grilo/plugins/test/lua-factory/">
+    <file compressed="false">data/grl-media-test-all-metadata.json</file>
+  </gresource>
+</gresources>

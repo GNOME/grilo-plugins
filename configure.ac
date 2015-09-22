@@ -63,12 +63,12 @@ if test "x$enable_uninstalled" = "xyes"; then
         AC_MSG_WARN("Configuring for running uninstalled!")
 	GRL_VERSION=uninstalled
 else
-	GRL_VERSION=0.2
+	GRL_VERSION=0.3
 fi
 
 GRL_NAME=grilo-${GRL_VERSION}
-GRLNET_NAME=grilo-net-${GRL_VERSION}
-GRLPLS_NAME=grilo-pls-${GRL_VERSION}
+GRLNET_NAME=grilo-net-0.2
+GRLPLS_NAME=grilo-pls-0.2
 
 # ----------------------------------------------------------
 # DEBUG SUPPORT
@@ -90,7 +90,7 @@ fi
 PKG_CHECK_MODULES([DEPS], glib-2.0 >= 2.36      \
 			  gobject-2.0   \
 			  gmodule-2.0   \
-			  ${GRL_NAME} >= 0.2.12)
+			  ${GRL_NAME} >= 0.3.0)
 
 GLIB_COMPILE_RESOURCES=`$PKG_CONFIG --variable glib_compile_resources gio-2.0`
 AC_SUBST(GLIB_COMPILE_RESOURCES)

@@ -6,7 +6,7 @@
 # Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
 
 m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.2.15])
+m4_define([prj_version], [0.3.0])
 
 AC_INIT([prj_name],
         [prj_version],
@@ -67,8 +67,8 @@ else
 fi
 
 GRL_NAME=grilo-${GRL_VERSION}
-GRLNET_NAME=grilo-net-0.2
-GRLPLS_NAME=grilo-pls-0.2
+GRLNET_NAME=grilo-net-${GRL_VERSION}
+GRLPLS_NAME=grilo-pls-${GRL_VERSION}
 
 # ----------------------------------------------------------
 # DEBUG SUPPORT
@@ -109,10 +109,10 @@ AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
 # EXTERNAL/OPTIONAL DEPENDENCIES
 # ----------------------------------------------------------
 
-PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} >= 0.2.2],
+PKG_CHECK_MODULES([GRLNET], [${GRLNET_NAME} >= 0.3.0],
 			    HAVE_GRLNET=yes,
 			    HAVE_GRLNET=no)
-PKG_CHECK_MODULES([GRLPLS], [${GRLPLS_NAME} >= 0.2.0],
+PKG_CHECK_MODULES([GRLPLS], [${GRLPLS_NAME} >= 0.3.0],
 			    HAVE_GRLPLS=yes,
 			    HAVE_GRLPLS=no)
 
@@ -324,7 +324,7 @@ AC_ARG_ENABLE(jamendo,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-jamendo])
+                           AC_MSG_ERROR([grilo-net-${GRL_VERSION} >= 0.3.0 not found, install it or use --disable-jamendo])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-jamendo])
@@ -367,7 +367,7 @@ AC_ARG_ENABLE(youtube,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2  not found, install it or use --disable-youtube])
+                           AC_MSG_ERROR([grilo-net-${GRL_VERSION} >= 0.3.0  not found, install it or use --disable-youtube])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-youtube])
@@ -416,7 +416,7 @@ AC_ARG_ENABLE(flickr,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-flickr])
+                           AC_MSG_ERROR([grilo-net-${GRL_VERSION} >= 0.3.0 not found, install it or use --disable-flickr])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-flickr])
@@ -470,7 +470,7 @@ AC_ARG_ENABLE(podcasts,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-podcasts])
+                           AC_MSG_ERROR([grilo-net-${GRL_VERSION} >= 0.3.0 not found, install it or use --disable-podcasts])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-podcasts])
@@ -568,7 +568,7 @@ AC_ARG_ENABLE(shoutcast,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-shoutcast])
+                           AC_MSG_ERROR([grilo-net-${GRL_VERSION} >= 0.3.0 not found, install it or use --disable-shoutcast])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-shoutcast])
@@ -614,7 +614,7 @@ AC_ARG_ENABLE(magnatune,
                            AC_MSG_ERROR([sqlite3 not found, install it or use --disable-magnatune])
                         fi
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-magnatune])
+                           AC_MSG_ERROR([grilo-net-${GRL_VERSION} >= 0.3.0 not found, install it or use --disable-magnatune])
                         fi
                         ;;
                 esac
@@ -752,7 +752,7 @@ AC_ARG_ENABLE(vimeo,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-vimeo])
+                           AC_MSG_ERROR([grilo-net-${GRL_VERSION} >= 0.3.0 not found, install it or use --disable-vimeo])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-vimeo])
@@ -867,7 +867,7 @@ AC_ARG_ENABLE(raitv,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-raitv])
+                           AC_MSG_ERROR([grilo-net-${GRL_VERSION} >= 0.3.0 not found, install it or use --disable-raitv])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-raitv])
@@ -1056,7 +1056,7 @@ AC_ARG_ENABLE(thetvdb,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLNET" = "xno"; then
-                           AC_MSG_ERROR([grilo-net-0.2 >= 0.2.2 not found, install it or use --disable-thetvdb])
+                           AC_MSG_ERROR([grilo-net-${GRL_VERSION} >= 0.3.0 not found, install it or use --disable-thetvdb])
                         fi
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-thetvdb])
@@ -1139,7 +1139,7 @@ AC_ARG_ENABLE(freebox,
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GRLPLS" = "xno"; then
-                           AC_MSG_ERROR([grilo-pls-0.2 >= 0.2.0 not found, install it or use --disable-freebox])
+                           AC_MSG_ERROR([grilo-pls-${GRL_VERSION} >= 0.3.0 not found, install it or use --disable-freebox])
                         fi
                         if test "x$HAVE_AVAHI" = "xno"; then
                            AC_MSG_ERROR([avahi not found, install it or use --disable-freebox])

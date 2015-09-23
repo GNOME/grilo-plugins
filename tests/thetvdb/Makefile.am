@@ -14,7 +14,7 @@ TEST_PROGS +=	\
 
 test_thetvdb_defines =	\
 	-DTHETVDB_PLUGIN_PATH=\""$(abs_top_builddir)/src/thetvdb/.libs/"\"	\
-	-DTHETVDB_PLUGIN_TEST_DATA_PATH=\""$(abs_top_builddir)/tests/thetvdb/data/"\"
+	-DTHETVDB_PLUGIN_TEST_DATA_PATH=\""$(abs_top_srcdir)/tests/thetvdb/data/"\"
 
 test_thetvdb_resolve_shows_SOURCES =	\
 	test_thetvdb_resolve_shows.c	\
@@ -61,6 +61,7 @@ dist_noinst_DATA =		\
 	data/felicity_series_all_en.zip		\
 	data/house_get_series.txt		\
 	data/house_series_all_en.zip		\
+	data/les_experts_miami_get_series.txt	\
 	data/naruto_get_series.txt		\
 	data/naruto_series_all_en.zip
 

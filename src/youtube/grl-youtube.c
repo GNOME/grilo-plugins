@@ -286,13 +286,6 @@ grl_youtube_plugin_init (GrlRegistry *registry,
   }
   format = grl_config_get_string (config, "format");
 
-#if !GLIB_CHECK_VERSION(2,32,0)
-  /* libgdata needs this */
-  if (!g_thread_supported()) {
-    g_thread_init (NULL);
-  }
-#endif
-
   source = grl_youtube_source_new (api_key, YOUTUBE_CLIENT_ID, format);
 
   grl_registry_register_source (registry,

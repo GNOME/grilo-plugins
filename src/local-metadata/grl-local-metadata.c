@@ -337,13 +337,8 @@ got_file_info (GFile *file,
 
   thumbnail_path =
       g_file_info_get_attribute_byte_string (info, G_FILE_ATTRIBUTE_THUMBNAIL_PATH);
-#if GLIB_CHECK_VERSION (2, 39, 0)
   thumbnail_is_valid =
       g_file_info_get_attribute_boolean (info, G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID);
-#else
-  thumbnail_is_valid = TRUE;
-#endif
-
 
   if (thumbnail_path && thumbnail_is_valid) {
     gchar *thumbnail_uri = g_filename_to_uri (thumbnail_path, NULL, &error);
@@ -413,12 +408,8 @@ resolve_image (ResolveData         *resolve_data,
 
     cancellable = resolve_data_ensure_cancellable (resolve_data);
 
-#if GLIB_CHECK_VERSION (2, 39, 0)
     attributes = G_FILE_ATTRIBUTE_THUMBNAIL_PATH "," \
                  G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID;
-#else
-    attributes = G_FILE_ATTRIBUTE_THUMBNAIL_PATH;
-#endif
 
     g_file_query_info_async (file, attributes,
                              G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT, cancellable,

@@ -162,10 +162,6 @@ main (gint argc, gchar **argv)
   grl_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
 
-#if !GLIB_CHECK_VERSION(2,32,0)
-  g_thread_init (NULL);
-#endif
-
   test_setup_thetvdb ();
 
   g_test_add_func ("/thetvdb/resolve/episodes_from_episode", test_episodes_from_episode);

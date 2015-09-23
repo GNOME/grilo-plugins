@@ -57,10 +57,6 @@ resolve_cb (GrlSource *src, guint operation_id, GrlMedia *media, gpointer user_d
 
 int main (int argc, char *argv[])
 {
-#if !GLIB_CHECK_VERSION(2,35,0)
-  g_type_init ();
-#endif
-
   grl_init (&argc, &argv);
 
   /*

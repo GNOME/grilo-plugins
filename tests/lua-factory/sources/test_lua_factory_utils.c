@@ -40,10 +40,6 @@ test_lua_factory_init (gint *p_argc,
 
   grl_init (p_argc, p_argv);
   g_test_init (p_argc, p_argv, NULL);
-
-#if !GLIB_CHECK_VERSION(2,32,0)
-  g_thread_init (NULL);
-#endif
 }
 
 void

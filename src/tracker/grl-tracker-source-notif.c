@@ -375,10 +375,7 @@ tracker_evt_update_items_cb (gpointer              key,
 
   GRL_DEBUG ("%s: evt=%p", __FUNCTION__, evt);
 
-  if (!source) {
-    g_assert ("\tnot in cache ???");
-    return;
-  }
+  g_assert (source != NULL);
 
   if (!grl_tracker_source_can_notify (source)) {
     GRL_DEBUG ("\tno notification for source %s...",

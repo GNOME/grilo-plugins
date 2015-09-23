@@ -46,63 +46,25 @@ GRL_LOG_DOMAIN_STATIC(local_metadata_log_domain);
 
 /**/
 
-#define TV_REGEX                                \
-  "(?<showname>.*)\\."                          \
-  "(?<season>[sS\\.]\\d{1,2}|\\d{1,2})"         \
-  "\\.?(?<episode>(?:(?i)ep|[ex\\.])\\d{1,2})"  \
-  "\\.?(?<name>(?:\().*|.*))?"
-#define MOVIE_REGEX                             \
-  "(?<name>.*)"                                 \
-  "(?<year>19\\d{2}|20\\d{2})"
-
-/**/
-
 #define GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE(object)           \
   (G_TYPE_INSTANCE_GET_PRIVATE((object),                        \
                                GRL_LOCAL_METADATA_SOURCE_TYPE,	\
                                GrlLocalMetadataSourcePriv))
 
-enum {
-  PROP_0,
-  PROP_GUESS_VIDEO,
-};
-
 struct _GrlLocalMetadataSourcePriv {
-  gboolean guess_video;
   GrlKeyID hash_keyid;
 };
 
 /**/
 
 typedef enum {
-  FLAG_VIDEO_TITLE         = 1,
-  FLAG_VIDEO_SHOWNAME      = 1 << 1,
-  FLAG_VIDEO_DATE          = 1 << 2,
-  FLAG_VIDEO_SEASON        = 1 << 3,
-  FLAG_VIDEO_EPISODE       = 1 << 4,
-  FLAG_VIDEO_EPISODE_TITLE = 1 << 5,
-  FLAG_THUMBNAIL           = 1 << 6,
-  FLAG_GIBEST_HASH         = 1 << 7
+  FLAG_THUMBNAIL           = 1,
+  FLAG_GIBEST_HASH         = 1 << 1
 } resolution_flags_t;
-
-const gchar *video_blacklisted_prefix[] = {
-  "tpz-", NULL
-};
-
-const char *video_blacklisted_words[] = {
-  "720p", "1080p", "x264", "ws", "proper", "repack", "real.repack",
-  "hdtv", "pdtv", "notv", "dsr", "dvdrip", "divx", "xvid",
-  NULL
-};
 
 /**/
 
-static void grl_local_metadata_source_set_property (GObject      *object,
-                                                    guint         propid,
-                                                    const GValue *value,
-                                                    GParamSpec   *pspec);
-
-static GrlLocalMetadataSource *grl_local_metadata_source_new (gboolean guess_video);
+static GrlLocalMetadataSource *grl_local_metadata_source_new (void);
 
 static void grl_local_metadata_source_resolve (GrlSource *source,
                                                GrlSourceResolveSpec *rs);
@@ -132,10 +94,6 @@ grl_local_metadata_source_plugin_init (GrlRegistry *registry,
                                        GrlPlugin *plugin,
                                        GList *configs)
 {
-  guint config_count;
-  gboolean guess_video = TRUE;
-  GrlConfig *config;
-
   GRL_LOG_DOMAIN_INIT (local_metadata_log_domain, "local-metadata");
 
   GRL_DEBUG ("grl_local_metadata_source_plugin_init");
@@ -144,20 +102,7 @@ grl_local_metadata_source_plugin_init (GrlRegistry *registry,
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
-  if (!configs) {
-    GRL_INFO ("\tConfiguration not provided! Using default configuration.");
-  } else {
-    config_count = g_list_length (configs);
-    if (config_count > 1) {
-      GRL_INFO ("\tProvided %i configs, but will only use one", config_count);
-    }
-
-    config = GRL_CONFIG (configs->data);
-
-    guess_video = grl_config_get_boolean (config, "guess-video");
-  }
-
-  GrlLocalMetadataSource *source = grl_local_metadata_source_new (guess_video);
+  GrlLocalMetadataSource *source = grl_local_metadata_source_new ();
   grl_registry_register_source (registry,
                                 plugin,
                                 GRL_SOURCE (source),
@@ -172,39 +117,25 @@ GRL_PLUGIN_REGISTER (grl_local_metadata_source_plugin_init,
 /* ================== GrlLocalMetadata GObject ================ */
 
 static GrlLocalMetadataSource *
-grl_local_metadata_source_new (gboolean guess_video)
+grl_local_metadata_source_new (void)
 {
   GRL_DEBUG ("grl_local_metadata_source_new");
   return g_object_new (GRL_LOCAL_METADATA_SOURCE_TYPE,
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
 		       "source-desc", SOURCE_DESC,
-                       "guess-video", guess_video,
 		       NULL);
 }
 
 static void
 grl_local_metadata_source_class_init (GrlLocalMetadataSourceClass * klass)
 {
-  GObjectClass           *g_class        = G_OBJECT_CLASS (klass);
-  GrlSourceClass         *source_class   = GRL_SOURCE_CLASS (klass);
-
-  g_class->set_property = grl_local_metadata_source_set_property;
+  GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
 
   source_class->supported_keys = grl_local_metadata_source_supported_keys;
   source_class->cancel = grl_local_metadata_source_cancel;
   source_class->may_resolve = grl_local_metadata_source_may_resolve;
   source_class->resolve = grl_local_metadata_source_resolve;
-
-  g_object_class_install_property (g_class,
-                                   PROP_GUESS_VIDEO,
-                                   g_param_spec_boolean ("guess-video",
-                                                         "Guess video",
-                                                         "Guess video metadata "
-                                                         "from filename",
-                                                         TRUE,
-                                                         G_PARAM_WRITABLE |
-                                                         G_PARAM_CONSTRUCT_ONLY));
 
   g_type_class_add_private (klass, sizeof (GrlLocalMetadataSourcePriv));
 }
@@ -217,25 +148,6 @@ grl_local_metadata_source_init (GrlLocalMetadataSource *source)
 G_DEFINE_TYPE (GrlLocalMetadataSource,
                grl_local_metadata_source,
                GRL_TYPE_SOURCE);
-
-static void
-grl_local_metadata_source_set_property (GObject      *object,
-                                        guint         propid,
-                                        const GValue *value,
-                                        GParamSpec   *pspec)
-{
-  GrlLocalMetadataSourcePriv *priv =
-    GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (object);
-
-  switch (propid) {
-  case PROP_GUESS_VIDEO:
-    priv->guess_video = g_value_get_boolean (value);
-    break;
-
-  default:
-    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, propid, pspec);
-  }
-}
 
 /* ======================= Utilities ==================== */
 
@@ -286,243 +198,6 @@ resolve_data_finish_operation (ResolveData   *data,
 
     g_object_unref (data->source);
     g_slice_free (ResolveData, data);
-  }
-}
-
-static gboolean
-is_nonalnum (const gchar *str)
-{
-  gunichar uchar;
-
-  if (str == NULL) {
-    return FALSE;
-  }
-
-  uchar = g_utf8_get_char (str);
-
-  if (g_unichar_isalnum (uchar)) {
-    return FALSE;
-  }
-
-  if (uchar == '!' || uchar == '?' || uchar == '.') {
-    return FALSE;
-  }
-
-  return TRUE;
-}
-
-static gchar *
-video_sanitise_string (const gchar *str)
-{
-  int    i;
-  gchar *line, *line_end;
-  GRegex *regex;
-
-  line = (gchar *) str;
-  for (i = 0; video_blacklisted_prefix[i]; i++) {
-    if (g_str_has_prefix (str, video_blacklisted_prefix[i])) {
-      int len = strlen (video_blacklisted_prefix[i]);
-
-      line = (gchar *) str + len;
-    }
-  }
-
-  /* Get the substring limited by the first blacklisted word */
-  line_end = line + strlen (line);
-  for (i = 0; video_blacklisted_words[i]; i++) {
-    gchar *end;
-
-    end = strcasestr (line, video_blacklisted_words[i]);
-    if (end && end < line_end) {
-      line_end = end;
-    }
-  }
-
-  if (*line_end != '\0') {
-    /* After removing substring with blacklisted word, ignore non alpha-numeric
-     * char in the end of the sanitised string */
-    do {
-      line_end = g_utf8_find_prev_char (line, line_end);
-    } while (is_nonalnum (line_end));
-
-    /* If everything in the string is blacklisted, just ignore
-     * the blackisting logic.
-     */
-    if (line_end == NULL) {
-      return g_strdup (str);
-    }
-
-    return g_strndup (line, line_end - line);
-  }
-
-  regex = g_regex_new ("\\.-\\.", 0, 0, NULL);
-  line = g_regex_replace_literal(regex, line, -1, 0, ".", 0, NULL);
-  g_regex_unref(regex);
-
-  return line;
-}
-
-/* tidies strings before we run them through the regexes */
-static gchar *
-video_display_name_to_metadata (const gchar *display_name)
-{
-  gchar *ext, *name, *whitelisted;
-
-  ext = strrchr (display_name, '.');
-  if (ext) {
-    name = g_strndup (display_name, ext - display_name);
-  } else {
-    name = g_strdup (display_name);
-  }
-
-  /* Replace _ <space> with . */
-  g_strdelimit (name, "_ ", '.');
-  whitelisted = video_sanitise_string (name);
-  g_free (name);
-
-  return whitelisted;
-}
-
-static void
-video_guess_values_from_display_name (const gchar *display_name,
-                                      gchar      **title,
-                                      gchar      **showname,
-                                      GDateTime  **date,
-                                      gint        *season,
-                                      gint        *episode)
-{
-  gchar      *metadata;
-  GRegex     *regex;
-  GMatchInfo *info;
-
-  metadata = video_display_name_to_metadata (display_name);
-
-  regex = g_regex_new (MOVIE_REGEX, 0, 0, NULL);
-  g_regex_match (regex, metadata, 0, &info);
-
-  if (g_match_info_matches (info)) {
-    if (title) {
-      *title = g_match_info_fetch_named (info, "name");
-      /* Replace "." with <space> */
-      g_strdelimit (*title, ".", ' ');
-      *title = g_strstrip (*title);
-    }
-
-    if (date) {
-      gchar *year = g_match_info_fetch_named (info, "year");
-
-      *date = g_date_time_new_utc (atoi (year), 1, 1, 0, 0, 0.0);
-      g_free (year);
-    }
-
-    if (showname) {
-      *showname = NULL;
-    }
-
-    if (season) {
-      *season = 0;
-    }
-
-    if (episode) {
-      *episode = 0;
-    }
-
-    g_regex_unref (regex);
-    g_match_info_free (info);
-    g_free (metadata);
-
-    return;
-  }
-
-  g_regex_unref (regex);
-  g_match_info_free (info);
-
-  regex = g_regex_new (TV_REGEX, 0, 0, NULL);
-  g_regex_match (regex, metadata, 0, &info);
-
-  if (g_match_info_matches (info)) {
-    if (title) {
-      *title = g_match_info_fetch_named (info, "name");
-      g_strdelimit (*title, ".()", ' ');
-      *title = g_strstrip (*title);
-      if (*title[0] == '\0') {
-        g_free (*title);
-        *title = NULL;
-      }
-    }
-
-    if (showname) {
-      *showname = g_match_info_fetch_named (info, "showname");
-      g_strdelimit (*showname, ".", ' ');
-      *showname = g_strstrip (*showname);
-    }
-
-    if (season) {
-      gchar *s = g_match_info_fetch_named (info, "season");
-      if (s) {
-        if (*s == 's' || *s == 'S') {
-          *season = atoi (s + 1);
-        } else {
-          *season = atoi (s);
-        }
-      } else {
-        *season = 0;
-      }
-
-      g_free (s);
-    }
-
-    if (episode) {
-      gchar *e = g_match_info_fetch_named (info, "episode");
-      if (e) {
-        if (g_ascii_strncasecmp (e, "ep", 2) == 0) {
-          *episode = atoi (e + 2);
-        } else if (*e == 'e' || *e == 'E' || *e == 'x' || *e == '.') {
-          *episode = atoi (e + 1);
-        } else {
-          *episode = atoi (e);
-        }
-      } else {
-        *episode = 0;
-      }
-
-      g_free (e);
-    }
-
-    if (date) {
-      *date = NULL;
-    }
-
-    g_regex_unref (regex);
-    g_match_info_free (info);
-    g_free (metadata);
-
-    return;
-  }
-
-  g_regex_unref (regex);
-  g_match_info_free (info);
-
-  /* The filename doesn't look like a movie or a TV show, just use the
-     filename without extension as the title */
-  if (title) {
-    *title = g_strdelimit (metadata, ".", ' ');
-  }
-
-  if (showname) {
-    *showname = NULL;
-  }
-
-  if (date) {
-    *date = NULL;
-  }
-
-  if (season) {
-    *season = 0;
-  }
-
-  if (episode) {
-    *episode = 0;
   }
 }
 
@@ -721,117 +396,6 @@ exit:
 }
 
 static void
-resolve_video (ResolveData         *resolve_data,
-               GrlKeyID             key,
-               resolution_flags_t   flags)
-{
-  gchar *title, *showname, *display_name;
-  GDateTime *date;
-  gint season, episode;
-  GrlData *data = GRL_DATA (resolve_data->rs->media);
-  resolution_flags_t miss_flags = 0, fill_flags;
-
-  GRL_DEBUG ("%s",__FUNCTION__);
-
-  resolve_data_start_operation (resolve_data, "video");
-
-  if (!(flags & (FLAG_VIDEO_TITLE |
-                 FLAG_VIDEO_SHOWNAME |
-                 FLAG_VIDEO_DATE |
-                 FLAG_VIDEO_SEASON |
-                 FLAG_VIDEO_EPISODE |
-                 FLAG_VIDEO_EPISODE_TITLE))) {
-    resolve_data_finish_operation (resolve_data, "video", NULL);
-    return;
-  }
-
-  if (grl_data_has_key (data, GRL_METADATA_KEY_TITLE)) {
-    if (grl_data_get_boolean (data, GRL_METADATA_KEY_TITLE_FROM_FILENAME)) {
-      miss_flags = FLAG_VIDEO_TITLE;
-    } else
-      miss_flags = 0;
-  } else {
-    miss_flags = FLAG_VIDEO_TITLE;
-  }
-  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_SHOW) ?
-    0 : FLAG_VIDEO_SHOWNAME;
-  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_PUBLICATION_DATE) ?
-    0 : FLAG_VIDEO_DATE;
-  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_SEASON) ?
-    0 : FLAG_VIDEO_SEASON;
-  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_EPISODE) ?
-    0 : FLAG_VIDEO_EPISODE;
-  miss_flags |= grl_data_has_key (data, GRL_METADATA_KEY_EPISODE_TITLE) ?
-    0 : FLAG_VIDEO_EPISODE_TITLE;
-
-  fill_flags = flags & miss_flags;
-
-  if (!fill_flags) {
-    resolve_data_finish_operation (resolve_data, "video", NULL);
-    return;
-  }
-
-  if (key == GRL_METADATA_KEY_URL) {
-    GFile *file;
-
-    file = g_file_new_for_uri (grl_media_get_url (resolve_data->rs->media));
-    display_name = g_file_get_basename (file);
-    g_object_unref (file);
-  } else {
-    display_name = g_strdup (grl_media_get_title (resolve_data->rs->media));
-  }
-
-  video_guess_values_from_display_name (display_name,
-                                        &title, &showname, &date,
-                                        &season, &episode);
-
-  g_free (display_name);
-
-  GRL_DEBUG ("\tfound title=%s/showname=%s/year=%i/season=%i/episode=%i",
-             title, showname,
-             date != NULL ? g_date_time_get_year (date) : 0,
-             season, episode);
-
-  if (showname) {
-    if (fill_flags & FLAG_VIDEO_SHOWNAME) {
-      grl_data_set_string (data, GRL_METADATA_KEY_SHOW, showname);
-    }
-    g_free (showname);
-
-    if (fill_flags & FLAG_VIDEO_EPISODE_TITLE &&
-        title != NULL) {
-      grl_data_set_string (data, GRL_METADATA_KEY_EPISODE_TITLE, title);
-    }
-  } else {
-    /* As this is just a guess, don't erase already provided values,
-     * unless GRL_METADATA_KEY_TITLE_FROM_FILENAME is set */
-    if (grl_data_get_boolean (data, GRL_METADATA_KEY_TITLE_FROM_FILENAME)) {
-      if (fill_flags & FLAG_VIDEO_TITLE) {
-        grl_data_set_string (data, GRL_METADATA_KEY_TITLE, title);
-      }
-    }
-  }
-  g_free (title);
-
-  if (date) {
-    if (fill_flags & FLAG_VIDEO_DATE) {
-      grl_data_set_boxed (data, GRL_METADATA_KEY_PUBLICATION_DATE, date);
-    }
-    g_date_time_unref (date);
-  }
-
-  if (season && (fill_flags & FLAG_VIDEO_SEASON)) {
-    grl_data_set_int (data, GRL_METADATA_KEY_SEASON, season);
-  }
-
-  if (episode && (fill_flags & FLAG_VIDEO_EPISODE)) {
-    grl_data_set_int (data, GRL_METADATA_KEY_EPISODE, episode);
-  }
-
-  resolve_data_finish_operation (resolve_data, "video", NULL);
-}
-
-static void
 resolve_image (ResolveData         *resolve_data,
                resolution_flags_t   flags)
 {
@@ -998,22 +562,10 @@ get_resolution_flags (GList                      *keys,
 
   while (iter != NULL) {
     GrlKeyID key = GRLPOINTER_TO_KEYID (iter->data);
-    if (key == GRL_METADATA_KEY_TITLE)
-      flags |= FLAG_VIDEO_TITLE;
-    else if (key == GRL_METADATA_KEY_SHOW)
-      flags |= FLAG_VIDEO_SHOWNAME;
-    else if (key == GRL_METADATA_KEY_PUBLICATION_DATE)
-      flags |= FLAG_VIDEO_DATE;
-    else if (key == GRL_METADATA_KEY_SEASON)
-      flags |= FLAG_VIDEO_SEASON;
-    else if (key == GRL_METADATA_KEY_EPISODE)
-      flags |= FLAG_VIDEO_EPISODE;
-    else if (key == GRL_METADATA_KEY_THUMBNAIL)
+    if (key == GRL_METADATA_KEY_THUMBNAIL)
       flags |= FLAG_THUMBNAIL;
     else if (key == priv->hash_keyid)
       flags |= FLAG_GIBEST_HASH;
-    else if (key == GRL_METADATA_KEY_EPISODE_TITLE)
-      flags |= FLAG_VIDEO_EPISODE_TITLE;
 
     iter = iter->next;
   }
@@ -1042,12 +594,6 @@ grl_local_metadata_source_supported_keys (GrlSource *source)
   ensure_hash_keyid (priv);
   if (!keys) {
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL,
-                                      GRL_METADATA_KEY_TITLE,
-                                      GRL_METADATA_KEY_SHOW,
-                                      GRL_METADATA_KEY_PUBLICATION_DATE,
-                                      GRL_METADATA_KEY_SEASON,
-                                      GRL_METADATA_KEY_EPISODE,
-                                      GRL_METADATA_KEY_EPISODE_TITLE,
                                       priv->hash_keyid,
                                       NULL);
   }
@@ -1060,10 +606,7 @@ grl_local_metadata_source_may_resolve (GrlSource *source,
                                        GrlKeyID key_id,
                                        GList **missing_keys)
 {
-  GrlLocalMetadataSourcePriv *priv =
-    GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (source);
-
-  if (!media)
+  if (!media || GRL_IS_MEDIA_VIDEO (media))
     return FALSE;
 
   if (GRL_IS_MEDIA_AUDIO (media)) {
@@ -1104,41 +647,6 @@ grl_local_metadata_source_may_resolve (GrlSource *source,
     return TRUE;
   }
 
-  if (GRL_IS_MEDIA_VIDEO (media)) {
-    switch (key_id) {
-    case GRL_METADATA_KEY_TITLE:
-    case GRL_METADATA_KEY_SHOW:
-    case GRL_METADATA_KEY_PUBLICATION_DATE:
-    case GRL_METADATA_KEY_SEASON:
-    case GRL_METADATA_KEY_EPISODE:
-    case GRL_METADATA_KEY_EPISODE_TITLE:
-      if (!priv->guess_video)
-        return FALSE;
-      if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL) &&
-          has_compatible_media_url (media))
-        return TRUE;
-      if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_TITLE))
-        goto missing_title;
-      return TRUE;
-    case GRL_METADATA_KEY_THUMBNAIL:
-      if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL) == FALSE)
-        goto missing_url;
-      return has_compatible_media_url (media);
-    default:
-      if (key_id == priv->hash_keyid)
-        return has_compatible_media_url (media);
-    }
-  }
-
-missing_title:
-  if (missing_keys) {
-    if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL) == FALSE)
-      *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, GRL_METADATA_KEY_URL, NULL);
-    else
-      *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_TITLE, NULL);
-  }
-  return FALSE;
-
 missing_url:
   if (missing_keys)
     *missing_keys = grl_metadata_key_list_new (GRL_METADATA_KEY_URL, NULL);
@@ -1170,17 +678,14 @@ grl_local_metadata_source_resolve (GrlSource *source,
   can_access = has_compatible_media_url (rs->media);
 
   flags = get_resolution_flags (rs->keys, priv);
-  if (grl_data_get_boolean (GRL_DATA (rs->media), GRL_METADATA_KEY_TITLE_FROM_FILENAME))
-    flags |= FLAG_VIDEO_TITLE;
-
-   if (!flags)
-     error = g_error_new_literal (GRL_CORE_ERROR,
-                                  GRL_CORE_ERROR_RESOLVE_FAILED,
-                                  _("Cannot resolve any of the given keys"));
-   if (GRL_IS_MEDIA_IMAGE (rs->media) && can_access == FALSE)
-     error = g_error_new_literal (GRL_CORE_ERROR,
-                                  GRL_CORE_ERROR_RESOLVE_FAILED,
-                                  _("A GIO supported URL for images is required"));
+  if (!flags)
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_RESOLVE_FAILED,
+                                 _("Cannot resolve any of the given keys"));
+  if (GRL_IS_MEDIA_IMAGE (rs->media) && can_access == FALSE)
+    error = g_error_new_literal (GRL_CORE_ERROR,
+                                 GRL_CORE_ERROR_RESOLVE_FAILED,
+                                 _("A GIO supported URL for images is required"));
 
   if (error) {
     /* No can do! */
@@ -1191,12 +696,7 @@ grl_local_metadata_source_resolve (GrlSource *source,
 
   GRL_DEBUG ("\ttrying to resolve for: %s", grl_media_get_url (rs->media));
 
-  if (GRL_IS_MEDIA_VIDEO (rs->media)) {
-    if (priv->guess_video)
-      resolve_video (data, can_access ? GRL_METADATA_KEY_URL : GRL_METADATA_KEY_TITLE, flags);
-    if (can_access)
-      resolve_image (data, flags);
-  } else if (GRL_IS_MEDIA_IMAGE (rs->media)) {
+  if (GRL_IS_MEDIA_IMAGE (rs->media)) {
     resolve_image (data, flags);
   } else if (GRL_IS_MEDIA_AUDIO (rs->media)) {
     /* Try for a per-track thumbnail first; we'll fall back to album art

@@ -286,7 +286,8 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
 {
   gboolean first = TRUE;
   GString *request_str;
-  GList *subject, *subjects;
+  GHashTableIter iter;
+  gpointer key, value;
   GList *source, *sources;
 
   GRL_DEBUG ("%s: evt=%p", __FUNCTION__, evt);
@@ -300,13 +301,13 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
                                       FALSE);
 
   request_str = g_string_new ("");
-  subjects = g_hash_table_get_keys (evt->orphan_items);
 
-  subject = subjects;
-  while (subject != NULL) {
-    guint id = GPOINTER_TO_INT (subject->data);
-    if (GPOINTER_TO_INT (g_hash_table_lookup (evt->orphan_items,
-                                              subject->data)) != GRL_CONTENT_REMOVED) {
+  g_hash_table_iter_init (&iter, evt->orphan_items);
+  while (g_hash_table_iter_next (&iter, &key, &value)) {
+    guint id = GPOINTER_TO_UINT (key);
+    GrlSourceChangeType change_type = GPOINTER_TO_INT (value);
+
+    if (change_type != GRL_CONTENT_REMOVED) {
       if (first) {
         g_string_append_printf (request_str, "%u", id);
         first = FALSE;
@@ -339,10 +340,7 @@ tracker_evt_update_orphans (tracker_evt_update_t *evt)
         source = source->next;
       }
     }
-    subject = subject->next;
   }
-
-  g_list_free (subjects);
 
   if (request_str->len > 0) {
     gchar *sparql_final = g_strdup_printf (TRACKER_MEDIA_ITEM, request_str->str);

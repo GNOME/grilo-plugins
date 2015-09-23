@@ -1,3 +1,32 @@
+NEW in 0.2.16
+=============
+
+  * Updated i18n
+
+  * LastFM Album Art plugin
+    * BGO#700276 - lastfm: update to new API 2.0
+
+  * Lua Factory plugin
+    * BGO#754895 - lua-factory: Fix compilation with g-o-a disabled
+
+  * TheTVDB plugin
+    * Fix tests
+
+  * Contributors to this release:
+    Alexandre Franke <alexandre.franke@gmail.com>
+    Aurimas Černius <aurisc4@gmail.com>
+    Balázs Úr <urbalazs@gmail.com>
+    Bastien Nocera <hadess@hadess.net>
+    Claudio Arseni <claudio.arseni@gmail.com>
+    Dušan Kazik <prescott66@gmail.com>
+    Georges Basile Stavracas Neto <georges.stavracas@gmail.com>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Matej Urbančič <mateju@svn.gnome.org>
+    Pedro Albuquerque <palbuquerque73@gmail.com>
+    Piotr Drąg <piotrdrag@gmail.com>
+    Seong-ho Cho <shcho@gnome.org>
+
+
 NEW in 0.2.15
 =============
 

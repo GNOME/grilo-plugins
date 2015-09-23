@@ -27,8 +27,9 @@ test_lastfm_albumart_CFLAGS =	\
 # Distribute the tests data:
 dist_noinst_DATA =               \
    data/network-data.ini         \
-   data/resolve-good-found.data  \
-   data/resolve-good-found-default.data
+   data/good.data                \
+   data/good-found-default.data  \
+   data/good-not-found.data
 
 noinst_PROGRAMS = $(TEST_PROGS)
 

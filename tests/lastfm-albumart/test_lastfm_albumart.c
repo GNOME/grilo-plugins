@@ -167,24 +167,24 @@ test_resolve_good_found (void)
 
   g_assert_no_error (error);
 
-  /* We should get 5 thumbnails */
+  /* We should get 6 thumbnails */
   expected_n_thumbnails = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_THUMBNAIL);
   g_assert_cmpuint (expected_n_thumbnails, ==, 5);
   g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 0),
                    ==,
-                   "http://userserve-ak.last.fm/serve/500/76737256.png");
+                   "http://img2-ak.lst.fm/i/u/10dc1e48f06343539996122a02e199df.png");
   g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 1),
                    ==,
-                   "http://userserve-ak.last.fm/serve/252/76737256.png");
+                   "http://img2-ak.lst.fm/i/u/300x300/10dc1e48f06343539996122a02e199df.png");
   g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 2),
                    ==,
-                   "http://userserve-ak.last.fm/serve/126/76737256.png");
+                   "http://img2-ak.lst.fm/i/u/174s/10dc1e48f06343539996122a02e199df.png");
   g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 3),
                    ==,
-                   "http://userserve-ak.last.fm/serve/64s/76737256.png");
+                   "http://img2-ak.lst.fm/i/u/64s/10dc1e48f06343539996122a02e199df.png");
   g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 4),
                    ==,
-                   "http://userserve-ak.last.fm/serve/34s/76737256.png");
+                   "http://img2-ak.lst.fm/i/u/34s/10dc1e48f06343539996122a02e199df.png");
 
   g_list_free (keys);
   g_object_unref (options);

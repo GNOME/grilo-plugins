@@ -98,6 +98,7 @@ test_episodes (void)
     { "The.Slap.S01E01.Hector.WS.PDTV.XviD-BWB.avi", "The Slap", "Hector", 1, 1 },
     { "metalocalypse.s02e01.dvdrip.xvid-ffndvd.avi", "metalocalypse", NULL, 2, 1 },
     { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", "Boardwalk Empire", NULL, 4, 1 },
+    { "My super series.S01E01.mp4", "My super series", NULL, 1, 1 },
     { "Adventure Time - 2x01 - It Came from the Nightosphere.mp4", "Adventure Time", "It Came from the Nightosphere", 2, 1 },
     { "Real Humans S01 EP01 [X264] [HD 720p] [FR] [SWE] [SRT FR] [MRPHU].mkv", "Real Humans", NULL, 1, 1 },
 
@@ -107,6 +108,7 @@ test_episodes (void)
 
     /* These below should not be detected as an episode of a series. */
     { "My.Neighbor.Totoro.1988.1080p.BluRay.X264.mkv", NULL, NULL, 0, 0 },
+    { "140127Mata-16x9 (bug 723166).mp4", "140127Mata", "bug 723166", 16, 9 }
   };
 
   registry = grl_registry_get_default ();

@@ -440,14 +440,6 @@ main(int argc, char **argv)
    * also make sure that warning messages are not printed by default. */
   g_log_set_always_fatal (G_LOG_LEVEL_CRITICAL | G_LOG_FATAL_MASK);
 
-#if !GLIB_CHECK_VERSION(2,32,0)
-  g_thread_init (NULL);
-#endif
-
-#if !GLIB_CHECK_VERSION(2,35,0)
-  g_type_init ();
-#endif
-
   g_test_add ("/dleyna/discovery", TestDleynaFixture, NULL,
       test_dleyna_setup, test_discovery, test_dleyna_shutdown);
   g_test_add ("/dleyna/browse", TestDleynaFixture, NULL,

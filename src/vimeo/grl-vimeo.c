@@ -119,12 +119,6 @@ grl_vimeo_plugin_init (GrlRegistry *registry,
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
-#if !GLIB_CHECK_VERSION(2,32,0)
-  if (!g_thread_supported ()) {
-    g_thread_init (NULL);
-  }
-#endif
-
   if (!configs) {
     GRL_INFO ("Configuration not provided! Plugin not loaded");
     return FALSE;

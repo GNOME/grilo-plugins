@@ -165,10 +165,6 @@ main(int argc, char **argv)
   grl_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
 
-#if !GLIB_CHECK_VERSION(2,32,0)
-  g_thread_init (NULL);
-#endif
-
   g_test_add_func ("/tmdb/full-resolution", test_full_resolution);
 
   gint result = g_test_run ();

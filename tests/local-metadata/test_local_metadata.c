@@ -22,7 +22,6 @@
 
 #include <grilo.h>
 
-#define LOCAL_METADATA_ID "grl-local-metadata"
 #define LUA_FACTORY_ID "grl-lua-factory"
 #define VIDEO_TITLE_PARSING_ID "grl-video-title-parsing"
 
@@ -40,7 +39,6 @@ test_setup (void)
 static char *
 get_show_for_title (GrlSource  *source,
 		    const char *title,
-		    const char *url,
 		    char      **new_title,
 		    int        *season,
 		    int        *episode)
@@ -53,7 +51,6 @@ get_show_for_title (GrlSource  *source,
 
   media = grl_media_video_new ();
   grl_media_set_title (media, title);
-  grl_media_set_url (media, url);
   grl_data_set_boolean (GRL_DATA (media), GRL_METADATA_KEY_TITLE_FROM_FILENAME, TRUE);
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_SHOW,
@@ -85,8 +82,7 @@ get_show_for_title (GrlSource  *source,
 }
 
 static void
-test_episodes_by_source (const gchar *source_name,
-                         gboolean check_for_uris)
+test_episodes (void)
 {
   GrlRegistry *registry;
   GrlSource *source;
@@ -94,41 +90,34 @@ test_episodes_by_source (const gchar *source_name,
 
   struct {
     char *title;
-    char *url;
     char *show;
     char *episode_title;
     int season;
     int episode;
   } episode_tests[] = {
-    { "The.Slap.S01E01.Hector.WS.PDTV.XviD-BWB.avi", NULL, "The Slap", "Hector", 1, 1 },
-    { "metalocalypse.s02e01.dvdrip.xvid-ffndvd.avi", NULL, "metalocalypse", NULL, 2, 1 },
-    { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", NULL, "Boardwalk Empire", NULL, 4, 1 },
-    { NULL, "file:///home/test/My%20super%20series.S01E01.mp4", "My super series", NULL, 1, 1 },
-    { "Adventure Time - 2x01 - It Came from the Nightosphere.mp4", NULL, "Adventure Time", "It Came from the Nightosphere", 2, 1 },
-    { "Real Humans S01 EP01 [X264] [HD 720p] [FR] [SWE] [SRT FR] [MRPHU].mkv", NULL, "Real Humans", NULL, 1, 1 },
+    { "The.Slap.S01E01.Hector.WS.PDTV.XviD-BWB.avi", "The Slap", "Hector", 1, 1 },
+    { "metalocalypse.s02e01.dvdrip.xvid-ffndvd.avi", "metalocalypse", NULL, 2, 1 },
+    { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", "Boardwalk Empire", NULL, 4, 1 },
+    { "Adventure Time - 2x01 - It Came from the Nightosphere.mp4", "Adventure Time", "It Came from the Nightosphere", 2, 1 },
+    { "Real Humans S01 EP01 [X264] [HD 720p] [FR] [SWE] [SRT FR] [MRPHU].mkv", "Real Humans", NULL, 1, 1 },
 
     /* Episode and Series separated by '.' and Title inside parenthesis */
-    { NULL, "file:///home/toso/Downloads/Felicity/Felicity%202.05%20(Crash).avi", "Felicity", "Crash", 2, 5 },
-    { "Felicity 4.08 (Last Thanksgiving).avi", NULL, "Felicity", "Last Thanksgiving", 4, 8 },
+    { "Felicity 2.05 (Crash).avi", "Felicity", "Crash", 2, 5 },
+    { "Felicity 4.08 (Last Thanksgiving).avi", "Felicity", "Last Thanksgiving", 4, 8 },
 
     /* These below should not be detected as an episode of a series. */
-    { "My.Neighbor.Totoro.1988.1080p.BluRay.X264.mkv", NULL, NULL, NULL, 0, 0 },
-    { NULL, "file:///home/hadess/.cache/totem/media/140127Mata-16x9%20(bug%20723166).mp4", NULL, NULL, 0, 0 }
+    { "My.Neighbor.Totoro.1988.1080p.BluRay.X264.mkv", NULL, NULL, 0, 0 },
   };
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, source_name);
+  source = grl_registry_lookup_source (registry, VIDEO_TITLE_PARSING_ID);
   g_assert (source);
 
   for (i = 0; i < G_N_ELEMENTS(episode_tests); i++) {
     char *show, *new_title;
     int season, episode;
 
-    /* grl-video-title-parsing needs title */
-    if (episode_tests[i].title == NULL && check_for_uris == FALSE)
-      continue;
-
-    show = get_show_for_title (source, episode_tests[i].title, episode_tests[i].url, &new_title, &season, &episode);
+    show = get_show_for_title (source, episode_tests[i].title, &new_title, &season, &episode);
     g_assert_cmpstr (episode_tests[i].show, ==, show);
     if (show != NULL) {
       g_assert_cmpstr (episode_tests[i].episode_title, ==, new_title);
@@ -141,19 +130,7 @@ test_episodes_by_source (const gchar *source_name,
 }
 
 static void
-test_episodes (void)
-{
-  test_episodes_by_source (LOCAL_METADATA_ID, TRUE);
-}
-
-static void
-test_episodes_lua (void)
-{
-  test_episodes_by_source (VIDEO_TITLE_PARSING_ID, FALSE);
-}
-
-static void
-test_title_override_by_source (const char *source_name)
+test_title_override (void)
 {
   GrlRegistry *registry;
   GrlSource *source;
@@ -171,7 +148,7 @@ test_title_override_by_source (const char *source_name)
   };
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, source_name);
+  source = grl_registry_lookup_source (registry, VIDEO_TITLE_PARSING_ID);
   g_assert (source);
 
   for (i = 0; i < G_N_ELEMENTS(filename_tests); i++) {
@@ -205,28 +182,12 @@ test_title_override_by_source (const char *source_name)
   }
 }
 
-static void
-test_title_override (void)
-{
-  test_title_override_by_source (LOCAL_METADATA_ID);
-}
-
-static void
-test_title_override_lua (void)
-{
-  test_title_override_by_source (VIDEO_TITLE_PARSING_ID);
-}
-
 int
 main(int argc, char **argv)
 {
-  gchar *plugins = g_strdup_printf ("%s:%s", LOCAL_METADATA_ID, LUA_FACTORY_ID);
-  gchar *plugins_path = g_strdup_printf ("%s:%s", LOCAL_METADATA_PLUGIN_PATH, LUA_FACTORY_PLUGIN_PATH);
-  g_setenv ("GRL_PLUGIN_PATH", plugins_path, TRUE);
-  g_setenv ("GRL_PLUGIN_LIST", plugins, TRUE);
+  g_setenv ("GRL_PLUGIN_PATH", LUA_FACTORY_PLUGIN_PATH, TRUE);
+  g_setenv ("GRL_PLUGIN_LIST", LUA_FACTORY_ID, TRUE);
   g_setenv ("GRL_LUA_SOURCES_PATH", LUA_SOURCES_PATH, TRUE);
-  g_free (plugins);
-  g_free (plugins_path);
 
   grl_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
@@ -237,10 +198,8 @@ main(int argc, char **argv)
 
   test_setup ();
 
-  g_test_add_func ("/local-metadata/resolve/episodes", test_episodes);
-  g_test_add_func ("/local-metadata/resolve/title-override", test_title_override);
-  g_test_add_func ("/lua-factory/video-title-parsing/resolve/episodes", test_episodes_lua);
-  g_test_add_func ("/lua-factory/video-title-parsing/resolve/title-override", test_title_override_lua);
+  g_test_add_func ("/lua-factory/video-title-parsing/resolve/episodes", test_episodes);
+  g_test_add_func ("/lua-factory/video-title-parsing/resolve/title-override", test_title_override);
 
   gint result = g_test_run ();
 

@@ -10,8 +10,7 @@ include $(top_srcdir)/gtester.mk
 TEST_PROGS +=	\
    test_local_metadata
 
-test_local_metadata_defines =                                                       \
-   -DLOCAL_METADATA_PLUGIN_PATH=\""$(abs_top_builddir)/src/local-metadata/.libs/"\"    \
+test_local_metadata_defines =                                                    \
    -DLUA_FACTORY_PLUGIN_PATH=\""$(abs_top_builddir)/src/lua-factory/.libs/"\"    \
    -DLUA_SOURCES_PATH=\""$(abs_top_srcdir)/src/lua-factory/sources/"\"
 

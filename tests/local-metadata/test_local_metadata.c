@@ -144,7 +144,7 @@ test_title_override (void)
     { "Test.mp4", TRUE, "Test" },
     { "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4", FALSE, "Boardwalk.Empire.S04E01.HDTV.x264-2HD.mp4" },
     { "wsb.wmv", TRUE, "wsb" },
-    { "[XVID-ITA] Lo Svarione Degli anelli - I DUE PORRI - Clistere.Org - rip by Shella.avi", FALSE, "[XVID-ITA] Lo Svarione Degli anelli - I DUE PORRI - Clistere.Org - rip by Shella.avi" },
+    { "[XVID-ITA] Lo Svarione Degli anelli - I DUE PORRI - Clistere.Org - rip by Shella.avi", FALSE, "[XVID-ITA] Lo Svarione Degli anelli - I DUE PORRI - Clistere.Org - rip by Shella" },
   };
 
   registry = grl_registry_get_default ();

@@ -101,7 +101,7 @@ build_table_from_json_reader (lua_State *L,
         lua_pushnumber (L, json_reader_get_double_value (reader));
         break;
       case G_TYPE_BOOLEAN:
-        lua_pushnumber (L, json_reader_get_boolean_value (reader));
+        lua_pushboolean (L, json_reader_get_boolean_value (reader));
         break;
       default:
         GRL_DEBUG ("'%d' (json-node-type) is not being handled",

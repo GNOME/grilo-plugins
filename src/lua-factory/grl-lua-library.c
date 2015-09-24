@@ -352,11 +352,15 @@ grl_util_build_media (lua_State *L,
         if (lua_isnumber (L, -1)) {
           gint success;
           gint value = lua_tointegerx (L, -1, &success);
-          if (success)
-            grl_data_set_int (GRL_DATA (media), key_id, value);
-          else
+          if (success) {
+            if (type == G_TYPE_INT)
+              grl_data_set_int (GRL_DATA (media), key_id, value);
+            else
+              grl_data_set_int64 (GRL_DATA (media), key_id, value);
+          } else {
             GRL_WARNING ("'%s' requires an INT type, while a value '%s' was provided",
                        key_name, lua_tostring(L, -1));
+          }
         } else if (lua_istable (L, -1)) {
           grl_util_add_table_to_media (L, media, key_id, key_name, type);
         } else if (!lua_isnil (L, -1)) {

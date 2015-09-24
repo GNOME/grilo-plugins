@@ -42,6 +42,12 @@ blacklisted_words = {
   "dsr", "DVDRip", "divx", "xvid",
 }
 
+-- https://en.wikipedia.org/wiki/Video_file_format
+video_suffixes = {
+  "webm", "mkv", "flv", "ogv", "ogg", "avi", "mov",
+  "wmv", "mp4", "m4v", "mpeg", "mpg"
+}
+
 parsers = {
   tvshow = {
     "(.-)[sS](%d+)[%s.]*[eE][pP]?(%d+)(.+)",
@@ -53,6 +59,21 @@ parsers = {
   }
 }
 
+-- in case suffix is recognized, remove it and return true
+-- or return the title and false if it fails
+function remove_suffix(title)
+  local s = title:gsub(".*%.(.-)$", "%1")
+  if s then
+    for _, suffix in ipairs(video_suffixes) do
+      if s:find(suffix) then
+        local t = title:gsub("(.*)%..-$", "%1")
+        return t, true
+      end
+    end
+  end
+  return title, false
+end
+
 function clean_title(title)
   return title:gsub("^[%s%W]*(.-)[%s%W]*$", "%1"):gsub("%.", " ")
 end
@@ -60,9 +81,13 @@ end
 function clean_title_from_blacklist(title)
   local s = title:lower()
   local last_index
+  local suffix_removed
 
-  -- remove movie sufix
-  s = s:gsub("(.+)%..-$", "%1")
+  -- remove movie suffix
+  s, suffix_removed = remove_suffix(s)
+  if suffix_removed == false then
+    grl.debug ("Suffix not find in " .. title)
+  end
 
   -- ignore everything after the first blacklisted word
   last_index = #s
@@ -126,6 +151,14 @@ function grl_source_resolve()
 
   if parse_as_movie(media) then
     grl.debug(req.title .. " is a MOVIE")
+    grl.callback(media, 0)
+    return
+  end
+
+  local suffix_removed
+  media.title, suffix_removed = remove_suffix(media.title)
+  if media.title and suffix_removed then
+    grl.debug(req.title .. " is a MOVIE (without suffix)")
     grl.callback(media, 0)
     return
   end

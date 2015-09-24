@@ -652,7 +652,7 @@ AC_ARG_ENABLE(lua_factory,
                 [enable Lua plugins (default: auto)]),
         [
                 case "$enableval" in
-                     yes)
+                     yes | auto)
                         if test "x$HAVE_LUA" = "xno"; then
                            AC_MSG_ERROR([lua not found, install it or use --disable-lua-factory])
                         fi

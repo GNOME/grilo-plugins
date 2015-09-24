@@ -361,7 +361,7 @@ grl_util_build_media (lua_State *L,
           grl_util_add_table_to_media (L, media, key_id, key_name, type);
         } else if (!lua_isnil (L, -1)) {
           GRL_WARNING ("'%s' is not compatible for '%s'",
-                       lua_typename (L, -1), key_name);
+                       lua_typename (L, lua_type(L, -1)), key_name);
         }
         break;
 
@@ -372,7 +372,7 @@ grl_util_build_media (lua_State *L,
           grl_util_add_table_to_media (L, media, key_id, key_name, type);
         } else if (!lua_isnil (L, -1)) {
           GRL_WARNING ("'%s' is not compatible for '%s'",
-                       lua_typename (L, -1), key_name);
+                       lua_typename (L, lua_type(L, -1)), key_name);
         }
         break;
 
@@ -383,7 +383,7 @@ grl_util_build_media (lua_State *L,
           grl_util_add_table_to_media (L, media, key_id, key_name, type);
         } else if (!lua_isnil (L, -1)) {
           GRL_WARNING ("'%s' is not compatible for '%s'",
-                       lua_typename (L, -1), key_name);
+                       lua_typename (L, lua_type(L, -1)), key_name);
         }
         break;
       case G_TYPE_BOOLEAN:
@@ -391,7 +391,7 @@ grl_util_build_media (lua_State *L,
           grl_data_set_boolean (GRL_DATA (media), key_id, lua_toboolean (L, -1));
         } else if (!lua_isnil (L, -1)) {
           GRL_WARNING ("'%s' is not compatible for '%s'",
-                       lua_typename (L, -1), key_name);
+                       lua_typename (L, lua_type(L, -1)), key_name);
         }
         break;
 

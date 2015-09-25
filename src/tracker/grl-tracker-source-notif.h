@@ -50,7 +50,6 @@
 /**/
 
 void grl_tracker_source_dbus_start_watch (void);
-
-void grl_tracker_source_init_notifs (void);
+void grl_tracker_source_dbus_stop_watch (void);
 
 #endif /* _GRL_TRACKER_SOURCE_NOTIF_H_ */

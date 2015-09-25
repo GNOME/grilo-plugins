@@ -228,7 +228,6 @@ grl_tracker_plugin_init (GrlRegistry *registry,
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
-  grl_tracker_source_init_notifs ();
   grl_tracker_source_init_requests ();
 
   grl_tracker_plugin = plugin;

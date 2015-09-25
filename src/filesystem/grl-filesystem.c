@@ -903,9 +903,8 @@ file_cb (GFileInfo *file_info, RecursiveOperation *operation)
 }
 
 static void
-notify_parent_change (GrlSource *source, GFile *child, GrlSourceChangeType change)
+notify_change (GrlSource *source, GFile *file, GrlSourceChangeType change)
 {
-  GFile *parent;
   GrlMedia *media;
   GrlOperationOptions *options;
   GrlFilesystemSource *fs_source;
@@ -914,12 +913,9 @@ notify_parent_change (GrlSource *source, GFile *child, GrlSourceChangeType chang
   options = grl_operation_options_new (NULL);
   grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FAST_ONLY);
 
-  parent = g_file_get_parent (child);
-
-  media = grl_pls_file_to_media (NULL, parent ? parent : child, NULL, fs_source->priv->handle_pls, options);
+  media = grl_pls_file_to_media (NULL, file, NULL, fs_source->priv->handle_pls, options);
   grl_source_notify_change (source, media, change, FALSE);
   g_object_unref (media);
-  g_clear_object (&parent);
   g_object_unref (options);
 }
 
@@ -950,7 +946,7 @@ directory_changed (GFileMonitor *monitor,
      */
     uri = g_file_get_uri (file);
     if (g_hash_table_lookup (fs_source->priv->monitors, uri) != monitor)
-      notify_parent_change (source, file, GRL_CONTENT_REMOVED);
+      notify_change (source, file, GRL_CONTENT_REMOVED);
     g_free (uri);
 
     goto out;
@@ -966,13 +962,13 @@ directory_changed (GFileMonitor *monitor,
 
   /* File CHANGED */
   if (event == G_FILE_MONITOR_EVENT_CHANGED) {
-    notify_parent_change (source, file, GRL_CONTENT_CHANGED);
+    notify_change (source, file, GRL_CONTENT_CHANGED);
     goto out;
   }
 
   /* File CREATED */
   if (event == G_FILE_MONITOR_EVENT_CREATED) {
-    notify_parent_change (source, file, GRL_CONTENT_ADDED);
+    notify_change (source, file, GRL_CONTENT_ADDED);
     if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY)
       add_monitor (GRL_FILESYSTEM_SOURCE (source), file);
     goto out;
@@ -980,18 +976,8 @@ directory_changed (GFileMonitor *monitor,
 
   /* File MOVED */
   if (event == G_FILE_MONITOR_EVENT_MOVED) {
-    GFile *file_parent = g_file_get_parent (file);
-    GFile *other_file_parent = g_file_get_parent (other_file);
-
-    if (g_file_equal (file_parent, other_file_parent)) {
-      notify_parent_change (source, file, GRL_CONTENT_CHANGED);
-    } else {
-      notify_parent_change (source, file, GRL_CONTENT_REMOVED);
-      notify_parent_change (source, other_file, GRL_CONTENT_ADDED);
-    }
-
-    g_object_unref (file_parent);
-    g_object_unref (other_file_parent);
+      notify_change (source, file, GRL_CONTENT_REMOVED);
+      notify_change (source, other_file, GRL_CONTENT_ADDED);
     goto out;
   }
 

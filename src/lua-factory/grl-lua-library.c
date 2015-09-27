@@ -1542,6 +1542,10 @@ luaopen_grilo (lua_State *L)
   luaopen_json (L);
   lua_settable (L, -3);
 
+  lua_pushstring (L, GRILO_LUA_LIBRARY_XML);
+  luaopen_xml (L);
+  lua_settable (L, -3);
+
   /* Load inspect.lua and save object in global environment table */
   lua_getglobal (L, LUA_ENV_TABLE);
   if (load_gresource_library (L, URI_LUA_LIBRARY_INSPECT) &&

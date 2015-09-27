@@ -36,6 +36,7 @@ libgrlluafactory_la_SOURCES =					\
 	lua-library/htmlentity.c				\
 	lua-library/htmlentity.h				\
 	lua-library/lua-json.c					\
+	lua-library/lua-xml.c					\
 	lua-library/lua-libraries.h
 
 extdir			= $(GRL_PLUGINS_DIR)

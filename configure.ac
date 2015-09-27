@@ -663,11 +663,14 @@ AC_ARG_ENABLE(lua_factory,
                         if test "x$HAVE_JSON_GLIB" = "xno"; then
                            AC_MSG_ERROR([json-glib-1.0 not found, install it or use --disable-lua-factory])
                         fi
+                        if test "x$HAVE_XML" = "xno"; then
+                           AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-lua-factory])
+                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_LUA" = "xyes" -a "x$HAVE_ARCHIVE" = "xyes" -a "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_JSON_GLIB" = "xyes"; then
+                if test "x$HAVE_LUA" = "xyes" -a "x$HAVE_ARCHIVE" = "xyes" -a "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_JSON_GLIB" = "xyes" -a "x$HAVE_XML" = "xyes"; then
                   enable_lua_factory=yes
                 else
                   enable_lua_factory=no
@@ -685,12 +688,12 @@ LUA_FACTORY_PLUGIN_ID="grl-lua-factory"
 AC_SUBST(LUA_FACTORY_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([LUA_FACTORY_PLUGIN_ID], ["$LUA_FACTORY_PLUGIN_ID"], [Lua Factory plugin ID])
 
-DEPS_LUA_FACTORY_CFLAGS="$DEPS_CFLAGS $LUA_CFLAGS $ARCHIVE_CFLAGS $GRLNET_CFLAGS $JSON_CFLAGS $TOTEM_PL_PARSER_MINI_CFLAGS"
+DEPS_LUA_FACTORY_CFLAGS="$DEPS_CFLAGS $LUA_CFLAGS $ARCHIVE_CFLAGS $GRLNET_CFLAGS $JSON_CFLAGS $TOTEM_PL_PARSER_MINI_CFLAGS $XML_CFLAGS"
 if test "x$enable_goa" = "xyes"; then
 	DEPS_LUA_FACTORY_CFLAGS="$DEPS_LUA_FACTORY_CFLAGS $GOA_CFLAGS"
 fi
 AC_SUBST(DEPS_LUA_FACTORY_CFLAGS)
-DEPS_LUA_FACTORY_LIBS="$DEPS_LIBS $LUA_LIBS $ARCHIVE_LIBS $GRLNET_LIBS $JSON_LIBS $TOTEM_PL_PARSER_MINI_LIBS"
+DEPS_LUA_FACTORY_LIBS="$DEPS_LIBS $LUA_LIBS $ARCHIVE_LIBS $GRLNET_LIBS $JSON_LIBS $TOTEM_PL_PARSER_MINI_LIBS $XML_LIBS"
 if test "x$enable_goa" = "xyes"; then
 	DEPS_LUA_FACTORY_LIBS="$DEPS_LUA_FACTORY_LIBS $GOA_LIBS"
 fi

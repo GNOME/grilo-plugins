@@ -33,8 +33,10 @@
 #define URI_LUA_LIBRARY_INSPECT     GRESOURCE_LIBRARY_PREFIX "inspect.lua"
 
 #define GRILO_LUA_LIBRARY_INSPECT   "inspect"
-#define GRILO_LUA_LIBRARY_JSON  "json"
+#define GRILO_LUA_LIBRARY_JSON      "json"
+#define GRILO_LUA_LIBRARY_XML       "xml"
 
 gint luaopen_json (lua_State *L);
+gint luaopen_xml (lua_State *L);
 
 #endif /* _GRL_LUA_LIBRARY_JSON_H_ */

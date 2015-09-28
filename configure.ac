@@ -151,8 +151,6 @@ if test "x$HAVE_TOTEM_PL_PARSER_MINI" = "xyes"; then
 	AC_DEFINE(HAVE_TOTEM_PLPARSER_MINI, 1, [totem-plparser-mini is available])
 fi
 
-PKG_CHECK_MODULES(REST, [rest-0.7 >= 0.7.90], HAVE_REST=yes, HAVE_REST=no)
-
 PKG_CHECK_MODULES([JSON], [json-glib-1.0], HAVE_JSON_GLIB=yes, HAVE_JSON_GLIB=no)
 
 PKG_CHECK_MODULES(GMIME, gmime-2.6,

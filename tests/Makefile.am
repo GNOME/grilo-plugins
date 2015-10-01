@@ -14,7 +14,9 @@ SUBDIRS += dleyna
 endif
 
 if LOCALMETADATA_PLUGIN
+if LUA_FACTORY_PLUGIN
 SUBDIRS += local-metadata
+endif
 endif
 
 if LUA_FACTORY_PLUGIN

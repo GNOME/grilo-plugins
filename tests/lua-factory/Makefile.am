@@ -10,7 +10,8 @@ include $(top_srcdir)/gtester.mk
 SUBDIRS = sources
 
 TEST_PROGS +=	\
-	test_lua_factory_grl_media
+	test_lua_factory_grl_media	\
+	test_lua_factory_xml_parser
 
 test_lua_factory_defines =	\
 	-DLUA_FACTORY_PLUGIN_PATH=\""$(abs_top_srcdir)/src/lua-factory/.libs/"\"	\
@@ -31,6 +32,17 @@ test_lua_factory_grl_media_CFLAGS =	\
 	@JSON_CFLAGS@			\
 	$(test_lua_factory_defines)
 
+test_lua_factory_xml_parser_SOURCES =	\
+	test_lua_factory_xml_parser.c	\
+	luafactorytestsresources.h luafactorytestsresources.c
+
+test_lua_factory_xml_parser_LDADD =	\
+	@DEPS_LIBS@
+
+test_lua_factory_xml_parser_CFLAGS =	\
+	@DEPS_CFLAGS@			\
+	$(test_lua_factory_defines)
+
 lua_factory_tests_resources_files =	\
   data/grl-media-test-all-metadata.json
 
@@ -49,10 +61,11 @@ CLEANFILES = \
 	luafactorytestsresources.h	\
 	luafactorytestsresources.c
 
-dist_noinst_DATA =                             \
-       data/config.ini                         \
-       data/test-source-grl-media.lua          \
-       data/grl-media-test-all-metadata.json
+dist_noinst_DATA =				\
+	$(lua_factory_tests_resources_files)	\
+	data/config.ini				\
+	data/test-source-grl-media.lua		\
+	data/test-source-xml-parser.lua
 
 noinst_PROGRAMS = $(TEST_PROGS)
 

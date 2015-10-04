@@ -79,92 +79,6 @@ end
 -- Utilities --
 ---------------
 
--- simili-XML parsing from
--- http://lua-users.org/wiki/LuaXml
-function parseargs(s)
-  local arg = {}
-  string.gsub(s, "([%-%w]+)=([\"'])(.-)%2", function (w, _, a)
-    arg[w] = a
-  end)
-  return arg
-end
-
-function collect(s)
-  local stack = {}
-  local top = {}
-  table.insert(stack, top)
-  local ni,c,label,xarg, empty
-  local i, j = 1, 1
-  while true do
-    ni,j,c,label,xarg, empty = string.find(s, "<(%/?)([%w:]+)(.-)(%/?)>", i)
-    if not ni then break end
-    local text = string.sub(s, i, ni-1)
-    if not string.find(text, "^%s*$") then
-      table.insert(top, text)
-    end
-    if empty == "/" then  -- empty element tag
-      table.insert(top, {label=label, xarg=parseargs(xarg), empty=1})
-    elseif c == "" then   -- start tag
-      top = {label=label, xarg=parseargs(xarg)}
-      table.insert(stack, top)   -- new level
-    else  -- end tag
-      local toclose = table.remove(stack)  -- remove top
-      top = stack[#stack]
-      if #stack < 1 then
-        error("nothing to close with "..label)
-      end
-      if toclose.label ~= label then
-        error("trying to close "..toclose.label.." with "..label)
-      end
-      table.insert(top, toclose)
-    end
-    i = j+1
-  end
-  local text = string.sub(s, i)
-  if not string.find(text, "^%s*$") then
-    table.insert(stack[#stack], text)
-  end
-  if #stack > 1 then
-    error("unclosed "..stack[#stack].label)
-  end
-  return stack[1]
-end
-
-function flatten_array(array)
-  local t = {}
-
-  for i, v in ipairs(array) do
-    if v.label == 'movieinfo' then
-      v.label = v.xarg.id
-    end
-
-    if v.xarg and v.xarg.filesize then
-      t['filesize'] = v.xarg.filesize
-    end
-
-    if v.label then
-      if (type(v) == "table") then
-        -- t['name'] already exists, append to it
-        if t[v.label] then
-          table.insert(t[v.label], v[1])
-        else
-          t[v.label] = flatten_array(v)
-        end
-      else
-        t[v.label] = v
-      end
-    else
-      if (type(v) == "table") then
-        table.insert(t, flatten_array(v))
-      else
-        table.insert(t, v)
-      end
-    end
-  end
-
-  return t
-end
-
 function fetch_results_cb(results)
   if not results then
     grl.warning('Failed to fetch XML file')
@@ -172,9 +86,7 @@ function fetch_results_cb(results)
     return
   end
 
-  local array = collect(results)
-  cached_xml = flatten_array(array)
-
+  cached_xml = grl.lua.xml.string_to_table(results)
   parse_results(cached_xml)
 end
 
@@ -182,24 +94,34 @@ function parse_results(results)
   local count = grl.get_options("count")
   local skip = grl.get_options("skip")
 
-  for i, item in pairs(results.records) do
+  for i, item in pairs(results.records.movieinfo) do
     local media = {}
 
     media.type = 'video'
-    media.id = i
-    if item.cast then media.performer = item.cast.name end
-    media.genre = item.genre.name
-    media.license = item.info.copyright[1]
-    media.description = item.info.description[1]
-    media.director = item.info.director[1]
-    media.publication_date = item.info.releasedate[1]
-    media.certificate = item.info.rating[1]
-    media.studio = item.info.studio[1]
-    media.title = item.info.title[1]
-    media.thumbnail = item.poster.xlarge[1]
-    media.url = item.preview.large[1]
-    media.size = item.preview.filesize
-    local mins, secs = item.info.runtime[1]:match('(%d):(%d)')
+    media.id = item.id
+    if item.cast then
+      media.performer = {}
+      for j, cast in pairs(item.cast.name) do
+        table.insert(media.performer, cast.xml)
+      end
+    end
+    if item.genre then
+      media.genre = {}
+      for j, genre in pairs(item.genre.name) do
+        table.insert(media.genre, genre.xml)
+      end
+    end
+    media.license = item.info.copyright.xml
+    media.description = item.info.description.xml
+    media.director = item.info.director.xml
+    media.publication_date = item.info.releasedate.xml
+    media.certificate = item.info.rating.xml
+    media.studio = item.info.studio.xml
+    media.title = item.info.title.xml
+    media.thumbnail = item.poster.xlarge.xml
+    media.url = item.preview.large.xml
+    media.size = item.preview.large.filesize
+    local mins, secs = item.info.runtime.xml:match('(%d):(%d)')
     media.duration = tonumber(mins) * 60 + tonumber(secs)
 
     if skip > 0 then

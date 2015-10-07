@@ -992,12 +992,15 @@ grl_l_fetch (lua_State *L)
   const gchar *lua_callback;
   GrlNetWc *wc;
   gboolean is_table = FALSE;
+  gboolean wc_options = FALSE;
   OperationSpec *os;
 
   luaL_argcheck (L, (lua_isstring (L, 1) || lua_istable (L, 1)), 1,
                  "expecting url as string or an array of urls");
   luaL_argcheck (L, lua_isstring (L, 2), 2,
                  "expecting callback function as string");
+  /* Optional third argument */
+  wc_options = (lua_gettop(L) == 3);
 
   os = grl_lua_library_get_current_operation (L);
   g_return_val_if_fail (os != NULL, 0);
@@ -1035,7 +1038,7 @@ grl_l_fetch (lua_State *L)
 
   lua_callback = lua_tolstring (L, 2, NULL);
 
-  wc = net_wc_new_with_options(L, 3);
+  wc = (wc_options) ? net_wc_new_with_options(L, 3) : grl_net_wc_new ();
 
   /* shared data between urls */
   results = g_new0 (gchar *, num_urls);

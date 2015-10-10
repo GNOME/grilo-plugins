@@ -909,40 +909,82 @@ push_grl_media_key (lua_State *L,
   GrlRegistry *registry;
   GType type;
   const gchar *key_name;
+  guint i, num_values;
+  gboolean is_array = FALSE;
 
   registry = grl_registry_get_default ();
   type = grl_registry_lookup_metadata_key_type (registry, key_id);
   key_name = grl_registry_lookup_metadata_key_name (registry, key_id);
 
-  switch (type) {
-  case G_TYPE_INT:
-    lua_pushinteger (L, grl_data_get_int (GRL_DATA (media), key_id));
-    break;
-  case G_TYPE_FLOAT:
-    lua_pushnumber (L, grl_data_get_float (GRL_DATA (media), key_id));
-    break;
-  case G_TYPE_STRING:
-    lua_pushstring (L, grl_data_get_string (GRL_DATA (media), key_id));
-    break;
-  case G_TYPE_INT64:
-    lua_pushinteger (L, grl_data_get_int64 (GRL_DATA (media), key_id));
-    break;
-  case G_TYPE_BOOLEAN:
-    lua_pushboolean (L, grl_data_get_boolean (GRL_DATA (media), key_id));
-    break;
-  default:
-    if (type == G_TYPE_DATE_TIME) {
-      GDateTime *date = grl_data_get_boxed (GRL_DATA (media), key_id);
-      gchar *date_str = g_date_time_format (date, "%F %T");
-      lua_pushstring (L, date_str);
-      g_free(date_str);
-    } else {
-      GRL_DEBUG ("Key %s has unhandled G_TYPE. Lua source will miss this data",
-                 key_name);
-      return FALSE;
+  num_values = grl_data_length (GRL_DATA (media), key_id);
+  if (num_values  == 0)  {
+    GRL_DEBUG ("Key %s has no data", key_name);
+    return FALSE;
+  } else if (num_values > 1) {
+    is_array = TRUE;
+    lua_createtable (L, num_values, 0);
+  }
+
+  for (i = 0; i < num_values; i++) {
+    GrlRelatedKeys *relkeys;
+    const GValue *val;
+
+    relkeys = grl_data_get_related_keys (GRL_DATA (media), key_id, i);
+    if (!relkeys) {
+      GRL_DEBUG ("Key %s failed to retrieve data at index %d due NULL GrlRelatedKeys",
+                 key_name, i);
+      continue;
     }
+
+    val = grl_related_keys_get (relkeys, key_id);
+    if (!val) {
+      GRL_DEBUG ("Key %s failed to retrieve data at index %d due NULL GValue",
+                 key_name, i);
+      continue;
+    }
+
+    if (is_array)
+      lua_pushinteger (L, i + 1);
+
+    switch (type) {
+    case G_TYPE_INT:
+      lua_pushinteger (L, g_value_get_int (val));
+      break;
+    case G_TYPE_FLOAT:
+      lua_pushnumber (L, g_value_get_float (val));
+      break;
+    case G_TYPE_STRING:
+      lua_pushstring (L, g_value_get_string (val));
+      break;
+    case G_TYPE_INT64:
+      lua_pushinteger (L, g_value_get_int64 (val));
+      break;
+    case G_TYPE_BOOLEAN:
+      lua_pushboolean (L, g_value_get_boolean (val));
+      break;
+    default:
+      if (type == G_TYPE_DATE_TIME) {
+        GDateTime *date = g_value_get_boxed (val);
+        gchar *date_str = g_date_time_format (date, "%F %T");
+        lua_pushstring (L, date_str);
+        g_free(date_str);
+      } else {
+        GRL_DEBUG ("Key %s has unhandled G_TYPE. Lua source will miss this data",
+                   key_name);
+        goto fail;
+      }
+    }
+
+    if (is_array)
+      lua_settable (L, -3);
   }
   return TRUE;
+
+fail:
+  if (is_array)
+    lua_pop (L, 1);
+
+  return FALSE;
 }
 
 /**

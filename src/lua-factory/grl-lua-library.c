@@ -901,6 +901,50 @@ grl_l_operation_get_keys (lua_State *L)
   return 1;
 }
 
+static gboolean
+push_grl_media_key (lua_State *L,
+                    GrlMedia *media,
+                    GrlKeyID key_id)
+{
+  GrlRegistry *registry;
+  GType type;
+  const gchar *key_name;
+
+  registry = grl_registry_get_default ();
+  type = grl_registry_lookup_metadata_key_type (registry, key_id);
+  key_name = grl_registry_lookup_metadata_key_name (registry, key_id);
+
+  switch (type) {
+  case G_TYPE_INT:
+    lua_pushinteger (L, grl_data_get_int (GRL_DATA (media), key_id));
+    break;
+  case G_TYPE_FLOAT:
+    lua_pushnumber (L, grl_data_get_float (GRL_DATA (media), key_id));
+    break;
+  case G_TYPE_STRING:
+    lua_pushstring (L, grl_data_get_string (GRL_DATA (media), key_id));
+    break;
+  case G_TYPE_INT64:
+    lua_pushinteger (L, grl_data_get_int64 (GRL_DATA (media), key_id));
+    break;
+  case G_TYPE_BOOLEAN:
+    lua_pushboolean (L, grl_data_get_boolean (GRL_DATA (media), key_id));
+    break;
+  default:
+    if (type == G_TYPE_DATE_TIME) {
+      GDateTime *date = grl_data_get_boxed (GRL_DATA (media), key_id);
+      gchar *date_str = g_date_time_format (date, "%F %T");
+      lua_pushstring (L, date_str);
+      g_free(date_str);
+    } else {
+      GRL_DEBUG ("Key %s has unhandled G_TYPE. Lua source will miss this data",
+                 key_name);
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
 /**
 * grl.get_media_keys
 *
@@ -920,58 +964,28 @@ grl_l_media_get_keys (lua_State *L)
   registry = grl_registry_get_default ();
   lua_newtable (L);
   list_keys = grl_data_get_keys (GRL_DATA (os->media));
-  for (it = list_keys; it; it = g_list_next (it)) {
+  for (it = list_keys; it != NULL; it = it->next) {
     GrlKeyID key_id;
     gchar *key_name;
     gchar *ptr = NULL;
-    GType type = G_TYPE_NONE;
 
     key_id = GRLPOINTER_TO_KEYID (it->data);
+    if (key_id == GRL_METADATA_KEY_INVALID)
+      continue;
+
     key_name = g_strdup (grl_registry_lookup_metadata_key_name (registry,
                                                                 key_id));
-    key_id = grl_registry_lookup_metadata_key (registry, key_name);
-
     /* Replace '-' to '_': as a convenience for the developer */
     while ((ptr = strstr (key_name, "-")) != NULL) {
       *ptr = '_';
     }
 
     lua_pushstring (L, key_name);
-    if (key_id != GRL_METADATA_KEY_INVALID) {
-      type = grl_registry_lookup_metadata_key_type (registry, key_id);
-      switch (type) {
-      case G_TYPE_INT:
-        lua_pushnumber (L, grl_data_get_int (GRL_DATA (os->media), key_id));
-        break;
-      case G_TYPE_FLOAT:
-        lua_pushnumber (L, grl_data_get_float (GRL_DATA (os->media), key_id));
-        break;
-      case G_TYPE_STRING:
-        lua_pushstring (L, grl_data_get_string (GRL_DATA (os->media), key_id));
-        break;
-      case G_TYPE_INT64:
-        lua_pushnumber (L, grl_data_get_int64 (GRL_DATA (os->media), key_id));
-        break;
-      case G_TYPE_BOOLEAN:
-        lua_pushboolean (L, grl_data_get_boolean (GRL_DATA (os->media), key_id));
-        break;
-      default:
-        if (type == G_TYPE_DATE_TIME) {
-          GDateTime *date = grl_data_get_boxed (GRL_DATA (os->media), key_id);
-          gchar *date_str = g_date_time_format (date, "%F %T");
-          lua_pushstring (L, date_str);
-          g_free(date_str);
-
-        } else {
-          GRL_DEBUG ("'%s' is being ignored as G_TYPE is not being handled.",
-                     key_name);
-          g_free (key_name);
-          lua_pop (L, 1);
-          continue;
-        }
-      }
+    if (push_grl_media_key (L, os->media, key_id))
       lua_settable (L, -3);
-    }
+    else
+      lua_pop (L, 1);
+
     g_free (key_name);
   }
   g_list_free (list_keys);

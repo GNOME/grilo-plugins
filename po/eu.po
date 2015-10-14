@@ -2,55 +2,22 @@
 # Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
-# Iñaki Larrañaga Murgoitio <dooteo@zundan.com>, 2014, 2015.
 #
+# Iñaki Larrañaga Murgoitio <dooteo@zundan.com>, 2014, 2015.
 msgid ""
 msgstr ""
-"Project-Id-Version: grilo-plugins master\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
-"plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-03-21 14:42+0100\n"
-"PO-Revision-Date: 2015-03-21 14:43+0100\n"
-"Last-Translator: Iñaki Larrañaga Murgoitio <dooteo@zundan.com>\n"
+"Project-Id-Version: grilo-plugins 0.2.x\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-10-14 12:35+0200\n"
+"PO-Revision-Date: 2015-09-29 00:11+0200\n"
+"Last-Translator: Inaki Larranaga Murgoitio <dooteo@zundan.com>\n"
 "Language-Team: Basque <librezale@librezale.org>\n"
 "Language: eu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 1.4\n"
-
-#: ../src/apple-trailers/grl-apple-trailers.c:55
-msgid "Apple Movie Trailers"
-msgstr "Apple filmen aurrerakinak"
-
-#: ../src/apple-trailers/grl-apple-trailers.c:56
-msgid "A plugin for browsing Apple Movie Trailers"
-msgstr "Apple filmen aurrerakinak arakatzeko plugina"
-
-#: ../src/apple-trailers/grl-apple-trailers.c:469
-#: ../src/jamendo/grl-jamendo.c:339 ../src/jamendo/grl-jamendo.c:700
-#: ../src/shoutcast/grl-shoutcast.c:410 ../src/shoutcast/grl-shoutcast.c:464
-msgid "Failed to parse response"
-msgstr "Huts egin du erantzuna analizatzean"
-
-#: ../src/apple-trailers/grl-apple-trailers.c:477
-#: ../src/jamendo/grl-jamendo.c:347 ../src/jamendo/grl-jamendo.c:354
-#: ../src/podcasts/grl-podcasts.c:1361 ../src/shoutcast/grl-shoutcast.c:418
-msgid "Empty response"
-msgstr "Erantzuna hutsik"
-
-#: ../src/apple-trailers/grl-apple-trailers.c:532
-#: ../src/jamendo/grl-jamendo.c:669
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:252
-#: ../src/shoutcast/grl-shoutcast.c:552
-#, c-format
-msgid "Failed to connect: %s"
-msgstr "Huts egin du konektatzean: %s"
-
-#: ../src/bliptv/grl-bliptv.c:60
-msgid "A source for browsing and searching Blip.tv videos"
-msgstr "Blip.tv bideoak arakatzeko eta bilatzeko iturburua"
+"X-Generator: Lokalize 1.5\n"
 
 #: ../src/bookmarks/grl-bookmarks.c:67
 msgid "Bookmarks"
@@ -103,39 +70,48 @@ msgstr "Huts egin du igotzean, helburuko iturburua apurtuta"
 msgid "Upload failed, '%s', transferred %lu of %lu bytes"
 msgstr "Huts egin du '%s' igotzean, %lu/%lu byte transferituta"
 
-#: ../src/dleyna/grl-dleyna-source.c:880
+#: ../src/dleyna/grl-dleyna-source.c:881
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr ""
 "Huts egin du elementuaren propietateak eskuratzean (BrowseObjects errorea "
 "%d: %s)"
 
-#: ../src/dleyna/grl-dleyna-source.c:1519
+#: ../src/dleyna/grl-dleyna-source.c:1520
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr ""
 "Huts egin du igotzean. URLa falta da multimediaren objektuan transferitzeko"
 
-#: ../src/dmap/grl-dmap.c:51
+#: ../src/dmap/grl-daap.c:52
 #, c-format
-msgid "A source for browsing the DMAP server '%s'"
-msgstr "'%s' DMAP zerbitzaria arakatzeko iturburua"
+msgid "A source for browsing the DAAP server '%s'"
+msgstr "'%s' DAAP zerbitzaria arakatzeko iturburua"
 
-#: ../src/dmap/simple-dmap-db.c:62 ../src/jamendo/grl-jamendo.c:787
+#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:787
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Albumak"
 
-#: ../src/dmap/simple-dmap-db.c:64 ../src/jamendo/grl-jamendo.c:776
+#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:776
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Artistak"
 
-#: ../src/dmap/simple-dmap-db.c:293 ../src/jamendo/grl-jamendo.c:1114
+#: ../src/dmap/grl-daap-db.c:287 ../src/jamendo/grl-jamendo.c:1114
 #: ../src/jamendo/grl-jamendo.c:1189 ../src/magnatune/grl-magnatune.c:834
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Baliogabeko '%s' edukiontziaren identifikatzailea"
+
+#: ../src/dmap/grl-dpap.c:52
+#, c-format
+msgid "A source for browsing the DPAP server '%s'"
+msgstr "'%s' DPAP zerbitzaria arakatzeko iturburua"
+
+#: ../src/dmap/grl-dpap-db.c:36
+msgid "Photos"
+msgstr "Argazkiak"
 
 #: ../src/filesystem/grl-filesystem.c:60
 msgid "Filesystem"
@@ -145,12 +121,12 @@ msgstr "Fitxategi-sistema"
 msgid "A source for browsing the filesystem"
 msgstr "Fitxategi-sistema arakatzeko iturburua"
 
-#: ../src/filesystem/grl-filesystem.c:1148
+#: ../src/filesystem/grl-filesystem.c:1186
 #, c-format
 msgid "File %s does not exist"
 msgstr "Ez da '%s' fitxategia existitzen"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1591
+#: ../src/filesystem/grl-filesystem.c:1264 ../src/youtube/grl-youtube.c:1520
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Ezin da multimedia eskuratu '%s'(e)tik"
@@ -223,6 +199,23 @@ msgstr "Goreneko albumak"
 msgid "Top tracks"
 msgstr "Goreneko pistak"
 
+#: ../src/jamendo/grl-jamendo.c:339 ../src/jamendo/grl-jamendo.c:700
+#: ../src/shoutcast/grl-shoutcast.c:410 ../src/shoutcast/grl-shoutcast.c:464
+msgid "Failed to parse response"
+msgstr "Huts egin du erantzuna analizatzean"
+
+#: ../src/jamendo/grl-jamendo.c:347 ../src/jamendo/grl-jamendo.c:354
+#: ../src/podcasts/grl-podcasts.c:1361 ../src/shoutcast/grl-shoutcast.c:418
+msgid "Empty response"
+msgstr "Erantzuna hutsik"
+
+#: ../src/jamendo/grl-jamendo.c:669
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:262
+#: ../src/shoutcast/grl-shoutcast.c:552
+#, c-format
+msgid "Failed to connect: %s"
+msgstr "Huts egin du konektatzean: %s"
+
 #: ../src/jamendo/grl-jamendo.c:798
 msgid "Feeds"
 msgstr "Iturriak"
@@ -233,8 +226,8 @@ msgstr "Iturriak"
 msgid "Invalid identifier %s"
 msgstr "Baliogabeko '%s' identifikatzailea"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1189
-#: ../src/youtube/grl-youtube.c:1320 ../src/youtube/grl-youtube.c:1528
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1112
+#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Baliogabeko '%s' kategoria identifikatzailea"
@@ -249,11 +242,11 @@ msgstr "Huts egin du arakatzean: '%s' pista bat da"
 msgid "Malformed query \"%s\""
 msgstr "Gaizki osatutako '%s' kontsulta"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
 msgid "Album art Provider from Last.FM"
 msgstr "Albumaren argazkien hornitzailea Last.FM gunetik"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
+#: ../src/lastfm-albumart/grl-lastfm-albumart.c:62
 msgid "A plugin for getting album arts using Last.FM as backend"
 msgstr ""
 "Albumaren argazkiak eskuratzeko plugina (Last.FM atzeko plano gisa erabiliz)"
@@ -266,18 +259,18 @@ msgstr "Lokaleko meta-datuen hornitzailea"
 msgid "A source providing locally available metadata"
 msgstr "Lokalean eskuragarri dauden meta-datuak hornitzen dituen iturburua"
 
-#: ../src/local-metadata/grl-local-metadata.c:609
+#: ../src/local-metadata/grl-local-metadata.c:711
 #: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:868
 #: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Huts egin du ebaztean: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:1033
+#: ../src/local-metadata/grl-local-metadata.c:1179
 msgid "Cannot resolve any of the given keys"
 msgstr "Ezin da emandako gakorik ebatzi"
 
-#: ../src/local-metadata/grl-local-metadata.c:1037
+#: ../src/local-metadata/grl-local-metadata.c:1183
 msgid "A GIO supported URL for images is required"
 msgstr "GIOk onartutako URLa behar da irudientzako"
 
@@ -364,14 +357,6 @@ msgstr "Euskarri optikoa"
 #: ../src/optical-media/grl-optical-media.c:47
 msgid "A source for browsing optical media"
 msgstr "Euskarri optikoa arakatzeko iturburua"
-
-#: ../src/pocket/grl-pocket.c:47
-msgid "Pocket"
-msgstr "Pocket"
-
-#: ../src/pocket/grl-pocket.c:48
-msgid "A source for browsing Pocket videos"
-msgstr "Pocket bideoak arakatzeko iturburua"
 
 #: ../src/podcasts/grl-podcasts.c:155
 msgid "A source for browsing podcasts"
@@ -534,7 +519,7 @@ msgstr "Ezin da '%s' multimedia bilatu"
 msgid "non-NULL search text is required"
 msgstr "Nulua ez den bilaketa-testua behar da"
 
-#: ../src/thetvdb/grl-thetvdb.c:97
+#: ../src/thetvdb/grl-thetvdb.c:98
 msgid "A source for fetching metadata of television shows"
 msgstr "Iturburua (telebistako programen metadatuak eskuratzeko)"
 
@@ -564,12 +549,12 @@ msgstr "Kontsulta hutsik"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Tracker erabiliz multimediaren edukia bilatzeko plugina"
 
-#: ../src/tracker/grl-tracker-utils.c:635
+#: ../src/tracker/grl-tracker-utils.c:640
 #, c-format
 msgid "Removable - %s"
 msgstr "Aldagarria - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:647
+#: ../src/tracker/grl-tracker-utils.c:652
 msgid "Local files"
 msgstr "Lokaleko fitxategiak"
 
@@ -625,14 +610,29 @@ msgstr "Ikusi mugikorrean"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Youtube-ko bideoak arakatzeko eta bilatzeko iturburua"
 
-#: ../src/youtube/grl-youtube.c:950
+#: ../src/youtube/grl-youtube.c:871
 msgid "Failed to get feed"
 msgstr "Huts egin du iturria eskuratzean"
 
-#: ../src/youtube/grl-youtube.c:1127 ../src/youtube/grl-youtube.c:1508
+#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Baliogabeko '%s' iturriaren identifikatzailea"
+
+#~ msgid "Apple Movie Trailers"
+#~ msgstr "Apple filmen aurrerakinak"
+
+#~ msgid "A plugin for browsing Apple Movie Trailers"
+#~ msgstr "Apple filmen aurrerakinak arakatzeko plugina"
+
+#~ msgid "A source for browsing and searching Blip.tv videos"
+#~ msgstr "Blip.tv bideoak arakatzeko eta bilatzeko iturburua"
+
+#~ msgid "Pocket"
+#~ msgstr "Pocket"
+
+#~ msgid "A source for browsing Pocket videos"
+#~ msgstr "Pocket bideoak arakatzeko iturburua"
 
 #~ msgid "A source for browsing the UPnP server '%s'"
 #~ msgstr "'%s' UPnP zerbitzaria arakatzeko iturburua"

@@ -384,6 +384,7 @@ filter_func_radio (GrlSource   *source,
   GrlMedia *ret;
   const gchar *title;
   char *new_title;
+  char *id;
 
   title = grl_media_get_title (media);
   if (title == NULL) {
@@ -399,7 +400,11 @@ filter_func_radio (GrlSource   *source,
 
   ret = grl_media_audio_new ();
   grl_media_set_url (ret, grl_media_get_url (media));
-  grl_media_set_id (ret, grl_media_get_url (media));
+  id = g_strdup_printf ("%s-%d",
+                        grl_media_get_url (media),
+                        grl_data_get_int (GRL_DATA (media), GRL_METADATA_KEY_AUDIO_TRACK));
+  grl_media_set_id (ret, id);
+  g_free (id);
   grl_data_set_int (GRL_DATA (ret), GRL_METADATA_KEY_AUDIO_TRACK,
                     grl_data_get_int (GRL_DATA (media), GRL_METADATA_KEY_AUDIO_TRACK));
   /* We'll add icon when http://dev.freebox.fr/bugs/task/14946 is fixed */

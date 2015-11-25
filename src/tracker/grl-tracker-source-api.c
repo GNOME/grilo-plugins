@@ -1021,6 +1021,16 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
   g_free (duration_constraint);
 }
 
+static gboolean
+is_root_box (GrlMedia *container)
+{
+  if (container == NULL)
+    return TRUE;
+  if (!grl_media_get_id (container))
+    return TRUE;
+  return FALSE;
+}
+
 static void
 grl_tracker_source_browse_category (GrlSource *source,
                                     GrlSourceBrowseSpec *bs)
@@ -1041,7 +1051,43 @@ grl_tracker_source_browse_category (GrlSource *source,
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->operation_id);
 
-  if (bs->container == NULL ||
+  /* If the category is missing, try to get it from the
+   * container's ID */
+  if (!is_root_box (bs->container) &&
+      !grl_data_has_key (GRL_DATA (bs->container),
+                         grl_metadata_key_tracker_category)) {
+    const char *id;
+
+    id = grl_media_get_id (bs->container);
+    if (g_strcmp0 (id, "documents") == 0)
+      category = "nfo:Document";
+    else if (g_strcmp0 (id, "music") == 0)
+      category = "nmm:MusicPiece";
+    else if (g_strcmp0 (id, "photos") == 0)
+      category = "nmm:Photo";
+    else if (g_strcmp0 (id, "videos") == 0)
+      category = "nmm:Video";
+    else {
+      GError *error;
+
+      error = g_error_new (GRL_CORE_ERROR,
+                           GRL_CORE_ERROR_BROWSE_FAILED,
+                           _("ID '%s' is not known in this source"),
+                           id);
+
+      bs->callback (bs->source, bs->operation_id, NULL, 0,
+                    bs->user_data, error);
+
+      g_error_free (error);
+      return;
+    }
+
+    grl_data_set_string (GRL_DATA (bs->container),
+                         grl_metadata_key_tracker_category,
+                         category);
+  }
+
+  if (is_root_box (bs->container) ||
       !grl_data_has_key (GRL_DATA (bs->container),
                          grl_metadata_key_tracker_category)) {
     /* Hardcoded categories */

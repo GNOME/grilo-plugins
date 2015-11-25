@@ -1083,6 +1083,7 @@ grl_tracker_source_browse_category (GrlSource *source,
       if (remaining == 4) {
         media = grl_media_box_new ();
         grl_media_set_title (media, "Documents");
+        grl_media_set_id (media, "documents");
         grl_data_set_string (GRL_DATA (media),
                              grl_metadata_key_tracker_category,
                              "nfo:Document");
@@ -1093,6 +1094,7 @@ grl_tracker_source_browse_category (GrlSource *source,
       if (filter & GRL_TYPE_FILTER_AUDIO) {
         media = grl_media_box_new ();
         grl_media_set_title (media, "Music");
+        grl_media_set_id (media, "music");
         grl_data_set_string (GRL_DATA (media),
                              grl_metadata_key_tracker_category,
                              "nmm:MusicPiece");
@@ -1103,6 +1105,7 @@ grl_tracker_source_browse_category (GrlSource *source,
       if (filter & GRL_TYPE_FILTER_IMAGE) {
         media = grl_media_box_new ();
         grl_media_set_title (media, "Photos");
+        grl_media_set_id (media, "photos");
         grl_data_set_string (GRL_DATA (media),
                              grl_metadata_key_tracker_category,
                              "nmm:Photo");
@@ -1113,6 +1116,7 @@ grl_tracker_source_browse_category (GrlSource *source,
       if (filter & GRL_TYPE_FILTER_VIDEO) {
         media = grl_media_box_new ();
         grl_media_set_title (media, "Videos");
+        grl_media_set_id (media, "videos");
         grl_data_set_string (GRL_DATA (media),
                              grl_metadata_key_tracker_category,
                              "nmm:Video");

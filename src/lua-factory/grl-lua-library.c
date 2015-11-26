@@ -38,6 +38,9 @@
 #include <totem-pl-parser-mini.h>
 #endif
 
+#define LUA_SOURCE_TABLE            "source"
+#define LUA_SOURCE_TAGS             "tags"
+
 #define GRL_LOG_DOMAIN_DEFAULT lua_library_log_domain
 GRL_LOG_DOMAIN_STATIC (lua_library_log_domain);
 
@@ -219,21 +222,35 @@ grl_data_add_lua_string (GrlData    *data,
 }
 
 static gboolean
-verify_plaintext_fetch (GrlSource  *source,
-                        char      **urls,
+verify_plaintext_fetch (lua_State  *L,
+                        gchar     **urls,
                         guint       num_urls)
 {
-  const char **tags;
-  gboolean has_plaintext_tag;
   guint i;
 
-  tags = grl_source_get_tags (source);
-  has_plaintext_tag = (tags && g_strv_contains (tags, "net:plaintext"));
+  lua_getglobal (L, LUA_SOURCE_TABLE);
+  if (!lua_istable (L, -1)) {
+    lua_pop (L, 1);
+    return FALSE;
+  }
+  lua_getfield (L, -1, LUA_SOURCE_TAGS);
+  if (!lua_istable (L, -1)) {
+    lua_pop (L, 2);
+    return FALSE;
+  }
 
-  /* No need to verify the URLs, the source is saying that they do
-   * plaintext queries, so nothing for us to block */
-  if (has_plaintext_tag)
-    return TRUE;
+  lua_pushnil (L);
+  while (lua_next (L, -2) != 0) {
+    if (g_strcmp0 (lua_tostring (L, -1), "net:plaintext") == 0) {
+      /* No need to verify the URLs, the source is saying that they do
+       * plaintext queries, so nothing for us to block */
+      lua_pop (L, 4);
+      return TRUE;
+    }
+    lua_pop (L, 1);
+  }
+
+  lua_pop (L, 2);
 
   for (i = 0; i < num_urls; i++) {
     if (g_str_has_prefix (urls[i], "http:"))
@@ -1088,7 +1105,7 @@ grl_l_fetch (lua_State *L)
     }
   }
 
-  if (!verify_plaintext_fetch (os->source, urls, num_urls)) {
+  if (!verify_plaintext_fetch (L, urls, num_urls)) {
     GRL_WARNING ("Source '%s' is broken, it makes plaintext network queries but "
                  "does not set the 'net:plaintext' tag", grl_source_get_id (os->source));
     g_free (urls);

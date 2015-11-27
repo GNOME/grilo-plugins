@@ -1521,16 +1521,12 @@ grl_lua_factory_source_browse (GrlSource *source,
   GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
   lua_State *L = lua_source->priv->l_st;
   OperationSpec *os = NULL;
-  const gchar *media_id = NULL;
 
   GRL_DEBUG ("grl_lua_factory_source_browse");
-
-  media_id = bs->container ? grl_media_get_id (bs->container) : NULL;
 
   os = g_slice_new0 (OperationSpec);
   os->source = bs->source;
   os->operation_id = bs->operation_id;
-  os->media = bs->container;
   os->cb.result = bs->callback;
   os->user_data = bs->user_data;
   os->error_code = GRL_CORE_ERROR_BROWSE_FAILED;
@@ -1540,7 +1536,7 @@ grl_lua_factory_source_browse (GrlSource *source,
   grl_lua_library_set_current_operation (L, os->operation_id);
   lua_getglobal (L, LUA_SOURCE_OPERATION[LUA_BROWSE]);
 
-  lua_pushstring (L, media_id);
+  grl_lua_library_push_grl_media (L, bs->container);
   grl_lua_library_push_grl_options (L, bs->operation_id, bs->options, bs->keys);
 
   if (lua_pcall (L, 2, 0, 0)) {
@@ -1614,9 +1610,10 @@ grl_lua_factory_source_resolve (GrlSource *source,
   grl_lua_library_set_current_operation (L, os->operation_id);
   lua_getglobal (L, LUA_SOURCE_OPERATION[LUA_RESOLVE]);
 
+  grl_lua_library_push_grl_media (L, rs->media);
   grl_lua_library_push_grl_options (L, rs->operation_id, rs->options, rs->keys);
 
-  if (lua_pcall (L, 1, 0, 0)) {
+  if (lua_pcall (L, 2, 0, 0)) {
     GRL_WARNING ("%s '%s'", "calling resolve function fail:",
                  lua_tolstring (L, -1, NULL));
     lua_pop (L, 1);

@@ -809,24 +809,48 @@ fail:
 }
 
 /**
-* grl.get_media_keys
+* grl_lua_library_push_grl_media.
 *
-* @return: table with all keys/values of media (may be empty);
+* Pushes the GrlMedia on top of the lua stack as a key-value table
+*
+* @L: LuaState where the data is stored.
+* @media: GrlMedia to be put.
+* @return: Nothing.
 */
-static gint
-grl_l_media_get_keys (lua_State *L)
+void
+grl_lua_library_push_grl_media (lua_State *L,
+                                GrlMedia *media)
 {
-  OperationSpec *os;
   GrlRegistry *registry;
   GList *it;
   GList *list_keys;
+  const gchar *media_type = NULL;
 
-  os = grl_lua_library_get_current_operation (L);
-  g_return_val_if_fail (os != NULL, 0);
+  if (media == NULL) {
+    lua_pushnil (L);
+    return;
+  }
 
   registry = grl_registry_get_default ();
   lua_newtable (L);
-  list_keys = grl_data_get_keys (GRL_DATA (os->media));
+
+  if (grl_media_is_audio (media)) {
+    media_type = "audio";
+  } else if (grl_media_is_video (media)) {
+    media_type = "video";
+  } else if (grl_media_is_image (media)) {
+    media_type = "image";
+  } else if (grl_media_is_container (media)) {
+    media_type = "container";
+  }
+
+  if (media_type) {
+    lua_pushstring (L, "type");
+    lua_pushstring (L, media_type);
+    lua_settable (L, -3);
+  }
+
+  list_keys = grl_data_get_keys (GRL_DATA (media));
   for (it = list_keys; it != NULL; it = it->next) {
     GrlKeyID key_id;
     gchar *key_name;
@@ -844,7 +868,7 @@ grl_l_media_get_keys (lua_State *L)
     }
 
     lua_pushstring (L, key_name);
-    if (push_grl_media_key (L, os->media, key_id))
+    if (push_grl_media_key (L, media, key_id))
       lua_settable (L, -3);
     else
       lua_pop (L, 1);
@@ -852,7 +876,6 @@ grl_l_media_get_keys (lua_State *L)
     g_free (key_name);
   }
   g_list_free (list_keys);
-  return 1;
 }
 
 /**
@@ -968,7 +991,8 @@ grl_l_callback (lua_State *L)
     return 0;
   }
 
-  media = (os->op_type == LUA_RESOLVE) ? os->media : NULL;
+  media = os->media;
+
   if (nparam > 0) {
     media = grl_util_build_media (L, media);
     count = (lua_isinteger (L, 2)) ? lua_tointeger (L, 2) : 0;
@@ -1329,7 +1353,6 @@ gint
 luaopen_grilo (lua_State *L)
 {
   static const luaL_Reg library_fn[] = {
-    {"get_media_keys", &grl_l_media_get_keys},
     {"callback", &grl_l_callback},
     {"fetch", &grl_l_fetch},
     {"debug", &grl_l_debug},

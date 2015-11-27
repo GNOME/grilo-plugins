@@ -46,8 +46,8 @@ GRL_LOG_DOMAIN_STATIC (lua_library_log_domain);
 
 typedef struct {
   lua_State *L;
-  guint operation_id;
-  gchar *lua_cb;
+  gint lua_userdata;
+  gint lua_callback;
   guint index;
   gchar *url;
   guint num_urls;
@@ -57,8 +57,8 @@ typedef struct {
 
 typedef struct {
   lua_State *L;
-  guint operation_id;
-  gchar *lua_cb;
+  gint lua_userdata;
+  gint lua_callback;
   gchar *url;
   gchar **filenames;
 } UnzipOperation;
@@ -468,7 +468,6 @@ grl_util_fetch_done (GObject *source_object,
   gsize len;
   guint i;
   GError *err = NULL;
-  OperationSpec *os;
   FetchOperation *fo = (FetchOperation *) user_data;
   lua_State *L = fo->L;
   gchar *fixed = NULL;
@@ -502,17 +501,14 @@ grl_util_fetch_done (GObject *source_object,
     if (fo->results[i] == NULL) {
       /* Clean up this operation, and wait for
        * other operations to complete */
-      g_free (fo->lua_cb);
+      g_free (fo->url);
       g_free (fo);
       return;
     }
   }
 
-  grl_lua_library_set_current_operation (L, fo->operation_id);
-  os = grl_lua_library_get_current_operation (L);
-  os->pending_ops--;
-
-  lua_getglobal (L, fo->lua_cb);
+  /* get the callback from the registry */
+  lua_rawgeti (L, LUA_REGISTRYINDEX, fo->lua_callback);
 
   if (!fo->is_table) {
     lua_pushlstring (L, fo->results[0], strlen (fo->results[0]));
@@ -525,18 +521,22 @@ grl_util_fetch_done (GObject *source_object,
     }
   }
 
-  if (lua_pcall (L, 1, 0, 0)) {
-    GRL_WARNING ("%s (%s) '%s'", "calling source callback function fail",
-                 fo->lua_cb, lua_tolstring (L, -1, NULL));
+  /* get userdata from the registry */
+  lua_rawgeti (L, LUA_REGISTRYINDEX, fo->lua_userdata);
+
+  if (lua_pcall (L, 2, 0, 0)) {
+    GRL_WARNING ("%s '%s'", "calling source callback function fail",
+                 lua_tolstring (L, -1, NULL));
   }
 
-  grl_lua_library_set_current_operation (L, 0);
+  luaL_unref (L, LUA_REGISTRYINDEX, fo->lua_userdata);
+  luaL_unref (L, LUA_REGISTRYINDEX, fo->lua_callback);
+  lua_gc (L, LUA_GCCOLLECT, 0);
 
   for (i = 0; i < fo->num_urls; i++)
     g_free (fo->results[i]);
   g_free (fo->url);
   g_free (fo->results);
-  g_free (fo->lua_cb);
   g_free (fo);
 }
 
@@ -627,7 +627,6 @@ grl_util_unzip_done (GObject *source_object,
   gsize len;
   guint i;
   GError *err = NULL;
-  OperationSpec *os;
   UnzipOperation *uo = (UnzipOperation *) user_data;
   lua_State *L = uo->L;
   char **results;
@@ -648,11 +647,8 @@ grl_util_unzip_done (GObject *source_object,
     results = get_zipped_contents ((guchar *) data, len, (const gchar **) uo->filenames);
   }
 
-  grl_lua_library_set_current_operation (L, uo->operation_id);
-  os = grl_lua_library_get_current_operation (L);
-  os->pending_ops--;
-
-  lua_getglobal (L, uo->lua_cb);
+  /* get the callback from the registry */
+  lua_rawgeti(L, LUA_REGISTRYINDEX, uo->lua_callback);
 
   lua_newtable (L);
   for (i = 0; results[i] != NULL; i++) {
@@ -661,24 +657,28 @@ grl_util_unzip_done (GObject *source_object,
     lua_settable (L, -3);
   }
 
-  if (lua_pcall (L, 1, 0, 0)) {
-    GRL_WARNING ("%s (%s) '%s'", "calling source callback function fail",
-                 uo->lua_cb, lua_tolstring (L, -1, NULL));
+  /* get userdata from the registry */
+  lua_rawgeti (L, LUA_REGISTRYINDEX, uo->lua_userdata);
+
+  if (lua_pcall (L, 2, 0, 0)) {
+    GRL_WARNING ("%s '%s'", "calling source callback function fail",
+                 lua_tolstring (L, -1, NULL));
   }
 
-  grl_lua_library_set_current_operation (L, 0);
+  luaL_unref (L, LUA_REGISTRYINDEX, uo->lua_userdata);
+  luaL_unref (L, LUA_REGISTRYINDEX, uo->lua_callback);
+  lua_gc (L, LUA_GCCOLLECT, 0);
 
   g_strfreev (results);
 
   g_strfreev (uo->filenames);
-  g_free (uo->lua_cb);
   g_free (uo->url);
   g_free (uo);
 }
 
 static GrlNetWc *
-net_wc_new_with_options(lua_State *L,
-                        guint      arg_offset)
+net_wc_new_with_options (lua_State *L,
+                         guint      arg_offset)
 {
   GrlNetWc *wc;
 
@@ -882,8 +882,9 @@ grl_lua_library_push_grl_media (lua_State *L,
 * grl.fetch
 *
 * @url: (string or array) The http url to GET the content.
-* @callback: (string) The function to be called after fetch is complete.
-* @netopts: (table) Options to set the GrlNetWc object.
+* @netopts: [optional] (table) Options to set the GrlNetWc object.
+* @callback: (function) The function to be called after fetch is complete.
+* @userdata: [optional] User data to be passed to the @callback.
 * @return: Nothing.;
 */
 static gint
@@ -893,22 +894,37 @@ grl_l_fetch (lua_State *L)
   guint num_urls;
   gchar **urls;
   gchar **results;
-  const gchar *lua_callback;
+  gint lua_userdata;
+  gint lua_callback;
   GrlNetWc *wc;
   gboolean is_table = FALSE;
-  gboolean wc_options = FALSE;
-  OperationSpec *os;
 
   luaL_argcheck (L, (lua_isstring (L, 1) || lua_istable (L, 1)), 1,
                  "expecting url as string or an array of urls");
-  luaL_argcheck (L, lua_isstring (L, 2), 2,
-                 "expecting callback function as string");
-  /* Optional third argument */
-  wc_options = (lua_gettop(L) == 3);
 
-  os = grl_lua_library_get_current_operation (L);
-  g_return_val_if_fail (os != NULL, 0);
-  os->pending_ops++;
+  luaL_argcheck (L, (lua_isfunction (L, 2) || lua_istable (L, 2)), 2,
+                 "expecting callback function or network parameters");
+
+  luaL_argcheck (L, (lua_isfunction (L, 2) ||
+                     (lua_istable (L, 2) && lua_isfunction (L, 3))), 3,
+                 "expecting callback function after network parameters");
+
+  /* keep arguments aligned */
+  if (lua_isfunction (L, 2)) {
+    lua_pushnil (L);
+    lua_insert (L, 2);
+  }
+
+  if (lua_gettop (L) > 4)
+    luaL_error (L, "too many arguments to 'fetch' function");
+
+  /* add nil if userdata is omitted */
+  lua_settop (L, 4);
+
+  /* pop the userdata and store it in registry */
+  lua_userdata = luaL_ref (L, LUA_REGISTRYINDEX);
+  /* pop the callback and store it in registry */
+  lua_callback = luaL_ref (L, LUA_REGISTRYINDEX);
 
   num_urls = (lua_isstring (L, 1)) ? 1 : luaL_len (L, 1);
   urls = g_new0 (gchar *, num_urls);
@@ -933,16 +949,18 @@ grl_l_fetch (lua_State *L)
   }
 
   if (!verify_plaintext_fetch (L, urls, num_urls)) {
-    GRL_WARNING ("Source '%s' is broken, it makes plaintext network queries but "
-                 "does not set the 'net:plaintext' tag", grl_source_get_id (os->source));
+    GRL_WARNING ("Source is broken, it makes plaintext network queries but "
+                 "does not set the 'net:plaintext' tag");
+
+    luaL_unref (L, LUA_REGISTRYINDEX, lua_userdata);
+    luaL_unref (L, LUA_REGISTRYINDEX, lua_callback);
+    lua_gc (L, LUA_GCCOLLECT, 0);
+
     g_free (urls);
-    os->pending_ops--;
-    return 1;
+    return 0;
   }
 
-  lua_callback = lua_tolstring (L, 2, NULL);
-
-  wc = (wc_options) ? net_wc_new_with_options(L, 3) : grl_net_wc_new ();
+  wc = net_wc_new_with_options (L, 2);
 
   /* shared data between urls */
   results = g_new0 (gchar *, num_urls);
@@ -951,8 +969,8 @@ grl_l_fetch (lua_State *L)
 
     fo = g_new0 (FetchOperation, 1);
     fo->L = L;
-    fo->operation_id = os->operation_id;
-    fo->lua_cb = g_strdup (lua_callback);
+    fo->lua_userdata = lua_userdata;
+    fo->lua_callback = lua_callback;
     fo->index = i;
     fo->url = g_strdup (urls[i]);
     fo->num_urls = num_urls;
@@ -963,11 +981,11 @@ grl_l_fetch (lua_State *L)
   }
   g_object_unref (wc);
   g_free (urls);
-  return 1;
+  return 0;
 }
 
 /**
-* grl.callback
+* callback
 *
 * @media: (table) The media content to be returned.
 * @count: (integer) Number of media remaining to the application.
@@ -978,16 +996,21 @@ grl_l_callback (lua_State *L)
 {
   gint nparam;
   gint count = 0;
+  OperationSpec **p;
   OperationSpec *os;
   GrlMedia *media;
 
   GRL_DEBUG ("grl.callback()");
 
+  g_return_val_if_fail (lua_isuserdata(L, lua_upvalueindex(1)), 0);
+  p = lua_touserdata (L, lua_upvalueindex(1));
+  os = *p;
+
   nparam = lua_gettop (L);
-  os = grl_lua_library_get_current_operation (L);
-  if (os == NULL) {
-    luaL_error (L, "Source is broken as grl.callback() was called "
-                "after last operation has been finalized");
+
+  if (os->callback_done) {
+    luaL_error (L, "Source is broken as callback was called "
+                "after the operation has been finalized");
     return 0;
   }
 
@@ -1008,13 +1031,9 @@ grl_l_callback (lua_State *L)
                    count, os->user_data, NULL);
   }
 
-  /* Free Operation Spec */
-  if (count == 0) {
+  /* finishing callback */
+  if (count == 0)
     os->callback_done = TRUE;
-    grl_lua_library_remove_operation_data (L, os->operation_id);
-    grl_lua_library_set_current_operation (L, 0);
-    g_slice_free (OperationSpec, os);
-  }
 
   return 0;
 }
@@ -1156,17 +1175,18 @@ grl_l_unescape (lua_State *L)
  *
  * @url: (string) the URL of the zip file to fetch
  * @filenames: (table) a table of filenames to get inside the zip file
- * @callback: (string) The function to be called after fetch is complete.
- * @netopts: (table) Options to set the GrlNetWc object.
+ * @netopts: [optional] (table) Options to set the GrlNetWc object.
+ * @callback: (function) The function to be called after fetch is complete.
+ * @userdata: [optional] User data to be passed to the @callback.
  * @return: Nothing.;
  */
 static gint
 grl_l_unzip (lua_State *L)
 {
-  const gchar *lua_callback;
+  gint lua_userdata;
+  gint lua_callback;
   const gchar *url;
   GrlNetWc *wc;
-  OperationSpec *os;
   UnzipOperation *uo;
   guint num_filenames, i;
   gchar **filenames;
@@ -1175,12 +1195,28 @@ grl_l_unzip (lua_State *L)
                  "expecting url as string");
   luaL_argcheck (L, lua_istable (L, 2), 2,
                  "expecting filenames as an array of filenames");
-  luaL_argcheck (L, lua_isstring (L, 3), 3,
-                 "expecting callback function as string");
+  luaL_argcheck (L, (lua_isfunction (L, 3) || lua_istable (L, 3)), 3,
+                 "expecting callback function or network parameters");
+  luaL_argcheck (L, (lua_isfunction (L, 3) ||
+                     (lua_istable (L, 3) && lua_isfunction (L, 4))), 4,
+                 "expecting callback function after network parameters");
 
-  os = grl_lua_library_get_current_operation (L);
-  g_return_val_if_fail (os != NULL, 0);
-  os->pending_ops++;
+  /* keep arguments aligned */
+  if (lua_isfunction (L, 3)) {
+    lua_pushnil (L);
+    lua_insert (L, 3);
+  }
+
+  if (lua_gettop (L) > 5)
+    luaL_error (L, "too many arguments to 'unzip' function");
+
+  /* add nil if userdata is omitted */
+  lua_settop (L, 5);
+
+  /* pop the userdata and store it in registry */
+  lua_userdata = luaL_ref (L, LUA_REGISTRYINDEX);
+  /* pop the callback and store it in registry */
+  lua_callback = luaL_ref (L, LUA_REGISTRYINDEX);
 
   url = lua_tolstring (L, 1, NULL);
   num_filenames = luaL_len(L, 2);
@@ -1199,19 +1235,18 @@ grl_l_unzip (lua_State *L)
   }
   GRL_DEBUG ("grl.unzip() -> '%s'", url);
 
-  lua_callback = lua_tolstring (L, 3, NULL);
-  wc = net_wc_new_with_options (L, 4);
+  wc = net_wc_new_with_options (L, 3);
 
   uo = g_new0 (UnzipOperation, 1);
   uo->L = L;
-  uo->operation_id = os->operation_id;
-  uo->lua_cb = g_strdup (lua_callback);
+  uo->lua_userdata = lua_userdata;
+  uo->lua_callback = lua_callback;
   uo->url = g_strdup (url);
   uo->filenames = filenames;
 
   grl_net_wc_request_async (wc, url, NULL, grl_util_unzip_done, uo);
   g_object_unref (wc);
-  return 1;
+  return 0;
 }
 
 /**
@@ -1353,7 +1388,6 @@ gint
 luaopen_grilo (lua_State *L)
 {
   static const luaL_Reg library_fn[] = {
-    {"callback", &grl_l_callback},
     {"fetch", &grl_l_fetch},
     {"debug", &grl_l_debug},
     {"warning", &grl_l_warning},
@@ -1410,143 +1444,105 @@ luaopen_grilo (lua_State *L)
 /* ======= Lua-Library and Lua-Factory utilities ============= */
 
 /**
- * grl_lua_library_save_operation_data
+ * grl_util_operation_spec_gc
  *
- * @L : LuaState where the data will be stored.
- * @os: The Operation Data to store.
- * @return: Nothing.
- *
- * Stores the OperationSpec from Lua-Factory in the global environment of
- * lua_State.
- **/
-void
-grl_lua_library_save_operation_data (lua_State *L, OperationSpec *os)
-{
-  char *op_id;
-
-  g_return_if_fail (os != NULL);
-
-  op_id = g_strdup_printf (GRILO_LUA_OPERATION_INDEX "-%i", os->operation_id);
-  lua_getglobal (L, LUA_ENV_TABLE);
-  lua_pushstring (L, op_id);
-  lua_pushlightuserdata (L, os);
-  lua_settable (L, -3);
-  lua_pop (L, 1);
-  g_free (op_id);
-}
-
-/**
- * grl_lua_library_remove_operation_data
- *
- * @L: LuaState where the data will be removed.
- * @operation_id: The operation ID to remove.
- * @return: Nothing.
- *
- * Remove the OperationSpec with this ID from the the global environment of
- * lua_State.
- **/
-void
-grl_lua_library_remove_operation_data (lua_State *L, guint operation_id)
-{
-  char *op_id;
-
-  op_id = g_strdup_printf (GRILO_LUA_OPERATION_INDEX "-%i", operation_id);
-  lua_getglobal (L, LUA_ENV_TABLE);
-  lua_pushstring (L, op_id);
-  lua_pushlightuserdata (L, NULL);
-  lua_settable (L, -3);
-  lua_pop (L, 1);
-  g_free (op_id);
-}
-
-/**
- * grl_lua_library_load_operation_data
- *
- * @L : LuaState where the data is stored.
- * @operation_id: The operation ID to load Operation Data for.
- * to load the Operation Data for the current call.
- * @return: The Operation Data.
- **/
-OperationSpec *
-grl_lua_library_load_operation_data (lua_State *L, guint operation_id)
-{
-  OperationSpec *os = NULL;
-  char *op_id;
-
-  g_return_val_if_fail (operation_id > 0, NULL);
-
-  op_id = g_strdup_printf (GRILO_LUA_OPERATION_INDEX "-%i", operation_id);
-  lua_getglobal (L, LUA_ENV_TABLE);
-  lua_pushstring (L, op_id);
-  lua_gettable (L, -2);
-  os = (lua_islightuserdata(L, -1)) ? lua_touserdata(L, -1) : NULL;
-  lua_pop(L, 1);
-  g_free (op_id);
-
-  return os;
-}
-
-/**
- * grl_lua_library_set_current_operation
+ * This function is called when Lua GC is about to collect the userdata
+ * representing OperationSpec. Here we check that the finishing callback
+ * was done and free the memory.
  *
  * @L: LuaState where the data is stored.
- * @operation_id: The current operation ID.
- * @return: Nothing:
+ * @return: 0, as the number of objects left on stack.
+ *          It is important, for Lua stack to not be corrupted.
  **/
-void
-grl_lua_library_set_current_operation (lua_State *L, guint operation_id)
+static int
+grl_util_operation_spec_gc (lua_State *L)
 {
-  OperationSpec *os;
+  OperationSpec **userdata = lua_touserdata (L, 1);
+  OperationSpec *os = *userdata;
 
-  /* Verify that either grl.callback was called, or that there
-   * are pending operations */
-  os = grl_lua_library_get_current_operation (L);
-  if (os) {
-    if (os->pending_ops == 0 && !os->callback_done) {
-      GRL_WARNING ("Source '%s' is broken, as there are no pending operations "
-                   "and grl.callback() was not called", grl_source_get_id (os->source));
-      switch (os->op_type) {
-      case LUA_RESOLVE:
-        os->cb.resolve (os->source, os->operation_id, NULL, os->user_data, NULL);
-        break;
+  if (os->callback_done == FALSE) {
 
-      default:
-        os->cb.result (os->source, os->operation_id, NULL,
-                       0, os->user_data, NULL);
-      }
+    const char *type;
+    switch (os->op_type) {
+    case LUA_SEARCH:
+      type = "search";
+      break;
+    case LUA_BROWSE:
+      type = "browse";
+      break;
+    case LUA_QUERY:
+      type = "query";
+      break;
+    case LUA_RESOLVE:
+      type = "resolve";
+      break;
+    default:
+      g_assert_not_reached ();
+    }
+
+    GRL_WARNING ("Source '%s' is broken, as the finishing "
+                 "callback was not called for %s operation", grl_source_get_id (os->source), type);
+    switch (os->op_type) {
+    case LUA_RESOLVE:
+      os->cb.resolve (os->source, os->operation_id, NULL, os->user_data, NULL);
+      break;
+
+    default:
+      os->cb.result (os->source, os->operation_id, NULL,
+                     0, os->user_data, NULL);
     }
   }
 
-  if (operation_id > 0)
-    os = grl_lua_library_load_operation_data (L, operation_id);
-  else
-    os = NULL;
-
-  lua_getglobal (L, LUA_ENV_TABLE);
-  lua_pushstring (L, GRILO_LUA_OPERATION_INDEX);
-  lua_pushlightuserdata (L, os);
-  lua_settable (L, -3);
-  lua_pop (L, 1);
+  g_slice_free (OperationSpec, os);
+  *userdata = NULL;
+  return 0;
 }
 
 /**
- * grl_lua_library_get_current_operation
+ * push_operation_spec_userdata
+ *
+ * Creates a userdata on top of the Lua stack, with the GC function
+ * assigned to it.
  *
  * @L: LuaState where the data is stored.
- * @return: The Operation Data for the current operation.
+ * @os: OperationSpec from which to create userdata.
+ * @return: Nothing.
  **/
-OperationSpec *
-grl_lua_library_get_current_operation (lua_State *L)
+static void
+push_operation_spec_userdata (lua_State *L, OperationSpec *os)
 {
-  OperationSpec *os = NULL;
+  OperationSpec **userdata = lua_newuserdata (L, sizeof (OperationSpec *));
+  *userdata = os;
 
-  lua_getglobal (L, LUA_ENV_TABLE);
-  lua_pushstring (L, GRILO_LUA_OPERATION_INDEX);
-  lua_gettable (L, -2);
-  os = (lua_islightuserdata(L, -1)) ? lua_touserdata(L, -1) : NULL;
-  lua_pop(L, 1);
+  /* create the metatable */
+  lua_createtable (L, 0, 1);
+  /* push the __gc key string */
+  lua_pushstring (L, "__gc");
+  /* push the __gc metamethod */
+  lua_pushcclosure (L, grl_util_operation_spec_gc, 0);
+  /* set the __gc field in the metatable */
+  lua_settable (L, -3);
+  /* set table as the metatable of the userdata */
+  lua_setmetatable (L, -2);
+}
 
-  return os;
+/**
+ * grl_lua_library_push_grl_callback
+ *
+ * Pushes two C closures on top of the lua stack, representing the
+ * callback and the options for the current operation.
+ *
+ * @L: LuaState where the data is stored.
+ * @os: OperationSpec the current operation.
+ * @return: Nothing.
+ **/
+void
+grl_lua_library_push_grl_callback (lua_State *L, OperationSpec *os)
+{
+  /* push the OperationSpec userdata */
+  push_operation_spec_userdata (L, os);
+  /* use this userdata as an upvalue for the callback */
+  lua_pushcclosure (L, grl_l_callback, 1);
 }
 
 /**

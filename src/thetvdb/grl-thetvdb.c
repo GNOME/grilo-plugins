@@ -345,7 +345,8 @@ grl_thetvdb_source_init (GrlTheTVDBSource *source)
 
   /* All supported keys in a GList */
   source->priv->supported_keys =
-    grl_metadata_key_list_new (GRL_METADATA_KEY_SEASON,
+    grl_metadata_key_list_new (GRL_METADATA_KEY_SHOW,
+                               GRL_METADATA_KEY_SEASON,
                                GRL_METADATA_KEY_EPISODE,
                                GRL_METADATA_KEY_GENRE,
                                GRL_METADATA_KEY_PERFORMER,
@@ -840,6 +841,7 @@ thetvdb_update_media_from_resources (GrlMediaVideo *video,
 {
   gint failed_keys = 0;
   GList *it;
+  gchar *str = NULL;
 
   if (sres == NULL)
     return;
@@ -847,7 +849,6 @@ thetvdb_update_media_from_resources (GrlMediaVideo *video,
   for (it = keys; it != NULL; it = it->next) {
     GrlKeyID key_id = GRLPOINTER_TO_KEYID (it->data);
     gint num = -1;
-    gchar *str = NULL;
 
     switch (key_id) {
     case GRL_METADATA_KEY_SEASON:
@@ -1044,6 +1045,14 @@ thetvdb_update_media_from_resources (GrlMediaVideo *video,
       } else
         failed_keys++;
     }
+  }
+
+  /* Always set the series/show name */
+  str = NULL;
+  g_object_get (sres, SERIES_COLUMN_SERIES_NAME, &str, NULL);
+  if (str != NULL) {
+    grl_media_video_set_show (video, str);
+    g_free (str);
   }
 
   if (failed_keys == g_list_length (keys)) {

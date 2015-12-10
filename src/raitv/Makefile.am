@@ -28,8 +28,6 @@ nodist_libgrlraitv_la_SOURCES = \
 	$(resource_sources)
 
 extdir 			= $(GRL_PLUGINS_DIR)
-raitvxmldir 	= $(GRL_PLUGINS_DIR)
-raitvxml_DATA	= $(RAITV_PLUGIN_ID).xml
 
 raitvresources.h: raitv.gresource.xml
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/raitv.gresource.xml \
@@ -44,6 +42,6 @@ resource_sources = \
 	$(NULL)
 CLEANFILES = $(resource_sources)
 
-EXTRA_DIST += $(raitvxml_DATA) channel-rai.svg raitv.gresource.xml
+EXTRA_DIST += channel-rai.svg raitv.gresource.xml
 
 -include $(top_srcdir)/git.mk

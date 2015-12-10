@@ -38,8 +38,6 @@
 #define GRL_LOG_DOMAIN_DEFAULT local_metadata_log_domain
 GRL_LOG_DOMAIN_STATIC(local_metadata_log_domain);
 
-#define PLUGIN_ID   LOCALMETADATA_PLUGIN_ID
-
 #define SOURCE_ID   "grl-local-metadata"
 #define SOURCE_NAME _("Local Metadata Provider")
 #define SOURCE_DESC _("A source providing locally available metadata")
@@ -110,9 +108,18 @@ grl_local_metadata_source_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_local_metadata_source_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   LOCALMETADATA_PLUGIN_ID,
+                   "Local Metadata Provider",
+                   "A plugin that gets simple-to-obtain metadata from the local filesystem",
+                   "Igalia S.L.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_local_metadata_source_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== GrlLocalMetadata GObject ================ */
 

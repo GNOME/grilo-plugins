@@ -25,9 +25,5 @@ libgrlmagnatune_la_LDFLAGS = \
 libgrlmagnatune_la_SOURCES = grl-magnatune.c grl-magnatune.h
 
 extdir				= $(GRL_PLUGINS_DIR)
-magnatunexmldir	= $(GRL_PLUGINS_DIR)
-magnatunexml_DATA	= $(MAGNATUNE_PLUGIN_ID).xml
-
-EXTRA_DIST += $(magnatunexml_DATA)
 
 -include $(top_srcdir)/git.mk

@@ -61,8 +61,6 @@ GRL_LOG_DOMAIN_STATIC(bookmarks_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   BOOKMARKS_PLUGIN_ID
-
 #define SOURCE_ID   "grl-bookmarks"
 #define SOURCE_NAME _("Bookmarks")
 #define SOURCE_DESC _("A source for organizing media bookmarks")
@@ -168,10 +166,18 @@ grl_bookmarks_plugin_register_keys (GrlRegistry *registry,
   }
 }
 
- GRL_PLUGIN_REGISTER_FULL (grl_bookmarks_plugin_init,
-                           NULL,
-                           grl_bookmarks_plugin_register_keys,
-                           PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   BOOKMARKS_PLUGIN_ID,
+                   "Bookmarks",
+                   "A plugin for organizing media bookmarks",
+                   "Igalia S.L.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_bookmarks_plugin_init,
+                   NULL,
+                   grl_bookmarks_plugin_register_keys);
 
  /* ================== Bookmarks GObject ================ */
 

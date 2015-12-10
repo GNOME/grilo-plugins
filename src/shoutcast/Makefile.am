@@ -25,9 +25,5 @@ libgrlshoutcast_la_LDFLAGS = \
 libgrlshoutcast_la_SOURCES	 = grl-shoutcast.c grl-shoutcast.h
 
 extdir				= $(GRL_PLUGINS_DIR)
-shoutcastxmldir	= $(GRL_PLUGINS_DIR)
-shoutcastxml_DATA	= $(SHOUTCAST_PLUGIN_ID).xml
-
-EXTRA_DIST += $(shoutcastxml_DATA)
 
 -include $(top_srcdir)/git.mk

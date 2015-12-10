@@ -40,7 +40,6 @@
 GRL_LOG_DOMAIN_STATIC (lua_factory_log_domain);
 
 #define ENV_LUA_SOURCES_PATH  "GRL_LUA_SOURCES_PATH"
-#define LUA_FACTORY_PLUGIN_ID "grl-lua-factory"
 
 /* --- Main table --- */
 #define LUA_SOURCE_TABLE            "source"
@@ -292,7 +291,18 @@ grl_lua_factory_plugin_deinit (GrlPlugin *plugin)
 #endif
 }
 
-GRL_PLUGIN_REGISTER (grl_lua_factory_plugin_init, grl_lua_factory_plugin_deinit, LUA_FACTORY_PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   LUA_FACTORY_PLUGIN_ID,
+                   "Lua Source Factory",
+                   "A plugin that creates sources from Lua plugins",
+                   "Victor Toso",
+                   VERSION,
+                   "LGPL",
+                   "http://victortoso.com",
+                   grl_lua_factory_plugin_init,
+                   grl_lua_factory_plugin_deinit,
+                   NULL);
 
 /* ================== Lua-Factory GObject ================================== */
 

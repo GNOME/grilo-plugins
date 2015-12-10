@@ -40,8 +40,6 @@ GRL_LOG_DOMAIN_STATIC(optical_media_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   OPTICAL_MEDIA_PLUGIN_ID
-
 #define SOURCE_ID   "grl-optical-media"
 #define SOURCE_NAME _("Optical Media")
 #define SOURCE_DESC _("A source for browsing optical media")
@@ -126,9 +124,18 @@ grl_optical_media_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_optical_media_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   OPTICAL_MEDIA_PLUGIN_ID,
+                   "Optical Media",
+                   "A plugin for browsing optical media",
+                   "GNOME",
+                   VERSION,
+                   "LGPL",
+                   "http://www.gnome.org",
+                   grl_optical_media_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== OpticalMedia GObject ================ */
 

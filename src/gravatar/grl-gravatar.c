@@ -42,9 +42,7 @@ GRL_LOG_DOMAIN_STATIC(gravatar_log_domain);
 
 /* ------- Pluging Info -------- */
 
-#define PLUGIN_ID   GRAVATAR_PLUGIN_ID
-
-#define SOURCE_ID   PLUGIN_ID
+#define SOURCE_ID   GRAVATAR_PLUGIN_ID
 #define SOURCE_NAME _("Avatar provider from Gravatar")
 #define SOURCE_DESC _("A plugin to get avatars for artist and author fields")
 
@@ -127,10 +125,18 @@ grl_gravatar_source_plugin_register_keys (GrlRegistry *registry,
                                                GRL_METADATA_KEY_AUTHOR_AVATAR);
 }
 
-GRL_PLUGIN_REGISTER_FULL (grl_gravatar_source_plugin_init,
-                          NULL,
-                          grl_gravatar_source_plugin_register_keys,
-                          PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   GRAVATAR_PLUGIN_ID,
+                   "Avatar provider from Gravatar",
+                   "A plugin to get avatars for artist and author fields",
+                   "Igalia S.L.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_gravatar_source_plugin_init,
+                   NULL,
+                   grl_gravatar_source_plugin_register_keys);
 
 /* ================== Gravatar GObject ================ */
 

@@ -206,7 +206,18 @@ grl_magnatune_plugin_init(GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER(grl_magnatune_plugin_init, NULL, SOURCE_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   MAGNATUNE_PLUGIN_ID,
+                   "Magnatune",
+                   "A plugin for searching music",
+                   "Victor Toso",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_magnatune_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== Magnatune GObject ================= */
 

@@ -27,9 +27,5 @@ libgrloptical_media_la_SOURCES =	\
 	grl-optical-media.h
 
 extdir						= $(GRL_PLUGINS_DIR)
-optical_mediaxmldir		= $(GRL_PLUGINS_DIR)
-optical_mediaxml_DATA	= $(OPTICAL_MEDIA_PLUGIN_ID).xml
-
-EXTRA_DIST += $(optical_mediaxml_DATA)
 
 -include $(top_srcdir)/git.mk

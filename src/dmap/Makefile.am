@@ -35,11 +35,6 @@ libgrldaap_la_SOURCES =				\
 	grl-daap-db.c					\
 	grl-daap-db.h
 
-daapxmldir		= $(GRL_PLUGINS_DIR)
-daapxml_DATA	= $(DAAP_PLUGIN_ID).xml
-
-EXTRA_DIST    += $(daapxml_DATA)
-
 libgrldpap_la_CFLAGS =	\
 	$(DEPS_DMAP_CFLAGS)	\
 	-DG_LOG_DOMAIN=\"GrlDmap\" \
@@ -64,10 +59,5 @@ libgrldpap_la_SOURCES =				\
 	grl-dpap-record-factory.h	\
 	grl-dpap-db.c					\
 	grl-dpap-db.h
-
-dpapxmldir		= $(GRL_PLUGINS_DIR)
-dpapxml_DATA	= $(DPAP_PLUGIN_ID).xml
-
-EXTRA_DIST    += $(dpapxml_DATA)
 
 -include $(top_srcdir)/git.mk

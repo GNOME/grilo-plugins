@@ -25,9 +25,5 @@ libgrlgravatar_la_LDFLAGS = \
 libgrlgravatar_la_SOURCES = grl-gravatar.c grl-gravatar.h
 
 extdir				= $(GRL_PLUGINS_DIR)
-gravatarxmldir		= $(GRL_PLUGINS_DIR)
-gravatarxml_DATA	= $(GRAVATAR_PLUGIN_ID).xml
-
-EXTRA_DIST += $(gravatarxml_DATA)
 
 -include $(top_srcdir)/git.mk

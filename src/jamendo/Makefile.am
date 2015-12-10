@@ -27,9 +27,5 @@ libgrljamendo_la_SOURCES = 	\
 	grl-jamendo.h
 
 extdir				= $(GRL_PLUGINS_DIR)
-jamendoxmldir		= $(GRL_PLUGINS_DIR)
-jamendoxml_DATA	= $(JAMENDO_PLUGIN_ID).xml
-
-EXTRA_DIST += $(jamendoxml_DATA)
 
 -include $(top_srcdir)/git.mk

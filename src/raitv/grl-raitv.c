@@ -88,8 +88,6 @@ GRL_LOG_DOMAIN_STATIC(raitv_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   RAITV_PLUGIN_ID
-
 #define SOURCE_ID   "grl-raitv"
 #define SOURCE_NAME "Rai.tv"
 #define SOURCE_DESC _("A source for browsing and searching Rai.tv videos")
@@ -248,10 +246,18 @@ grl_raitv_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_raitv_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
-
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   RAITV_PLUGIN_ID,
+                   "Rai.tv",
+                   "A plugin for searching multimedia content using Rai.tv",
+                   "Marco Piazza",
+                   VERSION,
+                   "LGPL",
+                   "https://wiki.gnome.org/Projects/Grilo",
+                   grl_raitv_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== Rai.tv GObject ================ */
 

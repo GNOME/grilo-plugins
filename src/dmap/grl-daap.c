@@ -46,8 +46,6 @@ GRL_LOG_DOMAIN_STATIC(daap_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   DAAP_PLUGIN_ID
-
 #define SOURCE_ID_TEMPLATE   "grl-daap-%s"
 #define SOURCE_DESC_TEMPLATE _("A source for browsing the DAAP server '%s'")
 
@@ -142,9 +140,18 @@ grl_daap_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_daap_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   DAAP_PLUGIN_ID,
+                   "DMAP",
+                   "A plugin for browsing DAAP servers",
+                   "W. Michael Petullo",
+                   VERSION,
+                   "LGPL",
+                   "http://www.flyn.org",
+                   grl_daap_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== DAAP GObject ====================== */
 

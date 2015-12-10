@@ -36,8 +36,6 @@
 #define GRL_LOG_DOMAIN_DEFAULT opensubtitles_log_domain
 GRL_LOG_DOMAIN_STATIC(opensubtitles_log_domain);
 
-#define PLUGIN_ID   OPENSUBTITLES_PLUGIN_ID
-
 #define SOURCE_ID   "grl-opensubtitles"
 #define SOURCE_NAME _("OpenSubtitles Provider")
 #define SOURCE_DESC _("A source providing a list of subtitles for a video")
@@ -149,9 +147,18 @@ grl_opensubtitles_source_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_opensubtitles_source_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   OPENSUBTITLES_PLUGIN_ID,
+                   "OpenSubtitles Provider",
+                   "A plugin that gets a list of subtitles for a video",
+                   "Bastien Nocera",
+                   VERSION,
+                   "LGPL",
+                   "http://www.hadess.net",
+                   grl_opensubtitles_source_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== GrlOpenSubtitles GObject ================ */
 

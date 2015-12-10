@@ -288,7 +288,18 @@ grl_thetvdb_plugin_register_keys (GrlRegistry *registry,
     grl_registry_register_metadata_key (registry, spec, NULL);
 }
 
-GRL_PLUGIN_REGISTER_FULL (grl_thetvdb_plugin_init, NULL, grl_thetvdb_plugin_register_keys, SOURCE_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   THETVDB_PLUGIN_ID,
+                   "The TVDB",
+                   "A plugin for fetching metadata of television shows",
+                   "Victor Toso",
+                   VERSION,
+                   "LGPL",
+                   "http://victortoso.com",
+                   grl_thetvdb_plugin_init,
+                   NULL,
+                   grl_thetvdb_plugin_register_keys);
 
 /* ================== TheTVDB GObject ================= */
 

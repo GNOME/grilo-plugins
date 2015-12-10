@@ -38,10 +38,8 @@ freeboxresources.c: freebox.gresource.xml freeboxresources.h free.png
 		--target=$@ --sourcedir=$(srcdir) --c-name _grl_freebox --generate-source
 
 extdir		= $(GRL_PLUGINS_DIR)
-freeboxxmldir	= $(GRL_PLUGINS_DIR)
-freeboxxml_DATA	= $(FREEBOX_PLUGIN_ID).xml
 
-EXTRA_DIST += $(freeboxxml_DATA) free.png radios.m3u freebox.gresource.xml
+EXTRA_DIST += free.png radios.m3u freebox.gresource.xml
 
 CLEANFILES = freeboxresources.h freeboxresources.c
 

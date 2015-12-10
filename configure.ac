@@ -5,8 +5,11 @@
 #
 # Copyright (C) 2010, 2011 Igalia S.L.. All rights reserved.
 
-m4_define([prj_name],    [grilo-plugins])
-m4_define([prj_version], [0.3.0])
+m4_define([prj_name],          [grilo-plugins])
+m4_define([grl_major_version], [0])
+m4_define([grl_minor_version], [3])
+m4_define([grl_micro_version], [0])
+m4_define([prj_version],       [grl_major_version.grl_minor_version.grl_micro_version])
 
 AC_INIT([prj_name],
         [prj_version],
@@ -101,9 +104,15 @@ AC_SUBST(GLIB_COMPILE_RESOURCES)
 
 # Plugins directory
 
+GRL_MAJOR=grl_major_version
+GRL_MINOR=grl_minor_version
 GRL_PLUGINS_DIR=`${PKG_CONFIG} --variable=plugindir ${GRL_NAME}`
+AC_SUBST(GRL_MAJOR)
+AC_SUBST(GRL_MINOR)
 AC_SUBST(GRL_PLUGINS_DIR)
 AC_DEFINE_UNQUOTED(GRL_PLUGINS_DIR, "$GRL_PLUGINS_DIR", [Plugins directory])
+AC_DEFINE_UNQUOTED(GRL_MAJOR, $GRL_MAJOR, [plugins major version])
+AC_DEFINE_UNQUOTED(GRL_MINOR, $GRL_MINOR, [plugins minor version])
 
 # ----------------------------------------------------------
 # EXTERNAL/OPTIONAL DEPENDENCIES

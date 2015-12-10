@@ -39,8 +39,6 @@
 #define GRL_LOG_DOMAIN_DEFAULT tmdb_log_domain
 GRL_LOG_DOMAIN(tmdb_log_domain);
 
-#define PLUGIN_ID   TMDB_PLUGIN_ID
-
 #define SOURCE_ID   "grl-tmdb"
 #define SOURCE_NAME "TMDb Metadata Provider"
 #define SOURCE_DESC "A source for movie metadata from themoviedb.org"
@@ -191,10 +189,18 @@ grl_tmdb_source_plugin_register_keys (GrlRegistry *registry,
                            "ID of this movie at tmdb.org");
 }
 
-GRL_PLUGIN_REGISTER_FULL (grl_tmdb_source_plugin_init,
-                          NULL,
-                          grl_tmdb_source_plugin_register_keys,
-                          PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   TMDB_PLUGIN_ID,
+                   "TMDb Metadata Provider",
+                   "A plugin to retrieve movie metadata from themoviedb.org",
+                   "Canonical Ltd.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.canonical.com",
+                   grl_tmdb_source_plugin_init,
+                   NULL,
+                   grl_tmdb_source_plugin_register_keys);
 
 /* ================== GrlTmdbMetadata GObject ================ */
 

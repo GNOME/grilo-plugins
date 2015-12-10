@@ -54,8 +54,6 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   FILESYSTEM_PLUGIN_ID
-
 #define SOURCE_ID   "grl-filesystem"
 #define SOURCE_NAME _("Filesystem")
 #define SOURCE_DESC _("A source for browsing the filesystem")
@@ -198,9 +196,18 @@ grl_filesystem_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_filesystem_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   FILESYSTEM_PLUGIN_ID,
+                   "Filesystem",
+                   "A plugin for browsing the filesystem",
+                   "Igalia S.L.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_filesystem_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== Filesystem GObject ================ */
 

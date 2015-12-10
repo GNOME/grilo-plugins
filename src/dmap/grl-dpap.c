@@ -46,8 +46,6 @@ GRL_LOG_DOMAIN_STATIC(dmap_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   DPAP_PLUGIN_ID
-
 #define SOURCE_ID_TEMPLATE   "grl-dpap-%s"
 #define SOURCE_DESC_TEMPLATE _("A source for browsing the DPAP server '%s'")
 
@@ -142,9 +140,18 @@ grl_dpap_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_dpap_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   DPAP_PLUGIN_ID,
+                   "DPAP",
+                   "A plugin for browsing DPAP servers",
+                   "W. Michael Petullo",
+                   VERSION,
+                   "LGPL",
+                   "http://www.flyn.org",
+                   grl_dpap_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== DMAP GObject ====================== */
 

@@ -25,9 +25,5 @@ libgrlpodcasts_la_LDFLAGS = \
 libgrlpodcasts_la_SOURCES = grl-podcasts.c grl-podcasts.h
 
 extdir				= $(GRL_PLUGINS_DIR)
-podcastsxmldir		= $(GRL_PLUGINS_DIR)
-podcastsxml_DATA	= $(PODCASTS_PLUGIN_ID).xml
-
-EXTRA_DIST += $(podcastsxml_DATA)
 
 -include $(top_srcdir)/git.mk

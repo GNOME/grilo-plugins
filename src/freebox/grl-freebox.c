@@ -44,8 +44,6 @@ GRL_LOG_DOMAIN_STATIC(freebox_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   FREEBOX_PLUGIN_ID
-
 #define TV_SOURCE_ID   "grl-freeboxtv"
 #define TV_SOURCE_NAME _("Freebox TV")
 #define TV_SOURCE_DESC _("A source for browsing Freebox TV channels")
@@ -169,9 +167,18 @@ grl_freebox_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_freebox_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   FREEBOX_PLUGIN_ID,
+                   "Freebox",
+                   "A plugin for Freebox TV channels",
+                   "GNOME",
+                   VERSION,
+                   "LGPL",
+                   "http://www.gnome.org",
+                   grl_freebox_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== Freebox GObject ================ */
 

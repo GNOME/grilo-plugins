@@ -41,8 +41,6 @@
 #define GRL_LOG_DOMAIN_DEFAULT metadata_store_log_domain
 GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
 
-#define PLUGIN_ID   METADATA_STORE_PLUGIN_ID
-
 #define SOURCE_ID   "grl-metadata-store"
 #define SOURCE_NAME _("Metadata Store")
 #define SOURCE_DESC _("A plugin for storing extra metadata information")
@@ -174,9 +172,18 @@ grl_metadata_store_source_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_metadata_store_source_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   METADATA_STORE_PLUGIN_ID,
+                   "Metadata Store",
+                   "A plugin for storing extra metadata information",
+                   "Igalia S.L.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_metadata_store_source_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== GrlMetadataStore GObject ================ */
 

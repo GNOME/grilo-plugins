@@ -32,16 +32,6 @@ nodist_libgrlvimeo_la_SOURCES = \
 	$(resource_sources)
 
 extdir			= $(GRL_PLUGINS_DIR)
-vimeoxmldir		= $(GRL_PLUGINS_DIR)
-vimeoxml_DATA	= $(VIMEO_PLUGIN_ID).xml
-
-# This lets us test the plugin without installing it,
-# because grilo expects the .so and .xml files to be in
-# the same directory:
-copy-xml-to-libs-dir: libgrlvimeo.la
-	cp -f $(srcdir)/$(vimeoxml_DATA) $(builddir)/.libs/
-
-all-local: copy-xml-to-libs-dir
 
 vimeoresources.h: vimeo.gresource.xml
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/vimeo.gresource.xml \
@@ -56,6 +46,6 @@ resource_sources = \
 	$(NULL)
 CLEANFILES = $(resource_sources)
 
-EXTRA_DIST += $(vimeoxml_DATA) channel-vimeo.svg vimeo.gresource.xml
+EXTRA_DIST += channel-vimeo.svg vimeo.gresource.xml
 
 -include $(top_srcdir)/git.mk

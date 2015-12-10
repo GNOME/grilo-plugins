@@ -51,8 +51,6 @@ GRL_LOG_DOMAIN_STATIC(vimeo_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   VIMEO_PLUGIN_ID
-
 #define SOURCE_ID   "grl-vimeo"
 #define SOURCE_NAME "Vimeo"
 #define SOURCE_DESC _("A source for browsing and searching Vimeo videos")
@@ -162,9 +160,18 @@ grl_vimeo_plugin_init (GrlRegistry *registry,
   return init_result;
 }
 
-GRL_PLUGIN_REGISTER (grl_vimeo_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   VIMEO_PLUGIN_ID,
+                   "Vimeo",
+                   "A plugin for searching Vimeo videos",
+                   "Igalia S.L.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_vimeo_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== Vimeo GObject ================ */
 

@@ -25,17 +25,5 @@ libgrlfilesystem_la_LDFLAGS = \
 libgrlfilesystem_la_SOURCES = grl-filesystem.c grl-filesystem.h
 
 extdir					= $(GRL_PLUGINS_DIR)
-filesystemxmldir		= $(GRL_PLUGINS_DIR)
-filesystemxml_DATA	= $(FILESYSTEM_PLUGIN_ID).xml
-
-# This lets us test the plugin without installing it,
-# because grilo expects the .so and .xml files to be in
-# the same directory:
-copy-xml-to-libs-dir: libgrlfilesystem.la
-	cp -f $(srcdir)/$(filesystemxml_DATA) $(builddir)/.libs/
-
-all-local: copy-xml-to-libs-dir
-
-EXTRA_DIST += $(filesystemxml_DATA)
 
 -include $(top_srcdir)/git.mk

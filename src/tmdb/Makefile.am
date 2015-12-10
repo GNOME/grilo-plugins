@@ -26,17 +26,5 @@ libgrltmdb_la_SOURCES = \
 	grl-tmdb-request.c grl-tmdb-request.h
 
 extdir					= $(GRL_PLUGINS_DIR)
-tmdbxmldir	= $(GRL_PLUGINS_DIR)
-tmdbxml_DATA	= $(TMDB_PLUGIN_ID).xml
-
-# This lets us test the plugin without installing it,
-# because grilo expects the .so and .xml files to be in 
-# the same directory:
-copy-xml-to-libs-dir: libgrltmdb.la
-	cp -f $(srcdir)/$(tmdbxml_DATA) $(builddir)/.libs/
-
-all-local: copy-xml-to-libs-dir
-
-EXTRA_DIST += $(tmdbxml_DATA)
 
 -include $(top_srcdir)/git.mk

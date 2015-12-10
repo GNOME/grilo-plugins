@@ -31,9 +31,5 @@ libgrlflickr_la_SOURCES =	\
 	flickr-oauth.h
 
 libplugindir		= $(GRL_PLUGINS_DIR)
-flickrlibxmldir	= $(GRL_PLUGINS_DIR)
-flickrlibxml_DATA = $(FLICKR_PLUGIN_ID).xml
-
-EXTRA_DIST += $(flickrlibxml_DATA)
 
 -include $(top_srcdir)/git.mk

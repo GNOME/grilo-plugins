@@ -28,8 +28,6 @@ nodist_libgrlyoutube_la_SOURCES = \
 	youtuberesources.c
 
 extdir				= $(GRL_PLUGINS_DIR)
-youtubexmldir		= $(GRL_PLUGINS_DIR)
-youtubexml_DATA	= $(YOUTUBE_PLUGIN_ID).xml
 
 youtuberesources.h: youtube.gresource.xml
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/youtube.gresource.xml \
@@ -44,6 +42,6 @@ resource_sources = \
 	$(NULL)
 CLEANFILES = $(resource_sources)
 
-EXTRA_DIST += $(youtubexml_DATA) channel-youtube.svg youtube.gresource.xml
+EXTRA_DIST += channel-youtube.svg youtube.gresource.xml
 
 -include $(top_srcdir)/git.mk

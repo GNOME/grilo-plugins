@@ -46,15 +46,6 @@ libgrldleyna_la_SOURCES =       \
 	$(NULL)
 
 extdir		= $(GRL_PLUGINS_DIR)
-dleynaxmldir	= $(GRL_PLUGINS_DIR)
-dleynaxml_DATA	= $(DLEYNA_PLUGIN_ID).xml
-
-# This lets us test the plugin without installing it, because grilo expects the
-# .so and .xml files to be in the same directory.
-copy-xml-to-libs-dir: libgrldleyna.la
-	$(AM_V_at)cp -f $(srcdir)/$(dleynaxml_DATA) $(builddir)/.libs/
-
-all-local: copy-xml-to-libs-dir
 
 grl-dleyna-proxy-mediaserver2.h grl-dleyna-proxy-mediaserver2.c: org.gnome.UPnP.MediaServer2.xml
 	$(AM_V_GEN)${GDBUS_CODEGEN} \
@@ -80,7 +71,6 @@ grl-dleyna-proxy-mediadevice.h grl-dleyna-proxy-mediadevice.c: com.intel.dLeynaS
 EXTRA_DIST +=										\
 	com.intel.dLeynaServer.Manager.xml     \
 	com.intel.dLeynaServer.MediaDevice.xml \
-	org.gnome.UPnP.MediaServer2.xml        \
-	$(dleynaxml_DATA)
+	org.gnome.UPnP.MediaServer2.xml
 
 -include $(top_srcdir)/git.mk

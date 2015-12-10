@@ -40,9 +40,5 @@ libgrltracker_la_SOURCES =	 		\
 	grl-tracker-utils.h
 
 extdir				= $(GRL_PLUGINS_DIR)
-trackerxmldir		= $(GRL_PLUGINS_DIR)
-trackerxml_DATA	= $(TRACKER_PLUGIN_ID).xml
-
-EXTRA_DIST += $(trackerxml_DATA)
 
 -include $(top_srcdir)/git.mk

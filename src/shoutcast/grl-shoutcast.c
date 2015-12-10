@@ -60,8 +60,6 @@ GRL_LOG_DOMAIN_STATIC(shoutcast_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   SHOUTCAST_PLUGIN_ID
-
 #define SOURCE_ID   "grl-shoutcast"
 #define SOURCE_NAME "SHOUTcast"
 #define SOURCE_DESC _("A source for browsing SHOUTcast radios")
@@ -167,9 +165,18 @@ grl_shoutcast_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_shoutcast_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   SHOUTCAST_PLUGIN_ID,
+                   "SHOUTcast",
+                   "A plugin for browsing SHOUTcast radios",
+                   "Igalia S.L.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_shoutcast_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== SHOUTcast GObject ================ */
 

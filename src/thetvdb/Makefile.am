@@ -31,15 +31,5 @@ libgrlthetvdb_la_SOURCES = \
 	 thetvdb-resources.h
 
 extdir				= $(GRL_PLUGINS_DIR)
-thetvdbxmldir	= $(GRL_PLUGINS_DIR)
-thetvdbxml_DATA	= $(THETVDB_PLUGIN_ID).xml
-
-# Rules to enable tests
-copy-xml-to-libs-dir: libgrlthetvdb.la
-	cp -f $(srcdir)/$(thetvdbxml_DATA) $(builddir)/.libs/
-
-all-local: copy-xml-to-libs-dir
-
-EXTRA_DIST += $(thetvdbxml_DATA)
 
 -include $(top_srcdir)/git.mk

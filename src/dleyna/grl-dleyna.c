@@ -33,8 +33,6 @@
 #define GRL_LOG_DOMAIN_DEFAULT dleyna_log_domain
 GRL_LOG_DOMAIN(dleyna_log_domain);
 
-#define PLUGIN_ID   DLEYNA_PLUGIN_ID
-
 /* Globals */
 static GrlDleynaServersManager *servers = NULL;
 
@@ -132,6 +130,15 @@ grl_dleyna_plugin_deinit (GrlPlugin *plugin)
   g_clear_object (&servers);
 }
 
-GRL_PLUGIN_REGISTER (grl_dleyna_plugin_init,
-                     grl_dleyna_plugin_deinit,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   DLEYNA_PLUGIN_ID,
+                   "dLeyna",
+                   "A plugin for browsing DLNA servers",
+                   "Intel Corp.",
+                   VERSION,
+                   "LGPL",
+                   "https://01.org/dleyna",
+                   grl_dleyna_plugin_init,
+                   grl_dleyna_plugin_deinit,
+                   NULL);

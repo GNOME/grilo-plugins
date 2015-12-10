@@ -294,7 +294,15 @@ grl_tracker_plugin_register_keys (GrlRegistry *registry,
                                       NULL);
 }
 
-GRL_PLUGIN_REGISTER_FULL (grl_tracker_plugin_init,
-                          grl_tracker_plugin_deinit,
-                          grl_tracker_plugin_register_keys,
-                          GRL_TRACKER_PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   GRL_TRACKER_PLUGIN_ID,
+                   "Tracker",
+                   "A plugin for searching multimedia content using Tracker",
+                   "Igalia S.L.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_tracker_plugin_init,
+                   grl_tracker_plugin_deinit,
+                   grl_tracker_plugin_register_keys);

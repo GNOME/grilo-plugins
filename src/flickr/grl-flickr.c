@@ -56,8 +56,6 @@ GRL_LOG_DOMAIN(flickr_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   FLICKR_PLUGIN_ID
-
 #define PUBLIC_SOURCE_ID   "grl-flickr"
 #define PUBLIC_SOURCE_NAME "Flickr"
 #define PUBLIC_SOURCE_DESC _("A source for browsing and searching Flickr photos")
@@ -248,9 +246,18 @@ grl_flickr_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_flickr_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   FLICKR_PLUGIN_ID,
+                   "Flickr",
+                   "A plugin for browsing and searching Flickr photos",
+                   "Igalia S.L.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_flickr_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== Flickr GObject ================ */
 

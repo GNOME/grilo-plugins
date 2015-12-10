@@ -148,8 +148,6 @@ GRL_LOG_DOMAIN_STATIC(podcasts_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   PODCASTS_PLUGIN_ID
-
 #define SOURCE_ID   "grl-podcasts"
 #define SOURCE_NAME "Podcasts"
 #define SOURCE_DESC _("A source for browsing podcasts")
@@ -317,9 +315,18 @@ grl_podcasts_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_podcasts_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   PODCASTS_PLUGIN_ID,
+                   "Podcasts",
+                   "A plugin for browsing podcasts",
+                   "Igalia S.L.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_podcasts_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== Podcasts GObject ================ */
 

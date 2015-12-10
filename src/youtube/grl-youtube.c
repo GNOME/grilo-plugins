@@ -110,8 +110,6 @@ GRL_LOG_DOMAIN_STATIC(youtube_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   YOUTUBE_PLUGIN_ID
-
 #define SOURCE_ID   "grl-youtube"
 #define SOURCE_NAME "YouTube"
 #define SOURCE_DESC _("A source for browsing and searching YouTube videos")
@@ -299,9 +297,18 @@ grl_youtube_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_youtube_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   YOUTUBE_PLUGIN_ID,
+                   "YouTube",
+                   "A plugin for browsing and searching YouTube videos",
+                   "Igalia",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_youtube_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== YouTube GObject ================ */
 

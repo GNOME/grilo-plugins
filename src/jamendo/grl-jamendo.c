@@ -86,8 +86,6 @@ GRL_LOG_DOMAIN_STATIC(jamendo_log_domain);
 
 /* --- Plugin information --- */
 
-#define PLUGIN_ID   JAMENDO_PLUGIN_ID
-
 #define SOURCE_ID   "grl-jamendo"
 #define SOURCE_NAME "Jamendo"
 #define SOURCE_DESC _("A source for browsing and searching Jamendo music")
@@ -216,9 +214,18 @@ grl_jamendo_plugin_init (GrlRegistry *registry,
   return TRUE;
 }
 
-GRL_PLUGIN_REGISTER (grl_jamendo_plugin_init,
-                     NULL,
-                     PLUGIN_ID);
+GRL_PLUGIN_DEFINE (GRL_MAJOR,
+                   GRL_MINOR,
+                   JAMENDO_PLUGIN_ID,
+                   "Jamendo",
+                   "A plugin for browsing and searching Jamendo videos",
+                   "Igalia S.L.",
+                   VERSION,
+                   "LGPL",
+                   "http://www.igalia.com",
+                   grl_jamendo_plugin_init,
+                   NULL,
+                   NULL);
 
 /* ================== Jamendo GObject ================ */
 

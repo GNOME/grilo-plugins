@@ -1288,4 +1288,16 @@ AC_CONFIG_FILES([
 
 AC_OUTPUT
 
-AG_GRL_OUTPUT_PLUGINS
+
+echo "Plugins"
+( for i in $GRL_PLUGINS_ALL; do
+    case " $GRL_PLUGINS_ENABLED " in
+      *\ $i\ *)
+        printf '\t%-20s: yes\n' $i
+        ;;
+      *)
+        printf '\t%-20s: no\n' $i
+        ;;
+    esac
+  done ) | sort
+echo ""

@@ -19,8 +19,6 @@ MAINTAINERCLEANFILES = \
 	m4/intltool.m4 \
 	$(NULL)
 
-EXTRA_DIST += ./m4/grilo.m4
-
 # Make sure that the documentation generation is enabled
 # when creating tarball releases,
 # and make sure that we enable all plugins needed by the documentation.

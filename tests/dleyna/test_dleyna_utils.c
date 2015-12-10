@@ -33,7 +33,9 @@ test_dleyna_setup (TestDleynaFixture *fixture,
   g_assert_no_error (error);
 
   fixture->registry = grl_registry_get_default ();
-  grl_registry_load_plugin_by_id (fixture->registry, DLEYNA_PLUGIN_ID, &error);
+  grl_registry_load_plugin (fixture->registry, GRILO_PLUGINS_TESTS_DLEYNA_PLUGIN_PATH "/libgrldleyna.so", &error);
+  g_assert_no_error (error);
+  grl_registry_activate_plugin_by_id (fixture->registry, DLEYNA_PLUGIN_ID, &error);
   g_assert_no_error (error);
 
   /* Do not print warning messages, we want to test error conditions without

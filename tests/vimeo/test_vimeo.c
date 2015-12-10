@@ -43,7 +43,7 @@ test_setup (void)
   grl_config_set_api_secret (config, VIMEO_SECRET);
   grl_registry_add_config (registry, config, NULL);
 
-  grl_registry_load_all_plugins (registry, &error);
+  grl_registry_load_all_plugins (registry, TRUE, &error);
   g_assert_no_error (error);
 }
 

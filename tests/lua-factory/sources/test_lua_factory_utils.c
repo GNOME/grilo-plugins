@@ -55,7 +55,9 @@ test_lua_factory_setup (GrlConfig *config)
     g_assert_no_error (error);
   }
 
-  grl_registry_load_plugin_by_id (registry, LUA_FACTORY_ID, &error);
+  grl_registry_load_plugin (registry, LUA_FACTORY_PLUGIN_PATH "/libgrlluafactory.so", &error);
+  g_assert_no_error (error);
+  grl_registry_activate_plugin_by_id (registry, LUA_FACTORY_ID, &error);
   g_assert_no_error (error);
 }
 

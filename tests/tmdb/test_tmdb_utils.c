@@ -45,7 +45,11 @@ test_setup_tmdb (void)
   grl_registry_add_config (registry, config, &error);
   g_assert_no_error (error);
 
-  grl_registry_load_plugin_by_id (registry, TMDB_PLUGIN_ID, &error);
+  grl_registry_load_plugin (registry,
+                            GRILO_PLUGINS_TESTS_TMDB_PLUGIN_PATH "/libgrltmdb.so",
+                            &error);
+  g_assert_no_error (error);
+  grl_registry_activate_plugin_by_id (registry, TMDB_PLUGIN_ID, &error);
   g_assert_no_error (error);
 
   source = GRL_SOURCE (grl_registry_lookup_source (registry, TMDB_PLUGIN_ID));

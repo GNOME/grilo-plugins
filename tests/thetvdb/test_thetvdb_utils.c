@@ -50,7 +50,11 @@ test_setup_thetvdb (void)
   grl_registry_add_config (registry, config, &error);
   g_assert_no_error (error);
 
-  grl_registry_load_plugin_by_id (registry, THETVDB_ID, &error);
+  grl_registry_load_plugin (registry,
+                            THETVDB_PLUGIN_PATH "/libgrlthetvdb.so",
+                            &error);
+  g_assert_no_error (error);
+  grl_registry_activate_plugin_by_id (registry, THETVDB_ID, &error);
   g_assert_no_error (error);
 
   source = GRL_SOURCE (grl_registry_lookup_source (registry, THETVDB_ID));

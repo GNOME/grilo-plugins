@@ -1288,6 +1288,18 @@ AC_CONFIG_FILES([
 
 AC_OUTPUT
 
+echo "
+
+Configuration
+        Version             : ${VERSION}
+        Prefix              : ${prefix}
+        Compiler            : ${CC}
+
+        Enable debug        : ${enable_debug}
+        Enable coverage     : ${enable_gcov}
+
+        Enable GOA          : ${enable_goa}
+"
 
 echo "Plugins"
 ( for i in $GRL_PLUGINS_ALL; do

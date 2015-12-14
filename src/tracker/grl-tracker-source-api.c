@@ -1268,6 +1268,10 @@ void
 grl_tracker_source_browse (GrlSource *source,
                            GrlSourceBrowseSpec *bs)
 {
+  /* Ensure GRL_METADATA_KEY_ID is always requested */
+  if (!g_list_find (bs->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID)))
+    bs->keys = g_list_prepend (bs->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID));
+
   if (grl_tracker_browse_filesystem)
     grl_tracker_source_browse_filesystem (source, bs);
   else
@@ -1424,6 +1428,10 @@ grl_tracker_source_get_media_from_uri (GrlSource *source,
   GrlTrackerOp         *os;
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, mfus->operation_id);
+
+  /* Ensure GRL_METADATA_KEY_ID is always requested */
+  if (!g_list_find (mfus->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID)))
+    mfus->keys = g_list_prepend (mfus->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID));
 
   constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_select = grl_tracker_source_get_select_string (mfus->keys);

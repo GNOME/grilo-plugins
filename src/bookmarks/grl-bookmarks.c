@@ -152,7 +152,7 @@ grl_bookmarks_plugin_register_keys (GrlRegistry *registry,
                              G_TYPE_DATE_TIME,
                              G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
   GRL_BOOKMARKS_KEY_BOOKMARK_TIME =
-      grl_registry_register_metadata_key (registry, spec, NULL);
+    grl_registry_register_metadata_key (registry, spec, GRL_METADATA_KEY_INVALID, NULL);
   /* If key was not registered, could be that it is already registered. If so,
      check if type is the expected one, and reuse it */
   if (GRL_BOOKMARKS_KEY_BOOKMARK_TIME == GRL_METADATA_KEY_INVALID) {

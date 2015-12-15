@@ -88,6 +88,7 @@ gboolean grl_opensubtitles_source_plugin_init (GrlRegistry *registry,
 
 static GrlKeyID
 register_metadata_key (GrlRegistry *registry,
+                       GrlKeyID bind_key,
                        const char *name,
                        const char *nick,
                        const char *blurb)
@@ -102,7 +103,7 @@ register_metadata_key (GrlRegistry *registry,
                               G_PARAM_READWRITE
                               | G_PARAM_STATIC_STRINGS);
 
-  key = grl_registry_register_metadata_key (registry, spec, NULL);
+  key = grl_registry_register_metadata_key (registry, spec, bind_key, NULL);
 
   if (key == GRL_METADATA_KEY_INVALID) {
     key = grl_registry_lookup_metadata_key (registry, name);
@@ -129,12 +130,14 @@ grl_opensubtitles_source_plugin_init (GrlRegistry *registry,
 
   GRL_OPENSUBTITLES_METADATA_KEY_SUBTITLES_URL =
     register_metadata_key (registry,
+                           GRL_METADATA_KEY_INVALID,
                            "subtitles-url",
                            "subtitles-url",
                            "Subtitles URL");
 
   GRL_OPENSUBTITLES_METADATA_KEY_SUBTITLES_LANG =
     register_metadata_key (registry,
+                           GRL_METADATA_KEY_INVALID,
                            "subtitles-lang",
                            "subtitles-lang",
                            "Subtitles Language");

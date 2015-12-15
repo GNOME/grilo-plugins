@@ -275,6 +275,7 @@ grl_tracker_plugin_register_keys (GrlRegistry *registry,
                                                            NULL,
                                                            G_PARAM_STATIC_STRINGS |
                                                            G_PARAM_READWRITE),
+                                      GRL_METADATA_KEY_INVALID,
                                       NULL);
   grl_registry_register_metadata_key (grl_registry_get_default (),
                                       g_param_spec_string ("gibest-hash",
@@ -283,6 +284,7 @@ grl_tracker_plugin_register_keys (GrlRegistry *registry,
                                                            NULL,
                                                            G_PARAM_STATIC_STRINGS |
                                                            G_PARAM_READWRITE),
+                                      GRL_METADATA_KEY_INVALID,
                                       NULL);
   grl_registry_register_metadata_key (grl_registry_get_default (),
                                       g_param_spec_string ("tracker-urn",
@@ -291,6 +293,7 @@ grl_tracker_plugin_register_keys (GrlRegistry *registry,
                                                            NULL,
                                                            G_PARAM_STATIC_STRINGS |
                                                            G_PARAM_READWRITE),
+                                      GRL_METADATA_KEY_INVALID,
                                       NULL);
 }
 

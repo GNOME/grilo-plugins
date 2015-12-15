@@ -229,7 +229,7 @@ grl_thetvdb_plugin_register_keys (GrlRegistry *registry,
                               NULL,
                               G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
   GRL_THETVDB_METADATA_KEY_THETVDB_ID =
-    grl_registry_register_metadata_key (registry, spec, NULL);
+    grl_registry_register_metadata_key (registry, spec, GRL_METADATA_KEY_INVALID, NULL);
 
   spec = g_param_spec_string ("thetvdb-imdb-id",
                               "thetvdb-imdb-id",
@@ -237,7 +237,7 @@ grl_thetvdb_plugin_register_keys (GrlRegistry *registry,
                               NULL,
                               G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
   GRL_THETVDB_METADATA_KEY_IMDB_ID =
-    grl_registry_register_metadata_key (registry, spec, NULL);
+    grl_registry_register_metadata_key (registry, spec, GRL_METADATA_KEY_INVALID, NULL);
 
   spec = g_param_spec_string ("thetvdb-zap2it-id",
                               "thetvdb-zap2it-id",
@@ -245,7 +245,7 @@ grl_thetvdb_plugin_register_keys (GrlRegistry *registry,
                               NULL,
                               G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
   GRL_THETVDB_METADATA_KEY_ZAP2IT_ID =
-    grl_registry_register_metadata_key (registry, spec, NULL);
+    grl_registry_register_metadata_key (registry, spec, GRL_METADATA_KEY_INVALID, NULL);
 
   spec = g_param_spec_string ("thetvdb-guest-stars",
                               "thetvdb-guest-stars",
@@ -253,7 +253,7 @@ grl_thetvdb_plugin_register_keys (GrlRegistry *registry,
                               NULL,
                               G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
   GRL_THETVDB_METADATA_KEY_GUEST_STARS =
-    grl_registry_register_metadata_key (registry, spec, NULL);
+    grl_registry_register_metadata_key (registry, spec, GRL_METADATA_KEY_INVALID, NULL);
 
   spec = g_param_spec_string ("thetvdb-fanart",
                               "thetvdb-fanart",
@@ -261,7 +261,7 @@ grl_thetvdb_plugin_register_keys (GrlRegistry *registry,
                               NULL,
                               G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
   GRL_THETVDB_METADATA_KEY_FANART =
-    grl_registry_register_metadata_key (registry, spec, NULL);
+    grl_registry_register_metadata_key (registry, spec, GRL_METADATA_KEY_INVALID, NULL);
 
   spec = g_param_spec_string ("thetvdb-banner",
                               "thetvdb-banner",
@@ -269,7 +269,7 @@ grl_thetvdb_plugin_register_keys (GrlRegistry *registry,
                               NULL,
                               G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
   GRL_THETVDB_METADATA_KEY_BANNER =
-    grl_registry_register_metadata_key (registry, spec, NULL);
+    grl_registry_register_metadata_key (registry, spec, GRL_METADATA_KEY_INVALID, NULL);
 
   spec = g_param_spec_string ("thetvdb-poster",
                               "thetvdb-poster",
@@ -277,7 +277,7 @@ grl_thetvdb_plugin_register_keys (GrlRegistry *registry,
                               NULL,
                               G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
   GRL_THETVDB_METADATA_KEY_POSTER =
-    grl_registry_register_metadata_key (registry, spec, NULL);
+    grl_registry_register_metadata_key (registry, spec, GRL_METADATA_KEY_INVALID, NULL);
 
   spec = g_param_spec_string ("thetvdb-episode-screenshot",
                               "thetvdb-episode-screenshot",
@@ -285,7 +285,7 @@ grl_thetvdb_plugin_register_keys (GrlRegistry *registry,
                               NULL,
                               G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE),
   GRL_THETVDB_METADATA_KEY_EPISODE_SS =
-    grl_registry_register_metadata_key (registry, spec, NULL);
+    grl_registry_register_metadata_key (registry, spec, GRL_METADATA_KEY_INVALID, NULL);
 }
 
 GRL_PLUGIN_DEFINE (GRL_MAJOR,

@@ -59,6 +59,7 @@ static gboolean grl_gravatar_source_may_resolve (GrlSource *source,
                                                  GList **missing_keys);
 
 static GrlKeyID register_gravatar_key (GrlRegistry *registry,
+                                       GrlKeyID bind_key,
                                        const gchar *name,
                                        const gchar *nick,
                                        const gchar *blurb);
@@ -105,24 +106,17 @@ grl_gravatar_source_plugin_register_keys (GrlRegistry *registry,
 {
   GRL_METADATA_KEY_ARTIST_AVATAR =
     register_gravatar_key (registry,
+                           GRL_METADATA_KEY_ARTIST,
                            "artist-avatar",
                            "ArtistAvatar",
                            "Avatar for the artist");
 
   GRL_METADATA_KEY_AUTHOR_AVATAR =
     register_gravatar_key (registry,
+                           GRL_METADATA_KEY_AUTHOR,
                            "author-avatar",
                             "AuthorAvatar",
                             "Avatar for the author");
-
-  /* Create relationship */
-  grl_registry_register_metadata_key_relation (registry,
-                                               GRL_METADATA_KEY_ARTIST,
-                                               GRL_METADATA_KEY_ARTIST_AVATAR);
-
-  grl_registry_register_metadata_key_relation (registry,
-                                               GRL_METADATA_KEY_AUTHOR,
-                                               GRL_METADATA_KEY_AUTHOR_AVATAR);
 }
 
 GRL_PLUGIN_DEFINE (GRL_MAJOR,
@@ -174,6 +168,7 @@ G_DEFINE_TYPE (GrlGravatarSource,
 
 static GrlKeyID
 register_gravatar_key (GrlRegistry *registry,
+                       GrlKeyID bind_key,
                        const gchar *name,
                        const gchar *nick,
                        const gchar *blurb)
@@ -187,7 +182,7 @@ register_gravatar_key (GrlRegistry *registry,
                               NULL,
                               G_PARAM_READWRITE);
 
-  key = grl_registry_register_metadata_key (registry, spec, NULL);
+  key = grl_registry_register_metadata_key (registry, spec, bind_key, NULL);
 
   /* If key was not registered, could be that it is already registered. If so,
      check if type is the expected one, and reuse it */

@@ -113,6 +113,7 @@ static void grl_tmdb_source_finalize (GObject *object);
 
 static GrlKeyID
 register_metadata_key (GrlRegistry *registry,
+                       GrlKeyID bind_key,
                        const char *name,
                        const char *nick,
                        const char *blurb);
@@ -166,24 +167,28 @@ grl_tmdb_source_plugin_register_keys (GrlRegistry *registry,
 {
   GRL_TMDB_METADATA_KEY_BACKDROP =
     register_metadata_key (registry,
+                           GRL_METADATA_KEY_INVALID,
                            "tmdb-backdrop",
                            "tmdb-backdrop",
                            "A list of URLs for movie backdrops");
 
   GRL_TMDB_METADATA_KEY_POSTER =
     register_metadata_key (registry,
+                           GRL_METADATA_KEY_INVALID,
                            "tmdb-poster",
                            "tmdb-poster",
                            "A list of URLs for movie posters");
 
   GRL_TMDB_METADATA_KEY_IMDB_ID =
     register_metadata_key (registry,
+                           GRL_METADATA_KEY_INVALID,
                            "tmdb-imdb-id",
                            "tmdb-imdb-id",
                            "ID of this movie at imdb.org");
 
   GRL_TMDB_METADATA_KEY_TMDB_ID =
     register_metadata_key (registry,
+                           GRL_METADATA_KEY_INVALID,
                            "tmdb-id",
                            "tmdb-id",
                            "ID of this movie at tmdb.org");
@@ -386,6 +391,7 @@ grl_tmdb_source_finalize (GObject *object)
 
 static GrlKeyID
 register_metadata_key (GrlRegistry *registry,
+                       GrlKeyID bind_key,
                        const char *name,
                        const char *nick,
                        const char *blurb)
@@ -400,7 +406,7 @@ register_metadata_key (GrlRegistry *registry,
                               G_PARAM_READWRITE
                               | G_PARAM_STATIC_STRINGS);
 
-  key = grl_registry_register_metadata_key (registry, spec, NULL);
+  key = grl_registry_register_metadata_key (registry, spec, bind_key, NULL);
 
   if (key == GRL_METADATA_KEY_INVALID) {
     key = grl_registry_lookup_metadata_key (registry, name);

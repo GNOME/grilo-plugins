@@ -729,8 +729,7 @@ on_request_ready (GObject *source,
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_ORIGINAL_TITLE)) {
     value = grl_tmdb_request_get (request, "$.original_title");
     if (value != NULL) {
-      grl_media_video_set_original_title (GRL_MEDIA_VIDEO (closure->rs->media),
-                                          g_value_get_string (value));
+      grl_media_set_original_title (closure->rs->media, g_value_get_string (value));
       g_value_unset (value);
       g_free (value);
     }
@@ -867,8 +866,7 @@ on_request_ready (GObject *source,
       values = grl_tmdb_request_get_string_list (request, "$.casts.cast..name");
     iter = values;
     while (iter != NULL) {
-      grl_media_video_add_performer (GRL_MEDIA_VIDEO (closure->rs->media),
-                                     iter->data);
+      grl_media_add_performer (closure->rs->media, iter->data);
       iter = iter->next;
     }
     g_list_free_full (values, g_free);
@@ -884,8 +882,7 @@ on_request_ready (GObject *source,
                                                              producer_filter);
     iter = values;
     while (iter != NULL) {
-        grl_media_video_add_producer (GRL_MEDIA_VIDEO (closure->rs->media),
-                                      iter->data);
+        grl_media_add_producer (closure->rs->media, iter->data);
       iter = iter->next;
     }
     g_list_free_full (values, g_free);
@@ -901,8 +898,7 @@ on_request_ready (GObject *source,
                                                              director_filter);
     iter = values;
     while (iter != NULL) {
-      grl_media_video_add_director (GRL_MEDIA_VIDEO (closure->rs->media),
-                                    iter->data);
+      grl_media_add_director (closure->rs->media, iter->data);
       iter = iter->next;
     }
     g_list_free_full (values, g_free);
@@ -1088,8 +1084,7 @@ on_search_ready (GObject *source,
   if (SHOULD_RESOLVE (GRL_METADATA_KEY_ORIGINAL_TITLE)) {
     value = grl_tmdb_request_get (request, "$.results[0].original_title");
     if (value != NULL) {
-      grl_media_video_set_original_title (GRL_MEDIA_VIDEO (closure->rs->media),
-                                          g_value_get_string (value));
+      grl_media_set_original_title (closure->rs->media, g_value_get_string (value));
       g_value_unset (value);
       g_free (value);
     }
@@ -1281,7 +1276,7 @@ grl_tmdb_source_may_resolve (GrlSource *source,
     return FALSE;
 
   /* We can only entertain videos */
-  if (media && !GRL_IS_MEDIA_VIDEO (media))
+  if (media && !grl_media_is_video (media))
     return FALSE;
 
   /* Caller wants to check what's needed to resolve */
@@ -1316,14 +1311,14 @@ grl_tmdb_source_resolve (GrlSource *source,
   guint64 movie_id = 0;
   GList *it;
 
-  if (!GRL_IS_MEDIA_VIDEO (rs->media)) {
+  if (!grl_media_is_video (rs->media)) {
     /* We only entertain videos */
     rs->callback (source, rs->operation_id, rs->media, rs->user_data, NULL);
     return;
   }
 
   /* If the media is a TV show, don't handle it */
-  if (grl_media_video_get_show (GRL_MEDIA_VIDEO (rs->media)) != NULL) {
+  if (grl_media_get_show (rs->media) != NULL) {
     rs->callback (source, rs->operation_id, rs->media, rs->user_data, NULL);
     return;
   }

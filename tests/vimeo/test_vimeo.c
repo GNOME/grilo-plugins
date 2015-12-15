@@ -76,7 +76,7 @@ test_search_normal (void)
 
   media = g_list_nth_data (medias, 0);
 
-  g_assert (GRL_IS_MEDIA_VIDEO (media));
+  g_assert (grl_media_is_video (media));
   g_assert_cmpstr (grl_media_get_id (media),
                    ==,
                    "31110838");
@@ -92,7 +92,7 @@ test_search_normal (void)
 
   media = g_list_nth_data (medias, 1);
 
-  g_assert (GRL_IS_MEDIA_VIDEO (media));
+  g_assert (grl_media_is_video (media));
   g_assert_cmpstr (grl_media_get_id (media),
                    ==,
                    "13797705");

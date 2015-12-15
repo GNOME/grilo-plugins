@@ -719,7 +719,7 @@ grl_tracker_source_create_constraint (int min, int max)
  *
  * First column must be the media type, and it does not need to be named.  It
  * must match with any value supported in rdf:type() property, or
- * grilo#Box. Types understood are:
+ * grilo#Container. Types understood are:
  *
  * <itemizedlist>
  *   <listitem>
@@ -749,7 +749,7 @@ grl_tracker_source_create_constraint (int min, int max)
  *   </listitem>
  *   <listitem>
  *     <para>
- *       <literal>grilo#Box</literal>
+ *       <literal>grilo#Container</literal>
  *     </para>
  *   </listitem>
  * </itemizedlist>
@@ -1127,7 +1127,7 @@ grl_tracker_source_browse_category (GrlSource *source,
       }
     } else {
       if (remaining == 4) {
-        media = grl_media_box_new ();
+        media = grl_media_container_new ();
         grl_media_set_title (media, "Documents");
         grl_media_set_id (media, "documents");
         grl_data_set_string (GRL_DATA (media),
@@ -1138,7 +1138,7 @@ grl_tracker_source_browse_category (GrlSource *source,
       }
 
       if (filter & GRL_TYPE_FILTER_AUDIO) {
-        media = grl_media_box_new ();
+        media = grl_media_container_new ();
         grl_media_set_title (media, "Music");
         grl_media_set_id (media, "music");
         grl_data_set_string (GRL_DATA (media),
@@ -1149,7 +1149,7 @@ grl_tracker_source_browse_category (GrlSource *source,
       }
 
       if (filter & GRL_TYPE_FILTER_IMAGE) {
-        media = grl_media_box_new ();
+        media = grl_media_container_new ();
         grl_media_set_title (media, "Photos");
         grl_media_set_id (media, "photos");
         grl_data_set_string (GRL_DATA (media),
@@ -1160,7 +1160,7 @@ grl_tracker_source_browse_category (GrlSource *source,
       }
 
       if (filter & GRL_TYPE_FILTER_VIDEO) {
-        media = grl_media_box_new ();
+        media = grl_media_container_new ();
         grl_media_set_title (media, "Videos");
         grl_media_set_id (media, "videos");
         grl_data_set_string (GRL_DATA (media),

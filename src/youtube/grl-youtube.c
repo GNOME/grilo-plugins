@@ -347,7 +347,7 @@ grl_youtube_source_new (const gchar *api_key, const gchar *client_id, const gcha
 					     "auto-split-threshold",
 					     YOUTUBE_MAX_CHUNK,
                                              "yt-service", service,
-                                             "supported-media", GRL_MEDIA_TYPE_VIDEO,
+                                             "supported-media", GRL_SUPPORTED_MEDIA_VIDEO,
                                              "source-icon", icon,
                                              "source-tags", tags,
 					     NULL));
@@ -920,7 +920,7 @@ classify_media_id (const gchar *media_id)
 
 static void
 set_category_childcount (GDataService *service,
-			 GrlMediaBox *content,
+			 GrlMedia *content,
                          CategoryInfo *dir,
                          guint index)
 {
@@ -956,7 +956,7 @@ set_category_childcount (GDataService *service,
   }
 
   if (set_childcount) {
-    grl_media_box_set_childcount (content, childcount);
+    grl_media_set_childcount (content, childcount);
   }
 }
 
@@ -970,7 +970,7 @@ produce_container_from_directory (GDataService *service,
 
   if (!media) {
     /* Create mode */
-    content = grl_media_box_new ();
+    content = grl_media_container_new ();
   } else {
     /* Update mode */
     content = media;
@@ -984,7 +984,7 @@ produce_container_from_directory (GDataService *service,
     grl_media_set_title (content, g_dgettext (GETTEXT_PACKAGE, dir[index].name));
   }
   grl_media_set_site (content, YOUTUBE_SITE_URL);
-  set_category_childcount (service, GRL_MEDIA_BOX (content), dir, index);
+  set_category_childcount (service, content, dir, index);
 
   return content;
 }

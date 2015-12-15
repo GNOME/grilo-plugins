@@ -319,7 +319,7 @@ grl_thetvdb_source_new (const gchar *api_key)
                          "source-id", SOURCE_ID,
                          "source-name", SOURCE_NAME,
                          "source-desc", SOURCE_DESC,
-                         "supported-media", GRL_MEDIA_TYPE_VIDEO,
+                         "supported-media", GRL_SUPPORTED_MEDIA_VIDEO,
                          "source-tags", tags,
                          NULL);
 
@@ -845,7 +845,7 @@ get_from_cache_episode_or_series (EpisodeResource *eres,
  * NOTE: We give preference to an episode over the tv show for those metadatas
  * that could provide information for both. */
 static void
-thetvdb_update_media_from_resources (GrlMediaVideo *video,
+thetvdb_update_media_from_resources (GrlMedia *video,
                                      GList *keys,
                                      SeriesResource *sres,
                                      EpisodeResource *eres)
@@ -867,7 +867,7 @@ thetvdb_update_media_from_resources (GrlMediaVideo *video,
         g_object_get (eres, EPISODE_COLUMN_SEASON_NUMBER, &num, NULL);
 
       if (num > 0)
-        grl_media_video_set_season (video, num);
+        grl_media_set_season (video, num);
       else
         failed_keys++;
       break;
@@ -877,7 +877,7 @@ thetvdb_update_media_from_resources (GrlMediaVideo *video,
         g_object_get (eres, EPISODE_COLUMN_EPISODE_NUMBER, &num, NULL);
 
       if (num > 0)
-        grl_media_video_set_episode (video, num);
+        grl_media_set_episode (video, num);
       else
         failed_keys++;
       break;
@@ -887,7 +887,7 @@ thetvdb_update_media_from_resources (GrlMediaVideo *video,
         g_object_get (eres, EPISODE_COLUMN_EPISODE_NAME, &str, NULL);
 
       if (str != NULL) {
-        grl_media_video_set_episode_title (video, str);
+        grl_media_set_episode_title (video, str);
         g_free (str);
       } else
         failed_keys++;
@@ -1062,13 +1062,13 @@ thetvdb_update_media_from_resources (GrlMediaVideo *video,
   str = NULL;
   g_object_get (sres, SERIES_COLUMN_SERIES_NAME, &str, NULL);
   if (str != NULL) {
-    grl_media_video_set_show (video, str);
+    grl_media_set_show (video, str);
     g_free (str);
   }
 
   if (failed_keys == g_list_length (keys)) {
     GRL_DEBUG ("Couldn't resolve requested keys for %s",
-               grl_media_video_get_show (video));
+               grl_media_get_show (video));
   }
 }
 
@@ -1105,7 +1105,7 @@ web_request_succeed (const OperationSpec *os,
   GrlTheTVDBSource *tvdb_source;
 
   tvdb_source = GRL_THETVDB_SOURCE (os->source);
-  show = grl_media_video_get_show (GRL_MEDIA_VIDEO (os->media));
+  show = grl_media_get_show (os->media);
 
   wait_list = g_hash_table_lookup (tvdb_source->priv->ht_wait_list, show);
   for (it = wait_list; it != NULL; it = it->next) {
@@ -1132,7 +1132,7 @@ web_request_failed (const OperationSpec *os)
   GrlTheTVDBSource *tvdb_source;
 
   tvdb_source = GRL_THETVDB_SOURCE (os->source);
-  show = grl_media_video_get_show (GRL_MEDIA_VIDEO (os->media));
+  show = grl_media_get_show (os->media);
 
   wait_list = g_hash_table_lookup (tvdb_source->priv->ht_wait_list, show);
   for (it = wait_list; it != NULL; it = it->next) {
@@ -1224,11 +1224,9 @@ web_get_all_zipped_done (GObject *source_object,
   SeriesResource *sres = NULL;
   EpisodeResource *eres;
   OperationSpec *os;
-  GrlMediaVideo *video;
   GrlTheTVDBSource *tvdb_source;
 
   os = (OperationSpec *) user_data;
-  video = GRL_MEDIA_VIDEO (os->media);
   tvdb_source = GRL_THETVDB_SOURCE (os->source);
 
   grl_net_wc_request_finish (GRL_NET_WC (source_object),
@@ -1252,11 +1250,11 @@ web_get_all_zipped_done (GObject *source_object,
   g_free (xml_data);
 
   sres = xml_parse_and_save_serie (tvdb_source->priv->repository, doc,
-                                   grl_media_video_get_show (video));
+                                   grl_media_get_show (os->media));
   eres = xml_parse_and_save_episodes (tvdb_source->priv->repository, doc,
                                       grl_media_get_title (os->media),
-                                      grl_media_video_get_season (video),
-                                      grl_media_video_get_episode (video));
+                                      grl_media_get_season (os->media),
+                                      grl_media_get_episode (os->media));
   xmlFreeDoc (doc);
 
 get_all_zipped_end:
@@ -1330,7 +1328,7 @@ thetvdb_execute_resolve_web (OperationSpec *os)
   GRL_DEBUG ("thetvdb_resolve_web");
 
   tvdb_source = GRL_THETVDB_SOURCE (os->source);
-  show = grl_media_video_get_show (GRL_MEDIA_VIDEO (os->media));
+  show = grl_media_get_show (os->media);
 
   /* If there is a request on this show already, wait. */
   wait_list = g_hash_table_lookup (tvdb_source->priv->ht_wait_list, show);
@@ -1363,7 +1361,7 @@ cache_find_episode_done (GObject *object,
   GError *err = NULL;
 
   os = (OperationSpec *) user_data;
-  show = grl_media_video_get_show (GRL_MEDIA_VIDEO (os->media));
+  show = grl_media_get_show (os->media);
 
   resource = gom_repository_find_one_finish (GOM_REPOSITORY (object),
                                              res,
@@ -1381,7 +1379,7 @@ cache_find_episode_done (GObject *object,
     goto episode_done_end;
   }
 
-  thetvdb_update_media_from_resources (GRL_MEDIA_VIDEO (os->media),
+  thetvdb_update_media_from_resources (os->media,
                                        os->keys,
                                        os->serie_resource,
                                        EPISODE_RESOURCE (resource));
@@ -1407,8 +1405,8 @@ cache_find_episode (OperationSpec *os)
 
   tvdb_source = GRL_THETVDB_SOURCE (os->source);
   title = grl_media_get_title (os->media);
-  season_number = grl_media_video_get_season (GRL_MEDIA_VIDEO (os->media));
-  episode_number = grl_media_video_get_episode (GRL_MEDIA_VIDEO (os->media));
+  season_number = grl_media_get_season (os->media);
+  episode_number = grl_media_get_episode (os->media);
 
   g_object_get (os->serie_resource,
                 SERIES_COLUMN_SERIES_ID, &series_id,
@@ -1474,7 +1472,7 @@ cache_find_episode (OperationSpec *os)
 
 cache_episode_end:
   /* This media does not specify an episode: return series metadata */
-  thetvdb_update_media_from_resources (GRL_MEDIA_VIDEO (os->media),
+  thetvdb_update_media_from_resources (os->media,
                                        os->keys,
                                        os->serie_resource,
                                        NULL);
@@ -1495,7 +1493,7 @@ cache_find_serie_done (GObject *object,
   GError *err = NULL;
 
   os = (OperationSpec *) user_data;
-  show = grl_media_video_get_show (GRL_MEDIA_VIDEO (os->media));
+  show = grl_media_get_show (os->media);
 
   resource = gom_repository_find_one_finish (GOM_REPOSITORY (object),
                                              res,
@@ -1562,7 +1560,7 @@ cache_find_fuzzy_series_done (GObject *object,
 
 cache_miss:
   if (err != NULL) {
-    const gchar *show = grl_media_video_get_show (GRL_MEDIA_VIDEO (os->media));
+    const gchar *show = grl_media_get_show (os->media);
     GRL_DEBUG ("[Series] Cache miss with '%s' due '%s'", show, err->message);
     g_error_free (err);
   }
@@ -1586,7 +1584,7 @@ thetvdb_execute_resolve_cache (OperationSpec *os)
   GRL_DEBUG ("thetvdb_resolve_cache");
 
   tvdb_source = GRL_THETVDB_SOURCE (os->source);
-  show = grl_media_video_get_show (GRL_MEDIA_VIDEO (os->media));
+  show = grl_media_get_show (os->media);
 
   /* Get series async */
   g_value_init (&value, G_TYPE_STRING);
@@ -1647,7 +1645,7 @@ grl_thetvdb_source_may_resolve (GrlSource *source,
     return FALSE;
 
   /* Check if resolve type and media type match */
-  if (media && !GRL_IS_MEDIA_VIDEO (media))
+  if (media && !grl_media_is_video (media))
     return FALSE;
 
   /* Check if the media has a show */

@@ -618,13 +618,13 @@ build_media (GrlMedia *content,
 
   if (is_podcast) {
     if (!media) {
-      media = GRL_MEDIA (grl_media_box_new ());
+      media = grl_media_container_new ();
     }
 
     grl_media_set_id (media, id);
     if (desc)
       grl_media_set_description (media, desc);
-    grl_media_box_set_childcount (GRL_MEDIA_BOX (media), childcount);
+    grl_media_set_childcount (media, childcount);
   } else {
     if (!media) {
       if (mime_is_audio (mime)) {
@@ -1209,7 +1209,7 @@ parse_entry_idle (gpointer user_data)
 		       NULL);
     /* Notify about changes */
     if (GRL_PODCASTS_SOURCE (osp->os->source)->priv->notify_changes) {
-      media = grl_media_box_new ();
+      media = grl_media_container_new ();
       grl_media_set_id (media, osp->os->media_id);
       grl_source_notify_change (GRL_SOURCE (osp->os->source),
                                 media,
@@ -1321,7 +1321,7 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
 
   if (stream_count <= 0) {
     if (GRL_PODCASTS_SOURCE (os->source)->priv->notify_changes) {
-      podcast = grl_media_box_new ();
+      podcast = grl_media_container_new ();
       grl_media_set_id (podcast, os->media_id);
       grl_source_notify_change (GRL_SOURCE (os->source),
                                 podcast,
@@ -1801,7 +1801,7 @@ grl_podcasts_source_store (GrlSource *source, GrlSourceStoreSpec *ss)
 
   keylist = grl_data_get_keys (GRL_DATA (ss->media));
 
-  if (GRL_IS_MEDIA_BOX (ss->media)) {
+  if (grl_media_is_container (ss->media)) {
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_STORE_FAILED,
                                  _("Cannot create containers. Only feeds are accepted"));

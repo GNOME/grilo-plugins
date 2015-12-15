@@ -1160,7 +1160,7 @@ grl_filesystem_source_resolve (GrlSource *source,
       file = g_file_new_for_uri (chosen_uris->data);
     } else {
       grl_media_set_title (rs->media, SOURCE_NAME);
-      grl_media_box_set_childcount (GRL_MEDIA_BOX (rs->media), len);
+      grl_media_set_childcount (rs->media, len);
       rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
       return;
     }

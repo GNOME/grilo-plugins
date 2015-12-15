@@ -39,8 +39,8 @@
 static guint nextid = G_MAXINT; /* NOTE: this should be G_MAXUINT, but iPhoto can't handle it. */
 
 struct GrlDPAPDbPrivate {
-  /* Contains each picture box (tracked with photos hash table) */
-  GrlMediaBox *photos_box;
+  /* Contains each picture container (tracked with photos hash table) */
+  GrlMedia *photos_container;
 
   GHashTable  *root;
   GHashTable  *photos;
@@ -52,13 +52,13 @@ enum {
 };
 
 static guint
-box_hash (gconstpointer a)
+container_hash (gconstpointer a)
 {
   return g_str_hash (grl_media_get_id (GRL_MEDIA (a)));
 }
 
 static gboolean
-box_equal (gconstpointer a, gconstpointer b)
+container_equal (gconstpointer a, gconstpointer b)
 {
   return g_str_equal (grl_media_get_id (GRL_MEDIA (a)), grl_media_get_id (GRL_MEDIA (b)));
 }
@@ -97,25 +97,25 @@ static void
 set_insert (GHashTable *category, const char *category_name, char *set_name, GrlMedia *media)
 {
   gchar      *id = NULL;
-  GrlMedia   *box;
+  GrlMedia   *container;
   GHashTable *set;
 
   id = g_strdup_printf ("%s-%s", category_name, set_name);
 
-  box = g_object_new (GRL_TYPE_MEDIA_BOX, NULL);
-  grl_media_set_id    (box, id);
-  grl_media_set_title (box, set_name);
+  container = grl_media_container_new ();
+  grl_media_set_id    (container, id);
+  grl_media_set_title (container, set_name);
 
-  set = g_hash_table_lookup (category, box);
+  set = g_hash_table_lookup (category, container);
   if (set == NULL) {
-    set = g_hash_table_new_full (box_hash, box_equal, g_object_unref, NULL);
-    g_hash_table_insert (category, g_object_ref (box), set);
+    set = g_hash_table_new_full (container_hash, container_equal, g_object_unref, NULL);
+    g_hash_table_insert (category, g_object_ref (container), set);
   }
 
   g_hash_table_insert (set, g_object_ref (media), NULL);
 
   g_free (id);
-  g_object_unref (box);
+  g_object_unref (container);
 }
 
 static guint
@@ -181,11 +181,9 @@ grl_dpap_db_add (DMAPDb *_db, DMAPRecord *_record)
     grl_media_set_url (media, url);
   }
 
-  GrlMediaImage *media_image = GRL_MEDIA_IMAGE (media);
+  grl_media_set_width  (media, width);
+  grl_media_set_height (media, height);
 
-  grl_media_image_set_width  (media_image, width);
-  grl_media_image_set_height (media_image, height);
- 
   set_insert (db->priv->photos,  PHOTOS_ID, "Unknown",  media);
 
   g_free (id_s);
@@ -218,10 +216,10 @@ grl_dpap_db_browse (GrlDPAPDb *db,
   GHashTableIter iter;
   gpointer key, val;
 
-  const gchar *box_id = grl_media_get_id (container);
-  if (box_id == NULL) {
+  const gchar *container_id = grl_media_get_id (container);
+  if (container_id == NULL) {
     hash_table = db->priv->root;
-  } else if (same_media (container, GRL_MEDIA (db->priv->photos_box))) {
+  } else if (same_media (container, GRL_MEDIA (db->priv->photos_container))) {
     hash_table = db->priv->photos;
   } else {
     hash_table = g_hash_table_lookup (db->priv->photos, container);
@@ -233,7 +231,7 @@ grl_dpap_db_browse (GrlDPAPDb *db,
     GError *error = g_error_new (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_BROWSE_FAILED,
                                  "Invalid container identifier %s",
-                                 box_id);
+                                 container_id);
     func (source, op_id, NULL, 0, user_data, error);
     goto done;
   }
@@ -244,8 +242,8 @@ grl_dpap_db_browse (GrlDPAPDb *db,
   for (i = 0; g_hash_table_iter_next (&iter, &key, &val) && i < skip + count; i++) {
     if (i < skip)
       continue;
-    if (GRL_IS_MEDIA_BOX (key))
-      grl_media_box_set_childcount (GRL_MEDIA_BOX (key), g_hash_table_size (val));
+    if (grl_media_is_container (key))
+      grl_media_set_childcount (key, g_hash_table_size (val));
     func (source, op_id, GRL_MEDIA (g_object_ref (key)), --remaining, user_data, NULL);
   }
 done:
@@ -279,7 +277,7 @@ grl_dpap_db_search (GrlDPAPDb *db,
     g_hash_table_iter_init (&iter1, hash_tables[i]);
     /* For each album or artist in above... */
     for (j = 0; g_hash_table_iter_next (&iter1, &key1, &val1); j++) {
-      if (GRL_IS_MEDIA_BOX (key1)) {
+      if (grl_media_is_container (key1)) {
         g_hash_table_iter_init (&iter2, val1);
         /* For each media item in above... */
         for (k = 0; g_hash_table_iter_next (&iter2, &key2, &val2); k++) {
@@ -333,15 +331,15 @@ grl_dpap_db_init (GrlDPAPDb *db)
 {
   db->priv = GRL_DPAP_DB_GET_PRIVATE (db);
 
-  db->priv->photos_box  = g_object_new (GRL_TYPE_MEDIA_BOX, NULL);
+  db->priv->photos_container  = grl_media_container_new ();
 
-  grl_media_set_id    (GRL_MEDIA (db->priv->photos_box), PHOTOS_ID);
-  grl_media_set_title (GRL_MEDIA (db->priv->photos_box), PHOTOS_NAME);
+  grl_media_set_id    (GRL_MEDIA (db->priv->photos_container), PHOTOS_ID);
+  grl_media_set_title (GRL_MEDIA (db->priv->photos_container), PHOTOS_NAME);
 
-  db->priv->root   = g_hash_table_new_full (box_hash, box_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
-  db->priv->photos = g_hash_table_new_full (box_hash, box_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
+  db->priv->root   = g_hash_table_new_full (container_hash, container_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
+  db->priv->photos = g_hash_table_new_full (container_hash, container_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
 
-  g_hash_table_insert (db->priv->root, g_object_ref (db->priv->photos_box), db->priv->photos);
+  g_hash_table_insert (db->priv->root, g_object_ref (db->priv->photos_container), db->priv->photos);
 }
 
 static void
@@ -351,7 +349,7 @@ grl_dpap_db_finalize (GObject *object)
 
   GRL_DEBUG ("Finalizing GrlDPAPDb");
 
-  g_object_unref (db->priv->photos_box);
+  g_object_unref (db->priv->photos_container);
 
   g_hash_table_destroy (db->priv->photos);
 }

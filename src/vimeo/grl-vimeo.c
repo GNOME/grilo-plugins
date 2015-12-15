@@ -196,7 +196,7 @@ grl_vimeo_source_new (void)
                          "source-id", SOURCE_ID,
                          "source-name", SOURCE_NAME,
                          "source-desc", SOURCE_DESC,
-                         "supported-media", GRL_MEDIA_TYPE_VIDEO,
+                         "supported-media", GRL_SUPPORTED_MEDIA_VIDEO,
                          "source-icon", icon,
                          "source-tags", tags,
                          NULL);
@@ -330,13 +330,13 @@ update_media (GrlMedia *media, GHashTable *video)
   str = g_hash_table_lookup (video, VIMEO_VIDEO_WIDTH);
   if (str)
   {
-    grl_media_video_set_width (GRL_MEDIA_VIDEO (media), str_to_gint (str));
+    grl_media_set_width (media, str_to_gint (str));
   }
 
   str = g_hash_table_lookup (video, VIMEO_VIDEO_HEIGHT);
   if (str)
   {
-    grl_media_video_set_height (GRL_MEDIA_VIDEO (media), str_to_gint (str));
+    grl_media_set_height (media, str_to_gint (str));
   }
 }
 

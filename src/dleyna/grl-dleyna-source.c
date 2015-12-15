@@ -502,56 +502,56 @@ media_set_property (GrlMedia *media,
   }
   else if (g_strcmp0 (key, "Artist") == 0) {
     s = g_variant_get_string (value, NULL);
-    if (GRL_IS_MEDIA_AUDIO (media)) {
-      grl_media_audio_set_artist (GRL_MEDIA_AUDIO (media), s);
+    if (grl_media_is_audio (media)) {
+      grl_media_set_artist (media, s);
     }
   }
   else if (g_strcmp0 (key, "Album") == 0) {
     s = g_variant_get_string (value, NULL);
-    if (GRL_IS_MEDIA_AUDIO (media)) {
-      grl_media_audio_set_album (GRL_MEDIA_AUDIO (media), s);
+    if (grl_media_is_audio (media)) {
+      grl_media_set_album (media, s);
     }
   }
   else if (g_strcmp0 (key, "Genre") == 0) {
     s = g_variant_get_string (value, NULL);
-    if (GRL_IS_MEDIA_AUDIO (media)) {
-      grl_media_audio_set_genre (GRL_MEDIA_AUDIO (media), s);
+    if (grl_media_is_audio (media)) {
+      grl_media_set_genre (media, s);
     }
   }
   else if (g_strcmp0 (key, "TrackNumber") == 0) {
     i = g_variant_get_int32 (value);
-    if (GRL_IS_MEDIA_AUDIO (media)) {
-      grl_media_audio_set_track_number (GRL_MEDIA_AUDIO (media), i);
+    if (grl_media_is_audio (media)) {
+      grl_media_set_track_number (media, i);
     }
   }
   else if (g_strcmp0 (key, "ChildCount") == 0) {
     guint32 count = g_variant_get_uint32 (value);
-    if (GRL_IS_MEDIA_BOX (media)) {
-      grl_media_box_set_childcount (GRL_MEDIA_BOX (media), count);
+    if (grl_media_is_container (media)) {
+      grl_media_set_childcount (media, count);
     }
   }
   else if (g_strcmp0 (key, "Width") == 0) {
     i = g_variant_get_int32 (value);
-    if (GRL_IS_MEDIA_VIDEO (media)) {
-      grl_media_video_set_width (GRL_MEDIA_VIDEO (media), i);
+    if (grl_media_is_video (media)) {
+      grl_media_set_width (media, i);
     }
-    if (GRL_IS_MEDIA_IMAGE (media)) {
-      grl_media_image_set_width (GRL_MEDIA_IMAGE (media), i);
+    if (grl_media_is_image (media)) {
+      grl_media_set_width (media, i);
     }
   }
   else if (g_strcmp0 (key, "Height") == 0) {
     i = g_variant_get_int32 (value);
-    if (GRL_IS_MEDIA_VIDEO (media)) {
-      grl_media_video_set_height (GRL_MEDIA_VIDEO (media), i);
+    if (grl_media_is_video (media)) {
+      grl_media_set_height (media, i);
     }
-    if (GRL_IS_MEDIA_IMAGE (media)) {
-      grl_media_image_set_height (GRL_MEDIA_IMAGE (media), i);
+    if (grl_media_is_image (media)) {
+      grl_media_set_height (media, i);
     }
   }
   else if (g_strcmp0 (key, "Bitrate") == 0) {
     i = g_variant_get_int32 (value);
-    if (GRL_IS_MEDIA_AUDIO (media)) {
-      grl_media_audio_set_bitrate (GRL_MEDIA_AUDIO (media), i);
+    if (grl_media_is_audio (media)) {
+      grl_media_set_bitrate (media, i);
     }
   }
   else if (g_strcmp0 (key, "AlbumArtURL") == 0) {
@@ -600,13 +600,13 @@ build_media_from_variant (GVariant *variant)
     media = grl_media_new ();
   }
   else if (g_str_has_prefix (type, "container")) {
-    media = grl_media_box_new ();
+    media = grl_media_container_new ();
   }
   /* Workaround https://github.com/01org/dleyna-server/issues/101 */
   else if (g_str_has_prefix (type, "album") ||
            g_str_has_prefix (type, "person") ||
            g_str_has_prefix (type, "genre")) {
-    media = grl_media_box_new ();
+    media = grl_media_container_new ();
   }
   else if (g_str_has_prefix (type, "audio") ||
            g_str_has_prefix (type, "music")) {
@@ -640,24 +640,24 @@ variant_set_property (GVariantBuilder *builder,
                                     grl_media_get_title (media));
       return TRUE;
     case GRL_METADATA_KEY_ARTIST:
-      if (GRL_IS_MEDIA_AUDIO (media))
+      if (grl_media_is_audio (media))
         g_variant_builder_add_parsed (builder, "{'Artist', <%s>}",
-                                      grl_media_audio_get_artist (GRL_MEDIA_AUDIO (media)));
+                                      grl_media_get_artist (media));
       return TRUE;
     case GRL_METADATA_KEY_ALBUM:
-      if (GRL_IS_MEDIA_AUDIO (media))
+      if (grl_media_is_audio (media))
         g_variant_builder_add_parsed (builder, "{'Album', <%s>}",
-                                      grl_media_audio_get_album (GRL_MEDIA_AUDIO (media)));
+                                      grl_media_get_album (media));
       return TRUE;
     case GRL_METADATA_KEY_GENRE:
-      if (GRL_IS_MEDIA_AUDIO (media))
+      if (grl_media_is_audio (media))
         g_variant_builder_add_parsed (builder, "{'Genre', <%s>}",
-                                      grl_media_audio_get_genre (GRL_MEDIA_AUDIO (media)));
+                                      grl_media_get_genre (media));
       return TRUE;
     case GRL_METADATA_KEY_TRACK_NUMBER:
-      if (GRL_IS_MEDIA_AUDIO (media))
+      if (grl_media_is_audio (media))
         g_variant_builder_add_parsed (builder, "{'TrackNumber', <%i>}",
-                                      grl_media_audio_get_track_number (GRL_MEDIA_AUDIO (media)));
+                                      grl_media_get_track_number (media));
       return TRUE;
     case GRL_METADATA_KEY_AUTHOR:
       g_variant_builder_add_parsed (builder, "{'Creator', <%s>}",
@@ -1513,7 +1513,7 @@ grl_dleyna_source_store (GrlSource *source,
 
   title = g_strdup (grl_media_get_title (ss->media));
 
-  if (!GRL_IS_MEDIA_BOX (ss->media)) {
+  if (!grl_media_is_container (ss->media)) {
     url = grl_media_get_url (ss->media);
     if (url == NULL) {
       error = g_error_new (GRL_CORE_ERROR, GRL_CORE_ERROR_STORE_FAILED,
@@ -1541,7 +1541,7 @@ grl_dleyna_source_store (GrlSource *source,
   if (container_object_path == NULL) {
     /* If no container has been explicitly requested, let the DMS choose the
       * appropriate storage location automatically */
-    if (GRL_IS_MEDIA_BOX (ss->media)) {
+    if (grl_media_is_container (ss->media)) {
       grl_dleyna_media_device_call_create_container_in_any_container (device, title, "container", child_types, NULL,
                                                                       grl_dleyna_source_store_create_container_in_any_container_cb, ss);
     }
@@ -1567,7 +1567,7 @@ grl_dleyna_source_store (GrlSource *source,
       goto out;
     }
 
-    if (GRL_IS_MEDIA_BOX (ss->media)) {
+    if (grl_media_is_container (ss->media)) {
       grl_dleyna_media_container2_call_create_container (container, title, "container", child_types, NULL,
                                                          grl_dleyna_source_store_create_container_cb, ss);
     }

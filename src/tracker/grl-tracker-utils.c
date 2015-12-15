@@ -598,13 +598,13 @@ grl_tracker_build_grilo_media (const gchar *rdf_type)
   } else if (g_hash_table_lookup (ht, RDF_TYPE_IMAGE)) {
     media = grl_media_image_new ();
   } else if (g_hash_table_lookup (ht, RDF_TYPE_ARTIST)) {
-    media = grl_media_box_new ();
+    media = grl_media_container_new ();
   } else if (g_hash_table_lookup (ht, RDF_TYPE_ALBUM)) {
-    media = grl_media_box_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_BOX)) {
-    media = grl_media_box_new ();
+    media = grl_media_container_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_CONTAINER)) {
+    media = grl_media_container_new ();
   } else if (g_hash_table_lookup (ht, RDF_TYPE_FOLDER)) {
-    media = grl_media_box_new ();
+    media = grl_media_container_new ();
   }
 
   g_hash_table_destroy (ht);

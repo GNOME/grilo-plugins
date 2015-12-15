@@ -73,7 +73,7 @@ get_show_for_title (GrlSource  *source,
   *season = grl_data_get_int (GRL_DATA (media), GRL_METADATA_KEY_SEASON);
   *episode = grl_data_get_int (GRL_DATA (media), GRL_METADATA_KEY_EPISODE);
   show = g_strdup (grl_data_get_string (GRL_DATA (media), GRL_METADATA_KEY_SHOW));
-  str = grl_media_video_get_episode_title (GRL_MEDIA_VIDEO (media));
+  str = grl_media_get_episode_title (media);
   *new_title = (str && str[0] == '\0') ? NULL : g_strdup (str);
 
   g_object_unref (media);

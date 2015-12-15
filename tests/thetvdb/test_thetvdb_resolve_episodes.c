@@ -35,7 +35,7 @@ get_episode_metadata_from_episode (GrlSource *source,
                                    gchar **title,
                                    gchar **episode_screen)
 {
-  GrlMediaVideo *video;
+  GrlMedia *video;
   GrlOperationOptions *options;
   GList *keys;
   GDateTime *date;
@@ -54,10 +54,10 @@ get_episode_metadata_from_episode (GrlSource *source,
   g_assert_cmpint (zap2it_key, !=, GRL_METADATA_KEY_INVALID);
   g_assert_cmpint (ss_key, !=, GRL_METADATA_KEY_INVALID);
 
-  video = GRL_MEDIA_VIDEO (grl_media_video_new ());
-  grl_media_video_set_show (video, show);
-  grl_media_video_set_season (video, season);
-  grl_media_video_set_episode (video, episode);
+  video = grl_media_video_new ();
+  grl_media_set_show (video, show);
+  grl_media_set_season (video, season);
+  grl_media_set_episode (video, episode);
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_EPISODE_TITLE,
                                     GRL_METADATA_KEY_PUBLICATION_DATE,
@@ -75,7 +75,7 @@ get_episode_metadata_from_episode (GrlSource *source,
                            keys,
                            options,
                            NULL);
-  *title = g_strdup (grl_media_video_get_episode_title (video));
+  *title = g_strdup (grl_media_get_episode_title (video));
   *imdb = g_strdup (grl_data_get_string (GRL_DATA (video), imdb_key));
   *tvdb_id = g_strdup (grl_data_get_string (GRL_DATA (video), tvdb_key));
   *zap2it = g_strdup (grl_data_get_string (GRL_DATA (video), zap2it_key));

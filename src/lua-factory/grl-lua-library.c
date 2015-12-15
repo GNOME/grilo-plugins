@@ -315,8 +315,8 @@ grl_util_build_media (lua_State *L,
     if (lua_isstring (L, -1)) {
       const gchar *media_type = lua_tostring (L, -1);
 
-      if (g_strcmp0 (media_type, "box") == 0)
-        media = grl_media_box_new ();
+      if (g_strcmp0 (media_type, "container") == 0)
+        media = grl_media_container_new ();
       else if (g_strcmp0 (media_type, "image") == 0)
         media = grl_media_image_new ();
       else if (g_strcmp0 (media_type, "audio") == 0)

@@ -237,7 +237,7 @@ grl_magnatune_source_new(void)
                         "source-id", SOURCE_ID,
                         "source-name", SOURCE_NAME,
                         "source-desc", SOURCE_DESC,
-                        "supported-media", GRL_MEDIA_TYPE_AUDIO,
+                        "supported-media", GRL_SUPPORTED_MEDIA_AUDIO,
                         "source-tags", tags,
                         NULL);
 
@@ -603,15 +603,12 @@ build_media(gint track_id,
             const gchar *url_to_mp3)
 {
   GrlMedia *media = NULL;
-  GrlMediaAudio *audio = NULL;
   gchar *str_track_id = NULL;
 
   media = grl_media_audio_new();
-  audio = GRL_MEDIA_AUDIO(media);
-  grl_media_audio_set_track_number(audio, track_number);
-  grl_media_audio_set_artist(audio, artist_name);
-  grl_media_audio_set_album(audio, album_name);
-
+  grl_media_set_track_number(media, track_number);
+  grl_media_set_artist(media, artist_name);
+  grl_media_set_album(media, album_name);
   grl_media_set_url(media, url_to_mp3);
   grl_media_set_duration(media, duration);
   grl_media_set_title(media, track_name);
@@ -665,7 +662,7 @@ build_media_id_name_from_stmt(sqlite3_stmt *sql_stmt)
   gchar *id = NULL;
   const gchar *media_name = NULL;
 
-  media = grl_media_box_new();
+  media = grl_media_container_new();
   media_id = (guint) sqlite3_column_int(sql_stmt, 0);
   media_name = (gchar *) sqlite3_column_text(sql_stmt, 1);
   id = g_strdup_printf("%d", media_id);
@@ -749,7 +746,7 @@ magnatune_browse_root(OperationSpec *os)
 
   num = (os->count > MAGNATUNE_NUM_CAT) ? MAGNATUNE_NUM_CAT: os->count;
 
-  media = grl_media_box_new();
+  media = grl_media_container_new();
   grl_media_set_title(media, MAGNATUNE_ROOT_ARTIST);
   id = g_strdup_printf("root-%d", MAGNATUNE_ARTIST_CAT);
   grl_media_set_id(media, id);
@@ -760,7 +757,7 @@ magnatune_browse_root(OperationSpec *os)
   if (num == 0)
     return;
 
-  media = grl_media_box_new();
+  media = grl_media_container_new();
   grl_media_set_title(media, MAGNATUNE_ROOT_ALBUM);
   id = g_strdup_printf("root-%d", MAGNATUNE_ALBUM_CAT);
   grl_media_set_id(media, id);
@@ -771,7 +768,7 @@ magnatune_browse_root(OperationSpec *os)
   if (num == 0)
     return;
 
-  media = grl_media_box_new();
+  media = grl_media_container_new();
   grl_media_set_title(media, MAGNATUNE_ROOT_GENRE);
   id = g_strdup_printf("root-%d", MAGNATUNE_GENRE_CAT);
   grl_media_set_id(media, id);
@@ -785,10 +782,9 @@ magnatune_execute_browse(OperationSpec *os)
 {
   MagnatuneBuildMediaFn *build_fn;
   GrlMedia *media = NULL;
-  const gchar *container_id = NULL;
-  gchar *sql = NULL;
+  const gchar *container_id = NULL;  gchar *sql = NULL;
   gchar **touple = NULL;
-  gchar *box_id = NULL;
+  gchar *new_container_id = NULL;
   gchar *category_str_id = NULL;
   gint id = 0;
   gint num_medias = 0;
@@ -860,11 +856,11 @@ magnatune_execute_browse(OperationSpec *os)
   num_medias = g_list_length(list_medias) - 1;;
   for (iter = list_medias; iter; iter = iter->next) {
     media = iter->data;
-    box_id = g_strdup_printf("%s-%s",
+    new_container_id = g_strdup_printf("%s-%s",
                              category_str_id,
                              grl_media_get_id(media));
-    grl_media_set_id(media, box_id);
-    g_free(box_id);
+    grl_media_set_id(media, new_container_id);
+    g_free(new_container_id);
 
     os->callback(os->source,
                  os->operation_id,

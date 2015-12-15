@@ -279,7 +279,7 @@ grl_flickr_source_public_new (const gchar *flickr_api_key,
                          "source-id", PUBLIC_SOURCE_ID,
                          "source-name", PUBLIC_SOURCE_NAME,
                          "source-desc", PUBLIC_SOURCE_DESC,
-                         "supported-media", GRL_MEDIA_TYPE_IMAGE,
+                         "supported-media", GRL_SUPPORTED_MEDIA_IMAGE,
                          "source-tags", tags,
                          NULL);
   source->priv->flickr = g_flickr_new (flickr_api_key, flickr_secret,
@@ -639,7 +639,7 @@ photosetslist_cb (GFlickr *f, GList *photosets, gpointer user_data)
 
   while (photosets && count > 0) {
     count--;
-    media = grl_media_box_new ();
+    media = grl_media_container_new ();
     grl_media_set_id (media,
                       g_hash_table_lookup (photosets->data,
                                            "photoset_id"));
@@ -741,7 +741,7 @@ gettags_cb (GFlickr *f, GList *taglist, gpointer user_data)
   count = g_list_length (taglist);
   while (taglist) {
     count--;
-    media = grl_media_box_new ();
+    media = grl_media_container_new ();
     grl_media_set_id (media, taglist->data);
     grl_media_set_title (media, taglist->data);
     bs->callback (bs->source,

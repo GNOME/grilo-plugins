@@ -118,7 +118,7 @@ enum {
   MEDIA_AUDIO,
   MEDIA_VIDEO,
   MEDIA_IMAGE,
-  MEDIA_BOX
+  MEDIA_CONTAINER
 };
 
 static GrlMetadataStoreSource *grl_metadata_store_source_new (void);
@@ -384,17 +384,17 @@ get_column_name_from_key_id (GrlKeyID key_id)
 static int
 get_media_type (GrlMedia *media)
 {
-  if (GRL_IS_MEDIA_AUDIO (media)) {
+  if (grl_media_is_audio (media)) {
     return MEDIA_AUDIO;
   }
-  if (GRL_IS_MEDIA_VIDEO (media)) {
+  if (grl_media_is_video (media)) {
     return MEDIA_VIDEO;
   }
-  if (GRL_IS_MEDIA_IMAGE (media)) {
+  if (grl_media_is_image (media)) {
     return MEDIA_IMAGE;
   }
-  if (GRL_IS_MEDIA_BOX (media)) {
-    return MEDIA_BOX;
+  if (grl_media_is_container (media)) {
+    return MEDIA_CONTAINER;
   }
 
   return MEDIA;
@@ -657,8 +657,8 @@ create_media (sqlite3_stmt * stmt, GList *keys)
   case MEDIA_IMAGE:
     media = grl_media_image_new ();
     break;
-  case MEDIA_BOX:
-    media = grl_media_box_new ();
+  case MEDIA_CONTAINER:
+    media = grl_media_container_new ();
     break;
   default:
     media = grl_media_new ();
@@ -740,12 +740,12 @@ grl_metadata_store_source_may_resolve (GrlSource *source,
 
 
   if (media) {
-    if (!(GRL_IS_MEDIA_VIDEO (media) ||
-          GRL_IS_MEDIA_AUDIO (media) ||
+    if (!(grl_media_is_video (media) ||
+          grl_media_is_audio (media) ||
           key_id == GRL_METADATA_KEY_FAVOURITE))
       /* the keys we handle for now only make sense for audio and video,
          with exception of the 'favourite' key, valid as well for pictures
-         and boxes */
+         and containers */
       return FALSE;
 
     if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_ID))

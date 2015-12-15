@@ -31,8 +31,8 @@ build_media_audio (const gchar *artist,
   GrlMedia *media;
 
   media = grl_media_audio_new ();
-  grl_media_audio_set_artist (GRL_MEDIA_AUDIO (media), artist);
-  grl_media_audio_set_album (GRL_MEDIA_AUDIO (media), album);
+  grl_media_set_artist (media, artist);
+  grl_media_set_album (media, album);
 
   return media;
 }

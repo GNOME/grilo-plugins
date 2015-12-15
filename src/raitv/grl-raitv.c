@@ -281,7 +281,7 @@ grl_raitv_source_new (void)
                          "source-id", SOURCE_ID,
                          "source-name", SOURCE_NAME,
                          "source-desc", SOURCE_DESC,
-                         "supported-media", GRL_MEDIA_TYPE_VIDEO,
+                         "supported-media", GRL_SUPPORTED_MEDIA_VIDEO,
                          "source-icon", icon,
                          "source-tags", tags,
                          NULL);
@@ -1012,7 +1012,7 @@ produce_container_from_directory (GrlMedia *media,
   gchar* mediaid=NULL;
 
   if (!media) {
-    content = grl_media_box_new ();
+    content = grl_media_container_new ();
   } else {
     content = media;
   }
@@ -1267,7 +1267,7 @@ grl_raitv_source_resolve (GrlSource *source,
 
   GRL_DEBUG ("Starting resolve source: url=%s",grl_media_get_url (rs->media));
 
-  if (!GRL_IS_MEDIA_VIDEO (rs->media) && !GRL_IS_MEDIA_BOX (rs->media)) {
+  if (!grl_media_is_video (rs->media) && !grl_media_is_container (rs->media)) {
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
     return;
   }

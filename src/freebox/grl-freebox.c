@@ -208,7 +208,7 @@ grl_freebox_source_new_tv (void)
                          "source-id", TV_SOURCE_ID,
                          "source-name", TV_SOURCE_NAME,
                          "source-desc", TV_SOURCE_DESC,
-                         "supported-media", GRL_MEDIA_TYPE_VIDEO,
+                         "supported-media", GRL_SUPPORTED_MEDIA_VIDEO,
                          "source-icon", icon,
                          "source-tags", tags,
                          NULL);
@@ -239,7 +239,7 @@ grl_freebox_source_new_radio (void)
                          "source-id", RADIO_SOURCE_ID,
                          "source-name", RADIO_SOURCE_NAME,
                          "source-desc", RADIO_SOURCE_DESC,
-                         "supported-media", GRL_MEDIA_TYPE_AUDIO,
+                         "supported-media", GRL_SUPPORTED_MEDIA_AUDIO,
                          "source-icon", icon,
                          "source-tags", tags,
                          NULL);

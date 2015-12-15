@@ -188,7 +188,6 @@ check_videos_metadata (GrlSource    *source,
                        gpointer      user_data,
                        const GError *error)
 {
-  GrlMediaVideo *video;
   GDateTime *date;
   const gchar *imdb;
   const gchar *tvdb_id;
@@ -201,26 +200,24 @@ check_videos_metadata (GrlSource    *source,
   if (error)
     g_error ("Resolve operation failed. Reason: %s", error->message);
 
-  video = GRL_MEDIA_VIDEO (media);
-
-  title = grl_media_video_get_episode_title (video);
+  title = grl_media_get_episode_title (media);
   g_assert_cmpstr (videos[i].title, ==, title);
 
-  imdb = grl_data_get_string (GRL_DATA (video), imdb_key);
+  imdb = grl_data_get_string (GRL_DATA (media), imdb_key);
   g_assert_cmpstr (videos[i].imdb, ==, imdb);
 
-  tvdb_id = grl_data_get_string (GRL_DATA (video), tvdb_key);
+  tvdb_id = grl_data_get_string (GRL_DATA (media), tvdb_key);
   g_assert_cmpstr (videos[i].tvdb_id, ==, tvdb_id);
 
-  zap2it = grl_data_get_string (GRL_DATA (video), zap2it_key);
+  zap2it = grl_data_get_string (GRL_DATA (media), zap2it_key);
   g_assert_cmpstr (videos[i].zap2it_id, ==, zap2it);
 
-  date = grl_media_get_publication_date (GRL_MEDIA (video));
+  date = grl_media_get_publication_date (GRL_MEDIA (media));
   publication_date = g_date_time_format (date, "%Y-%m-%d");
   g_assert_cmpstr (videos[i].publication_date, ==, publication_date);
   g_free (publication_date);
 
-  episode_screen = grl_data_get_string (GRL_DATA (video), ss_key);
+  episode_screen = grl_data_get_string (GRL_DATA (media), ss_key);
   if (g_strcmp0 (videos[i].url_episode_screen, episode_screen) != 0)
     g_message ("[%s] Episode screen changed from %s to %s",
                videos[i].show, videos[i].url_episode_screen, episode_screen);
@@ -271,15 +268,15 @@ test_episodes_stress (void)
                                     GRL_METADATA_KEY_INVALID);
 
   for (i = 0; i < G_N_ELEMENTS (videos); i++) {
-    GrlMediaVideo *video;
+    GrlMedia *video;
 
-    video = GRL_MEDIA_VIDEO (grl_media_video_new ());
-    grl_media_video_set_show (video, videos[i].show);
-    grl_media_video_set_season (video, videos[i].season);
-    grl_media_video_set_episode (video, videos[i].episode);
+    video = grl_media_video_new ();
+    grl_media_set_show (video, videos[i].show);
+    grl_media_set_season (video, videos[i].season);
+    grl_media_set_episode (video, videos[i].episode);
 
     grl_source_resolve (source,
-                        GRL_MEDIA (video),
+                        video,
                         keys,
                         options,
                         check_videos_metadata,

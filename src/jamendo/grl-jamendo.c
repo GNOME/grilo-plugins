@@ -242,7 +242,7 @@ grl_jamendo_source_new (void)
 		       "source-id", SOURCE_ID,
 		       "source-name", SOURCE_NAME,
 		       "source-desc", SOURCE_DESC,
-		       "supported-media", GRL_MEDIA_TYPE_AUDIO,
+		       "supported-media", GRL_SUPPORTED_MEDIA_AUDIO,
 		       "source-tags", tags,
 		       NULL);
 }
@@ -542,8 +542,7 @@ update_media_from_entry (GrlMedia *media, const Entry *entry)
     }
 
     if (entry->album_genre) {
-      grl_media_audio_set_genre (GRL_MEDIA_AUDIO (media),
-                                 entry->album_genre);
+      grl_media_set_genre (media, entry->album_genre);
     }
 
     if (entry->track_url) {
@@ -586,7 +585,7 @@ xml_parse_entries_idle (gpointer user_data)
     if (entry->category == JAMENDO_TRACK_CAT) {
       media = grl_media_audio_new ();
     } else {
-      media = grl_media_box_new ();
+      media = grl_media_container_new ();
     }
 
     update_media_from_entry (media, entry);
@@ -772,7 +771,7 @@ static void
 update_media_from_root (GrlMedia *media)
 {
   grl_media_set_title (media, JAMENDO_ROOT_NAME);
-  grl_media_box_set_childcount (GRL_MEDIA_BOX (media), 3);
+  grl_media_set_childcount (media, 3);
 }
 
 static void
@@ -806,7 +805,7 @@ update_media_from_feeds (GrlMedia *media)
   };
 
   update_media_from_entry (media, &entry);
-  grl_media_box_set_childcount (GRL_MEDIA_BOX (media), G_N_ELEMENTS(feeds));
+  grl_media_set_childcount (media, G_N_ELEMENTS(feeds));
 }
 
 static void
@@ -827,7 +826,7 @@ send_toplevel_categories (GrlSourceBrowseSpec *bs)
   remaining = MIN (count, 3 - skip);
 
   while (remaining > 0) {
-    media = grl_media_box_new ();
+    media = grl_media_container_new ();
     switch (skip) {
     case 0:
       update_media_from_artists (media);
@@ -875,7 +874,7 @@ send_feeds (GrlSourceBrowseSpec *bs)
     for (i = skip; remaining > 0 && i < G_N_ELEMENTS (feeds); i++) {
       GrlMedia *media;
 
-      media = grl_media_box_new ();
+      media = grl_media_container_new ();
       update_media_from_feed (media, i);
       remaining--;
       bs->callback (bs->source,
@@ -976,7 +975,7 @@ grl_jamendo_source_resolve (GrlSource *source,
                          GRL_METADATA_KEY_ID)) {
     /* Get info from root */
     if (!rs->media) {
-      rs->media = grl_media_box_new ();
+      rs->media = grl_media_container_new ();
     }
     update_media_from_root (rs->media);
   } else {

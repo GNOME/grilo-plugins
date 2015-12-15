@@ -195,7 +195,7 @@ grl_shoutcast_source_new (const gchar *dev_key)
                           "source-id", SOURCE_ID,
                           "source-name", SOURCE_NAME,
                           "source-desc", SOURCE_DESC,
-                          "supported-media", GRL_MEDIA_TYPE_AUDIO,
+                          "supported-media", GRL_SUPPORTED_MEDIA_AUDIO,
                           "source-tags", tags,
                           NULL);
 
@@ -267,7 +267,7 @@ build_media_from_genre (OperationData *op_data)
   if (op_data->media) {
     media = op_data->media;
   } else {
-    media = grl_media_box_new ();
+    media = grl_media_container_new ();
   }
 
   genre_name = (gchar *) xmlGetProp (op_data->xml_entries,
@@ -327,10 +327,9 @@ build_media_from_station (OperationData *op_data)
   grl_media_set_id (media, media_id);
   grl_media_set_title (media, station_name);
   grl_media_set_mime (media, station_mime);
-  grl_media_audio_set_genre (GRL_MEDIA_AUDIO (media), station_genre);
+  grl_media_set_genre (media, station_genre);
   grl_media_set_url (media, media_url);
-  grl_media_audio_set_bitrate (GRL_MEDIA_AUDIO (media),
-                               atoi (station_bitrate));
+  grl_media_set_bitrate (media, atoi (station_bitrate));
 
   g_free (station_name);
   g_free (station_mime);

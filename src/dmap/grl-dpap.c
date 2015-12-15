@@ -344,7 +344,7 @@ grl_dpap_connect (gchar *name, gchar *host, guint port, ResultCbAndArgsAndDb *cb
 static gboolean
 grl_dpap_match (GrlMedia *media, gpointer val, gpointer user_data)
 {
-  g_assert (GRL_IS_MEDIA_IMAGE (media));
+  g_assert (grl_media_is_image (media));
 
   if (user_data == NULL)
     return TRUE;

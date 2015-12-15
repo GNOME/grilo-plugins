@@ -338,19 +338,19 @@ build_media_from_resource (GrlMedia      *content,
 
   if (!media) {
     if (type == BOOKMARK_TYPE_CATEGORY) {
-      media = GRL_MEDIA (grl_media_box_new ());
+      media = grl_media_container_new ();
     } else if (mime_is_audio (mime)) {
       if (type_filter & GRL_TYPE_FILTER_AUDIO)
-        media = GRL_MEDIA (grl_media_new ());
+        media = grl_media_new ();
     } else if (mime_is_video (mime)) {
       if (type_filter & GRL_TYPE_FILTER_VIDEO)
-        media = GRL_MEDIA (grl_media_new ());
+        media = grl_media_new ();
     } else if (mime_is_image (mime)) {
       if (type_filter & GRL_TYPE_FILTER_IMAGE)
-        media = GRL_MEDIA (grl_media_image_new ());
+        media = grl_media_image_new ();
     } else {
       if (type_filter != GRL_TYPE_FILTER_NONE)
-        media = GRL_MEDIA (grl_media_new ());
+        media = grl_media_new ();
     }
   }
 
@@ -675,7 +675,7 @@ find_resource (const gchar   *id,
 static void
 store_bookmark (GrlBookmarksSource *bookmarks_source,
                 GList **keylist,
-                GrlMediaBox *parent,
+                GrlMedia *parent,
                 GrlMedia *bookmark,
                 GError **error)
 {
@@ -716,7 +716,7 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
 
   GRL_DEBUG ("URL: '%s'", url);
 
-  if (GRL_IS_MEDIA_BOX (bookmark)) {
+  if (grl_media_is_container (bookmark)) {
     type = BOOKMARK_TYPE_CATEGORY;
   } else {
     type = BOOKMARK_TYPE_STREAM;

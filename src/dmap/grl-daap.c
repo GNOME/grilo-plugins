@@ -344,7 +344,7 @@ grl_daap_connect (gchar *name, gchar *host, guint port, ResultCbAndArgsAndDb *cb
 static gboolean
 grl_daap_match (GrlMedia *media, gpointer val, gpointer user_data)
 {
-  g_assert (GRL_IS_MEDIA_AUDIO (media) || GRL_IS_MEDIA_VIDEO (media));
+  g_assert (grl_media_is_audio (media) || grl_media_is_video (media));
 
   if (NULL == user_data) {
     return TRUE;

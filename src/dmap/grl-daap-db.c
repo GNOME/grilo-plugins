@@ -25,15 +25,15 @@
  * database implementation imposes a hierarchical structure, whereas DAAP
  * normally provides a flat structure.
  *
- * Each hash table/set is a mapping between a GrlMediaBox and a series of
- * GrlMedia objects (either more GrlMediaBox objects, or, in the case of a
- * leaf, GrlMediaAudio objects). The constant GrlMediaBox objects (e.g.,
- * albums_box and artists_box) facilitate this, along with additional
+ * Each hash table/set is a mapping between a GrlMedia container and a series of
+ * GrlMedia objects (either more GrlMedia container objects, or, in the case of a
+ * leaf, GrlMediaAudio objects). The constant GrlMedia container objects (e.g.,
+ * albums_container and artists_container) facilitate this, along with additional
  * GrlMediaAudio objects that the grl_daap_db_add function creates.
  *
  * An application will normally first browse using the NULL container,
- * and thus will first receive albums_box and artists_box. Browsing
- * albums_box will provide the application the GrlMediaBox objects in
+ * and thus will first receive albums_container and artists_container. Browsing
+ * albums_container will provide the application the GrlMedia container objects in
  * albums. Further browsing one of these objects will provide the
  * application with the songs contained therein.
  *
@@ -67,11 +67,11 @@
 static guint nextid = G_MAXINT; /* NOTE: this should be G_MAXUINT, but iPhoto can't handle it. */
 
 struct GrlDAAPDbPrivate {
-  /* Contains each album box (tracked with albums hash table) */
-  GrlMediaBox *albums_box;
+  /* Contains each album container (tracked with albums hash table) */
+  GrlMedia *albums_container;
 
-  /* Contains each artist box (tracked with artist hash table) */
-  GrlMediaBox *artists_box;
+  /* Contains each artist container (tracked with artist hash table) */
+  GrlMedia *artists_container;
 
   GHashTable  *root;
   GHashTable  *albums;
@@ -84,13 +84,13 @@ enum {
 };
 
 static guint
-box_hash (gconstpointer a)
+container_hash (gconstpointer a)
 {
   return g_str_hash (grl_media_get_id (GRL_MEDIA (a)));
 }
 
 static gboolean
-box_equal (gconstpointer a, gconstpointer b)
+container_equal (gconstpointer a, gconstpointer b)
 {
   return g_str_equal (grl_media_get_id (GRL_MEDIA (a)), grl_media_get_id (GRL_MEDIA (b)));
 }
@@ -129,25 +129,25 @@ static void
 set_insert (GHashTable *category, const char *category_name, char *set_name, GrlMedia *media)
 {
   gchar      *id = NULL;
-  GrlMedia   *box;
+  GrlMedia   *container;
   GHashTable *set;
 
   id = g_strdup_printf ("%s-%s", category_name, set_name);
 
-  box = g_object_new (GRL_TYPE_MEDIA_BOX, NULL);
-  grl_media_set_id    (box, id);
-  grl_media_set_title (box, set_name);
+  container = grl_media_container_new ();
+  grl_media_set_id    (container, id);
+  grl_media_set_title (container, set_name);
 
-  set = g_hash_table_lookup (category, box);
+  set = g_hash_table_lookup (category, container);
   if (NULL == set) {
-    set = g_hash_table_new_full (box_hash, box_equal, g_object_unref, NULL);
-    g_hash_table_insert (category, g_object_ref (box), set);
+    set = g_hash_table_new_full (container_hash, container_equal, g_object_unref, NULL);
+    g_hash_table_insert (category, g_object_ref (container), set);
   }
 
   g_hash_table_insert (set, g_object_ref (media), NULL);
 
   g_free (id);
-  g_object_unref (box);
+  g_object_unref (container);
 }
 
 static guint
@@ -214,21 +214,19 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
   }
 
   if (has_video == FALSE) {
-    GrlMediaAudio *media_audio = GRL_MEDIA_AUDIO (media);
-
-    grl_media_audio_set_bitrate      (media_audio, bitrate);
-    grl_media_audio_set_track_number (media_audio, track);
+    grl_media_set_bitrate      (media, bitrate);
+    grl_media_set_track_number (media, track);
 
     if (album) {
-      grl_media_audio_set_album (media_audio, album);
+      grl_media_set_album (media, album);
     }
 
     if (artist) {
-      grl_media_audio_set_artist (media_audio, artist);
+      grl_media_set_artist (media, artist);
     }
 
     if (genre) {
-      grl_media_audio_set_genre (media_audio, genre);
+      grl_media_set_genre (media, genre);
     }
   }
 
@@ -265,12 +263,12 @@ grl_daap_db_browse (GrlDAAPDb *db,
   GHashTableIter iter;
   gpointer key, val;
 
-  const gchar *box_id = grl_media_get_id (container);
-  if (NULL == box_id) {
+  const gchar *container_id = grl_media_get_id (container);
+  if (NULL == container_id) {
     hash_table = db->priv->root;
-  } else if (same_media (container, GRL_MEDIA (db->priv->albums_box))) {
+  } else if (same_media (container, GRL_MEDIA (db->priv->albums_container))) {
     hash_table = db->priv->albums;
-  } else if (same_media (container, GRL_MEDIA (db->priv->artists_box))) {
+  } else if (same_media (container, GRL_MEDIA (db->priv->artists_container))) {
     hash_table = db->priv->artists;
   } else {
     hash_table = g_hash_table_lookup (db->priv->artists, container);
@@ -285,7 +283,7 @@ grl_daap_db_browse (GrlDAAPDb *db,
     GError *error = g_error_new (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_BROWSE_FAILED,
                                  _("Invalid container identifier %s"),
-                                 box_id);
+                                 container_id);
     func (source, op_id, NULL, 0, user_data, error);
     goto done;
   }
@@ -297,8 +295,8 @@ grl_daap_db_browse (GrlDAAPDb *db,
     if (i < skip) {
       continue;
     }
-    if (GRL_IS_MEDIA_BOX (key)) {
-      grl_media_box_set_childcount (GRL_MEDIA_BOX (key), g_hash_table_size (val));
+    if (grl_media_is_container (key)) {
+      grl_media_set_childcount (key, g_hash_table_size (val));
     }
     func (source, op_id, GRL_MEDIA (g_object_ref (key)), --remaining, user_data, NULL);
   }
@@ -333,7 +331,7 @@ grl_daap_db_search (GrlDAAPDb *db,
     g_hash_table_iter_init (&iter1, hash_tables[i]);
     /* For each album or artist in above... */
     for (j = 0; g_hash_table_iter_next (&iter1, &key1, &val1); j++) {
-      if (GRL_IS_MEDIA_BOX (key1)) {
+      if (grl_media_is_container (key1)) {
         g_hash_table_iter_init (&iter2, val1);
         /* For each media item in above... */
         for (k = 0; g_hash_table_iter_next (&iter2, &key2, &val2); k++) {
@@ -387,21 +385,21 @@ grl_daap_db_init (GrlDAAPDb *db)
 {
   db->priv = GRL_DAAP_DB_GET_PRIVATE (db);
 
-  db->priv->albums_box  = g_object_new (GRL_TYPE_MEDIA_BOX, NULL);
-  db->priv->artists_box = g_object_new (GRL_TYPE_MEDIA_BOX, NULL);
+  db->priv->albums_container  = grl_media_container_new ();
+  db->priv->artists_container = grl_media_container_new ();
 
-  grl_media_set_id    (GRL_MEDIA (db->priv->albums_box), ALBUMS_ID);
-  grl_media_set_title (GRL_MEDIA (db->priv->albums_box), ALBUMS_NAME);
+  grl_media_set_id    (GRL_MEDIA (db->priv->albums_container), ALBUMS_ID);
+  grl_media_set_title (GRL_MEDIA (db->priv->albums_container), ALBUMS_NAME);
 
-  grl_media_set_id    (GRL_MEDIA (db->priv->artists_box), ARTISTS_ID);
-  grl_media_set_title (GRL_MEDIA (db->priv->artists_box), ARTISTS_NAME);
+  grl_media_set_id    (GRL_MEDIA (db->priv->artists_container), ARTISTS_ID);
+  grl_media_set_title (GRL_MEDIA (db->priv->artists_container), ARTISTS_NAME);
 
-  db->priv->root    = g_hash_table_new_full (box_hash, box_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
-  db->priv->albums  = g_hash_table_new_full (box_hash, box_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
-  db->priv->artists = g_hash_table_new_full (box_hash, box_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
+  db->priv->root    = g_hash_table_new_full (container_hash, container_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
+  db->priv->albums  = g_hash_table_new_full (container_hash, container_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
+  db->priv->artists = g_hash_table_new_full (container_hash, container_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
 
-  g_hash_table_insert (db->priv->root, g_object_ref (db->priv->albums_box),  db->priv->albums);
-  g_hash_table_insert (db->priv->root, g_object_ref (db->priv->artists_box), db->priv->artists);
+  g_hash_table_insert (db->priv->root, g_object_ref (db->priv->albums_container),  db->priv->albums);
+  g_hash_table_insert (db->priv->root, g_object_ref (db->priv->artists_container), db->priv->artists);
 }
 
 static void
@@ -411,8 +409,8 @@ grl_daap_db_finalize (GObject *object)
 
   GRL_DEBUG ("Finalizing GrlDAAPDb");
 
-  g_object_unref (db->priv->albums_box);
-  g_object_unref (db->priv->artists_box);
+  g_object_unref (db->priv->albums_container);
+  g_object_unref (db->priv->artists_container);
 
   g_hash_table_destroy (db->priv->albums);
   g_hash_table_destroy (db->priv->artists);

@@ -109,7 +109,7 @@ static gint lua_plugin_source_info (lua_State *L,
                                     gchar **source_id,
                                     gchar **source_name,
                                     gchar **source_desc,
-                                    GrlMediaType *source_supported_media,
+                                    GrlSupportedMedia *source_supported_media,
                                     GIcon **source_icon,
                                     guint *auto_split_threshold,
                                     gchar ***source_tags);
@@ -364,7 +364,7 @@ grl_lua_factory_source_new (gchar       *lua_plugin_path,
   gchar *source_name = NULL;
   gchar *source_desc = NULL;
   GIcon *source_icon = NULL;
-  GrlMediaType source_supported_media = GRL_MEDIA_TYPE_ALL;
+  GrlSupportedMedia source_supported_media = GRL_SUPPORTED_MEDIA_ALL;
   guint auto_split_threshold;
   gchar **source_tags;
   gint ret = 0;
@@ -1249,7 +1249,7 @@ lua_plugin_source_info (lua_State *L,
                         gchar **source_id,
                         gchar **source_name,
                         gchar **source_desc,
-                        GrlMediaType *source_supported_media,
+                        GrlSupportedMedia *source_supported_media,
                         GIcon **source_icon,
                         guint *auto_split_threshold,
                         gchar ***source_tags)
@@ -1314,13 +1314,13 @@ lua_plugin_source_info (lua_State *L,
 
   if (lua_source_media != NULL) {
     if (g_strcmp0 (lua_source_media, "audio") == 0)
-      *source_supported_media = GRL_MEDIA_TYPE_AUDIO;
+      *source_supported_media = GRL_SUPPORTED_MEDIA_AUDIO;
     else if (g_strcmp0 (lua_source_media, "video") == 0)
-      *source_supported_media = GRL_MEDIA_TYPE_VIDEO;
+      *source_supported_media = GRL_SUPPORTED_MEDIA_VIDEO;
     else if (g_strcmp0 (lua_source_media, "image") == 0)
-      *source_supported_media = GRL_MEDIA_TYPE_IMAGE;
+      *source_supported_media = GRL_SUPPORTED_MEDIA_IMAGE;
     else if (g_strcmp0 (lua_source_media, "all") == 0)
-      *source_supported_media = GRL_MEDIA_TYPE_ALL;
+      *source_supported_media = GRL_SUPPORTED_MEDIA_ALL;
   }
 
   if (lua_source_icon != NULL) {
@@ -1387,7 +1387,7 @@ lua_plugin_source_all_keys (lua_State *L,
   lua_pushstring (L, LUA_SOURCE_RESOLVE_KEYS);
   lua_gettable (L, -2);
   if (lua_istable (L, -1)) {
-    GrlMediaType media_type = GRL_MEDIA_TYPE_NONE;
+    GrlSupportedMedia supported_media = GRL_SUPPORTED_MEDIA_NONE;
 
     /* check required type field */
     lua_pushstring (L, "type");
@@ -1395,17 +1395,17 @@ lua_plugin_source_all_keys (lua_State *L,
     if (lua_isstring (L, -1)) {
       key_name = lua_tostring (L, -1);
       if (g_strcmp0 (key_name, "audio") == 0)
-        media_type = GRL_MEDIA_TYPE_AUDIO;
+        supported_media = GRL_SUPPORTED_MEDIA_AUDIO;
       else if (g_strcmp0 (key_name, "video") == 0)
-        media_type = GRL_MEDIA_TYPE_VIDEO;
+        supported_media = GRL_SUPPORTED_MEDIA_VIDEO;
       else if (g_strcmp0 (key_name, "image") == 0)
-        media_type = GRL_MEDIA_TYPE_IMAGE;
+        supported_media = GRL_SUPPORTED_MEDIA_IMAGE;
       else if (g_strcmp0 (key_name, "all") == 0)
-        media_type = GRL_MEDIA_TYPE_ALL;
+        supported_media = GRL_SUPPORTED_MEDIA_ALL;
     }
     lua_pop (L, 1);
 
-    *resolve_type = media_type;
+    *resolve_type = supported_media;
 
     /* check required table field */
     *resolve_keys = keys_table_array_to_list (L, LUA_REQUIRED_TABLE, registry, source_id);
@@ -1635,7 +1635,7 @@ grl_lua_factory_source_may_resolve (GrlSource *source,
   GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
   GList *it_keys = NULL;
   GList *missing = NULL;
-  GrlMediaType res_type = GRL_MEDIA_TYPE_NONE;
+  GrlSupportedMedia res_type = GRL_SUPPORTED_MEDIA_NONE;
   GrlKeyID it_key_id = GRL_METADATA_KEY_INVALID;
 
   GRL_DEBUG ("grl_lua_factory_source_may_resolve");
@@ -1655,10 +1655,10 @@ grl_lua_factory_source_may_resolve (GrlSource *source,
 
   /* Verify if the source resolve type and media type match */
   res_type = lua_source->priv->resolve_type;
-  if ((GRL_IS_MEDIA_BOX (media) && (res_type != GRL_MEDIA_TYPE_ALL))
-      || (GRL_IS_MEDIA_AUDIO (media) && !(res_type & GRL_MEDIA_TYPE_AUDIO))
-      || (GRL_IS_MEDIA_IMAGE (media) && !(res_type & GRL_MEDIA_TYPE_IMAGE))
-      || (GRL_IS_MEDIA_VIDEO (media) && !(res_type & GRL_MEDIA_TYPE_VIDEO))) {
+  if ((grl_media_is_container (media) && (res_type != GRL_SUPPORTED_MEDIA_ALL))
+      || (grl_media_is_audio (media) && !(res_type & GRL_SUPPORTED_MEDIA_AUDIO))
+      || (grl_media_is_image (media) && !(res_type & GRL_SUPPORTED_MEDIA_IMAGE))
+      || (grl_media_is_video (media) && !(res_type & GRL_SUPPORTED_MEDIA_VIDEO))) {
     return FALSE;
   }
 

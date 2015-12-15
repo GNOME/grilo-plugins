@@ -38,14 +38,14 @@ get_lyrics (GrlSource *source,
             const gchar *title)
 {
   GList *keys;
-  GrlMediaAudio *audio;
+  GrlMedia *audio;
   GrlOperationOptions *options;
   GError *error = NULL;
   gchar *lyrics;
 
-  audio = GRL_MEDIA_AUDIO (grl_media_audio_new ());
-  grl_media_audio_set_artist (audio, artist);
-  grl_media_set_title (GRL_MEDIA (audio), title);
+  audio = grl_media_audio_new ();
+  grl_media_set_artist (audio, artist);
+  grl_media_set_title (audio, title);
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_LYRICS, NULL);
   options = grl_operation_options_new (NULL);
@@ -58,7 +58,7 @@ get_lyrics (GrlSource *source,
                            &error);
   g_assert_no_error (error);
 
-  lyrics = g_strdup (grl_media_audio_get_lyrics (audio));
+  lyrics = g_strdup (grl_media_get_lyrics (audio));
 
   g_list_free (keys);
   g_object_unref (options);

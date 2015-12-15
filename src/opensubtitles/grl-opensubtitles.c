@@ -412,8 +412,8 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
       episode = lookup_int (ht, "SeriesSeason");
       season = lookup_int (ht, "SeriesEpisode");
-      if (season != grl_media_video_get_episode (GRL_MEDIA_VIDEO (media)) ||
-          episode != grl_media_video_get_season (GRL_MEDIA_VIDEO (media))) {
+      if (season != grl_media_get_episode (media) ||
+          episode != grl_media_get_season (media)) {
         continue;
       }
     }
@@ -577,7 +577,7 @@ grl_opensubtitles_source_may_resolve (GrlSource *source,
     return FALSE;
   }
 
-  if (!GRL_IS_MEDIA_VIDEO (media))
+  if (!grl_media_is_video (media))
     return FALSE;
 
   if (grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_SHOW)) {

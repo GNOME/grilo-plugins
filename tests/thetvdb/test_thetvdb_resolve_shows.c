@@ -36,7 +36,7 @@ get_show_metadata (GrlSource *source,
                    gchar **fanart,
                    gchar **poster)
 {
-  GrlMediaVideo *video;
+  GrlMedia *video;
   GrlOperationOptions *options;
   GList *keys;
   GDateTime *date;
@@ -60,8 +60,8 @@ get_show_metadata (GrlSource *source,
   g_assert_cmpint (banner_key, !=, GRL_METADATA_KEY_INVALID);
   g_assert_cmpint (poster_key, !=, GRL_METADATA_KEY_INVALID);
 
-  video = GRL_MEDIA_VIDEO (grl_media_video_new ());
-  grl_media_video_set_show (video, *show);
+  video = grl_media_video_new ();
+  grl_media_set_show (video, *show);
   g_free (*show);
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_SHOW,
@@ -83,7 +83,7 @@ get_show_metadata (GrlSource *source,
                            options,
                            NULL);
 
-  *show = g_strdup (grl_media_video_get_show (video));
+  *show = g_strdup (grl_media_get_show (video));
 
   if (tvdb_id) {
       *tvdb_id = g_strdup (grl_data_get_string (GRL_DATA (video), tvdb_key));

@@ -366,7 +366,7 @@ got_file_info (GFile *file,
 
   flags = get_resolution_flags (rs->keys, priv);
 
-  if (GRL_IS_MEDIA_AUDIO (rs->media) &&
+  if (grl_media_is_audio (rs->media) &&
       !(thumbnail_path && thumbnail_is_valid)) {
     /* We couldn't get a per-track thumbnail; try for a per-album one,
      * using libmediaart */
@@ -468,8 +468,8 @@ resolve_album_art (ResolveData         *resolve_data,
 
   resolve_data_start_operation (resolve_data, "album-art");
 
-  artist = grl_media_audio_get_artist (GRL_MEDIA_AUDIO (resolve_data->rs->media));
-  album = grl_media_audio_get_album (GRL_MEDIA_AUDIO (resolve_data->rs->media));
+  artist = grl_media_get_artist (resolve_data->rs->media);
+  album = grl_media_get_album (resolve_data->rs->media);
 
   if (!artist || !album)
     goto done;
@@ -604,10 +604,10 @@ grl_local_metadata_source_may_resolve (GrlSource *source,
                                        GrlKeyID key_id,
                                        GList **missing_keys)
 {
-  if (!media || GRL_IS_MEDIA_VIDEO (media))
+  if (!media || grl_media_is_video (media))
     return FALSE;
 
-  if (GRL_IS_MEDIA_AUDIO (media)) {
+  if (grl_media_is_audio (media)) {
     gboolean have_artist = FALSE, have_album = FALSE;
 
     if ((have_artist = grl_data_has_key (GRL_DATA (media),
@@ -635,7 +635,7 @@ grl_local_metadata_source_may_resolve (GrlSource *source,
     return FALSE;
   }
 
-  if (GRL_IS_MEDIA_IMAGE (media)) {
+  if (grl_media_is_image (media)) {
     if (key_id != GRL_METADATA_KEY_THUMBNAIL)
       return FALSE;
     if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL))
@@ -680,7 +680,7 @@ grl_local_metadata_source_resolve (GrlSource *source,
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_RESOLVE_FAILED,
                                  _("Cannot resolve any of the given keys"));
-  if (GRL_IS_MEDIA_IMAGE (rs->media) && can_access == FALSE)
+  if (grl_media_is_image (rs->media) && can_access == FALSE)
     error = g_error_new_literal (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_RESOLVE_FAILED,
                                  _("A GIO supported URL for images is required"));
@@ -694,9 +694,9 @@ grl_local_metadata_source_resolve (GrlSource *source,
 
   GRL_DEBUG ("\ttrying to resolve for: %s", grl_media_get_url (rs->media));
 
-  if (GRL_IS_MEDIA_IMAGE (rs->media)) {
+  if (grl_media_is_image (rs->media)) {
     resolve_image (data, flags);
-  } else if (GRL_IS_MEDIA_AUDIO (rs->media)) {
+  } else if (grl_media_is_audio (rs->media)) {
     /* Try for a per-track thumbnail first; we'll fall back to album art
      * if the track doesn't have one */
     resolve_image (data, flags);

@@ -133,17 +133,17 @@ test_browse (TestDleynaFixture *fixture,
   g_assert_no_error (error);
   g_assert_cmpint (g_list_length (results), ==, 4);
   media = GRL_MEDIA (results->data);
-  g_assert (GRL_IS_MEDIA_BOX (media));
+  g_assert (grl_media_is_container (media));
   g_assert_cmpstr (grl_media_get_id (media), ==, "dleyna:/com/intel/dLeynaServer/server/0");
   g_assert_cmpstr (grl_media_get_title (media), ==, "The Root");
   g_assert_cmpstr (grl_media_get_url (media), ==, "http://127.0.0.1:4242/root/DIDL_S.xml");
-  g_assert_cmpint (grl_media_box_get_childcount (GRL_MEDIA_BOX (media)), ==, 3);
+  g_assert_cmpint (grl_media_get_childcount (media), ==, 3);
   media = GRL_MEDIA (results->next->next->next->data);
-  g_assert (GRL_IS_MEDIA_BOX (media));
+  g_assert (grl_media_is_container (media));
   g_assert_cmpstr (grl_media_get_id (media), ==, "dleyna:/com/intel/dLeynaServer/server/0/3");
   g_assert_cmpstr (grl_media_get_title (media), ==, "Stuff");
   g_assert_cmpstr (grl_media_get_url (media), ==, "http://127.0.0.1:4242/stuff/DIDL_S.xml");
-  g_assert_cmpint (grl_media_box_get_childcount (GRL_MEDIA_BOX (media)), ==, 5);
+  g_assert_cmpint (grl_media_get_childcount (media), ==, 5);
   container = g_object_ref (media); /* Keep a ref for the subsequent test */
   g_list_free_full (results, g_object_unref);
 
@@ -153,7 +153,7 @@ test_browse (TestDleynaFixture *fixture,
   g_assert_no_error (error);
   g_assert_cmpint (g_list_length (results), ==, 5);
   media = GRL_MEDIA (results->next->next->data);
-  g_assert (GRL_IS_MEDIA_IMAGE (media));
+  g_assert (grl_media_is_image (media));
   g_assert_cmpstr (grl_media_get_id (media), ==, "dleyna:/com/intel/dLeynaServer/server/0/33");
   g_assert_cmpstr (grl_media_get_title (media), ==, "A picture.jpg");
   g_assert_cmpstr (grl_media_get_url (media), ==, "http://127.0.0.1:4242/stuff/picture.jpg");
@@ -188,17 +188,17 @@ test_store (TestDleynaFixture *fixture,
   g_assert_cmpstr (grl_media_get_id (media), ==, "dleyna:/com/intel/dLeynaServer/server/0/any000");
 
   /* Try again explicitly choosing a container */
-  container = grl_media_box_new ();
+  container = grl_media_container_new ();
   grl_media_set_id (container, "dleyna:/com/intel/dLeynaServer/server/0/3");
 
-  grl_source_store_sync (source, GRL_MEDIA_BOX (container), media, GRL_WRITE_NORMAL, &error);
+  grl_source_store_sync (source, container, media, GRL_WRITE_NORMAL, &error);
   g_assert_no_error (error);
   g_assert_cmpstr (grl_media_get_id (media), ==, "dleyna:/com/intel/dLeynaServer/server/0/3/up000");
 
   g_object_unref (media);
 
   /* Create a container, letting the DMS to choose the parent */
-  media = GRL_MEDIA (grl_media_box_new ());
+  media = GRL_MEDIA (grl_media_container_new ());
   grl_media_set_title (media, "New container");
 
   grl_source_store_sync (source, NULL, media, GRL_WRITE_NORMAL, &error);
@@ -206,7 +206,7 @@ test_store (TestDleynaFixture *fixture,
   g_assert_cmpstr (grl_media_get_id (media), ==, "dleyna:/com/intel/dLeynaServer/server/0/any001");
 
   /* Again, but explictly choosing the parent */
-  grl_source_store_sync (source, GRL_MEDIA_BOX (container), media, GRL_WRITE_NORMAL, &error);
+  grl_source_store_sync (source, container, media, GRL_WRITE_NORMAL, &error);
   g_assert_no_error (error);
   g_assert_cmpstr (grl_media_get_id (media), ==, "dleyna:/com/intel/dLeynaServer/server/0/3/up001");
 
@@ -233,10 +233,10 @@ test_store_metadata (TestDleynaFixture *fixture,
   grl_media_set_url (media, "file://" GRILO_PLUGINS_TESTS_DLEYNA_DATA_PATH "/helloworld.txt");
   grl_media_set_author (media, "Tizio Caio Sempronio");
 
-  container = grl_media_box_new ();
+  container = grl_media_container_new ();
   grl_media_set_id (container, "dleyna:/com/intel/dLeynaServer/server/0/3");
 
-  grl_source_store_sync (source, GRL_MEDIA_BOX (container), media, GRL_WRITE_FULL, &error);
+  grl_source_store_sync (source, container, media, GRL_WRITE_FULL, &error);
   g_assert_no_error (error);
   g_assert_cmpstr (grl_media_get_id (media), ==, "dleyna:/com/intel/dLeynaServer/server/0/3/up000");
 
@@ -371,13 +371,13 @@ test_notifications (TestDleynaFixture *fixture,
   media = grl_media_new ();
   grl_media_set_url (media, "file://" GRILO_PLUGINS_TESTS_DLEYNA_DATA_PATH "/helloworld.txt");
 
-  container = grl_media_box_new ();
+  container = grl_media_container_new ();
   grl_media_set_id (container, "dleyna:/com/intel/dLeynaServer/server/0/32");
 
-  grl_source_store_sync (source, GRL_MEDIA_BOX (container), media, GRL_WRITE_NORMAL, &error);
+  grl_source_store_sync (source, container, media, GRL_WRITE_NORMAL, &error);
   g_assert_no_error (error);
   g_assert_cmpstr (grl_media_get_id (media), ==, "dleyna:/com/intel/dLeynaServer/server/0/32/up000");
-  grl_source_store_sync (source, GRL_MEDIA_BOX (container), media, GRL_WRITE_NORMAL, &error);
+  grl_source_store_sync (source, container, media, GRL_WRITE_NORMAL, &error);
   g_assert_no_error (error);
   g_assert_cmpstr (grl_media_get_id (media), ==, "dleyna:/com/intel/dLeynaServer/server/0/32/up001");
 

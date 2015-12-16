@@ -53,9 +53,11 @@ end
 APPLE_TRAILERS_CURRENT_SD = "http://trailers.apple.com/trailers/home/xml/current_480p.xml"
 APPLE_TRAILERS_CURRENT_HD = "http://trailers.apple.com/trailers/home/xml/current_720p.xml"
 
-function grl_source_browse()
-  local skip = grl.get_options("skip")
-  local count = grl.get_options("count")
+function grl_source_browse(media, options, callback)
+  local skip = options.skip
+  local count = options.count
+  local userdata = {callback = callback, skip = skip, count = count}
+
 
   -- Make sure to reset the cache when browsing again
   if skip == 0 then
@@ -63,7 +65,7 @@ function grl_source_browse()
   end
 
   if cached_xml then
-    parse_results(cached_xml)
+    parse_results(cached_xml, userdata)
   else
     local url = APPLE_TRAILERS_CURRENT_SD
     if ldata.hd then
@@ -71,7 +73,7 @@ function grl_source_browse()
     end
 
     grl.debug('Fetching URL: ' .. url .. ' (count: ' .. count .. ' skip: ' .. skip .. ')')
-    grl.fetch(url, "fetch_results_cb")
+    grl.fetch(url, fetch_results_cb, userdata)
   end
 end
 
@@ -79,21 +81,18 @@ end
 -- Utilities --
 ---------------
 
-function fetch_results_cb(results)
+function fetch_results_cb(results, userdata)
   if not results then
     grl.warning('Failed to fetch XML file')
-    grl.callback()
+    userdata.callback()
     return
   end
 
   cached_xml = grl.lua.xml.string_to_table(results)
-  parse_results(cached_xml)
+  parse_results(cached_xml, userdata)
 end
 
-function parse_results(results)
-  local count = grl.get_options("count")
-  local skip = grl.get_options("skip")
-
+function parse_results(results, userdata)
   for i, item in pairs(results.records.movieinfo) do
     local media = {}
 
@@ -124,18 +123,18 @@ function parse_results(results)
     local mins, secs = item.info.runtime.xml:match('(%d):(%d)')
     media.duration = tonumber(mins) * 60 + tonumber(secs)
 
-    if skip > 0 then
-      skip = skip - 1
+    if userdata.skip > 0 then
+      userdata.skip = userdata.skip - 1
     else
-      count = count - 1
-      grl.callback(media, count)
-      if count == 0 then
+      userdata.count = userdata.count - 1
+      userdata.callback(media, userdata.count)
+      if userdata.count == 0 then
         return
       end
     end
   end
 
-  if count ~= 0 then
-    grl.callback()
+  if userdata.count ~= 0 then
+    userdata.callback()
   end
 end

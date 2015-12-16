@@ -63,7 +63,8 @@ dist_noinst_DATA =		\
 	data/house_series_all_en.zip		\
 	data/les_experts_miami_get_series.txt	\
 	data/naruto_get_series.txt		\
-	data/naruto_series_all_en.zip
+	data/naruto_series_all_en.zip		\
+	data/les_experts_miami_get_series.txt
 
 noinst_PROGRAMS = $(TEST_PROGS)
 

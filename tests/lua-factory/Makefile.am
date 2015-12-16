@@ -14,7 +14,7 @@ TEST_PROGS +=	\
 	test_lua_factory_xml_parser
 
 test_lua_factory_defines =	\
-	-DLUA_FACTORY_PLUGIN_PATH=\""$(abs_top_srcdir)/src/lua-factory/.libs/"\"	\
+	-DLUA_FACTORY_PLUGIN_PATH=\""$(abs_top_builddir)/src/lua-factory/.libs/"\"	\
 	-DLUA_FACTORY_SOURCES_PATH=\""$(abs_top_srcdir)/src/lua-factory/sources/"\"	\
 	-DLUA_FACTORY_DATA_PATH=\""$(abs_top_srcdir)/tests/lua-factory/data/"\"		\
 	-DLUA_FACTORY_PLUGIN_TEST_DATA_PATH=\""$(abs_top_builddir)/tests/lua-factory/sources/"\"
@@ -65,7 +65,9 @@ dist_noinst_DATA =				\
 	$(lua_factory_tests_resources_files)	\
 	data/config.ini				\
 	data/test-source-grl-media.lua		\
-	data/test-source-xml-parser.lua
+	data/test-source-xml-parser.lua		\
+	data/xml-parser-test-simple-table.lua   \
+	data/xml-parser-test-simple.xml
 
 noinst_PROGRAMS = $(TEST_PROGS)
 

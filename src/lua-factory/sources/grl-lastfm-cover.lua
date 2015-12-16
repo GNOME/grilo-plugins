@@ -49,40 +49,39 @@ LASTFM_SEARCH_ALBUM = 'http://ws.audioscrobbler.com/2.0/?method=album.getInfo&ap
 -- Handlers of Grilo functions --
 ---------------------------------
 
-function grl_source_resolve()
-  local url, req
+function grl_source_resolve(media, options, callback)
+  local url
   local artist, title
 
-  req = grl.get_media_keys()
-  if not req or not req.artist or not req.album
-    or #req.artist == 0 or #req.album == 0 then
-    grl.callback()
+  if not media or not media.artist or not media.album
+    or #media.artist == 0 or #media.album == 0 then
+    callback()
     return
   end
 
   -- Prepare artist and title strings to the url
-  artist = grl.encode(req.artist)
-  album = grl.encode(req.album)
+  artist = grl.encode(media.artist)
+  album = grl.encode(media.album)
   url = string.format(LASTFM_SEARCH_ALBUM, grl.goa_consumer_key(), artist, album)
-  grl.fetch(url, "fetch_page_cb")
+  local userdata = {callback = callback, media = media}
+  grl.fetch(url, fetch_page_cb, userdata)
 end
 
 ---------------
 -- Utilities --
 ---------------
 
-function fetch_page_cb(result)
+function fetch_page_cb(result, userdata)
   if not result then
-    grl.callback()
+    userdata.callback()
     return
   end
 
-  local media = {}
-  media.thumbnail = {}
+  userdata.media.thumbnail = {}
   for k, v in string.gmatch(result, '<image size="(.-)">(.-)</image>') do
     grl.debug ('Image size ' .. k .. ' = ' .. v)
-    table.insert(media.thumbnail, v)
+    table.insert(userdata.media.thumbnail, v)
   end
 
-  grl.callback(media, 0)
+  userdata.callback(userdata.media, 0)
 end

@@ -44,9 +44,9 @@ source = {
 -- Source utils --
 ------------------
 
-function grl_source_browse(media_id)
-  local count = grl.get_options("count")
-  local skip = grl.get_options("skip")
+function grl_source_browse(media, options, callback)
+  local count = options.count
+  local skip = options.skip
   local urls = {}
 
   local page = skip / count + 1
@@ -63,8 +63,8 @@ function grl_source_browse(media_id)
     grl.debug ("Fetching URL: " .. url .. " (count: " .. count .. " skip: " .. skip .. ")")
     table.insert(urls, url)
   end
-
-  grl.fetch(urls, "guardianvideos_fetch_cb")
+  local userdata = {callback = callback, count = count}
+  grl.fetch(urls, guardianvideos_fetch_cb, userdata)
 end
 
 ------------------------
@@ -72,21 +72,21 @@ end
 ------------------------
 
 -- return all the media found
-function guardianvideos_fetch_cb(results)
-  local count = grl.get_options("count")
+function guardianvideos_fetch_cb(results, userdata)
+  local count = userdata.count
 
   for i, result in ipairs(results) do
     local json = {}
     json = grl.lua.json.string_to_table(result)
     if not json or json.stat == "fail" or not json.response or not json.response.results then
-      grl.callback()
+      userdata.callback()
       return
     end
 
     for index, item in pairs(json.response.results) do
       local media = create_media(item)
       count = count - 1
-      grl.callback(media, count)
+      userdata.callback(media, count)
     end
 
     -- Bail out if we've given enough items

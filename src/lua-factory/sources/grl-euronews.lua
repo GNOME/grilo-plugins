@@ -40,11 +40,11 @@ source = {
 -- Source utils --
 ------------------
 
-function grl_source_browse(media_id)
-  if grl.get_options("skip") > 0 then
-    grl.callback()
+function grl_source_browse(media, options, callback)
+  if options.skip > 0 then
+    callback()
   else
-    grl.fetch(EURONEWS_URL, "euronews_fetch_cb")
+    grl.fetch(EURONEWS_URL, euronews_fetch_cb, callback)
   end
 end
 
@@ -53,23 +53,23 @@ end
 ------------------------
 
 -- return all the media found
-function euronews_fetch_cb(results)
+function euronews_fetch_cb(results, callback)
   local json = {}
 
   json = grl.lua.json.string_to_table(results)
   if not json or json.stat == "fail" or not json.primary then
-    grl.callback()
+    callback()
     return
   end
 
   for index, item in pairs(json.primary) do
     local media = create_media(index, item)
     if media ~= nil then
-      grl.callback(media, -1)
+      callback(media, -1)
     end
   end
 
-  grl.callback()
+  callback()
 end
 
 -------------

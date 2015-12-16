@@ -52,40 +52,43 @@ METROLYRICS_DEFAULT_QUERY = "http://www.metrolyrics.com/%s-lyrics-%s.html"
 -- Handlers of Grilo functions --
 ---------------------------------
 
-function grl_source_resolve()
-  local url, req
+function grl_source_resolve(media, options, callback)
+  local url
   local artist, title
 
-  req = grl.get_media_keys()
-  if not req or not req.artist or not req.title
-    or #req.artist == 0 or #req.title == 0 then
-    grl.callback()
+  if not media or not media.artist or not media.title
+    or #media.artist == 0 or #media.title == 0 then
+    callback()
     return
   end
 
   -- Prepare artist and title strings to the url
-  artist = req.artist:gsub(METROLYRICS_INVALID_URL_CHARS, "")
+  artist = media.artist:gsub(METROLYRICS_INVALID_URL_CHARS, "")
   artist = artist:gsub("%s+", "-")
-  title = req.title:gsub(METROLYRICS_INVALID_URL_CHARS, "")
+  title = media.title:gsub(METROLYRICS_INVALID_URL_CHARS, "")
   title = title:gsub("%s+", "-")
   url = string.format(METROLYRICS_DEFAULT_QUERY, title, artist)
-  grl.fetch(url, "fetch_page_cb", netopts)
+  local userdata = {callback = callback, media = media}
+  grl.fetch(url, netopts, fetch_page_cb, userdata)
 end
 
 ---------------
 -- Utilities --
 ---------------
 
-function fetch_page_cb(feed)
-  local media = nil
+function fetch_page_cb(feed, userdata)
   if feed and not feed:find("notfound") then
-    media = metrolyrics_get_lyrics(feed)
+    local lyrics = metrolyrics_get_lyrics(feed)
+    if not lyrics then
+      userdata.callback()
+      return
+    end
+    userdata.media.lyrics = lyrics
   end
-  grl.callback(media, 0)
+  userdata.callback(userdata.media, 0)
 end
 
 function metrolyrics_get_lyrics(feed)
-  local media = {}
   local lyrics_body = '<div id="lyrics%-body%-text".->(.-)</div>'
   local noise_array = {
     { noise = "</p>",  sub = "\n\n" },
@@ -109,7 +112,5 @@ function metrolyrics_get_lyrics(feed)
   -- strip the lyrics
   feed = feed:gsub("^[%s%W]*(.-)[%s%W]*$", "%1")
 
-  -- switch table to string
-  media.lyrics = feed
-  return media
+  return feed
 end

@@ -129,40 +129,35 @@ function parse_as_episode(media)
   return false
 end
 
-function grl_source_resolve()
-  local req
-  local media = {}
+function grl_source_resolve(media, options, callback)
 
-  req = grl.get_media_keys()
-  if not req or not req.title then
-    grl.callback()
+  if not media or not media.title then
+    callback()
     return
   end
-
-  media.title = req.title
 
   -- It is easier to identify a tv show due information
   -- related to episode and season number
   if parse_as_episode(media) then
-    grl.debug(req.title .. " is an EPISODE")
-    grl.callback(media, 0)
+    grl.debug(media.title .. " is an EPISODE")
+    callback(media, 0)
     return
   end
 
   if parse_as_movie(media) then
-    grl.debug(req.title .. " is a MOVIE")
-    grl.callback(media, 0)
+    grl.debug(media.title .. " is a MOVIE")
+    callback(media, 0)
     return
   end
 
   local suffix_removed
   media.title, suffix_removed = remove_suffix(media.title)
   if media.title and suffix_removed then
-    grl.debug(req.title .. " is a MOVIE (without suffix)")
-    grl.callback(media, 0)
+    grl.debug(media.title .. " is a MOVIE (without suffix)")
+    callback(media, 0)
     return
   end
 
-  grl.debug("Fail to identify video: " .. req.title)
-  grl.callback()
+  grl.debug("Fail to identify video: " .. media.title)
+  callback()
 end

@@ -5,24 +5,24 @@
 # miguel rodriguez nuñez <bokerones.fritos@gmail.com>, 2013.
 # MIguel Rodriguez Núñez <bokerones.fritos@gmail.com>, 2013.
 # Miguel Rodriguez Nuñez <bokerones.fritos@gmail.com>, 2014.
-# Daniel Mustieles <daniel.mustieles@gmail.com>, 2013, 2014, 2015.
 # Miguel Rodríguez Núñez <bokerones.fritos@gmail.com>, 2013, 2014, 2015.
+# Daniel Mustieles <daniel.mustieles@gmail.com>, 2013, 2014, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-10-04 21:40+0000\n"
-"PO-Revision-Date: 2015-10-05 09:47+0200\n"
-"Last-Translator: Miguel Rodríguez Núñez <bokerones.fritos@gmail.com>\n"
+"POT-Creation-Date: 2015-12-14 11:17+0000\n"
+"PO-Revision-Date: 2015-12-14 16:37+0100\n"
+"Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Gtranslator 2.91.6\n"
 
 #: ../src/bookmarks/grl-bookmarks.c:67
 msgid "Bookmarks"
@@ -88,7 +88,6 @@ msgstr "Falló la subida, falta el URL del objeto multimedia que transferir"
 
 #: ../src/dmap/grl-daap.c:52
 #, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "Una fuente para explorar el servidor DAAP «%s»"
 
@@ -110,7 +109,6 @@ msgstr "Identificador de extensión %s no válido"
 
 #: ../src/dmap/grl-dpap.c:52
 #, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
 msgid "A source for browsing the DPAP server '%s'"
 msgstr "Una fuente para explorar el servidor DPAP «%s»"
 
@@ -539,6 +537,11 @@ msgstr "Falló al obtener los medios del URI: %s"
 #: ../src/tracker/grl-tracker-source-api.c:802
 msgid "Empty query"
 msgstr "Consulta vacía"
+
+#: ../src/tracker/grl-tracker-source-api.c:1075
+#, c-format
+msgid "ID '%s' is not known in this source"
+msgstr "no se conoce el ID «%s» en esta fuente"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"

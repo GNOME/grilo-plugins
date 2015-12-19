@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: 3.10\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-09-06 22:42+0000\n"
-"PO-Revision-Date: 2015-09-07 08:21+0100\n"
+"POT-Creation-Date: 2015-12-14 10:42+0000\n"
+"PO-Revision-Date: 2015-12-19 07:44+0000\n"
 "Last-Translator: Pedro Albuquerque <palbuquerque73@gmail.com>\n"
 "Language-Team: Português <palbuquerque73@gmail.com>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\\n\n"
 "X-Generator: Gtranslator 2.91.6\n"
 "X-Project-Style: gnome\n"
 
@@ -84,7 +84,6 @@ msgstr "Envio falhado, falta o URL no objeto multimédia a ser transferido"
 
 #: ../src/dmap/grl-daap.c:52
 #, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "Uma fonte para navegar no servidor DAAP \"%s\""
 
@@ -106,7 +105,6 @@ msgstr "Identificador de contentor %s inválido"
 
 #: ../src/dmap/grl-dpap.c:52
 #, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
 msgid "A source for browsing the DPAP server '%s'"
 msgstr "Uma fonte para navegar no servidor DPAP \"%s\""
 
@@ -122,12 +120,12 @@ msgstr "Sistema de ficheiros"
 msgid "A source for browsing the filesystem"
 msgstr "Uma fonte para navegar no sistema de ficheiros"
 
-#: ../src/filesystem/grl-filesystem.c:1148
+#: ../src/filesystem/grl-filesystem.c:1172
 #, c-format
 msgid "File %s does not exist"
 msgstr "Ficheiro %s não existe"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1520
+#: ../src/filesystem/grl-filesystem.c:1250 ../src/youtube/grl-youtube.c:1513
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Impossível obter multimédia de %s"
@@ -210,9 +208,7 @@ msgstr "Falha ao processar a resposta"
 msgid "Empty response"
 msgstr "Resposta vazia"
 
-#: ../src/jamendo/grl-jamendo.c:669
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:252
-#: ../src/shoutcast/grl-shoutcast.c:552
+#: ../src/jamendo/grl-jamendo.c:669 ../src/shoutcast/grl-shoutcast.c:552
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Falha ao ligar: %s"
@@ -227,8 +223,8 @@ msgstr "Fontes"
 msgid "Invalid identifier %s"
 msgstr "Identificador %s inválido"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1112
-#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1105
+#: ../src/youtube/grl-youtube.c:1238 ../src/youtube/grl-youtube.c:1450
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Identificador de categoria %s inválido"
@@ -243,15 +239,6 @@ msgstr "Falha ao navegar: %s é uma faixa"
 msgid "Malformed query \"%s\""
 msgstr "Consulta \"%s\" mal formada"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
-msgid "Album art Provider from Last.FM"
-msgstr "Fornecedor da arte de álbum do Last.FM"
-
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
-msgid "A plugin for getting album arts using Last.FM as backend"
-msgstr ""
-"Um extensão para obter a arte de um álbum utilizando o Last.FM como motor"
-
 #: ../src/local-metadata/grl-local-metadata.c:44
 msgid "Local Metadata Provider"
 msgstr "Fornecedor local de metadados"
@@ -260,18 +247,18 @@ msgstr "Fornecedor local de metadados"
 msgid "A source providing locally available metadata"
 msgstr "Uma fonte disponibilizando metadados localmente"
 
-#: ../src/local-metadata/grl-local-metadata.c:711
+#: ../src/local-metadata/grl-local-metadata.c:381
 #: ../src/metadata-store/grl-metadata-store.c:772 ../src/raitv/grl-raitv.c:868
 #: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Falha ao resolver: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:1179
+#: ../src/local-metadata/grl-local-metadata.c:675
 msgid "Cannot resolve any of the given keys"
 msgstr "Impossível resolver as chaves indicadas"
 
-#: ../src/local-metadata/grl-local-metadata.c:1183
+#: ../src/local-metadata/grl-local-metadata.c:679
 msgid "A GIO supported URL for images is required"
 msgstr "É necessário um URL suportado GIO para imagens"
 
@@ -338,7 +325,7 @@ msgstr "Falha ao resolver"
 
 #: ../src/metadata-store/grl-metadata-store.c:930
 #: ../src/metadata-store/grl-metadata-store.c:967 ../src/raitv/grl-raitv.c:426
-#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:546
+#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:540
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Falha ao procurar: %s"
@@ -516,7 +503,7 @@ msgstr "Uma fonte para ver rádios SHOUTcast"
 msgid "Cannot find media %s"
 msgstr "Impossível encontrar multimédia %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:547
+#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:541
 msgid "non-NULL search text is required"
 msgstr "é necessário texto de pesquisa não VAZIO"
 
@@ -545,6 +532,11 @@ msgstr "Falha ao obter multimédia do uri: %s"
 #: ../src/tracker/grl-tracker-source-api.c:802
 msgid "Empty query"
 msgstr "Consulta vazia"
+
+#: ../src/tracker/grl-tracker-source-api.c:1075
+#, c-format
+msgid "ID '%s' is not known in this source"
+msgstr "ID \"%s\" não é conhecida nesta origem"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
@@ -611,14 +603,21 @@ msgstr "Assistir no telemóvel"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Uma fonte para ver e procurar vídeos YouTube"
 
-#: ../src/youtube/grl-youtube.c:871
+#: ../src/youtube/grl-youtube.c:864
 msgid "Failed to get feed"
 msgstr "Falha ao obter a fonte"
 
-#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
+#: ../src/youtube/grl-youtube.c:1041 ../src/youtube/grl-youtube.c:1429
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Identificador de fonte %s inválido"
+
+#~ msgid "Album art Provider from Last.FM"
+#~ msgstr "Fornecedor da arte de álbum do Last.FM"
+
+#~ msgid "A plugin for getting album arts using Last.FM as backend"
+#~ msgstr ""
+#~ "Um extensão para obter a arte de um álbum utilizando o Last.FM como motor"
 
 #~ msgid "Apple Movie Trailers"
 #~ msgstr "Trechos de filmes Apple"

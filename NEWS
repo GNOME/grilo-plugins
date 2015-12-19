@@ -1,3 +1,61 @@
+NEW in 0.2.17
+=============
+
+  * General
+    * Update i18n translations
+    * BGO#755702 - Show better configuration information
+
+  * Filesystem plugin
+    * BGO#755181 - filesystem: weird content-changed notifications
+
+  * Last.fm AlbumArt plugin
+    * BGO#700276 - lastfm: update to new API 2.0
+
+  * Local Metadata plugin
+    * BGO#754532 - Remove title parsing from local-metadata plugin
+    * BGO#755464 - local-metadata: Another bad TV show parsing
+
+  * Lua Factory plugin
+    * BGO#700276 - lastfm: update to new API 2.0
+    * BGO#754531 - Make lua-factory a hard requirement
+    * BGO#754811 - spotify: implement Spotify plugin
+    * BGO#755464 - local-metadata: Another bad TV show parsing
+    * BGO#755556 - Add XML parser
+
+  * Metrolyrics plugin
+    * BGO#759109 - metrolyrics: fix parser after metrolyrics changes
+
+  * TheTVDB plugin
+    * BGO#758959 - thetvdb: Force updating the show name
+
+  * Tracker plugin
+    * BGO#746974 - Tracker plugin's change signal is useless
+    * BGO#758654 - Fix tracker serialisation
+
+  * Contributors to this release:
+    Alberto Garcia <berto@igalia.com>
+    Anders Jonsson <anders.jonsson@norsjovallen.se>
+    Andika Triwidada <andika@gmail.com>
+    Ask Hjorth Larsen <asklarsen@gmail.com>
+    Bastien Nocera <hadess@hadess.net>
+    Daniel Mustieles <daniel.mustieles@gmail.com>
+    Fran Dieguez <frandieguez@gnome.org>
+    George Sedov <radist.morse@gmail.com>
+    Inaki Larranaga Murgoitio <dooteo@zundan.com>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Marek Černocký <marek@manet.cz>
+    Pedro Albuquerque <palbuquerque73@gmail.com>
+    Piotr Drąg <piotrdrag@gmail.com>
+    Rafael Fontenelle <rffontenelle@gmail.com>
+    Tom Tryfonidis <tomtryf@gmail.com>
+    Victor Toso <me@victortoso.com>
+    Wolfgang Stöggl <c72578@yahoo.de>
+    Xavier Claessens <xavier.claessens@collabora.com>
+    Yosef Or Boczko <yoseforb@src.gnome.org>
+    Марко Костић <marko.m.kostic@gmail.com>
+    Милош Поповић <gpopac@gmail.com>
+
+
 NEW in 0.2.16
 =============
 

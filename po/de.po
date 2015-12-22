@@ -4,22 +4,23 @@
 # Christian Kirbach <christian.kirbach@gmail.com>, 2013.
 # Wolfgang Stöggl <c72578@yahoo.de>, 2014-2015.
 # Paul Seyfert <pseyfert@mathphys.fsk.uni-heidelberg.de>, 2015.
+# Bernd Homuth <dev@hmt.im>, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-09-23 22:02+0000\n"
-"PO-Revision-Date: 2015-10-02 07:49+0200\n"
-"Last-Translator: Wolfgang Stoeggl <c72578@yahoo.de>\n"
+"POT-Creation-Date: 2015-12-22 02:15+0000\n"
+"PO-Revision-Date: 2015-12-22 17:15+0100\n"
+"Last-Translator: Bernd Homuth <dev@hmt.im>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.5\n"
+"X-Generator: Gtranslator 2.91.7\n"
 
 #: ../src/bookmarks/grl-bookmarks.c:67
 msgid "Bookmarks"
@@ -123,12 +124,12 @@ msgstr "Dateisystem"
 msgid "A source for browsing the filesystem"
 msgstr "Eine Quelle zum Durchsuchen des Dateisystems"
 
-#: ../src/filesystem/grl-filesystem.c:1148
+#: ../src/filesystem/grl-filesystem.c:1172
 #, c-format
 msgid "File %s does not exist"
 msgstr "Die Datei %s existiert nicht"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1520
+#: ../src/filesystem/grl-filesystem.c:1250 ../src/youtube/grl-youtube.c:1513
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Holen von Medien auf %s fehlgeschlagen"
@@ -213,9 +214,7 @@ msgstr "Verarbeitung der Antwort ist gescheitert"
 msgid "Empty response"
 msgstr "Leere Antwort"
 
-#: ../src/jamendo/grl-jamendo.c:669
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:262
-#: ../src/shoutcast/grl-shoutcast.c:552
+#: ../src/jamendo/grl-jamendo.c:669 ../src/shoutcast/grl-shoutcast.c:552
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Verbindung fehlgeschlagen: %s"
@@ -230,8 +229,8 @@ msgstr "Quellen"
 msgid "Invalid identifier %s"
 msgstr "Ungültiger Bezeichner %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1112
-#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1105
+#: ../src/youtube/grl-youtube.c:1238 ../src/youtube/grl-youtube.c:1450
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Ungültiger Kategorie-Bezeichner %s"
@@ -246,14 +245,6 @@ msgstr "Durchsuchen fehlgeschlagen: %s ist ein Musiktitel"
 msgid "Malformed query \"%s\""
 msgstr "Fehlerhafte Anfrage »%s«"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
-msgid "Album art Provider from Last.FM"
-msgstr "Albumgrafiken von Last.FM"
-
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:62
-msgid "A plugin for getting album arts using Last.FM as backend"
-msgstr "Eine Erweiterung zum Holen von Albumgrafiken über Last.FM"
-
 #: ../src/local-metadata/grl-local-metadata.c:44
 msgid "Local Metadata Provider"
 msgstr "Lokale Metadaten"
@@ -262,18 +253,18 @@ msgstr "Lokale Metadaten"
 msgid "A source providing locally available metadata"
 msgstr "Eine Quelle, die lokal verfügbare Metadaten liefert"
 
-#: ../src/local-metadata/grl-local-metadata.c:711
+#: ../src/local-metadata/grl-local-metadata.c:381
 #: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:868
 #: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Es konnte nicht aufgelöst werden: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:1179
+#: ../src/local-metadata/grl-local-metadata.c:675
 msgid "Cannot resolve any of the given keys"
 msgstr "Auflösen von allen Schlüsselwörtern fehlgeschlagen"
 
-#: ../src/local-metadata/grl-local-metadata.c:1183
+#: ../src/local-metadata/grl-local-metadata.c:679
 msgid "A GIO supported URL for images is required"
 msgstr "Eine von GIO unterstützte Adresse für Bilder wird benötigt"
 
@@ -340,7 +331,7 @@ msgstr "Auflösen schlug fehl"
 
 #: ../src/metadata-store/grl-metadata-store.c:917
 #: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:426
-#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:546
+#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:540
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Suche ist fehlgeschlagen: %s"
@@ -519,7 +510,7 @@ msgstr "Eine Quelle zum Durchsuchen von SHOUTcast-Radiosendern"
 msgid "Cannot find media %s"
 msgstr "Medium %s kann nicht gefunden werden"
 
-#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:547
+#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:541
 msgid "non-NULL search text is required"
 msgstr "Suchtext wird benötigt"
 
@@ -548,6 +539,11 @@ msgstr "Holen der Medien von folgender Adresse ist fehlgeschlagen: %s"
 #: ../src/tracker/grl-tracker-source-api.c:802
 msgid "Empty query"
 msgstr "Leere Anfrage"
+
+#: ../src/tracker/grl-tracker-source-api.c:1075
+#, c-format
+msgid "ID '%s' is not known in this source"
+msgstr "Bezeichner »%s« ist in dieser Quelle nicht bekannt"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
@@ -615,14 +611,20 @@ msgstr "Mobil ansehen"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Eine Quelle zum Durchsuchen von YouTube-Videos"
 
-#: ../src/youtube/grl-youtube.c:871
+#: ../src/youtube/grl-youtube.c:864
 msgid "Failed to get feed"
 msgstr "Holen der Quelle fehlgeschlagen"
 
-#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
+#: ../src/youtube/grl-youtube.c:1041 ../src/youtube/grl-youtube.c:1429
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Ungültiger Quellen-Bezeichner %s"
+
+#~ msgid "Album art Provider from Last.FM"
+#~ msgstr "Albumgrafiken von Last.FM"
+
+#~ msgid "A plugin for getting album arts using Last.FM as backend"
+#~ msgstr "Eine Erweiterung zum Holen von Albumgrafiken über Last.FM"
 
 #~ msgid "Apple Movie Trailers"
 #~ msgstr "Apple Filmvorschau"

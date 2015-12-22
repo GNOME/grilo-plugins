@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: grilo-plugins 0.2.x\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-09-23 22:02+0000\n"
-"PO-Revision-Date: 2015-11-23 17:13+0700\n"
-"Last-Translator: Andika Triwidada <atriwidada@gnome.org>\n"
+"POT-Creation-Date: 2015-12-19 23:42+0000\n"
+"PO-Revision-Date: 2015-12-22 09:13+0700\n"
+"Last-Translator: Andika Triwidada <andika@gmail.com>\n"
 "Language-Team: Indonesian <gnome@i15n.org>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.10\n"
+"X-Generator: Poedit 1.7.1\n"
 
 #: ../src/bookmarks/grl-bookmarks.c:67
 msgid "Bookmarks"
@@ -117,12 +117,12 @@ msgstr "Sistem berkas"
 msgid "A source for browsing the filesystem"
 msgstr "Sumber untuk meramban sistem berkas"
 
-#: ../src/filesystem/grl-filesystem.c:1148
+#: ../src/filesystem/grl-filesystem.c:1172
 #, c-format
 msgid "File %s does not exist"
 msgstr "Berkas %s tak ada"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1520
+#: ../src/filesystem/grl-filesystem.c:1250 ../src/youtube/grl-youtube.c:1513
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Tak bisa mendapat media dari %s"
@@ -205,9 +205,7 @@ msgstr "Gagal mengurai respon"
 msgid "Empty response"
 msgstr "Respon kosong"
 
-#: ../src/jamendo/grl-jamendo.c:669
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:262
-#: ../src/shoutcast/grl-shoutcast.c:552
+#: ../src/jamendo/grl-jamendo.c:669 ../src/shoutcast/grl-shoutcast.c:552
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Gagal menyambung: %s"
@@ -222,8 +220,8 @@ msgstr "Asupan"
 msgid "Invalid identifier %s"
 msgstr "Identifier tak valid %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1112
-#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1105
+#: ../src/youtube/grl-youtube.c:1238 ../src/youtube/grl-youtube.c:1450
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Identifier kategori tak valid %s"
@@ -238,14 +236,6 @@ msgstr "Gagal meramban: %s adalah suatu trek"
 msgid "Malformed query \"%s\""
 msgstr "Kuiri salah bentuk \"%s\""
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
-msgid "Album art Provider from Last.FM"
-msgstr "Penyedia seni album dari Last.FM"
-
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:62
-msgid "A plugin for getting album arts using Last.FM as backend"
-msgstr "Pengaya untuk mengambil seni album memakai Last.FM sebagai backend"
-
 #: ../src/local-metadata/grl-local-metadata.c:44
 msgid "Local Metadata Provider"
 msgstr "Penyedia Metadata Lokal"
@@ -254,18 +244,18 @@ msgstr "Penyedia Metadata Lokal"
 msgid "A source providing locally available metadata"
 msgstr "Sumber yang menyediakan metadata yang tersedia secara lokal"
 
-#: ../src/local-metadata/grl-local-metadata.c:711
+#: ../src/local-metadata/grl-local-metadata.c:381
 #: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:868
 #: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Gagal menentukan: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:1179
+#: ../src/local-metadata/grl-local-metadata.c:675
 msgid "Cannot resolve any of the given keys"
 msgstr "Tak bisa menentukan sebarang kunci yang diberikan"
 
-#: ../src/local-metadata/grl-local-metadata.c:1183
+#: ../src/local-metadata/grl-local-metadata.c:679
 msgid "A GIO supported URL for images is required"
 msgstr "Perlu URL yang didukung GIO bagi citra"
 
@@ -332,7 +322,7 @@ msgstr "Gagal menentukan"
 
 #: ../src/metadata-store/grl-metadata-store.c:917
 #: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:426
-#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:546
+#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:540
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Gagal mencari: %s"
@@ -510,7 +500,7 @@ msgstr "Sumber untuk meramban radio SHOUTcast"
 msgid "Cannot find media %s"
 msgstr "Tak bisa temukan media %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:547
+#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:541
 msgid "non-NULL search text is required"
 msgstr "diperlukan teks pencarian bukan NULL"
 
@@ -539,6 +529,11 @@ msgstr "Gagal mendapat media dari uri: %s"
 #: ../src/tracker/grl-tracker-source-api.c:802
 msgid "Empty query"
 msgstr "Kuiri kosong"
+
+#: ../src/tracker/grl-tracker-source-api.c:1075
+#, c-format
+msgid "ID '%s' is not known in this source"
+msgstr "﻿ID '%s' tidak dikenal dalam sumber"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
@@ -605,11 +600,11 @@ msgstr "Lihat Di Mobile"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Sumber untuk meramban dan mencari video YouTube"
 
-#: ../src/youtube/grl-youtube.c:871
+#: ../src/youtube/grl-youtube.c:864
 msgid "Failed to get feed"
 msgstr "Gagal mendapat asupan"
 
-#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
+#: ../src/youtube/grl-youtube.c:1041 ../src/youtube/grl-youtube.c:1429
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Identifier asupan tak valid %s"

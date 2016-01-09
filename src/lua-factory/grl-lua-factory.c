@@ -1655,7 +1655,7 @@ grl_lua_factory_source_may_resolve (GrlSource *source,
 
   /* Verify if the source resolve type and media type match */
   res_type = lua_source->priv->resolve_type;
-  if ((grl_media_is_container (media) && (res_type != GRL_SUPPORTED_MEDIA_ALL))
+  if ((grl_media_is_container (media) && !(res_type & GRL_SUPPORTED_MEDIA_ALL))
       || (grl_media_is_audio (media) && !(res_type & GRL_SUPPORTED_MEDIA_AUDIO))
       || (grl_media_is_image (media) && !(res_type & GRL_SUPPORTED_MEDIA_IMAGE))
       || (grl_media_is_video (media) && !(res_type & GRL_SUPPORTED_MEDIA_VIDEO))) {

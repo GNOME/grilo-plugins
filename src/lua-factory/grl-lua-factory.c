@@ -185,9 +185,6 @@ grl_lua_factory_plugin_init (GrlRegistry *registry,
   GError *err = NULL;
   gboolean source_loaded = FALSE;
   GCancellable *cancellable;
-#ifdef GOA_ENABLED
-  GList *lua_init_sources = NULL;
-#endif
 
   GRL_LOG_DOMAIN_INIT (lua_factory_log_domain, "lua-factory");
 
@@ -220,11 +217,9 @@ grl_lua_factory_plugin_init (GrlRegistry *registry,
 
     goa_client_new (cancellable, grl_lua_factory_goa_init, goa_data);
 
-    lua_init_sources = g_list_prepend (lua_init_sources, goa_data);
   }
 
   g_list_free (goa_sources);
-  g_object_set_data (G_OBJECT (plugin), "lua-init-sources", lua_init_sources);
 #else
   g_assert (goa_sources == NULL);
 #endif
@@ -782,6 +777,7 @@ grl_lua_goa_data_free (GrlLuaGoaData *data)
   g_free (data->account_provider);
   g_free (data->account_feature);
   g_clear_pointer (&data->sources, g_hash_table_destroy);
+  g_free (data);
 }
 
 static void
@@ -793,6 +789,7 @@ grl_lua_factory_goa_init (GObject *source_object,
   GList *tmp;
   GList *acc_list;
   GList *lua_acc_list = NULL;
+  GList *lua_init_sources = NULL;
   GrlLuaGoaData *lua_data = user_data;
   GoaClient *client;
 
@@ -805,6 +802,10 @@ grl_lua_factory_goa_init (GObject *source_object,
     grl_lua_goa_data_free (lua_data);
     return;
   }
+
+  lua_init_sources = g_object_get_data (G_OBJECT (lua_data->plugin), "lua-init-sources");
+  lua_init_sources = g_list_prepend (lua_init_sources, lua_data);
+  g_object_set_data (G_OBJECT (lua_data->plugin), "lua-init-sources", lua_init_sources);
 
   lua_data->client = client;
 

@@ -1183,6 +1183,7 @@ merge_all_configs (const gchar *source_id,
     for (it_keys = list_keys; it_keys; it_keys = g_list_next (it_keys)) {
       options = g_list_append (options, g_strdup (it_keys->data));
     }
+    g_list_free(list_keys);
   }
 
   /* Now merge them */

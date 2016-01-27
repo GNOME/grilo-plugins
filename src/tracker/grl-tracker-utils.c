@@ -126,12 +126,13 @@ insert_key_mapping (GrlKeyID     grl_key,
                                            GRLKEYID_TO_POINTER (grl_key));
   gchar *canon_name = g_strdup (GRL_METADATA_KEY_GET_NAME (grl_key));
 
-  assoc->grl_key              = grl_key;
-  assoc->sparql_key_name      = build_flavored_key (canon_name,
-                                                    sparql_key_flavor);
-  assoc->sparql_key_attr      = sparql_key_attr;
-  assoc->sparql_key_attr_call = sparql_key_attr_call;
-  assoc->sparql_key_flavor    = sparql_key_flavor;
+  assoc->grl_key               = grl_key;
+  assoc->sparql_key_name       = build_flavored_key (canon_name,
+                                                     sparql_key_flavor);
+  assoc->sparql_key_name_canon = g_strdup (canon_name);
+  assoc->sparql_key_attr       = sparql_key_attr;
+  assoc->sparql_key_attr_call  = sparql_key_attr_call;
+  assoc->sparql_key_flavor     = sparql_key_flavor;
 
   assoc_list = g_list_append (assoc_list, assoc);
 
@@ -144,6 +145,16 @@ insert_key_mapping (GrlKeyID     grl_key,
   g_hash_table_insert (sparql_to_grl_mapping,
                        (gpointer) GRL_METADATA_KEY_GET_NAME (grl_key),
                        assoc);
+
+  /* Grilo maps key names to SPARQL variables. Key names can contain dashes,
+   * however SPARQL does not allow dashes in variable names. So use the to
+   * underscores converted canon_name as additional mapping.
+   */
+  if (g_strrstr (assoc->sparql_key_name_canon, "_")) {
+    g_hash_table_insert (sparql_to_grl_mapping,
+                         (gpointer) assoc->sparql_key_name_canon,
+                         assoc);
+  }
 
   g_free (canon_name);
 

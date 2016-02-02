@@ -2,15 +2,15 @@
 # Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
 #
-# Matej Urbančič <mateju@svn.gnome.org>, 2013-2015.
+# Matej Urbančič <mateju@svn.gnome.org>, 2013-2016.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-09-08 09:11+0000\n"
-"PO-Revision-Date: 2015-09-08 20:52+0100\n"
+"POT-Creation-Date: 2016-02-02 16:23+0000\n"
+"PO-Revision-Date: 2016-02-02 20:43+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenščina <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -53,7 +53,7 @@ msgstr "Ni mogoče shraniti: %s"
 
 #: ../src/bookmarks/grl-bookmarks.c:841 ../src/bookmarks/grl-bookmarks.c:876
 #: ../src/bookmarks/grl-bookmarks.c:907 ../src/bookmarks/grl-bookmarks.c:965
-#: ../src/metadata-store/grl-metadata-store.c:862
+#: ../src/metadata-store/grl-metadata-store.c:849
 #: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
 #: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
 msgid "No database connection"
@@ -121,12 +121,12 @@ msgstr "Datotečni sistem"
 msgid "A source for browsing the filesystem"
 msgstr "Vir za brskanje po datotečnem sistemu"
 
-#: ../src/filesystem/grl-filesystem.c:1148
+#: ../src/filesystem/grl-filesystem.c:1172
 #, c-format
 msgid "File %s does not exist"
 msgstr "Datoteka %s ne obstaja"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1520
+#: ../src/filesystem/grl-filesystem.c:1250 ../src/youtube/grl-youtube.c:1513
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Ni mogoče pridobiti vsebine iz %s"
@@ -209,9 +209,7 @@ msgstr "Razčlenjevanje odgovora je spodletelo"
 msgid "Empty response"
 msgstr "Odziv brez vsebine"
 
-#: ../src/jamendo/grl-jamendo.c:669
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:252
-#: ../src/shoutcast/grl-shoutcast.c:552
+#: ../src/jamendo/grl-jamendo.c:669 ../src/shoutcast/grl-shoutcast.c:552
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Napaka med povezovanjem: %s"
@@ -226,8 +224,8 @@ msgstr "Viri"
 msgid "Invalid identifier %s"
 msgstr "Neveljaven določilnik %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1112
-#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1105
+#: ../src/youtube/grl-youtube.c:1238 ../src/youtube/grl-youtube.c:1450
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Določilo kategorije %s je neveljavno "
@@ -242,16 +240,6 @@ msgstr "Brskanje je spodletelo: %s je posnetek"
 msgid "Malformed query \"%s\""
 msgstr "Napačno oblikovana zahteva poizvedbe \"%s\""
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
-msgid "Album art Provider from Last.FM"
-msgstr "Ponudnik ovitkov albumov z Last.FM"
-
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
-msgid "A plugin for getting album arts using Last.FM as backend"
-msgstr ""
-"Vstavek za pridobivanje ovitkov albumov, kjer se Last.FM uporablja kot "
-"ozadnje okolje"
-
 #: ../src/local-metadata/grl-local-metadata.c:44
 msgid "Local Metadata Provider"
 msgstr "Krajevni ponudnik metapodatkov"
@@ -260,18 +248,18 @@ msgstr "Krajevni ponudnik metapodatkov"
 msgid "A source providing locally available metadata"
 msgstr "Vir krajevno dostopnih metapodatkov"
 
-#: ../src/local-metadata/grl-local-metadata.c:711
-#: ../src/metadata-store/grl-metadata-store.c:772 ../src/raitv/grl-raitv.c:868
+#: ../src/local-metadata/grl-local-metadata.c:381
+#: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:868
 #: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Razreševanje je spodletelo: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:1179
+#: ../src/local-metadata/grl-local-metadata.c:675
 msgid "Cannot resolve any of the given keys"
 msgstr "Ni mogoče razrešiti nobenega izmed podanih ključev"
 
-#: ../src/local-metadata/grl-local-metadata.c:1183
+#: ../src/local-metadata/grl-local-metadata.c:679
 msgid "A GIO supported URL for images is required"
 msgstr "Zahtevan je z GIO podprt naslov URL slik"
 
@@ -312,34 +300,34 @@ msgstr "Shramba metapodatkov"
 msgid "A plugin for storing extra metadata information"
 msgstr "Vstavek za shranjevanje dodatnih metapodatkov"
 
-#: ../src/metadata-store/grl-metadata-store.c:586
-#: ../src/metadata-store/grl-metadata-store.c:605
-#: ../src/metadata-store/grl-metadata-store.c:817
+#: ../src/metadata-store/grl-metadata-store.c:573
+#: ../src/metadata-store/grl-metadata-store.c:592
+#: ../src/metadata-store/grl-metadata-store.c:804
 #: ../src/tracker/grl-tracker-source-api.c:637
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Posodabljanje metapodatkov je spodletelo: %s"
 
-#: ../src/metadata-store/grl-metadata-store.c:587
+#: ../src/metadata-store/grl-metadata-store.c:574
 msgid "specified keys are not writable"
 msgstr "V navedene ključe ni mogoče pisati"
 
-#: ../src/metadata-store/grl-metadata-store.c:627
+#: ../src/metadata-store/grl-metadata-store.c:614
 msgid "Failed to update metadata"
 msgstr "Posodabljanje metapodatkov je spodletelo"
 
-#: ../src/metadata-store/grl-metadata-store.c:773
-#: ../src/metadata-store/grl-metadata-store.c:818
+#: ../src/metadata-store/grl-metadata-store.c:760
+#: ../src/metadata-store/grl-metadata-store.c:805
 msgid "\"source-id\" not available"
 msgstr "\"source-id\" ni na voljo"
 
-#: ../src/metadata-store/grl-metadata-store.c:793
+#: ../src/metadata-store/grl-metadata-store.c:780
 msgid "Failed to resolve"
 msgstr "Razreševanje je spodletelo"
 
-#: ../src/metadata-store/grl-metadata-store.c:930
-#: ../src/metadata-store/grl-metadata-store.c:967 ../src/raitv/grl-raitv.c:426
-#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:546
+#: ../src/metadata-store/grl-metadata-store.c:917
+#: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:426
+#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:540
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Iskanje je spodletelo: %s"
@@ -517,7 +505,7 @@ msgstr "Vir za brskanje po postajah SHOUTcast"
 msgid "Cannot find media %s"
 msgstr "Ni mogoče najti nosilca %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:547
+#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:541
 msgid "non-NULL search text is required"
 msgstr "Iskalno besedilo ne more biti prazna vrednost"
 
@@ -547,16 +535,21 @@ msgstr "Pridobivanje predstavne vsebine je spodletelo: %s"
 msgid "Empty query"
 msgstr "Prazna poizvedba"
 
+#: ../src/tracker/grl-tracker-source-api.c:1075
+#, c-format
+msgid "ID '%s' is not known in this source"
+msgstr "V tem viru ID '%s' ni znan"
+
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Vstavek za iskanje predstavnih vsebin z uporabo sistema Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:642
+#: ../src/tracker/grl-tracker-utils.c:640
 #, c-format
 msgid "Removable - %s"
 msgstr "Odstranljivo - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:654
+#: ../src/tracker/grl-tracker-utils.c:652
 msgid "Local files"
 msgstr "Krajevne datoteke"
 
@@ -612,14 +605,22 @@ msgstr "Oglej si na mobilni napravi"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Vir za brskanje in iskanje videov YouTube"
 
-#: ../src/youtube/grl-youtube.c:871
+#: ../src/youtube/grl-youtube.c:864
 msgid "Failed to get feed"
 msgstr "Pridobivanje vira je spodletelo"
 
-#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
+#: ../src/youtube/grl-youtube.c:1041 ../src/youtube/grl-youtube.c:1429
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Določilo obvestilnika %s je neveljavno "
+
+#~ msgid "Album art Provider from Last.FM"
+#~ msgstr "Ponudnik ovitkov albumov z Last.FM"
+
+#~ msgid "A plugin for getting album arts using Last.FM as backend"
+#~ msgstr ""
+#~ "Vstavek za pridobivanje ovitkov albumov, kjer se Last.FM uporablja kot "
+#~ "ozadnje okolje"
 
 #~ msgid "Apple Movie Trailers"
 #~ msgstr "Filmski napovedniki Apple"

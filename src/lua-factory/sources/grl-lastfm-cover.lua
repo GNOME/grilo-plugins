@@ -78,9 +78,14 @@ function fetch_page_cb(result, userdata)
   end
 
   userdata.media.thumbnail = {}
-  for k, v in string.gmatch(result, '<image size="(.-)">(.-)</image>') do
-    grl.debug ('Image size ' .. k .. ' = ' .. v)
-    table.insert(userdata.media.thumbnail, v)
+  local image_sizes = { "mega", "extralarge", "large", "medium", "small" }
+
+  for _, size in pairs(image_sizes) do
+    local url
+
+    url = string.match(result, '<image size="' .. size .. '">(.-)</image>')
+    grl.debug ('Image size ' .. size .. ' = ' .. url)
+    table.insert(userdata.media.thumbnail, url)
   end
 
   userdata.callback(userdata.media, 0)

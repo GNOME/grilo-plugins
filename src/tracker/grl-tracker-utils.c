@@ -224,6 +224,11 @@ grl_tracker_setup_key_mappings (void)
                       "nfo:entryCounter(?urn)",
                       "directory");
 
+  insert_key_mapping (GRL_METADATA_KEY_COMPOSER,
+                      NULL,
+                      "nmm:artistName(nmm:composer(?urn))",
+                      "audio");
+
   insert_key_mapping (GRL_METADATA_KEY_SIZE,
                       NULL,
                       "nfo:fileSize(?urn)",

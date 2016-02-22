@@ -84,9 +84,15 @@ function fetch_page_cb(result, userdata)
     local url
 
     url = string.match(result, '<image size="' .. size .. '">(.-)</image>')
-    grl.debug ('Image size ' .. size .. ' = ' .. url)
-    table.insert(userdata.media.thumbnail, url)
+    if url ~= nil and url ~= '' then
+      grl.debug ('Image size ' .. size .. ' = ' .. url)
+      table.insert(userdata.media.thumbnail, url)
+    end
   end
 
-  userdata.callback(userdata.media, 0)
+  if #userdata.media.thumbnail == 0 then
+    userdata.callback()
+  else
+    userdata.callback(userdata.media, 0)
+  end
 end

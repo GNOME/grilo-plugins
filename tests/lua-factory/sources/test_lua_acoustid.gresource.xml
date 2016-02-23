@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/gnome/grilo/plugins/test/acoustid">
+    <file compressed="false">data/chromaprint_ludovico_einaudi_primavera.txt</file>
+    <file compressed="false">data/chromaprint_norah_jones_chasing_pirates.txt</file>
+    <file compressed="false">data/chromaprint_philip_glass_the_passion_of.txt</file>
+    <file compressed="false">data/chromaprint_trombone_shorty_buckjump.txt</file>
+  </gresource>
+</gresources>

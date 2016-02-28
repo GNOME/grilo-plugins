@@ -58,6 +58,7 @@ EXTRA_DIST +=						\
 	euronews.svg					\
 	guardianvideos.svg				\
 	radiofrance.png					\
+	trailers.svg					\
 	pocket.svg
 
 -include $(top_srcdir)/git.mk

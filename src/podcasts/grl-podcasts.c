@@ -778,7 +778,7 @@ produce_podcast_contents_from_db (OperationSpec *os)
   }
 
   if (r != SQLITE_DONE) {
-    GRL_WARNING ("Failed to retrive podcast streams: %s", sqlite3_errmsg (db));
+    GRL_WARNING ("Failed to retrieve podcast streams: %s", sqlite3_errmsg (db));
     error = g_error_new (GRL_CORE_ERROR,
                          os->error_code,
                          _("Failed to get podcast streams: %s"),

@@ -1405,6 +1405,14 @@ lua_plugin_source_all_keys (lua_State *L,
         supported_media = GRL_SUPPORTED_MEDIA_IMAGE;
       else if (g_strcmp0 (key_name, "all") == 0)
         supported_media = GRL_SUPPORTED_MEDIA_ALL;
+
+      if (supported_media == GRL_SUPPORTED_MEDIA_NONE) {
+        GRL_WARNING ("(%s) value '%s' is not supported on %s.type ",
+                     source_id, key_name, LUA_SOURCE_RESOLVE_KEYS);
+      }
+    } else {
+      GRL_WARNING ("(%s) expecting string on %s.type but got instead %s", source_id,
+                   LUA_SOURCE_RESOLVE_KEYS, lua_typename (L, lua_type (L, -1)));
     }
     lua_pop (L, 1);
 
@@ -1412,6 +1420,9 @@ lua_plugin_source_all_keys (lua_State *L,
 
     /* check required table field */
     *resolve_keys = keys_table_array_to_list (L, LUA_REQUIRED_TABLE, registry, source_id);
+  } else if (!lua_isnil (L, -1)) {
+    GRL_WARNING ("(%s) expecting table on %s but got instead %s", source_id,
+                 LUA_SOURCE_RESOLVE_KEYS, lua_typename (L, lua_type (L, -1)));
   }
   lua_pop (L, 1);
 
@@ -1441,7 +1452,17 @@ lua_plugin_source_all_keys (lua_State *L,
     }
     g_list_free_full (table_list, g_free);
 
+    if (g_hash_table_size (htable) == 0) {
+      GRL_WARNING ("(%s) at %s - no valid config-keys on %s and %s", source_id,
+                   LUA_SOURCE_CONFIG_KEYS, LUA_REQUIRED_TABLE, LUA_OPTIONAL_TABLE);
+      g_hash_table_destroy (htable);
+      htable = NULL;
+    }
+
     *config_keys = htable;
+  } else if (!lua_isnil (L, -1)) {
+    GRL_WARNING ("(%s) expecting table on %s but got instead %s", source_id,
+                 LUA_SOURCE_CONFIG_KEYS, lua_typename (L, lua_type (L, -1)));
   }
   lua_pop (L, 1);
 

@@ -892,7 +892,8 @@ keys_table_array_to_list (lua_State *L,
     if (key_id != GRL_METADATA_KEY_INVALID) {
       filtered_list = g_list_prepend (filtered_list, GRLKEYID_TO_POINTER (key_id));
     } else {
-      GRL_WARNING ("Unknown key '%s' in property '%s' for source '%s'", key_name, array_name, source_id);
+      GRL_DEBUG ("Unknown key '%s' in property '%s' for source '%s'",
+                 key_name, array_name, source_id);
     }
   }
   g_list_free_full (list, g_free);

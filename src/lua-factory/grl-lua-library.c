@@ -1612,16 +1612,22 @@ push_operation_requested_keys (lua_State *L,
   lua_newtable (L);
   for (it = keys; it != NULL; it = it->next) {
     GrlKeyID key_id;
-    const gchar *key_name;
+    char *key_name, *ptr;
 
     key_id = GRLPOINTER_TO_KEYID (it->data);
     if (key_id == GRL_METADATA_KEY_INVALID)
       continue;
 
-    key_name = grl_registry_lookup_metadata_key_name (registry, key_id);
-    lua_pushinteger (L, i);
+    key_name = g_strdup (grl_registry_lookup_metadata_key_name (registry, key_id));
+    /* Replace '-' to '_': convenient for the developer */
+    while ((ptr = strstr (key_name, "-")) != NULL) {
+      *ptr = '_';
+    }
+
     lua_pushstring (L, key_name);
+    lua_pushboolean (L, 1);
     lua_settable (L, -3);
+    g_free (key_name);
     i++;
   }
 }

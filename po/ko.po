@@ -1,31 +1,27 @@
 # Korean translation for grilo-plugins.
 # Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
-# Seong-ho Cho <shcho@gnome.org>, 2013-2015.
+# Seong-ho Cho <shcho@gnome.org>, 2013-2015, 2016.
 #
-# NOTE: 용어 번역은 번역 내용을 참고하십시오.
-# 입니다/습니다로 끝날 문장인지에 대한 파악이 확실하지 않으므로
-# 결과를 지켜보고 차기 3.12에 문장 번역을 수정하여 반영합니다. - Sep 2013
+# NOTE: 용어 번역은 번역 내용을 참고하십시오
 #
-# A source for ~ 은 ~의/하는/인 원본 식으로 번역합니다. 좀 더 지켜보고
-# "원본" 이라는 단어를 고수할 지 좀 더 정확한 의미를 가진 다른 용어로
-# 대체할지 나중에 결정합니다. - Mar 2014
+# A source for ~ 은 ~의/하는/인 원본 식으로 번역합니다. - Mar 2016
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-09-09 21:17+0000\n"
-"PO-Revision-Date: 2015-09-10 17:22+0900\n"
+"POT-Creation-Date: 2015-12-14 10:42+0000\n"
+"PO-Revision-Date: 2016-03-02 03:27+0900\n"
 "Last-Translator: Seong-ho Cho <shcho@gnome.org>\n"
-"Language-Team: Korean <gnome-kr@googlegroups.com>\n"
+"Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.5.5\n"
+"X-Generator: Gtranslator 2.91.7\n"
 
 #: ../src/bookmarks/grl-bookmarks.c:67
 msgid "Bookmarks"
@@ -127,12 +123,12 @@ msgstr "파일 시스템"
 msgid "A source for browsing the filesystem"
 msgstr "파일 시스템 탐색 원본"
 
-#: ../src/filesystem/grl-filesystem.c:1148
+#: ../src/filesystem/grl-filesystem.c:1172
 #, c-format
 msgid "File %s does not exist"
 msgstr "%s 파일이 없습니다"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1520
+#: ../src/filesystem/grl-filesystem.c:1250 ../src/youtube/grl-youtube.c:1513
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "%s에서 미디어를 가져올 수 없습니다"
@@ -215,9 +211,7 @@ msgstr "해석 응답에 실패했습니다"
 msgid "Empty response"
 msgstr "빈 응답"
 
-#: ../src/jamendo/grl-jamendo.c:669
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:252
-#: ../src/shoutcast/grl-shoutcast.c:552
+#: ../src/jamendo/grl-jamendo.c:669 ../src/shoutcast/grl-shoutcast.c:552
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "연결에 실패했습니다: %s"
@@ -232,8 +226,8 @@ msgstr "피드"
 msgid "Invalid identifier %s"
 msgstr "잘못된 식별자 %s 입니다"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1112
-#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1105
+#: ../src/youtube/grl-youtube.c:1238 ../src/youtube/grl-youtube.c:1450
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "잘못된 카테고리 식별지 %s 입니다"
@@ -248,14 +242,6 @@ msgstr "탐색에 실패했습니다: %s 요소는 트랙입니다"
 msgid "Malformed query \"%s\""
 msgstr "잘못된 쿼리 \"%s\" 입니다"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
-msgid "Album art Provider from Last.FM"
-msgstr "Last.FM의 앨범 표지 제공자"
-
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
-msgid "A plugin for getting album arts using Last.FM as backend"
-msgstr "Last.FM을 백엔드로 사용하여 앨범 표지를 가져오는 플러그인"
-
 #: ../src/local-metadata/grl-local-metadata.c:44
 msgid "Local Metadata Provider"
 msgstr "로컬 메타데이터 제공자"
@@ -264,18 +250,18 @@ msgstr "로컬 메타데이터 제공자"
 msgid "A source providing locally available metadata"
 msgstr "로컬에서 사용할 수 있는 메타데이터의 제공 원본"
 
-#: ../src/local-metadata/grl-local-metadata.c:711
+#: ../src/local-metadata/grl-local-metadata.c:381
 #: ../src/metadata-store/grl-metadata-store.c:772 ../src/raitv/grl-raitv.c:868
 #: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "분석에 실패했습니다: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:1179
+#: ../src/local-metadata/grl-local-metadata.c:675
 msgid "Cannot resolve any of the given keys"
 msgstr "주어진 그 어떤 키 조차도 분석할 수 없습니다"
 
-#: ../src/local-metadata/grl-local-metadata.c:1183
+#: ../src/local-metadata/grl-local-metadata.c:679
 msgid "A GIO supported URL for images is required"
 msgstr "그림에 대한 GIO 지원 URL이 필요합니다"
 
@@ -342,7 +328,7 @@ msgstr "분석에 실패했습니다"
 
 #: ../src/metadata-store/grl-metadata-store.c:930
 #: ../src/metadata-store/grl-metadata-store.c:967 ../src/raitv/grl-raitv.c:426
-#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:546
+#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:540
 #, c-format
 msgid "Failed to search: %s"
 msgstr "검색에 실패했습니다: %s"
@@ -521,7 +507,7 @@ msgstr "샤우트캐스트 라디오 탐색 원본"
 msgid "Cannot find media %s"
 msgstr "%s 미디어를 찾을 수 없습니다"
 
-#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:547
+#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:541
 msgid "non-NULL search text is required"
 msgstr "비어있지 않은 검색 텍스트가 필요합니다"
 
@@ -550,6 +536,11 @@ msgstr "URI에서 미디어 가져오기에 실패했습니다: %s"
 #: ../src/tracker/grl-tracker-source-api.c:802
 msgid "Empty query"
 msgstr "빈 쿼리입니다"
+
+#: ../src/tracker/grl-tracker-source-api.c:1075
+#, c-format
+msgid "ID '%s' is not known in this source"
+msgstr "이 원본에 ID '%s'이(가) 없습니다"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
@@ -616,14 +607,20 @@ msgstr "모바일 버전으로 보기"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "유튜브 동영상 탐색 및 검색 원본"
 
-#: ../src/youtube/grl-youtube.c:871
+#: ../src/youtube/grl-youtube.c:864
 msgid "Failed to get feed"
 msgstr "피드 가져오기에 실패했습니다"
 
-#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
+#: ../src/youtube/grl-youtube.c:1041 ../src/youtube/grl-youtube.c:1429
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "잘못된 피드 식별자 %s 입니다"
+
+#~ msgid "Album art Provider from Last.FM"
+#~ msgstr "Last.FM의 앨범 표지 제공자"
+
+#~ msgid "A plugin for getting album arts using Last.FM as backend"
+#~ msgstr "Last.FM을 백엔드로 사용하여 앨범 표지를 가져오는 플러그인"
 
 #~ msgid "Apple Movie Trailers"
 #~ msgstr "애플 동영상 트레일러"

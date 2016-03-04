@@ -87,6 +87,7 @@ void grl_lua_library_push_grl_options (lua_State *L, guint operation_id, GrlOper
 void grl_lua_library_push_grl_callback (lua_State *L, OperationSpec *os);
 
 /* grl-lua-library-operations */
+void grl_lua_operations_set_proxy_table (lua_State *L, gint index);
 gboolean grl_lua_operations_pcall (lua_State *L, gint nargs, OperationSpec *os, GError **err);
 
 #endif /* _GRL_LUA_LIBRARY_COMMON_H_ */

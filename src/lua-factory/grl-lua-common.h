@@ -45,6 +45,13 @@ typedef enum {
   LUA_NUM_OPERATIONS
 } LuaOperationType;
 
+typedef enum {
+  LUA_SOURCE_RUNNING = 0,
+  LUA_SOURCE_WAITING,
+  LUA_SOURCE_FINALIZED,
+  LUA_SOURCE_NUM_STATES
+} LuaSourceState;
+
 /**
 * OperationSpec:
 * @source: The GrlLuaFactorySource of operation.
@@ -77,6 +84,7 @@ typedef struct _OperationSpec {
   gpointer user_data;
   guint error_code;
   gboolean callback_done;
+  guint lua_source_waiting_ops;
 } OperationSpec;
 
 void grl_lua_library_save_goa_data (lua_State *L, gpointer goa_object);
@@ -87,7 +95,10 @@ void grl_lua_library_push_grl_options (lua_State *L, guint operation_id, GrlOper
 void grl_lua_library_push_grl_callback (lua_State *L, OperationSpec *os);
 
 /* grl-lua-library-operations */
+void grl_lua_operations_init_priv_state (lua_State *L);
 void grl_lua_operations_set_proxy_table (lua_State *L, gint index);
+void grl_lua_operations_set_source_state (lua_State *L, LuaSourceState state, OperationSpec *os);
+OperationSpec * grl_lua_operations_get_current_op (lua_State *L);
 gboolean grl_lua_operations_pcall (lua_State *L, gint nargs, OperationSpec *os, GError **err);
 
 #endif /* _GRL_LUA_LIBRARY_COMMON_H_ */

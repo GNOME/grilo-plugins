@@ -31,6 +31,7 @@ libgrlluafactory_la_SOURCES =					\
 	grl-lua-library.c					\
 	grl-lua-library.h					\
 	grl-lua-library-operations.c				\
+	grl-lua-library-operations.h				\
 	grl-lua-common.h					\
 	luafactoryresources.c					\
 	luafactoryresources.h					\

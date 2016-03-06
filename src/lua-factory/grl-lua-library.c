@@ -1443,6 +1443,8 @@ luaopen_grilo (lua_State *L)
   /* Those modules are called in 'lua' table, inside 'grl' */
   lua_settable (L, -3);
 
+  grl_lua_operations_init_priv_state (L);
+
   grl_lua_operations_set_proxy_table (L, -1);
 
   return 1;

@@ -22,10 +22,30 @@
 
 #include "config.h"
 #include "grl-lua-common.h"
+#include "grl-lua-library-operations.h"
+
+#define GRL_LOG_DOMAIN_DEFAULT lua_library_operations_log_domain
+GRL_LOG_DOMAIN_STATIC (lua_library_operations_log_domain);
+
+static const gchar * const source_op_state_str[LUA_SOURCE_NUM_STATES] = {
+  "running",
+  "waiting",
+  "finalized"
+};
+
+static OperationSpec * priv_state_current_op_get_op_data (lua_State *L);
 
 /* =========================================================================
  * Internal functions ======================================================
  * ========================================================================= */
+
+/* ============== Helpers ================================================== */
+
+static void
+free_operation_spec (OperationSpec *os)
+{
+  g_slice_free (OperationSpec, os);
+}
 
 /* ============== Proxy related ============================================ */
 
@@ -76,9 +96,365 @@ proxy_metatable_handle_call (lua_State *L)
   return 0;
 }
 
+/* ============== Private State helpers ==================================== */
+
+/*
+ * Helper function to let rw table from proxy in the top of stack
+ */
+static void
+priv_state_get_rw_table (lua_State *L,
+                         const gchar *table_name)
+{
+  gint top_stack = 3;
+
+  lua_getglobal (L, GRILO_LUA_LIBRARY_NAME);
+  g_assert_true (lua_istable (L, -1));
+  lua_getfield (L, -1, LUA_SOURCE_PRIV_STATE);
+  g_assert_true (lua_istable (L, -1));
+
+  if (!g_str_equal (table_name, LUA_SOURCE_PRIV_STATE)) {
+    top_stack = 4;
+    lua_getfield (L, -1, table_name);
+    g_assert_true (lua_istable (L, -1));
+  }
+
+  proxy_table_get_rw (L, -1);
+  g_assert_true (lua_istable (L, -1));
+
+  /* keep the rw table but remove the others */
+  lua_replace (L, -top_stack);
+  lua_pop (L, top_stack - 2);
+}
+
+/* ============== Private State (current operation field) =================== */
+
+/*
+ * Set the state of current operation based on ongoing Grilo Operation.
+ * Note that each source only supports one RUNNING operation at time.
+ *
+ * @index: index for State table
+ * -- It does't modify the stack
+ */
+static void
+priv_state_current_op_set (lua_State *L,
+                           gint index)
+{
+  priv_state_get_rw_table (L, LUA_SOURCE_PRIV_STATE);
+
+  /* Check for no ongoing operation */
+  lua_getfield (L, -1, LUA_SOURCE_CURRENT_OP);
+  if (!lua_isnil (L, -1)) {
+    GRL_DEBUG ("Current operation is already set. Might be a bug.");
+  }
+  lua_pop (L, 1);
+
+  g_assert_true (lua_istable (L, -1));
+
+  /* Set current operation */
+  lua_pushstring (L, LUA_SOURCE_CURRENT_OP);
+  lua_pushvalue (L, index - 2);
+  lua_settable (L, -3);
+
+  /* Remove rw table from stack */
+  lua_pop (L, 1);
+}
+
+/*
+ * Remove the current state operation based on ongoing Grilo Operation.
+ * Note that each source only supports one RUNNING operation at time.
+ *
+ * @index: index for State table
+ * -- It does't modify the stack
+ */
+static void
+priv_state_current_op_remove (lua_State *L)
+{
+  priv_state_get_rw_table (L, LUA_SOURCE_PRIV_STATE);
+
+  /* Check for a ongoing operation */
+  lua_getfield (L, -1, LUA_SOURCE_CURRENT_OP);
+  g_assert_true (lua_istable (L, -1));
+  lua_pop (L, 1);
+
+  /* Remove current operation */
+  lua_pushstring (L, LUA_SOURCE_CURRENT_OP);
+  lua_pushnil (L);
+  lua_settable (L, -3);
+
+  /* Remove rw table from stack */
+  lua_pop (L, 1);
+}
+
+static OperationSpec *
+priv_state_current_op_get_op_data (lua_State *L)
+{
+  OperationSpec *os = NULL;
+
+  priv_state_get_rw_table (L, LUA_SOURCE_PRIV_STATE);
+
+  /* Check for no ongoing operation */
+  lua_getfield (L, -1, LUA_SOURCE_CURRENT_OP);
+  if (!lua_istable (L, -1)) {
+    GRL_WARNING ("No ongoing operation!");
+    lua_pop (L, 2);
+    return NULL;
+  }
+
+  lua_getfield (L, -1, SOURCE_OP_DATA);
+  g_assert_true (lua_islightuserdata (L, -1));
+  os = lua_touserdata (L, -1);
+  g_assert_nonnull (os);
+
+  lua_pop (L, 3);
+  return os;
+}
+
+/* ============== Private State (operations array field) ==================== */
+
+/*
+ * Create a Lua Source State in order to track operations
+ * @os: OperationSpec of operation
+ * -- keep the Lua Source State in the top of the stack
+ */
+static void
+priv_state_operations_create_source_state (lua_State *L,
+                                           OperationSpec *os)
+{
+  GRL_DEBUG ("%s | %s (op-id: %u)", __func__,
+             grl_source_get_id (os->source),
+             os->operation_id);
+
+  /* Lua Source State table */
+  lua_newtable (L);
+
+  lua_pushstring (L, SOURCE_OP_ID);
+  lua_pushinteger (L, os->operation_id);
+  lua_settable (L, -3);
+
+  lua_pushstring (L, SOURCE_OP_STATE);
+  lua_pushstring (L, source_op_state_str[LUA_SOURCE_RUNNING]);
+  lua_settable (L, -3);
+
+  /* The OperationSpec here stored is only the pointer. It is expected
+   * that the real OperationSpec data being stored under userdata with
+   * a __gcc metamethod assigned to it */
+  lua_pushstring (L, SOURCE_OP_DATA);
+  lua_pushlightuserdata (L, os);
+  lua_settable (L, -3);
+}
+
+/*
+ * Look in operations table if @op_id is found. In case it was found, remove it
+ * and keep it in the top of the stack otherwise we push nil to the top of the
+ * stack
+ *
+ * @op_id: Grilo operation-id
+ * -- push nil or Lua Source State table in the top of the stack
+ */
+static void
+priv_state_operations_get_source_state (lua_State *L,
+                                        guint op_id)
+{
+  guint op_position = 0;
+  priv_state_get_rw_table (L, LUA_SOURCE_OPERATIONS);
+
+  lua_pushnil (L);
+  while (lua_next (L, -2) != 0) {
+    gint id;
+
+    lua_getfield (L, -1, SOURCE_OP_ID);
+    id = lua_tointeger (L, -1);
+    if (id == op_id) {
+      op_position = lua_tointeger (L, -3);
+      lua_pop (L, 3);
+      break;
+    }
+    lua_pop (L, 2);
+  }
+
+  if (op_position == 0) {
+    /* remove the rw table */
+    lua_pop (L, 1);
+    lua_pushnil (L);
+    return;
+  }
+
+  /* push to stack the Lua Source Table */
+  lua_pushinteger (L, op_position);
+  lua_gettable (L, -2);
+
+  /* remove the state from operations table */
+  lua_pushinteger (L, op_position);
+  lua_pushnil (L);
+  lua_settable (L, -4);
+
+  /* remove the rw table and only keep the state table */
+  lua_replace (L, -2);
+}
+
+/*
+ * Insert the Lua Source State pointed by @index in the table of
+ * opeartions
+ * @index:  position in the stack for Lua Source table
+ * -- It does't modify the stack
+ */
+static void
+priv_state_operations_insert_source_state (lua_State *L,
+                                           gint index)
+{
+  guint num_operations = 0;
+
+  priv_state_get_rw_table (L, LUA_SOURCE_OPERATIONS);
+
+  num_operations = luaL_len (L, -1);
+  lua_pushinteger (L, num_operations + 1);
+  lua_pushvalue (L, index - 2);
+  lua_settable (L, -3);
+
+  /* remove the rw table */
+  lua_pop (L, 1);
+}
+
+static void
+priv_state_operations_remove_source_state (lua_State *L,
+                                           guint operation_id)
+{
+  priv_state_operations_get_source_state (L, operation_id);
+  if (lua_isnil (L, -1)) {
+    GRL_DEBUG ("Operation %u not found!", operation_id);
+  }
+  lua_pop (L, 1);
+}
+
+/*
+ * Get from Operations array the LuaSourceState string which matches
+ * the @operation_id. Returns NULL if it was not found.
+ *
+ * @L: The LuaState of source
+ * @operation_id: Grilo operation-id for Operation data.
+ * -- It does not change the stack
+ */
+static const gchar *
+priv_state_operations_source_get_state_str (lua_State *L,
+                                            guint operation_id)
+{
+  const gchar *str;
+
+  priv_state_operations_get_source_state (L, operation_id);
+  if (lua_isnil (L, -1)) {
+    lua_pop (L, 1);
+    return NULL;
+  }
+
+  g_assert_true (lua_istable (L, -1));
+  lua_getfield (L, -1, SOURCE_OP_STATE);
+  str = lua_tostring (L, -1);
+
+  /* Keep the stack as it was before and insert the state table back
+   * to Operations array */
+  priv_state_operations_insert_source_state (L, -2);
+  lua_pop (L, 2);
+  return str;
+}
+
+static LuaSourceState
+priv_state_operations_source_get_state (lua_State *L,
+                                        guint operation_id)
+{
+  const gchar *state_str;
+  guint i;
+
+  state_str = priv_state_operations_source_get_state_str (L, operation_id);
+  for (i = LUA_SOURCE_RUNNING; i < LUA_SOURCE_NUM_STATES; i++) {
+   if (g_strcmp0 (state_str, source_op_state_str[i]) == 0)
+     return i;
+  }
+
+  g_assert_not_reached ();
+}
+
+/*
+ * Get the from Operations array the OperationSpec which matches the
+ * @operation_id. Returns NULL it it was not found.
+ *
+ * @L: The LuaState of source
+ * @operation_id: Grilo operation-id for Operation data.
+ * -- It does not change the stack
+ */
+static OperationSpec *
+priv_state_operations_source_get_op_data (lua_State *L,
+                                          guint operation_id)
+{
+  OperationSpec *os;
+
+  priv_state_operations_get_source_state (L, operation_id);
+  if (lua_isnil (L, -1)) {
+    lua_pop (L, 1);
+    return NULL;
+  }
+
+  g_assert_true (lua_istable (L, -1));
+  lua_getfield (L, -1, SOURCE_OP_DATA);
+  os = lua_touserdata (L, -1);
+
+  /* Keep the stack as it was before and insert the state table back
+   * to Operations array */
+  priv_state_operations_insert_source_state (L, -2);
+  lua_pop (L, 2);
+  return os;
+}
+
+static void
+priv_state_operations_update (lua_State *L,
+                              OperationSpec *os,
+                              LuaSourceState state)
+{
+  priv_state_operations_get_source_state (L, os->operation_id);
+
+  if (lua_istable (L, -1)) {
+    lua_pushstring (L, SOURCE_OP_STATE);
+    lua_pushstring (L, source_op_state_str[state]);
+    lua_settable (L, -3);
+    priv_state_operations_insert_source_state (L, -1);
+    return;
+  }
+
+  if (lua_isnil (L, -1) && state == LUA_SOURCE_RUNNING) {
+    lua_pop (L, 1);
+    priv_state_operations_create_source_state (L, os);
+    priv_state_operations_insert_source_state (L, -1);
+    return;
+  }
+
+  GRL_ERROR ("Ongoig operation not found (op-id: %d)", os->operation_id);
+}
+
 /* =========================================================================
  * Exported functions ======================================================
  * ========================================================================= */
+
+void
+grl_lua_operations_init_priv_state (lua_State *L)
+{
+  GRL_LOG_DOMAIN_INIT (lua_library_operations_log_domain, "lua-library-operations");
+  GRL_DEBUG ("lua-library-operations");
+
+  g_assert_true (lua_istable (L, -1));
+  lua_pushstring (L, LUA_SOURCE_PRIV_STATE);
+  lua_newtable (L);
+
+  lua_pushstring (L, LUA_SOURCE_OPERATIONS);
+  lua_newtable (L);
+  grl_lua_operations_set_proxy_table (L, -1);
+  lua_settable (L, -3);
+
+  lua_pushstring (L, LUA_SOURCE_CURRENT_OP);
+  lua_pushnil (L);
+  lua_settable (L, -3);
+
+  grl_lua_operations_set_proxy_table (L, -1);
+  lua_settable (L, -3);
+}
 
 /*
  * Create a read-only proxy table which will only be allowed to access the
@@ -139,6 +515,10 @@ grl_lua_operations_pcall (lua_State *L,
                           OperationSpec *os,
                           GError **err)
 {
+  GRL_DEBUG ("%s | %s (op-id: %u)", __func__,
+             grl_source_get_id (os->source),
+             os->operation_id);
+
   if (lua_pcall (L, nargs, 0, 0)) {
     gint error_code = (os) ? os->error_code : G_IO_ERROR_CANCELLED;
     *err = g_error_new_literal (GRL_CORE_ERROR,
@@ -149,4 +529,55 @@ grl_lua_operations_pcall (lua_State *L,
 
   lua_gc (L, LUA_GCCOLLECT, 0);
   return (*err == NULL);
+}
+
+/*
+ * grl_lua_operations_set_source_state
+ *
+ * Sets the state for a Lua Source State operation table (LSS). If state is
+ * LUA_SOURCE_RUNNING on a new operation, it will create the LSS and push it
+ * to the Operations arrays and also set it as current operation;
+ *
+ * In any other case, this function will only set the given state. The memory
+ * and error management on LSS is done by Operations' watchdog, check
+ * watchdog_operation_gc for more details.
+ */
+void
+grl_lua_operations_set_source_state (lua_State *L,
+                                     LuaSourceState state,
+                                     OperationSpec *os)
+{
+  g_assert (state < LUA_SOURCE_NUM_STATES);
+  g_assert_nonnull (os);
+
+  GRL_DEBUG ("%s | %s (op-id: %u) state: %s", __func__,
+             grl_source_get_id (os->source),
+             os->operation_id,
+             source_op_state_str[state]);
+  switch (state) {
+  case LUA_SOURCE_RUNNING:
+    priv_state_operations_update (L, os, state);
+    priv_state_current_op_set (L, -1);
+
+    if (os->lua_source_waiting_ops > 0) {
+      os->lua_source_waiting_ops -= 1;
+    }
+    break;
+
+  case LUA_SOURCE_WAITING:
+    priv_state_operations_update (L, os, state);
+
+    os->lua_source_waiting_ops += 1;
+    break;
+
+  case LUA_SOURCE_FINALIZED:
+    priv_state_operations_update (L, os, state);
+    break;
+
+  default:
+    g_assert_not_reached ();
+  }
+
+  /* Remove Source State from stack */
+  lua_pop (L, 1);
 }

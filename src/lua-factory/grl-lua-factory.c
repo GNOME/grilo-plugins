@@ -596,6 +596,8 @@ lua_plugin_source_init (GrlLuaFactorySource *lua_source)
     lua_pushnil (L);
   }
 
+  /* FIXME in order to supported async calls we should use
+   * grl_lua_operations_pcall */
   if (lua_pcall (L, 1, 1, 0)) {
     GRL_WARNING ("calling grl_source_init function failed: %s",
                  lua_tolstring (L, -1, NULL));
@@ -1507,6 +1509,7 @@ grl_lua_factory_source_search (GrlSource *source,
   lua_State *L = lua_source->priv->l_st;
   OperationSpec *os = NULL;
   const gchar *text = NULL;
+  GError *err = NULL;
 
   GRL_DEBUG ("grl_lua_factory_source_search");
 
@@ -1525,13 +1528,12 @@ grl_lua_factory_source_search (GrlSource *source,
   lua_pushstring (L, text);
   grl_lua_library_push_grl_options (L, ss->operation_id, ss->options, ss->keys);
   grl_lua_library_push_grl_callback (L, os);
-
-  if (lua_pcall (L, 3, 0, 0)) {
-    GRL_WARNING ("%s '%s'", "calling search function fail:",
-                 lua_tolstring (L, -1, NULL));
-    lua_pop (L, 1);
+  if (!grl_lua_operations_pcall (L, 3, os, &err)) {
+    if (err != NULL) {
+      GRL_WARNING ("calling search function failed: %s", err->message);
+      g_error_free (err);
+    }
   }
-  lua_gc (L, LUA_GCCOLLECT, 0);
 }
 
 static void
@@ -1541,6 +1543,7 @@ grl_lua_factory_source_browse (GrlSource *source,
   GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
   lua_State *L = lua_source->priv->l_st;
   OperationSpec *os = NULL;
+  GError *err = NULL;
 
   GRL_DEBUG ("grl_lua_factory_source_browse");
 
@@ -1557,13 +1560,12 @@ grl_lua_factory_source_browse (GrlSource *source,
   grl_lua_library_push_grl_media (L, bs->container);
   grl_lua_library_push_grl_options (L, bs->operation_id, bs->options, bs->keys);
   grl_lua_library_push_grl_callback (L, os);
-
-  if (lua_pcall (L, 3, 0, 0)) {
-    GRL_WARNING ("%s '%s'", "calling browse function fail:",
-                 lua_tolstring (L, -1, NULL));
-    lua_pop (L, 1);
+  if (!grl_lua_operations_pcall (L, 3, os, &err)) {
+    if (err != NULL) {
+      GRL_WARNING ("calling browse function failed: %s", err->message);
+      g_error_free (err);
+    }
   }
-  lua_gc (L, LUA_GCCOLLECT, 0);
 }
 
 static void
@@ -1574,6 +1576,7 @@ grl_lua_factory_source_query (GrlSource *source,
   lua_State *L = lua_source->priv->l_st;
   OperationSpec *os = NULL;
   const gchar *query = NULL;
+  GError *err = NULL;
 
   GRL_DEBUG ("grl_lua_factory_source_query");
 
@@ -1592,13 +1595,12 @@ grl_lua_factory_source_query (GrlSource *source,
   lua_pushstring (L, query);
   grl_lua_library_push_grl_options (L, qs->operation_id, qs->options, qs->keys);
   grl_lua_library_push_grl_callback (L, os);
-
-  if (lua_pcall (L, 3, 0, 0)) {
-    GRL_WARNING ("%s '%s'", "calling query function fail:",
-                 lua_tolstring (L, -1, NULL));
-    lua_pop (L, 1);
+  if (!grl_lua_operations_pcall (L, 3, os, &err)) {
+    if (err != NULL) {
+      GRL_WARNING ("calling query function failed: %s", err->message);
+      g_error_free (err);
+    }
   }
-  lua_gc (L, LUA_GCCOLLECT, 0);
 }
 
 static void
@@ -1608,6 +1610,7 @@ grl_lua_factory_source_resolve (GrlSource *source,
   GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
   lua_State *L = lua_source->priv->l_st;
   OperationSpec *os = NULL;
+  GError *err = NULL;
 
   GRL_DEBUG ("grl_lua_factory_source_resolve");
 
@@ -1625,13 +1628,12 @@ grl_lua_factory_source_resolve (GrlSource *source,
   grl_lua_library_push_grl_media (L, rs->media);
   grl_lua_library_push_grl_options (L, rs->operation_id, rs->options, rs->keys);
   grl_lua_library_push_grl_callback (L, os);
-
-  if (lua_pcall (L, 3, 0, 0)) {
-    GRL_WARNING ("%s '%s'", "calling resolve function fail:",
-                 lua_tolstring (L, -1, NULL));
-    lua_pop (L, 1);
+  if (!grl_lua_operations_pcall (L, 3, os, &err)) {
+    if (err != NULL) {
+      GRL_WARNING ("calling resolve function failed: %s", err->message);
+      g_error_free (err);
+    }
   }
-  lua_gc (L, LUA_GCCOLLECT, 0);
 }
 
 static gboolean

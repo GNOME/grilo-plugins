@@ -86,4 +86,7 @@ void grl_lua_library_push_grl_media (lua_State *L, GrlMedia *media);
 void grl_lua_library_push_grl_options (lua_State *L, guint operation_id, GrlOperationOptions *options, GList *keys);
 void grl_lua_library_push_grl_callback (lua_State *L, OperationSpec *os);
 
+/* grl-lua-library-operations */
+gboolean grl_lua_operations_pcall (lua_State *L, gint nargs, OperationSpec *os, GError **err);
+
 #endif /* _GRL_LUA_LIBRARY_COMMON_H_ */

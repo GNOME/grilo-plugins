@@ -524,14 +524,15 @@ grl_util_fetch_done (GObject *source_object,
   /* get userdata from the registry */
   lua_rawgeti (L, LUA_REGISTRYINDEX, fo->lua_userdata);
 
-  if (lua_pcall (L, 2, 0, 0)) {
-    GRL_WARNING ("%s '%s'", "calling source callback function fail",
-                 lua_tolstring (L, -1, NULL));
+  if (!grl_lua_operations_pcall (L, 2, NULL, &err)) {
+    if (err != NULL) {
+      GRL_WARNING ("calling source callback function fail: %s", err->message);
+      g_error_free (err);
+    }
   }
 
   luaL_unref (L, LUA_REGISTRYINDEX, fo->lua_userdata);
   luaL_unref (L, LUA_REGISTRYINDEX, fo->lua_callback);
-  lua_gc (L, LUA_GCCOLLECT, 0);
 
   for (i = 0; i < fo->num_urls; i++)
     g_free (fo->results[i]);
@@ -660,14 +661,15 @@ grl_util_unzip_done (GObject *source_object,
   /* get userdata from the registry */
   lua_rawgeti (L, LUA_REGISTRYINDEX, uo->lua_userdata);
 
-  if (lua_pcall (L, 2, 0, 0)) {
-    GRL_WARNING ("%s '%s'", "calling source callback function fail",
-                 lua_tolstring (L, -1, NULL));
+  if (!grl_lua_operations_pcall (L, 2, NULL, &err)) {
+    if (err != NULL) {
+      GRL_WARNING ("calling source callback function fail: %s", err->message);
+      g_error_free (err);
+    }
   }
 
   luaL_unref (L, LUA_REGISTRYINDEX, uo->lua_userdata);
   luaL_unref (L, LUA_REGISTRYINDEX, uo->lua_callback);
-  lua_gc (L, LUA_GCCOLLECT, 0);
 
   g_strfreev (results);
 

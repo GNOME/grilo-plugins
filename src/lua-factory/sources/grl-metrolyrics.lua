@@ -52,43 +52,40 @@ METROLYRICS_DEFAULT_QUERY = "http://www.metrolyrics.com/%s-lyrics-%s.html"
 -- Handlers of Grilo functions --
 ---------------------------------
 
-function grl_source_resolve(media, options, callback)
-  local url
+function grl_source_resolve()
+  local url, req
   local artist, title
 
-  if not media or not media.artist or not media.title
-    or #media.artist == 0 or #media.title == 0 then
-    callback()
+  req = grl.get_media_keys()
+  if not req or not req.artist or not req.title
+    or #req.artist == 0 or #req.title == 0 then
+    grl.callback()
     return
   end
 
   -- Prepare artist and title strings to the url
-  artist = media.artist:gsub(METROLYRICS_INVALID_URL_CHARS, "")
+  artist = req.artist:gsub(METROLYRICS_INVALID_URL_CHARS, "")
   artist = artist:gsub("%s+", "-")
-  title = media.title:gsub(METROLYRICS_INVALID_URL_CHARS, "")
+  title = req.title:gsub(METROLYRICS_INVALID_URL_CHARS, "")
   title = title:gsub("%s+", "-")
   url = string.format(METROLYRICS_DEFAULT_QUERY, title, artist)
-  local userdata = {callback = callback, media = media}
-  grl.fetch(url, netopts, fetch_page_cb, userdata)
+  grl.fetch(url, fetch_page_cb, netopts)
 end
 
 ---------------
 -- Utilities --
 ---------------
 
-function fetch_page_cb(feed, userdata)
+function fetch_page_cb(feed)
+  local media = nil
   if feed and not feed:find("notfound") then
-    local lyrics = metrolyrics_get_lyrics(feed)
-    if not lyrics then
-      userdata.callback()
-      return
-    end
-    userdata.media.lyrics = lyrics
+    media = metrolyrics_get_lyrics(feed)
   end
-  userdata.callback(userdata.media, 0)
+  grl.callback(media, 0)
 end
 
 function metrolyrics_get_lyrics(feed)
+  local media = {}
   local lyrics_body = '<div id="lyrics%-body%-text".->(.-)</div>'
   local noise_array = {
     { noise = "</p>",  sub = "\n\n" },
@@ -112,5 +109,7 @@ function metrolyrics_get_lyrics(feed)
   -- strip the lyrics
   feed = feed:gsub("^[%s%W]*(.-)[%s%W]*$", "%1")
 
-  return feed
+  -- switch table to string
+  media.lyrics = feed
+  return media
 end

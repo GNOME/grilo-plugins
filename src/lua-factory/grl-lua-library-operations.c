@@ -503,6 +503,27 @@ grl_lua_operations_set_proxy_table (lua_State *L,
   lua_replace (L, index - 1);
 }
 
+OperationSpec *
+grl_lua_operations_get_current_op (lua_State *L)
+{
+  OperationSpec *os;
+  LuaSourceState state;
+
+  os = priv_state_current_op_get_op_data (L);
+  g_return_val_if_fail (os != NULL, NULL);
+
+  state = priv_state_operations_source_get_state (L, os->operation_id);
+  if (state == LUA_SOURCE_FINALIZED) {
+    /* Source State is finalized. At this state it should be waiting the
+     * watchdog to free its data. Only a broken source would request
+     * OperationSpec on FINALIZED State */
+    GRL_WARNING ("operation-id: %u is on FINALIZED state and cannot be changed",
+                 os->operation_id);
+    return NULL;
+  }
+  return os;
+}
+
 /*
  * This is a wrapper to do execute the lua_pcall and all internals that might
  * be necessary to Lua-Library before calling the Lua function. The stack
@@ -515,14 +536,15 @@ grl_lua_operations_pcall (lua_State *L,
                           OperationSpec *os,
                           GError **err)
 {
+  g_assert_nonnull (os);
+
   GRL_DEBUG ("%s | %s (op-id: %u)", __func__,
              grl_source_get_id (os->source),
              os->operation_id);
 
   if (lua_pcall (L, nargs, 0, 0)) {
-    gint error_code = (os) ? os->error_code : G_IO_ERROR_CANCELLED;
     *err = g_error_new_literal (GRL_CORE_ERROR,
-                                error_code,
+                                os->error_code,
                                 lua_tolstring (L, -1, NULL));
     lua_pop (L, 1);
   }

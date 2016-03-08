@@ -53,6 +53,7 @@ typedef struct {
   guint num_urls;
   gboolean is_table;
   gchar **results;
+  OperationSpec *os;
 } FetchOperation;
 
 typedef struct {
@@ -61,6 +62,7 @@ typedef struct {
   gint lua_callback;
   gchar *url;
   gchar **filenames;
+  OperationSpec *os;
 } UnzipOperation;
 
 /* ================== Lua-Library utils/helpers ============================ */
@@ -470,6 +472,7 @@ grl_util_fetch_done (GObject *source_object,
   GError *err = NULL;
   FetchOperation *fo = (FetchOperation *) user_data;
   lua_State *L = fo->L;
+  OperationSpec *os = fo->os;
   gchar *fixed = NULL;
 
   if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
@@ -524,7 +527,7 @@ grl_util_fetch_done (GObject *source_object,
   /* get userdata from the registry */
   lua_rawgeti (L, LUA_REGISTRYINDEX, fo->lua_userdata);
 
-  if (!grl_lua_operations_pcall (L, 2, NULL, &err)) {
+  if (!grl_lua_operations_pcall (L, 2, os, &err)) {
     if (err != NULL) {
       GRL_WARNING ("calling source callback function fail: %s", err->message);
       g_error_free (err);
@@ -630,6 +633,7 @@ grl_util_unzip_done (GObject *source_object,
   GError *err = NULL;
   UnzipOperation *uo = (UnzipOperation *) user_data;
   lua_State *L = uo->L;
+  OperationSpec *os = uo->os;
   char **results;
 
   grl_net_wc_request_finish (GRL_NET_WC (source_object),
@@ -661,7 +665,7 @@ grl_util_unzip_done (GObject *source_object,
   /* get userdata from the registry */
   lua_rawgeti (L, LUA_REGISTRYINDEX, uo->lua_userdata);
 
-  if (!grl_lua_operations_pcall (L, 2, NULL, &err)) {
+  if (!grl_lua_operations_pcall (L, 2, os, &err)) {
     if (err != NULL) {
       GRL_WARNING ("calling source callback function fail: %s", err->message);
       g_error_free (err);
@@ -900,6 +904,7 @@ grl_l_fetch (lua_State *L)
   gint lua_callback;
   GrlNetWc *wc;
   gboolean is_table = FALSE;
+  OperationSpec *os;
 
   luaL_argcheck (L, (lua_isstring (L, 1) || lua_istable (L, 1)), 1,
                  "expecting url as string or an array of urls");
@@ -910,6 +915,8 @@ grl_l_fetch (lua_State *L)
   luaL_argcheck (L, (lua_isfunction (L, 2) ||
                      (lua_istable (L, 2) && lua_isfunction (L, 3))), 3,
                  "expecting callback function after network parameters");
+
+  os = grl_lua_operations_get_current_op (L);
 
   /* keep arguments aligned */
   if (lua_isfunction (L, 2)) {
@@ -971,6 +978,7 @@ grl_l_fetch (lua_State *L)
 
     fo = g_new0 (FetchOperation, 1);
     fo->L = L;
+    fo->os = os;
     fo->lua_userdata = lua_userdata;
     fo->lua_callback = lua_callback;
     fo->index = i;
@@ -983,6 +991,9 @@ grl_l_fetch (lua_State *L)
   }
   g_object_unref (wc);
   g_free (urls);
+
+  /* Set the state as wating for this async operation */
+  grl_lua_operations_set_source_state (L, LUA_SOURCE_WAITING, os);
   return 0;
 }
 
@@ -1037,6 +1048,7 @@ grl_l_callback (lua_State *L)
   if (count == 0)
     os->callback_done = TRUE;
 
+  grl_lua_operations_set_source_state (L, LUA_SOURCE_FINALIZED, os);
   return 0;
 }
 
@@ -1192,6 +1204,7 @@ grl_l_unzip (lua_State *L)
   UnzipOperation *uo;
   guint num_filenames, i;
   gchar **filenames;
+  OperationSpec *os;
 
   luaL_argcheck (L, lua_isstring (L, 1), 1,
                  "expecting url as string");
@@ -1238,6 +1251,7 @@ grl_l_unzip (lua_State *L)
   GRL_DEBUG ("grl.unzip() -> '%s'", url);
 
   wc = net_wc_new_with_options (L, 3);
+  os = grl_lua_operations_get_current_op (L);
 
   uo = g_new0 (UnzipOperation, 1);
   uo->L = L;
@@ -1245,9 +1259,12 @@ grl_l_unzip (lua_State *L)
   uo->lua_callback = lua_callback;
   uo->url = g_strdup (url);
   uo->filenames = filenames;
+  uo->os = os;
 
   grl_net_wc_request_async (wc, url, NULL, grl_util_unzip_done, uo);
   g_object_unref (wc);
+
+  grl_lua_operations_set_source_state (L, LUA_SOURCE_WAITING, os);
   return 0;
 }
 

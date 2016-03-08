@@ -75,11 +75,14 @@ typedef enum {
 typedef struct _OperationSpec {
   GrlSource *source;
   guint operation_id;
+  GrlOperationOptions *options;
+  GList *keys;
   LuaOperationType op_type;
   union {
     GrlSourceResultCb result;
     GrlSourceResolveCb resolve;
   } cb;
+  gchar *string;
   GrlMedia *media;
   gpointer user_data;
   guint error_code;
@@ -88,8 +91,6 @@ typedef struct _OperationSpec {
 
 void grl_lua_library_save_goa_data (lua_State *L, gpointer goa_object);
 gpointer grl_lua_library_load_goa_data (lua_State *L);
-
-void grl_lua_library_push_grl_options (lua_State *L, guint operation_id, GrlOperationOptions *options, GList *keys);
 
 /* grl-lua-library-operations */
 void grl_lua_operations_init_priv_state (lua_State *L);

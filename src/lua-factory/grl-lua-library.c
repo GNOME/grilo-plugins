@@ -728,6 +728,207 @@ net_wc_new_with_options (lua_State *L,
 
 /* ================== Lua-Library methods ================================== */
 
+/**
+* grl.get_options
+*
+* @option: (string) Name of the option you want (e.g. count, flags).
+* @key: (string) Name of the key when option request it.
+* @return: The option or nil if none;
+*/
+static gint
+grl_l_operation_get_options (lua_State *L)
+{
+  OperationSpec *os;
+  const gchar *option;
+
+  luaL_argcheck (L, lua_isstring (L, 1), 1, "expecting option (string)");
+
+  os = grl_lua_operations_get_current_op (L);
+  g_return_val_if_fail (os != NULL, 0);
+  option = lua_tostring (L, 1);
+
+  if (g_strcmp0 (option, "type") == 0) {
+    const char *type;
+    switch (os->op_type) {
+    case LUA_SEARCH:
+      type = "search";
+      break;
+    case LUA_BROWSE:
+      type = "browse";
+      break;
+    case LUA_QUERY:
+      type = "query";
+      break;
+    case LUA_RESOLVE:
+      type = "resolve";
+      break;
+    default:
+      g_assert_not_reached ();
+    }
+
+    lua_pushstring (L, type);
+    return 1;
+  }
+
+  if (g_strcmp0 (option, "count") == 0) {
+    gint count = grl_operation_options_get_count (os->options);
+
+    lua_pushinteger (L, count);
+    return 1;
+  }
+
+  if (g_strcmp0 (option, "skip") == 0) {
+    guint skip = grl_operation_options_get_skip (os->options);
+
+    lua_pushinteger (L, skip);
+    return 1;
+  }
+
+  if (g_strcmp0 (option, "flags") == 0) {
+    GrlResolutionFlags flags = grl_operation_options_get_resolution_flags (os->options);
+
+    lua_pushinteger (L, (gint) flags);
+    return 1;
+  }
+
+  if (g_strcmp0 (option, "key-filter") == 0) {
+    GrlKeyID key;
+    GValue *value = NULL;
+    const gchar *key_name = NULL;
+    GrlRegistry *registry = grl_registry_get_default ();
+
+    luaL_argcheck (L, lua_isstring (L, 2), 2, "expecting key name");
+    key_name = lua_tostring (L, 2);
+
+    key = grl_registry_lookup_metadata_key (registry, key_name);
+    value = grl_operation_options_get_key_filter (os->options, key);
+    switch (grl_registry_lookup_metadata_key_type (registry, key)) {
+    case G_TYPE_INT:
+      (value) ? (void) lua_pushinteger (L, g_value_get_int (value)) : lua_pushnil (L);
+      break;
+
+    case G_TYPE_FLOAT:
+      (value) ? (void) lua_pushnumber (L, g_value_get_float (value)) : lua_pushnil (L);
+      break;
+
+    case G_TYPE_STRING:
+      (value) ? (void) lua_pushstring (L, g_value_get_string (value)) : lua_pushnil (L);
+      break;
+
+    case G_TYPE_BOOLEAN:
+      (value) ? (void) lua_pushboolean (L, g_value_get_boolean (value)) : lua_pushnil (L);
+      break;
+
+    default:
+      GRL_DEBUG ("'%s' is being ignored as G_TYPE is not being handled.",
+                 key_name);
+    }
+    return 1;
+  }
+
+  if (g_strcmp0 (option, "range-filter") == 0) {
+    GValue *min = NULL;
+    GValue *max = NULL;
+    GrlKeyID key;
+    const gchar *key_name = NULL;
+    GrlRegistry *registry = grl_registry_get_default ();
+
+    luaL_argcheck (L, lua_isstring (L, 2), 2, "expecting key name");
+    key_name = lua_tostring (L, 2);
+
+    key = grl_registry_lookup_metadata_key (registry, key_name);
+    if (key != GRL_METADATA_KEY_INVALID) {
+      grl_operation_options_get_key_range_filter (os->options, key, &min, &max);
+      switch (grl_registry_lookup_metadata_key_type (registry, key)) {
+      case G_TYPE_INT:
+        (min) ? (void) lua_pushinteger (L, g_value_get_int (min)) : lua_pushnil (L);
+        (max) ? (void) lua_pushinteger (L, g_value_get_int (max)) : lua_pushnil (L);
+        break;
+
+      case G_TYPE_FLOAT:
+        (min) ? (void) lua_pushnumber (L, g_value_get_float (min)) : lua_pushnil (L);
+        (max) ? (void) lua_pushnumber (L, g_value_get_float (max)) : lua_pushnil (L);
+        break;
+
+      case G_TYPE_STRING:
+        (min) ? (void) lua_pushstring (L, g_value_get_string (min)) : lua_pushnil (L);
+        (max) ? (void) lua_pushstring (L, g_value_get_string (max)) : lua_pushnil (L);
+        break;
+
+      default:
+        GRL_DEBUG ("'%s' is being ignored as G_TYPE is not being handled.",
+                   key_name);
+      }
+    }
+    return 2;
+  }
+
+  if (g_strcmp0 (option, "operation-id") == 0) {
+    lua_pushinteger (L, (gint) os->operation_id);
+    return 1;
+  }
+
+  if (g_strcmp0 (option, "media-id") == 0 &&
+      os->op_type == LUA_BROWSE) {
+    lua_pushstring (L, os->string);
+    return 1;
+  }
+
+  if (g_strcmp0 (option, "query") == 0 &&
+      os->op_type == LUA_QUERY) {
+    lua_pushstring (L, os->string);
+    return 1;
+  }
+
+  if (g_strcmp0 (option, "search") == 0 &&
+      os->op_type == LUA_SEARCH) {
+    lua_pushstring (L, os->string);
+    return 1;
+  }
+
+  luaL_error (L, "'%s' is not available nor implemented.", option);
+  return 0;
+}
+
+/**
+* grl.get_media_keys
+*
+* @return: array of all requested keys from application (may be empty);
+*/
+static gint
+grl_l_operation_get_keys (lua_State *L)
+{
+  OperationSpec *os;
+  GrlRegistry *registry;
+  GList *it;
+
+  os = grl_lua_operations_get_current_op (L);
+  g_return_val_if_fail (os != NULL, 0);
+
+  registry = grl_registry_get_default ();
+  lua_newtable (L);
+  for (it = os->keys; it != NULL; it = it->next) {
+    GrlKeyID key_id;
+    char *key_name, *ptr;
+
+    key_id = GRLPOINTER_TO_KEYID (it->data);
+    if (key_id == GRL_METADATA_KEY_INVALID)
+      continue;
+
+    key_name = g_strdup (grl_registry_lookup_metadata_key_name (registry, key_id));
+    /* Replace '-' to '_': convenient for the developer */
+    while ((ptr = strstr (key_name, "-")) != NULL) {
+      *ptr = '_';
+    }
+
+    lua_pushstring (L, key_name);
+    lua_pushboolean (L, 1);
+    lua_settable (L, -3);
+    g_free (key_name);
+  }
+  return 1;
+}
+
 static gboolean
 push_grl_media_key (lua_State *L,
                     GrlMedia *media,
@@ -1400,6 +1601,8 @@ gint
 luaopen_grilo (lua_State *L)
 {
   static const luaL_Reg library_fn[] = {
+    {"get_options", &grl_l_operation_get_options},
+    {"get_requested_keys", &grl_l_operation_get_keys},
     {"get_media_keys", &grl_l_media_get_keys},
     {"callback", &grl_l_callback},
     {"fetch", &grl_l_fetch},
@@ -1590,336 +1793,4 @@ grl_lua_library_load_goa_data (lua_State *L)
   GRL_WARNING ("grl_lua_library_load_goa_data() called but GOA support disabled.");
   return NULL;
 #endif /* GOA_ENABLED */
-}
-
-/**
- * push_operation_requested_keys
- *
- * Pushes the table representing the list of requested
- * keys for the current operation on top of the lua stack.
- *
- * @L: LuaState where the data is stored.
- * @keys: The requested keys of the current operation.
- * @return: Nothing.
- */
-static void
-push_operation_requested_keys (lua_State *L,
-                               GList *keys)
-{
-  GrlRegistry *registry = grl_registry_get_default ();
-  GList *it;
-  gint i = 1;
-
-  lua_newtable (L);
-  for (it = keys; it != NULL; it = it->next) {
-    GrlKeyID key_id;
-    char *key_name, *ptr;
-
-    key_id = GRLPOINTER_TO_KEYID (it->data);
-    if (key_id == GRL_METADATA_KEY_INVALID)
-      continue;
-
-    key_name = g_strdup (grl_registry_lookup_metadata_key_name (registry, key_id));
-    /* Replace '-' to '_': convenient for the developer */
-    while ((ptr = strstr (key_name, "-")) != NULL) {
-      *ptr = '_';
-    }
-
-    lua_pushstring (L, key_name);
-    lua_pushboolean (L, 1);
-    lua_settable (L, -3);
-    g_free (key_name);
-    i++;
-  }
-}
-
-/**
- * push_operation_type_filter
- *
- * Pushes the type filter table into the filters table. The
- * filters table should already be on top of the lua stack.
- *
- * @L: LuaState where the data is stored.
- * @options: The GrlOperationOptions from which to retrieve filter.
- * @return: Nothing.
- */
-static void
-push_operation_type_filter (lua_State *L,
-                            GrlOperationOptions *options)
-{
-  GrlTypeFilter type_filter;
-
-  g_assert (lua_istable (L, -1));
-
-  type_filter = grl_operation_options_get_type_filter (options);
-
-  lua_pushstring (L, "types");
-  lua_newtable (L);
-
-  lua_pushstring (L, "audio");
-  lua_pushboolean (L, (type_filter & GRL_TYPE_FILTER_AUDIO));
-  lua_settable (L, -3);
-  lua_pushstring (L, "video");
-  lua_pushboolean (L, (type_filter & GRL_TYPE_FILTER_VIDEO));
-  lua_settable (L, -3);
-  lua_pushstring (L, "image");
-  lua_pushboolean (L, (type_filter & GRL_TYPE_FILTER_IMAGE));
-  lua_settable (L, -3);
-  lua_settable (L, -3);
-}
-
-/**
- * push_operation_range_filters
- *
- * Pushes the elements of the filters table representing
- * the range filters into the table. The filters table should
- * already be on top of the lua stack.
- *
- * @L: LuaState where the data is stored.
- * @options: The GrlOperationOptions from which to retrieve filters.
- * @return: Nothing.
- */
-static void
-push_operation_range_filters (lua_State *L,
-                              GrlOperationOptions *options)
-{
-  GrlRegistry *registry;
-  GList *range_filters;
-  GList *it;
-
-  g_assert (lua_istable (L, -1));
-
-  registry = grl_registry_get_default ();
-  range_filters = grl_operation_options_get_key_range_filter_list (options);
-
-  for (it = range_filters; it != NULL; it = it->next) {
-    GrlKeyID key_id;
-    gchar *key_name;
-    gchar *ptr;
-    GValue *min = NULL;
-    GValue *max = NULL;
-    gboolean success = TRUE;
-
-    key_id = GRLPOINTER_TO_KEYID (it->data);
-    if (key_id == GRL_METADATA_KEY_INVALID)
-      continue;
-
-    grl_operation_options_get_key_range_filter (options, key_id, &min, &max);
-    key_name = g_strdup (grl_registry_lookup_metadata_key_name (registry, key_id));
-
-    /* Replace '-' to '_': as a convenience for the developer */
-    while ((ptr = strstr (key_name, "-")) != NULL) {
-      *ptr = '_';
-    }
-
-    lua_pushstring (L, key_name);
-    g_free (key_name);
-    lua_newtable (L);
-
-    switch (grl_registry_lookup_metadata_key_type (registry, key_id)) {
-    case G_TYPE_INT:
-      lua_pushstring (L, "min");
-      (min) ? (void) lua_pushinteger (L, g_value_get_int (min)) : lua_pushnil (L);
-      lua_settable (L, -3);
-      lua_pushstring (L, "max");
-      (max) ? (void) lua_pushinteger (L, g_value_get_int (max)) : lua_pushnil (L);
-      lua_settable (L, -3);
-      break;
-
-    case G_TYPE_FLOAT:
-      lua_pushstring (L, "min");
-      (min) ? (void) lua_pushnumber (L, g_value_get_float (min)) : lua_pushnil (L);
-      lua_settable (L, -3);
-      lua_pushstring (L, "max");
-      (max) ? (void) lua_pushnumber (L, g_value_get_float (max)) : lua_pushnil (L);
-      lua_settable (L, -3);
-      break;
-
-    case G_TYPE_STRING:
-      lua_pushstring (L, "min");
-      (min) ? (void) lua_pushstring (L, g_value_get_string (min)) : lua_pushnil (L);
-      lua_settable (L, -3);
-      lua_pushstring (L, "max");
-      (max) ? (void) lua_pushstring (L, g_value_get_string (max)) : lua_pushnil (L);
-      lua_settable (L, -3);
-      break;
-
-    case G_TYPE_INT64:
-      lua_pushstring (L, "min");
-      (min) ? (void) lua_pushinteger (L, g_value_get_int64 (min)) : lua_pushnil (L);
-      lua_settable (L, -3);
-      lua_pushstring (L, "max");
-      (max) ? (void) lua_pushinteger (L, g_value_get_int64 (max)) : lua_pushnil (L);
-      lua_settable (L, -3);
-      break;
-
-    default:
-      if (grl_registry_lookup_metadata_key_type (registry, key_id) == G_TYPE_DATE_TIME) {
-        /* since the value would be used for comparison, and since os.time()
-         * returns unix time in lua, it'd be a good idea to pass g_date_time
-         * as unix time here */
-        GDateTime *date;
-        lua_pushstring (L, "min");
-        if (min) {
-          date = g_value_get_boxed (min);
-          lua_pushinteger (L, g_date_time_to_unix (date));
-        } else {
-          lua_pushnil (L);
-        }
-        lua_settable (L, -3);
-        lua_pushstring (L, "max");
-        if (max) {
-          date = g_value_get_boxed (max);
-          lua_pushinteger (L, g_date_time_to_unix (date));
-        } else {
-          lua_pushnil (L);
-        }
-        lua_settable (L, -3);
-      } else {
-        GRL_DEBUG ("Key %s has unhandled G_TYPE. Lua source will miss this data",
-                   grl_registry_lookup_metadata_key_name (registry, key_id));
-
-        success = FALSE;
-      }
-    }
-
-    if (success) {
-      lua_settable (L, -3);
-    } else {
-      lua_pop (L, 2);
-    }
-  }
-  g_list_free (range_filters);
-}
-
-/**
- * push_operation_filters
- *
- * Pushes the elements of the filters table representing
- * the non-range filters into the table. The filters table
- * should already be on top of the lua stack.
- *
- * @L: LuaState where the data is stored.
- * @options: The GrlOperationOptions from which to retrieve filters.
- * @return: Nothing.
- */
-static void
-push_operation_filters (lua_State *L,
-                        GrlOperationOptions *options)
-{
-  GrlRegistry *registry;
-  GList *filters;
-  GList *it;
-
-  g_assert (lua_istable (L, -1));
-
-  registry = grl_registry_get_default ();
-  filters = grl_operation_options_get_key_filter_list (options);
-
-  for (it = filters; it != NULL; it = it->next) {
-    GrlKeyID key_id;
-    gchar *key_name;
-    gchar *ptr;
-    GValue *value = NULL;
-    gboolean success = TRUE;
-
-    key_id = GRLPOINTER_TO_KEYID (it->data);
-    if (key_id == GRL_METADATA_KEY_INVALID)
-      continue;
-
-    value = grl_operation_options_get_key_filter (options, key_id);
-    key_name = g_strdup (grl_registry_lookup_metadata_key_name (registry, key_id));
-
-    /* Replace '-' to '_': as a convenience for the developers */
-    while ((ptr = strstr (key_name, "-")) != NULL) {
-      *ptr = '_';
-    }
-
-    lua_pushstring (L, key_name);
-    g_free (key_name);
-
-    /* Keep all the filters in tables */
-    lua_newtable (L);
-    lua_pushstring (L, "value");
-
-    switch (grl_registry_lookup_metadata_key_type (registry, key_id)) {
-    case G_TYPE_INT:
-      (value) ? (void) lua_pushinteger (L, g_value_get_int (value)) : lua_pushnil (L);
-      break;
-
-    case G_TYPE_FLOAT:
-      (value) ? (void) lua_pushnumber (L, g_value_get_float (value)) : lua_pushnil (L);
-      break;
-
-    case G_TYPE_STRING:
-      (value) ? (void) lua_pushstring (L, g_value_get_string (value)) : lua_pushnil (L);
-      break;
-
-    case G_TYPE_BOOLEAN:
-      (value) ? (void) lua_pushboolean (L, g_value_get_boolean (value)) : lua_pushnil (L);
-      break;
-
-    case G_TYPE_INT64:
-      (value) ? (void) lua_pushinteger (L, g_value_get_int64 (value)) : lua_pushnil (L);
-      break;
-
-    default:
-      GRL_DEBUG ("'%s' is being ignored as G_TYPE is not being handled.",
-                 grl_registry_lookup_metadata_key_name (registry, key_id));
-      success = FALSE;
-    }
-    if (success) {
-      lua_settable (L, -3);
-      lua_settable (L, -3);
-    } else {
-      lua_pop (L, 3);
-    }
-  }
-  g_list_free (filters);
-}
-
-/**
- * grl_lua_library_push_grl_options
- *
- * Pushes the table representing the various options of the operation
- * on top of the lua stack.
- *
- * @L: LuaState where the data is stored.
- * @opearation_id: id of the current operation
- * @option: The options of the current operation.
- * @key: The requested keys of the current operation.
- * @return: Nothing.
- */
-void
-grl_lua_library_push_grl_options (lua_State *L,
-                                  guint operation_id,
-                                  GrlOperationOptions *options,
-                                  GList *keys)
-{
-  lua_newtable (L);
-
-  lua_pushstring (L, "count");
-  lua_pushinteger (L, grl_operation_options_get_count (options));
-  lua_settable (L, -3);
-
-  lua_pushstring (L, "skip");
-  lua_pushinteger (L, grl_operation_options_get_skip (options));
-  lua_settable (L, -3);
-
-  lua_pushstring (L, "operation_id");
-  lua_pushinteger (L, (gint) operation_id);
-  lua_settable (L, -3);
-
-  lua_pushstring (L, "requested_keys");
-  push_operation_requested_keys(L, keys);
-  lua_settable (L, -3);
-
-  lua_pushstring (L, "filters");
-  lua_newtable (L);
-
-  push_operation_type_filter (L, options);
-  push_operation_range_filters (L, options);
-  push_operation_filters (L, options);
-
-  lua_settable (L, -3);
 }

@@ -44,6 +44,12 @@ static OperationSpec * priv_state_current_op_get_op_data (lua_State *L);
 static void
 free_operation_spec (OperationSpec *os)
 {
+  g_clear_pointer (&os->string, g_free);
+  g_clear_object (&os->options);
+
+  if (os->keys)
+    g_list_free (os->keys);
+
   g_slice_free (OperationSpec, os);
 }
 

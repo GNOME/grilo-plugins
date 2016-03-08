@@ -41,30 +41,30 @@ source = {
 -- Handlers of Grilo functions --
 ---------------------------------
 
-function grl_source_resolve(media, options, callback)
+function grl_source_resolve()
   -- This source expects an url which will be fetched and converted
   -- to a GrlMedia with grl.lua.json.string_to_table().
-  if not media or not media.url or #media.url == 0 then
+  local req = grl.get_media_keys()
+  if not req or not req.url or #req.url == 0 then
     grl.warning("resolve was called without metadata-key url")
-    callback()
+    grl.callback()
     return
   end
-  local userdata = {callback = callback, media = media}
-  grl.fetch(media.url, fetch_url_cb, userdata)
+  grl.fetch(req.url, fetch_url_cb)
 end
 
-function fetch_url_cb(feed, userdata)
+function fetch_url_cb(feed)
   if not feed or #feed == 0 then
     grl.warning("failed to load json")
-    userdata.callback()
+    grl.callback()
     return
   end
 
   local media = grl.lua.json.string_to_table(feed)
   if not media then
     grl.warning ("fail to make media from json")
-    userdata.callback()
+    grl.callback()
     return
   end
-  userdata.callback(media, 0)
+  grl.callback(media, 0)
 end

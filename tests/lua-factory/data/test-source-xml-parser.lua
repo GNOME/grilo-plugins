@@ -41,24 +41,25 @@ source = {
 -- Handlers of Grilo functions --
 ---------------------------------
 
-function grl_source_resolve(media, options, callback)
+function grl_source_resolve()
   -- This source expects an url which will be fetched and converted
   -- to a table using grl.lua.xml.string_to_table().
-  if not media or not media.url or #media.url ~= 2 then
+  local req = grl.get_media_keys()
+  if not req or not req.url or #req.url ~= 2 then
     grl.warning("resolve was called without metadata-key url")
-    callback()
+    grl.callback()
     return
   end
-  local userdata = {callback = callback, media = media}
-  grl.fetch(media.url, fetch_url_cb, userdata)
+
+  grl.fetch(req.url, fetch_url_cb)
 end
 
 -- feeds[1] is the xml to test
 -- feeds[2] is a lua table with this xml, to compare
-function fetch_url_cb(feeds, userdata)
+function fetch_url_cb(feeds)
   if not feeds or #feeds ~= 2 then
     grl.warning("failed to load xml")
-    userdata.callback()
+    grl.callback()
     return
   end
 
@@ -66,7 +67,7 @@ function fetch_url_cb(feeds, userdata)
   local ref = load(feeds[2])()
   if not xml or not ref then
     grl.warning ("xml parser failed")
-    userdata.callback()
+    grl.callback()
     return
   end
 
@@ -75,12 +76,12 @@ function fetch_url_cb(feeds, userdata)
     grl.warning("xml parser failed, results are not the same\n" ..
                 "reference table of test:\n" .. grl.lua.inspect(ref) .. "\n" ..
                 "table from xml parser:\n" .. grl.lua.inspect(xml))
-    userdata.callback()
+    grl.callback()
     return
   end
 
   local media = { id = "success" }
-  userdata.callback(media, 0)
+  grl.callback(media, 0)
 end
 
 function test_table_contains(t, e)

@@ -1527,8 +1527,7 @@ grl_lua_factory_source_search (GrlSource *source,
 
   lua_pushstring (L, text);
   grl_lua_library_push_grl_options (L, ss->operation_id, ss->options, ss->keys);
-  grl_lua_library_push_grl_callback (L, os);
-  if (!grl_lua_operations_pcall (L, 3, os, &err)) {
+  if (!grl_lua_operations_pcall (L, 2, os, &err)) {
     if (err != NULL) {
       GRL_WARNING ("calling search function failed: %s", err->message);
       g_error_free (err);
@@ -1559,8 +1558,7 @@ grl_lua_factory_source_browse (GrlSource *source,
 
   grl_lua_library_push_grl_media (L, bs->container);
   grl_lua_library_push_grl_options (L, bs->operation_id, bs->options, bs->keys);
-  grl_lua_library_push_grl_callback (L, os);
-  if (!grl_lua_operations_pcall (L, 3, os, &err)) {
+  if (!grl_lua_operations_pcall (L, 2, os, &err)) {
     if (err != NULL) {
       GRL_WARNING ("calling browse function failed: %s", err->message);
       g_error_free (err);
@@ -1594,8 +1592,7 @@ grl_lua_factory_source_query (GrlSource *source,
 
   lua_pushstring (L, query);
   grl_lua_library_push_grl_options (L, qs->operation_id, qs->options, qs->keys);
-  grl_lua_library_push_grl_callback (L, os);
-  if (!grl_lua_operations_pcall (L, 3, os, &err)) {
+  if (!grl_lua_operations_pcall (L, 2, os, &err)) {
     if (err != NULL) {
       GRL_WARNING ("calling query function failed: %s", err->message);
       g_error_free (err);
@@ -1627,8 +1624,7 @@ grl_lua_factory_source_resolve (GrlSource *source,
 
   grl_lua_library_push_grl_media (L, rs->media);
   grl_lua_library_push_grl_options (L, rs->operation_id, rs->options, rs->keys);
-  grl_lua_library_push_grl_callback (L, os);
-  if (!grl_lua_operations_pcall (L, 3, os, &err)) {
+  if (!grl_lua_operations_pcall (L, 2, os, &err)) {
     if (err != NULL) {
       GRL_WARNING ("calling resolve function failed: %s", err->message);
       g_error_free (err);

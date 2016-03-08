@@ -83,7 +83,6 @@ typedef struct _OperationSpec {
   GrlMedia *media;
   gpointer user_data;
   guint error_code;
-  gboolean callback_done;
   guint lua_source_waiting_ops;
 } OperationSpec;
 
@@ -92,7 +91,6 @@ gpointer grl_lua_library_load_goa_data (lua_State *L);
 
 void grl_lua_library_push_grl_media (lua_State *L, GrlMedia *media);
 void grl_lua_library_push_grl_options (lua_State *L, guint operation_id, GrlOperationOptions *options, GList *keys);
-void grl_lua_library_push_grl_callback (lua_State *L, OperationSpec *os);
 
 /* grl-lua-library-operations */
 void grl_lua_operations_init_priv_state (lua_State *L);

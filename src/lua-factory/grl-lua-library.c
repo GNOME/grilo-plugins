@@ -908,7 +908,6 @@ grl_l_fetch (lua_State *L)
 
   luaL_argcheck (L, (lua_isstring (L, 1) || lua_istable (L, 1)), 1,
                  "expecting url as string or an array of urls");
-
   luaL_argcheck (L, (lua_isfunction (L, 2) || lua_istable (L, 2)), 2,
                  "expecting callback function or network parameters");
 
@@ -958,13 +957,12 @@ grl_l_fetch (lua_State *L)
   }
 
   if (!verify_plaintext_fetch (L, urls, num_urls)) {
-    GRL_WARNING ("Source is broken, it makes plaintext network queries but "
-                 "does not set the 'net:plaintext' tag");
+    GRL_WARNING ("Source '%s' is broken, it makes plaintext network queries but "
+                 "does not set the 'net:plaintext' tag", grl_source_get_id (os->source));
 
     luaL_unref (L, LUA_REGISTRYINDEX, lua_userdata);
     luaL_unref (L, LUA_REGISTRYINDEX, lua_callback);
     lua_gc (L, LUA_GCCOLLECT, 0);
-
     g_free (urls);
     return 0;
   }
@@ -998,7 +996,7 @@ grl_l_fetch (lua_State *L)
 }
 
 /**
-* callback
+* grl.callback
 *
 * @media: (table) The media content to be returned.
 * @count: (integer) Number of media remaining to the application.
@@ -1009,25 +1007,20 @@ grl_l_callback (lua_State *L)
 {
   gint nparam;
   gint count = 0;
-  OperationSpec **p;
   OperationSpec *os;
   GrlMedia *media;
 
   GRL_DEBUG ("grl.callback()");
 
-  g_return_val_if_fail (lua_isuserdata(L, lua_upvalueindex(1)), 0);
-  p = lua_touserdata (L, lua_upvalueindex(1));
-  os = *p;
-
   nparam = lua_gettop (L);
-
-  if (os->callback_done) {
+  os = grl_lua_operations_get_current_op (L);
+  if (os == NULL) {
     luaL_error (L, "Source is broken as callback was called "
                 "after the operation has been finalized");
     return 0;
   }
 
-  media = os->media;
+  media = (os->op_type == LUA_RESOLVE) ? os->media : NULL;
 
   if (nparam > 0) {
     media = grl_util_build_media (L, media);
@@ -1046,9 +1039,8 @@ grl_l_callback (lua_State *L)
 
   /* finishing callback */
   if (count == 0)
-    os->callback_done = TRUE;
+    grl_lua_operations_set_source_state (L, LUA_SOURCE_FINALIZED, os);
 
-  grl_lua_operations_set_source_state (L, LUA_SOURCE_FINALIZED, os);
   return 0;
 }
 
@@ -1407,6 +1399,7 @@ gint
 luaopen_grilo (lua_State *L)
 {
   static const luaL_Reg library_fn[] = {
+    {"callback", &grl_l_callback},
     {"fetch", &grl_l_fetch},
     {"debug", &grl_l_debug},
     {"warning", &grl_l_warning},
@@ -1486,7 +1479,7 @@ grl_util_operation_spec_gc (lua_State *L)
   OperationSpec **userdata = lua_touserdata (L, 1);
   OperationSpec *os = *userdata;
 
-  if (os->callback_done == FALSE) {
+  if (grl_lua_operations_get_current_op (L)) {
 
     const char *type;
     switch (os->op_type) {
@@ -1519,11 +1512,10 @@ grl_util_operation_spec_gc (lua_State *L)
     }
   }
 
-  g_slice_free (OperationSpec, os);
+  grl_lua_operations_set_source_state (L, LUA_SOURCE_FINALIZED, os);
   *userdata = NULL;
   return 0;
 }
-
 /**
  * push_operation_spec_userdata
  *
@@ -1550,25 +1542,6 @@ push_operation_spec_userdata (lua_State *L, OperationSpec *os)
   lua_settable (L, -3);
   /* set table as the metatable of the userdata */
   lua_setmetatable (L, -2);
-}
-
-/**
- * grl_lua_library_push_grl_callback
- *
- * Pushes two C closures on top of the lua stack, representing the
- * callback and the options for the current operation.
- *
- * @L: LuaState where the data is stored.
- * @os: OperationSpec the current operation.
- * @return: Nothing.
- **/
-void
-grl_lua_library_push_grl_callback (lua_State *L, OperationSpec *os)
-{
-  /* push the OperationSpec userdata */
-  push_operation_spec_userdata (L, os);
-  /* use this userdata as an upvalue for the callback */
-  lua_pushcclosure (L, grl_l_callback, 1);
 }
 
 /**

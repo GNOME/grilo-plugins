@@ -47,34 +47,34 @@ SPOTIFY_SEARCH_ALBUM = 'https://api.spotify.com/v1/search?q=album:%s+artist:%s&t
 -- Handlers of Grilo functions --
 ---------------------------------
 
-function grl_source_resolve(media, options, callback)
-  local url
+function grl_source_resolve()
+  local url, req
   local artist, title
 
-  if not media or not media.artist or not media.album
-    or #media.artist == 0 or #media.album == 0 then
-    callback()
+  req = grl.get_media_keys()
+  if not req or not req.artist or not req.album
+    or #req.artist == 0 or #req.album == 0 then
+    grl.callback()
     return
   end
 
   -- Prepare artist and title strings to the url
-  artist = grl.encode(media.artist)
-  album = grl.encode(media.album)
+  artist = grl.encode(req.artist)
+  album = grl.encode(req.album)
   url = string.format(SPOTIFY_SEARCH_ALBUM, album, artist)
 
-  local userdata = {callback = callback, media = media}
-  grl.fetch(url, fetch_page_cb, userdata)
+  grl.fetch(url, fetch_page_cb)
 end
 
 ---------------
 -- Utilities --
 ---------------
 
-function fetch_page_cb(result, userdata)
+function fetch_page_cb(result)
   local json = {}
 
   if not result then
-    userdata.callback()
+    grl.callback()
     return
   end
 
@@ -85,14 +85,15 @@ function fetch_page_cb(result, userdata)
      not json.albums.items or
      not #json.albums.items or
      not json.albums.items[1].images then
-    userdata.callback()
+    grl.callback()
     return
   end
 
-  userdata.media.thumbnail = {}
+  local media = {}
+  media.thumbnail = {}
   for i, item in ipairs(json.albums.items[1].images) do
-    table.insert(userdata.media.thumbnail, item.url)
+    table.insert(media.thumbnail, item.url)
   end
 
-  userdata.callback(userdata.media, 0)
+  grl.callback(media, 0)
 end

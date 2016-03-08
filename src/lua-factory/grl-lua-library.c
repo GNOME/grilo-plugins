@@ -815,26 +815,26 @@ fail:
 }
 
 /**
-* grl_lua_library_push_grl_media.
+* grl.get_media_keys
 *
-* Pushes the GrlMedia on top of the lua stack as a key-value table
-*
-* @L: LuaState where the data is stored.
-* @media: GrlMedia to be put.
-* @return: Nothing.
+* @return: table with all keys/values of media (may be empty);
 */
-void
-grl_lua_library_push_grl_media (lua_State *L,
-                                GrlMedia *media)
+static gint
+grl_l_media_get_keys (lua_State *L)
 {
+  OperationSpec *os;
   GrlRegistry *registry;
   GList *it;
   GList *list_keys;
   const gchar *media_type = NULL;
+  GrlMedia *media;
+
+  os = grl_lua_operations_get_current_op (L);
+  media = os->media;
 
   if (media == NULL) {
     lua_pushnil (L);
-    return;
+    return 1;
   }
 
   registry = grl_registry_get_default ();
@@ -882,6 +882,7 @@ grl_lua_library_push_grl_media (lua_State *L,
     g_free (key_name);
   }
   g_list_free (list_keys);
+  return 1;
 }
 
 /**
@@ -1399,6 +1400,7 @@ gint
 luaopen_grilo (lua_State *L)
 {
   static const luaL_Reg library_fn[] = {
+    {"get_media_keys", &grl_l_media_get_keys},
     {"callback", &grl_l_callback},
     {"fetch", &grl_l_fetch},
     {"debug", &grl_l_debug},

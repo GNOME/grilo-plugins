@@ -40,16 +40,16 @@ source = {
 -- Source utils --
 ------------------
 
-function grl_source_browse(media, options, callback)
-  if options.skip > 0 then
-    callback()
+function grl_source_browse(media_id)
+  if grl.get_options("skip") > 0 then
+    grl.callback()
   else
     local urls = {}
     for index, item in pairs(stations) do
       local url = 'http://www.' .. item .. '.fr/player'
       table.insert(urls, url)
     end
-    grl.fetch(urls, radiofrance_now_fetch_cb, callback)
+    grl.fetch(urls, radiofrance_now_fetch_cb)
   end
 end
 
@@ -58,13 +58,13 @@ end
 ------------------------
 
 -- return all the media found
-function radiofrance_now_fetch_cb(results, callback)
+function radiofrance_now_fetch_cb(results)
   for index, result in pairs(results) do
     local media = create_media(stations[index], result)
-    callback(media, -1)
+    grl.callback(media, -1)
   end
 
-  callback()
+  grl.callback()
 end
 
 -------------

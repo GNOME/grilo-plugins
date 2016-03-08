@@ -49,35 +49,36 @@ LASTFM_SEARCH_ALBUM = 'http://ws.audioscrobbler.com/2.0/?method=album.getInfo&ap
 -- Handlers of Grilo functions --
 ---------------------------------
 
-function grl_source_resolve(media, options, callback)
-  local url
+function grl_source_resolve()
+  local url, req
   local artist, title
 
-  if not media or not media.artist or not media.album
-    or #media.artist == 0 or #media.album == 0 then
-    callback()
+  req = grl.get_media_keys()
+  if not req or not req.artist or not req.album
+    or #req.artist == 0 or #req.album == 0 then
+    grl.callback()
     return
   end
 
   -- Prepare artist and title strings to the url
-  artist = grl.encode(media.artist)
-  album = grl.encode(media.album)
+  artist = grl.encode(req.artist)
+  album = grl.encode(req.album)
   url = string.format(LASTFM_SEARCH_ALBUM, grl.goa_consumer_key(), artist, album)
-  local userdata = {callback = callback, media = media}
-  grl.fetch(url, fetch_page_cb, userdata)
+  grl.fetch(url, fetch_page_cb)
 end
 
 ---------------
 -- Utilities --
 ---------------
 
-function fetch_page_cb(result, userdata)
+function fetch_page_cb(result)
   if not result then
-    userdata.callback()
+    grl.callback()
     return
   end
 
-  userdata.media.thumbnail = {}
+  local media = {}
+  media.thumbnail = {}
   local image_sizes = { "mega", "extralarge", "large", "medium", "small" }
 
   for _, size in pairs(image_sizes) do
@@ -86,13 +87,13 @@ function fetch_page_cb(result, userdata)
     url = string.match(result, '<image size="' .. size .. '">(.-)</image>')
     if url ~= nil and url ~= '' then
       grl.debug ('Image size ' .. size .. ' = ' .. url)
-      table.insert(userdata.media.thumbnail, url)
+      table.insert(media.thumbnail, url)
     end
   end
 
-  if #userdata.media.thumbnail == 0 then
-    userdata.callback()
+  if #media.thumbnail == 0 then
+    grl.callback()
   else
-    userdata.callback(userdata.media, 0)
+    grl.callback(media, 0)
   end
 end

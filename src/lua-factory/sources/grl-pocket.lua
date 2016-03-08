@@ -51,15 +51,15 @@ source = {
 -- Source utils --
 ------------------
 
-function grl_source_browse(media, options, callback)
-  local count = options.count
-  local skip = options.skip
+function grl_source_browse(media_id)
+  local count = grl.get_options("count")
+  local skip = grl.get_options("skip")
+  local operation_id = grl.get_options('operation-id')
 
   local url = string.format(POCKET_GET_URL, grl.goa_consumer_key(), grl.goa_access_token(), count, skip)
   grl.debug ("Fetching URL: " .. url .. " (count: " .. count .. " skip: " .. skip .. ")")
 
-  local userdata = {callback = callback, count = count}
-  grl.fetch(url, pocket_fetch_cb, userdata)
+  grl.fetch(url, pocket_fetch_cb)
 end
 
 ------------------------
@@ -77,11 +77,11 @@ function string.starts(String,Start)
 end
 
 -- return all the media found
-function pocket_fetch_cb(results, userdata)
-  local count = userdata.count
+function pocket_fetch_cb(results)
+  local count = grl.get_options("count")
 
   if not results then
-    userdata.callback()
+    grl.callback ()
     return
   end
 
@@ -96,7 +96,7 @@ function pocket_fetch_cb(results, userdata)
     local media = create_media(item)
     if media then
       count = count - 1
-      userdata.callback(media, count)
+      grl.callback(media, count)
     end
 
     -- Bail out if we've given enough items
@@ -105,7 +105,7 @@ function pocket_fetch_cb(results, userdata)
     end
   end
 
-  userdata.callback()
+  grl.callback()
 end
 
 -------------

@@ -10,6 +10,7 @@ include $(top_srcdir)/gtester.mk
 SUBDIRS = sources
 
 TEST_PROGS +=	\
+	test_lua_factory_source_errors	\
 	test_lua_factory_grl_media	\
 	test_lua_factory_xml_parser
 
@@ -43,6 +44,17 @@ test_lua_factory_xml_parser_CFLAGS =	\
 	@DEPS_CFLAGS@			\
 	$(test_lua_factory_defines)
 
+test_lua_factory_source_errors_SOURCES =	\
+	test_lua_factory_source_errors.c	\
+	luafactorytestsresources.h luafactorytestsresources.c
+
+test_lua_factory_source_errors_LDADD =	\
+	@DEPS_LIBS@
+
+test_lua_factory_source_errors_CFLAGS =	\
+	@DEPS_CFLAGS@			\
+	$(test_lua_factory_defines)
+
 lua_factory_tests_resources_files =	\
   data/grl-media-test-all-metadata.json
 
@@ -66,6 +78,7 @@ dist_noinst_DATA =				\
 	data/config.ini				\
 	data/test-source-grl-media.lua		\
 	data/test-source-xml-parser.lua		\
+	data/test-source-lua-errors.lua		\
 	data/xml-parser-test-simple-table.lua   \
 	data/xml-parser-test-simple.xml
 

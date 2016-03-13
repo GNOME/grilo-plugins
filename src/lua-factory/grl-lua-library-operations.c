@@ -435,6 +435,139 @@ priv_state_operations_update (lua_State *L,
   GRL_ERROR ("Ongoig operation not found (op-id: %d)", os->operation_id);
 }
 
+/* ============== Watchdog related ========================================= */
+
+/**
+ * grl_util_operation_spec_gc
+ *
+ * This function is called when Lua GC is about to collect the userdata
+ * representing OperationSpec. Here we check that the finishing callback
+ * was done and free the memory.
+ *
+ * @L: LuaState where the data is stored.
+ * @return: 0, as the number of objects left on stack.
+ *          It is important, for Lua stack to not be corrupted.
+ **/
+static int
+watchdog_operation_gc (lua_State *L)
+{
+  guint *pid = lua_touserdata (L, 1);
+  LuaSourceState state = priv_state_operations_source_get_state (L, *pid);
+  OperationSpec *os = priv_state_operations_source_get_op_data (L, *pid);
+  OperationSpec *current_os = priv_state_current_op_get_op_data (L);
+  const char *type;
+
+  GRL_DEBUG ("%s | %s (op-id: %u) current state is: %s (num-async-op: %u)", __func__,
+             grl_source_get_id (os->source),
+             os->operation_id,
+             source_op_state_str[state],
+             os->lua_source_waiting_ops);
+
+  switch (state) {
+  case LUA_SOURCE_RUNNING:
+    /* Check if waiting for async op, otherwise it is an error */
+    if (os->lua_source_waiting_ops > 0) {
+      GRL_DEBUG ("%s | %s (op-id: %u) awaiting for %u async operations", __func__,
+                 grl_source_get_id (os->source),
+                 os->operation_id,
+                 os->lua_source_waiting_ops);
+      pid = NULL;
+      return 0;
+    }
+    break;
+
+  case LUA_SOURCE_WAITING:
+    /* Waiting for async op to finish, that's fine! */
+    pid = NULL;
+    return 0;
+    break;
+
+  case LUA_SOURCE_FINALIZED:
+    if (os->lua_source_waiting_ops > 0) {
+      GRL_WARNING ("Source '%s' is broken, as the finishing callback was called "
+                   "while %u operations are still ongoing",
+                   grl_source_get_id (os->source),
+                   os->lua_source_waiting_ops);
+      pid = NULL;
+      return 0;
+    }
+
+    priv_state_operations_remove_source_state (L, os->operation_id);
+    if (current_os->operation_id == os->operation_id)
+      priv_state_current_op_remove (L);
+    free_operation_spec (os);
+    pid = NULL;
+    return 0;
+    break;
+
+  default:
+    g_assert_not_reached ();
+  }
+
+  switch (os->op_type) {
+  case LUA_SEARCH:
+    type = "search";
+    break;
+  case LUA_BROWSE:
+    type = "browse";
+    break;
+  case LUA_QUERY:
+    type = "query";
+    break;
+  case LUA_RESOLVE:
+    type = "resolve";
+    break;
+  default:
+    g_assert_not_reached ();
+  }
+
+  GRL_WARNING ("Source '%s' is broken, as the finishing "
+               "callback was not called for %s operation",
+               grl_source_get_id (os->source),
+               type);
+  switch (os->op_type) {
+  case LUA_RESOLVE:
+    os->cb.resolve (os->source, os->operation_id, os->media, os->user_data, NULL);
+    break;
+
+  default:
+    os->cb.result (os->source, os->operation_id, NULL,
+                   0, os->user_data, NULL);
+  }
+
+  free_operation_spec (os);
+  pid = NULL;
+  return 0;
+}
+
+/**
+ * push_operation_spec_userdata
+ *
+ * Creates a userdata on top of the Lua stack, with the GC function
+ * assigned to it.
+ *
+ * @L: LuaState where the data is stored.
+ * @os: OperationSpec from which to create userdata.
+ * @return: Nothing.
+ **/
+static void
+watchdog_operation_push (lua_State *L, guint operation_id)
+{
+  gint *pid = lua_newuserdata (L, sizeof (guint));
+  *pid = operation_id;
+
+  /* create the metatable */
+  lua_createtable (L, 0, 1);
+  /* push the __gc key string */
+  lua_pushstring (L, "__gc");
+  /* push the __gc metamethod */
+  lua_pushcfunction (L, watchdog_operation_gc);
+  /* set the __gc field in the metatable */
+  lua_settable (L, -3);
+  /* set table as the metatable of the userdata */
+  lua_setmetatable (L, -2);
+}
+
 /* =========================================================================
  * Exported functions ======================================================
  * ========================================================================= */
@@ -548,7 +681,14 @@ grl_lua_operations_pcall (lua_State *L,
              grl_source_get_id (os->source),
              os->operation_id);
 
-  if (lua_pcall (L, nargs, 0, 0)) {
+  /* We control the GC during our function calls due the fact that we rely that
+   * watchdog's finalizer function is called after the lua_pcall, otherwise the
+   * watchdog fails to check for errors in the source and could lead to bugs */
+  lua_gc (L, LUA_GCSTOP, 0);
+
+  watchdog_operation_push (L, os->operation_id);
+  grl_lua_operations_set_source_state (L, LUA_SOURCE_RUNNING, os);
+  if (lua_pcall (L, nargs + 1, 0, 0)) {
     *err = g_error_new_literal (GRL_CORE_ERROR,
                                 os->error_code,
                                 lua_tolstring (L, -1, NULL));
@@ -556,6 +696,7 @@ grl_lua_operations_pcall (lua_State *L,
   }
 
   lua_gc (L, LUA_GCCOLLECT, 0);
+  lua_gc (L, LUA_GCRESTART, 0);
   return (*err == NULL);
 }
 

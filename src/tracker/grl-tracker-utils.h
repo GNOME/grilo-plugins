@@ -70,7 +70,8 @@ void grl_tracker_setup_key_mappings (void);
 
 tracker_grl_sparql_t *grl_tracker_get_mapping_from_sparql (const gchar *key);
 
-GrlMedia *grl_tracker_build_grilo_media (const gchar *rdf_type);
+GrlMedia *grl_tracker_build_grilo_media (const gchar   *rdf_type,
+                                         GrlTypeFilter  type_filter);
 
 gchar *grl_tracker_source_get_device_constraint (GrlTrackerSourcePriv *priv);
 

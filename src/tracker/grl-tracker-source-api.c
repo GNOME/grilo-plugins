@@ -427,7 +427,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
     GRL_ODEBUG ("\tParsing line %i of type %s",                         \
                 os->current, sparql_type);                              \
                                                                         \
-    media = grl_tracker_build_grilo_media (sparql_type);                \
+    media = grl_tracker_build_grilo_media (sparql_type, os->type_filter);\
                                                                         \
     if (media != NULL) {                                                \
       for (col = 1 ;                                                    \
@@ -594,7 +594,7 @@ tracker_media_from_uri_cb (GObject      *source_object,
   if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
     /* Build grilo media */
     sparql_type = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-    media = grl_tracker_build_grilo_media (sparql_type);
+    media = grl_tracker_build_grilo_media (sparql_type, GRL_TYPE_FILTER_NONE);
 
     /* Translate Sparql result into Grilo result */
     for (col = 0 ; col < tracker_sparql_cursor_get_n_columns (cursor) ; col++) {
@@ -835,6 +835,7 @@ grl_tracker_source_query (GrlSource *source,
   os->keys  = qs->keys;
   os->skip  = skip;
   os->count = count;
+  os->type_filter = grl_operation_options_get_type_filter (qs->options);
   os->data  = qs;
   /* os->cb.sr     = qs->callback; */
   /* os->user_data = qs->user_data; */
@@ -1012,6 +1013,7 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
   os->keys  = ss->keys;
   os->skip  = skip;
   os->count = count;
+  os->type_filter = grl_operation_options_get_type_filter (ss->options);
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 
@@ -1196,6 +1198,7 @@ grl_tracker_source_browse_category (GrlSource *source,
   os->keys  = bs->keys;
   os->skip  = skip;
   os->count = count;
+  os->type_filter = grl_operation_options_get_type_filter (bs->options);
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 
@@ -1255,6 +1258,7 @@ grl_tracker_source_browse_filesystem (GrlSource *source,
   os->keys  = bs->keys;
   os->skip  = skip;
   os->count = count;
+  os->type_filter = grl_operation_options_get_type_filter (bs->options);
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 

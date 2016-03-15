@@ -566,12 +566,35 @@ grl_tracker_get_delete_conditional_string (const gchar *urn,
   return ret;
 }
 
+static GrlMedia *
+grl_tracker_build_grilo_media_default (GHashTable *ht)
+{
+  if (g_hash_table_lookup (ht, RDF_TYPE_MUSIC)) {
+    return grl_media_audio_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_VIDEO)) {
+    return grl_media_video_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_IMAGE)) {
+    return grl_media_image_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_ARTIST)) {
+    return grl_media_container_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_ALBUM)) {
+    return grl_media_container_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_CONTAINER)) {
+    return grl_media_container_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_FOLDER)) {
+    return grl_media_box_new ();
+  }
+
+  return NULL;
+}
+
 /**/
 
 /* Builds an appropriate GrlMedia based on ontology type returned by
    tracker, or NULL if unknown */
 GrlMedia *
-grl_tracker_build_grilo_media (const gchar *rdf_type)
+grl_tracker_build_grilo_media (const gchar   *rdf_type,
+                               GrlTypeFilter  type_filter)
 {
   GrlMedia *media = NULL;
   gchar **rdf_single_type;
@@ -589,20 +612,20 @@ grl_tracker_build_grilo_media (const gchar *rdf_type)
   for (; i>= 0; i--)
     g_hash_table_insert (ht, g_path_get_basename (rdf_single_type[i]), GINT_TO_POINTER(TRUE));
 
-  if (g_hash_table_lookup (ht, RDF_TYPE_MUSIC)) {
+  if (type_filter == GRL_TYPE_FILTER_NONE ||
+      type_filter == GRL_TYPE_FILTER_ALL) {
+    media = grl_tracker_build_grilo_media_default (ht);
+  } else if ((type_filter & GRL_TYPE_FILTER_AUDIO) &&
+             g_hash_table_lookup (ht, RDF_TYPE_MUSIC)) {
     media = grl_media_audio_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_VIDEO)) {
+  } else if ((type_filter & GRL_TYPE_FILTER_VIDEO) &&
+             g_hash_table_lookup (ht, RDF_TYPE_VIDEO)) {
     media = grl_media_video_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_IMAGE)) {
+  } else if ((type_filter & GRL_TYPE_FILTER_IMAGE) &&
+             g_hash_table_lookup (ht, RDF_TYPE_IMAGE)) {
     media = grl_media_image_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_ARTIST)) {
-    media = grl_media_box_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_ALBUM)) {
-    media = grl_media_box_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_BOX)) {
-    media = grl_media_box_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_FOLDER)) {
-    media = grl_media_box_new ();
+  } else {
+    media = grl_tracker_build_grilo_media_default (ht);
   }
 
   g_hash_table_destroy (ht);

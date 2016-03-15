@@ -51,6 +51,7 @@ typedef struct {
   guint skip;
   guint count;
   guint current;
+  GrlTypeFilter type_filter;
 } GrlTrackerOp;
 
 typedef struct _GrlTrackerQueue GrlTrackerQueue;

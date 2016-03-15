@@ -122,7 +122,7 @@ notify_change (GrlTrackerSourceNotify *self,
     goto out;
 
   id_str = g_strdup_printf ("%i", id);
-  media = grl_tracker_build_grilo_media (info->type);
+  media = grl_tracker_build_grilo_media (info->type, GRL_TYPE_FILTER_NONE);
   grl_media_set_id (media, id_str);
   grl_media_set_url (media, info->url);
 

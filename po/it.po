@@ -2,21 +2,23 @@
 # Copyright (C) 2013 - 2015 The Free Software Foundation, Inc.
 # This file is distributed under the same license as the grilo-plugins package.
 # Claudio Arseni <claudio.arseni@ubuntu.com>, 2013, 2014, 2015.
+# Gianvito Cavasoli <gianvito@gmx.it>, 2016.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-09-06 22:42+0000\n"
-"PO-Revision-Date: 2015-09-07 14:26+0200\n"
-"Last-Translator: Claudio Arseni <claudio.arseni@ubuntu.com>\n"
-"Language-Team: tp@lists.linux.it\n"
+"POT-Creation-Date: 2015-12-14 10:42+0000\n"
+"PO-Revision-Date: 2016-03-18 14:23+0100\n"
+"Last-Translator: Gianvito Cavasoli <gianvito@gmx.it>\n"
+"Language-Team: Italiano <gnome-it-list@gnome.org>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Virtaal 0.7.1\n"
+"X-Generator: Gtranslator 2.91.7\n"
 "X-Project-Style: gnome\n"
 
 #: ../src/bookmarks/grl-bookmarks.c:67
@@ -86,7 +88,6 @@ msgstr ""
 
 #: ../src/dmap/grl-daap.c:52
 #, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "Una risorsa per esplorare il server DAAP «%s»"
 
@@ -108,7 +109,6 @@ msgstr "Identificatore di contenitore %s non valido"
 
 #: ../src/dmap/grl-dpap.c:52
 #, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
 msgid "A source for browsing the DPAP server '%s'"
 msgstr "Una risorsa per esplorare il server DPAP «%s»"
 
@@ -124,12 +124,12 @@ msgstr "File system"
 msgid "A source for browsing the filesystem"
 msgstr "Una risorsa per esplorare il file system"
 
-#: ../src/filesystem/grl-filesystem.c:1148
+#: ../src/filesystem/grl-filesystem.c:1172
 #, c-format
 msgid "File %s does not exist"
 msgstr "Il file %s non esiste"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1520
+#: ../src/filesystem/grl-filesystem.c:1250 ../src/youtube/grl-youtube.c:1513
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Impossibile ottenere contenuti multimediali da %s"
@@ -212,9 +212,7 @@ msgstr "Analisi della risposta non riuscita"
 msgid "Empty response"
 msgstr "Risposta vuota"
 
-#: ../src/jamendo/grl-jamendo.c:669
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:252
-#: ../src/shoutcast/grl-shoutcast.c:552
+#: ../src/jamendo/grl-jamendo.c:669 ../src/shoutcast/grl-shoutcast.c:552
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Connessione non riuscita: %s"
@@ -229,8 +227,8 @@ msgstr "Feed"
 msgid "Invalid identifier %s"
 msgstr "Identificatore %s non valido"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1112
-#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
+#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1105
+#: ../src/youtube/grl-youtube.c:1238 ../src/youtube/grl-youtube.c:1450
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Identificatore di categoria %s non valido"
@@ -245,15 +243,6 @@ msgstr "Esplorazione non riuscita: %s è un brano"
 msgid "Malformed query \"%s\""
 msgstr "Interrogazione malformata «%s»"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
-msgid "Album art Provider from Last.FM"
-msgstr "Fornitore di copertine per album da Last.FM"
-
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
-msgid "A plugin for getting album arts using Last.FM as backend"
-msgstr ""
-"Un plugin per ottenere copertine degli album usando Last.FM come back end"
-
 #: ../src/local-metadata/grl-local-metadata.c:44
 msgid "Local Metadata Provider"
 msgstr "Fornitore locale di metadati"
@@ -262,18 +251,18 @@ msgstr "Fornitore locale di metadati"
 msgid "A source providing locally available metadata"
 msgstr "Una risorsa che fornisce i metadati disponibili localmente"
 
-#: ../src/local-metadata/grl-local-metadata.c:711
+#: ../src/local-metadata/grl-local-metadata.c:381
 #: ../src/metadata-store/grl-metadata-store.c:772 ../src/raitv/grl-raitv.c:868
 #: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Impossibile risolvere: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:1179
+#: ../src/local-metadata/grl-local-metadata.c:675
 msgid "Cannot resolve any of the given keys"
 msgstr "Impossibile risolvere le chiavi fornite"
 
-#: ../src/local-metadata/grl-local-metadata.c:1183
+#: ../src/local-metadata/grl-local-metadata.c:679
 msgid "A GIO supported URL for images is required"
 msgstr "È necessario un URL supportato da GIO per le immagini"
 
@@ -340,7 +329,7 @@ msgstr "Impossibile risolvere"
 
 #: ../src/metadata-store/grl-metadata-store.c:930
 #: ../src/metadata-store/grl-metadata-store.c:967 ../src/raitv/grl-raitv.c:426
-#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:546
+#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:540
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Ricerca non riuscita: %s"
@@ -518,7 +507,7 @@ msgstr "Una risorsa per esplorare le radio SHOUTcast"
 msgid "Cannot find media %s"
 msgstr "Impossibile trovare contenuti multimediali %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:547
+#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:541
 msgid "non-NULL search text is required"
 msgstr "È necessaria una ricerca di testo non vuota"
 
@@ -547,6 +536,11 @@ msgstr "Recupero dei contenuti dall'uri non riuscito: %s"
 #: ../src/tracker/grl-tracker-source-api.c:802
 msgid "Empty query"
 msgstr "Interrogazione vuota"
+
+#: ../src/tracker/grl-tracker-source-api.c:1075
+#, c-format
+msgid "ID '%s' is not known in this source"
+msgstr "L'identificativo «%s» non è conosciuto in questa risorsa"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
@@ -613,26 +607,11 @@ msgstr "Visualizzati su dispositivi mobili"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Una risorsa per esplorare e cercare video su YouTube"
 
-#: ../src/youtube/grl-youtube.c:871
+#: ../src/youtube/grl-youtube.c:864
 msgid "Failed to get feed"
 msgstr "Recupero dei feed non riuscito"
 
-#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
+#: ../src/youtube/grl-youtube.c:1041 ../src/youtube/grl-youtube.c:1429
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Identificatore feed %s non valido"
-
-#~ msgid "Apple Movie Trailers"
-#~ msgstr "Apple Movie Trailers"
-
-#~ msgid "A plugin for browsing Apple Movie Trailers"
-#~ msgstr "Un plugin per esplorare Apple Movie Trailers"
-
-#~ msgid "A source for browsing and searching Blip.tv videos"
-#~ msgstr "Una risorsa per esplorare e cercare video su Blip.tv"
-
-#~ msgid "Pocket"
-#~ msgstr "Pocket"
-
-#~ msgid "A source for browsing Pocket videos"
-#~ msgstr "Una risorsa per esplorare i video da Pocket"

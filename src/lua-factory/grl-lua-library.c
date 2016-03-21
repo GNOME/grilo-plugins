@@ -1653,6 +1653,7 @@ luaopen_grilo (lua_State *L)
   }
   lua_pop (L, 1);
 
+  /* grl.lua will be read-only from now on for Lua sources */
   grl_lua_operations_set_proxy_table (L, -1);
 
   /* Those modules are called in 'lua' table, inside 'grl' */
@@ -1660,6 +1661,7 @@ luaopen_grilo (lua_State *L)
 
   grl_lua_operations_init_priv_state (L);
 
+  /* grl will be read-only from now on for Lua sources */
   grl_lua_operations_set_proxy_table (L, -1);
 
   return 1;

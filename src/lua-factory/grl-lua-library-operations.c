@@ -102,6 +102,17 @@ proxy_metatable_handle_call (lua_State *L)
   return 0;
 }
 
+/*
+ * proxy handler for __newindex metamethod
+ * This metamethod is called when updating a table with a new key/value.
+ */
+static int
+proxy_metatable_handle_newindex (lua_State *L)
+{
+  luaL_error (L, "Trying to change read-only table");
+  return 0;
+}
+
 /* ============== Private State helpers ==================================== */
 
 /*
@@ -626,7 +637,7 @@ grl_lua_operations_set_proxy_table (lua_State *L,
 
   /* __newindex: triggered when inserting new key/value to given table */
   lua_pushstring (L, "__newindex");
-  lua_pushvalue (L, index - 3);
+  lua_pushcfunction (L, proxy_metatable_handle_newindex);
   lua_settable (L, -3);
 
   /* __call: triggered when using the table as a function */

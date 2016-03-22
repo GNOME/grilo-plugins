@@ -576,11 +576,11 @@ grl_tracker_build_grilo_media_default (GHashTable *ht)
   } else if (g_hash_table_lookup (ht, RDF_TYPE_IMAGE)) {
     return grl_media_image_new ();
   } else if (g_hash_table_lookup (ht, RDF_TYPE_ARTIST)) {
-    return grl_media_container_new ();
+    return grl_media_box_new ();
   } else if (g_hash_table_lookup (ht, RDF_TYPE_ALBUM)) {
-    return grl_media_container_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_CONTAINER)) {
-    return grl_media_container_new ();
+    return grl_media_box_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_BOX)) {
+    return grl_media_box_new ();
   } else if (g_hash_table_lookup (ht, RDF_TYPE_FOLDER)) {
     return grl_media_box_new ();
   }

@@ -382,30 +382,28 @@ grl_tmdb_request_new_details (const char *api_key,
 {
   GrlTmdbRequest *result;
   char *uri;
-  const char *template;
 
   switch (detail) {
     case GRL_TMDB_REQUEST_DETAIL_MOVIE:
-      template = TMDB_API_CALL_MOVIE_INFO;
+      uri = g_strdup_printf (TMDB_API_CALL_MOVIE_INFO, id);
       break;
     case GRL_TMDB_REQUEST_DETAIL_MOVIE_CAST:
-      template = TMDB_API_CALL_MOVIE_CAST;
+      uri = g_strdup_printf (TMDB_API_CALL_MOVIE_CAST, id);
       break;
     case GRL_TMDB_REQUEST_DETAIL_MOVIE_IMAGES:
-      template = TMDB_API_CALL_MOVIE_IMAGES;
+      uri = g_strdup_printf (TMDB_API_CALL_MOVIE_IMAGES, id);
       break;
     case GRL_TMDB_REQUEST_DETAIL_MOVIE_KEYWORDS:
-      template = TMDB_API_CALL_MOVIE_KEYWORDS;
+      uri = g_strdup_printf (TMDB_API_CALL_MOVIE_KEYWORDS, id);
       break;
     case GRL_TMDB_REQUEST_DETAIL_MOVIE_RELEASE_INFO:
-      template = TMDB_API_CALL_MOVIE_RELEASE_INFO;
+      uri = g_strdup_printf (TMDB_API_CALL_MOVIE_RELEASE_INFO, id);
       break;
     default:
       g_assert_not_reached ();
       break;
   }
 
-  uri = g_strdup_printf (template, id);
   result = g_object_new (GRL_TMDB_REQUEST_TYPE,
                          "api-key", api_key,
                          "uri", uri,

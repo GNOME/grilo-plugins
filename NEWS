@@ -1,3 +1,37 @@
+NEW in 0.3.1
+============
+
+This release contains changes in the Lua plugin API, requiring changes
+to the Lua sources:
+- calls that require a callback function to be passed will now be
+  passed as a function, not a string
+- async calls (grl.fetch and grl.unzip) can now have a userdata "blob"
+  passed from the calling function to the callback when the operation
+  is finished
+- the prototype of these functions is now:
+  grl.unzip (url, filenames, [netopt], callback, [userdata])
+  grl.fetch (urls, [netopt], callback, [userdata])
+  with the arguments between '[]' are optional
+
+  * Tracker plugin
+    * BGO#761168 - Fix handling of keys with underscores in their names
+    * BGO#730028 - Fix giving back wrong type of media that was causing
+      crashes in GNOME Videos
+
+  * Lua Factory plugin
+    * BGO#760378 - Make containers match any supported_media
+    * BGO#760565 - Fix double-free when handling GOA accounts
+    * BGO#753141, BGO#732879, BGO#763046, Fix warnings when the
+      requested keys in the source table, stop lua plugins from
+      changing input arguments, better source tracking to avoid
+      memory leaks
+    * BGO#761694 - Order last.fm thumbnails from large to small
+    * BGO#732879 - Don't warn for unknown keys in source table
+
+  * TheTVDB plugin
+    * BGO#759835 - Require a newer gom that fixes migration problems
+
+
 NEW in 0.3.0
 ============
 

@@ -53,6 +53,7 @@ typedef struct {
   guint num_urls;
   gboolean is_table;
   gchar **results;
+  GCancellable *cancellable;
   OperationSpec *os;
 } FetchOperation;
 
@@ -62,6 +63,7 @@ typedef struct {
   gint lua_callback;
   gchar *url;
   gchar **filenames;
+  GCancellable *cancellable;
   OperationSpec *os;
 } UnzipOperation;
 
@@ -479,6 +481,10 @@ grl_util_fetch_done (GObject *source_object,
 
   if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
                                   res, &data, &len, &err)) {
+    if (g_error_matches (err, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+      GRL_DEBUG ("fetch operation was cancelled");
+      goto free_fetch_op;
+    }
     data = NULL;
   } else if (!g_utf8_validate(data, len, NULL)) {
     fixed = g_convert (data, len, "UTF-8", "ISO8859-1", NULL, NULL, NULL);
@@ -536,6 +542,8 @@ grl_util_fetch_done (GObject *source_object,
     }
   }
 
+free_fetch_op:
+  g_object_unref (fo->cancellable);
   luaL_unref (L, LUA_REGISTRYINDEX, fo->lua_userdata);
   luaL_unref (L, LUA_REGISTRYINDEX, fo->lua_callback);
 
@@ -638,13 +646,16 @@ grl_util_unzip_done (GObject *source_object,
   OperationSpec *os = uo->os;
   char **results;
 
-  grl_net_wc_request_finish (GRL_NET_WC (source_object),
-                             res, &data, &len, &err);
-
-  if (err != NULL) {
+  if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
+                                  res, &data, &len, &err)) {
     guint len, i;
-    GRL_WARNING ("Can't fetch zip file (URL: %s): '%s'", uo->url, err->message);
-    g_error_free (err);
+    if (g_error_matches (err, GRL_NET_WC_ERROR, GRL_NET_WC_ERROR_CANCELLED)) {
+      GRL_DEBUG ("unzip operation was cancelled");
+      goto free_unzip_op;
+    } else if (err != NULL) {
+      GRL_WARNING ("Can't fetch zip file (URL: %s): '%s'", uo->url, err->message);
+      g_error_free (err);
+    }
     len = g_strv_length (uo->filenames);
     results = g_new0 (gchar *, len + 1);
     for (i = 0; i < len; i++)
@@ -674,11 +685,12 @@ grl_util_unzip_done (GObject *source_object,
     }
   }
 
-  luaL_unref (L, LUA_REGISTRYINDEX, uo->lua_userdata);
-  luaL_unref (L, LUA_REGISTRYINDEX, uo->lua_callback);
-
   g_strfreev (results);
 
+free_unzip_op:
+  g_object_unref (uo->cancellable);
+  luaL_unref (L, LUA_REGISTRYINDEX, uo->lua_userdata);
+  luaL_unref (L, LUA_REGISTRYINDEX, uo->lua_callback);
   g_strfreev (uo->filenames);
   g_free (uo->url);
   g_free (uo);
@@ -1204,6 +1216,7 @@ grl_l_fetch (lua_State *L)
     fo = g_new0 (FetchOperation, 1);
     fo->L = L;
     fo->os = os;
+    fo->cancellable = g_object_ref (os->cancellable);
     fo->lua_userdata = lua_userdata;
     fo->lua_callback = lua_callback;
     fo->index = i;
@@ -1212,7 +1225,7 @@ grl_l_fetch (lua_State *L)
     fo->is_table = is_table;
     fo->results = results;
 
-    grl_net_wc_request_async (wc, urls[i], NULL, grl_util_fetch_done, fo);
+    grl_net_wc_request_async (wc, urls[i], os->cancellable, grl_util_fetch_done, fo);
   }
   g_object_unref (wc);
   g_free (urls);
@@ -1481,13 +1494,14 @@ grl_l_unzip (lua_State *L)
 
   uo = g_new0 (UnzipOperation, 1);
   uo->L = L;
+  uo->cancellable = g_object_ref (os->cancellable);
   uo->lua_userdata = lua_userdata;
   uo->lua_callback = lua_callback;
   uo->url = g_strdup (url);
   uo->filenames = filenames;
   uo->os = os;
 
-  grl_net_wc_request_async (wc, url, NULL, grl_util_unzip_done, uo);
+  grl_net_wc_request_async (wc, url, os->cancellable, grl_util_unzip_done, uo);
   g_object_unref (wc);
 
   grl_lua_operations_set_source_state (L, LUA_SOURCE_WAITING, os);

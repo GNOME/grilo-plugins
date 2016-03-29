@@ -47,6 +47,11 @@ free_operation_spec (OperationSpec *os)
   g_clear_pointer (&os->string, g_free);
   g_clear_object (&os->options);
 
+  if (os->cancellable) {
+    g_cancellable_cancel (os->cancellable);
+    g_clear_object (&os->cancellable);
+  }
+
   if (os->keys)
     g_list_free (os->keys);
 
@@ -672,6 +677,36 @@ grl_lua_operations_get_current_op (lua_State *L)
     return NULL;
   }
   return os;
+}
+
+void
+grl_lua_operations_cancel_operation (lua_State *L,
+                                     guint operation_id)
+{
+    OperationSpec *os, *current_os;
+    LuaSourceState state;
+
+    os = priv_state_operations_source_get_op_data (L, operation_id);
+    g_return_if_fail (os != NULL);
+
+    state = priv_state_operations_source_get_state (L, operation_id);
+    if (state != LUA_SOURCE_WAITING) {
+      GRL_DEBUG ("Can't cancel operation (%u) on source (%s) with as state is: %s",
+                 operation_id, grl_source_get_id (os->source),
+                 source_op_state_str[state]);
+      return;
+    }
+
+    /* All async operations on lua-library should verify os->cancellable to
+     * proper handling the cancelation of ongoing operation */
+    g_cancellable_cancel (os->cancellable);
+
+    current_os = priv_state_current_op_get_op_data (L);
+
+    priv_state_operations_remove_source_state (L, os->operation_id);
+    if (current_os != NULL && current_os->operation_id == os->operation_id)
+      priv_state_current_op_remove (L);
+    free_operation_spec (os);
 }
 
 /*

@@ -134,6 +134,9 @@ static const GList *grl_lua_factory_source_supported_keys (GrlSource *source);
 
 static const GList *grl_lua_factory_source_slow_keys(GrlSource *source);
 
+static void grl_lua_factory_source_cancel (GrlSource *source,
+                                           guint operation_id);
+
 static void grl_lua_factory_source_search (GrlSource *source,
                                            GrlSourceSearchSpec *ss);
 
@@ -511,6 +514,7 @@ grl_lua_factory_source_class_init (GrlLuaFactorySourceClass *klass)
   source_class->query = grl_lua_factory_source_query;
   source_class->resolve = grl_lua_factory_source_resolve;
   source_class->may_resolve = grl_lua_factory_source_may_resolve;
+  source_class->cancel = grl_lua_factory_source_cancel;
 
   g_type_class_add_private (klass, sizeof (GrlLuaFactorySourcePrivate));
 }
@@ -1510,6 +1514,18 @@ grl_lua_factory_source_supported_operations (GrlSource *source)
 }
 
 static void
+grl_lua_factory_source_cancel (GrlSource *source,
+                               guint operation_id)
+{
+  GrlLuaFactorySource *lua_source = GRL_LUA_FACTORY_SOURCE (source);
+  lua_State *L = lua_source->priv->l_st;
+
+  GRL_DEBUG ("grl_lua_factory_source_cancel (%s) %u",
+             grl_source_get_id (source), operation_id);
+  grl_lua_operations_cancel_operation (L, operation_id);
+}
+
+static void
 grl_lua_factory_source_search (GrlSource *source,
                                GrlSourceSearchSpec *ss)
 {
@@ -1526,6 +1542,7 @@ grl_lua_factory_source_search (GrlSource *source,
   os = g_slice_new0 (OperationSpec);
   os->source = ss->source;
   os->operation_id = ss->operation_id;
+  os->cancellable = g_cancellable_new ();
   os->cb.result = ss->callback;
   os->user_data = ss->user_data;
   os->string = g_strdup (text);
@@ -1562,6 +1579,7 @@ grl_lua_factory_source_browse (GrlSource *source,
   os = g_slice_new0 (OperationSpec);
   os->source = bs->source;
   os->operation_id = bs->operation_id;
+  os->cancellable = g_cancellable_new ();
   os->media = bs->container;
   os->cb.result = bs->callback;
   os->user_data = bs->user_data;
@@ -1599,6 +1617,7 @@ grl_lua_factory_source_query (GrlSource *source,
   os = g_slice_new0 (OperationSpec);
   os->source = qs->source;
   os->operation_id = qs->operation_id;
+  os->cancellable = g_cancellable_new ();
   os->cb.result = qs->callback;
   os->user_data = qs->user_data;
   os->string = g_strdup (query);
@@ -1632,6 +1651,7 @@ grl_lua_factory_source_resolve (GrlSource *source,
   os = g_slice_new0 (OperationSpec);
   os->source = rs->source;
   os->operation_id = rs->operation_id;
+  os->cancellable = g_cancellable_new ();
   os->cb.resolve = rs->callback;
   os->media = rs->media;
   os->user_data = rs->user_data;

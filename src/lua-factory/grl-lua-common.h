@@ -76,6 +76,7 @@ typedef struct _OperationSpec {
   GrlSource *source;
   guint operation_id;
   GrlOperationOptions *options;
+  GCancellable *cancellable;
   GList *keys;
   LuaOperationType op_type;
   union {
@@ -95,6 +96,7 @@ void grl_lua_library_save_goa_data (lua_State *L, gpointer goa_object);
 void grl_lua_operations_init_priv_state (lua_State *L);
 void grl_lua_operations_set_proxy_table (lua_State *L, gint index);
 void grl_lua_operations_set_source_state (lua_State *L, LuaSourceState state, OperationSpec *os);
+void grl_lua_operations_cancel_operation (lua_State *L, guint operation_id);
 OperationSpec * grl_lua_operations_get_current_op (lua_State *L);
 gboolean grl_lua_operations_pcall (lua_State *L, gint nargs, OperationSpec *os, GError **err);
 

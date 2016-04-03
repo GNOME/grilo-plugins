@@ -20,7 +20,7 @@ endif
 endif
 
 if LUA_FACTORY_PLUGIN
-SUBDIRS += lua-factory spotify-cover
+SUBDIRS += lua-factory spotify-cover gamefaqs
 endif
 
 if TMDB_PLUGIN

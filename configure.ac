@@ -1290,6 +1290,7 @@ AC_CONFIG_FILES([
   tests/local-metadata/Makefile
   tests/lua-factory/Makefile
   tests/lua-factory/sources/Makefile
+  tests/gamefaqs/Makefile
   tests/thetvdb/Makefile
   tests/tmdb/Makefile
   tests/vimeo/Makefile

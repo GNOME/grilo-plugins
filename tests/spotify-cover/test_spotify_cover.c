@@ -22,7 +22,7 @@
 
 #include <grilo.h>
 
-#define LASTFM_ALBUMART_ID "grl-spotify-cover"
+#define SPOTIFY_ALBUMART_ID "grl-spotify-cover"
 
 static GrlMedia *
 build_media_audio (const gchar *artist,
@@ -58,7 +58,7 @@ test_may_resolve_good (void)
   gboolean can_resolve;
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, LASTFM_ALBUMART_ID);
+  source = grl_registry_lookup_source (registry, SPOTIFY_ALBUMART_ID);
   g_assert (source);
 
   media = build_media_audio ("My Artist", "My Album");
@@ -81,7 +81,7 @@ test_may_resolve_wrong_key (void)
   gboolean can_resolve;
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, LASTFM_ALBUMART_ID);
+  source = grl_registry_lookup_source (registry, SPOTIFY_ALBUMART_ID);
   g_assert (source);
 
   media = build_media_audio ("My Artist", "My Album");
@@ -104,7 +104,7 @@ test_may_resolve_missing_key (void)
   gboolean can_resolve;
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, LASTFM_ALBUMART_ID);
+  source = grl_registry_lookup_source (registry, SPOTIFY_ALBUMART_ID);
   g_assert (source);
 
   media = build_media_audio ("My Artist", NULL);
@@ -127,7 +127,7 @@ test_may_resolve_missing_media (void)
   gboolean can_resolve;
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, LASTFM_ALBUMART_ID);
+  source = grl_registry_lookup_source (registry, SPOTIFY_ALBUMART_ID);
   g_assert (source);
 
   can_resolve = grl_source_may_resolve (source, NULL, GRL_METADATA_KEY_THUMBNAIL, &missing_keys);
@@ -153,7 +153,7 @@ test_resolve_good_found (void)
   guint expected_n_thumbnails;
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, LASTFM_ALBUMART_ID);
+  source = grl_registry_lookup_source (registry, SPOTIFY_ALBUMART_ID);
   g_assert (source);
 
   media = build_media_audio ("madonna", "ray of light");
@@ -197,7 +197,7 @@ test_resolve_good_not_found (void)
   guint expected_n_thumbnails;
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, LASTFM_ALBUMART_ID);
+  source = grl_registry_lookup_source (registry, SPOTIFY_ALBUMART_ID);
   g_assert (source);
 
   media = build_media_audio ("madonna", "ray of darkness");
@@ -233,7 +233,7 @@ test_resolve_missing_key (void)
   guint expected_n_thumbnails;
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, LASTFM_ALBUMART_ID);
+  source = grl_registry_lookup_source (registry, SPOTIFY_ALBUMART_ID);
   g_assert (source);
 
   media = build_media_audio ("madonna", NULL);

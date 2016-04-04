@@ -1407,11 +1407,11 @@ lua_plugin_source_all_keys (lua_State *L,
         supported_media = GRL_SUPPORTED_MEDIA_IMAGE;
       else if (g_strcmp0 (key_name, "all") == 0)
         supported_media = GRL_SUPPORTED_MEDIA_ALL;
-
-      if (supported_media == GRL_SUPPORTED_MEDIA_NONE) {
+      else if (g_strcmp0 (key_name, "none") == 0)
+        supported_media = GRL_SUPPORTED_MEDIA_NONE;
+      else
         GRL_WARNING ("(%s) value '%s' is not supported on %s.type ",
                      source_id, key_name, LUA_SOURCE_RESOLVE_KEYS);
-      }
     } else {
       GRL_WARNING ("(%s) expecting string on %s.type but got instead %s", source_id,
                    LUA_SOURCE_RESOLVE_KEYS, lua_typename (L, lua_type (L, -1)));

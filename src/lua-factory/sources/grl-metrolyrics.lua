@@ -66,8 +66,10 @@ function grl_source_resolve()
   -- Prepare artist and title strings to the url
   artist = req.artist:gsub(METROLYRICS_INVALID_URL_CHARS, "")
   artist = artist:gsub("%s+", "-")
+  artist = grl.encode(artist)
   title = req.title:gsub(METROLYRICS_INVALID_URL_CHARS, "")
   title = title:gsub("%s+", "-")
+  title = grl.encode(title)
   url = string.format(METROLYRICS_DEFAULT_QUERY, title, artist)
   grl.fetch(url, fetch_page_cb, netopts)
 end

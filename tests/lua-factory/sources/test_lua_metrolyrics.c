@@ -81,6 +81,7 @@ test_resolve_metrolyrics (void)
    { "back it up", "caro emerald", LYRICS_BACK_IT_UP },
    { "bohemian rhapsody", "queen", LYRICS_BOHEMIAN_RHAPSODY },
    { "nobodys perfect", "jessie j", LYRICS_NOBODYS_PERFECT },
+   { "100% pure love", "crystal waters", NULL },
   };
 
   source = test_lua_factory_get_source (METROLYRICS_ID, METROLYRICS_OPS);
@@ -91,13 +92,19 @@ test_resolve_metrolyrics (void)
     gsize size;
     GError *error = NULL;
 
+    lyrics = get_lyrics (source, audios[i].artist, audios[i].title);
+    if (audios[i].lyrics_file == NULL) {
+        /* We are not interested in comparing this lyrics */
+        g_clear_pointer (&lyrics, g_free);
+        continue;
+    }
+    g_assert_nonnull (lyrics);
+
     file = g_file_new_for_uri (audios[i].lyrics_file);
     g_file_load_contents (file, NULL, &data, &size, NULL, &error);
     g_assert_no_error (error);
     g_clear_pointer (&file, g_object_unref);
 
-    lyrics = get_lyrics (source, audios[i].artist, audios[i].title);
-    g_assert_nonnull (lyrics);
     if (g_ascii_strncasecmp (lyrics, data, size - 1) != 0) {
       g_warning ("Lyrics of '%s' from '%s' changed. Check if metrolyrics.com changed",
                   audios[i].title, audios[i].artist);

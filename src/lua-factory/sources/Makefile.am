@@ -22,7 +22,9 @@ lua_sources_DATA =					\
 	grl-pocket.lua					\
 	grl-pocket.gresource				\
 	grl-appletrailers.lua				\
-	grl-appletrailers.gresource
+	grl-appletrailers.gresource			\
+	grl-itunes-podcast.lua				\
+	grl-itunes-podcast.gresource
 
 lua_sourcesdir = $(datadir)/$(LUA_FACTORY_SOURCE_LOCATION)
 
@@ -41,12 +43,16 @@ grl-pocket.gresource: grl-pocket.gresource.xml
 grl-appletrailers.gresource: grl-appletrailers.gresource.xml
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-appletrailers.gresource.xml
 
+grl-itunes-podcast.gresource: grl-itunes-podcast.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-itunes-podcast.gresource.xml
+
 CLEANFILES =						\
 	grl-euronews.gresource				\
 	grl-guardianvideos.gresource			\
 	grl-radiofrance.gresource			\
 	grl-pocket.gresource				\
-	grl-appletrailers.gresource
+	grl-appletrailers.gresource			\
+	grl-itunes-podcast.gresource
 
 EXTRA_DIST +=						\
 	$(lua_sources_DATA)				\
@@ -59,6 +65,7 @@ EXTRA_DIST +=						\
 	guardianvideos.svg				\
 	radiofrance.png					\
 	trailers.svg					\
-	pocket.svg
+	pocket.svg					\
+	itunes-podcast.png
 
 -include $(top_srcdir)/git.mk

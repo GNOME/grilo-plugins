@@ -687,6 +687,8 @@ grl_lua_operations_pcall (lua_State *L,
                           GError **err)
 {
   g_assert_nonnull (os);
+  g_assert_nonnull (err);
+  g_assert_null (*err);
 
   GRL_DEBUG ("%s | %s (op-id: %u)", __func__,
              grl_source_get_id (os->source),

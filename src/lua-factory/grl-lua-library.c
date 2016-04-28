@@ -494,7 +494,7 @@ grl_util_fetch_done (GObject *source_object,
 
   if (err != NULL) {
     GRL_WARNING ("Can't fetch element %d (URL: %s): '%s'", fo->index + 1, fo->url, err->message);
-    g_error_free (err);
+    g_clear_error (&err);
   } else {
     GRL_DEBUG ("fetch_done element %d of %d urls", fo->index + 1, fo->num_urls);
   }
@@ -530,7 +530,7 @@ grl_util_fetch_done (GObject *source_object,
   if (!grl_lua_operations_pcall (L, 2, os, &err)) {
     if (err != NULL) {
       GRL_WARNING ("calling source callback function fail: %s", err->message);
-      g_error_free (err);
+      g_clear_error (&err);
     }
   }
 

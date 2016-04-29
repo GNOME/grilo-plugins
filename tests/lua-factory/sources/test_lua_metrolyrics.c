@@ -114,6 +114,32 @@ test_resolve_metrolyrics (void)
   }
 }
 
+static void
+test_resolve_metrolyrics_bad_request (void)
+{
+  GrlSource *source;
+  guint i;
+
+  struct {
+    gchar *title;
+    gchar *artist;
+    gchar *lyrics_file;
+  } audios[] = {
+   { "GNOME", "grilo framework", NULL },
+  };
+
+  source = test_lua_factory_get_source (METROLYRICS_ID, METROLYRICS_OPS);
+
+  for (i = 0; i < G_N_ELEMENTS (audios); i++) {
+    gchar *lyrics;
+
+    g_test_expect_message("Grilo", G_LOG_LEVEL_WARNING, "*Can't fetch element*");
+    g_test_expect_message("Grilo", G_LOG_LEVEL_WARNING, "*This Lyrics do not match our parser*");
+    lyrics = get_lyrics (source, audios[i].artist, audios[i].title);
+    g_assert_null (lyrics);
+  }
+}
+
 gint
 main (gint argc, gchar **argv)
 {
@@ -121,6 +147,7 @@ main (gint argc, gchar **argv)
   test_lua_factory_setup (NULL);
 
   g_test_add_func ("/lua_factory/sources/metrolyrics", test_resolve_metrolyrics);
+  g_test_add_func ("/lua_factory/sources/metrolyrics/bad-request", test_resolve_metrolyrics_bad_request);
 
   gint result = g_test_run ();
 

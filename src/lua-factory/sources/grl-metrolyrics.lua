@@ -45,7 +45,7 @@ netopts = {
 -- Source utils --
 ------------------
 
-METROLYRICS_INVALID_URL_CHARS = "[" .. "%(%)%[%]%$%&" .. "]"
+METROLYRICS_INVALID_URL_CHARS = "[" .. "%(%)%[%]%$%&%%" .. "]"
 METROLYRICS_DEFAULT_QUERY = "http://www.metrolyrics.com/%s-lyrics-%s.html"
 
 ---------------------------------

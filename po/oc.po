@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-02-18 11:21+0000\n"
+"POT-Creation-Date: 2016-03-04 12:53+0000\n"
 "PO-Revision-Date: 2016-03-04 13:51+0200\n"
 "Last-Translator: Cédric Valmary (totenoc.eu) <cvalmary@yahoo.fr>\n"
 "Language-Team: Tot En Òc\n"
@@ -63,7 +63,7 @@ msgstr "Una font per percórrer lo servidor DLNA « %s »"
 
 #: ../src/dleyna/grl-dleyna-source.c:278
 msgid "Upload failed, target source destroyed"
-msgstr "Fracàs del mandadís, la font cibla es destrucha"
+msgstr "Fracàs del mandadís, la font cibla es destruita"
 
 #: ../src/dleyna/grl-dleyna-source.c:380
 #, c-format
@@ -543,12 +543,12 @@ msgstr "L'identificant « %s » es desconegut d'aquesta font"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Un empeuton per recercar de contengut multimèdia amb Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:642
+#: ../src/tracker/grl-tracker-utils.c:653
 #, c-format
 msgid "Removable - %s"
 msgstr "Amovible - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:654
+#: ../src/tracker/grl-tracker-utils.c:665
 msgid "Local files"
 msgstr "Fichièrs locals"
 

@@ -891,7 +891,7 @@ grl_l_operation_get_options (lua_State *L)
 }
 
 /**
-* grl.get_media_keys
+* grl.get_requested_keys
 *
 * @return: array of all requested keys from application (may be empty);
 */

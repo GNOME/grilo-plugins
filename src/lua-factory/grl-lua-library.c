@@ -65,6 +65,8 @@ typedef struct {
   OperationSpec *os;
 } UnzipOperation;
 
+static gpointer grl_lua_library_load_goa_data (lua_State *L);
+
 /* ================== Lua-Library utils/helpers ============================ */
 
 static gchar *
@@ -1698,7 +1700,7 @@ grl_lua_library_save_goa_data (lua_State *L, gpointer goa_object)
  * @L: LuaState where the data is stored.
  * @return: The #GoaObject.
  **/
-gpointer
+static gpointer
 grl_lua_library_load_goa_data (lua_State *L)
 {
 #ifdef GOA_ENABLED

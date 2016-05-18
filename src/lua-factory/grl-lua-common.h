@@ -90,7 +90,6 @@ typedef struct _OperationSpec {
 } OperationSpec;
 
 void grl_lua_library_save_goa_data (lua_State *L, gpointer goa_object);
-gpointer grl_lua_library_load_goa_data (lua_State *L);
 
 /* grl-lua-library-operations */
 void grl_lua_operations_init_priv_state (lua_State *L);

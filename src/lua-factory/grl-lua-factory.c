@@ -76,6 +76,7 @@ struct _GrlLuaFactorySourcePrivate {
   GrlMediaType resolve_type;
   GHashTable *config_keys;
   GrlConfig *configs;
+  GResource *public_resource;
 };
 
 #ifdef GOA_ENABLED
@@ -442,7 +443,7 @@ grl_lua_factory_source_new (gchar       *lua_plugin_path,
   g_clear_pointer (&source_tags, g_strfreev);
   g_clear_object (&source_icon);
 
-  g_object_set_data_full (G_OBJECT (source), "resources", resource, (GDestroyNotify) g_resource_unref);
+  source->priv->public_resource = resource;
   resource = NULL;
 
   ret = lua_plugin_source_operations (L, source->priv->fn);
@@ -485,7 +486,10 @@ bail:
     g_list_free (source->priv->slow_keys);
   }
 
-  g_clear_pointer (&resource, g_resource_unref);
+  if (resource) {
+    g_resources_unregister (resource);
+    g_clear_pointer (&resource, g_resource_unref);
+  }
   g_free (source_id);
   lua_close (L);
   return NULL;
@@ -526,6 +530,10 @@ grl_lua_factory_source_finalize (GObject *object)
 
   g_clear_object (&source->priv->configs);
   g_clear_pointer (&source->priv->config_keys, g_hash_table_unref);
+  if (source->priv->public_resource) {
+    g_resources_unregister (source->priv->public_resource);
+    g_clear_pointer (&source->priv->public_resource, g_resource_unref);
+  }
 
   g_list_free (source->priv->resolve_keys);
   g_list_free (source->priv->supported_keys);

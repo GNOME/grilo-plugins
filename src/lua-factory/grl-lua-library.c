@@ -1089,7 +1089,7 @@ grl_l_media_get_keys (lua_State *L)
 /**
 * grl.fetch
 *
-* @url: (string or array) The http url to GET the content.
+* @url: (string or array) The http URL(s) to GET the content.
 * @netopts: [optional] (table) Options to set the GrlNetWc object.
 * @callback: (function) The function to be called after fetch is complete.
 * @userdata: [optional] User data to be passed to the @callback.

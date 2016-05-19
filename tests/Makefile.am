@@ -37,6 +37,7 @@ endif
 
 DIST_SUBDIRS =    \
    dleyna         \
+   games          \
    spotify-cover  \
    local-metadata \
    lua-factory    \

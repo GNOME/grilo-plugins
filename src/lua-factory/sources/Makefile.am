@@ -8,7 +8,6 @@
 include $(top_srcdir)/gtester.mk
 
 lua_sources_DATA =					\
-	grl-gamefaqs.lua				\
 	grl-thegamesdb.lua				\
 	grl-metrolyrics.lua				\
 	grl-spotify-cover.lua				\

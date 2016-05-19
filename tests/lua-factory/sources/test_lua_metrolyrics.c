@@ -134,7 +134,6 @@ test_resolve_metrolyrics_bad_request (void)
     gchar *lyrics;
 
     g_test_expect_message("Grilo", G_LOG_LEVEL_WARNING, "*Can't fetch element*");
-    g_test_expect_message("Grilo", G_LOG_LEVEL_WARNING, "*This Lyrics do not match our parser*");
     lyrics = get_lyrics (source, audios[i].artist, audios[i].title);
     g_assert_null (lyrics);
   }

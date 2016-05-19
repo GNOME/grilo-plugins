@@ -100,7 +100,7 @@ function metrolyrics_get_lyrics(feed)
   -- remove html noise
   feed = feed:match(lyrics_body)
   if not feed then
-    grl.warning ("This Lyrics do not match our parser! Please file a bug!")
+    grl.debug ("This Lyrics do not match our parser")
     return nil
   end
 

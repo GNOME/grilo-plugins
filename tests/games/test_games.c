@@ -159,7 +159,7 @@ main(int argc, char **argv)
   g_setenv ("GRL_PLUGIN_PATH", LUA_FACTORY_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_LUA_SOURCES_PATH", LUA_SOURCES_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", "grl-lua-factory", TRUE);
-  g_setenv ("GRL_NET_MOCKED", GAMEFAQS_DATA_PATH "network-data.ini", TRUE);
+  g_setenv ("GRL_NET_MOCKED", GAMES_DATA_PATH "network-data.ini", TRUE);
 
   grl_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);

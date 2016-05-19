@@ -8,22 +8,22 @@
 include $(top_srcdir)/gtester.mk
 
 TEST_PROGS +=	\
-   test_gamefaqs
+   test_games
 
-test_gamefaqs_defines =								\
+test_games_defines =								\
 	-DLUA_FACTORY_PLUGIN_PATH=\""$(abs_top_builddir)/src/lua-factory/.libs/"\"	\
 	-DLUA_SOURCES_PATH=\""$(abs_top_srcdir)/src/lua-factory/sources/"\"		\
-	-DGAMEFAQS_DATA_PATH=\""$(abs_top_srcdir)/tests/gamefaqs/data/"\"
+	-DGAMES_DATA_PATH=\""$(abs_top_srcdir)/tests/games/data/"\"
 
-test_gamefaqs_SOURCES =	\
-	test_gamefaqs.c
+test_games_SOURCES =	\
+	test_games.c
 
-test_gamefaqs_LDADD =	\
+test_games_LDADD =	\
 	@DEPS_LIBS@
 
-test_gamefaqs_CFLAGS =	\
+test_games_CFLAGS =	\
 	@DEPS_CFLAGS@					\
-	$(test_gamefaqs_defines)
+	$(test_games_defines)
 
 # Distribute the tests data:
 dist_noinst_DATA =               \

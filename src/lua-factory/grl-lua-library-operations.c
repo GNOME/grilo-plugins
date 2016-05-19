@@ -686,6 +686,8 @@ grl_lua_operations_pcall (lua_State *L,
                           OperationSpec *os,
                           GError **err)
 {
+  gint ret;
+
   g_assert_nonnull (os);
   g_assert_nonnull (err);
   g_assert_null (*err);
@@ -701,16 +703,20 @@ grl_lua_operations_pcall (lua_State *L,
 
   watchdog_operation_push (L, os->operation_id);
   grl_lua_operations_set_source_state (L, LUA_SOURCE_RUNNING, os);
-  if (lua_pcall (L, nargs + 1, 0, 0)) {
-    *err = g_error_new_literal (GRL_CORE_ERROR,
-                                os->error_code,
-                                lua_tolstring (L, -1, NULL));
+
+  ret = lua_pcall (L, nargs + 1, 0, 0);
+  if (ret != LUA_OK) {
+    const gchar *msg = lua_tolstring (L, -1, NULL);
     lua_pop (L, 1);
+
+    GRL_DEBUG ("lua_pcall failed: due %s (err %d)", msg, ret);
+    *err = g_error_new_literal (GRL_CORE_ERROR, os->error_code, msg);
+    grl_lua_operations_set_source_state (L, LUA_SOURCE_FINALIZED, os);
   }
 
   lua_gc (L, LUA_GCCOLLECT, 0);
   lua_gc (L, LUA_GCRESTART, 0);
-  return (*err == NULL);
+  return (ret == LUA_OK);
 }
 
 /*

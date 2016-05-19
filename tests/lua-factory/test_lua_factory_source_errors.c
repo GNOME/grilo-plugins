@@ -139,10 +139,7 @@ test_correct_state_on_multiple_fetch (void)
 static void
 test_callback_after_end_of_operation (void)
 {
-  g_test_expect_message("Grilo", G_LOG_LEVEL_WARNING,
-      "*is on FINALIZED state and cannot be changed*");
-  g_test_expect_message("Grilo", G_LOG_LEVEL_WARNING,
-      "*Source is broken as callback was called after the operation has been finalized*");
+  g_test_expect_message("Grilo", G_LOG_LEVEL_WARNING, "*Can't retrieve current operation*");
   execute_resolve_test (TEST_CALLBACK_ON_FINISHED_OP);
 }
 

@@ -667,8 +667,8 @@ grl_lua_operations_get_current_op (lua_State *L)
     /* Source State is finalized. At this state it should be waiting the
      * watchdog to free its data. Only a broken source would request
      * OperationSpec on FINALIZED State */
-    GRL_WARNING ("operation-id: %u is on FINALIZED state and cannot be changed",
-                 os->operation_id);
+    GRL_DEBUG ("The grilo operation ended when grl.callback() was called. "
+               "No current operation for op-id: %u", os->operation_id);
     return NULL;
   }
   return os;

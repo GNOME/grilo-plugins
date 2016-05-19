@@ -746,7 +746,13 @@ grl_l_operation_get_options (lua_State *L)
   luaL_argcheck (L, lua_isstring (L, 1), 1, "expecting option (string)");
 
   os = grl_lua_operations_get_current_op (L);
-  g_return_val_if_fail (os != NULL, 0);
+  if (os == NULL) {
+    luaL_error (L, "grl.get_options() failed: Can't retrieve current operation. "
+                   "Source is broken as grl.callback() has been called but source "
+                   "is still active");
+    return 0;
+  }
+
   option = lua_tostring (L, 1);
 
   if (g_strcmp0 (option, "type") == 0) {
@@ -905,7 +911,12 @@ grl_l_operation_get_keys (lua_State *L)
   GList *it;
 
   os = grl_lua_operations_get_current_op (L);
-  g_return_val_if_fail (os != NULL, 0);
+  if (os == NULL) {
+    luaL_error (L, "grl.get_requested_keys() failed: Can't retrieve current operation. "
+                   "Source is broken as grl.callback() has been called but source "
+                   "is still active");
+    return 0;
+  }
 
   registry = grl_registry_get_default ();
   lua_newtable (L);
@@ -1033,6 +1044,12 @@ grl_l_media_get_keys (lua_State *L)
   GrlMedia *media;
 
   os = grl_lua_operations_get_current_op (L);
+  if (os == NULL) {
+    luaL_error (L, "grl.get_media_keys() failed: Can't retrieve current operation. "
+                   "Source is broken as grl.callback() has been called but source "
+                   "is still active");
+    return 0;
+  }
   media = os->media;
 
   if (media == NULL) {
@@ -1120,6 +1137,12 @@ grl_l_fetch (lua_State *L)
                  "expecting callback function after network parameters");
 
   os = grl_lua_operations_get_current_op (L);
+  if (os == NULL) {
+    luaL_error (L, "grl.fetch() failed: Can't retrieve current operation. "
+                   "Source is broken as grl.callback() has been called but source "
+                   "is still active");
+    return 0;
+  }
 
   /* keep arguments aligned */
   if (lua_isfunction (L, 2)) {
@@ -1219,8 +1242,9 @@ grl_l_callback (lua_State *L)
   nparam = lua_gettop (L);
   os = grl_lua_operations_get_current_op (L);
   if (os == NULL) {
-    luaL_error (L, "Source is broken as callback was called "
-                "after the operation has been finalized");
+    luaL_error (L, "grl.callback() failed: Can't retrieve current operation. "
+                   "Source is broken as grl.callback() has been called but source "
+                   "is still active");
     return 0;
   }
 
@@ -1448,6 +1472,12 @@ grl_l_unzip (lua_State *L)
 
   wc = net_wc_new_with_options (L, 3);
   os = grl_lua_operations_get_current_op (L);
+  if (os == NULL) {
+    luaL_error (L, "grl.unzip() failed: Can't retrieve current operation. "
+                   "Source is broken as grl.callback() has been called but source "
+                   "is still active");
+    return 0;
+  }
 
   uo = g_new0 (UnzipOperation, 1);
   uo->L = L;

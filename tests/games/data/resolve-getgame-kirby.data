@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Data>
+<baseImgUrl>http://thegamesdb.net/banners/</baseImgUrl>
+<Game>
+<id>2336</id>
+<GameTitle>Kirby &amp; the Amazing Mirror</GameTitle>
+<PlatformId>5</PlatformId>
+<Platform>Nintendo Game Boy Advance</Platform>
+<ReleaseDate>04/15/2004</ReleaseDate>
+<Overview>Once again, Kirby must save the kingdom from evil. But this time he'll need some backup. As Kirby, you can call up one of four alter egos for help during your quest. Each character features new copy abilities that range from arrow-shooting to melee moves. Practice your skills in new side games, such as Crackity Hack and Speed Eaters. In addition to new abilities and subgames, Kirby &amp; the Amazing Mirror also introduces new multiplayer modes.</Overview>
+<ESRB>E - Everyone</ESRB>
+<Genres><genre>Action</genre></Genres><Players>1</Players><Co-op>No</Co-op>
+<Publisher>Nintendo</Publisher>
+<Developer>Flagship</Developer>
+<Rating>6</Rating><Images>
+<fanart>
+<original width="1920" height="1080">fanart/original/2336-1.jpg</original>
+<thumb>fanart/thumb/2336-1.jpg</thumb>
+</fanart>
+<fanart>
+<original width="1920" height="1080">fanart/original/2336-2.jpg</original>
+<thumb>fanart/thumb/2336-2.jpg</thumb>
+</fanart>
+<fanart>
+<original width="1920" height="1080">fanart/original/2336-3.jpg</original>
+<thumb>fanart/thumb/2336-3.jpg</thumb>
+</fanart>
+<boxart side="back" width="640" height="640" thumb="boxart/thumb/original/back/2336-1.jpg">boxart/original/back/2336-1.jpg</boxart>
+<boxart side="front" width="1000" height="1001" thumb="boxart/thumb/original/front/2336-1.png">boxart/original/front/2336-1.png</boxart>
+<clearlogo width="400" height="265">clearlogo/2336.png</clearlogo></Images>
+</Game>
+</Data>

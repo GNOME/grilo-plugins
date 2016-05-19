@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Data>
+<baseImgUrl>http://thegamesdb.net/banners/</baseImgUrl>
+<Game>
+<id>702</id>
+<GameTitle>Strider</GameTitle>
+<PlatformId>18</PlatformId>
+<Platform>Sega Genesis</Platform>
+<ReleaseDate>07/01/1989</ReleaseDate>
+<Overview>Set in the future, the game centers around a secret organization of ninja-like operatives known as "Striders", who specializes in various kinds of wetworks such as smuggling, kidnapping, demolitions, and disruption. The player takes control Strider Hiryu, the youngest elite-class Strider in the organization. Hiryu is summoned by the organization's second-in-command, Vice Director Matic, to assassinate his friend Kain, who has been captured by hostile forces and has become a liability to the Striders. Instead of killing him, Hiryu decides to rescue Kain from his captors. With the help of his fellow Strider Sheena, Hiryu uncovers a conspiracy between a certain faction of the Strider organization led by Matic himself and an unknown organization known simply as the "Enterprise" (headed by a man named Faceas Clay) which involves the development of a mind-control weapon codenamed "Zain". In the course of finding and destroying these Zain units, Hiryu learns that the faction of conspirators is headed by Vice Director Matic himself. Hiryu eventually tracks Matic to an orbiting space station where the two Striders face off; after a brief battle Hiryu bests Matic and kills him. Afterwards Hiryu locates and destroys the last of the Zain units.
+
+In the epilogue, it is revealed that though Hiryu was asked to return to the Strider organization he instead opted to retire. The final credits show him sheathing his weapon and walking away.</Overview>
+<ESRB>E - Everyone</ESRB>
+<Genres><genre>Action</genre></Genres><Players>1</Players><Co-op>No</Co-op>
+<Publisher>Capcom</Publisher>
+<Developer>Capcom</Developer>
+<Rating>6</Rating><Similar><SimilarCount>13</SimilarCount><Game><id>9509</id><PlatformId>4911</PlatformId></Game><Game><id>28410</id><PlatformId>4914</PlatformId></Game><Game><id>8272</id><PlatformId>23</PlatformId></Game><Game><id>6565</id><PlatformId>40</PlatformId></Game><Game><id>20655</id><PlatformId>15</PlatformId></Game><Game><id>20656</id><PlatformId>4920</PlatformId></Game><Game><id>2960</id><PlatformId>7</PlatformId></Game><Game><id>19644</id><PlatformId>1</PlatformId></Game><Game><id>3034</id><PlatformId>35</PlatformId></Game><Game><id>7502</id><PlatformId>36</PlatformId></Game><Game><id>11438</id><PlatformId>10</PlatformId></Game><Game><id>20653</id><PlatformId>12</PlatformId></Game><Game><id>20654</id><PlatformId>4919</PlatformId></Game></Similar><Images>
+<fanart>
+<original width="1920" height="1080">fanart/original/702-1.jpg</original>
+<thumb>fanart/thumb/702-1.jpg</thumb>
+</fanart>
+<fanart>
+<original width="1920" height="1080">fanart/original/702-2.jpg</original>
+<thumb>fanart/thumb/702-2.jpg</thumb>
+</fanart>
+<boxart side="back" width="906" height="1254" thumb="boxart/thumb/original/back/702-1.jpg">boxart/original/back/702-1.jpg</boxart>
+<boxart side="front" width="917" height="1254" thumb="boxart/thumb/original/front/702-1.jpg">boxart/original/front/702-1.jpg</boxart>
+<banner width="760" height="140">graphical/702-g.jpg</banner><screenshot>
+<original width="640" height="480">screenshots/702-1.jpg</original>
+<thumb>screenshots/thumb/702-1.jpg</thumb>
+</screenshot>
+<screenshot>
+<original width="640" height="480">screenshots/702-2.jpg</original>
+<thumb>screenshots/thumb/702-2.jpg</thumb>
+</screenshot>
+<screenshot>
+<original width="640" height="480">screenshots/702-3.jpg</original>
+<thumb>screenshots/thumb/702-3.jpg</thumb>
+</screenshot>
+<screenshot>
+<original width="640" height="480">screenshots/702-4.jpg</original>
+<thumb>screenshots/thumb/702-4.jpg</thumb>
+</screenshot>
+<screenshot>
+<original width="640" height="480">screenshots/702-5.jpg</original>
+<thumb>screenshots/thumb/702-5.jpg</thumb>
+</screenshot>
+<screenshot>
+<original width="640" height="480">screenshots/702-6.jpg</original>
+<thumb>screenshots/thumb/702-6.jpg</thumb>
+</screenshot>
+<screenshot>
+<original width="640" height="480">screenshots/702-7.jpg</original>
+<thumb>screenshots/thumb/702-7.jpg</thumb>
+</screenshot>
+<screenshot>
+<original width="640" height="480">screenshots/702-8.jpg</original>
+<thumb>screenshots/thumb/702-8.jpg</thumb>
+</screenshot>
+<clearlogo width="400" height="119">clearlogo/702.png</clearlogo></Images>
+</Game>
+</Data>

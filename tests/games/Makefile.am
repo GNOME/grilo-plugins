@@ -26,13 +26,11 @@ test_games_CFLAGS =	\
 	$(test_games_defines)
 
 # Distribute the tests data:
-dist_noinst_DATA =               \
-   data/kirby-images-page.data   \
-   data/network-data.ini         \
-   data/resolve-kirby.data       \
-   data/resolve-strider.data     \
-   data/strider-game-page.data   \
-   data/strider-images-page.data
+dist_noinst_DATA =                    \
+   data/resolve-getgame-kirby.data    \
+   data/resolve-getgame-strider.data  \
+   data/resolve-kirby.data            \
+   data/resolve-strider.data
 
 noinst_PROGRAMS = $(TEST_PROGS)
 

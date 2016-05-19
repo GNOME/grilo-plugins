@@ -22,7 +22,7 @@
 
 #include <grilo.h>
 
-#define GAMEFAQS_ID "grl-gamefaqs"
+#define THEGAMESDB "grl-thegamesdb"
 
 static GrlMedia *
 build_game_media (const gchar *title)
@@ -45,7 +45,7 @@ test_setup (void)
   grl_registry_load_all_plugins (registry, TRUE, &error);
   g_assert_no_error (error);
 }
-#define DESCRIPTION "You're Strider, a crunching hulk of muscle with a grappling hook and laser sword. You're in a future land of backward time, and its evil Master is taunting you with defeat. Can you survive 8 megs of incredible danger? Hang-glide into the citadel, then clang your hook into metal to stiff-arm up to safety. Stay alive by slashing armies, winged robots, and prehistoric monsters into shuddering heaps! Battle alluring Amazons who sling vicious boomerangs and drum out a war chant to turn your mind manic. Slide, duck, and cartwheel past lasers, spikes and bombs. Screech to a halt in the face of giant metal monkeys and centipedes. Feel your biceps burst as you grapple with snarling musclemen. Cling to battleship bulkheads. Leap from Tyrannosaurus Rex. It's Strider! The Master awaits!"
+#define DESCRIPTION "Set in the future, the game centers around a secret organization of ninja-like operatives known as \"Striders\", who specializes in various kinds of wetworks such as smuggling, kidnapping, demolitions, and disruption. The player takes control Strider Hiryu, the youngest elite-class Strider in the organization. Hiryu is summoned by the organization's second-in-command, Vice Director Matic, to assassinate his friend Kain, who has been captured by hostile forces and has become a liability to the Striders. Instead of killing him, Hiryu decides to rescue Kain from his captors. With the help of his fellow Strider Sheena, Hiryu uncovers a conspiracy between a certain faction of the Strider organization led by Matic himself and an unknown organization known simply as the \"Enterprise\" (headed by a man named Faceas Clay) which involves the development of a mind-control weapon codenamed \"Zain\". In the course of finding and destroying these Zain units, Hiryu learns that the faction of conspirators is headed by Vice Director Matic himself. Hiryu eventually tracks Matic to an orbiting space station where the two Striders face off; after a brief battle Hiryu bests Matic and kills him. Afterwards Hiryu locates and destroys the last of the Zain units.\n\nIn the epilogue, it is revealed that though Hiryu was asked to return to the Strider organization he instead opted to retire. The final credits show him sheathing his weapon and walking away."
 
 static void
 test_resolve_good_found (void)
@@ -60,7 +60,7 @@ test_resolve_good_found (void)
   guint expected_n_thumbnails, expected_n_external_urls;
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, GAMEFAQS_ID);
+  source = grl_registry_lookup_source (registry, THEGAMESDB);
   g_assert (source);
 
   media = build_game_media ("Strider");
@@ -83,10 +83,10 @@ test_resolve_good_found (void)
 
   /* We should get a thumbnail */
   expected_n_thumbnails = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_THUMBNAIL);
-  g_assert_cmpuint (expected_n_thumbnails, ==, 4);
+  g_assert_cmpuint (expected_n_thumbnails, ==, 1);
   g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 0),
                    ==,
-                   "http://img.gamefaqs.net/box/0/9/7/297097_front.jpg");
+                   "http://thegamesdb.net/banners/boxart/original/front/702-1.jpg");
 
   g_assert_cmpstr (grl_media_get_description (media),
                    ==,
@@ -96,17 +96,13 @@ test_resolve_good_found (void)
   g_assert_cmpuint (expected_n_external_urls, ==, 1);
   g_assert_cmpstr (grl_media_get_external_url (media),
                    ==,
-                   "http://www.gamefaqs.com/genesis/586497-strider");
+                   "http://thegamesdb.net/game/702/");
 
   /* Comparing floats fails with: (3.71000004 == 3.71) */
-  g_assert_cmpint (grl_media_get_rating (media) * 100, ==, 371);
+  g_assert_cmpint (grl_media_get_rating (media) * 100, ==, 300);
 
   date_time = grl_media_get_publication_date (media);
-  g_assert_cmpint (g_date_time_get_year (date_time), ==, 1990);
-
-  g_assert_cmpstr (grl_media_get_original_title (media),
-                   ==,
-                   "Strider Hiryu (JP)");
+  g_assert_cmpint (g_date_time_get_year (date_time), ==, 1989);
 
   g_list_free (keys);
   g_object_unref (options);
@@ -125,7 +121,7 @@ test_resolve_thumbnail_found (void)
   guint expected_n_thumbnails;
 
   registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, GAMEFAQS_ID);
+  source = grl_registry_lookup_source (registry, THEGAMESDB);
   g_assert (source);
 
   media = build_game_media ("Kirby & the Amazing Mirror");
@@ -143,10 +139,10 @@ test_resolve_thumbnail_found (void)
 
   /* We should get a thumbnail */
   expected_n_thumbnails = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_THUMBNAIL);
-  g_assert_cmpuint (expected_n_thumbnails, ==, 3);
-  g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 2),
+  g_assert_cmpuint (expected_n_thumbnails, ==, 1);
+  g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 0),
                    ==,
-                   "http://img.gamefaqs.net/box/9/8/5/57985_front.jpg");
+                   "http://thegamesdb.net/banners/boxart/original/front/2336-1.png");
 
   g_list_free (keys);
   g_object_unref (options);
@@ -166,8 +162,8 @@ main(int argc, char **argv)
 
   test_setup ();
 
-  g_test_add_func ("/gamefaqs/resolve/good-found", test_resolve_good_found);
-  g_test_add_func ("/gamefaqs/resolve/thumbnail-found", test_resolve_thumbnail_found);
+  g_test_add_func ("/thegamesdb/resolve/good-found", test_resolve_good_found);
+  g_test_add_func ("/thegamesdb/resolve/thumbnail-found", test_resolve_thumbnail_found);
 
   gint result = g_test_run ();
 

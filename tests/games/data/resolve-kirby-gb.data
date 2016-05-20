@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Data>
+<Game>
+<id>3190</id>
+<GameTitle>Kirby's Dream Land 2</GameTitle>
+<ReleaseDate>05/01/1995</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>8706</id>
+<GameTitle>Kirby's Dream Land</GameTitle>
+<ReleaseDate>08/01/1992</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>3191</id>
+<GameTitle>Kirby's Pinball Land</GameTitle>
+<ReleaseDate>03/04/1994</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>1728</id>
+<GameTitle>Wario Land: Super Mario Land 3</GameTitle>
+<ReleaseDate>01/21/1994</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>2305</id>
+<GameTitle>Kirby's Block Ball</GameTitle>
+<ReleaseDate>12/14/1995</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>3192</id>
+<GameTitle>Kirby's Star Stacker</GameTitle>
+<ReleaseDate>04/01/1997</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>21697</id>
+<GameTitle>Pipe Dream</GameTitle>
+<ReleaseDate>09/01/1990</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>24117</id>
+<GameTitle>Rod Land</GameTitle>
+<ReleaseDate>04/01/1990</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>11547</id>
+<GameTitle>Wario Land II</GameTitle>
+<ReleaseDate>03/02/1998</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>1726</id>
+<GameTitle>Super Mario Land</GameTitle>
+<ReleaseDate>04/21/1989</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>3176</id>
+<GameTitle>Donkey Kong Land 2</GameTitle>
+<ReleaseDate>01/16/1996</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>2644</id>
+<GameTitle>Donkey Kong Land</GameTitle>
+<ReleaseDate>07/26/1995</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>3175</id>
+<GameTitle>Donkey Kong Land 3</GameTitle>
+<ReleaseDate>10/01/1997</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>36159</id>
+<GameTitle>Exodus: Journey to the Promised Land</GameTitle>
+<ReleaseDate>01/01/1990</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+<Game>
+<id>1727</id>
+<GameTitle>Super Mario Land 2: 6 Golden Coins</GameTitle>
+<ReleaseDate>10/21/1992</ReleaseDate>
+<Platform>Nintendo Game Boy</Platform>
+</Game>
+</Data>

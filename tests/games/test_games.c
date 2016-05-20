@@ -110,27 +110,21 @@ test_resolve_good_found (void)
 }
 
 static void
-test_resolve_thumbnail_found (void)
+test_resolve_thumbnail_found (GrlSource *source,
+                              GList *keys,
+                              GrlOperationOptions *options,
+                              const gchar *title,
+                              const gchar *mime,
+                              guint expected_thumbnail_index,
+                              const gchar *expected_thumbnail_url)
 {
   GError *error = NULL;
-  GList *keys;
   GrlMedia *media;
-  GrlOperationOptions *options;
-  GrlRegistry *registry;
-  GrlSource *source;
   guint expected_n_thumbnails;
 
-  registry = grl_registry_get_default ();
-  source = grl_registry_lookup_source (registry, THEGAMESDB);
-  g_assert (source);
+  media = build_game_media (title);
+  grl_media_set_mime (media, mime);
 
-  media = build_game_media ("Kirby & the Amazing Mirror");
-  grl_media_set_mime (media, "application/x-gba-rom");
-
-  keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL,
-                                    NULL);
-
-  options = grl_operation_options_new (NULL);
   grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
 
   grl_source_resolve_sync (source, media, keys, options, &error);
@@ -139,14 +133,52 @@ test_resolve_thumbnail_found (void)
 
   /* We should get a thumbnail */
   expected_n_thumbnails = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_THUMBNAIL);
-  g_assert_cmpuint (expected_n_thumbnails, ==, 1);
-  g_assert_cmpstr (grl_media_get_thumbnail_nth (media, 0),
+  g_assert_cmpuint (expected_n_thumbnails, >, 0);
+  g_assert_cmpstr (grl_media_get_thumbnail_nth (media, expected_thumbnail_index),
                    ==,
-                   "http://thegamesdb.net/banners/boxart/original/front/2336-1.png");
+                   expected_thumbnail_url);
+
+  g_object_unref (media);
+}
+
+static void
+test_resolve_thumbnails_found (void)
+{
+  GList *keys;
+  GrlOperationOptions *options;
+  GrlRegistry *registry;
+  GrlSource *source;
+
+  registry = grl_registry_get_default ();
+  source = grl_registry_lookup_source (registry, THEGAMESDB);
+  g_assert (source);
+
+  keys = grl_metadata_key_list_new (GRL_METADATA_KEY_THUMBNAIL,
+                                    NULL);
+
+  options = grl_operation_options_new (NULL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
+
+  test_resolve_thumbnail_found (source, keys, options,
+                                "Kirby & the Amazing Mirror",
+                                "application/x-gba-rom",
+                                0,
+                                "http://thegamesdb.net/banners/boxart/original/front/2336-1.png");
+
+  test_resolve_thumbnail_found (source, keys, options,
+                                "Kirby's Dream Land",
+                                "application/x-gameboy-rom",
+                                0,
+                                "http://thegamesdb.net/banners/boxart/original/front/8706-1.jpg");
+
+  test_resolve_thumbnail_found (source, keys, options,
+                                "Sonic the Hedgehog",
+                                "application/x-sms-rom",
+                                0,
+                                "http://thegamesdb.net/banners/boxart/original/front/3016-1.jpg");
 
   g_list_free (keys);
   g_object_unref (options);
-  g_object_unref (media);
 }
 
 int
@@ -163,7 +195,7 @@ main(int argc, char **argv)
   test_setup ();
 
   g_test_add_func ("/thegamesdb/resolve/good-found", test_resolve_good_found);
-  g_test_add_func ("/thegamesdb/resolve/thumbnail-found", test_resolve_thumbnail_found);
+  g_test_add_func ("/thegamesdb/resolve/thumbnails-found", test_resolve_thumbnails_found);
 
   gint result = g_test_run ();
 

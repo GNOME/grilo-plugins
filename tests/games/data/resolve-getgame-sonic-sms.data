@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Data>
+<baseImgUrl>http://thegamesdb.net/banners/</baseImgUrl>
+<Game>
+<id>3016</id>
+<GameTitle>Sonic the Hedgehog</GameTitle>
+<PlatformId>35</PlatformId>
+<Platform>Sega Master System</Platform>
+<ReleaseDate>06/23/1991</ReleaseDate>
+<Overview>Bust the video game speed barrier wide open with Sonic The Hedgehog. Blaze by in a blur using the Super Sonic Spin Attack. Plummet down tunnels and spin through space. Bounce around 'til you're dizzy in a pinball machine. You've never seen anything like it!</Overview>
+<ESRB>E - Everyone</ESRB>
+<Genres><genre>Adventure</genre><genre>Platform</genre></Genres><Players>1</Players><Co-op>No</Co-op>
+<Publisher>Sega</Publisher>
+<Developer>Sonic Team</Developer>
+<Rating>8</Rating><Similar><SimilarCount>8</SimilarCount><Game><id>33733</id><PlatformId>23</PlatformId></Game><Game><id>7581</id><PlatformId>15</PlatformId></Game><Game><id>17073</id><PlatformId>1</PlatformId></Game><Game><id>5754</id><PlatformId>20</PlatformId></Game><Game><id>114</id><PlatformId>18</PlatformId></Game><Game><id>5544</id><PlatformId>36</PlatformId></Game><Game><id>16645</id><PlatformId>12</PlatformId></Game><Game><id>18802</id><PlatformId>6</PlatformId></Game></Similar><Images>
+<fanart>
+<original width="1920" height="1080">fanart/original/3016-1.jpg</original>
+<thumb>fanart/thumb/3016-1.jpg</thumb>
+</fanart>
+<fanart>
+<original width="1920" height="1080">fanart/original/3016-2.jpg</original>
+<thumb>fanart/thumb/3016-2.jpg</thumb>
+</fanart>
+<fanart>
+<original width="1920" height="1080">fanart/original/3016-3.jpg</original>
+<thumb>fanart/thumb/3016-3.jpg</thumb>
+</fanart>
+<fanart>
+<original width="1920" height="1080">fanart/original/3016-4.jpg</original>
+<thumb>fanart/thumb/3016-4.jpg</thumb>
+</fanart>
+<fanart>
+<original width="1920" height="1080">fanart/original/3016-5.jpg</original>
+<thumb>fanart/thumb/3016-5.jpg</thumb>
+</fanart>
+<fanart>
+<original width="1920" height="1080">fanart/original/3016-6.jpg</original>
+<thumb>fanart/thumb/3016-6.jpg</thumb>
+</fanart>
+<boxart side="back" width="1521" height="2100" thumb="boxart/thumb/original/back/3016-1.jpg">boxart/original/back/3016-1.jpg</boxart>
+<boxart side="front" width="1529" height="2100" thumb="boxart/thumb/original/front/3016-1.jpg">boxart/original/front/3016-1.jpg</boxart>
+<banner width="760" height="140">graphical/3016-g.jpg</banner><screenshot>
+<original width="256" height="192">screenshots/3016-1.jpg</original>
+<thumb>screenshots/thumb/3016-1.jpg</thumb>
+</screenshot>
+<clearlogo width="400" height="183">clearlogo/3016.png</clearlogo></Images>
+</Game>
+</Data>

@@ -1470,7 +1470,6 @@ grl_l_unzip (lua_State *L)
   }
   GRL_DEBUG ("grl.unzip() -> '%s'", url);
 
-  wc = net_wc_new_with_options (L, 3);
   os = grl_lua_operations_get_current_op (L);
   if (os == NULL) {
     luaL_error (L, "grl.unzip() failed: Can't retrieve current operation. "
@@ -1478,6 +1477,7 @@ grl_l_unzip (lua_State *L)
                    "is still active");
     return 0;
   }
+  wc = net_wc_new_with_options (L, 3);
 
   uo = g_new0 (UnzipOperation, 1);
   uo->L = L;

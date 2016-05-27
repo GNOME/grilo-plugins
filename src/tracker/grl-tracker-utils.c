@@ -214,6 +214,11 @@ grl_tracker_setup_key_mappings (void)
                       "nmm:artistName(nmm:performer(?urn))",
                       "audio");
 
+  insert_key_mapping (GRL_METADATA_KEY_ALBUM_ARTIST,
+                      NULL,
+                      "nmm:artistName(nmm:albumArtist(nmm:musicAlbum(?urn)))",
+                      "audio");
+
   insert_key_mapping (GRL_METADATA_KEY_AUTHOR,
                       NULL,
                       "nmm:artistName(nmm:performer(?urn))",

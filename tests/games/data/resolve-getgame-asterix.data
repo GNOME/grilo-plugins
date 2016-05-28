@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Data>
+<baseImgUrl>http://thegamesdb.net/banners/</baseImgUrl>
+<Game>
+<id>11837</id>
+<GameTitle>Astérix and the Great Rescue</GameTitle>
+<PlatformId>20</PlatformId>
+<Platform>Sega Game Gear</Platform>
+<ReleaseDate>01/01/1995</ReleaseDate>
+<Overview>The game is based on the popular French comics series Astérix. It is 50 B.C., and the entire Gaul (today's France) is conquered by the Romans. Only one village still remains independent, thanks to the incredible powers of its two great warriors, Asterix and Obelix. In the game, they must first of all liberate the village Orvio and rescue their friend Dogmatix.
+
+The player can play as either Asterix or Obelix. They make their way through platform levels, fighting enemies by punching them, and jumping to access higher ares or to avoid falling down. There are also some items that the player can collect, such as bombs, with which the player can overcome obstacles and advance in the game.</Overview>
+<Genres><genre>Action</genre></Genres><Co-op>No</Co-op>
+<Publisher>Sega</Publisher>
+<Developer>Core Design Ltd</Developer>
+<Similar><SimilarCount>3</SimilarCount><Game><id>4251</id><PlatformId>18</PlatformId></Game><Game><id>2693</id><PlatformId>35</PlatformId></Game><Game><id>8081</id><PlatformId>36</PlatformId></Game></Similar><Images>
+<boxart side="front" width="640" height="904" thumb="boxart/thumb/original/front/11837-1.jpg">boxart/original/front/11837-1.jpg</boxart>
+<clearlogo width="400" height="145">clearlogo/11837.png</clearlogo></Images>
+</Game>
+</Data>

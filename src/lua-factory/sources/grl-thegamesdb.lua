@@ -48,84 +48,6 @@ THEGAMESDB_BASE_API_URL = "http://thegamesdb.net/api/"
 -- Handlers of Grilo functions --
 ---------------------------------
 
-function get_platform_name(mime_type, suffix)
-    local platform_names = {}
-
-    -- mime-types are upstream in shared-mime-info
-    -- names are from:
-    -- http://thegamesdb.net/api/GetPlatformsList.php
-    -- http://wiki.thegamesdb.net/index.php/GetPlatformsList
-    platform_names['application/vnd.nintendo.snes.rom'] = 'Super Nintendo (SNES)'
-    platform_names['application/x-amiga-disk-format'] = 'Amiga'
-    platform_names['application/x-atari-2600-rom'] = 'Atari 2600'
-    platform_names['application/x-atari-5200-rom'] = 'Atari 5200'
-    platform_names['application/x-atari-7800-rom'] = 'Atari 7800'
-    platform_names['application/x-dc-rom'] = 'Sega Dreamcast'
-    -- Also represents 'Nintendo Game Boy Color'
-    platform_names['application/x-gameboy-rom'] = 'Nintendo Game Boy'
-    platform_names['application/x-gamecube-rom'] = 'Nintendo GameCube'
-    platform_names['application/x-gba-rom'] = 'Nintendo Game Boy Advance'
-    -- Also represents 'Sega 32X'
-    platform_names['application/x-genesis-rom'] = 'Sega Genesis'
-    platform_names['application/x-n64-rom'] = 'Nintendo 64'
-    platform_names['application/x-neo-geo-pocket-rom'] = 'Neo Geo Pocket'
-    platform_names['application/x-nes-rom'] = 'Nintendo Entertainment System (NES)'
-    platform_names['application/x-nintendo-ds-rom'] = 'Nintendo DS'
-    platform_names['application/x-pc-engine-rom'] = 'TurboGrafx 16'
-    platform_names['application/x-saturn-rom'] = 'Sega Saturn'
-    -- Also represents 'Sega Game Gear'
-    platform_names['application/x-sms-rom'] = 'Sega Master System'
-    platform_names['application/x-wii-rom'] = 'Nintendo Wii'
-    platform_names['application/x-wii-wad'] = 'Nintendo Wii'
-
-    -- For disambiguation
-    if suffix and
-       suffix ~= 'bin' and
-       platform_names[mime_type] then
-
-      -- Game Boy / Game Boy Color
-      if platform_names[mime_type] == 'Nintendo Game Boy' then
-        if suffix == 'gbc' or suffix == 'cgb' then
-          return 'Nintendo Game Boy Color'
-        end
-      end
-
-      -- Genesis / 32X
-      if platform_names[mime_type] == 'Sega Genesis' then
-        if suffix == '32x' or
-           suffix == 'mdx' then
-          return 'Sega 32X'
-        end
-      end
-
-      -- Sega Master System / Game Gear
-      if platform_names[mime_type] == 'Sega Master System' and
-         suffix == 'gg' then
-        return 'Sega Game Gear'
-      end
-    end
-
-    return platform_names[mime_type]
-end
-
-function get_suffix (url)
-    if not url then return nil end
-    -- Return a 3-letter suffix
-    local ret = url:match('*-%.(...)$')
-    if not ret then
-      -- Try with a 2-letter suffix (Game Gear...)
-      ret = url:match('*-%.(..)$')
-    end
-    return ret
-end
-
-function get_title (title)
-    title = string.gsub(title, "_", " ")
-    -- FIXME remove dump info flags
-    -- http://www.tosecdev.org/tosec-naming-convention#_Toc302254975
-    return grl.encode(title)
-end
-
 function grl_source_resolve()
   local url, req
   local title
@@ -269,4 +191,82 @@ function fetch_game_cb(results)
 
     grl.callback(media, 0)
   end
+end
+
+function get_platform_name(mime_type, suffix)
+    local platform_names = {}
+
+    -- mime-types are upstream in shared-mime-info
+    -- names are from:
+    -- http://thegamesdb.net/api/GetPlatformsList.php
+    -- http://wiki.thegamesdb.net/index.php/GetPlatformsList
+    platform_names['application/vnd.nintendo.snes.rom'] = 'Super Nintendo (SNES)'
+    platform_names['application/x-amiga-disk-format'] = 'Amiga'
+    platform_names['application/x-atari-2600-rom'] = 'Atari 2600'
+    platform_names['application/x-atari-5200-rom'] = 'Atari 5200'
+    platform_names['application/x-atari-7800-rom'] = 'Atari 7800'
+    platform_names['application/x-dc-rom'] = 'Sega Dreamcast'
+    -- Also represents 'Nintendo Game Boy Color'
+    platform_names['application/x-gameboy-rom'] = 'Nintendo Game Boy'
+    platform_names['application/x-gamecube-rom'] = 'Nintendo GameCube'
+    platform_names['application/x-gba-rom'] = 'Nintendo Game Boy Advance'
+    -- Also represents 'Sega 32X'
+    platform_names['application/x-genesis-rom'] = 'Sega Genesis'
+    platform_names['application/x-n64-rom'] = 'Nintendo 64'
+    platform_names['application/x-neo-geo-pocket-rom'] = 'Neo Geo Pocket'
+    platform_names['application/x-nes-rom'] = 'Nintendo Entertainment System (NES)'
+    platform_names['application/x-nintendo-ds-rom'] = 'Nintendo DS'
+    platform_names['application/x-pc-engine-rom'] = 'TurboGrafx 16'
+    platform_names['application/x-saturn-rom'] = 'Sega Saturn'
+    -- Also represents 'Sega Game Gear'
+    platform_names['application/x-sms-rom'] = 'Sega Master System'
+    platform_names['application/x-wii-rom'] = 'Nintendo Wii'
+    platform_names['application/x-wii-wad'] = 'Nintendo Wii'
+
+    -- For disambiguation
+    if suffix and
+       suffix ~= 'bin' and
+       platform_names[mime_type] then
+
+      -- Game Boy / Game Boy Color
+      if platform_names[mime_type] == 'Nintendo Game Boy' then
+        if suffix == 'gbc' or suffix == 'cgb' then
+          return 'Nintendo Game Boy Color'
+        end
+      end
+
+      -- Genesis / 32X
+      if platform_names[mime_type] == 'Sega Genesis' then
+        if suffix == '32x' or
+           suffix == 'mdx' then
+          return 'Sega 32X'
+        end
+      end
+
+      -- Sega Master System / Game Gear
+      if platform_names[mime_type] == 'Sega Master System' and
+         suffix == 'gg' then
+        return 'Sega Game Gear'
+      end
+    end
+
+    return platform_names[mime_type]
+end
+
+function get_suffix (url)
+    if not url then return nil end
+    -- Return a 3-letter suffix
+    local ret = url:match('*-%.(...)$')
+    if not ret then
+      -- Try with a 2-letter suffix (Game Gear...)
+      ret = url:match('*-%.(..)$')
+    end
+    return ret
+end
+
+function get_title (title)
+    title = string.gsub(title, "_", " ")
+    -- FIXME remove dump info flags
+    -- http://www.tosecdev.org/tosec-naming-convention#_Toc302254975
+    return grl.encode(title)
 end

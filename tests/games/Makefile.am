@@ -30,7 +30,11 @@ dist_noinst_DATA =                    \
    data/resolve-getgame-kirby.data    \
    data/resolve-getgame-strider.data  \
    data/resolve-kirby.data            \
-   data/resolve-strider.data
+   data/resolve-strider.data          \
+   data/resolve-getgame-kirby-gb.data \
+   data/resolve-kirby-gb.data         \
+   data/resolve-getgame-sonic-sms.data\
+   data/resolve-sonic-sms.data
 
 noinst_PROGRAMS = $(TEST_PROGS)
 

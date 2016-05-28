@@ -177,6 +177,12 @@ test_resolve_thumbnails_found (void)
                                 0,
                                 "http://thegamesdb.net/banners/boxart/original/front/3016-1.jpg");
 
+  test_resolve_thumbnail_found (source, keys, options,
+                                "Astérix",
+                                "",
+                                0,
+                                "http://thegamesdb.net/banners/boxart/original/front/11837-1.jpg");
+
   g_list_free (keys);
   g_object_unref (options);
 }

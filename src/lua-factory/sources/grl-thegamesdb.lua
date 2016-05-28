@@ -211,9 +211,15 @@ function fetch_game_cb(results)
 
     if game.Images and
        game.Images.boxart then
-      for index, boxart in pairs(game.Images.boxart) do
-        if boxart.side == 'front' then
-          media.thumbnail = base_url .. boxart.xml
+      -- Handle having a single boxart image
+      if game.Images.boxart.side and
+         game.Images.boxart.side == 'front' then
+        media.thumbnail = base_url .. game.Images.boxart.xml
+      else
+        for index, boxart in pairs(game.Images.boxart) do
+          if boxart.side == 'front' then
+            media.thumbnail = base_url .. boxart.xml
+          end
         end
       end
     end

@@ -36,7 +36,9 @@ dist_noinst_DATA =                    \
    data/resolve-getgame-sonic-sms.data\
    data/resolve-sonic-sms.data        \
    data/resolve-asterix.data          \
-   data/resolve-getgame-asterix.data
+   data/resolve-getgame-asterix.data  \
+   data/resolve-sonic.data            \
+   data/resolve-getgame-sonic.data
 
 noinst_PROGRAMS = $(TEST_PROGS)
 

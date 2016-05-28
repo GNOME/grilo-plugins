@@ -111,7 +111,12 @@ end
 function get_suffix (url)
     if not url then return nil end
     -- Return a 3-letter suffix
-    return url:match('.-%.(...)$')
+    local ret = url:match('*-%.(...)$')
+    if not ret then
+      -- Try with a 2-letter suffix (Game Gear...)
+      ret = url:match('*-%.(..)$')
+    end
+    return ret
 end
 
 function get_title (title)

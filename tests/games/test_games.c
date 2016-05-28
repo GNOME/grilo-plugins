@@ -115,6 +115,7 @@ test_resolve_thumbnail_found (GrlSource *source,
                               GrlOperationOptions *options,
                               const gchar *title,
                               const gchar *mime,
+                              const gchar *url,
                               guint expected_thumbnail_index,
                               const gchar *expected_thumbnail_url)
 {
@@ -124,6 +125,7 @@ test_resolve_thumbnail_found (GrlSource *source,
 
   media = build_game_media (title);
   grl_media_set_mime (media, mime);
+  grl_media_set_url (media, url);
 
   grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
 
@@ -162,24 +164,35 @@ test_resolve_thumbnails_found (void)
   test_resolve_thumbnail_found (source, keys, options,
                                 "Kirby & the Amazing Mirror",
                                 "application/x-gba-rom",
+                                NULL,
                                 0,
                                 "http://thegamesdb.net/banners/boxart/original/front/2336-1.png");
 
   test_resolve_thumbnail_found (source, keys, options,
                                 "Kirby's Dream Land",
                                 "application/x-gameboy-rom",
+                                NULL,
                                 0,
                                 "http://thegamesdb.net/banners/boxart/original/front/8706-1.jpg");
 
   test_resolve_thumbnail_found (source, keys, options,
                                 "Sonic the Hedgehog",
                                 "application/x-sms-rom",
+                                NULL,
                                 0,
                                 "http://thegamesdb.net/banners/boxart/original/front/3016-1.jpg");
+ 
+  test_resolve_thumbnail_found (source, keys, options,
+                                "Sonic the Hedgehog",
+                                "application/x-sms-rom",
+                                "sonic.gg",
+                                0,
+                                "http://thegamesdb.net/banners/boxart/original/front/5754-1.jpg");
 
   test_resolve_thumbnail_found (source, keys, options,
                                 "Astérix",
                                 "",
+                                NULL,
                                 0,
                                 "http://thegamesdb.net/banners/boxart/original/front/11837-1.jpg");
 

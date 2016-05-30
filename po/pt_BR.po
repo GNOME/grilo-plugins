@@ -2,23 +2,23 @@
 # Copyright (C) 2014 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
 # Rafael Ferreira <rafael.f.f1@gmail.com>, 2013, 2014.
-# Enrico Nicoletto <liverig@gmail.com>, 2013, 2014.
+# Enrico Nicoletto <liverig@gmail.com>, 2013, 2014, 2016.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-01-01 23:21+0000\n"
-"PO-Revision-Date: 2016-01-02 04:58-0200\n"
-"Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>\n"
+"POT-Creation-Date: 2016-05-30 17:48+0000\n"
+"PO-Revision-Date: 2016-05-30 17:15-0300\n"
+"Last-Translator: Enrico Nicoletto <liverig@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.8.6\n"
+"X-Generator: Poedit 1.8.7\n"
 
 #: ../src/bookmarks/grl-bookmarks.c:65
 msgid "Bookmarks"
@@ -57,6 +57,10 @@ msgstr "Falha ao armazenar: %s"
 msgid "No database connection"
 msgstr "Nenhuma conexão com o banco de dados"
 
+#: ../src/chromaprint/grl-chromaprint.c:46
+msgid "A plugin to get metadata using gstreamer framework"
+msgstr "Um plug-in para obter metadados usando o framework gstreamer"
+
 #: ../src/dleyna/grl-dleyna-source.c:34
 #, c-format
 msgid "A source for browsing the DLNA server '%s'"
@@ -86,18 +90,18 @@ msgstr "Envio falhou, faltando URL no objeto de mídia a ser transferido"
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "Uma fonte para acessar o servidor DAAP \"%s\""
 
-#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:793
+#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:795
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Álbuns"
 
-#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:782
+#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:784
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Artistas"
 
-#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1120
-#: ../src/jamendo/grl-jamendo.c:1195 ../src/magnatune/grl-magnatune.c:841
+#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1122
+#: ../src/jamendo/grl-jamendo.c:1233 ../src/magnatune/grl-magnatune.c:841
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Identificador de recipiente %s inválido"
@@ -173,67 +177,67 @@ msgstr "Um plug-in para obter avatares para os campos de artista e autor"
 msgid "A source for browsing and searching Jamendo music"
 msgstr "Uma fonte para acessar e pesquisar por músicas do Jamengo"
 
-#: ../src/jamendo/grl-jamendo.c:147
+#: ../src/jamendo/grl-jamendo.c:149
 msgid "Albums of the week"
 msgstr "Álbuns da semana"
 
-#: ../src/jamendo/grl-jamendo.c:149
+#: ../src/jamendo/grl-jamendo.c:151
 msgid "Tracks of the week"
 msgstr "Faixas da semana"
 
-#: ../src/jamendo/grl-jamendo.c:151
+#: ../src/jamendo/grl-jamendo.c:153
 msgid "New releases"
 msgstr "Novos lançamentos"
 
-#: ../src/jamendo/grl-jamendo.c:153
+#: ../src/jamendo/grl-jamendo.c:155
 msgid "Top artists"
 msgstr "Artistas principais"
 
-#: ../src/jamendo/grl-jamendo.c:155
+#: ../src/jamendo/grl-jamendo.c:157
 msgid "Top albums"
 msgstr "Álbuns principais"
 
-#: ../src/jamendo/grl-jamendo.c:157
+#: ../src/jamendo/grl-jamendo.c:159
 msgid "Top tracks"
 msgstr "Faixas principais"
 
-#: ../src/jamendo/grl-jamendo.c:346 ../src/jamendo/grl-jamendo.c:706
+#: ../src/jamendo/grl-jamendo.c:348 ../src/jamendo/grl-jamendo.c:708
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:470
 msgid "Failed to parse response"
 msgstr "Falha ao analisar resposta"
 
-#: ../src/jamendo/grl-jamendo.c:354 ../src/jamendo/grl-jamendo.c:361
+#: ../src/jamendo/grl-jamendo.c:356 ../src/jamendo/grl-jamendo.c:363
 #: ../src/podcasts/grl-podcasts.c:1368 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Resposta vazia"
 
-#: ../src/jamendo/grl-jamendo.c:675 ../src/shoutcast/grl-shoutcast.c:558
+#: ../src/jamendo/grl-jamendo.c:677 ../src/shoutcast/grl-shoutcast.c:558
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Falha ao conectar: %s"
 
-#: ../src/jamendo/grl-jamendo.c:804
+#: ../src/jamendo/grl-jamendo.c:806
 msgid "Feeds"
 msgstr "Feeds"
 
-#: ../src/jamendo/grl-jamendo.c:988 ../src/jamendo/grl-jamendo.c:1033
-#: ../src/jamendo/grl-jamendo.c:1060
+#: ../src/jamendo/grl-jamendo.c:990 ../src/jamendo/grl-jamendo.c:1035
+#: ../src/jamendo/grl-jamendo.c:1062
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Identificador %s inválido"
 
-#: ../src/jamendo/grl-jamendo.c:1047 ../src/youtube/grl-youtube.c:1112
+#: ../src/jamendo/grl-jamendo.c:1049 ../src/youtube/grl-youtube.c:1112
 #: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Identificador de categoria %s inválido"
 
-#: ../src/jamendo/grl-jamendo.c:1190
+#: ../src/jamendo/grl-jamendo.c:1228
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Falha ao acessar: %s é uma faixa"
 
-#: ../src/jamendo/grl-jamendo.c:1250
+#: ../src/jamendo/grl-jamendo.c:1287
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Consulta \"%s\" malformada"
@@ -533,7 +537,7 @@ msgstr "Falha ao obter mídia a partir da uri: %s"
 msgid "Empty query"
 msgstr "Consulta vazia"
 
-#: ../src/tracker/grl-tracker-source-api.c:1075
+#: ../src/tracker/grl-tracker-source-api.c:1077
 #, c-format
 msgid "ID '%s' is not known in this source"
 msgstr "ID \"%s\" não é conhecido nesta fonte"
@@ -542,12 +546,12 @@ msgstr "ID \"%s\" não é conhecido nesta fonte"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Um plug-in para pesquisar por conteúdo de multimídia usando Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:642
+#: ../src/tracker/grl-tracker-utils.c:691
 #, c-format
 msgid "Removable - %s"
 msgstr "Removível - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:654
+#: ../src/tracker/grl-tracker-utils.c:703
 msgid "Local files"
 msgstr "Arquivos locais"
 

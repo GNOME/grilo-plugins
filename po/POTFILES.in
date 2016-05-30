@@ -1,4 +1,5 @@
 src/bookmarks/grl-bookmarks.c
+src/chromaprint/grl-chromaprint.c
 src/dleyna/grl-dleyna-source.c
 src/dmap/grl-daap.c
 src/dmap/grl-daap-db.c

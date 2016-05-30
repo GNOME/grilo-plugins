@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-03-04 12:53+0000\n"
+"POT-Creation-Date: 2016-05-09 20:45+0000\n"
 "PO-Revision-Date: 2016-03-04 13:51+0200\n"
 "Last-Translator: Cédric Valmary (totenoc.eu) <cvalmary@yahoo.fr>\n"
 "Language-Team: Tot En Òc\n"
@@ -54,7 +54,7 @@ msgstr "Emmagazinatge impossible : %s"
 #: ../src/podcasts/grl-podcasts.c:1667 ../src/podcasts/grl-podcasts.c:1711
 #: ../src/podcasts/grl-podcasts.c:1745 ../src/podcasts/grl-podcasts.c:1780
 msgid "No database connection"
-msgstr "Pas cap de connexion a la banca de donadas"
+msgstr "Pas cap de connexion a la basa de donadas"
 
 #: ../src/dleyna/grl-dleyna-source.c:34
 #, c-format
@@ -87,18 +87,18 @@ msgstr "Fracàs del mandadís, manca l'URL de l'objècte mèdia de transferir"
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "Una font per percórrer lo servidor DAAP « %s »"
 
-#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:793
+#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:795
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Albums"
 
-#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:782
+#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:784
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Artistas"
 
-#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1120
-#: ../src/jamendo/grl-jamendo.c:1195 ../src/magnatune/grl-magnatune.c:841
+#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1122
+#: ../src/jamendo/grl-jamendo.c:1233 ../src/magnatune/grl-magnatune.c:841
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Identificant %s del contenidor invalid"
@@ -174,67 +174,67 @@ msgstr "Un empeuton per obténer d'avatars pels camps artista e autor"
 msgid "A source for browsing and searching Jamendo music"
 msgstr "Una font per percórrer e recercar de musica sus Jamendo"
 
-#: ../src/jamendo/grl-jamendo.c:147
+#: ../src/jamendo/grl-jamendo.c:149
 msgid "Albums of the week"
 msgstr "Albums de la setmana"
 
-#: ../src/jamendo/grl-jamendo.c:149
+#: ../src/jamendo/grl-jamendo.c:151
 msgid "Tracks of the week"
 msgstr "Títols de la setmana"
 
-#: ../src/jamendo/grl-jamendo.c:151
+#: ../src/jamendo/grl-jamendo.c:153
 msgid "New releases"
 msgstr "Novetats"
 
-#: ../src/jamendo/grl-jamendo.c:153
+#: ../src/jamendo/grl-jamendo.c:155
 msgid "Top artists"
 msgstr "Melhors artistas"
 
-#: ../src/jamendo/grl-jamendo.c:155
+#: ../src/jamendo/grl-jamendo.c:157
 msgid "Top albums"
 msgstr "Melhors albums"
 
-#: ../src/jamendo/grl-jamendo.c:157
+#: ../src/jamendo/grl-jamendo.c:159
 msgid "Top tracks"
 msgstr "Melhors títols"
 
-#: ../src/jamendo/grl-jamendo.c:346 ../src/jamendo/grl-jamendo.c:706
+#: ../src/jamendo/grl-jamendo.c:348 ../src/jamendo/grl-jamendo.c:708
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:470
 msgid "Failed to parse response"
 msgstr "Impossible d'analisar la responsa"
 
-#: ../src/jamendo/grl-jamendo.c:354 ../src/jamendo/grl-jamendo.c:361
+#: ../src/jamendo/grl-jamendo.c:356 ../src/jamendo/grl-jamendo.c:363
 #: ../src/podcasts/grl-podcasts.c:1368 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Responsa voida"
 
-#: ../src/jamendo/grl-jamendo.c:675 ../src/shoutcast/grl-shoutcast.c:558
+#: ../src/jamendo/grl-jamendo.c:677 ../src/shoutcast/grl-shoutcast.c:558
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Impossible de se connectar : %s"
 
-#: ../src/jamendo/grl-jamendo.c:804
+#: ../src/jamendo/grl-jamendo.c:806
 msgid "Feeds"
 msgstr "Fluxes"
 
-#: ../src/jamendo/grl-jamendo.c:988 ../src/jamendo/grl-jamendo.c:1033
-#: ../src/jamendo/grl-jamendo.c:1060
+#: ../src/jamendo/grl-jamendo.c:990 ../src/jamendo/grl-jamendo.c:1035
+#: ../src/jamendo/grl-jamendo.c:1062
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Identificant %s invalid"
 
-#: ../src/jamendo/grl-jamendo.c:1047 ../src/youtube/grl-youtube.c:1112
+#: ../src/jamendo/grl-jamendo.c:1049 ../src/youtube/grl-youtube.c:1112
 #: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Identificant %s de la categoria invalid"
 
-#: ../src/jamendo/grl-jamendo.c:1190
+#: ../src/jamendo/grl-jamendo.c:1228
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Navigacion impossibla : %s es una pista"
 
-#: ../src/jamendo/grl-jamendo.c:1250
+#: ../src/jamendo/grl-jamendo.c:1287
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Requèsta « %s » mal formada"
@@ -273,18 +273,18 @@ msgstr "Una font per percórrer de musica"
 #: ../src/magnatune/grl-magnatune.c:422
 #, c-format
 msgid "Failed to get database from magnatune: %s"
-msgstr "Impossible d'obténer la banca de donadas de Magnatune : %s"
+msgstr "Impossible d'obténer la basa de donadas de Magnatune : %s"
 
 #: ../src/magnatune/grl-magnatune.c:452
 #, c-format
 msgid "Failed to save database from magnatune - '%s'"
-msgstr "Impossible d'enregistrar la banca de donadas de Magnatune - « %s »"
+msgstr "Impossible d'enregistrar la basa de donadas de Magnatune - « %s »"
 
 #: ../src/magnatune/grl-magnatune.c:697
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
 msgstr ""
-"Impossible d'obténer lo classament de la banca de donadas de Magnatune : %s"
+"Impossible d'obténer lo classament de la basa de donadas de Magnatune : %s"
 
 #: ../src/magnatune/grl-magnatune.c:713
 #, c-format
@@ -534,7 +534,7 @@ msgstr "Impossible d'obténer lo mèdia de l'URI : %s"
 msgid "Empty query"
 msgstr "Requèsta voida"
 
-#: ../src/tracker/grl-tracker-source-api.c:1075
+#: ../src/tracker/grl-tracker-source-api.c:1077
 #, c-format
 msgid "ID '%s' is not known in this source"
 msgstr "L'identificant « %s » es desconegut d'aquesta font"
@@ -543,12 +543,12 @@ msgstr "L'identificant « %s » es desconegut d'aquesta font"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Un empeuton per recercar de contengut multimèdia amb Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:653
+#: ../src/tracker/grl-tracker-utils.c:676
 #, c-format
 msgid "Removable - %s"
 msgstr "Amovible - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:665
+#: ../src/tracker/grl-tracker-utils.c:688
 msgid "Local files"
 msgstr "Fichièrs locals"
 
@@ -614,27 +614,27 @@ msgid "Invalid feed identifier %s"
 msgstr "Identificant %s del flux invalid"
 
 #~ msgid "Album art Provider from Last.FM"
-#~ msgstr "Provesidor de pochettes d'albums dempuèi Last.FM"
+#~ msgstr "Provesidor de pochetas d'albums dempuèi Last.FM"
 
 #~ msgid "A plugin for getting album arts using Last.FM as backend"
 #~ msgstr ""
-#~ "Un empeuton servant a obténer des pochettes d'albums en utilizant Last.FM "
-#~ "comme motor"
+#~ "Un empeuton que servís a obténer de pochetas d'albums en utilizant Last.FM "
+#~ "coma motor"
 
 #~ msgid "Apple Movie Trailers"
-#~ msgstr "Bendas annonces de films Apple"
+#~ msgstr "Bendas anóncias de filmes Apple"
 
 #~ msgid "A plugin for browsing Apple Movie Trailers"
-#~ msgstr "Un empeuton per percórrer les bendas anóncias de films Apple"
+#~ msgstr "Un empeuton per percórrer las bendas  anóncias de filmes Apple"
 
 #~ msgid "A source for browsing and searching Blip.tv videos"
-#~ msgstr "Una font per percórrer e recercar les vidèos de Blip.tv"
+#~ msgstr "Una font per percórrer e recercar las vidèos de Blip.tv"
 
 #~ msgid "Pocket"
 #~ msgstr "Pocket"
 
 #~ msgid "A source for browsing Pocket videos"
-#~ msgstr "Una font per percórrer les vidèos Pocket"
+#~ msgstr "Una font per percórrer las vidèos Pocket"
 
 #~ msgid "A source for browsing the UPnP server '%s'"
 #~ msgstr "Una font per percórrer lo servidor UPnP « %s »"
@@ -643,7 +643,7 @@ msgstr "Identificant %s del flux invalid"
 #~ msgstr "Navigacion impossible"
 
 #~ msgid "Failed to query"
-#~ msgstr "Requèsta impossible"
+#~ msgstr "Requèsta impossibla"
 
 #~ msgid "Unable to listen for changes in %s"
-#~ msgstr "Écoute des modificacions dins %s impossible"
+#~ msgstr "Escota de las modificacions dins %s impossibla"

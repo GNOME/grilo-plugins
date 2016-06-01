@@ -4,14 +4,14 @@
 # pomóc w jego rozwijaniu i pielęgnowaniu, napisz do nas:
 # gnomepl@aviary.pl
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-# Piotr Drąg <piotrdrag@gmail.com>, 2013-2015.
-# Aviary.pl <gnomepl@aviary.pl>, 2013-2015.
+# Piotr Drąg <piotrdrag@gmail.com>, 2013-2016.
+# Aviary.pl <gnomepl@aviary.pl>, 2013-2016.
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-17 02:03+0100\n"
-"PO-Revision-Date: 2015-12-17 02:04+0100\n"
+"POT-Creation-Date: 2016-06-01 15:28+0200\n"
+"PO-Revision-Date: 2016-06-01 15:29+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -29,7 +29,7 @@ msgstr "Zakładki"
 
 #: ../src/bookmarks/grl-bookmarks.c:66
 msgid "A source for organizing media bookmarks"
-msgstr "Źródło do organizowania zakładek multimedialnych"
+msgstr "Źródło do organizowania zakładek multimediów"
 
 #: ../src/bookmarks/grl-bookmarks.c:434
 msgid "Failed to get bookmark metadata"
@@ -59,6 +59,10 @@ msgstr "Przechowanie się nie powiodło: %s"
 #: ../src/podcasts/grl-podcasts.c:1745 ../src/podcasts/grl-podcasts.c:1780
 msgid "No database connection"
 msgstr "Brak połączenia z bazą danych"
+
+#: ../src/chromaprint/grl-chromaprint.c:46
+msgid "A plugin to get metadata using gstreamer framework"
+msgstr "Wtyczka do pobierania metadanych używając biblioteki GStreamer"
 
 #: ../src/dleyna/grl-dleyna-source.c:34
 #, c-format
@@ -92,18 +96,18 @@ msgstr ""
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "Źródło do przeglądania serwera DAAP „%s”"
 
-#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:793
+#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:795
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Albumy"
 
-#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:782
+#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:784
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Wykonawcy"
 
-#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1120
-#: ../src/jamendo/grl-jamendo.c:1195 ../src/magnatune/grl-magnatune.c:841
+#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1122
+#: ../src/jamendo/grl-jamendo.c:1233 ../src/magnatune/grl-magnatune.c:841
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Nieprawidłowy identyfikator kontenera %s"
@@ -181,67 +185,67 @@ msgstr "Wtyczka do pobierania awatarów dla pól wykonawcy i autora"
 msgid "A source for browsing and searching Jamendo music"
 msgstr "Źródło do przeglądania i przeszukiwania muzyki w serwisie Jamendo"
 
-#: ../src/jamendo/grl-jamendo.c:147
+#: ../src/jamendo/grl-jamendo.c:149
 msgid "Albums of the week"
 msgstr "Albumy tygodnia"
 
-#: ../src/jamendo/grl-jamendo.c:149
+#: ../src/jamendo/grl-jamendo.c:151
 msgid "Tracks of the week"
 msgstr "Ścieżki tygodnia"
 
-#: ../src/jamendo/grl-jamendo.c:151
+#: ../src/jamendo/grl-jamendo.c:153
 msgid "New releases"
 msgstr "Nowe wydania"
 
-#: ../src/jamendo/grl-jamendo.c:153
+#: ../src/jamendo/grl-jamendo.c:155
 msgid "Top artists"
 msgstr "Najczęściej odsłuchiwani wykonawcy"
 
-#: ../src/jamendo/grl-jamendo.c:155
+#: ../src/jamendo/grl-jamendo.c:157
 msgid "Top albums"
 msgstr "Najczęściej odsłuchiwane albumy"
 
-#: ../src/jamendo/grl-jamendo.c:157
+#: ../src/jamendo/grl-jamendo.c:159
 msgid "Top tracks"
 msgstr "Najczęściej odsłuchiwane ścieżki"
 
-#: ../src/jamendo/grl-jamendo.c:346 ../src/jamendo/grl-jamendo.c:706
+#: ../src/jamendo/grl-jamendo.c:348 ../src/jamendo/grl-jamendo.c:708
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:470
 msgid "Failed to parse response"
 msgstr "Przetworzenie odpowiedzi się nie powiodło"
 
-#: ../src/jamendo/grl-jamendo.c:354 ../src/jamendo/grl-jamendo.c:361
+#: ../src/jamendo/grl-jamendo.c:356 ../src/jamendo/grl-jamendo.c:363
 #: ../src/podcasts/grl-podcasts.c:1368 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Pusta odpowiedź"
 
-#: ../src/jamendo/grl-jamendo.c:675 ../src/shoutcast/grl-shoutcast.c:558
+#: ../src/jamendo/grl-jamendo.c:677 ../src/shoutcast/grl-shoutcast.c:558
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Połączenie się nie powiodło: %s"
 
-#: ../src/jamendo/grl-jamendo.c:804
+#: ../src/jamendo/grl-jamendo.c:806
 msgid "Feeds"
 msgstr "Kanały"
 
-#: ../src/jamendo/grl-jamendo.c:988 ../src/jamendo/grl-jamendo.c:1033
-#: ../src/jamendo/grl-jamendo.c:1060
+#: ../src/jamendo/grl-jamendo.c:990 ../src/jamendo/grl-jamendo.c:1035
+#: ../src/jamendo/grl-jamendo.c:1062
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Nieprawidłowy identyfikator %s"
 
-#: ../src/jamendo/grl-jamendo.c:1047 ../src/youtube/grl-youtube.c:1112
+#: ../src/jamendo/grl-jamendo.c:1049 ../src/youtube/grl-youtube.c:1112
 #: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Nieprawidłowy identyfikator kategorii %s"
 
-#: ../src/jamendo/grl-jamendo.c:1190
+#: ../src/jamendo/grl-jamendo.c:1228
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Przeglądanie się nie powiodło: %s jest ścieżką"
 
-#: ../src/jamendo/grl-jamendo.c:1250
+#: ../src/jamendo/grl-jamendo.c:1287
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Błędnie sformatowane zapytanie „%s”"
@@ -540,7 +544,7 @@ msgstr "Pobranie multimediów z adresu URI się nie powiodło: %s"
 msgid "Empty query"
 msgstr "Puste zapytanie"
 
-#: ../src/tracker/grl-tracker-source-api.c:1075
+#: ../src/tracker/grl-tracker-source-api.c:1077
 #, c-format
 msgid "ID '%s' is not known in this source"
 msgstr "Identyfikator „%s” nie jest znany w tym źródle"
@@ -550,12 +554,12 @@ msgid "A plugin for searching multimedia content using Tracker"
 msgstr ""
 "Wtyczka do przeszukiwania treści multimedialnych używając programu Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:642
+#: ../src/tracker/grl-tracker-utils.c:691
 #, c-format
 msgid "Removable - %s"
 msgstr "Wymienne — %s"
 
-#: ../src/tracker/grl-tracker-utils.c:654
+#: ../src/tracker/grl-tracker-utils.c:703
 msgid "Local files"
 msgstr "Lokalne pliki"
 

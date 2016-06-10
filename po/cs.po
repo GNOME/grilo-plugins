@@ -1,15 +1,15 @@
 # Czech translation for grilo-plugins.
 # Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
-# Marek Černocký <marek@manet.cz>, 2013, 2014, 2015.
+# Marek Černocký <marek@manet.cz>, 2013, 2014, 2015, 2016.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-12-22 23:17+0000\n"
-"PO-Revision-Date: 2015-12-23 11:03+0100\n"
+"POT-Creation-Date: 2016-05-30 17:48+0000\n"
+"PO-Revision-Date: 2016-06-10 7:29+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -56,6 +56,10 @@ msgstr "Selhalo uložení: %s"
 msgid "No database connection"
 msgstr "Žádné připojení k databázi"
 
+#: ../src/chromaprint/grl-chromaprint.c:46
+msgid "A plugin to get metadata using gstreamer framework"
+msgstr "Zásuvný modul pro získání metadat pomocí systému gstreamer"
+
 #: ../src/dleyna/grl-dleyna-source.c:34
 #, c-format
 msgid "A source for browsing the DLNA server '%s'"
@@ -87,18 +91,18 @@ msgstr ""
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "Zdroj pro procházení serveru DAAP „%s“"
 
-#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:793
+#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:795
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Alba"
 
-#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:782
+#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:784
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Umělci"
 
-#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1120
-#: ../src/jamendo/grl-jamendo.c:1195 ../src/magnatune/grl-magnatune.c:841
+#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1122
+#: ../src/jamendo/grl-jamendo.c:1233 ../src/magnatune/grl-magnatune.c:841
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Neplatný identifikátor kontejneru %s"
@@ -174,67 +178,67 @@ msgstr "Zásuvný modul pro získávání avatarů pro pole s umělcem a autorem
 msgid "A source for browsing and searching Jamendo music"
 msgstr "Zdroj pro procházení a vyhledávání hudby Jamendo"
 
-#: ../src/jamendo/grl-jamendo.c:147
+#: ../src/jamendo/grl-jamendo.c:149
 msgid "Albums of the week"
 msgstr "Alba týdne"
 
-#: ../src/jamendo/grl-jamendo.c:149
+#: ../src/jamendo/grl-jamendo.c:151
 msgid "Tracks of the week"
 msgstr "Stopy týdne"
 
-#: ../src/jamendo/grl-jamendo.c:151
+#: ../src/jamendo/grl-jamendo.c:153
 msgid "New releases"
 msgstr "Nově vydané"
 
-#: ../src/jamendo/grl-jamendo.c:153
+#: ../src/jamendo/grl-jamendo.c:155
 msgid "Top artists"
 msgstr "Přední umělci"
 
-#: ../src/jamendo/grl-jamendo.c:155
+#: ../src/jamendo/grl-jamendo.c:157
 msgid "Top albums"
 msgstr "Přední alba"
 
-#: ../src/jamendo/grl-jamendo.c:157
+#: ../src/jamendo/grl-jamendo.c:159
 msgid "Top tracks"
 msgstr "Přední stopy"
 
-#: ../src/jamendo/grl-jamendo.c:346 ../src/jamendo/grl-jamendo.c:706
+#: ../src/jamendo/grl-jamendo.c:348 ../src/jamendo/grl-jamendo.c:708
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:470
 msgid "Failed to parse response"
 msgstr "Selhalo zpracování odpovědi"
 
-#: ../src/jamendo/grl-jamendo.c:354 ../src/jamendo/grl-jamendo.c:361
+#: ../src/jamendo/grl-jamendo.c:356 ../src/jamendo/grl-jamendo.c:363
 #: ../src/podcasts/grl-podcasts.c:1368 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Prázdná odpověď"
 
-#: ../src/jamendo/grl-jamendo.c:675 ../src/shoutcast/grl-shoutcast.c:558
+#: ../src/jamendo/grl-jamendo.c:677 ../src/shoutcast/grl-shoutcast.c:558
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Selhalo připojení: %s"
 
-#: ../src/jamendo/grl-jamendo.c:804
+#: ../src/jamendo/grl-jamendo.c:806
 msgid "Feeds"
 msgstr "Kanály"
 
-#: ../src/jamendo/grl-jamendo.c:988 ../src/jamendo/grl-jamendo.c:1033
-#: ../src/jamendo/grl-jamendo.c:1060
+#: ../src/jamendo/grl-jamendo.c:990 ../src/jamendo/grl-jamendo.c:1035
+#: ../src/jamendo/grl-jamendo.c:1062
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Neplatný identifikátor %s"
 
-#: ../src/jamendo/grl-jamendo.c:1047 ../src/youtube/grl-youtube.c:1112
+#: ../src/jamendo/grl-jamendo.c:1049 ../src/youtube/grl-youtube.c:1112
 #: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Neplatný identifikátor kategorie %s"
 
-#: ../src/jamendo/grl-jamendo.c:1190
+#: ../src/jamendo/grl-jamendo.c:1228
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Selhalo procházení: %s je stopa"
 
-#: ../src/jamendo/grl-jamendo.c:1250
+#: ../src/jamendo/grl-jamendo.c:1287
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Vadný dotaz „%s“"
@@ -533,7 +537,7 @@ msgstr "Selhalo získání média z adresy URI: %s"
 msgid "Empty query"
 msgstr "Prázdný dotaz"
 
-#: ../src/tracker/grl-tracker-source-api.c:1075
+#: ../src/tracker/grl-tracker-source-api.c:1077
 #, c-format
 msgid "ID '%s' is not known in this source"
 msgstr "ID „%s“ není v tomto zdroji známo"
@@ -543,12 +547,12 @@ msgid "A plugin for searching multimedia content using Tracker"
 msgstr ""
 "Zásuvný modul pro vyhledávání multimediálního obsahu pomocí aplikace Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:642
+#: ../src/tracker/grl-tracker-utils.c:691
 #, c-format
 msgid "Removable - %s"
 msgstr "Výměnné – %s"
 
-#: ../src/tracker/grl-tracker-utils.c:654
+#: ../src/tracker/grl-tracker-utils.c:703
 msgid "Local files"
 msgstr "Místní soubory"
 

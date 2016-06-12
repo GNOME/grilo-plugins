@@ -8,7 +8,6 @@
 include $(top_srcdir)/gtester.mk
 
 TEST_PROGS +=	\
-	test_lua_acoustid	\
 	test_lua_metrolyrics
 
 test_lua_factory_defines =	\
@@ -18,6 +17,8 @@ test_lua_factory_defines =	\
 	-DLUA_FACTORY_SOURCES_DATA_PATH=\""$(abs_top_builddir)/tests/lua-factory/sources/data/"\" \
 	-DLUA_FACTORY_PLUGIN_TEST_DATA_PATH=\""$(abs_top_builddir)/tests/lua-factory/sources/"\"
 
+if CHROMAPRINT_PLUGIN
+TEST_PROGS += test_lua_acoustid
 test_lua_acoustid_SOURCES =	\
 	test_lua_acoustid.c	\
 	acoustidresources.h acoustidresources.c	\
@@ -29,6 +30,12 @@ test_lua_acoustid_LDADD =	\
 test_lua_acoustid_CFLAGS =	\
 	@DEPS_CFLAGS@								\
 	$(test_lua_factory_defines)
+else
+EXTRA_DIST +=						\
+	test_lua_acoustid.c				\
+	acoustidresources.h acoustidresources.c		\
+	test_lua_factory_utils.h test_lua_factory_utils.c
+endif
 
 acoustid_resources_files =	\
   data/chromaprint_ludovico_einaudi_primavera.txt	\

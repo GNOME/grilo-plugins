@@ -31,22 +31,22 @@ lua_sources_DATA =					\
 lua_sourcesdir = $(datadir)/$(LUA_FACTORY_SOURCE_LOCATION)
 
 grl-euronews.gresource: grl-euronews.gresource.xml
-	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-euronews.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) $(srcdir)/grl-euronews.gresource.xml
 
 grl-guardianvideos.gresource: grl-guardianvideos.gresource.xml
-	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-guardianvideos.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) $(srcdir)/grl-guardianvideos.gresource.xml
 
 grl-radiofrance.gresource: grl-radiofrance.gresource.xml
-	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-radiofrance.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) $(srcdir)/grl-radiofrance.gresource.xml
 
 grl-pocket.gresource: grl-pocket.gresource.xml
-	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-pocket.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) $(srcdir)/grl-pocket.gresource.xml
 
 grl-appletrailers.gresource: grl-appletrailers.gresource.xml
-	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-appletrailers.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) $(srcdir)/grl-appletrailers.gresource.xml
 
 grl-itunes-podcast.gresource: grl-itunes-podcast.gresource.xml
-	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) $(srcdir)/grl-itunes-podcast.gresource.xml
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) $(srcdir)/grl-itunes-podcast.gresource.xml
 
 CLEANFILES =						\
 	grl-euronews.gresource				\

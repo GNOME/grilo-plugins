@@ -172,12 +172,14 @@ add_node (xmlNodePtr node, GHashTable *photo)
   xmlAttrPtr attr;
 
   for (attr = node->properties; attr != NULL; attr = attr->next) {
+    xmlChar *prop = xmlGetProp (node, attr->name);
+
     g_hash_table_insert (photo,
                          g_strconcat ((const gchar *) node->name,
                                       "_",
                                       (const gchar *) attr->name,
                                       NULL),
-                         (gchar *) xmlGetProp (node, attr->name));
+                         prop);
   }
 }
 
@@ -187,7 +189,7 @@ get_photo (xmlNodePtr node)
   GHashTable *photo = g_hash_table_new_full (g_str_hash,
                                              g_str_equal,
                                              g_free,
-                                             g_free);
+                                             xmlFree);
 
   /* Add photo node */
   add_node (node, photo);
@@ -202,9 +204,11 @@ get_photo (xmlNodePtr node)
       add_node (node, photo);
     } else if (xmlStrcmp (node->name, (const xmlChar *) "title") == 0 ||
                xmlStrcmp (node->name, (const xmlChar *) "description") == 0) {
+      xmlChar *content = xmlNodeGetContent (node);
+
       g_hash_table_insert (photo,
                            g_strdup ((const gchar *) node->name),
-                           (gchar *) xmlNodeGetContent (node));
+                           content);
     }
 
     node = node->next;
@@ -228,9 +232,12 @@ get_photoset (xmlNodePtr node)
   node = node->xmlChildrenNode;
 
   while (node) {
+    xmlChar *content = xmlNodeGetContent (node);
+
     g_hash_table_insert (photoset,
                          g_strdup ((const gchar *) node->name),
-                         (gchar *) xmlNodeGetContent (node));
+                         content);
+
     node = node->next;
   }
 
@@ -241,7 +248,13 @@ static gchar *
 get_tag (xmlNodePtr node)
 {
   if (xmlStrcmp (node->name, (const xmlChar *) "tag") == 0) {
-    return (gchar *) xmlNodeGetContent (node);
+    gchar *tag = NULL;
+    xmlChar *content = xmlNodeGetContent (node);
+
+    tag = g_strdup ((const gchar *)content);
+    xmlFree (content);
+
+    return tag;
   } else {
     return NULL;
   }
@@ -257,9 +270,12 @@ get_token_info (xmlNodePtr node)
   node = node->xmlChildrenNode;
 
   while (node) {
+    xmlChar *content = xmlNodeGetContent (node);
+
     g_hash_table_insert (token,
                          g_strdup ((const gchar *) node->name),
-                         (gchar *) xmlNodeGetContent (node));
+                         content);
+
     add_node (node, token);
     node = node->next;
   }

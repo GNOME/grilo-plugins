@@ -299,25 +299,28 @@ process_photo_result (const gchar *xml_result, gpointer user_data)
   xmlDocPtr doc;
   xmlNodePtr node;
   GFlickrData *data = (GFlickrData *) user_data;
-  GHashTable *photo;
+  GHashTable *photo = NULL;
 
   doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar*) xml_result), NULL,
                        NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
-  node = xmlDocGetRootElement (doc);
+  if (doc) {
+    node = xmlDocGetRootElement (doc);
 
-  /* Check result is ok */
-  if (!node || !result_is_correct (node)) {
-    data->hashtable_cb (data->flickr, NULL, data->user_data);
-  } else {
-    node = node->xmlChildrenNode;
+    /* Check result is ok */
+    if (node && result_is_correct (node)) {
+      node = node->xmlChildrenNode;
 
-    photo = get_photo (node);
-    data->hashtable_cb (data->flickr, photo, data->user_data);
+      photo = get_photo (node);
+    }
+    xmlFreeDoc (doc);
+  }
+
+  data->hashtable_cb (data->flickr, photo, data->user_data);
+  if (photo) {
     g_hash_table_unref (photo);
   }
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
-  xmlFreeDoc (doc);
 }
 
 static void
@@ -330,27 +333,32 @@ process_photolist_result (const gchar *xml_result, gpointer user_data)
 
   doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar*) xml_result), NULL,
                        NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
-  node = xmlDocGetRootElement (doc);
+  if (doc) {
+    node = xmlDocGetRootElement (doc);
 
-  /* Check result is ok */
-  if (!node || !result_is_correct (node)) {
-    data->list_cb (data->flickr, NULL, data->user_data);
-  } else {
-    node = node->xmlChildrenNode;
+    /* Check result is ok */
+    if (node && result_is_correct (node)) {
+      node = node->xmlChildrenNode;
 
-    /* Now we're at "photo pages" node */
-    node = node->xmlChildrenNode;
-    while (node) {
-      photolist = g_list_prepend (photolist, get_photo (node));
-      node = node->next;
+      /* Now we're at "photo pages" node */
+      node = node->xmlChildrenNode;
+      while (node) {
+        photolist = g_list_prepend (photolist, get_photo (node));
+        node = node->next;
+      }
+      xmlFreeDoc (doc);
     }
+  }
 
+  if (photolist) {
     data->list_cb (data->flickr, g_list_reverse (photolist), data->user_data);
     g_list_free_full (photolist, (GDestroyNotify) g_hash_table_unref);
+  } else {
+    data->list_cb (data->flickr, NULL, data->user_data);
   }
+
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
-  xmlFreeDoc (doc);
 }
 
 static void
@@ -363,27 +371,33 @@ process_taglist_result (const gchar *xml_result, gpointer user_data)
 
   doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar*) xml_result), NULL,
                        NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
-  node = xmlDocGetRootElement (doc);
+  if (doc) {
+    node = xmlDocGetRootElement (doc);
 
-  /* Check if result is OK */
-  if (!node || !result_is_correct (node)) {
-    data->list_cb (data->flickr, NULL, data->user_data);
-  } else {
-    node = node->xmlChildrenNode;
+    /* Check if result is OK */
+    if (node && result_is_correct (node)) {
+      node = node->xmlChildrenNode;
 
-    /* Now we're at "hot tags" node */
-    node = node->xmlChildrenNode;
-    while (node) {
-      taglist = g_list_prepend (taglist, get_tag (node));
-      node = node->next;
+      /* Now we're at "hot tags" node */
+      node = node->xmlChildrenNode;
+      while (node) {
+        taglist = g_list_prepend (taglist, get_tag (node));
+        node = node->next;
+      }
+
     }
+    xmlFreeDoc (doc);
+  }
 
+  if (taglist) {
     data->list_cb (data->flickr, g_list_reverse (taglist), data->user_data);
     g_list_free_full (taglist, g_free);
+  } else {
+    data->list_cb (data->flickr, NULL, data->user_data);
   }
+
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
-  xmlFreeDoc (doc);
 }
 
 static void
@@ -396,27 +410,31 @@ process_photosetslist_result (const gchar *xml_result, gpointer user_data)
 
   doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar*) xml_result), NULL,
                        NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
-  node = xmlDocGetRootElement (doc);
+  if (doc) {
+    node = xmlDocGetRootElement (doc);
 
-  /* Check if result is OK */
-  if (!node || !result_is_correct (node)) {
-    data->list_cb (data->flickr, NULL, data->user_data);
-  } else {
-    node = node->xmlChildrenNode;
+    /* Check if result is OK */
+    if (node && result_is_correct (node)) {
+      node = node->xmlChildrenNode;
 
-    /* Now we're at "photosets" node */
-    node = node->xmlChildrenNode;
-    while (node) {
-      photosets = g_list_prepend (photosets, get_photoset (node));
-      node = node->next;
+      /* Now we're at "photosets" node */
+      node = node->xmlChildrenNode;
+      while (node) {
+        photosets = g_list_prepend (photosets, get_photoset (node));
+        node = node->next;
+      }
     }
+    xmlFreeDoc (doc);
+  }
 
+  if (photosets) {
     data->list_cb (data->flickr, g_list_reverse (photosets), data->user_data);
     g_list_free_full (photosets, (GDestroyNotify) g_hash_table_unref);
+  } else {
+    data->list_cb (data->flickr, NULL, data->user_data);
   }
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
-  xmlFreeDoc (doc);
 }
 
 static void
@@ -429,27 +447,31 @@ process_photosetsphotos_result (const gchar *xml_result, gpointer user_data)
 
   doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar*) xml_result), NULL,
                        NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
-  node = xmlDocGetRootElement (doc);
+  if (doc) {
+    node = xmlDocGetRootElement (doc);
 
-  /* Check result is ok */
-  if (!node || !result_is_correct (node)) {
-    data->list_cb (data->flickr, NULL, data->user_data);
-  } else {
-    node = node->xmlChildrenNode;
+    /* Check result is ok */
+    if (node && result_is_correct (node)) {
+      node = node->xmlChildrenNode;
 
-    /* Now we're at "photoset page" node */
-    node = node->xmlChildrenNode;
-    while (node) {
-      list = g_list_prepend (list, get_photo (node));
-      node = node->next;
+      /* Now we're at "photoset page" node */
+      node = node->xmlChildrenNode;
+      while (node) {
+        list = g_list_prepend (list, get_photo (node));
+        node = node->next;
+      }
     }
+    xmlFreeDoc (doc);
+  }
 
+  if (list) {
     data->list_cb (data->flickr, g_list_reverse (list), data->user_data);
     g_list_free_full (list, (GDestroyNotify) g_hash_table_unref);
+  } else {
+    data->list_cb (data->flickr, NULL, data->user_data);
   }
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
-  xmlFreeDoc (doc);
 }
 
 static void
@@ -458,25 +480,26 @@ process_token_result (const gchar *xml_result, gpointer user_data)
   xmlDocPtr doc;
   xmlNodePtr node;
   GFlickrData *data = (GFlickrData *) user_data;
-  GHashTable *token;
+  GHashTable *token = NULL;
 
   doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar*) xml_result), NULL,
                        NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
-  node = xmlDocGetRootElement (doc);
+  if (doc) {
+    node = xmlDocGetRootElement (doc);
 
-  /* Check if result is OK */
-  if (!node || !result_is_correct (node)) {
-    data->hashtable_cb (data->flickr, NULL, data->user_data);
-  } else {
-    node = node->xmlChildrenNode;
-    token = get_token_info (node);
-    data->hashtable_cb (data->flickr, token, data->user_data);
-    g_hash_table_unref (token);
+    /* Check if result is OK */
+    if (node && result_is_correct (node)) {
+      node = node->xmlChildrenNode;
+      token = get_token_info (node);
+    }
+    xmlFreeDoc (doc);
   }
 
+  data->hashtable_cb (data->flickr, token, data->user_data);
+  if (token)
+    g_hash_table_unref (token);
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
-  xmlFreeDoc (doc);
 }
 
 inline static GrlNetWc *

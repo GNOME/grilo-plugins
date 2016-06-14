@@ -155,8 +155,10 @@ result_is_correct (xmlNodePtr node)
 
   if (xmlStrcmp (node->name, (const xmlChar *) "rsp") == 0) {
     stat = xmlGetProp (node, (const xmlChar *) "stat");
-    if (stat && xmlStrcmp (stat, (const xmlChar *) "ok") == 0) {
-      correct = TRUE;
+    if (stat) {
+      if (xmlStrcmp (stat, (const xmlChar *) "ok") == 0) {
+        correct = TRUE;
+      }
       xmlFree (stat);
     }
   }

@@ -109,9 +109,11 @@ g_flickr_new (const gchar *consumer_key,
               const gchar *oauth_token,
               const gchar *oauth_token_secret)
 {
+  GFlickr *f;
+
   g_return_val_if_fail (consumer_key && consumer_secret, NULL);
 
-  GFlickr *f = g_object_new (G_FLICKR_TYPE, NULL);
+  f = g_object_new (G_FLICKR_TYPE, NULL);
   f->priv->consumer_key = g_strdup (consumer_key);
   f->priv->consumer_secret = g_strdup (consumer_secret);
 
@@ -525,18 +527,20 @@ g_flickr_photos_getInfo (GFlickr *f,
                          GFlickrHashTableCb callback,
                          gpointer user_data)
 {
-  g_return_if_fail (G_IS_FLICKR (f));
-
   gchar *params[2];
+  gchar *request;
+  GFlickrData *gfd;
+
+  g_return_if_fail (G_IS_FLICKR (f));
 
   params[0] = g_strdup_printf ("photo_id=%s", photo_id);
   params[1] = g_strdup_printf ("method=%s", FLICKR_PHOTOS_GETINFO_METHOD);
 
-  gchar *request = create_url (f, params, 2);
+  request = create_url (f, params, 2);
 
   free_params (params, 2);
 
-  GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_photo_result;
   gfd->hashtable_cb = callback;
@@ -555,6 +559,10 @@ g_flickr_photos_search (GFlickr *f,
                         GFlickrListCb callback,
                         gpointer user_data)
 {
+  gchar *params[8];
+  gchar *request;
+  GFlickrData *gfd;
+
   g_return_if_fail (G_IS_FLICKR (f));
 
   if (user_id == NULL) {
@@ -569,8 +577,6 @@ g_flickr_photos_search (GFlickr *f,
     tags = "";
   }
 
-  gchar *params[8];
-
   params[0] = g_strdup ("extras=date_taken,owner_name,url_0,url_t");
   params[1] = g_strdup ("media=photos");
   params[2] = g_strdup_printf ("user_id=%s", user_id);
@@ -583,11 +589,11 @@ g_flickr_photos_search (GFlickr *f,
 
   /* Build the request */
 
-  gchar *request = create_url (f, params, 8);
+  request = create_url (f, params, 8);
 
   free_params (params, 8);
 
-  GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_photolist_result;
   gfd->list_cb = callback;
@@ -603,9 +609,11 @@ g_flickr_photos_getRecent (GFlickr *f,
                            GFlickrListCb callback,
                            gpointer user_data)
 {
-  g_return_if_fail (G_IS_FLICKR (f));
-
   gchar *params[5];
+  gchar *request;
+  GFlickrData *gfd;
+
+  g_return_if_fail (G_IS_FLICKR (f));
 
   params[0] = g_strdup ("extras=date_taken,owner_name,url_o,url_t");
   params[1] = g_strdup ("media=photos");
@@ -613,11 +621,11 @@ g_flickr_photos_getRecent (GFlickr *f,
   params[3] = g_strdup_printf ("page=%d", page);
   params[4] = g_strdup_printf ("per_page=%d", f->priv->per_page);
 
-  gchar *request = create_url (f, params, 5);
+  request = create_url (f, params, 5);
 
   free_params (params, 5);
 
-  GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_photolist_result;
   gfd->list_cb = callback;
@@ -748,18 +756,20 @@ g_flickr_tags_getHotList (GFlickr *f,
                           GFlickrListCb callback,
                           gpointer user_data)
 {
-  g_return_if_fail (G_IS_FLICKR (f));
-
   gchar *params[2];
+  gchar *request;
+  GFlickrData *gfd;
+
+  g_return_if_fail (G_IS_FLICKR (f));
 
   params[0] = g_strdup_printf ("count=%d", count);
   params[1] = g_strdup_printf ("method=%s", FLICKR_TAGS_GETHOTLIST_METHOD);
 
-  gchar *request = create_url (f, params, 2);
+  request = create_url (f, params, 2);
 
   free_params (params, 2);
 
-  GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_taglist_result;
   gfd->list_cb = callback;
@@ -779,17 +789,19 @@ g_flickr_photosets_getList (GFlickr *f,
   gint params_no = (user_id == NULL) ? 1 : 2;
 
   gchar *params[2];
+  gchar *request;
+  GFlickrData *gfd;
 
   params[0] = g_strdup_printf ("method=%s", FLICKR_PHOTOSETS_GETLIST_METHOD);
 
   if (user_id != NULL)
     params[1] = g_strdup_printf ("user_id=%s", user_id);
 
-  gchar *request = create_url (f, params, params_no);
+  request = create_url (f, params, params_no);
 
   free_params (params, params_no);
 
-  GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_photosetslist_result;
   gfd->list_cb = callback;
@@ -806,10 +818,12 @@ g_flickr_photosets_getPhotos (GFlickr *f,
                               GFlickrListCb callback,
                               gpointer user_data)
 {
+  gchar *params[6];
+  gchar *request;
+  GFlickrData *gfd;
+
   g_return_if_fail (G_IS_FLICKR (f));
   g_return_if_fail (photoset_id);
-
-  gchar *params[6];
 
   params[0] = g_strdup_printf ("photoset_id=%s", photoset_id);
   params[1] = g_strdup ("extras=date_taken,owner_name,url_o,url_t,media");
@@ -818,11 +832,11 @@ g_flickr_photosets_getPhotos (GFlickr *f,
   params[4] = g_strdup_printf ("per_page=%d", f->priv->per_page);
   params[5] = g_strdup_printf ("method=%s", FLICKR_PHOTOSETS_GETPHOTOS_METHOD);
 
-  gchar *request = create_url (f, params, 6);
+  request = create_url (f, params, 6);
 
   free_params (params, 6);
 
-  GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_photosetsphotos_result;
   gfd->list_cb = callback;
@@ -842,6 +856,7 @@ g_flickr_auth_checkToken (GFlickr *f,
 {
   gchar *request;
   gchar *params[1];
+  GFlickrData *gfd;
 
   g_return_if_fail (G_IS_FLICKR (f));
   g_return_if_fail (token);
@@ -853,7 +868,7 @@ g_flickr_auth_checkToken (GFlickr *f,
 
   free_params (params, 1);
 
-  GFlickrData *gfd = g_slice_new (GFlickrData);
+  gfd = g_slice_new (GFlickrData);
   gfd->flickr = g_object_ref (f);
   gfd->parse_xml = process_token_result;
   gfd->hashtable_cb = callback;

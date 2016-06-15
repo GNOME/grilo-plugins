@@ -175,6 +175,8 @@ add_node (xmlNodePtr node, GHashTable *photo)
 
   for (attr = node->properties; attr != NULL; attr = attr->next) {
     xmlChar *prop = xmlGetProp (node, attr->name);
+    if (!prop)
+      continue;
 
     g_hash_table_insert (photo,
                          g_strconcat ((const gchar *) node->name,
@@ -208,9 +210,12 @@ get_photo (xmlNodePtr node)
                xmlStrcmp (node->name, (const xmlChar *) "description") == 0) {
       xmlChar *content = xmlNodeGetContent (node);
 
-      g_hash_table_insert (photo,
-                           g_strdup ((const gchar *) node->name),
-                           content);
+      if (content) {
+        g_hash_table_insert (photo,
+                             g_strdup ((const gchar *) node->name),
+                             content);
+
+      }
     }
 
     node = node->next;
@@ -236,9 +241,12 @@ get_photoset (xmlNodePtr node)
   while (node) {
     xmlChar *content = xmlNodeGetContent (node);
 
-    g_hash_table_insert (photoset,
-                         g_strdup ((const gchar *) node->name),
-                         content);
+    if (content) {
+      g_hash_table_insert (photoset,
+                           g_strdup ((const gchar *) node->name),
+                           content);
+
+    }
 
     node = node->next;
   }
@@ -249,17 +257,16 @@ get_photoset (xmlNodePtr node)
 static gchar *
 get_tag (xmlNodePtr node)
 {
+  gchar *tag = NULL;
+
   if (xmlStrcmp (node->name, (const xmlChar *) "tag") == 0) {
-    gchar *tag = NULL;
     xmlChar *content = xmlNodeGetContent (node);
-
-    tag = g_strdup ((const gchar *)content);
-    xmlFree (content);
-
-    return tag;
-  } else {
-    return NULL;
+    if (content) {
+      tag = g_strdup ((const gchar *)content);
+      xmlFree (content);
+    }
   }
+  return tag;
 }
 
 static GHashTable *
@@ -273,12 +280,13 @@ get_token_info (xmlNodePtr node)
 
   while (node) {
     xmlChar *content = xmlNodeGetContent (node);
+    if (content) {
+      g_hash_table_insert (token,
+                           g_strdup ((const gchar *) node->name),
+                           content);
 
-    g_hash_table_insert (token,
-                         g_strdup ((const gchar *) node->name),
-                         content);
-
-    add_node (node, token);
+      add_node (node, token);
+    }
     node = node->next;
   }
 

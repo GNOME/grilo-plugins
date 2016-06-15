@@ -174,16 +174,16 @@ add_node (xmlNodePtr node, GHashTable *photo)
   xmlAttrPtr attr;
 
   for (attr = node->properties; attr != NULL; attr = attr->next) {
+    gchar *key;
     xmlChar *prop = xmlGetProp (node, attr->name);
     if (!prop)
       continue;
 
-    g_hash_table_insert (photo,
-                         g_strconcat ((const gchar *) node->name,
-                                      "_",
-                                      (const gchar *) attr->name,
-                                      NULL),
-                         prop);
+    key = g_strconcat ((const gchar *) node->name,
+                       "_",
+                       (const gchar *) attr->name,
+                       NULL);
+    g_hash_table_insert (photo, key, prop);
   }
 }
 

@@ -1,3 +1,33 @@
+NEW in 0.3.2
+============
+
+  * acoustid plugin
+    * BGO#732879 - AcoustID source
+  * chromaprint plugin
+    * BGO#732879 - AcoustID source
+  * jamendo plugin
+    * BGO#764486 - Fix "format not a string literal" error
+  * lua-factory plugin
+    * BGO#764077 - Cancellation doesn't work
+    * BGO#764078 - Improve error messages
+    * BGO#764814 - Crashes fetching lyrics with '%' in them
+    * BGO#764816 - lua-factory: Add iTunes Podcast source
+    * BGO#766678 - Add TheGamesDB source
+    * BGO#767631 - Fix gresource build when builddir != srcdir
+  * metrolyrics plugin
+    * BGO#764078 - Improve error messages
+    * BGO#764814 - Crashes fetching lyrics with '%' in them
+  * spotify plugin
+    * BGO#764600 - tests: Fix copy/paste error in spotify tests
+  * thegamesdb plugin
+    * BGO#766678 - Add TheGamesDB source
+  * tmdb plugin
+    * BGO#764486 - Fix "format not a string literal" error
+  * tracker plugin
+    * BGO#761624 - [tracker] match nmm:composer as author for audio
+    * BGO#761869 - [PATCH][tracker] return album disc property
+    * BGO#766587 - tracker: Add album artist key mapping
+
 NEW in 0.3.1
 ============
 

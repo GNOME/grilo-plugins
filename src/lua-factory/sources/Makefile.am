@@ -60,6 +60,7 @@ EXTRA_DIST +=						\
 	$(lua_sources_DATA)				\
 	grl-euronews.gresource.xml			\
 	grl-guardianvideos.gresource.xml		\
+	grl-itunes-podcast.gresource.xml		\
 	grl-radiofrance.gresource.xml			\
 	grl-pocket.gresource.xml			\
 	grl-appletrailers.gresource.xml			\

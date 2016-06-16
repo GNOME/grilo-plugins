@@ -1065,7 +1065,7 @@ dnl Check for required plugins
 gst10_toolsdir=`$PKG_CONFIG --variable=toolsdir gstreamer-1.0`
 gst10_inspect="$gst10_toolsdir/gst-inspect-1.0"
 
-AC_ARG_ENABLE(gstreamer,
+AC_ARG_ENABLE(chromaprint,
         AC_HELP_STRING([--enable-chromaprint],
                 [enable chromaprint plugin (default: auto)]),
         [

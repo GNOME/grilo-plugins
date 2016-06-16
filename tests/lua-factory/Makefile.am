@@ -18,7 +18,7 @@ test_lua_factory_defines =	\
 	-DLUA_FACTORY_PLUGIN_PATH=\""$(abs_top_builddir)/src/lua-factory/.libs/"\"	\
 	-DLUA_FACTORY_SOURCES_PATH=\""$(abs_top_srcdir)/src/lua-factory/sources/"\"	\
 	-DLUA_FACTORY_DATA_PATH=\""$(abs_top_srcdir)/tests/lua-factory/data/"\"		\
-	-DLUA_FACTORY_PLUGIN_TEST_DATA_PATH=\""$(abs_top_builddir)/tests/lua-factory/sources/"\"
+	-DLUA_FACTORY_PLUGIN_TEST_DATA_PATH=\""$(abs_top_srcdir)/tests/lua-factory/sources/"\"
 
 test_lua_factory_grl_media_SOURCES =	\
 	test_lua_factory_grl_media.c	\

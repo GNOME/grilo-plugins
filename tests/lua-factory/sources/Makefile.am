@@ -14,7 +14,7 @@ test_lua_factory_defines =	\
 	-DLUA_FACTORY_PLUGIN_PATH=\""$(abs_top_builddir)/src/lua-factory/.libs/"\"	\
 	-DCHROMAPRINT_PLUGIN_PATH=\""$(abs_top_builddir)/src/chromaprint/.libs/"\"	\
 	-DLUA_FACTORY_SOURCES_PATH=\""$(abs_top_srcdir)/src/lua-factory/sources/"\" \
-	-DLUA_FACTORY_SOURCES_DATA_PATH=\""$(abs_top_builddir)/tests/lua-factory/sources/data/"\" \
+	-DLUA_FACTORY_SOURCES_DATA_PATH=\""$(abs_top_srcdir)/tests/lua-factory/sources/data/"\" \
 	-DLUA_FACTORY_PLUGIN_TEST_DATA_PATH=\""$(abs_top_builddir)/tests/lua-factory/sources/"\"
 
 if CHROMAPRINT_PLUGIN
@@ -38,6 +38,10 @@ EXTRA_DIST +=						\
 endif
 
 acoustid_resources_files =	\
+  data/acoustid_ludovico_einaudi_primavera.txt   	\
+  data/acoustid_norah_jones_chasing_pirates.txt	        \
+  data/acoustid_philip_glass_the_passion_of.txt	        \
+  data/acoustid_trombone_shorty_buckjump.txt            \
   data/chromaprint_ludovico_einaudi_primavera.txt	\
   data/chromaprint_norah_jones_chasing_pirates.txt	\
   data/chromaprint_philip_glass_the_passion_of.txt	\
@@ -84,6 +88,7 @@ CLEANFILES = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 EXTRA_DIST += \
+	data/config.inii        	\
 	$(acoustid_resources_files)	\
 	test_lua_acoustid.gresource.xml	\
 	$(metrolyrics_resources_files)	\

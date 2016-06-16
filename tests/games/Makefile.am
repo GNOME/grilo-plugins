@@ -27,6 +27,7 @@ test_games_CFLAGS =	\
 
 # Distribute the tests data:
 dist_noinst_DATA =                    \
+   data/network-data.ini              \
    data/resolve-getgame-kirby.data    \
    data/resolve-getgame-strider.data  \
    data/resolve-kirby.data            \

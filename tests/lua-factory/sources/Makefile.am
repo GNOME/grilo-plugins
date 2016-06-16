@@ -88,7 +88,7 @@ CLEANFILES = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 EXTRA_DIST += \
-	data/config.inii        	\
+	data/config.ini			\
 	$(acoustid_resources_files)	\
 	test_lua_acoustid.gresource.xml	\
 	$(metrolyrics_resources_files)	\

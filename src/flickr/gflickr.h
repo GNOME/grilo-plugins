@@ -90,6 +90,12 @@ GFlickr *g_flickr_new (const gchar *consumer_key,
 void g_flickr_set_per_page (GFlickr *f, gint per_page);
 
 void
+g_flickr_photos_getExif (GFlickr *f,
+                         const gchar *photo_id,
+                         GFlickrHashTableCb callback,
+                         gpointer user_data);
+
+void
 g_flickr_photos_getInfo (GFlickr *f,
                          const gchar *photo_id,
                          GFlickrHashTableCb callback,

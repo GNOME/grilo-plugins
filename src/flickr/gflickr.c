@@ -31,6 +31,7 @@
 
 
 #define FLICKR_PHOTOS_SEARCH_METHOD       "flickr.photos.search"
+#define FLICKR_PHOTOS_GETEXIF_METHOD      "flickr.photos.getExif"
 #define FLICKR_PHOTOS_GETINFO_METHOD      "flickr.photos.getInfo"
 #define FLICKR_PHOTOS_GETRECENT_METHOD    "flickr.photos.getRecent"
 #define FLICKR_PHOTOSETS_GETLIST_METHOD   "flickr.photosets.getList"
@@ -187,6 +188,53 @@ add_node (xmlNodePtr node, GHashTable *photo)
   }
 }
 
+static void
+parse_exif_node (xmlNodePtr node, GHashTable *photo)
+{
+  xmlChar *tag;
+  xmlChar *tagspace;
+  xmlChar *content;
+  xmlNodePtr child;
+
+  tagspace = xmlGetProp (node, (const xmlChar *) "tagspace");
+  if (!tagspace)
+    return;
+
+  /* We don't care for most of the tagspaces returned by Flickr, except the
+   * two below. That way we don't polute the hash table with key/values which
+   * will never be used
+   */
+  if (xmlStrcmp (tagspace, (const xmlChar *) "IFD0") != 0 &&
+      xmlStrcmp (tagspace, (const xmlChar *) "ExifIFD") != 0) {
+      xmlFree (tagspace);
+      return;
+  }
+  xmlFree (tagspace);
+
+  tag = xmlGetProp (node, (const xmlChar *) "tag");
+  if (!tag)
+    return;
+
+  child = node->xmlChildrenNode;
+  /* Empty tag? */
+  if (!child)
+    goto end;
+
+  /* Exif nodes have at least one child containing "raw" exif data */
+  while (child != NULL && xmlStrcmp (child->name, (const xmlChar *) "raw") != 0)
+    child = child->next;
+
+  if (!child)
+    goto end;
+
+  content = xmlNodeGetContent (child);
+  if (content)
+    g_hash_table_insert (photo, g_strdup ((const gchar *) tag), content);
+
+end:
+  xmlFree (tag);
+}
+
 static GHashTable *
 get_photo (xmlNodePtr node)
 {
@@ -216,6 +264,8 @@ get_photo (xmlNodePtr node)
                              content);
 
       }
+    } else if (xmlStrcmp (node->name, (const xmlChar *) "exif") == 0) {
+      parse_exif_node (node, photo);
     }
 
     node = node->next;
@@ -319,6 +369,33 @@ process_photo_result (const gchar *xml_result, gpointer user_data)
   if (photo) {
     g_hash_table_unref (photo);
   }
+  g_object_unref (data->flickr);
+  g_slice_free (GFlickrData, data);
+}
+
+static void
+process_exif_result (const gchar *xml_result, gpointer user_data)
+{
+  xmlDocPtr doc;
+  GHashTable *photo = NULL;
+  GFlickrData *data = (GFlickrData *) user_data;
+
+  doc = xmlReadMemory (xml_result, xmlStrlen ((xmlChar *) xml_result), NULL,
+                       NULL, XML_PARSE_RECOVER | XML_PARSE_NOBLANKS);
+  if (doc) {
+    xmlNodePtr node = xmlDocGetRootElement (doc);
+
+    /* Check result is ok */
+    if (node && result_is_correct (node)) {
+      node = node->xmlChildrenNode;
+      photo = get_photo (node);
+    }
+    xmlFreeDoc (doc);
+  }
+
+  data->hashtable_cb (data->flickr, photo, data->user_data);
+  if (photo)
+    g_hash_table_unref (photo);
   g_object_unref (data->flickr);
   g_slice_free (GFlickrData, data);
 }
@@ -550,6 +627,34 @@ g_flickr_set_per_page (GFlickr *f, gint per_page)
   g_return_if_fail (G_IS_FLICKR (f));
 
   f->priv->per_page = per_page;
+}
+
+void
+g_flickr_photos_getExif (GFlickr *f,
+                         const gchar *photo_id,
+                         GFlickrHashTableCb callback,
+                         gpointer user_data)
+{
+  gchar *params[2];
+  gchar *request;
+  GFlickrData *gfd;
+
+  g_return_if_fail (G_IS_FLICKR (f));
+
+  params[0] = g_strdup_printf ("photo_id=%s", photo_id);
+  params[1] = g_strdup_printf ("method=%s", FLICKR_PHOTOS_GETEXIF_METHOD);
+
+  request = create_url (f, params, 2);
+  free_params (params, 2);
+
+  gfd = g_slice_new (GFlickrData);
+  gfd->flickr = g_object_ref (f);
+  gfd->parse_xml = process_exif_result;
+  gfd->hashtable_cb = callback;
+  gfd->user_data = user_data;
+
+  read_url_async (f, request, gfd);
+  g_free (request);
 }
 
 void

@@ -604,7 +604,7 @@ grl_local_metadata_source_may_resolve (GrlSource *source,
                                        GrlKeyID key_id,
                                        GList **missing_keys)
 {
-  if (!media || grl_media_is_video (media))
+  if (!media)
     return FALSE;
 
   if (grl_media_is_audio (media)) {
@@ -635,7 +635,7 @@ grl_local_metadata_source_may_resolve (GrlSource *source,
     return FALSE;
   }
 
-  if (grl_media_is_image (media)) {
+  if (grl_media_is_image (media) || grl_media_is_video (media)) {
     if (key_id != GRL_METADATA_KEY_THUMBNAIL)
       return FALSE;
     if (!grl_data_has_key (GRL_DATA (media), GRL_METADATA_KEY_URL))
@@ -694,7 +694,7 @@ grl_local_metadata_source_resolve (GrlSource *source,
 
   GRL_DEBUG ("\ttrying to resolve for: %s", grl_media_get_url (rs->media));
 
-  if (grl_media_is_image (rs->media)) {
+  if (grl_media_is_image (rs->media) || grl_media_is_video (rs->media)) {
     resolve_image (data, flags);
   } else if (grl_media_is_audio (rs->media)) {
     /* Try for a per-track thumbnail first; we'll fall back to album art

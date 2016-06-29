@@ -73,7 +73,7 @@ function grl_source_resolve (media, options, callback)
   end
 
   url = string.format (ACOUSTID_LOOKUP, acoustid.api_key, media.duration,
-                       media.acoustid_fingerprint)
+                       media.chromaprint)
   grl.fetch (url, netopts, lookup_cb)
 end
 

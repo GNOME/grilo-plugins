@@ -123,8 +123,8 @@ function build_media(results)
   -- FIXME: related-keys on lua sources are in the TODO list
   -- https://bugzilla.gnome.org/show_bug.cgi?id=756203
   -- and for that reason we are only returning first of all metadata
-  if album and album.artists and #album.artists > 0 then
-    artist = album.artists[1]
+  if record and record.artists and #record.artists > 0 then
+    artist = record.artists[1]
     media.artist = keys.artist and artist.name or nil
     media.mb_artist_id = keys.mb_artist_id and artist.id or nil
   end

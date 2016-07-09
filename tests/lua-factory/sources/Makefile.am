@@ -42,10 +42,12 @@ acoustid_resources_files =	\
   data/acoustid_norah_jones_chasing_pirates.txt	        \
   data/acoustid_philip_glass_the_passion_of.txt	        \
   data/acoustid_trombone_shorty_buckjump.txt            \
+  data/acoustid_radiohead_paranoid_android.txt		\
   data/chromaprint_ludovico_einaudi_primavera.txt	\
   data/chromaprint_norah_jones_chasing_pirates.txt	\
   data/chromaprint_philip_glass_the_passion_of.txt	\
-  data/chromaprint_trombone_shorty_buckjump.txt
+  data/chromaprint_trombone_shorty_buckjump.txt		\
+  data/chromaprint_radiohead_paranoid_android.txt
 
 test_lua_metrolyrics_SOURCES =	\
 	test_lua_metrolyrics.c	\

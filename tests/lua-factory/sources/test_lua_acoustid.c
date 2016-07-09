@@ -36,6 +36,7 @@
 #define FINGERPRINT_NORAH_JONES  GRESOURCE_PREFIX "chromaprint_norah_jones_chasing_pirates.txt"
 #define FINGERPRINT_PHILIP_GLAS  GRESOURCE_PREFIX "chromaprint_philip_glass_the_passion_of.txt"
 #define FINGERPRINT_TROMBONE_SH  GRESOURCE_PREFIX "chromaprint_trombone_shorty_buckjump.txt"
+#define FINGERPRINT_RADIOHEAD_PA GRESOURCE_PREFIX "chromaprint_radiohead_paranoid_android.txt"
 
 static gchar *
 resolve (GrlSource   *source,
@@ -125,6 +126,11 @@ test_resolve_fingerprint (void)
      "5ae54dee-4dba-49c0-802a-a3b3b3adfe9b", "Philip Glass",
      "52f1f9d5-5166-4ceb-9289-6fb1a87f367c", "The Passion of Ramakrishna",
      "298e15a1-b29b-4947-9dca-ec3634f9ebde", "Part 2" },
+   { FINGERPRINT_RADIOHEAD_PA, 385,
+     "a74b1b7f-71a5-4011-9441-d0b5e4122711", "Radiohead",
+     "67b2ff2a-38e9-32d0-84a0-85ac98cb16b4", "The Greatest Hits of 1997",
+     "33e369bb-b8de-402f-b88f-594dea3544dc", "Paranoid Android",
+   },
   };
 
   source = test_lua_factory_get_source (ACOUSTID_ID, ACOUSTID_OPS);

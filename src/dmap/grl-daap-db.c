@@ -161,6 +161,7 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
 
   gint   duration = 0;
   gint32  bitrate = 0,
+             disc = 0,
             track = 0;
   gchar  *id_s    = NULL,
          *title   = NULL,
@@ -186,6 +187,8 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
                &title,
                "track",
                &track,
+               "disc",
+               &disc,
                "location",
                &url,
                "has-video",
@@ -216,6 +219,10 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
   if (has_video == FALSE) {
     grl_media_set_bitrate      (media, bitrate);
     grl_media_set_track_number (media, track);
+
+    if (disc != 0) {
+      grl_media_set_album_disc_number (media, disc);
+    }
 
     if (album) {
       grl_media_set_album (media, album);

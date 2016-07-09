@@ -365,6 +365,7 @@ grl_daap_source_supported_keys (GrlSource *source)
 
   if (!keys) {
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ALBUM,
+                                      GRL_METADATA_KEY_ALBUM_DISC_NUMBER,
                                       GRL_METADATA_KEY_ARTIST,
                                       GRL_METADATA_KEY_BITRATE,
                                       GRL_METADATA_KEY_DURATION,

@@ -702,7 +702,7 @@ net_wc_new_with_options (lua_State *L,
 {
   GrlNetWc *wc;
 
-  wc = grl_net_wc_new ();
+  wc = grl_lua_operations_get_grl_net_wc (L);
   if (arg_offset <= lua_gettop (L) && lua_istable (L, arg_offset)) {
     /* Set GrlNetWc options */
     lua_pushnil (L);
@@ -1227,7 +1227,6 @@ grl_l_fetch (lua_State *L)
 
     grl_net_wc_request_async (wc, urls[i], os->cancellable, grl_util_fetch_done, fo);
   }
-  g_object_unref (wc);
   g_free (urls);
 
   /* Set the state as wating for this async operation */
@@ -1502,7 +1501,6 @@ grl_l_unzip (lua_State *L)
   uo->os = os;
 
   grl_net_wc_request_async (wc, url, os->cancellable, grl_util_unzip_done, uo);
-  g_object_unref (wc);
 
   grl_lua_operations_set_source_state (L, LUA_SOURCE_WAITING, os);
   return 0;

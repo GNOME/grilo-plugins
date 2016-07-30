@@ -34,6 +34,7 @@ static const gchar * const source_op_state_str[LUA_SOURCE_NUM_STATES] = {
 };
 
 static OperationSpec * priv_state_current_op_get_op_data (lua_State *L);
+static void priv_state_properties_free (lua_State *L);
 
 /* =========================================================================
  * Internal functions ======================================================
@@ -120,6 +121,35 @@ proxy_metatable_handle_newindex (lua_State *L)
 
 /* ============== Private State helpers ==================================== */
 
+/*
+ * Should clear all data stored by us in private state table
+ */
+static int
+priv_state_metatable_gc (lua_State *L)
+{
+  priv_state_properties_free (L);
+  return 0;
+}
+
+/*
+ * Expects private state table in top of stack so it can set its metatable
+ */
+static void
+priv_state_set_metatable (lua_State *L)
+{
+  g_assert_true (lua_istable(L, -1));
+
+  /* create the metatable */
+  lua_createtable (L, 0, 1);
+  /* push the __gc key string */
+  lua_pushstring (L, "__gc");
+  /* push the __gc metamethod */
+  lua_pushcfunction (L, priv_state_metatable_gc);
+  /* set the __gc field in the metatable */
+  lua_settable (L, -3);
+  /* set table as the metatable of the userdata */
+  lua_setmetatable (L, -2);
+}
 /*
  * Helper function to let rw table from proxy in the top of stack
  */
@@ -451,6 +481,84 @@ priv_state_operations_update (lua_State *L,
   GRL_ERROR ("Ongoig operation not found (op-id: %d)", os->operation_id);
 }
 
+/* ============== Private State - Properties ================================ */
+
+/**
+ * priv_state_properties_new
+ *
+ * Creates a table of properties that this lua_State will hold for all
+ * operations that might happen.
+ *
+ * @L: LuaState of this GrlSource
+ *
+ * Leaves a new table in top of the stack
+ **/
+static void
+priv_state_properties_new (lua_State *L)
+{
+  GrlNetWc *wc;
+
+  lua_newtable (L);
+
+  wc = grl_net_wc_new ();
+  lua_pushstring (L, SOURCE_PROP_NET_WC);
+  lua_pushlightuserdata (L, wc);
+  lua_settable (L, -3);
+}
+
+/**
+ * priv_state_properties_free
+ *
+ * Free the data inside the properties table but don't destroy the table itself
+ * as garbage collection should handle that.
+ *
+ * @L: LuaState of this GrlSource
+ *
+ * Does not change the stack.
+ **/
+static void
+priv_state_properties_free (lua_State *L)
+{
+  GrlNetWc *wc;
+
+  priv_state_get_rw_table (L, LUA_SOURCE_PROPERTIES);
+
+  lua_getfield (L, -1, SOURCE_PROP_NET_WC);
+  g_assert_true (lua_islightuserdata (L, -1));
+  wc = lua_touserdata (L, -1);
+  g_object_unref (wc);
+
+  /* Keep the stack as it was before */
+  lua_pop (L, 2);
+}
+
+/**
+ * priv_state_properties_get_prop
+ *
+ * Get the property given by @prop_name.
+ *
+ * @L: LuaState of this GrlSource
+ * @prop_name: Property as gpointer
+ *
+ * Does not change the stack.
+ **/
+static gpointer
+priv_state_properties_get_prop (lua_State *L,
+                                const gchar *prop_name)
+{
+  gpointer property;
+
+  priv_state_get_rw_table (L, LUA_SOURCE_PROPERTIES);
+  lua_getfield (L, -1, prop_name);
+  /* FIXME: Should we consider all properties as userdata?
+   * https://bugzilla.gnome.org/show_bug.cgi?id=770794 */
+  property = lua_touserdata (L, -1);
+
+  /* Keep the stack as it was before */
+  lua_pop (L, 2);
+  return property;
+}
+
 /* ============== Watchdog related ========================================= */
 
 /**
@@ -607,8 +715,20 @@ grl_lua_operations_init_priv_state (lua_State *L)
   lua_pushnil (L);
   lua_settable (L, -3);
 
+  lua_pushstring (L, LUA_SOURCE_PROPERTIES);
+  priv_state_properties_new (L);
   grl_lua_operations_set_proxy_table (L, -1);
   lua_settable (L, -3);
+
+  priv_state_set_metatable (L);
+  grl_lua_operations_set_proxy_table (L, -1);
+  lua_settable (L, -3);
+}
+
+GrlNetWc *
+grl_lua_operations_get_grl_net_wc (lua_State *L)
+{
+  return priv_state_properties_get_prop (L, SOURCE_PROP_NET_WC);
 }
 
 /*

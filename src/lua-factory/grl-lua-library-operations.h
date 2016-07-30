@@ -30,9 +30,12 @@
 #define LUA_SOURCE_PRIV_STATE "__priv_state"
 #define LUA_SOURCE_OPERATIONS "operations"
 #define LUA_SOURCE_CURRENT_OP "current_operation"
+#define LUA_SOURCE_PROPERTIES "properties"
 
 #define SOURCE_OP_STATE "state"
 #define SOURCE_OP_DATA  "data"
 #define SOURCE_OP_ID    "op_id"
+
+#define SOURCE_PROP_NET_WC "net_wc"
 
 #endif /* _GRL_LUA_LIBRARY_OPERATIONS_COMMON_H_ */

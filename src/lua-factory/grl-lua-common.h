@@ -28,6 +28,7 @@
 
 #include "grl-lua-library.h"
 #include <glib/gi18n-lib.h>
+#include <net/grl-net.h>
 
 #ifdef GOA_ENABLED
 #define GOA_API_IS_SUBJECT_TO_CHANGE
@@ -99,5 +100,6 @@ void grl_lua_operations_set_source_state (lua_State *L, LuaSourceState state, Op
 void grl_lua_operations_cancel_operation (lua_State *L, guint operation_id);
 OperationSpec * grl_lua_operations_get_current_op (lua_State *L);
 gboolean grl_lua_operations_pcall (lua_State *L, gint nargs, OperationSpec *os, GError **err);
+GrlNetWc * grl_lua_operations_get_grl_net_wc (lua_State *L);
 
 #endif /* _GRL_LUA_LIBRARY_COMMON_H_ */

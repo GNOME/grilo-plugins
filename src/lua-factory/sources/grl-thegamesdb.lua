@@ -217,6 +217,8 @@ function get_platform_name(mime_type, suffix)
     platform_names['application/x-nes-rom'] = 'Nintendo Entertainment System (NES)'
     platform_names['application/x-nintendo-ds-rom'] = 'Nintendo DS'
     platform_names['application/x-pc-engine-rom'] = 'TurboGrafx 16'
+    -- 'application/x-playstation-rom' is an unregistered MIME type
+    platform_names['application/x-playstation-rom'] = 'Sony Playstation'
     platform_names['application/x-saturn-rom'] = 'Sega Saturn'
     platform_names['application/x-sega-cd-rom'] = 'Sega CD'
     -- Also represents 'Sega Game Gear'

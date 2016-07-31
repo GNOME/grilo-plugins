@@ -218,6 +218,7 @@ function get_platform_name(mime_type, suffix)
     platform_names['application/x-nintendo-ds-rom'] = 'Nintendo DS'
     platform_names['application/x-pc-engine-rom'] = 'TurboGrafx 16'
     platform_names['application/x-saturn-rom'] = 'Sega Saturn'
+    platform_names['application/x-sega-cd-rom'] = 'Sega CD'
     -- Also represents 'Sega Game Gear'
     platform_names['application/x-sms-rom'] = 'Sega Master System'
     platform_names['application/x-wii-rom'] = 'Nintendo Wii'

@@ -210,8 +210,8 @@ function get_platform_name(mime_type, suffix)
     platform_names['application/x-gameboy-rom'] = 'Nintendo Game Boy'
     platform_names['application/x-gamecube-rom'] = 'Nintendo GameCube'
     platform_names['application/x-gba-rom'] = 'Nintendo Game Boy Advance'
-    -- Also represents 'Sega 32X'
     platform_names['application/x-genesis-rom'] = 'Sega Genesis'
+    platform_names['application/x-genesis-32x-rom'] = 'Sega 32X'
     platform_names['application/x-n64-rom'] = 'Nintendo 64'
     platform_names['application/x-neo-geo-pocket-rom'] = 'Neo Geo Pocket'
     platform_names['application/x-nes-rom'] = 'Nintendo Entertainment System (NES)'
@@ -232,14 +232,6 @@ function get_platform_name(mime_type, suffix)
       if platform_names[mime_type] == 'Nintendo Game Boy' then
         if suffix == 'gbc' or suffix == 'cgb' then
           return 'Nintendo Game Boy Color'
-        end
-      end
-
-      -- Genesis / 32X
-      if platform_names[mime_type] == 'Sega Genesis' then
-        if suffix == '32x' or
-           suffix == 'mdx' then
-          return 'Sega 32X'
         end
       end
 

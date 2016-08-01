@@ -206,8 +206,8 @@ function get_platform_name(mime_type, suffix)
     platform_names['application/x-atari-5200-rom'] = 'Atari 5200'
     platform_names['application/x-atari-7800-rom'] = 'Atari 7800'
     platform_names['application/x-dc-rom'] = 'Sega Dreamcast'
-    -- Also represents 'Nintendo Game Boy Color'
     platform_names['application/x-gameboy-rom'] = 'Nintendo Game Boy'
+    platform_names['application/x-gameboy-color-rom'] = 'Nintendo Game Boy Color'
     platform_names['application/x-gamecube-rom'] = 'Nintendo GameCube'
     platform_names['application/x-gba-rom'] = 'Nintendo Game Boy Advance'
     platform_names['application/x-genesis-rom'] = 'Sega Genesis'
@@ -228,13 +228,6 @@ function get_platform_name(mime_type, suffix)
     if suffix and
        suffix ~= 'bin' and
        platform_names[mime_type] then
-
-      -- Game Boy / Game Boy Color
-      if platform_names[mime_type] == 'Nintendo Game Boy' then
-        if suffix == 'gbc' or suffix == 'cgb' then
-          return 'Nintendo Game Boy Color'
-        end
-      end
 
       -- Sega Master System / Game Gear
       if platform_names[mime_type] == 'Sega Master System' and

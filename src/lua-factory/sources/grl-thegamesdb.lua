@@ -250,7 +250,7 @@ function get_platform_name(mime_type, suffix)
       end
     end
 
-    return platform_names[mime_type]
+    return platform_names[mime_type] or 'PC'
 end
 
 function get_suffix (url)

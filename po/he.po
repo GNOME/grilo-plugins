@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins 0.2.10\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-31 17:31+0200\n"
-"PO-Revision-Date: 2015-12-31 17:31+0200\n"
+"POT-Creation-Date: 2016-08-07 15:20+0300\n"
+"PO-Revision-Date: 2016-08-07 15:21+0300\n"
 "Last-Translator: Yosef Or Boczko <yoseforb@gmail.com>\n"
 "Language-Team: עברית <>\n"
 "Language: he\n"
@@ -56,6 +56,10 @@ msgstr "Failed to store: %s"
 msgid "No database connection"
 msgstr "No database connection"
 
+#: ../src/chromaprint/grl-chromaprint.c:46
+msgid "A plugin to get metadata using gstreamer framework"
+msgstr "תוסף לקבלת מידע־ױל בשימוש סביבת gstreamer"
+
 #: ../src/dleyna/grl-dleyna-source.c:34
 #, c-format
 msgid "A source for browsing the DLNA server '%s'"
@@ -85,18 +89,18 @@ msgstr "נכשלה העלאה, חסרה כתובת על עצם המדיה להע
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "מקור לדפדפוף בשרת ה־DAAP ‏'%s'"
 
-#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:793
+#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:795
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "אלבומים"
 
-#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:782
+#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:784
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "אמנים"
 
-#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1120
-#: ../src/jamendo/grl-jamendo.c:1195 ../src/magnatune/grl-magnatune.c:841
+#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1122
+#: ../src/jamendo/grl-jamendo.c:1233 ../src/magnatune/grl-magnatune.c:841
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Invalid container identifier %s"
@@ -172,67 +176,67 @@ msgstr "תוסף לקבלת דיוקנם עבור שדות אמנים ומחבר
 msgid "A source for browsing and searching Jamendo music"
 msgstr "מקור לדפדוף ולחיפוש מוזיקת Jamendo"
 
-#: ../src/jamendo/grl-jamendo.c:147
+#: ../src/jamendo/grl-jamendo.c:149
 msgid "Albums of the week"
 msgstr "אלבומים של השבוע"
 
-#: ../src/jamendo/grl-jamendo.c:149
+#: ../src/jamendo/grl-jamendo.c:151
 msgid "Tracks of the week"
 msgstr "רצועות של השבוע"
 
-#: ../src/jamendo/grl-jamendo.c:151
+#: ../src/jamendo/grl-jamendo.c:153
 msgid "New releases"
 msgstr "שחרורים חדשים"
 
-#: ../src/jamendo/grl-jamendo.c:153
+#: ../src/jamendo/grl-jamendo.c:155
 msgid "Top artists"
 msgstr "אמנים מובילים"
 
-#: ../src/jamendo/grl-jamendo.c:155
+#: ../src/jamendo/grl-jamendo.c:157
 msgid "Top albums"
 msgstr "אלבומים מובילים"
 
-#: ../src/jamendo/grl-jamendo.c:157
+#: ../src/jamendo/grl-jamendo.c:159
 msgid "Top tracks"
 msgstr "רצועות מובילות"
 
-#: ../src/jamendo/grl-jamendo.c:346 ../src/jamendo/grl-jamendo.c:706
+#: ../src/jamendo/grl-jamendo.c:348 ../src/jamendo/grl-jamendo.c:708
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:470
 msgid "Failed to parse response"
 msgstr "Failed to parse response"
 
-#: ../src/jamendo/grl-jamendo.c:354 ../src/jamendo/grl-jamendo.c:361
+#: ../src/jamendo/grl-jamendo.c:356 ../src/jamendo/grl-jamendo.c:363
 #: ../src/podcasts/grl-podcasts.c:1368 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Empty response"
 
-#: ../src/jamendo/grl-jamendo.c:675 ../src/shoutcast/grl-shoutcast.c:558
+#: ../src/jamendo/grl-jamendo.c:677 ../src/shoutcast/grl-shoutcast.c:558
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Failed to connect: %s"
 
-#: ../src/jamendo/grl-jamendo.c:804
+#: ../src/jamendo/grl-jamendo.c:806
 msgid "Feeds"
 msgstr "הזנות"
 
-#: ../src/jamendo/grl-jamendo.c:988 ../src/jamendo/grl-jamendo.c:1033
-#: ../src/jamendo/grl-jamendo.c:1060
+#: ../src/jamendo/grl-jamendo.c:990 ../src/jamendo/grl-jamendo.c:1035
+#: ../src/jamendo/grl-jamendo.c:1062
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Invalid identifier %s"
 
-#: ../src/jamendo/grl-jamendo.c:1047 ../src/youtube/grl-youtube.c:1112
+#: ../src/jamendo/grl-jamendo.c:1049 ../src/youtube/grl-youtube.c:1112
 #: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Invalid category identifier %s"
 
-#: ../src/jamendo/grl-jamendo.c:1190
+#: ../src/jamendo/grl-jamendo.c:1228
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Failed to browse: %s is a track"
 
-#: ../src/jamendo/grl-jamendo.c:1250
+#: ../src/jamendo/grl-jamendo.c:1287
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Malformed query \"%s\""
@@ -531,7 +535,7 @@ msgstr "Failed to get media from uri: %s"
 msgid "Empty query"
 msgstr "Empty query"
 
-#: ../src/tracker/grl-tracker-source-api.c:1075
+#: ../src/tracker/grl-tracker-source-api.c:1077
 #, c-format
 msgid "ID '%s' is not known in this source"
 msgstr "ID '%s' is not known in this source"
@@ -540,12 +544,12 @@ msgstr "ID '%s' is not known in this source"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "תוסף לחיפוש תוכן מולטימדיה באמצעות Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:642
+#: ../src/tracker/grl-tracker-utils.c:691
 #, c-format
 msgid "Removable - %s"
 msgstr "ניתן למחיקה - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:654
+#: ../src/tracker/grl-tracker-utils.c:703
 msgid "Local files"
 msgstr "קבצים מקומיים"
 

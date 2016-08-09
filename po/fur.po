@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2016-08-07 12:21+0000\n"
-"PO-Revision-Date: 2016-08-08 07:23+0200\n"
+"PO-Revision-Date: 2016-08-09 22:50+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -71,133 +71,136 @@ msgstr "Cjariament falît, risorse di destinazion distrute"
 #: ../src/dleyna/grl-dleyna-source.c:380
 #, c-format
 msgid "Upload failed, '%s', transferred %lu of %lu bytes"
-msgstr ""
+msgstr "No si è rivâts a cjariâ, '%s', trasferîts %lu su %lu byte"
 
 #: ../src/dleyna/grl-dleyna-source.c:881
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr ""
+"No si è rivâts a recuperâ lis proprietâts dal element (erôr BrowseObjects "
+"%d: %s)"
 
 #: ../src/dleyna/grl-dleyna-source.c:1520
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr ""
+"Cjariament falît, al mancje il URL sul element multimediâl di trasferî"
 
 #: ../src/dmap/grl-daap.c:50
 #, c-format
 msgid "A source for browsing the DAAP server '%s'"
-msgstr ""
+msgstr "Une risorse par esplorâ il servidôr DAAP '%s'"
 
 #: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:795
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
-msgstr ""
+msgstr "Album"
 
 #: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:784
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
-msgstr ""
+msgstr "Artiscj"
 
 #: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1122
 #: ../src/jamendo/grl-jamendo.c:1233 ../src/magnatune/grl-magnatune.c:841
 #, c-format
 msgid "Invalid container identifier %s"
-msgstr ""
+msgstr "Identificatôr di contignidôr %s no valit"
 
 #: ../src/dmap/grl-dpap.c:50
 #, c-format
 msgid "A source for browsing the DPAP server '%s'"
-msgstr ""
+msgstr "Une risorse par esplorâ il servidôr DPAP '%s'"
 
 #: ../src/dmap/grl-dpap-db.c:36
 msgid "Photos"
-msgstr ""
+msgstr "Fotos"
 
 #: ../src/filesystem/grl-filesystem.c:58
 msgid "Filesystem"
-msgstr ""
+msgstr "Filesystem"
 
 #: ../src/filesystem/grl-filesystem.c:59
 msgid "A source for browsing the filesystem"
-msgstr ""
+msgstr "Une risorse par esplorâ il filesystem"
 
 #: ../src/filesystem/grl-filesystem.c:1179
 #, c-format
 msgid "File %s does not exist"
-msgstr ""
+msgstr "Il file %s nol esist"
 
 #: ../src/filesystem/grl-filesystem.c:1257 ../src/youtube/grl-youtube.c:1520
 #, c-format
 msgid "Cannot get media from %s"
-msgstr ""
+msgstr "Impussibil otignî i contignûts multimediâi di %s"
 
 #: ../src/flickr/grl-flickr.c:61
 msgid "A source for browsing and searching Flickr photos"
-msgstr ""
+msgstr "Une risorse par esplorâ e cirî fotos su Flickr"
 
 #. "%s" is a full user name, like "John Doe"
 #: ../src/flickr/grl-flickr.c:65
 #, c-format
 msgid "%s's Flickr"
-msgstr ""
+msgstr "Flickr di %s"
 
 #. "%s" is a full user name, like "John Doe"
 #: ../src/flickr/grl-flickr.c:67
 #, c-format
 msgid "A source for browsing and searching %s's flickr photos"
-msgstr ""
+msgstr "Une risorse par esplorâ e cirî lis fotos di %s su flickr"
 
 #: ../src/freebox/grl-freebox.c:48
 msgid "Freebox TV"
-msgstr ""
+msgstr "Freebox TV"
 
 #: ../src/freebox/grl-freebox.c:49
 msgid "A source for browsing Freebox TV channels"
-msgstr ""
+msgstr "Une risorse par esplorâ i canâi televisîfs Freebox"
 
 #: ../src/freebox/grl-freebox.c:52
 msgid "Freebox Radio"
-msgstr ""
+msgstr "Freebox Radio"
 
 #: ../src/freebox/grl-freebox.c:53
 msgid "A source for browsing Freebox radio channels"
-msgstr ""
+msgstr "Une risorse par esplorâ i canâi radio Freebox"
 
 #: ../src/gravatar/grl-gravatar.c:46
 msgid "Avatar provider from Gravatar"
-msgstr ""
+msgstr "Furnidôr di avatar di Gravatar"
 
 #: ../src/gravatar/grl-gravatar.c:47
 msgid "A plugin to get avatars for artist and author fields"
-msgstr ""
+msgstr "Un plugin par otignî i avatar pai cjamps \"artist\" e \"autôr\""
 
 #: ../src/jamendo/grl-jamendo.c:91
 msgid "A source for browsing and searching Jamendo music"
-msgstr ""
+msgstr "Une risorse par esplorâ e cirî musiche su Jamendo"
 
 #: ../src/jamendo/grl-jamendo.c:149
 msgid "Albums of the week"
-msgstr ""
+msgstr "Album de setemane"
 
 #: ../src/jamendo/grl-jamendo.c:151
 msgid "Tracks of the week"
-msgstr ""
+msgstr "Tocs de setemane"
 
 #: ../src/jamendo/grl-jamendo.c:153
 msgid "New releases"
-msgstr ""
+msgstr "Gnovis publicazions"
 
 #: ../src/jamendo/grl-jamendo.c:155
 msgid "Top artists"
-msgstr ""
+msgstr "Miôrs artiscj"
 
 #: ../src/jamendo/grl-jamendo.c:157
 msgid "Top albums"
-msgstr ""
+msgstr "Miôrs album"
 
 #: ../src/jamendo/grl-jamendo.c:159
 msgid "Top tracks"
-msgstr ""
+msgstr "Miôrs tocs"
 
 #: ../src/jamendo/grl-jamendo.c:348 ../src/jamendo/grl-jamendo.c:708
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:470

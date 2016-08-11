@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2016-08-07 12:21+0000\n"
-"PO-Revision-Date: 2016-08-11 12:18+0200\n"
+"PO-Revision-Date: 2016-08-11 12:29+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -352,114 +352,114 @@ msgstr "Une risorse par esplorâ lis unitâts otichis"
 
 #: ../src/podcasts/grl-podcasts.c:153
 msgid "A source for browsing podcasts"
-msgstr ""
+msgstr "Une risorse par esplorâ i podcast"
 
 #: ../src/podcasts/grl-podcasts.c:764 ../src/podcasts/grl-podcasts.c:784
 #, c-format
 msgid "Failed to get podcast streams: %s"
-msgstr ""
+msgstr "No si è rivâts a otignî i flus podcast: %s"
 
 #: ../src/podcasts/grl-podcasts.c:1250 ../src/podcasts/grl-podcasts.c:1259
 #: ../src/podcasts/grl-podcasts.c:1269
 msgid "Failed to parse content"
-msgstr ""
+msgstr "No si è rivâts a analizâ il contignût"
 
 #: ../src/podcasts/grl-podcasts.c:1302
 msgid "Failed to parse podcast contents"
-msgstr ""
+msgstr "No si è rivâts a analizâ i contignûts dal podcast"
 
 #: ../src/podcasts/grl-podcasts.c:1457
 msgid "Failed to get podcast information"
-msgstr ""
+msgstr "No si è rivâts a otignî lis informazions sul podcast"
 
 #: ../src/podcasts/grl-podcasts.c:1497 ../src/podcasts/grl-podcasts.c:1517
 #, c-format
 msgid "Failed to get podcasts list: %s"
-msgstr ""
+msgstr "No si è rivâts a otignî la liste dai podcast: %s"
 
 #: ../src/podcasts/grl-podcasts.c:1570 ../src/podcasts/grl-podcasts.c:1585
 msgid "Failed to get podcast stream metadata"
-msgstr ""
+msgstr "No si è rivâts a otignî i metadâts dal flus dal podcast"
 
 #: ../src/podcasts/grl-podcasts.c:1623
 msgid "Failed to get podcast metadata"
-msgstr ""
+msgstr "No si è rivâts a otignî i metadâts dal podcast"
 
 #: ../src/podcasts/grl-podcasts.c:1807
 msgid "Cannot create containers. Only feeds are accepted"
-msgstr ""
+msgstr "Impussibil creâ contignidôrs. Nome i feed a son ametûts"
 
 #: ../src/podcasts/grl-podcasts.c:1812
 msgid "URL required"
-msgstr ""
+msgstr "URL domandât"
 
 #: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
 msgid "Most Popular"
-msgstr ""
+msgstr "I plui popolârs"
 
 #: ../src/raitv/grl-raitv.c:52
 msgid "Recent"
-msgstr ""
+msgstr "Resint"
 
 #: ../src/raitv/grl-raitv.c:93
 msgid "A source for browsing and searching Rai.tv videos"
-msgstr ""
+msgstr "Une risorse par esplorâ e cirî i video Rai.tv"
 
 #: ../src/raitv/grl-raitv.c:171
 msgid "All"
-msgstr ""
+msgstr "Ducj"
 
 #: ../src/raitv/grl-raitv.c:172
 msgid "Black and White"
-msgstr ""
+msgstr "Blanc e neri"
 
 #: ../src/raitv/grl-raitv.c:173
 msgid "Cinema"
-msgstr ""
+msgstr "Cine"
 
 #: ../src/raitv/grl-raitv.c:174
 msgid "Comedians"
-msgstr ""
+msgstr "Comics"
 
 #: ../src/raitv/grl-raitv.c:175
 msgid "Chronicle"
-msgstr ""
+msgstr "Croniche"
 
 #: ../src/raitv/grl-raitv.c:176
 msgid "Culture"
-msgstr ""
+msgstr "Culture"
 
 #: ../src/raitv/grl-raitv.c:177
 msgid "Economy"
-msgstr ""
+msgstr "Economie"
 
 #: ../src/raitv/grl-raitv.c:178
 msgid "Fiction"
-msgstr ""
+msgstr "Finzion"
 
 #: ../src/raitv/grl-raitv.c:179
 msgid "Junior"
-msgstr ""
+msgstr "Zovin"
 
 #: ../src/raitv/grl-raitv.c:180
 msgid "Investigations"
-msgstr ""
+msgstr "Investigazion"
 
 #: ../src/raitv/grl-raitv.c:181
 msgid "Interviews"
-msgstr ""
+msgstr "Intervistis"
 
 #: ../src/raitv/grl-raitv.c:182
 msgid "Music"
-msgstr ""
+msgstr "Musiche"
 
 #: ../src/raitv/grl-raitv.c:183
 msgid "News"
-msgstr ""
+msgstr "Notiziis"
 
 #: ../src/raitv/grl-raitv.c:184
 msgid "Health"
-msgstr ""
+msgstr "Salût"
 
 #: ../src/raitv/grl-raitv.c:185
 msgid "Satire"

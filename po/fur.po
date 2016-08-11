@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2016-08-07 12:21+0000\n"
-"PO-Revision-Date: 2016-08-11 12:29+0200\n"
+"PO-Revision-Date: 2016-08-11 14:23+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -403,7 +403,7 @@ msgstr "Resint"
 
 #: ../src/raitv/grl-raitv.c:93
 msgid "A source for browsing and searching Rai.tv videos"
-msgstr "Une risorse par esplorâ e cirî i video Rai.tv"
+msgstr "Une risorse par esplorâ e cirî videos su Rai.tv"
 
 #: ../src/raitv/grl-raitv.c:171
 msgid "All"
@@ -463,61 +463,61 @@ msgstr "Salût"
 
 #: ../src/raitv/grl-raitv.c:185
 msgid "Satire"
-msgstr ""
+msgstr "Satire"
 
 #: ../src/raitv/grl-raitv.c:187
 msgid "Society"
-msgstr ""
+msgstr "Societât"
 
 #: ../src/raitv/grl-raitv.c:188
 msgid "Show"
-msgstr ""
+msgstr "Spetacul"
 
 #: ../src/raitv/grl-raitv.c:189
 msgid "Sport"
-msgstr ""
+msgstr "Sport"
 
 #: ../src/raitv/grl-raitv.c:190
 msgid "History"
-msgstr ""
+msgstr "Storie"
 
 #: ../src/raitv/grl-raitv.c:191
 msgid "Politics"
-msgstr ""
+msgstr "Politiche"
 
 #: ../src/raitv/grl-raitv.c:192
 msgid "Leisure"
-msgstr ""
+msgstr "Timp libar"
 
 #: ../src/raitv/grl-raitv.c:193
 msgid "Travel"
-msgstr ""
+msgstr "Viaçs"
 
 #: ../src/raitv/grl-raitv.c:625
 #, c-format
 msgid "Failed to browse: %s"
-msgstr ""
+msgstr "No si è rivâts a esplorâ: %s"
 
 #: ../src/shoutcast/grl-shoutcast.c:65
 msgid "A source for browsing SHOUTcast radios"
-msgstr ""
+msgstr "Une risorse par esplorâ lis radios SHOUTcast"
 
 #: ../src/shoutcast/grl-shoutcast.c:462
 #, c-format
 msgid "Cannot find media %s"
-msgstr ""
+msgstr "Impussibil cjatâ contignûts multimediâi %s"
 
 #: ../src/shoutcast/grl-shoutcast.c:757 ../src/vimeo/grl-vimeo.c:548
 msgid "non-NULL search text is required"
-msgstr ""
+msgstr "E covente une ricercje di test no vueide"
 
 #: ../src/thetvdb/grl-thetvdb.c:98
 msgid "A source for fetching metadata of television shows"
-msgstr ""
+msgstr "Une risorse par prelevâ metadâts di spetacui televisîfs"
 
 #: ../src/tmdb/grl-tmdb.c:1004
 msgid "Remote data does not contain valid identifier"
-msgstr ""
+msgstr "I dâts rimots no contegnin un identificadôr valit"
 
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
@@ -526,25 +526,25 @@ msgstr ""
 #: ../src/tracker/grl-tracker-source-api.c:481
 #, c-format
 msgid "Failed to query: %s"
-msgstr ""
+msgstr "Interogazion falide: %s"
 
 #: ../src/tracker/grl-tracker-source-api.c:582
 #, c-format
 msgid "Failed to get media from uri: %s"
-msgstr ""
+msgstr "No si è rivâts a otignî i contignûts multimediâi dal uri: %s"
 
 #: ../src/tracker/grl-tracker-source-api.c:802
 msgid "Empty query"
-msgstr ""
+msgstr "Interogazion vueide"
 
 #: ../src/tracker/grl-tracker-source-api.c:1077
 #, c-format
 msgid "ID '%s' is not known in this source"
-msgstr ""
+msgstr "Il ID '%s' nol è cognossût in cheste risorse"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
-msgstr ""
+msgstr "Un plugin par cirî contignûts multimediâi doprant Tracker"
 
 #: ../src/tracker/grl-tracker-utils.c:691
 #, c-format
@@ -553,65 +553,65 @@ msgstr ""
 
 #: ../src/tracker/grl-tracker-utils.c:703
 msgid "Local files"
-msgstr ""
+msgstr "File locâi"
 
 #: ../src/vimeo/grl-vimeo.c:56
 msgid "A source for browsing and searching Vimeo videos"
-msgstr ""
+msgstr "Une risorse par esplorâ e cirî videos Vimeo"
 
 #: ../src/youtube/grl-youtube.c:60
 msgid "Standard feeds"
-msgstr ""
+msgstr "Feed standard"
 
 #: ../src/youtube/grl-youtube.c:63
 msgid "Categories"
-msgstr ""
+msgstr "Categoriis"
 
 #: ../src/youtube/grl-youtube.c:69
 msgid "Top Rated"
-msgstr ""
+msgstr "I plui votâts"
 
 #: ../src/youtube/grl-youtube.c:72
 msgid "Top Favorites"
-msgstr ""
+msgstr "Preferîts"
 
 #: ../src/youtube/grl-youtube.c:75
 msgid "Most Viewed"
-msgstr ""
+msgstr "I plui viodûts"
 
 #: ../src/youtube/grl-youtube.c:81
 msgid "Most Recent"
-msgstr ""
+msgstr "I plui resints"
 
 #: ../src/youtube/grl-youtube.c:84
 msgid "Most Discussed"
-msgstr ""
+msgstr "I plui cjacarâts"
 
 #: ../src/youtube/grl-youtube.c:87
 msgid "Most Linked"
-msgstr ""
+msgstr "I plui condividûts"
 
 #: ../src/youtube/grl-youtube.c:90
 msgid "Most Responded"
-msgstr ""
+msgstr "I plui dibatûts"
 
 #: ../src/youtube/grl-youtube.c:93
 msgid "Recently Featured"
-msgstr ""
+msgstr "In prin plan"
 
 #: ../src/youtube/grl-youtube.c:96
 msgid "Watch On Mobile"
-msgstr ""
+msgstr "Mostrâts su dispositîfs mobii"
 
 #: ../src/youtube/grl-youtube.c:115
 msgid "A source for browsing and searching YouTube videos"
-msgstr ""
+msgstr "Une risorse par esplorâ e cirî videos su YouTube"
 
 #: ../src/youtube/grl-youtube.c:871
 msgid "Failed to get feed"
-msgstr ""
+msgstr "No si è rivâts a otignî i feed"
 
 #: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
 #, c-format
 msgid "Invalid feed identifier %s"
-msgstr ""
+msgstr "Identificadôr feed %s no valit"

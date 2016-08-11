@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
 "plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-12-14 10:42+0000\n"
-"PO-Revision-Date: 2016-03-01 20:49+0100\n"
+"POT-Creation-Date: 2016-06-29 20:05+0000\n"
+"PO-Revision-Date: 2016-08-11 13:32+0200\n"
 "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <gnome-sk-list@gnome.org>\n"
 "Language: sk\n"
@@ -17,44 +17,48 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Generator: Poedit 1.8.7\n"
+"X-Generator: Poedit 1.8.8\n"
 
-#: ../src/bookmarks/grl-bookmarks.c:67
+#: ../src/bookmarks/grl-bookmarks.c:65
 msgid "Bookmarks"
 msgstr "Záložky"
 
-#: ../src/bookmarks/grl-bookmarks.c:68
+#: ../src/bookmarks/grl-bookmarks.c:66
 msgid "A source for organizing media bookmarks"
 msgstr "Zdroj na usporiadanie mediálnych záložiek"
 
-#: ../src/bookmarks/grl-bookmarks.c:428
+#: ../src/bookmarks/grl-bookmarks.c:434
 msgid "Failed to get bookmark metadata"
 msgstr "Zlyhalo získanie metaúdajov záložiek"
 
-#: ../src/bookmarks/grl-bookmarks.c:458 ../src/bookmarks/grl-bookmarks.c:475
+#: ../src/bookmarks/grl-bookmarks.c:464 ../src/bookmarks/grl-bookmarks.c:481
 #, c-format
 msgid "Failed to find bookmarks: %s"
 msgstr "Zlyhalo nájdenie záložiek: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:627 ../src/podcasts/grl-podcasts.c:821
-#: ../src/podcasts/grl-podcasts.c:853 ../src/podcasts/grl-podcasts.c:885
+#: ../src/bookmarks/grl-bookmarks.c:633 ../src/podcasts/grl-podcasts.c:828
+#: ../src/podcasts/grl-podcasts.c:860 ../src/podcasts/grl-podcasts.c:892
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Zlyhalo odstránenie: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:767 ../src/podcasts/grl-podcasts.c:926
-#: ../src/podcasts/grl-podcasts.c:959 ../src/podcasts/grl-podcasts.c:1804
+#: ../src/bookmarks/grl-bookmarks.c:773 ../src/podcasts/grl-podcasts.c:933
+#: ../src/podcasts/grl-podcasts.c:966 ../src/podcasts/grl-podcasts.c:1811
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Zlyhalo uloženie: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:841 ../src/bookmarks/grl-bookmarks.c:876
-#: ../src/bookmarks/grl-bookmarks.c:907 ../src/bookmarks/grl-bookmarks.c:965
-#: ../src/metadata-store/grl-metadata-store.c:862
-#: ../src/podcasts/grl-podcasts.c:1660 ../src/podcasts/grl-podcasts.c:1704
-#: ../src/podcasts/grl-podcasts.c:1738 ../src/podcasts/grl-podcasts.c:1773
+#: ../src/bookmarks/grl-bookmarks.c:847 ../src/bookmarks/grl-bookmarks.c:882
+#: ../src/bookmarks/grl-bookmarks.c:913 ../src/bookmarks/grl-bookmarks.c:971
+#: ../src/metadata-store/grl-metadata-store.c:869
+#: ../src/podcasts/grl-podcasts.c:1667 ../src/podcasts/grl-podcasts.c:1711
+#: ../src/podcasts/grl-podcasts.c:1745 ../src/podcasts/grl-podcasts.c:1780
 msgid "No database connection"
 msgstr "Žiadne pripojenie k databáze"
+
+#: ../src/chromaprint/grl-chromaprint.c:46
+msgid "A plugin to get metadata using gstreamer framework"
+msgstr "Zásuvný modul na získanie metaúdajov pomocou architektúry gstreamer"
 
 #: ../src/dleyna/grl-dleyna-source.c:34
 #, c-format
@@ -80,28 +84,28 @@ msgstr "Zlyhalo získanie vlastností položky (Chyba BrowseObjects %d: %s)"
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr "Odosielanie zlyhalo. Chýba URL na prenášanom objekte média."
 
-#: ../src/dmap/grl-daap.c:52
+#: ../src/dmap/grl-daap.c:50
 #, c-format
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "Zdroj na prehliadanie servera DAAP „%s“"
 
-#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:787
+#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:795
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Albumy"
 
-#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:776
+#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:784
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Interpreti"
 
-#: ../src/dmap/grl-daap-db.c:287 ../src/jamendo/grl-jamendo.c:1114
-#: ../src/jamendo/grl-jamendo.c:1189 ../src/magnatune/grl-magnatune.c:834
+#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1122
+#: ../src/jamendo/grl-jamendo.c:1233 ../src/magnatune/grl-magnatune.c:841
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Neplatný identifikátor kontajnera %s"
 
-#: ../src/dmap/grl-dpap.c:52
+#: ../src/dmap/grl-dpap.c:50
 #, c-format
 msgid "A source for browsing the DPAP server '%s'"
 msgstr "Zdroj na prehliadanie servera DPAP „%s“"
@@ -110,67 +114,67 @@ msgstr "Zdroj na prehliadanie servera DPAP „%s“"
 msgid "Photos"
 msgstr "Fotografie"
 
-#: ../src/filesystem/grl-filesystem.c:60
+#: ../src/filesystem/grl-filesystem.c:58
 msgid "Filesystem"
 msgstr "Súborový systém"
 
-#: ../src/filesystem/grl-filesystem.c:61
+#: ../src/filesystem/grl-filesystem.c:59
 msgid "A source for browsing the filesystem"
 msgstr "Zdroj na prehliadanie súborového systému"
 
-#: ../src/filesystem/grl-filesystem.c:1172
+#: ../src/filesystem/grl-filesystem.c:1179
 #, c-format
 msgid "File %s does not exist"
 msgstr "Súbor %s neexistuje"
 
 # MČ: s tým médium mám stále problém. Zakaždým mi napadne hypnóza.
-#: ../src/filesystem/grl-filesystem.c:1250 ../src/youtube/grl-youtube.c:1513
+#: ../src/filesystem/grl-filesystem.c:1257 ../src/youtube/grl-youtube.c:1520
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Nedá sa získať médium z %s"
 
-#: ../src/flickr/grl-flickr.c:63
+#: ../src/flickr/grl-flickr.c:61
 msgid "A source for browsing and searching Flickr photos"
 msgstr "Zdroj na prehliadanie a vyhľadávanie fotografií služby Flickr"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:67
+#: ../src/flickr/grl-flickr.c:65
 #, c-format
 msgid "%s's Flickr"
 msgstr "Služba Flickr používateľa %s"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:69
+#: ../src/flickr/grl-flickr.c:67
 #, c-format
 msgid "A source for browsing and searching %s's flickr photos"
 msgstr ""
 "Zdroj na prehliadanie a vyhľadávanie fotografií služby flickr používateľa %s"
 
-#: ../src/freebox/grl-freebox.c:50
+#: ../src/freebox/grl-freebox.c:48
 msgid "Freebox TV"
 msgstr "TV Freebox"
 
-#: ../src/freebox/grl-freebox.c:51
+#: ../src/freebox/grl-freebox.c:49
 msgid "A source for browsing Freebox TV channels"
 msgstr "Zdroj na prehliadanie televíznych kanálov služby Freebox"
 
-#: ../src/freebox/grl-freebox.c:54
+#: ../src/freebox/grl-freebox.c:52
 msgid "Freebox Radio"
 msgstr "Rádio Freebox"
 
-#: ../src/freebox/grl-freebox.c:55
+#: ../src/freebox/grl-freebox.c:53
 msgid "A source for browsing Freebox radio channels"
 msgstr "Zdroj na prehliadanie rádiových kanálov služby Freebox"
 
-#: ../src/gravatar/grl-gravatar.c:48
+#: ../src/gravatar/grl-gravatar.c:46
 msgid "Avatar provider from Gravatar"
 msgstr "Poskytovateľ podobizní z Gravatar"
 
-#: ../src/gravatar/grl-gravatar.c:49
+#: ../src/gravatar/grl-gravatar.c:47
 msgid "A plugin to get avatars for artist and author fields"
 msgstr "Zásuvný modul na získanie podobizní pre polia interpretov a autorov"
 
-#: ../src/jamendo/grl-jamendo.c:93
+#: ../src/jamendo/grl-jamendo.c:91
 msgid "A source for browsing and searching Jamendo music"
 msgstr "Zdroj na prehliadanie a vyhľadávanie hudby služby Jamendo"
 
@@ -198,67 +202,67 @@ msgstr "Najlepšie albumy"
 msgid "Top tracks"
 msgstr "Najlepšie stopy"
 
-#: ../src/jamendo/grl-jamendo.c:339 ../src/jamendo/grl-jamendo.c:700
-#: ../src/shoutcast/grl-shoutcast.c:410 ../src/shoutcast/grl-shoutcast.c:464
+#: ../src/jamendo/grl-jamendo.c:348 ../src/jamendo/grl-jamendo.c:708
+#: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:470
 msgid "Failed to parse response"
 msgstr "Zlyhala analýza odpovede"
 
-#: ../src/jamendo/grl-jamendo.c:347 ../src/jamendo/grl-jamendo.c:354
-#: ../src/podcasts/grl-podcasts.c:1361 ../src/shoutcast/grl-shoutcast.c:418
+#: ../src/jamendo/grl-jamendo.c:356 ../src/jamendo/grl-jamendo.c:363
+#: ../src/podcasts/grl-podcasts.c:1368 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Prázdna odpoveď"
 
-#: ../src/jamendo/grl-jamendo.c:669 ../src/shoutcast/grl-shoutcast.c:552
+#: ../src/jamendo/grl-jamendo.c:677 ../src/shoutcast/grl-shoutcast.c:558
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Zlyhalo pripojenie: %s"
 
-#: ../src/jamendo/grl-jamendo.c:798
+#: ../src/jamendo/grl-jamendo.c:806
 msgid "Feeds"
 msgstr "Kanály"
 
-#: ../src/jamendo/grl-jamendo.c:982 ../src/jamendo/grl-jamendo.c:1027
-#: ../src/jamendo/grl-jamendo.c:1054
+#: ../src/jamendo/grl-jamendo.c:990 ../src/jamendo/grl-jamendo.c:1035
+#: ../src/jamendo/grl-jamendo.c:1062
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Neplatný identifikátor %s"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1105
-#: ../src/youtube/grl-youtube.c:1238 ../src/youtube/grl-youtube.c:1450
+#: ../src/jamendo/grl-jamendo.c:1049 ../src/youtube/grl-youtube.c:1112
+#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Neplatný identifikátor kategórie %s"
 
-#: ../src/jamendo/grl-jamendo.c:1184
+#: ../src/jamendo/grl-jamendo.c:1228
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Zlyhalo prehliadanie: %s je stopou"
 
-#: ../src/jamendo/grl-jamendo.c:1244
+#: ../src/jamendo/grl-jamendo.c:1287
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Požiadavka s nesprávnym formátom „%s“"
 
-#: ../src/local-metadata/grl-local-metadata.c:44
+#: ../src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
 msgstr "Miestny poskytovateľ metaúdajov"
 
-#: ../src/local-metadata/grl-local-metadata.c:45
+#: ../src/local-metadata/grl-local-metadata.c:43
 msgid "A source providing locally available metadata"
 msgstr "Zdroj poskytujúci miestne dostupné metaúdaje"
 
-#: ../src/local-metadata/grl-local-metadata.c:381
-#: ../src/metadata-store/grl-metadata-store.c:772 ../src/raitv/grl-raitv.c:868
+#: ../src/local-metadata/grl-local-metadata.c:388
+#: ../src/metadata-store/grl-metadata-store.c:779 ../src/raitv/grl-raitv.c:874
 #: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Zlyhalo zisťovanie: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:675
+#: ../src/local-metadata/grl-local-metadata.c:682
 msgid "Cannot resolve any of the given keys"
 msgstr "Nedajú sa zistiť žiadne z poskytnutých kľúčov"
 
-#: ../src/local-metadata/grl-local-metadata.c:679
+#: ../src/local-metadata/grl-local-metadata.c:686
 msgid "A GIO supported URL for images is required"
 msgstr "Pre obrázky sa vyžaduje URL podporovaný knižnicou GIO"
 
@@ -270,122 +274,122 @@ msgstr "Žánre"
 msgid "A source for browsing music"
 msgstr "Zdroj na prehliadanie hudby"
 
-#: ../src/magnatune/grl-magnatune.c:411
+#: ../src/magnatune/grl-magnatune.c:422
 #, c-format
 msgid "Failed to get database from magnatune: %s"
 msgstr "Zlyhalo získanie databázy zo služby magnatune: %s"
 
-#: ../src/magnatune/grl-magnatune.c:441
+#: ../src/magnatune/grl-magnatune.c:452
 #, c-format
 msgid "Failed to save database from magnatune - '%s'"
 msgstr "Zlyhalo uloženie databázy zo služby magnatune - „%s“"
 
-#: ../src/magnatune/grl-magnatune.c:689
+#: ../src/magnatune/grl-magnatune.c:697
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
 msgstr "Zlyhalo získanie tabuľky zo služby magnatune db: %s"
 
-#: ../src/magnatune/grl-magnatune.c:705
+#: ../src/magnatune/grl-magnatune.c:713
 #, c-format
 msgid "Fail before returning media to user: %s"
 msgstr "Zlyhanie pred vrátením média používateľovi: %s"
 
-#: ../src/metadata-store/grl-metadata-store.c:47
+#: ../src/metadata-store/grl-metadata-store.c:45
 msgid "Metadata Store"
 msgstr "Úložisko metaúdajov"
 
-#: ../src/metadata-store/grl-metadata-store.c:48
+#: ../src/metadata-store/grl-metadata-store.c:46
 msgid "A plugin for storing extra metadata information"
 msgstr "Zásuvný modul na ukladanie informácií o metaúdajoch navyše"
 
-#: ../src/metadata-store/grl-metadata-store.c:586
-#: ../src/metadata-store/grl-metadata-store.c:605
-#: ../src/metadata-store/grl-metadata-store.c:817
+#: ../src/metadata-store/grl-metadata-store.c:593
+#: ../src/metadata-store/grl-metadata-store.c:612
+#: ../src/metadata-store/grl-metadata-store.c:824
 #: ../src/tracker/grl-tracker-source-api.c:637
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Zlyhala aktualizácia metaúdajov: %s"
 
-#: ../src/metadata-store/grl-metadata-store.c:587
+#: ../src/metadata-store/grl-metadata-store.c:594
 msgid "specified keys are not writable"
 msgstr "určené kľúče nie sú zapisovateľné"
 
-#: ../src/metadata-store/grl-metadata-store.c:627
+#: ../src/metadata-store/grl-metadata-store.c:634
 msgid "Failed to update metadata"
 msgstr "Zlyhala aktualizácia metaúdajov"
 
-#: ../src/metadata-store/grl-metadata-store.c:773
-#: ../src/metadata-store/grl-metadata-store.c:818
+#: ../src/metadata-store/grl-metadata-store.c:780
+#: ../src/metadata-store/grl-metadata-store.c:825
 msgid "\"source-id\" not available"
 msgstr "kľúč „source-id“ nie je dostupný"
 
-#: ../src/metadata-store/grl-metadata-store.c:793
+#: ../src/metadata-store/grl-metadata-store.c:800
 msgid "Failed to resolve"
 msgstr "Zlyhalo zisťovanie"
 
-#: ../src/metadata-store/grl-metadata-store.c:930
-#: ../src/metadata-store/grl-metadata-store.c:967 ../src/raitv/grl-raitv.c:426
-#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:540
+#: ../src/metadata-store/grl-metadata-store.c:937
+#: ../src/metadata-store/grl-metadata-store.c:974 ../src/raitv/grl-raitv.c:432
+#: ../src/shoutcast/grl-shoutcast.c:756 ../src/vimeo/grl-vimeo.c:547
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Zlyhalo vyhľadávanie: %s"
 
-#: ../src/opensubtitles/grl-opensubtitles.c:42
+#: ../src/opensubtitles/grl-opensubtitles.c:40
 msgid "OpenSubtitles Provider"
 msgstr "Poskytovateľ OpenSubtitles"
 
-#: ../src/opensubtitles/grl-opensubtitles.c:43
+#: ../src/opensubtitles/grl-opensubtitles.c:41
 msgid "A source providing a list of subtitles for a video"
 msgstr "Zdroj poskytujúci zoznam titulkov pre videá"
 
-#: ../src/optical-media/grl-optical-media.c:46
+#: ../src/optical-media/grl-optical-media.c:44
 msgid "Optical Media"
 msgstr "Optické médium"
 
-#: ../src/optical-media/grl-optical-media.c:47
+#: ../src/optical-media/grl-optical-media.c:45
 msgid "A source for browsing optical media"
 msgstr "Zdroj na prehliadanie optických médií"
 
-#: ../src/podcasts/grl-podcasts.c:155
+#: ../src/podcasts/grl-podcasts.c:153
 msgid "A source for browsing podcasts"
 msgstr "Zdroj na prehliadanie podcastov"
 
-#: ../src/podcasts/grl-podcasts.c:757 ../src/podcasts/grl-podcasts.c:777
+#: ../src/podcasts/grl-podcasts.c:764 ../src/podcasts/grl-podcasts.c:784
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "Zlyhalo získanie prúdov podcastov: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1243 ../src/podcasts/grl-podcasts.c:1252
-#: ../src/podcasts/grl-podcasts.c:1262
+#: ../src/podcasts/grl-podcasts.c:1250 ../src/podcasts/grl-podcasts.c:1259
+#: ../src/podcasts/grl-podcasts.c:1269
 msgid "Failed to parse content"
 msgstr "Zlyhalo analyzovanie obsahu"
 
-#: ../src/podcasts/grl-podcasts.c:1295
+#: ../src/podcasts/grl-podcasts.c:1302
 msgid "Failed to parse podcast contents"
 msgstr "Zlyhalo analyzovanie obsahu podcastov"
 
-#: ../src/podcasts/grl-podcasts.c:1450
+#: ../src/podcasts/grl-podcasts.c:1457
 msgid "Failed to get podcast information"
 msgstr "Zlyhalo získanie informácií o podcastoch"
 
-#: ../src/podcasts/grl-podcasts.c:1490 ../src/podcasts/grl-podcasts.c:1510
+#: ../src/podcasts/grl-podcasts.c:1497 ../src/podcasts/grl-podcasts.c:1517
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Zlyhalo získanie zoznamu podcastov: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1563 ../src/podcasts/grl-podcasts.c:1578
+#: ../src/podcasts/grl-podcasts.c:1570 ../src/podcasts/grl-podcasts.c:1585
 msgid "Failed to get podcast stream metadata"
 msgstr "Zlyhalo získanie metaúdajov prúdu podcastov"
 
-#: ../src/podcasts/grl-podcasts.c:1616
+#: ../src/podcasts/grl-podcasts.c:1623
 msgid "Failed to get podcast metadata"
 msgstr "Zlyhalo získanie metaúdajov podcastov"
 
-#: ../src/podcasts/grl-podcasts.c:1800
+#: ../src/podcasts/grl-podcasts.c:1807
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Nedajú sa vytvoriť kontajnery. Prijateľné sú iba kanály"
 
-#: ../src/podcasts/grl-podcasts.c:1805
+#: ../src/podcasts/grl-podcasts.c:1812
 msgid "URL required"
 msgstr "Vyžaduje sa URL"
 
@@ -397,114 +401,114 @@ msgstr "Najobľúbenejšie"
 msgid "Recent"
 msgstr "Nedávne"
 
-#: ../src/raitv/grl-raitv.c:95
+#: ../src/raitv/grl-raitv.c:93
 msgid "A source for browsing and searching Rai.tv videos"
 msgstr "Zdroj na prehliadanie a vyhľadávanie videí služby Rai.tv"
 
 # DK: kategorie filmov
-#: ../src/raitv/grl-raitv.c:173
+#: ../src/raitv/grl-raitv.c:171
 msgid "All"
 msgstr "Všetky"
 
-#: ../src/raitv/grl-raitv.c:174
+#: ../src/raitv/grl-raitv.c:172
 msgid "Black and White"
 msgstr "Čiernobiele"
 
-#: ../src/raitv/grl-raitv.c:175
+#: ../src/raitv/grl-raitv.c:173
 msgid "Cinema"
 msgstr "Kino"
 
-#: ../src/raitv/grl-raitv.c:176
+#: ../src/raitv/grl-raitv.c:174
 msgid "Comedians"
 msgstr "Komici"
 
-#: ../src/raitv/grl-raitv.c:177
+#: ../src/raitv/grl-raitv.c:175
 msgid "Chronicle"
 msgstr "Kronika"
 
-#: ../src/raitv/grl-raitv.c:178
+#: ../src/raitv/grl-raitv.c:176
 msgid "Culture"
 msgstr "Kultúra"
 
-#: ../src/raitv/grl-raitv.c:179
+#: ../src/raitv/grl-raitv.c:177
 msgid "Economy"
 msgstr "Ekonómia"
 
-#: ../src/raitv/grl-raitv.c:180
+#: ../src/raitv/grl-raitv.c:178
 msgid "Fiction"
 msgstr "Fikcia"
 
-#: ../src/raitv/grl-raitv.c:181
+#: ../src/raitv/grl-raitv.c:179
 msgid "Junior"
 msgstr "Pre deti"
 
-#: ../src/raitv/grl-raitv.c:182
+#: ../src/raitv/grl-raitv.c:180
 msgid "Investigations"
 msgstr "Prieskum"
 
-#: ../src/raitv/grl-raitv.c:183
+#: ../src/raitv/grl-raitv.c:181
 msgid "Interviews"
 msgstr "Rozhovory"
 
-#: ../src/raitv/grl-raitv.c:184
+#: ../src/raitv/grl-raitv.c:182
 msgid "Music"
 msgstr "Hudba"
 
-#: ../src/raitv/grl-raitv.c:185
+#: ../src/raitv/grl-raitv.c:183
 msgid "News"
 msgstr "Novinky"
 
-#: ../src/raitv/grl-raitv.c:186
+#: ../src/raitv/grl-raitv.c:184
 msgid "Health"
 msgstr "Zdravie"
 
-#: ../src/raitv/grl-raitv.c:187
+#: ../src/raitv/grl-raitv.c:185
 msgid "Satire"
 msgstr "Satira"
 
-#: ../src/raitv/grl-raitv.c:189
+#: ../src/raitv/grl-raitv.c:187
 msgid "Society"
 msgstr "Spoločnosť"
 
-#: ../src/raitv/grl-raitv.c:190
+#: ../src/raitv/grl-raitv.c:188
 msgid "Show"
 msgstr "Šou"
 
-#: ../src/raitv/grl-raitv.c:191
+#: ../src/raitv/grl-raitv.c:189
 msgid "Sport"
 msgstr "Šport"
 
-#: ../src/raitv/grl-raitv.c:192
+#: ../src/raitv/grl-raitv.c:190
 msgid "History"
 msgstr "História"
 
-#: ../src/raitv/grl-raitv.c:193
+#: ../src/raitv/grl-raitv.c:191
 msgid "Politics"
 msgstr "Politici"
 
-#: ../src/raitv/grl-raitv.c:194
+#: ../src/raitv/grl-raitv.c:192
 msgid "Leisure"
 msgstr "Voľný čas"
 
-#: ../src/raitv/grl-raitv.c:195
+#: ../src/raitv/grl-raitv.c:193
 msgid "Travel"
 msgstr "Cestovanie"
 
-#: ../src/raitv/grl-raitv.c:619
+#: ../src/raitv/grl-raitv.c:625
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Zlyhalo prehliadanie: %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:67
+#: ../src/shoutcast/grl-shoutcast.c:65
 msgid "A source for browsing SHOUTcast radios"
 msgstr "Zdroj na prehliadanie rádiových staníc služby SHOUTcast"
 
-#: ../src/shoutcast/grl-shoutcast.c:456
+#: ../src/shoutcast/grl-shoutcast.c:462
 #, c-format
 msgid "Cannot find media %s"
 msgstr "Nedá sa nájsť médium %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:541
+#: ../src/shoutcast/grl-shoutcast.c:757 ../src/vimeo/grl-vimeo.c:548
 msgid "non-NULL search text is required"
 msgstr "Vyžaduje sa nenulový hľadaný text"
 
@@ -512,7 +516,7 @@ msgstr "Vyžaduje sa nenulový hľadaný text"
 msgid "A source for fetching metadata of television shows"
 msgstr "Zdroj na získavanie metaúdajov televíznych šou"
 
-#: ../src/tmdb/grl-tmdb.c:996
+#: ../src/tmdb/grl-tmdb.c:1004
 msgid "Remote data does not contain valid identifier"
 msgstr "Vzdialené údaje neobsahujú platný identifikátor"
 
@@ -534,7 +538,7 @@ msgstr "Zlyhalo získanie média z uri: %s"
 msgid "Empty query"
 msgstr "Prázdna požiadavka"
 
-#: ../src/tracker/grl-tracker-source-api.c:1075
+#: ../src/tracker/grl-tracker-source-api.c:1077
 #, c-format
 msgid "ID '%s' is not known in this source"
 msgstr "ID „%s“ nie je známy v tomto zdroji"
@@ -544,16 +548,16 @@ msgid "A plugin for searching multimedia content using Tracker"
 msgstr ""
 "Zásuvný modul na vyhľadávanie multimediálneho obsahu použitím služby Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:642
+#: ../src/tracker/grl-tracker-utils.c:691
 #, c-format
 msgid "Removable - %s"
 msgstr "Odstrániteľné - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:654
+#: ../src/tracker/grl-tracker-utils.c:703
 msgid "Local files"
 msgstr "Miestne súbory"
 
-#: ../src/vimeo/grl-vimeo.c:58
+#: ../src/vimeo/grl-vimeo.c:56
 msgid "A source for browsing and searching Vimeo videos"
 msgstr "Zdroj na prehliadanie a vyhľadávanie videí služby Vimeo"
 
@@ -603,15 +607,15 @@ msgstr "Nedávno predstavené"
 msgid "Watch On Mobile"
 msgstr "Sledované na mobile"
 
-#: ../src/youtube/grl-youtube.c:117
+#: ../src/youtube/grl-youtube.c:115
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Zdroj na prehliadanie a vyhľadávanie videí služby YouTube"
 
-#: ../src/youtube/grl-youtube.c:864
+#: ../src/youtube/grl-youtube.c:871
 msgid "Failed to get feed"
 msgstr "Zlyhalo získanie kanálu"
 
-#: ../src/youtube/grl-youtube.c:1041 ../src/youtube/grl-youtube.c:1429
+#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Neplatný identifikátor kanálu %s"

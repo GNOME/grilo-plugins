@@ -1,27 +1,23 @@
-# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-# Aviary.pl
-# Jeśli masz jakiekolwiek uwagi odnoszące się do tłumaczenia lub chcesz
-# pomóc w jego rozwijaniu i pielęgnowaniu, napisz do nas:
-# gnomepl@aviary.pl
-# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# Polish translation for grilo-plugins.
+# Copyright © 2013-2016 the grilo-plugins authors.
+# This file is distributed under the same license as the grilo-plugins package.
 # Piotr Drąg <piotrdrag@gmail.com>, 2013-2016.
-# Aviary.pl <gnomepl@aviary.pl>, 2013-2016.
+# Aviary.pl <community-poland@mozilla.org>, 2013-2016.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-01 15:28+0200\n"
-"PO-Revision-Date: 2016-06-01 15:29+0200\n"
+"POT-Creation-Date: 2016-08-22 21:29+0200\n"
+"PO-Revision-Date: 2016-08-22 21:30+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
-"Language-Team: Polish <gnomepl@aviary.pl>\n"
+"Language-Team: Polish <community-poland@mozilla.org>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Poedit-Language: Polish\n"
-"X-Poedit-Country: Poland\n"
 
 #: ../src/bookmarks/grl-bookmarks.c:65
 msgid "Bookmarks"
@@ -58,7 +54,7 @@ msgstr "Przechowanie się nie powiodło: %s"
 #: ../src/podcasts/grl-podcasts.c:1667 ../src/podcasts/grl-podcasts.c:1711
 #: ../src/podcasts/grl-podcasts.c:1745 ../src/podcasts/grl-podcasts.c:1780
 msgid "No database connection"
-msgstr "Brak połączenia z bazą danych"
+msgstr "Brak połączenia z bazą danych"
 
 #: ../src/chromaprint/grl-chromaprint.c:46
 msgid "A plugin to get metadata using gstreamer framework"
@@ -76,7 +72,7 @@ msgstr "Wysłanie się nie powiodło, zniszczono źródło docelowe"
 #: ../src/dleyna/grl-dleyna-source.c:380
 #, c-format
 msgid "Upload failed, '%s', transferred %lu of %lu bytes"
-msgstr "Wysłanie się nie powiodło, „%s”, przesłano %lu z %lu bajtów"
+msgstr "Wysłanie się nie powiodło, „%s”, przesłano %lu z %lu bajtów"
 
 #: ../src/dleyna/grl-dleyna-source.c:881
 #, c-format
@@ -137,11 +133,11 @@ msgstr "Plik %s nie istnieje"
 #: ../src/filesystem/grl-filesystem.c:1257 ../src/youtube/grl-youtube.c:1520
 #, c-format
 msgid "Cannot get media from %s"
-msgstr "Nie można pobrać multimediów z %s"
+msgstr "Nie można pobrać multimediów z %s"
 
 #: ../src/flickr/grl-flickr.c:61
 msgid "A source for browsing and searching Flickr photos"
-msgstr "Źródło do przeglądania i przeszukiwania zdjęć w serwisie Flickr"
+msgstr "Źródło do przeglądania i przeszukiwania zdjęć w serwisie Flickr"
 
 #. "%s" is a full user name, like "John Doe"
 #: ../src/flickr/grl-flickr.c:65
@@ -154,7 +150,7 @@ msgstr "Flickr użytkownika %s"
 #, c-format
 msgid "A source for browsing and searching %s's flickr photos"
 msgstr ""
-"Źródło do przeglądania i przeszukiwania zdjęć użytkownika %s w serwisie "
+"Źródło do przeglądania i przeszukiwania zdjęć użytkownika %s w serwisie "
 "Flickr"
 
 #: ../src/freebox/grl-freebox.c:48
@@ -175,15 +171,15 @@ msgstr "Źródło do przeglądania kanałów radiowych Freebox"
 
 #: ../src/gravatar/grl-gravatar.c:46
 msgid "Avatar provider from Gravatar"
-msgstr "Dostarczanie awatarów z serwisu Gravatar"
+msgstr "Dostarczanie awatarów z serwisu Gravatar"
 
 #: ../src/gravatar/grl-gravatar.c:47
 msgid "A plugin to get avatars for artist and author fields"
-msgstr "Wtyczka do pobierania awatarów dla pól wykonawcy i autora"
+msgstr "Wtyczka do pobierania awatarów dla pól wykonawcy i autora"
 
 #: ../src/jamendo/grl-jamendo.c:91
 msgid "A source for browsing and searching Jamendo music"
-msgstr "Źródło do przeglądania i przeszukiwania muzyki w serwisie Jamendo"
+msgstr "Źródło do przeglądania i przeszukiwania muzyki w serwisie Jamendo"
 
 #: ../src/jamendo/grl-jamendo.c:149
 msgid "Albums of the week"
@@ -267,7 +263,7 @@ msgstr "Rozwiązanie się nie powiodło: %s"
 
 #: ../src/local-metadata/grl-local-metadata.c:682
 msgid "Cannot resolve any of the given keys"
-msgstr "Nie można rozwiązać żadnego z podanych kluczy"
+msgstr "Nie można rozwiązać żadnego z podanych kluczy"
 
 #: ../src/local-metadata/grl-local-metadata.c:686
 msgid "A GIO supported URL for images is required"
@@ -294,7 +290,7 @@ msgstr "Zapisanie bazy danych ze sklepu Magnatune się nie powiodło - „%s”"
 #: ../src/magnatune/grl-magnatune.c:697
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
-msgstr "Pobranie tablicy z bazy danych sklepu Magnatune się nie powiodło: %s"
+msgstr "Pobranie tablicy z bazy danych sklepu Magnatune się nie powiodło: %s"
 
 #: ../src/magnatune/grl-magnatune.c:713
 #, c-format
@@ -307,7 +303,7 @@ msgstr "Przechowalnia metadanych"
 
 #: ../src/metadata-store/grl-metadata-store.c:46
 msgid "A plugin for storing extra metadata information"
-msgstr "Wtyczka do przechowywania dodatkowych informacji o metadanych"
+msgstr "Wtyczka do przechowywania dodatkowych informacji o metadanych"
 
 #: ../src/metadata-store/grl-metadata-store.c:593
 #: ../src/metadata-store/grl-metadata-store.c:612
@@ -343,7 +339,7 @@ msgstr "Wyszukanie się nie powiodło: %s"
 
 #: ../src/opensubtitles/grl-opensubtitles.c:40
 msgid "OpenSubtitles Provider"
-msgstr "Dostarczanie napisów z serwisu OpenSubtitles"
+msgstr "Dostarczanie napisów z serwisu OpenSubtitles"
 
 #: ../src/opensubtitles/grl-opensubtitles.c:41
 msgid "A source providing a list of subtitles for a video"
@@ -377,7 +373,7 @@ msgstr "Przetworzenie treści podcastu się nie powiodło"
 
 #: ../src/podcasts/grl-podcasts.c:1457
 msgid "Failed to get podcast information"
-msgstr "Pobranie informacji o podcaście się nie powiodło"
+msgstr "Pobranie informacji o podcaście się nie powiodło"
 
 #: ../src/podcasts/grl-podcasts.c:1497 ../src/podcasts/grl-podcasts.c:1517
 #, c-format
@@ -410,7 +406,7 @@ msgstr "Ostatnie"
 
 #: ../src/raitv/grl-raitv.c:93
 msgid "A source for browsing and searching Rai.tv videos"
-msgstr "Źródło do przeglądania i przeszukiwania nagrań wideo w serwisie Rai.tv"
+msgstr "Źródło do przeglądania i przeszukiwania nagrań wideo w serwisie Rai.tv"
 
 #: ../src/raitv/grl-raitv.c:171
 msgid "All"
@@ -538,7 +534,7 @@ msgstr "Odpytanie się nie powiodło: %s"
 #: ../src/tracker/grl-tracker-source-api.c:582
 #, c-format
 msgid "Failed to get media from uri: %s"
-msgstr "Pobranie multimediów z adresu URI się nie powiodło: %s"
+msgstr "Pobranie multimediów z adresu URI się nie powiodło: %s"
 
 #: ../src/tracker/grl-tracker-source-api.c:802
 msgid "Empty query"
@@ -547,7 +543,7 @@ msgstr "Puste zapytanie"
 #: ../src/tracker/grl-tracker-source-api.c:1077
 #, c-format
 msgid "ID '%s' is not known in this source"
-msgstr "Identyfikator „%s” nie jest znany w tym źródle"
+msgstr "Identyfikator „%s” nie jest znany w tym źródle"
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
@@ -565,7 +561,7 @@ msgstr "Lokalne pliki"
 
 #: ../src/vimeo/grl-vimeo.c:56
 msgid "A source for browsing and searching Vimeo videos"
-msgstr "Źródło do przeglądania i przeszukiwania nagrań wideo w serwisie Vimeo"
+msgstr "Źródło do przeglądania i przeszukiwania nagrań wideo w serwisie Vimeo"
 
 #: ../src/youtube/grl-youtube.c:60
 msgid "Standard feeds"
@@ -601,7 +597,7 @@ msgstr "Najczęściej umieszczane na innych stronach"
 
 #: ../src/youtube/grl-youtube.c:90
 msgid "Most Responded"
-msgstr "Z największą liczbą odpowiedzi"
+msgstr "Z największą liczbą odpowiedzi"
 
 #: ../src/youtube/grl-youtube.c:93
 msgid "Recently Featured"
@@ -614,7 +610,7 @@ msgstr "Oglądaj na telefonie komórkowym"
 #: ../src/youtube/grl-youtube.c:115
 msgid "A source for browsing and searching YouTube videos"
 msgstr ""
-"Źródło do przeglądania i przeszukiwania nagrań wideo w serwisie YouTube"
+"Źródło do przeglądania i przeszukiwania nagrań wideo w serwisie YouTube"
 
 #: ../src/youtube/grl-youtube.c:871
 msgid "Failed to get feed"

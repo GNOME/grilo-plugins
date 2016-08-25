@@ -215,23 +215,17 @@ grl_tracker_add_source (GrlTrackerSource *source)
 {
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
 
-  GRL_DEBUG ("====================>add source '%s' count=%u",
-             grl_source_get_name (GRL_SOURCE (source)),
-             priv->notification_ref);
+  GRL_DEBUG ("====================>add source '%s'",
+             grl_source_get_name (GRL_SOURCE (source)));
 
-  if (priv->notification_ref > 0) {
-    priv->notification_ref--;
-  }
-  if (priv->notification_ref == 0) {
-    g_hash_table_insert (grl_tracker_source_sources,
-                         (gpointer) grl_tracker_source_get_tracker_source (source),
-                         g_object_ref (source));
-    priv->state = GRL_TRACKER_SOURCE_STATE_RUNNING;
-    grl_registry_register_source (grl_registry_get_default (),
-                                  grl_tracker_plugin,
-                                  GRL_SOURCE (g_object_ref (source)),
-                                  NULL);
-  }
+  g_hash_table_insert (grl_tracker_source_sources,
+                       (gpointer) grl_tracker_source_get_tracker_source (source),
+                       g_object_ref (source));
+  priv->state = GRL_TRACKER_SOURCE_STATE_RUNNING;
+  grl_registry_register_source (grl_registry_get_default (),
+                                grl_tracker_plugin,
+                                GRL_SOURCE (g_object_ref (source)),
+                                NULL);
 }
 
 void
@@ -239,21 +233,16 @@ grl_tracker_del_source (GrlTrackerSource *source)
 {
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
 
-  GRL_DEBUG ("==================>del source '%s' count=%u",
-             grl_source_get_name (GRL_SOURCE (source)),
-             priv->notification_ref);
-  if (priv->notification_ref > 0) {
-    priv->notification_ref--;
-  }
-  if (priv->notification_ref == 0) {
-    g_hash_table_remove (grl_tracker_source_sources,
-                         grl_tracker_source_get_tracker_source (source));
-    grl_tracker_source_cache_del_source (grl_tracker_item_cache, source);
-    priv->state = GRL_TRACKER_SOURCE_STATE_DELETED;
-    grl_registry_unregister_source (grl_registry_get_default (),
-                                    GRL_SOURCE (source),
-                                    NULL);
-  }
+  GRL_DEBUG ("==================>del source '%s'",
+             grl_source_get_name (GRL_SOURCE (source)));
+
+  g_hash_table_remove (grl_tracker_source_sources,
+                       grl_tracker_source_get_tracker_source (source));
+  grl_tracker_source_cache_del_source (grl_tracker_item_cache, source);
+  priv->state = GRL_TRACKER_SOURCE_STATE_DELETED;
+  grl_registry_unregister_source (grl_registry_get_default (),
+                                  GRL_SOURCE (source),
+                                  NULL);
 }
 
 gboolean

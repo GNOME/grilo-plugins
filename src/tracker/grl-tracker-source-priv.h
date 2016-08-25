@@ -70,7 +70,6 @@ struct _GrlTrackerSourcePriv {
   gboolean notify_changes;
 
   GrlTrackerSourceState state;
-  guint notification_ref;
 };
 
 /**/

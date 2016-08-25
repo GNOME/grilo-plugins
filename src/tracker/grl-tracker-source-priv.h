@@ -79,7 +79,6 @@ extern GrlPlugin *grl_tracker_plugin;
 
 /* shared data across  */
 extern GrlTrackerCache *grl_tracker_item_cache;
-extern GHashTable *grl_tracker_source_sources_modified;
 extern gboolean grl_tracker_upnp_present;
 
 /* tracker plugin config */

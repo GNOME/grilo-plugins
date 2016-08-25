@@ -69,7 +69,6 @@ static void grl_tracker_source_finalize (GObject *object);
 
 /* shared data across  */
 GrlTrackerCache *grl_tracker_item_cache;
-GHashTable *grl_tracker_source_sources_modified;
 GHashTable *grl_tracker_source_sources;
 
 /* ================== TrackerSource GObject ================ */
@@ -224,8 +223,6 @@ grl_tracker_add_source (GrlTrackerSource *source)
     priv->notification_ref--;
   }
   if (priv->notification_ref == 0) {
-    g_hash_table_remove (grl_tracker_source_sources_modified,
-                         grl_tracker_source_get_tracker_source (source));
     g_hash_table_insert (grl_tracker_source_sources,
                          (gpointer) grl_tracker_source_get_tracker_source (source),
                          g_object_ref (source));
@@ -249,8 +246,6 @@ grl_tracker_del_source (GrlTrackerSource *source)
     priv->notification_ref--;
   }
   if (priv->notification_ref == 0) {
-    g_hash_table_remove (grl_tracker_source_sources_modified,
-                         grl_tracker_source_get_tracker_source (source));
     g_hash_table_remove (grl_tracker_source_sources,
                          grl_tracker_source_get_tracker_source (source));
     grl_tracker_source_cache_del_source (grl_tracker_item_cache, source);
@@ -278,13 +273,7 @@ grl_tracker_source_find (const gchar *id)
   GrlTrackerSource *source;
 
   source = g_hash_table_lookup (grl_tracker_source_sources, id);
-
-  if (source)
-    return (GrlTrackerSource *) source;
-
-  return
-    (GrlTrackerSource *) g_hash_table_lookup (grl_tracker_source_sources_modified,
-                                              id);
+  return source;
 }
 
 static gboolean
@@ -309,13 +298,7 @@ grl_tracker_source_find_source (const gchar *id)
   source = g_hash_table_find (grl_tracker_source_sources,
                               match_plugin_id,
                               (gpointer) id);
-  if (source) {
-    return source;
-  }
-
-  return g_hash_table_find (grl_tracker_source_sources_modified,
-                            match_plugin_id,
-                            (gpointer) id);
+  return source;
 }
 
 static void
@@ -410,11 +393,6 @@ grl_tracker_source_sources_init (void)
     grl_tracker_source_cache_new (TRACKER_ITEM_CACHE_SIZE);
   grl_tracker_source_sources = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                       NULL, g_object_unref);
-  grl_tracker_source_sources_modified = g_hash_table_new_full (g_str_hash,
-                                                               g_str_equal,
-                                                               NULL,
-                                                               g_object_unref);
-
 
   if (grl_tracker_connection != NULL) {
     grl_tracker_source_dbus_start_watch ();

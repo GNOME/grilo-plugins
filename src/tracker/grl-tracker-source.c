@@ -232,7 +232,7 @@ grl_tracker_add_source (GrlTrackerSource *source)
     priv->state = GRL_TRACKER_SOURCE_STATE_RUNNING;
     grl_registry_register_source (grl_registry_get_default (),
                                   grl_tracker_plugin,
-                                  GRL_SOURCE (source),
+                                  GRL_SOURCE (g_object_ref (source)),
                                   NULL);
   }
 }

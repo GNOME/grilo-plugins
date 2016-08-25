@@ -230,6 +230,7 @@ function get_platform_name(mime_type, suffix)
     platform_names['application/x-pc-engine-rom'] = 'TurboGrafx 16'
     platform_names['application/x-saturn-rom'] = 'Sega Saturn'
     platform_names['application/x-sega-cd-rom'] = 'Sega CD'
+    platform_names['application/x-sg1000-rom'] = 'SEGA SG-1000'
     -- Also represents 'Sega Game Gear' through magic
     platform_names['application/x-sms-rom'] = 'Sega Master System'
     platform_names['application/x-gamegear-rom'] = 'Sega Game Gear'

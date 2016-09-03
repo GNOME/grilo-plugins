@@ -504,7 +504,7 @@ build_media_from_entry (GrlYoutubeSource *source,
 
   /* Make sure we set the media id in any case */
   if (!grl_media_get_id (media)) {
-    grl_media_set_id (media, gdata_youtube_video_get_video_id (video));
+    grl_media_set_id (media, gdata_entry_get_id (entry));
   }
 
   iter = (GList *) keys;

@@ -562,15 +562,8 @@ build_media_from_entry (GrlYoutubeSource *source,
 	GRL_WARNING ("Failed to get video URL. totem-pl-parser error '%d'", res);
       g_clear_object (&parser);
     } else if (key == GRL_METADATA_KEY_EXTERNAL_PLAYER) {
-      GDataYouTubeContent *youtube_content;
-      youtube_content =
-	gdata_youtube_video_look_up_content (video,
-					     "application/x-shockwave-flash");
-      if (youtube_content != NULL) {
-        const gchar *uri =
-          gdata_media_content_get_uri (GDATA_MEDIA_CONTENT (youtube_content));
-	grl_media_set_external_player (media, uri);
-      }
+      const gchar *uri = gdata_youtube_video_get_player_uri (video);
+      grl_media_set_external_player (media, uri);
     }
     iter = g_list_next (iter);
   }

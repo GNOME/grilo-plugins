@@ -732,12 +732,12 @@ static void
 build_category_directory (BuildCategorySpec *bcs)
 {
   GrlYoutubeSource *source;
-  GDataService *service;
+  GDataYouTubeService *service;
 
   GRL_DEBUG (__FUNCTION__);
 
   source = GRL_YOUTUBE_SOURCE (bcs->source);
-  service = GDATA_SERVICE (source->priv->service);
+  service = GDATA_YOUTUBE_SERVICE (source->priv->service);
   gdata_youtube_service_get_categories_async (service, NULL,
                                               build_categories_directory_read_cb,
                                               bcs);
@@ -1069,7 +1069,7 @@ produce_from_feed (OperationSpec *os)
   service = GRL_YOUTUBE_SOURCE (os->source)->priv->service;
 
   /* Index in GData starts at 1 */
-  query = gdata_youtube_query_new (NULL);
+  query = GDATA_QUERY (gdata_youtube_query_new (NULL));
   gdata_query_set_start_index (query, os->skip + 1);
   gdata_query_set_max_results (query, os->count);
   os->category_info = &feeds_dir[feed_type];
@@ -1121,7 +1121,7 @@ produce_from_category (OperationSpec *os)
   service = GRL_YOUTUBE_SOURCE (os->source)->priv->service;
 
   /* Index in GData starts at 1 */
-  query = gdata_youtube_query_new (NULL);
+  query = GDATA_QUERY (gdata_youtube_query_new (NULL));
   gdata_query_set_start_index (query, os->skip + 1);
   gdata_query_set_max_results (query, os->count);
   os->category_info = &categories_dir[category_index];
@@ -1310,7 +1310,7 @@ grl_youtube_source_search (GrlSource *source,
   grl_operation_set_data (ss->operation_id, g_object_ref (os->cancellable));
 
   /* Index in GData starts at 1 */
-  query = gdata_youtube_query_new (ss->text);
+  query = GDATA_QUERY (gdata_youtube_query_new (ss->text));
   gdata_query_set_start_index (query, os->skip + 1);
   gdata_query_set_max_results (query, os->count);
 

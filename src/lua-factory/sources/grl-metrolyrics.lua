@@ -88,8 +88,10 @@ end
 
 function metrolyrics_get_lyrics(feed)
   local media = {}
-  local lyrics_body = '<div id="lyrics%-body%-text".->(.-)</div>'
+  local lyrics_body = '<div id="lyrics%-body%-text".->(.-)<p class="writers"'
   local noise_array = {
+    { noise = '<div id="mid%-song%-discussion".->.+</div>\n<p', sub = "<p" },
+    { noise = '</div>', sub = "" },
     { noise = "</p>",  sub = "\n\n" },
     { noise = "<p class='verse'><p class='verse'>",  sub = "\n\n" },
     { noise = "<p class='verse'>",  sub = "" },

@@ -85,7 +85,7 @@ struct _GrlTmdbRequestPrivate {
   char *api_key;
   GHashTable *args;
   SoupURI *base;
-  GSimpleAsyncResult *simple;
+  GTask *task;
   JsonParser *parser;
   GrlTmdbRequestDetail detail;
   GList *details;
@@ -298,21 +298,22 @@ on_wc_request (GrlNetWc *wc,
   GError *error = NULL;
 
   if (!grl_net_wc_request_finish (wc, res, &content, &length, &error)) {
-    g_simple_async_result_set_from_error (self->priv->simple, error);
+    g_task_return_error (self->priv->task, error);
 
     goto out;
   }
 
   if (!json_parser_load_from_data (self->priv->parser, content, length, &error)) {
     GRL_WARNING ("Could not parse JSON: %s", error->message);
-    g_simple_async_result_set_from_error (self->priv->simple, error);
+    g_task_return_error (self->priv->task, error);
 
     goto out;
   }
 
+  g_task_return_boolean (self->priv->task, TRUE);
+
 out:
-  g_simple_async_result_complete_in_idle (self->priv->simple);
-  g_object_unref (self->priv->simple);
+  g_object_unref (self->priv->task);
 }
 
 /* Public functions */
@@ -541,10 +542,10 @@ grl_tmdb_request_run_async (GrlTmdbRequest *self,
     call = new_call;
   }
 
-  self->priv->simple = g_simple_async_result_new (G_OBJECT (self),
-                                                  callback,
-                                                  user_data,
-                                                  (gpointer) grl_tmdb_request_run_async);
+  self->priv->task = g_task_new (G_OBJECT (self),
+                                 cancellable,
+                                 callback,
+                                 user_data);
 
   GRL_DEBUG ("Requesting %s", call);
 
@@ -578,20 +579,14 @@ grl_tmdb_request_run_finish (GrlTmdbRequest *self,
                              GAsyncResult *result,
                              GError **error)
 {
-  GSimpleAsyncResult *simple;
+  GTask *task;
 
-  if (!g_simple_async_result_is_valid (result,
-                                       G_OBJECT (self),
-                                       (gpointer) grl_tmdb_request_run_async)) {
+  if (!g_task_is_valid (result, self)) {
     return FALSE;
   }
 
-  simple = (GSimpleAsyncResult *) result;
-  if (g_simple_async_result_propagate_error (simple, error)) {
-    return FALSE;
-  }
-
-  return TRUE;
+  task = G_TASK (result);
+  return g_task_propagate_boolean(task, error);
 }
 
 /**

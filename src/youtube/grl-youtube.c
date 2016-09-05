@@ -584,7 +584,6 @@ build_categories_directory_read_cb (GObject *source_object,
   guint total = 0;
   GList *all = NULL, *iter;
   CategoryInfo *cat_info;
-  gchar *id;
   guint index = 0;
 
   GRL_DEBUG (G_STRFUNC);

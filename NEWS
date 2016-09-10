@@ -1,3 +1,51 @@
+NEW in 0.3.3
+============
+
+  * acoustid plugin
+    * BGO#768520 - AcoustID plugin: Support fetching recording artist
+      for the "artist" key
+    * BGO#768185 - acoustid: fix the metadata-key name to use
+  * dmap plugin
+    * BGO#768606 - dmap: Add album disc number mapping
+  * local-metadata plugin
+    * BGO#768093 - local-metadata: Fix getting thumbnails for videos
+  * lua-factory plugin
+    * BGO#769331 - Fix throttling in core and lua-factory
+  * metrolyrics plugin
+    * BGO#770806 - fix html parser
+  * thegamesdb plugin
+    * BGO#769347 - thegamesdb: Support PlayStation games
+    * BGO#769349 - thegamesdb: Add PC games support
+    * BGO#769356 - thegamesdb: Support Sega CD games
+    * BGO#769357 - thegamesdb: Use the Genesis 32X MIME type
+    * BGO#769373 - thegamesdb: Use the Game Boy Color MIME type
+  * tracker plugin
+    * BGO#767684 - The tracker plugin crashes Rhythmbox when a phone
+      is connected
+  * youtube plugin
+    * BGO#770806 - Fix warnings
+
+  * Contributors to this release:
+    Adrien Plazas <kekun.plazas@laposte.net>
+    Alexandre Franke <alexandre.franke@gmail.com>
+    Andika Triwidada <atriwidada@gnome.org>
+    Aurimas Černius <aurisc4@gmail.com>
+    Balázs Meskó <meskobalazs@gmail.com>
+    Bastien Nocera <hadess@hadess.net>
+    Christian Kirbach <Christian.Kirbach@gmail.com>
+    Dušan Kazik <prescott66@gmail.com>
+    Fabio Tomat <f.t.public@gmail.com>
+    Fran Dieguez <fran.dieguez@mabishu.com>
+    Matej Urbančič <mateju@svn.gnome.org>
+    Piotr Drąg <piotrdrag@gmail.com>
+    Rūdolfs Mazurs <rudolfsm@src.gnome.org>
+    Saiful B. Khan <saifulbkhan@gmail.com>
+    Seong-ho Cho <shcho@gnome.org>
+    Victor Toso <me@victortoso.com>
+    W. Michael Petullo <mike@flyn.org>
+    Yosef Or Boczko <yoseforb@src.gnome.org>
+    Мирослав Николић <miroslavnikolic@rocketmail.com>
+
 NEW in 0.3.2
 ============
 

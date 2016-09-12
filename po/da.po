@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-20 23:40+0100\n"
-"PO-Revision-Date: 2016-03-20 04:56+0100\n"
+"POT-Creation-Date: 2016-09-13 01:59+0200\n"
+"PO-Revision-Date: 2016-09-09 00:09+0200\n"
 "Last-Translator: scootergrisen\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -57,6 +57,11 @@ msgstr "Kunne ikke gemme: %s"
 msgid "No database connection"
 msgstr "Ingen databaseforbindelse"
 
+#: ../src/chromaprint/grl-chromaprint.c:46
+msgid "A plugin to get metadata using gstreamer framework"
+msgstr ""
+"Et udvidelsesmodul til at hente metadata ved hjælp af gstreamer-frameworket"
+
 #: ../src/dleyna/grl-dleyna-source.c:34
 #, c-format
 msgid "A source for browsing the DLNA server '%s'"
@@ -87,18 +92,18 @@ msgstr ""
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "En kilde til at gennemse DAAP-serveren \"%s\""
 
-#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:793
+#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:795
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Album"
 
-#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:782
+#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:784
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Kunstnere"
 
-#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1120
-#: ../src/jamendo/grl-jamendo.c:1195 ../src/magnatune/grl-magnatune.c:841
+#: ../src/dmap/grl-daap-db.c:292 ../src/jamendo/grl-jamendo.c:1122
+#: ../src/jamendo/grl-jamendo.c:1233 ../src/magnatune/grl-magnatune.c:841
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Ugyldig beholder-id %s"
@@ -125,7 +130,7 @@ msgstr "En kilde til at gennemse filsystemet"
 msgid "File %s does not exist"
 msgstr "Filen %s findes ikke"
 
-#: ../src/filesystem/grl-filesystem.c:1257 ../src/youtube/grl-youtube.c:1520
+#: ../src/filesystem/grl-filesystem.c:1257 ../src/youtube/grl-youtube.c:1512
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Kan ikke hente medie fra %s"
@@ -176,68 +181,68 @@ msgstr ""
 msgid "A source for browsing and searching Jamendo music"
 msgstr "En kilde til at gennemse of søge i Jamendo-musik"
 
-#: ../src/jamendo/grl-jamendo.c:147
+#: ../src/jamendo/grl-jamendo.c:149
 msgid "Albums of the week"
 msgstr "Ugens album"
 
-#: ../src/jamendo/grl-jamendo.c:149
+#: ../src/jamendo/grl-jamendo.c:151
 msgid "Tracks of the week"
 msgstr "Ugens spor"
 
-#: ../src/jamendo/grl-jamendo.c:151
+#: ../src/jamendo/grl-jamendo.c:153
 msgid "New releases"
 msgstr "Nyudgivelser"
 
-#: ../src/jamendo/grl-jamendo.c:153
+#: ../src/jamendo/grl-jamendo.c:155
 msgid "Top artists"
 msgstr "Topkunstnere"
 
-#: ../src/jamendo/grl-jamendo.c:155
+#: ../src/jamendo/grl-jamendo.c:157
 msgid "Top albums"
 msgstr "Topalbum"
 
-#: ../src/jamendo/grl-jamendo.c:157
+#: ../src/jamendo/grl-jamendo.c:159
 msgid "Top tracks"
 msgstr "Topspor"
 
-#: ../src/jamendo/grl-jamendo.c:346 ../src/jamendo/grl-jamendo.c:706
+#: ../src/jamendo/grl-jamendo.c:348 ../src/jamendo/grl-jamendo.c:708
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:470
 msgid "Failed to parse response"
 msgstr "Kunne ikke fortolke svar"
 
-#: ../src/jamendo/grl-jamendo.c:354 ../src/jamendo/grl-jamendo.c:361
+#: ../src/jamendo/grl-jamendo.c:356 ../src/jamendo/grl-jamendo.c:363
 #: ../src/podcasts/grl-podcasts.c:1368 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Tomt svar"
 
-#: ../src/jamendo/grl-jamendo.c:675 ../src/shoutcast/grl-shoutcast.c:558
+#: ../src/jamendo/grl-jamendo.c:677 ../src/shoutcast/grl-shoutcast.c:558
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Kunne ikke forbinde: %s"
 
 # ?
-#: ../src/jamendo/grl-jamendo.c:804
+#: ../src/jamendo/grl-jamendo.c:806
 msgid "Feeds"
 msgstr "Kanaler"
 
-#: ../src/jamendo/grl-jamendo.c:988 ../src/jamendo/grl-jamendo.c:1033
-#: ../src/jamendo/grl-jamendo.c:1060
+#: ../src/jamendo/grl-jamendo.c:990 ../src/jamendo/grl-jamendo.c:1035
+#: ../src/jamendo/grl-jamendo.c:1062
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Ugyldig id %s"
 
-#: ../src/jamendo/grl-jamendo.c:1047 ../src/youtube/grl-youtube.c:1112
-#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
+#: ../src/jamendo/grl-jamendo.c:1049 ../src/youtube/grl-youtube.c:1104
+#: ../src/youtube/grl-youtube.c:1237 ../src/youtube/grl-youtube.c:1449
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Ugyldig kategori-id %s"
 
-#: ../src/jamendo/grl-jamendo.c:1190
+#: ../src/jamendo/grl-jamendo.c:1228
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Kunne ikke gennemse: %s er et spor"
 
-#: ../src/jamendo/grl-jamendo.c:1250
+#: ../src/jamendo/grl-jamendo.c:1287
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Fejludformet forespørgsel \"%s\""
@@ -537,7 +542,7 @@ msgstr "Kunne ikke hente medie fra uri: %s"
 msgid "Empty query"
 msgstr "Tom forespørgsel"
 
-#: ../src/tracker/grl-tracker-source-api.c:1075
+#: ../src/tracker/grl-tracker-source-api.c:1077
 #, c-format
 msgid "ID '%s' is not known in this source"
 msgstr "Id \"%s\" kendes ikke i denne kilde"
@@ -546,12 +551,12 @@ msgstr "Id \"%s\" kendes ikke i denne kilde"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Et udvidelsesmodul til at søge i multimedieindhold med Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:653
+#: ../src/tracker/grl-tracker-utils.c:691
 #, c-format
 msgid "Removable - %s"
 msgstr "Kan fjernes - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:665
+#: ../src/tracker/grl-tracker-utils.c:703
 msgid "Local files"
 msgstr "Lokale filer"
 
@@ -608,11 +613,11 @@ msgstr "Se på mobilen"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "En kilde for at gennemse og søge efter YouTube-videoer"
 
-#: ../src/youtube/grl-youtube.c:871
+#: ../src/youtube/grl-youtube.c:863
 msgid "Failed to get feed"
 msgstr "Kunne ikke hente kanal"
 
-#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
+#: ../src/youtube/grl-youtube.c:1040 ../src/youtube/grl-youtube.c:1428
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Ugyldig kanal-id %s"

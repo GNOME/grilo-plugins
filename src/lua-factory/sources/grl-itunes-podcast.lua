@@ -39,6 +39,7 @@ source = {
   supported_keys = { 'artist', 'thumbnail', 'id', 'title', 'region',
                      'external-url', 'genre', 'modification-date',
                      'mime-type', 'description' },
+  supported_media = 'audio',
   config_keys = {
     optional = { 'country' },
   },

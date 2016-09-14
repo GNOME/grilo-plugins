@@ -176,6 +176,7 @@ grl_dpap_source_new (DMAPMdnsBrowserService *service)
                          "source-id",   source_id,
                          "source-name", service->name,
                          "source-desc", source_desc,
+                         "supported-media", GRL_SUPPORTED_MEDIA_IMAGE,
                          NULL);
 
   source->priv->service = service;

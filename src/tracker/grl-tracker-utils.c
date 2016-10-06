@@ -735,7 +735,7 @@ get_tracker_volume_name (const gchar *uri,
       if (g_file_equal (m_file, file)) {
         gchar *m_name = g_mount_get_name (G_MOUNT (mount->data));
         g_object_unref (G_OBJECT (m_file));
-        source_name = g_strdup_printf (_("Removable - %s"), m_name);
+        source_name = g_strdup_printf (_("Removable — %s"), m_name);
         g_free (m_name);
         break;
       }
@@ -756,7 +756,7 @@ get_tracker_volume_name (const gchar *uri,
 static gchar *
 get_tracker_upnp_name (const gchar *datasource_name)
 {
-  return g_strdup_printf ("UPnP - %s", datasource_name);
+  return g_strdup_printf ("UPnP — %s", datasource_name);
 }
 
 gchar *

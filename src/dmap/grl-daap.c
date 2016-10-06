@@ -47,7 +47,7 @@ GRL_LOG_DOMAIN_STATIC(daap_log_domain);
 /* --- Plugin information --- */
 
 #define SOURCE_ID_TEMPLATE   "grl-daap-%s"
-#define SOURCE_DESC_TEMPLATE _("A source for browsing the DAAP server '%s'")
+#define SOURCE_DESC_TEMPLATE _("A source for browsing the DAAP server “%s”")
 
 /* --- Grilo DAAP Private --- */
 

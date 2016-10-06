@@ -789,7 +789,7 @@ grl_metadata_store_source_resolve (GrlSource *source,
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_RESOLVE_FAILED,
                          _("Failed to resolve: %s"),
-                         _("\"source-id\" not available"));
+                         _("“source-id” not available"));
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
     g_error_free (error);
     return;
@@ -834,7 +834,7 @@ grl_metadata_store_source_store_metadata (GrlSource *source,
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_STORE_METADATA_FAILED,
                          _("Failed to update metadata: %s"),
-                         _("\"source-id\" not available"));
+                         _("“source-id” not available"));
     failed_keys = g_list_copy (sms->keys);
   } else {
     /* Special case for root categories */

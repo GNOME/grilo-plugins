@@ -1284,7 +1284,7 @@ grl_jamendo_source_query (GrlSource *source,
   if (!parse_query (qs->query, &category, &term)) {
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_QUERY_FAILED,
-                         _("Malformed query \"%s\""),
+                         _("Malformed query “%s”"),
                          qs->query);
     goto send_error;
   }

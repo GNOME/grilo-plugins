@@ -47,7 +47,7 @@ GRL_LOG_DOMAIN_STATIC(dmap_log_domain);
 /* --- Plugin information --- */
 
 #define SOURCE_ID_TEMPLATE   "grl-dpap-%s"
-#define SOURCE_DESC_TEMPLATE _("A source for browsing the DPAP server '%s'")
+#define SOURCE_DESC_TEMPLATE _("A source for browsing the DPAP server “%s”")
 
 /* --- Grilo DPAP Private --- */
 

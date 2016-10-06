@@ -455,7 +455,7 @@ magnatune_get_db_done(GObject *source_object,
     if (ret == FALSE) {
       err = g_error_new(GRL_CORE_ERROR,
                         GRL_CORE_ERROR_MEDIA_NOT_FOUND,
-                        _("Failed to save database from magnatune - '%s'"),
+                        _("Failed to save database from magnatune: “%s”"),
                         err_fn->message);
       g_error_free(err_fn);
 

@@ -1085,7 +1085,7 @@ grl_tracker_source_browse_category (GrlSource *source,
 
       error = g_error_new (GRL_CORE_ERROR,
                            GRL_CORE_ERROR_BROWSE_FAILED,
-                           _("ID '%s' is not known in this source"),
+                           _("ID “%s” is not known in this source"),
                            id);
 
       bs->callback (bs->source, bs->operation_id, NULL, 0,

@@ -53,7 +53,6 @@ struct _GrlTrackerSourceNotify {
 
   guint graph_updated_id;
   gint rdf_type_id;
-  gint nfo_filedataobject_id;
 };
 
 static void grl_tracker_source_notify_initable_iface_init (GInitableIface *iface);
@@ -266,7 +265,7 @@ graph_updated_cb (GDBusConnection *connection,
      * it means the media already existed but changed.
      */
 
-    if (predicate == self->rdf_type_id && object == self->nfo_filedataobject_id) {
+    if (predicate == self->rdf_type_id) {
       g_hash_table_insert (self->updates, key, REMOVED);
     } else if (g_hash_table_lookup (self->updates, key) != REMOVED) {
       g_hash_table_insert (self->updates, key, CHANGED);
@@ -281,7 +280,7 @@ graph_updated_cb (GDBusConnection *connection,
      * update of an existing media
      */
 
-    if (predicate == self->rdf_type_id && object == self->nfo_filedataobject_id) {
+    if (predicate == self->rdf_type_id) {
       g_hash_table_insert (self->updates, key, ADDED);
     } else if (g_hash_table_lookup (self->updates, key) != ADDED) {
       g_hash_table_insert (self->updates, key, CHANGED);
@@ -359,7 +358,6 @@ grl_tracker_source_notify_initable_init (GInitable    *initable,
   }
 
   self->rdf_type_id = tracker_sparql_cursor_get_integer (cursor, 0);
-  self->nfo_filedataobject_id = tracker_sparql_cursor_get_integer (cursor, 1);
 
   g_object_unref (cursor);
 

@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: grilo-plugins 3.19.x\n"
+"Project-Id-Version: grilo-plugins 3.22.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-10 20:01+0100\n"
-"PO-Revision-Date: 2016-01-10 20:04+0100\n"
+"POT-Creation-Date: 2016-10-16 18:09+0200\n"
+"PO-Revision-Date: 2016-10-16 18:12+0200\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: Norwegian bokmål <i18n-nb@lister.ping.uio.no>\n"
 "Language: nb\n"
@@ -53,6 +53,10 @@ msgstr "Klarte ikke å lagre: %s"
 msgid "No database connection"
 msgstr "Ingen databasetilkobling"
 
+#: ../src/chromaprint/grl-chromaprint.c:46
+msgid "A plugin to get metadata using gstreamer framework"
+msgstr "Et tillegg for å hente metadata ved bruk av GStreamer-rammeverket"
+
 #: ../src/dleyna/grl-dleyna-source.c:34
 #, c-format
 msgid "A source for browsing the DLNA server '%s'"
@@ -70,30 +74,30 @@ msgstr "Opplasting feilet, «%s», overført %lu av %lu bytes"
 #: ../src/dleyna/grl-dleyna-source.c:881
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
-msgstr ""
+msgstr "Klarte ikke å hente egenskaper for oppføring (BrowseObjects-feil %d: %s)"
 
 #: ../src/dleyna/grl-dleyna-source.c:1520
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
-msgstr ""
+msgstr "Opplasting feilet. URL mangler på medieobjektet som skal overføres"
 
 #: ../src/dmap/grl-daap.c:50
 #, c-format
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "En kilde for å se på innhold på DAAP-tjener «%s»"
 
-#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:793
+#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:795
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Album"
 
-#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:782
+#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:784
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Artister"
 
-#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1120
-#: ../src/jamendo/grl-jamendo.c:1195 ../src/magnatune/grl-magnatune.c:841
+#: ../src/dmap/grl-daap-db.c:292 ../src/jamendo/grl-jamendo.c:1122
+#: ../src/jamendo/grl-jamendo.c:1233 ../src/magnatune/grl-magnatune.c:841
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Ugyldig identifikator %s for kontainer"
@@ -120,7 +124,7 @@ msgstr "En kilde for å bla gjennom filsystemet"
 msgid "File %s does not exist"
 msgstr "Fil %s eksisterer ikke"
 
-#: ../src/filesystem/grl-filesystem.c:1257 ../src/youtube/grl-youtube.c:1520
+#: ../src/filesystem/grl-filesystem.c:1257 ../src/youtube/grl-youtube.c:1512
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Kan ikke hente medie fra %s"
@@ -169,67 +173,67 @@ msgstr ""
 msgid "A source for browsing and searching Jamendo music"
 msgstr "En kilde for å bla gjennom og søke i musikk fra Jamendo"
 
-#: ../src/jamendo/grl-jamendo.c:147
+#: ../src/jamendo/grl-jamendo.c:149
 msgid "Albums of the week"
 msgstr "Ukens album"
 
-#: ../src/jamendo/grl-jamendo.c:149
+#: ../src/jamendo/grl-jamendo.c:151
 msgid "Tracks of the week"
 msgstr "Ukens spor"
 
-#: ../src/jamendo/grl-jamendo.c:151
+#: ../src/jamendo/grl-jamendo.c:153
 msgid "New releases"
 msgstr "Nye utgivelser"
 
-#: ../src/jamendo/grl-jamendo.c:153
+#: ../src/jamendo/grl-jamendo.c:155
 msgid "Top artists"
 msgstr "Mest populære artister"
 
-#: ../src/jamendo/grl-jamendo.c:155
+#: ../src/jamendo/grl-jamendo.c:157
 msgid "Top albums"
 msgstr "Mest populære album"
 
-#: ../src/jamendo/grl-jamendo.c:157
+#: ../src/jamendo/grl-jamendo.c:159
 msgid "Top tracks"
 msgstr "Mest populære spor"
 
-#: ../src/jamendo/grl-jamendo.c:346 ../src/jamendo/grl-jamendo.c:706
+#: ../src/jamendo/grl-jamendo.c:348 ../src/jamendo/grl-jamendo.c:708
 #: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:470
 msgid "Failed to parse response"
 msgstr "Klarte ikke å tolke svar"
 
-#: ../src/jamendo/grl-jamendo.c:354 ../src/jamendo/grl-jamendo.c:361
+#: ../src/jamendo/grl-jamendo.c:356 ../src/jamendo/grl-jamendo.c:363
 #: ../src/podcasts/grl-podcasts.c:1368 ../src/shoutcast/grl-shoutcast.c:424
 msgid "Empty response"
 msgstr "Tomt svar"
 
-#: ../src/jamendo/grl-jamendo.c:675 ../src/shoutcast/grl-shoutcast.c:558
+#: ../src/jamendo/grl-jamendo.c:677 ../src/shoutcast/grl-shoutcast.c:558
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Klarte ikke å koble til: %s"
 
-#: ../src/jamendo/grl-jamendo.c:804
+#: ../src/jamendo/grl-jamendo.c:806
 msgid "Feeds"
 msgstr "Strømmer"
 
-#: ../src/jamendo/grl-jamendo.c:988 ../src/jamendo/grl-jamendo.c:1033
-#: ../src/jamendo/grl-jamendo.c:1060
+#: ../src/jamendo/grl-jamendo.c:990 ../src/jamendo/grl-jamendo.c:1035
+#: ../src/jamendo/grl-jamendo.c:1062
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Ugyldig identifikator %s"
 
-#: ../src/jamendo/grl-jamendo.c:1047 ../src/youtube/grl-youtube.c:1112
-#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
+#: ../src/jamendo/grl-jamendo.c:1049 ../src/youtube/grl-youtube.c:1104
+#: ../src/youtube/grl-youtube.c:1237 ../src/youtube/grl-youtube.c:1449
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Ugyldig identifikator %s for kategori"
 
-#: ../src/jamendo/grl-jamendo.c:1190
+#: ../src/jamendo/grl-jamendo.c:1228
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Klarte ikke å bla gjennom: %s er et spor"
 
-#: ../src/jamendo/grl-jamendo.c:1250
+#: ../src/jamendo/grl-jamendo.c:1287
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Feilutformet spørring «%s»"
@@ -291,7 +295,7 @@ msgstr "Metadatalager"
 
 #: ../src/metadata-store/grl-metadata-store.c:46
 msgid "A plugin for storing extra metadata information"
-msgstr ""
+msgstr "Et tillegg for å lagre ekstra metadatainformasjon"
 
 #: ../src/metadata-store/grl-metadata-store.c:593
 #: ../src/metadata-store/grl-metadata-store.c:612
@@ -327,7 +331,7 @@ msgstr "Klarte ikke å søke: %s"
 
 #: ../src/opensubtitles/grl-opensubtitles.c:40
 msgid "OpenSubtitles Provider"
-msgstr ""
+msgstr "OpenSubtitles-tilbyder"
 
 #: ../src/opensubtitles/grl-opensubtitles.c:41
 msgid "A source providing a list of subtitles for a video"
@@ -343,12 +347,12 @@ msgstr "En kilde for å bla gjennom optiske medier"
 
 #: ../src/podcasts/grl-podcasts.c:153
 msgid "A source for browsing podcasts"
-msgstr ""
+msgstr "En kilde for å se på podcaster"
 
 #: ../src/podcasts/grl-podcasts.c:764 ../src/podcasts/grl-podcasts.c:784
 #, c-format
 msgid "Failed to get podcast streams: %s"
-msgstr ""
+msgstr "Klarte ikke å hente podcast-strømmer: %s"
 
 #: ../src/podcasts/grl-podcasts.c:1250 ../src/podcasts/grl-podcasts.c:1259
 #: ../src/podcasts/grl-podcasts.c:1269
@@ -357,16 +361,16 @@ msgstr "Klarte ikke å tolke innhold"
 
 #: ../src/podcasts/grl-podcasts.c:1302
 msgid "Failed to parse podcast contents"
-msgstr ""
+msgstr "Klarte ikke å lese innhold i podcast"
 
 #: ../src/podcasts/grl-podcasts.c:1457
 msgid "Failed to get podcast information"
-msgstr ""
+msgstr "Klarte ikke å hente informasjon om podcast"
 
 #: ../src/podcasts/grl-podcasts.c:1497 ../src/podcasts/grl-podcasts.c:1517
 #, c-format
 msgid "Failed to get podcasts list: %s"
-msgstr ""
+msgstr "Klarte ikke å hente podcast-liste: %s"
 
 #: ../src/podcasts/grl-podcasts.c:1570 ../src/podcasts/grl-podcasts.c:1585
 msgid "Failed to get podcast stream metadata"
@@ -394,7 +398,7 @@ msgstr "Nylig"
 
 #: ../src/raitv/grl-raitv.c:93
 msgid "A source for browsing and searching Rai.tv videos"
-msgstr ""
+msgstr "En kilde for å se på og søke etter Rai.tv videoer"
 
 #: ../src/raitv/grl-raitv.c:171
 msgid "All"
@@ -528,7 +532,7 @@ msgstr "Klarte ikke å hente medie fra URI: %s"
 msgid "Empty query"
 msgstr "Tom spørring"
 
-#: ../src/tracker/grl-tracker-source-api.c:1075
+#: ../src/tracker/grl-tracker-source-api.c:1077
 #, c-format
 msgid "ID '%s' is not known in this source"
 msgstr "ID «%s» er ikke kjent i denne kilden"
@@ -537,12 +541,12 @@ msgstr "ID «%s» er ikke kjent i denne kilden"
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr ""
 
-#: ../src/tracker/grl-tracker-utils.c:642
+#: ../src/tracker/grl-tracker-utils.c:691
 #, c-format
 msgid "Removable - %s"
 msgstr "Avtagbar - %s"
 
-#: ../src/tracker/grl-tracker-utils.c:654
+#: ../src/tracker/grl-tracker-utils.c:703
 msgid "Local files"
 msgstr "Lokale filer"
 
@@ -588,7 +592,7 @@ msgstr "Mest besvart"
 
 #: ../src/youtube/grl-youtube.c:93
 msgid "Recently Featured"
-msgstr ""
+msgstr "Nylig utvalgt"
 
 #: ../src/youtube/grl-youtube.c:96
 msgid "Watch On Mobile"
@@ -596,13 +600,13 @@ msgstr "Se på mobil"
 
 #: ../src/youtube/grl-youtube.c:115
 msgid "A source for browsing and searching YouTube videos"
-msgstr ""
+msgstr "En kilde for å se på og søke etter YouTube-videoer"
 
-#: ../src/youtube/grl-youtube.c:871
+#: ../src/youtube/grl-youtube.c:863
 msgid "Failed to get feed"
 msgstr "Klarte ikke å hente strøm"
 
-#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
+#: ../src/youtube/grl-youtube.c:1040 ../src/youtube/grl-youtube.c:1428
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Ugyldig identifikator for strøm %s"

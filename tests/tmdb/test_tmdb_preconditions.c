@@ -34,12 +34,13 @@ test_preconditions (void)
   GrlMedia *media = NULL;
   GError *error = NULL;
   GrlOperationOptions *options = NULL;
+  GrlSource *source;
 
   test_setup_tmdb ();
 
   local_media = grl_media_audio_new ();
 
-  GrlSource *source = test_get_source();
+  source = test_get_source();
   g_assert (source);
   options = grl_operation_options_new (NULL);
   g_assert (options != NULL);
@@ -88,6 +89,8 @@ test_preconditions (void)
 int
 main(int argc, char **argv)
 {
+  gint result;
+
   g_setenv ("GRL_PLUGIN_PATH", GRILO_PLUGINS_TESTS_TMDB_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", TMDB_PLUGIN_ID, TRUE);
 
@@ -101,7 +104,7 @@ main(int argc, char **argv)
 
   g_test_add_func ("/tmdb/preconditions", test_preconditions);
 
-  gint result = g_test_run ();
+  result = g_test_run ();
 
   grl_deinit ();
 

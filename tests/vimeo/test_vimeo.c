@@ -231,6 +231,8 @@ test_cancel (void)
 int
 main (int argc, char **argv)
 {
+  gint result;
+
   g_setenv ("GRL_PLUGIN_PATH", VIMEO_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", VIMEO_ID, TRUE);
   g_setenv ("GRL_NET_MOCKED", VIMEO_DATA_PATH "network-data.ini", TRUE);
@@ -245,7 +247,7 @@ main (int argc, char **argv)
   g_test_add_func ("/vimeo/search/empty", test_search_empty);
   g_test_add_func ("/vimeo/cancel", test_cancel);
 
-  gint result = g_test_run ();
+  result = g_test_run ();
 
   grl_deinit ();
 

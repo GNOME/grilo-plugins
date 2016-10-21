@@ -96,15 +96,15 @@ test_episodes_from_episode (void)
   guint i;
 
   struct {
-    gchar *show;
-    gchar *title;
+    const gchar *show;
+    const gchar *title;
     gint season;
     gint episode;
-    gchar *imdb;
-    gchar *tvdb_id;
-    gchar *zap2it_id;
-    gchar *publication_date;
-    gchar *url_episode_screen;
+    const gchar *imdb;
+    const gchar *tvdb_id;
+    const gchar *zap2it_id;
+    const gchar *publication_date;
+    const gchar *url_episode_screen;
   } videos[] = {
     { "Boardwalk Empire", "New York Sour", 4, 1,
       "tt2483070", "4596908", "SH01308836", "2013-09-08",
@@ -155,6 +155,8 @@ test_episodes_from_episode (void)
 gint
 main (gint argc, gchar **argv)
 {
+  gint result;
+
   g_setenv ("GRL_PLUGIN_PATH", THETVDB_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", THETVDB_ID, TRUE);
   g_setenv ("GRL_NET_MOCKED", THETVDB_PLUGIN_TEST_DATA_PATH "config.ini", TRUE);
@@ -166,7 +168,7 @@ main (gint argc, gchar **argv)
 
   g_test_add_func ("/thetvdb/resolve/episodes_from_episode", test_episodes_from_episode);
 
-  gint result = g_test_run ();
+  result = g_test_run ();
 
   test_shutdown_thetvdb ();
 

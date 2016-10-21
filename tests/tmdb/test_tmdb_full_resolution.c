@@ -77,6 +77,8 @@ test_full_resolution (void)
   GrlKeyID backdrop, posters, imdb_id;
   GrlOperationOptions *options = NULL;
   GrlMedia *media = NULL;
+  GrlSource *source;
+  guint count;
 
   test_setup_tmdb ();
 
@@ -92,7 +94,7 @@ test_full_resolution (void)
   g_assert (media != NULL);
   grl_media_set_title (media, "Sherlock Holmes");
 
-  GrlSource *source = test_get_source();
+  source = test_get_source();
   g_assert (source);
   options = grl_operation_options_new (NULL);
   g_assert (options != NULL);
@@ -132,8 +134,7 @@ test_full_resolution (void)
 
   g_assert_cmpint (grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_DIRECTOR), ==, 2);
   g_assert_cmpstr (grl_data_get_string (GRL_DATA (media), GRL_METADATA_KEY_DIRECTOR), ==, "Guy Ritchie");
-
-  guint count = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_REGION);
+  count = grl_data_length (GRL_DATA (media), GRL_METADATA_KEY_REGION);
   g_assert_cmpint (count, ==, 8);
   test_region_certificate (media, "GB", "12A");
   test_region_certificate (media, "FR", ""); /* TODO: Should this be here? */
@@ -154,6 +155,8 @@ test_full_resolution (void)
 int
 main(int argc, char **argv)
 {
+  gint result;
+
   g_setenv ("GRL_PLUGIN_PATH", GRILO_PLUGINS_TESTS_TMDB_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", TMDB_PLUGIN_ID, TRUE);
 
@@ -167,7 +170,7 @@ main(int argc, char **argv)
 
   g_test_add_func ("/tmdb/full-resolution", test_full_resolution);
 
-  gint result = g_test_run ();
+  result = g_test_run ();
 
   grl_deinit ();
 

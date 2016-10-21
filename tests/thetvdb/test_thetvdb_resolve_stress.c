@@ -30,15 +30,15 @@ static GMainLoop *main_loop = NULL;
 static GrlKeyID tvdb_key, imdb_key, zap2it_key, ss_key;
 
 static struct {
-  gchar *show;
-  gchar *title;
+  const gchar *show;
+  const gchar *title;
   gint   season;
   gint   episode;
-  gchar *imdb;
-  gchar *tvdb_id;
-  gchar *zap2it_id;
-  gchar *publication_date;
-  gchar *url_episode_screen;
+  const gchar *imdb;
+  const gchar *tvdb_id;
+  const gchar *zap2it_id;
+  const gchar *publication_date;
+  const gchar *url_episode_screen;
 } videos[] = {
   {"House", "Now What?", 7, 1,
     "tt1697219", "2495251","EP00688359","2010-09-20",
@@ -296,6 +296,8 @@ test_episodes_stress (void)
 gint
 main (gint argc, gchar **argv)
 {
+  gint result;
+
   g_setenv ("GRL_PLUGIN_PATH", THETVDB_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", THETVDB_ID, TRUE);
   g_setenv ("GRL_NET_MOCKED", THETVDB_PLUGIN_TEST_DATA_PATH "config.ini", TRUE);
@@ -307,7 +309,7 @@ main (gint argc, gchar **argv)
 
   g_test_add_func ("/thetvdb/resolve/episodes_from_episode", test_episodes_stress);
 
-  gint result = g_test_run ();
+  result = g_test_run ();
 
   test_shutdown_thetvdb ();
 

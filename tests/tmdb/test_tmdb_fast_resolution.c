@@ -44,6 +44,7 @@ test_fast_resolution (void)
   GrlOperationOptions *options = NULL;
   GrlMedia *media = NULL;
   GError *error = NULL;
+  GrlSource *source;
 
   test_setup_tmdb ();
 
@@ -61,7 +62,7 @@ test_fast_resolution (void)
   g_assert (media != NULL);
   grl_media_set_title (media, "TMDBTestTitle");
 
-  GrlSource *source = test_get_source();
+  source = test_get_source();
   g_assert (source);
   grl_source_resolve_sync (source,
                            media,
@@ -95,6 +96,8 @@ test_fast_resolution (void)
 int
 main(int argc, char **argv)
 {
+  gint result;
+
   g_setenv ("GRL_PLUGIN_PATH", GRILO_PLUGINS_TESTS_TMDB_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", TMDB_PLUGIN_ID, TRUE);
 
@@ -108,7 +111,7 @@ main(int argc, char **argv)
 
   g_test_add_func ("/tmdb/fast-resolution", test_fast_resolution);
 
-  gint result = g_test_run ();
+  result = g_test_run ();
 
   grl_deinit ();
 

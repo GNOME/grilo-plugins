@@ -338,6 +338,8 @@ test_resolve_keys_found (void)
 int
 main(int argc, char **argv)
 {
+  gint result;
+
   g_setenv ("GRL_PLUGIN_PATH", LUA_FACTORY_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_LUA_SOURCES_PATH", LUA_SOURCES_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", "grl-lua-factory", TRUE);
@@ -354,7 +356,7 @@ main(int argc, char **argv)
   g_test_add_func ("/thegamesdb/resolve/thumbnails-found", test_resolve_thumbnails_found);
   g_test_add_func ("/thegamesdb/resolve/genre-found", test_resolve_genres_found);
 
-  gint result = g_test_run ();
+  result = g_test_run ();
 
   grl_deinit ();
 

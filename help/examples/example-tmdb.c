@@ -38,11 +38,13 @@ GrlKeyID director_key = 0;
 static void
 resolve_cb (GrlSource *src, guint operation_id, GrlMedia *media, gpointer user_data, const GError *error)
 {
+  const char *title, *studio;
+
   g_assert_no_error (error);
   g_assert (media);
 
-  const gchar *title = grl_media_get_title (media);
-  const gchar *studio = grl_media_get_studio (media);
+  title = grl_media_get_title (media);
+  studio = grl_media_get_studio (media);
   printf ("Media: Title='%s', Studio='%s'\n",
     title, studio);
 
@@ -57,14 +59,25 @@ resolve_cb (GrlSource *src, guint operation_id, GrlMedia *media, gpointer user_d
 
 int main (int argc, char *argv[])
 {
+  GrlRegistry *reg;
+  GrlConfig *config;
+  GError *error = NULL;
+  GrlSource *src;
+  gboolean plugin_activated;
+  GrlCaps *caps;
+  GrlOperationOptions *options;
+  GrlMedia *media;
+  const GList *keys;
+  const GList* l;
+
   grl_init (&argc, &argv);
 
   /*
    * Set the TMDB API key:
    * You must use your own TMDB API key in your own application.
    */
-  GrlRegistry *reg = grl_registry_get_default ();
-  GrlConfig *config = grl_config_new (TMDB_PLUGIN_ID, NULL);
+  reg = grl_registry_get_default ();
+  config = grl_config_new (TMDB_PLUGIN_ID, NULL);
   grl_config_set_api_key (config, TMDB_KEY);
   grl_registry_add_config (reg, config, NULL);
   grl_registry_load_all_plugins (reg, FALSE, NULL);
@@ -72,8 +85,8 @@ int main (int argc, char *argv[])
   /*
    * Get the plugin:
    */
-  GError *error = NULL;
-  gboolean plugin_activated =
+  error = NULL;
+  plugin_activated =
     grl_registry_activate_plugin_by_id (reg, TMDB_PLUGIN_ID, &error);
   g_assert (plugin_activated);
   g_assert_no_error (error);
@@ -81,35 +94,35 @@ int main (int argc, char *argv[])
   /*
    * Get the Grilo source:
    */
-  GrlSource *src =
-    grl_registry_lookup_source (reg, TMDB_PLUGIN_ID);
+  src = grl_registry_lookup_source (reg, TMDB_PLUGIN_ID);
 
   /*
    * Check that it has the expected capability:
    */
   g_assert (grl_source_supported_operations (src) & GRL_OP_RESOLVE);
-  GrlCaps *caps = grl_source_get_caps (src, GRL_OP_RESOLVE);
+  caps = grl_source_get_caps (src, GRL_OP_RESOLVE);
   g_assert (caps);
 
-  GrlOperationOptions *options = grl_operation_options_new (caps);
+  options = grl_operation_options_new (caps);
 
   /*
    * A media item that we will give to the TMDB plugin,
    * to discover its details.
    */
-  GrlMedia *media = grl_media_video_new ();
+  media = grl_media_video_new ();
   grl_media_set_title (media, "Sherlock Holmes");
 
   /*
    * Discover what keys are provided by the source:
    */
-  const GList *keys = grl_source_supported_keys (src);
-  const GList* l = NULL;
+  keys = grl_source_supported_keys (src);
   for (l = keys; l != NULL; l = l->next) {
+    const gchar *name;
     GrlKeyID id = GPOINTER_TO_INT (l->data);
+
     g_assert (id);
 
-    const gchar *name = grl_metadata_key_get_name (id);
+    name = grl_metadata_key_get_name (id);
     printf ("Supported key: %s\n", name);
 
     /*

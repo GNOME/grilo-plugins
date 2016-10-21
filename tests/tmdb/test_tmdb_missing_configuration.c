@@ -33,6 +33,7 @@ test_missing_configuration (void)
   GrlMedia *media = NULL;
   GrlOperationOptions *options = NULL;
   GError *error = NULL;
+  GrlSource *source;
 
   test_setup_tmdb ();
 
@@ -41,7 +42,7 @@ test_missing_configuration (void)
   g_assert (media != NULL);
   grl_media_set_title (media, "Non-Empty");
 
-  GrlSource *source = test_get_source();
+  source = test_get_source();
   g_assert (source);
   options = grl_operation_options_new (NULL);
   g_assert (options != NULL);
@@ -66,6 +67,8 @@ test_missing_configuration (void)
 int
 main(int argc, char **argv)
 {
+  gint result;
+
   g_setenv ("GRL_PLUGIN_PATH", GRILO_PLUGINS_TESTS_TMDB_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", TMDB_PLUGIN_ID, TRUE);
 
@@ -79,7 +82,7 @@ main(int argc, char **argv)
 
   g_test_add_func ("/tmdb/missing-configuration", test_missing_configuration);
 
-  gint result = g_test_run ();
+  result = g_test_run ();
 
   grl_deinit ();
 

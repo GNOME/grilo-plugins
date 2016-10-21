@@ -124,14 +124,14 @@ test_shows (GrlResolutionFlags resolution,
   guint i;
 
   struct {
-    gchar *show;
-    gchar *imdb;
-    gchar *tvdb_id;
-    gchar *zap2it_id;
-    gchar *publication_date;
-    gchar *url_banner;
-    gchar *url_fanart;
-    gchar *url_poster;
+    const gchar *show;
+    const gchar *imdb;
+    const gchar *tvdb_id;
+    const gchar *zap2it_id;
+    const gchar *publication_date;
+    const gchar *url_banner;
+    const gchar *url_fanart;
+    const gchar *url_poster;
   } videos[] = {
     { "Boardwalk Empire", "tt0979432", "84947", "SH01308836", "2010-09-19",
       "https://thetvdb.com/banners/graphical/84947-g6.jpg",
@@ -215,10 +215,10 @@ test_shows_fuzzy_name (void)
   guint i;
 
   struct {
-    gchar *name_in_tvdb;
-    gchar *fuzzy_name;
-    gchar *tvdb_id;
-    gchar *imdb;
+    const gchar *name_in_tvdb;
+    const gchar *fuzzy_name;
+    const gchar *tvdb_id;
+    const gchar *imdb;
   } videos[] = {
     { "CSI: Miami", "CSI - Miami", "78310", "tt0313043" },
     { "CSI: Miami", "les experts miami", "78310", "tt0313043" }
@@ -293,6 +293,8 @@ test_shows_fast_only_full_db(void)
 gint
 main (gint argc, gchar **argv)
 {
+  gint result;
+
   g_setenv ("GRL_PLUGIN_PATH", THETVDB_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", THETVDB_ID, TRUE);
   g_setenv ("GRL_NET_MOCKED", THETVDB_PLUGIN_TEST_DATA_PATH "config.ini", TRUE);
@@ -307,7 +309,7 @@ main (gint argc, gchar **argv)
   g_test_add_func ("/thetvdb/resolve/fast-only/full-db/shows", test_shows_fast_only_full_db);
   g_test_add_func ("/thetvdb/resolve/fuzzy-name-shows", test_shows_fuzzy_name);
 
-  gint result = g_test_run ();
+  result = g_test_run ();
 
   test_shutdown_thetvdb ();
 

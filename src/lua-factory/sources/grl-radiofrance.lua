@@ -105,9 +105,12 @@ function create_media(id, result)
     media.id = 'fip'
   end
 
-  media.url = result:match("liveUrl: '(.-)',")
+  media.url = result:match("urlLive:'(http.-%mp3)")
   if not media.url then
-    media.url = result:match('"player" href="(http.-%.mp3)')
+    media.url = result:match('player" href="(http.-%.mp3)')
+  end
+  if not media.url then
+    media.url = result:match('data%-url%-live="(http.-%.mp3)')
   end
 
   media.title = get_title(id)

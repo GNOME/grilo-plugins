@@ -151,10 +151,15 @@ function fetch_browse_results_cb(results)
       media.genre = result.category.attributes.label
       media.id = result.id.attributes["im:id"]
       media.artist = result["im:artist"].label
+
       media.thumbnail = {}
+      local last_thumb_size = 0
       for j, image in ipairs(result["im:image"]) do
-        -- FIXME sort images with the biggest first
-        table.insert(media.thumbnail, image.label)
+        if tonumber(image.attributes.height) > last_thumb_size then
+          table.insert(media.thumbnail, 1, image.label)
+        else
+          table.insert(media.thumbnail, image.label)
+        end
       end
       if result["im:releaseDate"] then
         media.modification_date = result["im:releaseDate"].label

@@ -1,25 +1,24 @@
 # Serbian translation for grilo-plugins.
-# Courtesy of Prevod.org team (http://prevod.org/) -- 2013—2015.
+# Courtesy of Prevod.org team (http://prevod.org/) -- 2013—2016.
 # This file is distributed under the same license as the grilo-plugins package.
-# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2013—2015.
+# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2013—2016.
+# Марко М. Костић <marko.m.kostic@gmail.com>, 2016.
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-"
-"plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-09-23 22:02+0000\n"
-"PO-Revision-Date: 2015-09-24 18:16+0200\n"
-"Last-Translator: Марко М. Костић (Marko M. Kostić) <marko.m.kostic@gmail."
-"com>\n"
-"Language-Team: Serbian <gnom@prevod.org>\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo&k"
+"eywords=I18N+L10N&component=plugins\n"
+"POT-Creation-Date: 2016-10-29 16:10+0000\n"
+"PO-Revision-Date: 2016-11-18 09:23+0200\n"
+"Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
+"Language-Team: српски <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=n==1? 3 : n%10==1 && n%100!=11 ? 0 : n"
-"%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=4; plural=n==1? 3 : n%10==1 && n%100!=11 ? 0 : "
+"n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Project-Style: gnome\n"
-"X-Generator: Poedit 1.8.4\n"
 
 #: ../src/bookmarks/grl-bookmarks.c:67
 msgid "Bookmarks"
@@ -88,18 +87,18 @@ msgstr "Слање није успело, адреса недостаје на �
 msgid "A source for browsing the DAAP server '%s'"
 msgstr "Извор за разгледање ДААП сервера „%s“"
 
-#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:787
+#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:789
 #: ../src/magnatune/grl-magnatune.c:121
 msgid "Albums"
 msgstr "Албуми"
 
-#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:776
+#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:778
 #: ../src/magnatune/grl-magnatune.c:120
 msgid "Artists"
 msgstr "Извођачи"
 
-#: ../src/dmap/grl-daap-db.c:287 ../src/jamendo/grl-jamendo.c:1114
-#: ../src/jamendo/grl-jamendo.c:1189 ../src/magnatune/grl-magnatune.c:834
+#: ../src/dmap/grl-daap-db.c:287 ../src/jamendo/grl-jamendo.c:1116
+#: ../src/jamendo/grl-jamendo.c:1227 ../src/magnatune/grl-magnatune.c:834
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Неисправан одредник садржаоца „%s“"
@@ -121,12 +120,12 @@ msgstr "Систем датотека"
 msgid "A source for browsing the filesystem"
 msgstr "Извор за разгледање система датотека"
 
-#: ../src/filesystem/grl-filesystem.c:1148
+#: ../src/filesystem/grl-filesystem.c:1172
 #, c-format
 msgid "File %s does not exist"
 msgstr "Датотека „%s“ не постоји"
 
-#: ../src/filesystem/grl-filesystem.c:1226 ../src/youtube/grl-youtube.c:1520
+#: ../src/filesystem/grl-filesystem.c:1250 ../src/youtube/grl-youtube.c:1513
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Не могу да добавим медиј са „%s“"
@@ -175,80 +174,70 @@ msgstr "Прикључак за добављање аватара за поља 
 msgid "A source for browsing and searching Jamendo music"
 msgstr "Извор за разгледање и претрагу музике Јаменда"
 
-#: ../src/jamendo/grl-jamendo.c:149
+#: ../src/jamendo/grl-jamendo.c:151
 msgid "Albums of the week"
 msgstr "Албуми недеље"
 
-#: ../src/jamendo/grl-jamendo.c:151
+#: ../src/jamendo/grl-jamendo.c:153
 msgid "Tracks of the week"
 msgstr "Песме недеље"
 
-#: ../src/jamendo/grl-jamendo.c:153
+#: ../src/jamendo/grl-jamendo.c:155
 msgid "New releases"
 msgstr "Нова издања"
 
-#: ../src/jamendo/grl-jamendo.c:155
+#: ../src/jamendo/grl-jamendo.c:157
 msgid "Top artists"
 msgstr "Најбољи извођачи"
 
-#: ../src/jamendo/grl-jamendo.c:157
+#: ../src/jamendo/grl-jamendo.c:159
 msgid "Top albums"
 msgstr "Најбољи албуми"
 
-#: ../src/jamendo/grl-jamendo.c:159
+#: ../src/jamendo/grl-jamendo.c:161
 msgid "Top tracks"
 msgstr "Најбоље песме"
 
-#: ../src/jamendo/grl-jamendo.c:339 ../src/jamendo/grl-jamendo.c:700
+#: ../src/jamendo/grl-jamendo.c:341 ../src/jamendo/grl-jamendo.c:702
 #: ../src/shoutcast/grl-shoutcast.c:410 ../src/shoutcast/grl-shoutcast.c:464
 msgid "Failed to parse response"
 msgstr "Нисам успео да обрадим одговор"
 
-#: ../src/jamendo/grl-jamendo.c:347 ../src/jamendo/grl-jamendo.c:354
+#: ../src/jamendo/grl-jamendo.c:349 ../src/jamendo/grl-jamendo.c:356
 #: ../src/podcasts/grl-podcasts.c:1361 ../src/shoutcast/grl-shoutcast.c:418
 msgid "Empty response"
 msgstr "Празан одговор"
 
-#: ../src/jamendo/grl-jamendo.c:669
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:262
-#: ../src/shoutcast/grl-shoutcast.c:552
+#: ../src/jamendo/grl-jamendo.c:671 ../src/shoutcast/grl-shoutcast.c:552
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Нисам успео да се повежем: %s"
 
-#: ../src/jamendo/grl-jamendo.c:798
+#: ../src/jamendo/grl-jamendo.c:800
 msgid "Feeds"
 msgstr "Доводи"
 
-#: ../src/jamendo/grl-jamendo.c:982 ../src/jamendo/grl-jamendo.c:1027
-#: ../src/jamendo/grl-jamendo.c:1054
+#: ../src/jamendo/grl-jamendo.c:984 ../src/jamendo/grl-jamendo.c:1029
+#: ../src/jamendo/grl-jamendo.c:1056
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Неисправан одредник „%s“"
 
-#: ../src/jamendo/grl-jamendo.c:1041 ../src/youtube/grl-youtube.c:1112
-#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
+#: ../src/jamendo/grl-jamendo.c:1043 ../src/youtube/grl-youtube.c:1105
+#: ../src/youtube/grl-youtube.c:1238 ../src/youtube/grl-youtube.c:1450
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Неисправан одредник категорије „%s“"
 
-#: ../src/jamendo/grl-jamendo.c:1184
+#: ../src/jamendo/grl-jamendo.c:1222
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Нисам успео да разгледам: „%s“ је песма"
 
-#: ../src/jamendo/grl-jamendo.c:1244
+#: ../src/jamendo/grl-jamendo.c:1281
 #, c-format
 msgid "Malformed query \"%s\""
 msgstr "Лош упит \"%s\""
-
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
-msgid "Album art Provider from Last.FM"
-msgstr "Достављач омота албума са Ласт.ФМ-а"
-
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:62
-msgid "A plugin for getting album arts using Last.FM as backend"
-msgstr "Прикључак за добављање омота албума употребом Ласт.ФМ-а као позадинца"
 
 #: ../src/local-metadata/grl-local-metadata.c:44
 msgid "Local Metadata Provider"
@@ -258,18 +247,18 @@ msgstr "Достављач месних метаподатака"
 msgid "A source providing locally available metadata"
 msgstr "Извор за достављање месних доступних метаподатака"
 
-#: ../src/local-metadata/grl-local-metadata.c:711
+#: ../src/local-metadata/grl-local-metadata.c:381
 #: ../src/metadata-store/grl-metadata-store.c:759 ../src/raitv/grl-raitv.c:868
 #: ../src/tracker/grl-tracker-source-api.c:527
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Нисам успео да решим: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:1179
+#: ../src/local-metadata/grl-local-metadata.c:675
 msgid "Cannot resolve any of the given keys"
 msgstr "Не могу да решим ниједан од датих кључева"
 
-#: ../src/local-metadata/grl-local-metadata.c:1183
+#: ../src/local-metadata/grl-local-metadata.c:679
 msgid "A GIO supported URL for images is required"
 msgstr "Потребна је путања за слике подржана ГИО-ом"
 
@@ -336,7 +325,7 @@ msgstr "Нисам успео да разрешим"
 
 #: ../src/metadata-store/grl-metadata-store.c:917
 #: ../src/metadata-store/grl-metadata-store.c:954 ../src/raitv/grl-raitv.c:426
-#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:546
+#: ../src/shoutcast/grl-shoutcast.c:750 ../src/vimeo/grl-vimeo.c:540
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Нисам успео да потражим: %s"
@@ -514,7 +503,7 @@ msgstr "Извор за разгледање ШАУТкаст радиа"
 msgid "Cannot find media %s"
 msgstr "Не могу да пронађем медиј „%s“"
 
-#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:547
+#: ../src/shoutcast/grl-shoutcast.c:751 ../src/vimeo/grl-vimeo.c:541
 msgid "non-NULL search text is required"
 msgstr "Потребан је не-НИШТАВНИ текст претраге"
 
@@ -544,16 +533,21 @@ msgstr "Нисам успео да добавим медијум са путањ
 msgid "Empty query"
 msgstr "Празан упит"
 
+#: ../src/tracker/grl-tracker-source-api.c:1077
+#, c-format
+msgid "ID '%s' is not known in this source"
+msgstr "ИД „%s“ није познат у овом извору"
+
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Прикључак за претраживање мултимедијског садржаја употребом Пратиоца"
 
-#: ../src/tracker/grl-tracker-utils.c:640
+#: ../src/tracker/grl-tracker-utils.c:663
 #, c-format
 msgid "Removable - %s"
 msgstr "Уклоњиво — %s"
 
-#: ../src/tracker/grl-tracker-utils.c:652
+#: ../src/tracker/grl-tracker-utils.c:675
 msgid "Local files"
 msgstr "Месне датотеке"
 
@@ -609,14 +603,21 @@ msgstr "Гледај на телефону"
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Извор за разгледање и претрагу снимака Јутуба"
 
-#: ../src/youtube/grl-youtube.c:871
+#: ../src/youtube/grl-youtube.c:864
 msgid "Failed to get feed"
 msgstr "Нисам успео да добавим довод"
 
-#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
+#: ../src/youtube/grl-youtube.c:1041 ../src/youtube/grl-youtube.c:1429
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Неисправан одредник довода „%s“"
+
+#~ msgid "Album art Provider from Last.FM"
+#~ msgstr "Достављач омота албума са Ласт.ФМ-а"
+
+#~ msgid "A plugin for getting album arts using Last.FM as backend"
+#~ msgstr ""
+#~ "Прикључак за добављање омота албума употребом Ласт.ФМ-а као позадинца"
 
 #~ msgid "Apple Movie Trailers"
 #~ msgstr "Еплови одломци филмова"

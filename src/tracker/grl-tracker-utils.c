@@ -92,6 +92,21 @@ set_date (TrackerSparqlCursor *cursor,
 }
 
 static void
+set_favourite (TrackerSparqlCursor *cursor,
+               gint                 column,
+               GrlMedia            *media,
+               GrlKeyID             key)
+{
+  const gchar *str = tracker_sparql_cursor_get_string (cursor, column, NULL);
+  gboolean is_favourite = FALSE;
+
+  if (str != NULL && g_str_has_suffix (str, "predefined-tag-favorite"))
+    is_favourite = TRUE;
+
+  grl_data_set_boolean (GRL_DATA (media), key, is_favourite);
+}
+
+static void
 set_title_from_filename (TrackerSparqlCursor *cursor,
                          gint                 column,
                          GrlMedia            *media,
@@ -386,6 +401,12 @@ grl_tracker_setup_key_mappings (void)
                       "nmm:trackNumber",
                       "nmm:trackNumber(?urn)",
                       "audio");
+
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_FAVOURITE,
+                                  "nao:hasTag",
+                                  "nao:hasTag(?urn)",
+                                  "audio",
+                                  set_favourite);
 }
 
 tracker_grl_sparql_t *
@@ -480,6 +501,16 @@ gen_prop_insert_string (GString *gstr,
                             grl_data_get_float (data, assoc->grl_key));
     break;
 
+  case G_TYPE_BOOLEAN:
+    /* Special case for favourite tag, see comment in
+     * grl_tracker_tracker_get_insert_string for more details.
+     */
+    if (assoc->grl_key == GRL_METADATA_KEY_FAVOURITE) {
+      g_string_append_printf (gstr, "%s nao:predefined-tag-favorite",
+                              assoc->sparql_key_attr);
+    }
+    break;
+
   default:
     break;
   }
@@ -502,6 +533,14 @@ grl_tracker_tracker_get_insert_string (GrlMedia *media, const GList *keys)
       tracker_grl_sparql_t *assoc = assoc_list->data;
 
       if (assoc == NULL)
+        continue;
+
+      /* The favourite key is really setting or deleting a tag
+       * in tracker, so in the case of setting it to false skip
+       * the insert string creation step for this key completely.
+       */
+      if (assoc->grl_key == GRL_METADATA_KEY_FAVOURITE &&
+          !grl_media_get_favourite (media))
         continue;
 
       if (!grl_data_has_key (GRL_DATA (media), key_id))

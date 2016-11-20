@@ -156,6 +156,9 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "?urn nie:url \"%s\" "                        \
   "}"
 
+#define TRACKER_DELETE_REQUEST                          \
+  "DELETE { <%s> %s } WHERE { <%s> a nfo:Media . %s }"
+
 #define TRACKER_SAVE_REQUEST                            \
   "DELETE { <%s> %s } WHERE { <%s> a nfo:Media . %s } " \
   "INSERT { <%s> a nfo:Media ; %s . }"
@@ -658,6 +661,7 @@ grl_tracker_source_writable_keys (GrlSource *source)
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_PLAY_COUNT,
                                       GRL_METADATA_KEY_LAST_PLAYED,
                                       GRL_METADATA_KEY_LAST_POSITION,
+                                      GRL_METADATA_KEY_FAVOURITE,
                                       NULL);
   }
   return keys;
@@ -951,10 +955,17 @@ grl_tracker_source_store_metadata (GrlSource *source,
   sparql_delete = grl_tracker_get_delete_string (sms->keys);
   sparql_cdelete = grl_tracker_get_delete_conditional_string (urn, sms->keys);
   sparql_insert = grl_tracker_tracker_get_insert_string (sms->media, sms->keys);
-  sparql_final = g_strdup_printf (TRACKER_SAVE_REQUEST,
-                                  urn, sparql_delete,
-                                  urn, sparql_cdelete,
-                                  urn, sparql_insert);
+
+  if (g_strcmp0 (sparql_insert, "") == 0) {
+    sparql_final = g_strdup_printf (TRACKER_DELETE_REQUEST,
+                                    urn, sparql_delete,
+                                    urn, sparql_cdelete);
+  } else {
+    sparql_final = g_strdup_printf (TRACKER_SAVE_REQUEST,
+                                    urn, sparql_delete,
+                                    urn, sparql_cdelete,
+                                    urn, sparql_insert);
+  }
 
   os = grl_tracker_op_initiate_set_metadata (sparql_final,
                                              (GAsyncReadyCallback) tracker_store_metadata_cb,

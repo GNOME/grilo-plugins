@@ -489,36 +489,33 @@ gchar *
 grl_tracker_tracker_get_insert_string (GrlMedia *media, const GList *keys)
 {
   gboolean first = TRUE;
-  const GList *key = keys, *assoc_list;
-  tracker_grl_sparql_t *assoc;
+  const GList *key;
   GString *gstr = g_string_new ("");
-  gchar *ret;
 
-  while (key != NULL) {
-    assoc_list = get_mapping_from_grl (GRLPOINTER_TO_KEYID (key->data));
-    while (assoc_list != NULL) {
-      assoc = (tracker_grl_sparql_t *) assoc_list->data;
-      if (assoc != NULL) {
-        if (grl_data_has_key (GRL_DATA (media),
-                              GRLPOINTER_TO_KEYID (key->data))) {
-          if (first) {
-            gen_prop_insert_string (gstr, assoc, GRL_DATA (media));
-            first = FALSE;
-          } else {
-            g_string_append (gstr, " ; ");
-            gen_prop_insert_string (gstr, assoc, GRL_DATA (media));
-          }
-        }
-      }
-      assoc_list = assoc_list->next;
+  for (key = keys; key != NULL; key = key->next) {
+    const GList *assoc_list;
+    GrlKeyID key_id = GRLPOINTER_TO_KEYID (key->data);
+
+    for (assoc_list = get_mapping_from_grl (key_id);
+         assoc_list != NULL;
+         assoc_list = assoc_list->next) {
+      tracker_grl_sparql_t *assoc = assoc_list->data;
+
+      if (assoc == NULL)
+        continue;
+
+      if (!grl_data_has_key (GRL_DATA (media), key_id))
+        continue;
+
+      if (!first)
+        g_string_append (gstr, " ; ");
+
+      gen_prop_insert_string (gstr, assoc, GRL_DATA (media));
+      first = FALSE;
     }
-    key = key->next;
   }
 
-  ret = gstr->str;
-  g_string_free (gstr, FALSE);
-
-  return ret;
+  return g_string_free (gstr, FALSE);
 }
 
 gchar *

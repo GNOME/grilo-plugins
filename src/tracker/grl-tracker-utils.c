@@ -375,10 +375,11 @@ grl_tracker_setup_key_mappings (void)
                       "nie:usageCounter(?urn)",
                       "media");
 
-  insert_key_mapping (GRL_METADATA_KEY_LAST_PLAYED,
-                      "nie:contentAccessed",
-                      "nie:contentAccessed(?urn)",
-                      "media");
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_LAST_PLAYED,
+                                  "nie:contentAccessed",
+                                  "nie:contentAccessed(?urn)",
+                                  "media",
+                                  set_date);
 
   insert_key_mapping (GRL_METADATA_KEY_LAST_POSITION,
                       "nfo:lastPlayedPosition",
@@ -480,8 +481,9 @@ gen_prop_insert_string (GString *gstr,
                         GrlData *data)
 {
   gchar *tmp;
+  GType type = GRL_METADATA_KEY_GET_TYPE (assoc->grl_key);
 
-  switch (GRL_METADATA_KEY_GET_TYPE (assoc->grl_key)) {
+  switch (type) {
   case G_TYPE_STRING:
     tmp = g_strescape (grl_data_get_string (data, assoc->grl_key), NULL);
     g_string_append_printf (gstr, "%s \"%s\"",
@@ -512,6 +514,15 @@ gen_prop_insert_string (GString *gstr,
     break;
 
   default:
+    if (type == G_TYPE_DATE_TIME) {
+      tmp = g_date_time_format (grl_data_get_boxed (data, assoc->grl_key),
+                                "%FT%T%:z");
+      g_string_append_printf (gstr, "%s '%s'",
+                              assoc->sparql_key_attr,
+                              tmp);
+
+      g_free (tmp);
+    }
     break;
   }
 }

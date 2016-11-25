@@ -81,7 +81,6 @@ extern GrlTrackerCache *grl_tracker_item_cache;
 extern gboolean grl_tracker_upnp_present;
 
 /* tracker plugin config */
-extern gboolean grl_tracker_per_device_source;
 extern gboolean grl_tracker_browse_filesystem;
 extern gboolean grl_tracker_show_documents;
 

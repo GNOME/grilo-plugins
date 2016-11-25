@@ -290,86 +290,6 @@ grl_tracker_source_find_source (const gchar *id)
   return source;
 }
 
-static void
-tracker_get_datasource_cb (GObject             *object,
-                           GAsyncResult        *result,
-                           TrackerSparqlCursor *cursor)
-{
-  const gchar *type, *datasource, *datasource_name, *uri;
-  gboolean source_available = FALSE;
-  GError *error = NULL;
-  GrlTrackerSource *source;
-
-  GRL_DEBUG ("%s", __FUNCTION__);
-
-  if (!tracker_sparql_cursor_next_finish (cursor, result, &error)) {
-    if (error == NULL) {
-      GRL_DEBUG ("\tEnd of parsing of devices");
-    } else {
-      GRL_WARNING ("\tError while parsing devices: %s", error->message);
-      g_error_free (error);
-    }
-    g_object_unref (G_OBJECT (cursor));
-    return;
-  }
-
-  type = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-  datasource = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-  datasource_name = tracker_sparql_cursor_get_string (cursor, 2, NULL);
-  uri = tracker_sparql_cursor_get_string (cursor, 3, NULL);
-  if (tracker_sparql_cursor_is_bound (cursor, 4))
-    source_available = tracker_sparql_cursor_get_boolean (cursor, 4);
-
-  source = grl_tracker_source_find (datasource);
-
-  if ((source == NULL) && source_available) {
-    gchar *source_name = grl_tracker_get_source_name (type, uri, datasource,
-                                                      datasource_name);
-    if (source_name) {
-      GRL_DEBUG ("\tnew datasource: urn=%s name=%s uri=%s => name=%s\n",
-                 datasource, datasource_name, uri, source_name);
-      source = g_object_new (GRL_TRACKER_SOURCE_TYPE,
-                             "source-id", datasource,
-                             "source-name", source_name,
-                             "source-desc", GRL_TRACKER_SOURCE_DESC,
-                             "tracker-connection", grl_tracker_connection,
-                             "tracker-datasource", datasource,
-                             NULL);
-      grl_tracker_add_source (source);
-      g_object_unref (source);
-      g_free (source_name);
-    }
-  }
-
-  tracker_sparql_cursor_next_async (cursor, NULL,
-                                    (GAsyncReadyCallback) tracker_get_datasource_cb,
-                                    cursor);
-}
-
-static void
-tracker_get_datasources_cb (GObject      *object,
-                            GAsyncResult *result,
-                            gpointer      data)
-{
-  GError *error = NULL;
-  TrackerSparqlCursor *cursor;
-
-  GRL_DEBUG ("%s", __FUNCTION__);
-
-  cursor = tracker_sparql_connection_query_finish (grl_tracker_connection,
-                                                   result, &error);
-
-  if (error) {
-    GRL_WARNING ("Cannot handle datasource request : %s", error->message);
-    g_error_free (error);
-    return;
-  }
-
-  tracker_sparql_cursor_next_async (cursor, NULL,
-                                    (GAsyncReadyCallback) tracker_get_datasource_cb,
-                                    cursor);
-}
-
 void
 grl_tracker_source_sources_init (void)
 {
@@ -384,25 +304,13 @@ grl_tracker_source_sources_init (void)
                                                       NULL, g_object_unref);
 
   if (grl_tracker_connection != NULL) {
+    GrlTrackerSource *source;
+
     grl_tracker_source_dbus_start_watch ();
 
-    if (grl_tracker_per_device_source == TRUE) {
-      /* Let's discover available data sources. */
-      GRL_DEBUG ("\tper device source mode request: '"
-                 TRACKER_DATASOURCES_REQUEST "'");
-
-      tracker_sparql_connection_query_async (grl_tracker_connection,
-                                             TRACKER_DATASOURCES_REQUEST,
-                                             NULL,
-                                             (GAsyncReadyCallback) tracker_get_datasources_cb,
-                                             NULL);
-    } else {
-      GrlTrackerSource *source;
-
-      /* One source to rule them all. */
-      source = grl_tracker_source_new (grl_tracker_connection);
-      grl_tracker_add_source (source);
-      g_object_unref (source);
-    }
+    /* One source to rule them all. */
+    source = grl_tracker_source_new (grl_tracker_connection);
+    grl_tracker_add_source (source);
+    g_object_unref (source);
   }
 }

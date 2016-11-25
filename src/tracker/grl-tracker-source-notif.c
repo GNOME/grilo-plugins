@@ -110,14 +110,9 @@ notify_change (GrlTrackerSourceNotify *self,
   if (info == NULL)
     goto out;
 
-  if (!grl_tracker_per_device_source)
-    source = grl_tracker_source_find ("");
+  source = grl_tracker_source_find ("");
 
-  if (!source && info->datasource)
-    source = grl_tracker_source_find (info->datasource);
-
-  if (!source || !GRL_IS_TRACKER_SOURCE (source) ||
-      !grl_tracker_source_can_notify (source))
+  if (!source || !grl_tracker_source_can_notify (source))
     goto out;
 
   id_str = g_strdup_printf ("%i", id);

@@ -868,19 +868,8 @@ grl_tracker_source_resolve (GrlSource *source,
   /* Check if the media comes from this source or another */
   if (g_strcmp0 (priv->tracker_datasource, grl_source_get_id (rs->source)) == 0) {
     if (grl_media_get_id (rs->media) == NULL) {
-      if (grl_tracker_per_device_source) {
-        constraint = grl_tracker_source_get_device_constraint (priv);
-        sparql_select = grl_tracker_source_get_select_string (rs->keys);
-        sparql_type_filter = get_sparql_type_filter (rs->options, TRUE);
-        sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST,
-                                        sparql_select,
-                                        grl_tracker_show_documents? TRACKER_BROWSE_SHOW_DOCUMENTS: "",
-                                        sparql_type_filter,
-                                        constraint, 0, 1);
-      } else {
-        rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
-        return;
-      }
+      rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+      return;
     } else {
       sparql_select = grl_tracker_source_get_select_string (rs->keys);
       sparql_final = g_strdup_printf (TRACKER_RESOLVE_REQUEST, sparql_select,

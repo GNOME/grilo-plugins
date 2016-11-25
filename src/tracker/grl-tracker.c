@@ -80,7 +80,6 @@ gboolean grl_tracker_upnp_present = FALSE;
 GrlTrackerQueue *grl_tracker_queue = NULL;
 
 /* tracker plugin config */
-gboolean grl_tracker_per_device_source = FALSE;
 gboolean grl_tracker_browse_filesystem = FALSE;
 gboolean grl_tracker_show_documents    = FALSE;
 
@@ -242,8 +241,6 @@ grl_tracker_plugin_init (GrlRegistry *registry,
 
     config = GRL_CONFIG (configs->data);
 
-    grl_tracker_per_device_source =
-      grl_config_get_boolean (config, "per-device-source");
     grl_tracker_browse_filesystem =
       grl_config_get_boolean (config, "browse-filesystem");
     grl_tracker_show_documents =

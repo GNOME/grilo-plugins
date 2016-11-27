@@ -187,6 +187,8 @@ PKG_CHECK_MODULES([TRACKER_SPARQL], [ ${trackerpkg} ],
                                     HAVE_TRACKER_SPARQL=yes,
                                     HAVE_TRACKER_SPARQL=no)
 
+AC_CHECK_PROG(HAVE_GPERF, gperf, yes, no)
+
 GDBUS_CODEGEN=`${PKG_CONFIG} --variable=gdbus_codegen gio-2.0`
 AC_SUBST(GDBUS_CODEGEN)
 
@@ -677,11 +679,14 @@ AC_ARG_ENABLE(lua_factory,
                         if test "x$HAVE_XML" = "xno"; then
                            AC_MSG_ERROR([libxml-2.0 not found, install it or use --disable-lua-factory])
                         fi
+                        if test "x$HAVE_GPERF" = "xno"; then
+                           AC_MSG_ERROR([gperf not found, install it or use --disable-lua-factory])
+                        fi
                         ;;
                 esac
         ],
         [
-                if test "x$HAVE_LUA" = "xyes" -a "x$HAVE_ARCHIVE" = "xyes" -a "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_JSON_GLIB" = "xyes" -a "x$HAVE_XML" = "xyes"; then
+                if test "x$HAVE_LUA" = "xyes" -a "x$HAVE_ARCHIVE" = "xyes" -a "x$HAVE_GRLNET" = "xyes" -a "x$HAVE_JSON_GLIB" = "xyes" -a "x$HAVE_XML" = "xyes" -a "x$HAVE_GPERF" = "xyes"; then
                   enable_lua_factory=yes
                 else
                   enable_lua_factory=no

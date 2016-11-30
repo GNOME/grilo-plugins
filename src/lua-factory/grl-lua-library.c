@@ -480,12 +480,13 @@ grl_util_fetch_done (GObject *source_object,
   lua_State *L = fo->L;
   OperationSpec *os = fo->os;
   gchar *fixed = NULL;
+  gboolean cancelled = FALSE;
 
   if (!grl_net_wc_request_finish (GRL_NET_WC (source_object),
                                   res, &data, &len, &err)) {
     if (g_error_matches (err, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
       GRL_DEBUG ("fetch operation was cancelled");
-      goto free_fetch_op;
+      cancelled = TRUE;
     }
     data = NULL;
   } else if (!g_utf8_validate(data, len, NULL)) {
@@ -503,7 +504,8 @@ grl_util_fetch_done (GObject *source_object,
   g_free (fixed);
 
   if (err != NULL) {
-    GRL_WARNING ("Can't fetch element %d (URL: %s): '%s'", fo->index + 1, fo->url, err->message);
+    if (!cancelled)
+      GRL_WARNING ("Can't fetch element %d (URL: %s): '%s'", fo->index + 1, fo->url, err->message);
     g_clear_error (&err);
   } else {
     GRL_DEBUG ("fetch_done element %d of %d urls", fo->index + 1, fo->num_urls);
@@ -519,6 +521,9 @@ grl_util_fetch_done (GObject *source_object,
       return;
     }
   }
+
+  if (cancelled)
+    goto free_fetch_op;
 
   /* get the callback from the registry */
   lua_rawgeti (L, LUA_REGISTRYINDEX, fo->lua_callback);

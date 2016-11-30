@@ -516,6 +516,7 @@ grl_util_fetch_done (GObject *source_object,
     if (fo->results[i] == NULL) {
       /* Clean up this operation, and wait for
        * other operations to complete */
+      g_object_unref (fo->cancellable);
       g_free (fo->url);
       g_free (fo);
       return;

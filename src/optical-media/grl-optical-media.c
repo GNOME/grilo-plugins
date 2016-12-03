@@ -244,7 +244,6 @@ get_uri_for_gicon (GIcon *icon)
 
     file = g_file_icon_get_file (G_FILE_ICON (icon));
     uri = g_file_get_uri (file);
-    g_object_unref (file);
 
     return uri;
   }

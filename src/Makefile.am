@@ -42,7 +42,7 @@ if JAMENDO_PLUGIN
 SUBDIRS += jamendo
 endif
 
-if LOCALMETADATA_PLUGIN
+if LOCAL_METADATA_PLUGIN
 SUBDIRS += local-metadata
 endif
 

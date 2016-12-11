@@ -10,13 +10,13 @@ include $(top_srcdir)/gtester.mk
 ext_LTLIBRARIES		 = libgrllocalmetadata.la
 
 libgrllocalmetadata_la_CFLAGS =	\
-	$(DEPS_LOCALMETADATA_CFLAGS)	\
+	$(DEPS_LOCAL_METADATA_CFLAGS)	\
 	-DG_LOG_DOMAIN=\"GrlLocalMetadata\" \
 	-DLOCALEDIR=\"$(localedir)\"
 
 
 libgrllocalmetadata_la_LIBADD =	\
-	$(DEPS_LOCALMETADATA_LIBS)
+	$(DEPS_LOCAL_METADATA_LIBS)
 
 libgrllocalmetadata_la_LDFLAGS = \
 	-no-undefined		 \

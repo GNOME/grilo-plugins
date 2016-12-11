@@ -110,7 +110,7 @@ grl_local_metadata_source_plugin_init (GrlRegistry *registry,
 
 GRL_PLUGIN_DEFINE (GRL_MAJOR,
                    GRL_MINOR,
-                   LOCALMETADATA_PLUGIN_ID,
+                   LOCAL_METADATA_PLUGIN_ID,
                    "Local Metadata Provider",
                    "A plugin that gets simple-to-obtain metadata from the local filesystem",
                    "Igalia S.L.",

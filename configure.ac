@@ -920,44 +920,44 @@ AC_SUBST(DEPS_RAITV_LIBS)
 # BUILD LOCAL METADATA PLUGIN
 # ----------------------------------------------------------
 
-AC_ARG_ENABLE(localmetadata,
-        AC_HELP_STRING([--enable-localmetadata],
+AC_ARG_ENABLE(local-metadata,
+        AC_HELP_STRING([--enable-local-metadata],
                 [enable local-metadata plugin (default: auto)]),
         [
                 case "$enableval" in
                      yes)
                         if test "x$HAVE_GIO" = "xno"; then
-                           AC_MSG_ERROR([gio-2.0 not found, install it or use --disable-localmetadata])
+                           AC_MSG_ERROR([gio-2.0 not found, install it or use --disable-local-metadata])
                         fi
                         if test "x$HAVE_MEDIAART" = "xno"; then
-                           AC_MSG_ERROR([libmediaart not found, install it or use --disable-localmetadata])
+                           AC_MSG_ERROR([libmediaart not found, install it or use --disable-local-metadata])
                         fi
                         ;;
                 esac
         ],
         [
                 if test "x$HAVE_GIO" = "xyes" -a "x$HAVE_MEDIAART" = "xyes"; then
-                   enable_localmetadata=yes
+                   enable_local_metadata=yes
                 else
-                   enable_localmetadata=no
+                   enable_local_metadata=no
                 fi
         ])
 
-AM_CONDITIONAL([LOCALMETADATA_PLUGIN], [test "x$enable_localmetadata" = "xyes"])
-GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL localmetadata"
-if test "x$enable_localmetadata" = "xyes"
+AM_CONDITIONAL([LOCAL_METADATA_PLUGIN], [test "x$enable_local_metadata" = "xyes"])
+GRL_PLUGINS_ALL="$GRL_PLUGINS_ALL local-metadata"
+if test "x$enable_local_metadata" = "xyes"
 then
-	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED localmetadata"
+	GRL_PLUGINS_ENABLED="$GRL_PLUGINS_ENABLED local-metadata"
 fi
 
-LOCALMETADATA_PLUGIN_ID="grl-local-metadata"
-AC_SUBST(LOCALMETADATA_PLUGIN_ID)
-AC_DEFINE_UNQUOTED([LOCALMETADATA_PLUGIN_ID], ["$LOCALMETADATA_PLUGIN_ID"], [Local metadata plugin ID])
+LOCAL_METADATA_PLUGIN_ID="grl-local-metadata"
+AC_SUBST(LOCAL_METADATA_PLUGIN_ID)
+AC_DEFINE_UNQUOTED([LOCAL_METADATA_PLUGIN_ID], ["$LOCAL_METADATA_PLUGIN_ID"], [Local metadata plugin ID])
 
-DEPS_LOCALMETADATA_CFLAGS="$DEPS_CFLAGS $GIO_CFLAGS $MEDIAART_CFLAGS"
-AC_SUBST(DEPS_LOCALMETADATA_CFLAGS)
-DEPS_LOCALMETADATA_LIBS="$DEPS_LIBS $GIO_LIBS $MEDIAART_LIBS"
-AC_SUBST(DEPS_LOCALMETADATA_LIBS)
+DEPS_LOCAL_METADATA_CFLAGS="$DEPS_CFLAGS $GIO_CFLAGS $MEDIAART_CFLAGS"
+AC_SUBST(DEPS_LOCAL_METADATA_CFLAGS)
+DEPS_LOCAL_METADATA_LIBS="$DEPS_LIBS $GIO_LIBS $MEDIAART_LIBS"
+AC_SUBST(DEPS_LOCAL_METADATA_LIBS)
 
 # ----------------------------------------------------------
 # BUILD DLEYNA PLUGIN

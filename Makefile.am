@@ -31,7 +31,7 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-bookmarks \
                             --enable-freebox \
                             --enable-gravatar \
                             --enable-jamendo \
-                            --enable-localmetadata \
+                            --enable-local-metadata \
                             --enable-lua-factory \
                             --enable-magnatune \
                             --enable-metadata-store \

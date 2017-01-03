@@ -638,7 +638,11 @@ proxy_call_browse_grlnet_async_cb (GObject *source_object,
     return;
   }
 
-  doc = xmlRecoverMemory (content, (gint) length);
+  /* Work-around leading linefeed */
+  if (*content == '\n')
+    doc = xmlRecoverMemory (content + 1, (gint) length - 1);
+  else
+    doc = xmlRecoverMemory (content, (gint) length);
 
   if (!doc) {
     GRL_DEBUG ("Doc failed");

@@ -551,7 +551,11 @@ media_set_property (GrlMedia *media,
   else if (g_strcmp0 (key, "Bitrate") == 0) {
     i = g_variant_get_int32 (value);
     if (grl_media_is_audio (media)) {
-      grl_media_set_bitrate (media, i);
+      /* DLNA res@bitrate is in bits/second
+       * (see guidelines at https://www.dlna.org/guidelines).
+       * Convert to kbits/second.
+       */
+      grl_media_set_bitrate (media, i / 1000);
     }
   }
   else if (g_strcmp0 (key, "AlbumArtURL") == 0) {

@@ -129,7 +129,7 @@ endforeach
 if lua_factory_enabled
     if get_option('enable-lua-factory') == 'auto'
         lua_factory_enabled = lua_factory_enabled and gperf.found() and glib_compile_resources.found()
-    elif not gperf.found() or glib_compile_resources.found()
+    elif not gperf.found() or not glib_compile_resources.found()
         error('Missing dependencies for lua-factory plugin')
     endif
 endif

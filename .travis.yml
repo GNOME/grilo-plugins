@@ -1,14 +1,86 @@
-language: c
+sudo: false
+
 compiler: gcc
+language: c
+os: linux
+
+services:
+  - docker
+
+env:
+  - BUILD=autotools
+  - BUILD=meson
 before_install:
-  - sudo add-apt-repository -y "deb http://ppa.launchpad.net/grilo-team/travis/ubuntu trusty main"
-  - sudo add-apt-repository -y "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty main restricted universe multiverse"
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq gnome-common libjson-glib-dev libsoup2.4-dev libgrilo-0.3-dev libsqlite3-dev liboauth-dev lcov libdmapsharing-3.0-dev libgmime-2.6-dev libtracker-sparql-0.16-dev libgssdp-1.0-dev libgupnp-1.0-dev libgupnp-av-1.0-dev libquvi-dev libtotem-plparser-dev libgdata-dev yelp-tools libavahi-gobject-dev python-dbusmock zlib1g-dev libgom-1.0-dev libmediaart-2.0-dev liblua5.3-dev
-  - sudo pip install cpp-coveralls
+  - docker pull grilofw/grilo:core
+  - echo FROM grilofw/grilo:core > Dockerfile
+  - echo ADD . /root/grilo-plugins >> Dockerfile
+  - echo WORKDIR /root/grilo-plugins >> Dockerfile
+
 script:
-  - ./autogen.sh --enable-gcov
-  - make
-  - make check
+  - if [[ "$BUILD" == "autotools" ]]; then
+      echo RUN ./autogen.sh \
+        --prefix /usr \
+        --enable-gcov \
+        --enable-bookmarks \
+        --enable-chromaprint \
+        --enable-dleyna \
+        --enable-dmap \
+        --enable-filesystem \
+        --enable-flickr \
+        --enable-freebox \
+        --enable-gravatar \
+        --enable-jamendo \
+        --enable-local-metadata \
+        --enable-lua-factory \
+        --enable-magnatune \
+        --enable-metadata-store \
+        --enable-optical-media \
+        --enable-pocket \
+        --enable-podcasts \
+        --enable-thetvdb \
+        --enable-tmdb \
+        --enable-tracker \
+        --enable-vimeo \
+        --enable-youtube >> Dockerfile;
+      echo RUN make >> Dockerfile;
+      echo RUN make check >> Dockerfile;
+      echo RUN make install >> Dockerfile;
+      docker build -t grilofw/grilo:full .;
+    fi
+  - if [[ "$BUILD" == "meson" ]]; then
+      echo RUN meson \
+        --prefix /usr \
+        -Denable-bookmarks=yes \
+        -Denable-chromaprint=yes \
+        -Denable-dleyna=yes \
+        -Denable-dmap=yes \
+        -Denable-filesystem=yes \
+        -Denable-flickr=yes \
+        -Denable-freebox=yes \
+        -Denable-gravatar=yes \
+        -Denable-jamendo=yes \
+        -Denable-local-metadata=yes \
+        -Denable-lua-factory=yes \
+        -Denable-magnatune=yes \
+        -Denable-metadata-store=yes \
+        -Denable-optical-media=yes \
+        -Denable-pocket=yes \
+        -Denable-podcasts=yes \
+        -Denable-thetvdb=yes \
+        -Denable-tmdb=yes \
+        -Denable-tracker=yes \
+        -Denable-vimeo=yes \
+        -Denable-youtube=yes \
+        . build >> Dockerfile;
+      echo RUN ninja -C build >> Dockerfile;
+      echo RUN ninja -C build test >> Dockerfile;
+      echo RUN ninja -C build install >> Dockerfile;
+      docker build .;
+    fi
+
 after_success:
-  - coveralls --exclude tests --exclude help --exclude src/lua-factory/lua-library
+  - if [[ "$BUILD" == "autotools" && "$TRAVIS_BRANCH" == "master" ]]; then
+      docker run -e COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN grilofw/grilo:full /bin/sh -c "cd /root/grilo-plugins && coveralls --exclude tests --exclude help --exclude src/lua-factory/lua-library";
+      docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+      docker push grilofw/grilo:full;
+    fi

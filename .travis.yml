@@ -45,7 +45,7 @@ script:
       echo RUN make >> Dockerfile;
       echo RUN make check >> Dockerfile;
       echo RUN make install >> Dockerfile;
-      docker build -t grilofw/grilo:full .;
+      docker build -t grilofw/grilo:latest .;
     fi
   - if [[ "$BUILD" == "meson" ]]; then
       echo RUN meson \
@@ -80,9 +80,9 @@ script:
 
 after_success:
   - if [[ "$BUILD" == "autotools" && "$TRAVIS_BRANCH" == "master" ]]; then
-      docker run -e COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN grilofw/grilo:full /bin/sh -c "cd /root/grilo-plugins && coveralls --exclude tests --exclude help --exclude src/lua-factory/lua-library";
+      docker run -e COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN grilofw/grilo:latest /bin/sh -c "cd /root/grilo-plugins && coveralls --exclude tests --exclude help --exclude src/lua-factory/lua-library";
     fi
   - if [[ "$BUILD" == "autotools" && "$TRAVIS_BRANCH" == "master" && -n "$DOCKER_USERNAME" ]]; then
       docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-      docker push grilofw/grilo:full;
+      docker push grilofw/grilo:latest;
     fi

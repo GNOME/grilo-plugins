@@ -67,7 +67,9 @@ typedef struct {
   OperationSpec *os;
 } UnzipOperation;
 
+#ifdef GOA_ENABLED
 static gpointer grl_lua_library_load_goa_data (lua_State *L);
+#endif
 
 /* ================== Lua-Library utils/helpers ============================ */
 
@@ -1742,10 +1744,10 @@ grl_lua_library_save_goa_data (lua_State *L, gpointer goa_object)
  * @L: LuaState where the data is stored.
  * @return: The #GoaObject.
  **/
+#ifdef GOA_ENABLED
 static gpointer
 grl_lua_library_load_goa_data (lua_State *L)
 {
-#ifdef GOA_ENABLED
   GoaObject *goa_object;
 
   lua_getglobal (L, GOA_LUA_NAME);
@@ -1753,8 +1755,5 @@ grl_lua_library_load_goa_data (lua_State *L)
   lua_pop(L, 1);
 
   return goa_object;
-#else
-  GRL_WARNING ("grl_lua_library_load_goa_data() called but GOA support disabled.");
-  return NULL;
-#endif /* GOA_ENABLED */
 }
+#endif /* GOA_ENABLED */

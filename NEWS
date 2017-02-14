@@ -1,3 +1,49 @@
+NEW in 0.3.4
+============
+
+  * General
+    * Add support to Meson build
+    * Updated translations
+    * BGO#775957 - Add Meson build support in Grilo Plugins
+    * BGO#770959 - Add gperf check in configure.ac
+  * dleyna plugin
+    * BGO#777210 - dleyna-plugin: should convert from bits/second to kbits/second
+  * dmap plugin
+    * BGO#771446 - dmap: Add "supported-media" metadata for sources
+  * itunes-podcast plugin
+    * BGO#771445 - itunes-podcast: Fix source appearing in Videos
+    * BGO#773702 - itunes-podcast: page displays low resolution thumbnails
+  * local-metadata plugin
+    * BGO#775957 - Rename localmetadata references to local-metadata
+  * lua-factory plugin
+    * BGO#778596 - Fix unused-function warning when building without GOA
+  * optical-media plugin
+    * BGO#775561 - GFile is owned by GFileIcon. Do not unref it
+  * radiofrance plugin
+    * BGO#773310 - "Radio France" source broken again
+  * raitv plugin
+    * BGO#776482 - raitv: XML declaration allowed only at the start of the document
+  * tmdb plugin
+    * BGO#770806 - Using GTask instead of GSimpleAsyncResult
+  * tracker plugin
+    * BGO#774748 - tracker: Support favorite read/write
+
+  * Contributors to this release:
+    Alexander Shopov <ash@kambanaria.org>
+    Ask Hjorth Larsen <asklarsen@gmail.com>
+    Bastien Nocera <hadess@hadess.net>
+    Ben Walsh <b@wumpster.com>
+    Carlos Garnacho <carlosg@gnome.org>
+    David King <amigadave@amigadave.com>
+    Inaki Larranaga Murgoitio <dooteo@zundan.com>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Kjartan Maraas <kmaraas@gnome.org>
+    Marinus Schraal <mschraal@scr.gnome.org>
+    Tom Tryfonidis <tomtryf@gnome.org>
+    Victor Toso <me@victortoso.com>
+    liushuyu <liushuyu_011@126.com>
+    vrishab <gnome.vrb@gmail.com>
+
 NEW in 0.3.3
 ============
 

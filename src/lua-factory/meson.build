@@ -57,7 +57,7 @@ shared_library('grlluafactory',
     sources: lua_factory_sources + lua_factory_resources + lua_library_sources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[lua_factory_idx][DEPS],
+    dependencies: must_deps + plugins[lua_factory_idx][REQ_DEPS] + plugins[lua_factory_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlLuaFactory"',
         '-DHAVE_CONFIG_H',

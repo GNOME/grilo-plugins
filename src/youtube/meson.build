@@ -21,7 +21,7 @@ shared_library('grlyoutube',
     sources: youtube_sources + youtube_resources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[youtube_idx][DEPS],
+    dependencies: must_deps + plugins[youtube_idx][REQ_DEPS] + plugins[youtube_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlYoutube"',
         '-DHAVE_CONFIG_H',

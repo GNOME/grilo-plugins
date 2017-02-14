@@ -39,7 +39,7 @@ shared_library('grldleyna',
     sources: dleyna_sources + [dleyna_proxy_mediaserver2,  dleyna_proxy_manager, dleyna_proxy_mediadevice],
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[dleyna_idx][DEPS],
+    dependencies: must_deps + plugins[dleyna_idx][REQ_DEPS] + plugins[dleyna_idx][OPT_DEPS],
     include_directories: include_directories([
         meson.build_root(),
     ]),

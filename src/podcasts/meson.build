@@ -17,7 +17,7 @@ shared_library('grlpodcasts',
     sources: podcasts_sources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[podcasts_idx][DEPS],
+    dependencies: must_deps + plugins[podcasts_idx][REQ_DEPS] + plugins[podcasts_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlPodcasts"',
         '-DHAVE_CONFIG_H',

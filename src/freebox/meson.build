@@ -23,7 +23,7 @@ shared_library('grlfreebox',
     sources: freebox_sources + freebox_resources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[freebox_idx][DEPS],
+    dependencies: must_deps + plugins[freebox_idx][REQ_DEPS] + plugins[freebox_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlFreebox"',
         '-DHAVE_CONFIG_H',

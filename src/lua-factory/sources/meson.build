@@ -20,7 +20,7 @@ sources = [
     'grl-thegamesdb',
     'grl-video-title-parsing',
 ]
-    
+
 resources = [
     'grl-euronews',
     'grl-guardianvideos',

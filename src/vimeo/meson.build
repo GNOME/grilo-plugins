@@ -23,7 +23,7 @@ shared_library('grlvimeo',
     sources: vimeo_sources + vimeo_resources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[vimeo_idx][DEPS],
+    dependencies: must_deps + plugins[vimeo_idx][REQ_DEPS] + plugins[vimeo_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlVimeo"',
         '-DHAVE_CONFIG_H',

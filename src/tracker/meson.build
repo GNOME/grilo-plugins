@@ -30,7 +30,7 @@ shared_library('grltracker',
     sources: tracker_sources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[tracker_idx][DEPS],
+    dependencies: must_deps + plugins[tracker_idx][REQ_DEPS] + plugins[tracker_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlTracker"',
         '-DHAVE_CONFIG_H',

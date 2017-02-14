@@ -21,7 +21,7 @@ shared_library('grlraitv',
     sources: raitv_sources + raitv_resources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[raitv_idx][DEPS],
+    dependencies: must_deps + plugins[raitv_idx][REQ_DEPS] + plugins[raitv_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlRaitv"',
         '-DHAVE_CONFIG_H',

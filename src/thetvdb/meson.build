@@ -21,7 +21,7 @@ shared_library('grlthetvdb',
     sources: thetvdb_sources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[thetvdb_idx][DEPS],
+    dependencies: must_deps + plugins[thetvdb_idx][REQ_DEPS] + plugins[thetvdb_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlTheTVDB"',
         '-DHAVE_CONFIG_H',

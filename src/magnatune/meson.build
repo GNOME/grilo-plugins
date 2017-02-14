@@ -17,7 +17,7 @@ shared_library('grlmagnatune',
     sources: magnatune_sources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[magnatune_idx][DEPS],
+    dependencies: must_deps + plugins[magnatune_idx][REQ_DEPS] + plugins[magnatune_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlMagnatune"',
         '-DHAVE_CONFIG_H',

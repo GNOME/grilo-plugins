@@ -19,7 +19,7 @@ shared_library('grlbookmarks',
     sources: bookmarks_sources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[bookmarks_idx][DEPS],
+    dependencies: must_deps + plugins[bookmarks_idx][REQ_DEPS] + plugins[bookmarks_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlBookmarks"',
         '-DHAVE_CONFIG_H',

@@ -19,7 +19,7 @@ shared_library('grltmdb',
     sources: tmdb_sources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[tmdb_idx][DEPS],
+    dependencies: must_deps + plugins[tmdb_idx][REQ_DEPS] + plugins[tmdb_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlTmdb"',
         '-DHAVE_CONFIG_H',

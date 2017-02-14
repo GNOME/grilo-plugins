@@ -17,7 +17,7 @@ shared_library('grlmetadatastore',
     sources: metadata_store_sources,
     install: true,
     install_dir: pluginsdir,
-    dependencies: must_deps + plugins[metadata_store_idx][DEPS],
+    dependencies: must_deps + plugins[metadata_store_idx][REQ_DEPS] + plugins[metadata_store_idx][OPT_DEPS],
     c_args: [
         '-DG_LOG_DOMAIN="GrlMetadataStore"',
         '-DHAVE_CONFIG_H',

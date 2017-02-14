@@ -72,33 +72,38 @@ cdata.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 cdata.set_quoted('LOCALEDIR', localedir)
 cdata.set_quoted('VERSION', plugin_version)
 
-NAME = 0
-DEPS = 1
+# Defines for optional dependencies
+cdata.set('GOA_ENABLED', goa_dep.found())
+cdata.set('HAVE_TOTEM_PLPARSER_MINI', totem_plparser_mini_dep.found())
 
-plugins = [ # NAME, DEPS
-    ['bookmarks', [gio_dep, libxml_dep, gom_dep]],
-    ['chromaprint', [gstreamer_dep]],
-    ['dleyna', [gio_dep, gio_unix_dep, libsoup_dep]],
-    ['dmap', [libdmapsharing_dep, libxml_dep]],
-    ['filesystem', [grilo_pls_dep]],
-    ['flickr', [grilo_net_dep, libxml_dep, oauth_dep]],
-    ['freebox', [grilo_pls_dep, avahi_client_dep, avahi_glib_dep, avahi_gobject_dep]],
-    ['gravatar', []],
-    ['jamendo', [grilo_net_dep, libxml_dep]],
-    ['local-metadata', [gio_dep, libmediaart_dep]],
-    ['lua-factory', [lua_dep, libarchive_dep, grilo_net_dep, json_glib_dep, libxml_dep]],
-    ['magnatune', [sqlite3_dep, grilo_net_dep]],
-    ['metadata-store', [sqlite3_dep]],
-    ['opensubtitles', [gio_dep, libsoup_dep]],
-    ['optical-media', [totem_plparser_dep]],
-    ['podcasts', [grilo_net_dep, libxml_dep, sqlite3_dep, gmime_dep]],
-    ['raitv', [grilo_net_dep, libxml_dep]],
-    ['shoutcast', [grilo_net_dep, libxml_dep]],
-    ['thetvdb', [grilo_net_dep, libxml_dep, libarchive_dep, gom_dep]],
-    ['tmdb', [json_glib_dep, libsoup_dep, grilo_net_dep]],
-    ['tracker', [tracker_sparql_dep]],
-    ['vimeo', [grilo_net_dep, libxml_dep, totem_plparser_dep]],
-    ['youtube', [grilo_net_dep, libxml_dep, libgdata_dep, totem_plparser_dep]],
+NAME = 0
+REQ_DEPS = 1
+OPT_DEPS = 2
+
+plugins = [ # NAME, REQ_DEPS, OPT_DEPS
+    ['bookmarks', [gio_dep, libxml_dep, gom_dep], []],
+    ['chromaprint', [gstreamer_dep], []],
+    ['dleyna', [gio_dep, gio_unix_dep, libsoup_dep], []],
+    ['dmap', [libdmapsharing_dep, libxml_dep], []],
+    ['filesystem', [grilo_pls_dep], []],
+    ['flickr', [grilo_net_dep, libxml_dep, oauth_dep], [goa_dep]],
+    ['freebox', [grilo_pls_dep, avahi_client_dep, avahi_glib_dep, avahi_gobject_dep], []],
+    ['gravatar', [], []],
+    ['jamendo', [grilo_net_dep, libxml_dep], []],
+    ['local-metadata', [gio_dep, libmediaart_dep], []],
+    ['lua-factory', [lua_dep, libarchive_dep, grilo_net_dep, json_glib_dep, libxml_dep], [goa_dep, totem_plparser_mini_dep]],
+    ['magnatune', [sqlite3_dep, grilo_net_dep], []],
+    ['metadata-store', [sqlite3_dep], []],
+    ['opensubtitles', [gio_dep, libsoup_dep], []],
+    ['optical-media', [totem_plparser_dep], []],
+    ['podcasts', [grilo_net_dep, libxml_dep, sqlite3_dep, gmime_dep], []],
+    ['raitv', [grilo_net_dep, libxml_dep], []],
+    ['shoutcast', [grilo_net_dep, libxml_dep], []],
+    ['thetvdb', [grilo_net_dep, libxml_dep, libarchive_dep, gom_dep], []],
+    ['tmdb', [json_glib_dep, libsoup_dep, grilo_net_dep], []],
+    ['tracker', [tracker_sparql_dep], []],
+    ['vimeo', [grilo_net_dep, libxml_dep, totem_plparser_dep], []],
+    ['youtube', [grilo_net_dep, libxml_dep, libgdata_dep, totem_plparser_dep], []],
 ]
 
 idx = 0
@@ -108,7 +113,7 @@ foreach p: plugins
     varname_idx = varname + '_idx'
 
     current_enabled = get_option('enable-' + p[NAME]) == 'no' ? false : true
-    current_deps = p[DEPS]
+    current_deps = p[REQ_DEPS]
     if current_enabled
         current_auto = get_option('enable-'+ p[NAME]) == 'auto'
         foreach d: current_deps

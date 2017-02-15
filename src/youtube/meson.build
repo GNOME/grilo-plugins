@@ -25,7 +25,4 @@ shared_library('grlyoutube',
     c_args: [
         '-DG_LOG_DOMAIN="GrlYoutube"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

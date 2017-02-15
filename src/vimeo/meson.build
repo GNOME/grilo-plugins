@@ -27,7 +27,4 @@ shared_library('grlvimeo',
     c_args: [
         '-DG_LOG_DOMAIN="GrlVimeo"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

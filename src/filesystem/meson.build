@@ -21,7 +21,4 @@ shared_library('grlfilesystem',
     c_args: [
         '-DG_LOG_DOMAIN="GrlFilesystem"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

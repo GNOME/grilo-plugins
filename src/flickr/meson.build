@@ -25,7 +25,4 @@ shared_library('grlflickr',
     c_args: [
         '-DG_LOG_DOMAIN="GrlFlickr"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

@@ -43,9 +43,6 @@ shared_library('grldaap',
         '-DDAAP_PLUGIN_ID=DMAP_PLUGIN_ID',
         '-DG_LOG_DOMAIN="GrlDmap"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])
 
 shared_library('grldpap',
@@ -57,7 +54,4 @@ shared_library('grldpap',
         '-DDPAP_PLUGIN_ID=DMAP_PLUGIN_ID',
         '-DG_LOG_DOMAIN="GrlDmap"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

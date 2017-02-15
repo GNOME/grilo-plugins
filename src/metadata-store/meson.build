@@ -21,7 +21,4 @@ shared_library('grlmetadatastore',
     c_args: [
         '-DG_LOG_DOMAIN="GrlMetadataStore"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

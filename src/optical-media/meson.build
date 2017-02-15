@@ -21,7 +21,4 @@ shared_library('grlopticalmedia',
     c_args: [
         '-DG_LOG_DOMAIN="GrlOpticalMedia"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

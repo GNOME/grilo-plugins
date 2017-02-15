@@ -21,7 +21,4 @@ shared_library('grlshoutcast',
     c_args: [
         '-DG_LOG_DOMAIN="GrlShoutcast"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

@@ -23,7 +23,4 @@ shared_library('grltmdb',
     c_args: [
         '-DG_LOG_DOMAIN="GrlTmdb"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

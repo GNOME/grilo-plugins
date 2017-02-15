@@ -25,7 +25,4 @@ shared_library('grlraitv',
     c_args: [
         '-DG_LOG_DOMAIN="GrlRaitv"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

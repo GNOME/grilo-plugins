@@ -21,7 +21,4 @@ shared_library('grlchromaprint',
     c_args: [
         '-DG_LOG_DOMAIN="GrlChromaprint"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

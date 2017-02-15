@@ -21,7 +21,4 @@ shared_library('grlopensubtitles',
     c_args: [
         '-DG_LOG_DOMAIN="GrlOpenSubtitles"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

@@ -62,9 +62,6 @@ shared_library('grlluafactory',
         '-DG_LOG_DOMAIN="GrlLuaFactory"',
         '-DHAVE_CONFIG_H',
         '-DLUA_FACTORY_SOURCE_LOCATION="@0@"'.format(luafactorydir),
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])
 
 subdir('sources')

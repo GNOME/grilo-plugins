@@ -27,7 +27,4 @@ shared_library('grlfreebox',
     c_args: [
         '-DG_LOG_DOMAIN="GrlFreebox"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

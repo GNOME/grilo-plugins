@@ -34,7 +34,4 @@ shared_library('grltracker',
     c_args: [
         '-DG_LOG_DOMAIN="GrlTracker"',
         '-DHAVE_CONFIG_H',
-    ],
-    link_args: [
-        '-Wl,--no-undefined',
     ])

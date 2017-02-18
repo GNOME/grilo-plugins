@@ -1,14 +1,14 @@
 # Norwegian bokmål translation of grilo-plugins.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# Kjartan Maraas <kmaraas@gnome.org>, 2013-2016.
+# Kjartan Maraas <kmaraas@gnome.org>, 2013-2017.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: grilo-plugins 3.22.x\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-16 18:09+0200\n"
-"PO-Revision-Date: 2016-10-16 18:12+0200\n"
+"Project-Id-Version: grilo-plugins 3.23.x\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo&keywords=I18N+L10N&component=plugins\n"
+"POT-Creation-Date: 2016-11-28 06:36+0000\n"
+"PO-Revision-Date: 2017-02-18 11:52+0100\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: Norwegian bokmål <i18n-nb@lister.ping.uio.no>\n"
 "Language: nb\n"
@@ -74,7 +74,8 @@ msgstr "Opplasting feilet, «%s», overført %lu av %lu bytes"
 #: ../src/dleyna/grl-dleyna-source.c:881
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
-msgstr "Klarte ikke å hente egenskaper for oppføring (BrowseObjects-feil %d: %s)"
+msgstr ""
+"Klarte ikke å hente egenskaper for oppføring (BrowseObjects-feil %d: %s)"
 
 #: ../src/dleyna/grl-dleyna-source.c:1520
 #, c-format
@@ -163,11 +164,11 @@ msgstr "En kilde for å bla gjennom Freebox radiokanaler"
 
 #: ../src/gravatar/grl-gravatar.c:46
 msgid "Avatar provider from Gravatar"
-msgstr ""
+msgstr "Avatartilbyder fra Gravatar"
 
 #: ../src/gravatar/grl-gravatar.c:47
 msgid "A plugin to get avatars for artist and author fields"
-msgstr ""
+msgstr "Tillegg for å hente avatarer for artist- og forfatterfelt"
 
 #: ../src/jamendo/grl-jamendo.c:91
 msgid "A source for browsing and searching Jamendo music"
@@ -240,7 +241,7 @@ msgstr "Feilutformet spørring «%s»"
 
 #: ../src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
-msgstr ""
+msgstr "Lokal metadatatilbyder"
 
 #: ../src/local-metadata/grl-local-metadata.c:43
 msgid "A source providing locally available metadata"
@@ -495,7 +496,7 @@ msgstr "Klarte ikke å bla gjennom: %s"
 
 #: ../src/shoutcast/grl-shoutcast.c:65
 msgid "A source for browsing SHOUTcast radios"
-msgstr ""
+msgstr "En kilde for å bla gjennom SHOUTcast-radioer"
 
 #: ../src/shoutcast/grl-shoutcast.c:462
 #, c-format
@@ -552,7 +553,7 @@ msgstr "Lokale filer"
 
 #: ../src/vimeo/grl-vimeo.c:56
 msgid "A source for browsing and searching Vimeo videos"
-msgstr ""
+msgstr "En kilde for å bla gjennom og søke i Vimeo-videoer"
 
 #: ../src/youtube/grl-youtube.c:60
 msgid "Standard feeds"

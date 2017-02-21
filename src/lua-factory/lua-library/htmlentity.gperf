@@ -28,15 +28,18 @@
 #include <stdlib.h>
 
 #include <glib.h>
-#include "htmlentity.h"
+#include <lua-library/htmlentity.h>
+
+#ifdef __GNUC__
+_Pragma ("GCC diagnostic push")
+_Pragma ("GCC diagnostic ignored \"-Wmissing-prototypes\"")
+#endif
 
 %}
 struct _EntityEntry {
 	const gchar *name;
 	gulong value;
 };
-struct _EntityEntry *
-html_entity_hash (register const char *str, register unsigned int len);
 %%
 Aacute, 193
 aacute, 225
@@ -292,6 +295,11 @@ zeta, 950
 zwj, 8205
 zwnj, 8204
 %%
+
+#ifdef __GNUC__
+_Pragma ("GCC diagnostic pop")
+#endif
+
 gulong
 html_entity_parse (const gchar *s, guint len)
 {

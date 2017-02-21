@@ -23,6 +23,7 @@ lua_library_sources = [
     'lua-library/lua-json.c',
     'lua-library/lua-xml.c',
     'lua-library/lua-libraries.h',
+    'lua-library/htmlentity.h',
 ]
 
 gperf_gen = generator(gperf,
@@ -39,14 +40,7 @@ gperf_gen = generator(gperf,
 htmlentity_c = gperf_gen.process(
     'lua-library/htmlentity.gperf')
 
-htmlentity_h = configure_file(input: 'lua-library/htmlentity.h',
-    output: 'htmlentity.h',
-    configuration: configuration_data())
-
-lua_library_sources += [
-    htmlentity_c,
-    htmlentity_h,
-]
+lua_library_sources += [ htmlentity_c ]
 
 configure_file(output: 'config.h',
     configuration: cdata)

@@ -33,13 +33,15 @@ libgrlluafactory_la_SOURCES =					\
 	grl-lua-library-operations.c				\
 	grl-lua-library-operations.h				\
 	grl-lua-common.h					\
-	luafactoryresources.c					\
-	luafactoryresources.h					\
-	lua-library/htmlentity.c				\
 	lua-library/htmlentity.h				\
 	lua-library/lua-json.c					\
 	lua-library/lua-xml.c					\
 	lua-library/lua-libraries.h
+
+nodist_libgrlluafactory_la_SOURCES =				\
+	luafactoryresources.c					\
+	luafactoryresources.h					\
+	lua-library/htmlentity.c
 
 extdir			= $(GRL_PLUGINS_DIR)
 
@@ -56,7 +58,8 @@ luafactoryresources.h: grl-lua-factory.gresource.xml
 
 CLEANFILES =				\
 	luafactoryresources.h		\
-	luafactoryresources.c
+	luafactoryresources.c		\
+	lua-library/htmlentity.c
 
 EXTRA_DIST +=					\
 	$(lua_factory_resources_files)		\

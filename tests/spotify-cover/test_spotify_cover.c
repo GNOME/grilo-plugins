@@ -116,6 +116,7 @@ test_may_resolve_missing_key (void)
   g_assert (GRLPOINTER_TO_KEYID (missing_keys->data) == GRL_METADATA_KEY_ALBUM);
 
   g_object_unref (media);
+  g_list_free (missing_keys);
 }
 
 static void
@@ -139,6 +140,7 @@ test_may_resolve_missing_media (void)
   g_assert (GRLPOINTER_TO_KEYID (missing_keys->next->data) == GRL_METADATA_KEY_ARTIST ||
             GRLPOINTER_TO_KEYID (missing_keys->next->data) == GRL_METADATA_KEY_ALBUM);
   g_assert (GRLPOINTER_TO_KEYID (missing_keys->data) != GRLPOINTER_TO_KEYID (missing_keys->next->data));
+  g_list_free (missing_keys);
 }
 
 static void

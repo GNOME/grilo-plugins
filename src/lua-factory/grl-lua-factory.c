@@ -559,7 +559,7 @@ lua_plugin_source_init (GrlLuaFactorySource *lua_source)
   GList *it_keys = NULL;
   GList *list_keys = NULL;
   const gchar *key = NULL;
-  const gchar *value = NULL;
+  gchar *value = NULL;
   gboolean ret = FALSE;
 
   /* Source does not have grl_source_init() */
@@ -600,6 +600,7 @@ lua_plugin_source_init (GrlLuaFactorySource *lua_source)
 
           g_free (lua_key);
         }
+        g_free (value);
       }
     }
     g_list_free (list_keys);
@@ -1126,17 +1127,21 @@ all_mandatory_options_has_value (const gchar *source_id,
   list_keys = (source_configs != NULL) ?
               g_hash_table_get_keys (source_configs) : NULL;
   for (it_keys = list_keys; it_keys; it_keys = g_list_next (it_keys)) {
+    gchar *key_value;
+
     key = it_keys->data;
     is_mandatory = g_hash_table_lookup (source_configs, key);
 
+    key_value = grl_config_get_string (merged_configs, key);
     if (g_strcmp0 (is_mandatory, "true") == 0
-        && grl_config_get_string (merged_configs, key) == NULL) {
+        && key_value == NULL) {
 
       GRL_DEBUG ("Source %s is missing config for required key '%s'", source_id, key);
 
       g_list_free (list_keys);
       return FALSE;
     }
+    g_free (key_value);
   }
   g_list_free (list_keys);
   return TRUE;

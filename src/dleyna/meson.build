@@ -40,9 +40,7 @@ shared_library('grldleyna',
     install: true,
     install_dir: pluginsdir,
     dependencies: must_deps + plugins[dleyna_idx][REQ_DEPS] + plugins[dleyna_idx][OPT_DEPS],
-    include_directories: include_directories([
-        meson.build_root(),
-    ]),
+    include_directories: rootdir,
     c_args: [
         '-DG_LOG_DOMAIN="GrlDleyna"',
         '-DHAVE_CONFIG_H',

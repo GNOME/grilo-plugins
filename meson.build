@@ -147,6 +147,8 @@ endforeach
 
 gnome = import('gnome')
 
+rootdir = include_directories('.')
+
 subdir('src')
 subdir('help')
 subdir('po')

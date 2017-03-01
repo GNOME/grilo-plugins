@@ -266,10 +266,10 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
   // For backwards compatibility, add newer columns if they don't exist
   // in the old database.
   sqlite3_exec (source->priv->db, GRL_SQL_ALTER_TABLE_ADD_FAVOURITE,
-                NULL, NULL, &sql_error);
+                NULL, NULL, NULL);
 
   sqlite3_exec (source->priv->db, GRL_SQL_ALTER_TABLE_ADD_TYPE_ID,
-                NULL, NULL, &sql_error);
+                NULL, NULL, NULL);
 
   GRL_DEBUG ("  OK");
 }

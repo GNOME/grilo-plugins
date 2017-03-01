@@ -121,6 +121,8 @@ enum {
   MEDIA_CONTAINER
 };
 
+static void grl_metadata_store_source_class_finalize (GObject *object);
+
 static GrlMetadataStoreSource *grl_metadata_store_source_new (void);
 
 static void grl_metadata_store_source_resolve (GrlSource *source,
@@ -148,6 +150,7 @@ gboolean grl_metadata_store_source_plugin_init (GrlRegistry *registry,
                                                 GrlPlugin *plugin,
                                                 GList *configs);
 
+G_DEFINE_TYPE (GrlMetadataStoreSource, grl_metadata_store_source, GRL_TYPE_SOURCE);
 
 /* =================== GrlMetadataStore Plugin  =============== */
 
@@ -201,7 +204,10 @@ grl_metadata_store_source_new (void)
 static void
 grl_metadata_store_source_class_init (GrlMetadataStoreSourceClass * klass)
 {
+  GObjectClass *g_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+
+  g_class->finalize = grl_metadata_store_source_class_finalize;
 
   source_class->supported_keys = grl_metadata_store_source_supported_keys;
   source_class->writable_keys = grl_metadata_store_source_writable_keys;
@@ -212,6 +218,16 @@ grl_metadata_store_source_class_init (GrlMetadataStoreSourceClass * klass)
   source_class->store_metadata = grl_metadata_store_source_store_metadata;
 
   g_type_class_add_private (klass, sizeof (GrlMetadataStorePrivate));
+}
+
+static void
+grl_metadata_store_source_class_finalize (GObject *object)
+{
+  GrlMetadataStoreSource *source = GRL_METADATA_STORE_SOURCE (object);
+
+  sqlite3_close (source->priv->db);
+
+  G_OBJECT_CLASS (grl_metadata_store_source_parent_class)->finalize (object);
 }
 
 static void
@@ -273,10 +289,6 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
 
   GRL_DEBUG ("  OK");
 }
-
-G_DEFINE_TYPE (GrlMetadataStoreSource,
-               grl_metadata_store_source,
-               GRL_TYPE_SOURCE);
 
 /* ======================= Utilities ==================== */
 

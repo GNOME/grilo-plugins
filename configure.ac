@@ -164,9 +164,9 @@ fi
 
 PKG_CHECK_MODULES([JSON], [json-glib-1.0], HAVE_JSON_GLIB=yes, HAVE_JSON_GLIB=no)
 
-PKG_CHECK_MODULES(GMIME, gmime-2.6,
+PKG_CHECK_MODULES(GMIME, gmime-3.0,
                          HAVE_GMIME=yes,
-                         [PKG_CHECK_MODULES(GMIME, gmime-2.4,
+                         [PKG_CHECK_MODULES(GMIME, gmime-2.6,
                                                    HAVE_GMIME=yes,
                                                    HAVE_GMIME=no)])
 

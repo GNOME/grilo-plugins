@@ -40,7 +40,6 @@ shared_library('grldaap',
     install_dir: pluginsdir,
     dependencies: must_deps + plugins[dmap_idx][REQ_DEPS] + plugins[dmap_idx][OPT_DEPS],
     c_args: [
-        '-DDAAP_PLUGIN_ID=DMAP_PLUGIN_ID',
         '-DG_LOG_DOMAIN="GrlDmap"',
         '-DHAVE_CONFIG_H',
     ])
@@ -51,7 +50,6 @@ shared_library('grldpap',
     install_dir: pluginsdir,
     dependencies: must_deps + plugins[dmap_idx][REQ_DEPS] + plugins[dmap_idx][OPT_DEPS],
     c_args: [
-        '-DDPAP_PLUGIN_ID=DMAP_PLUGIN_ID',
         '-DG_LOG_DOMAIN="GrlDmap"',
         '-DHAVE_CONFIG_H',
     ])

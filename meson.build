@@ -126,7 +126,12 @@ foreach p: plugins
     endif
     set_variable(varname_enabled, current_enabled)
     set_variable(varname_idx, idx)
-    cdata.set_quoted(varname.to_upper() + '_PLUGIN_ID', 'grl-' + p[NAME])
+    if p[NAME] != 'dmap'
+        cdata.set_quoted(varname.to_upper() + '_PLUGIN_ID', 'grl-' + p[NAME])
+    else
+        cdata.set_quoted('DPAP_PLUGIN_ID', 'grl-dpap')
+        cdata.set_quoted('DAAP_PLUGIN_ID', 'grl-daap')
+    endif
     idx = idx + 1
 endforeach
 

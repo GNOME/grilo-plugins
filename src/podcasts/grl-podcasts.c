@@ -638,10 +638,8 @@ build_media (GrlMedia *content,
 
     grl_media_set_id (media, url);
     if (date) {
-      time_t t;
       GDateTime *date_time;
-      t = g_mime_utils_header_decode_date (date, NULL);
-      date_time = g_date_time_new_from_unix_utc (t);
+      date_time = g_mime_utils_header_decode_date (date);
       grl_media_set_publication_date (media, date_time);
       g_date_time_unref (date_time);
     }
@@ -1277,8 +1275,10 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   /* Check podcast pubDate (if available), if it has not been updated
      recently then we can use the cache and avoid parsing the feed */
   if (podcast_data->published != NULL) {
-    time_t pub_time =
-      g_mime_utils_header_decode_date (podcast_data->published, NULL);
+    GDateTime *date_time =
+      g_mime_utils_header_decode_date (podcast_data->published);
+    gint64 pub_time = g_date_time_to_unix (date_time);
+    g_date_time_unref (date_time);
     if (pub_time == 0) {
       GRL_DEBUG ("Invalid podcast pubDate: '%s'", podcast_data->published);
       /* We will parse the feed again just in case */

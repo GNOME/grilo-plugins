@@ -164,11 +164,7 @@ fi
 
 PKG_CHECK_MODULES([JSON], [json-glib-1.0], HAVE_JSON_GLIB=yes, HAVE_JSON_GLIB=no)
 
-PKG_CHECK_MODULES(GMIME, gmime-3.0,
-                         HAVE_GMIME=yes,
-                         [PKG_CHECK_MODULES(GMIME, gmime-2.6,
-                                                   HAVE_GMIME=yes,
-                                                   HAVE_GMIME=no)])
+PKG_CHECK_MODULES(GMIME, [gmime-3.0], HAVE_GMIME=yes, HAVE_GMIME=no)
 
 PKG_CHECK_MODULES(AVAHI, [avahi-gobject avahi-glib avahi-client], HAVE_AVAHI=yes, HAVE_AVAHI=no)
 
@@ -490,7 +486,7 @@ AC_ARG_ENABLE(podcasts,
                            AC_MSG_ERROR([sqlite3 not found, install it or use --disable-podcasts])
                         fi
                         if test "x$HAVE_GMIME" = "xno"; then
-                           AC_MSG_ERROR([gmime-2.4 or gmime-2.6 not found, install it or use --disable-podcasts])
+                           AC_MSG_ERROR([gmime-3.0 not found, install it or use --disable-podcasts])
                         fi
                         ;;
                 esac

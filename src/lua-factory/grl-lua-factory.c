@@ -1050,7 +1050,7 @@ get_lua_sources (void)
     gchar **local_dirs;
 
     /* Environment-only plugins */
-    GRL_DEBUG ("'%s' is set - Getting lua-sources only from there.", ENV_LUA_SOURCES_PATH);
+    GRL_DEBUG ("Envvar '%s' is set - Only getting lua-sources from there.", ENV_LUA_SOURCES_PATH);
     local_dirs = g_strsplit (envvar, G_SEARCHPATH_SEPARATOR_S, -1);
     if (local_dirs) {
       while (local_dirs[i] != NULL) {
@@ -1084,9 +1084,14 @@ get_lua_sources (void)
   ht = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
   for (it_path = l_locations; it_path; it_path = it_path->next) {
-    dir = g_dir_open (it_path->data, 0, NULL);
-    if (dir == NULL)
+    const char *path = it_path->data;;
+    dir = g_dir_open (path, 0, NULL);
+    if (dir == NULL) {
+      GRL_DEBUG ("Skipping lua source directory '%s'", path);
       continue;
+    }
+
+    GRL_DEBUG ("Opening lua source directory '%s'", path);
 
     for (it_file = g_dir_read_name (dir);
          it_file;

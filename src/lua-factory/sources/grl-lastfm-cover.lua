@@ -36,14 +36,14 @@ source = {
     ["type"] = "audio",
     required = { "artist", "album" },
   },
-  tags = { 'music', 'net:internet', 'net:plaintext' },
+  tags = { 'music', 'net:internet' },
 }
 
 ------------------
 -- Source utils --
 ------------------
 
-LASTFM_SEARCH_ALBUM = 'http://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key=%s&artist=%s&album=%s'
+LASTFM_SEARCH_ALBUM = 'https://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key=%s&artist=%s&album=%s'
 
 ---------------------------------
 -- Handlers of Grilo functions --

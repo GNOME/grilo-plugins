@@ -174,7 +174,7 @@ PKG_CHECK_MODULES(GOM, [gom-1.0 >= 0.3.2], HAVE_GOM=yes, HAVE_GOM=no)
 
 # Search available Tracker version
 trackerpkg="tracker-sparql-0.10"
-m4_foreach([VERSION], [[0.10], [0.11], [0.12], [0.14], [0.15], [0.16], [0.17], [0.18], [1.0]],
+m4_foreach([VERSION], [[0.10], [0.11], [0.12], [0.14], [0.15], [0.16], [0.17], [0.18], [1.0], [2.0]],
                       [PKG_CHECK_EXISTS([tracker-sparql-VERSION >= 0.10.5],
                                         [ trackerpkg="tracker-sparql-VERSION" ])
                       ])

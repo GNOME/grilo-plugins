@@ -919,7 +919,7 @@ keys_table_array_to_list (lua_State *L,
 static gboolean
 validate_account_feature (const char *lua_account_feature)
 {
-  const char const *features[] = {
+  const char * const features[] = {
     "photos",
     "read-later",
     "music",

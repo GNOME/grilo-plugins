@@ -53,7 +53,10 @@ oauth_dep = dependency('oauth', required: false)
 sqlite3_dep = dependency('sqlite3', required: false)
 totem_plparser_dep = dependency('totem-plparser', version: '>= 3.4.1', required: false)
 totem_plparser_mini_dep = dependency('totem-plparser-mini', version: '>= 3.4.1', required: false)
-tracker_sparql_dep = dependency('tracker-sparql-1.0', required: false)
+tracker_sparql_dep = dependency('tracker-sparql-2.0', required: false)
+if not tracker_sparql_dep.found()
+    tracker_sparql_dep = dependency('tracker-sparql-1.0', required: false)
+endif
 
 lua_dep = dependency('lua', version: '>= 5.3.0', required: false)
 if not lua_dep.found()

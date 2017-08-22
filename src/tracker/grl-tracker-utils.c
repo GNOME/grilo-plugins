@@ -454,7 +454,7 @@ grl_tracker_source_get_select_string (const GList *keys)
 
   assoc_list = get_mapping_from_grl (grl_metadata_key_tracker_urn);
   assoc = (tracker_grl_sparql_t *) assoc_list->data;
-  g_string_append_printf (gstr, "%s AS %s ",
+  g_string_append_printf (gstr, "%s AS ?%s ",
                           assoc->sparql_key_attr_call,
                           assoc->sparql_key_name);
 
@@ -463,7 +463,7 @@ grl_tracker_source_get_select_string (const GList *keys)
     while (assoc_list != NULL) {
       assoc = (tracker_grl_sparql_t *) assoc_list->data;
       if (assoc != NULL) {
-        g_string_append_printf (gstr, "%s AS %s ",
+        g_string_append_printf (gstr, "%s AS ?%s ",
                                 assoc->sparql_key_attr_call,
                                 assoc->sparql_key_name);
       }

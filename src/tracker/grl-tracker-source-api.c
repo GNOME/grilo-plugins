@@ -763,9 +763,9 @@ grl_tracker_source_create_constraint (int min, int max)
  * <informalexample>
  *   <programlisting>
  *     SELECT rdf:type(?song)
- *            ?song            AS id
- *            nie:title(?song) AS title
- *            nie:url(?song)   AS url
+ *            ?song            AS ?id
+ *            nie:title(?song) AS ?title
+ *            nie:url(?song)   AS ?url
  *     WHERE { ?song a nmm:MusicPiece }
  *   </programlisting>
  * </informalexample>

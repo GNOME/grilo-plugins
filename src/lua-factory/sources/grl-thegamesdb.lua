@@ -221,8 +221,9 @@ function get_platform_name(mime_type, suffix)
     platform_names['application/x-playstation-rom'] = 'Sony Playstation'
     platform_names['application/x-saturn-rom'] = 'Sega Saturn'
     platform_names['application/x-sega-cd-rom'] = 'Sega CD'
-    -- Also represents 'Sega Game Gear'
+    -- Also represents 'Sega Game Gear' through magic
     platform_names['application/x-sms-rom'] = 'Sega Master System'
+    platform_names['application/x-gamegear-rom'] = 'Sega Game Gear'
     platform_names['application/x-wii-rom'] = 'Nintendo Wii'
     platform_names['application/x-wii-wad'] = 'Nintendo Wii'
 

@@ -191,7 +191,7 @@ test_resolve_thumbnails_found (void)
 
   test_resolve_thumbnail_found (source, keys, options,
                                 "Astérix",
-                                "",
+                                "application/x-gamegear-rom",
                                 NULL,
                                 0,
                                 "http://thegamesdb.net/banners/boxart/original/front/11837-1.jpg");

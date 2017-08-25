@@ -1,3 +1,44 @@
+NEW in 0.3.5
+============
+
+  * General
+    * Add Nepali translation
+    * Updated Norwegian and Chinese (Taiwan) translations
+
+  * build
+    * BGO#778858 - meson: Fix library name of optical-media plugin
+
+  * dmap plugin
+    * BGO#781278 - Fix DMAP plugins not loading
+
+  * flickr plugin
+    * BGO#707643 - flickr: populate GrlMediaImage with EXIF data
+
+  * lastfm-cover plugin
+    * BGO#766789 - Use HTTPS rather then insecure HTTP
+
+  * lua-factory plugin
+    * BGO#778857 - Building lua-factory breaks with gperf 3.1 iff builddir != srcdir
+    * BGO#779444 - Fix a few leaks in plugins
+    * BGO#781318 - Fix lua sources path with Meson
+
+  * tracker plugin
+    * BGO#786602 - [Tracker] Use sparql1.1 "AS ?var" syntax
+
+  * Contributors to this release:
+    Bastien Nocera <hadess@hadess.net>
+    Carlos Garnacho <carlosg@gnome.org>
+    Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>
+    Emmanuele Bassi <ebassi@gnome.org>
+    Felipe Borges <felipeborges@gnome.org>
+    Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+    Juan A. Suarez Romero <jasuarez@igalia.com>
+    Kjartan Maraas <kmaraas@gnome.org>
+    Michael Catanzaro <mcatanzaro@igalia.com>
+    Pawan Chitrakar <chautari@gmail.com>
+    Rafael Fonseca <r4f4rfs@gmail.com>
+    Victor Toso <me@victortoso.com>
+
 NEW in 0.3.4
 ============
 

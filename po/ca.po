@@ -2,13 +2,14 @@
 # Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
 # Gil Forcada <gilforcada@guifi.net>, 2013, 2014, 2015.
+# Jordi Serratosa <jordis@softcatala.cat>, 2017.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
 "product=grilo&keywords=I18N+L10N&component=plugins\n"
-"POT-Creation-Date: 2017-08-28 17:25+0000\n"
+"POT-Creation-Date: 2017-09-07 14:12+0000\n"
 "PO-Revision-Date: 2017-09-01 18:10+0200\n"
 "Last-Translator: Gil Forcada <gilforcada@guifi.net>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
@@ -135,7 +136,7 @@ msgstr "No existeix el fitxer «%s»"
 #: ../src/filesystem/grl-filesystem.c:1257 ../src/youtube/grl-youtube.c:1512
 #, c-format
 msgid "Cannot get media from %s"
-msgstr "No es pot obtenir els suports des de %s"
+msgstr "No es poden obtenir els suports des de %s"
 
 #: ../src/flickr/grl-flickr.c:63
 msgid "A source for browsing and searching Flickr photos"
@@ -543,7 +544,7 @@ msgstr "La consulta està buida"
 #: ../src/tracker/grl-tracker-source-api.c:1088
 #, c-format
 msgid "ID '%s' is not known in this source"
-msgstr "Es desconeix a aquesta font la ID «%s»"
+msgstr "Es desconeix l'ID «%s» en aquesta font "
 
 #: ../src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"

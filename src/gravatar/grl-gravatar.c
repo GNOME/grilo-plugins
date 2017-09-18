@@ -217,12 +217,12 @@ get_avatar (const gchar *field) {
 
   if (g_regex_match (email_regex, lowercased_field, 0, &match_info)) {
     email = g_match_info_fetch (match_info, 0);
-    g_match_info_free (match_info);
     email_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, email, -1);
     avatar = g_strdup_printf (GRAVATAR_URL, email_hash);
     g_free (email);
     g_free (email_hash);
   }
+  g_match_info_free (match_info);
 
   return avatar;
 }

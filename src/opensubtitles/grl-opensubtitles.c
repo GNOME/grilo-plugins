@@ -66,6 +66,7 @@ static GrlKeyID GRL_OPENSUBTITLES_METADATA_KEY_SUBTITLES_LANG = GRL_METADATA_KEY
 /**/
 
 static GrlOpenSubtitlesSource *grl_opensubtitles_source_new (void);
+static void grl_opensubtitles_source_finalize (GObject *object);
 
 static void grl_opensubtitles_source_resolve (GrlSource            *source,
                                               GrlSourceResolveSpec *rs);
@@ -180,11 +181,14 @@ static void
 grl_opensubtitles_source_class_init (GrlOpenSubtitlesSourceClass * klass)
 {
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   source_class->supported_keys = grl_opensubtitles_source_supported_keys;
   source_class->cancel = grl_opensubtitles_source_cancel;
   source_class->may_resolve = grl_opensubtitles_source_may_resolve;
   source_class->resolve = grl_opensubtitles_source_resolve;
+
+  gobject_class->finalize = grl_opensubtitles_source_finalize;
 
   g_type_class_add_private (klass, sizeof (GrlOpenSubtitlesSourcePriv));
 }
@@ -201,6 +205,21 @@ grl_opensubtitles_source_init (GrlOpenSubtitlesSource *source)
 G_DEFINE_TYPE (GrlOpenSubtitlesSource,
                grl_opensubtitles_source,
                GRL_TYPE_SOURCE);
+
+static void
+grl_opensubtitles_source_finalize (GObject *object)
+{
+  GrlOpenSubtitlesSource *source = GRL_OPENSUBTITLES_SOURCE (object);
+  GrlOpenSubtitlesSourcePriv *priv = GRL_OPENSUBTITLES_SOURCE_GET_PRIVATE (source);
+
+  GRL_DEBUG ("%s", G_STRFUNC);
+
+  g_clear_object (&priv->session);
+  g_async_queue_unref (priv->queue);
+
+  G_OBJECT_CLASS (grl_opensubtitles_source_parent_class)->finalize (object);
+}
+
 
 /* ======================= Utilities ==================== */
 

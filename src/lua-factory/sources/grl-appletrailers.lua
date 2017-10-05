@@ -120,7 +120,7 @@ function parse_results(results)
     media.title = item.info.title.xml
     media.thumbnail = item.poster.xlarge.xml
     media.url = item.preview.large.xml
-    media.size = item.preview.large.filesize
+    media.size = tonumber(item.preview.large.filesize)
     local mins, secs = item.info.runtime.xml:match('(%d):(%d)')
     media.duration = tonumber(mins) * 60 + tonumber(secs)
 

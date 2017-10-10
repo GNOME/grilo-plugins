@@ -86,10 +86,9 @@ build_table_recursively (lua_State  *L,
       lua_createtable (L, len, 0);
       for (i = 0; i < len; i++) {
         node = it->data;
-        node = (is_root_node) ? node : node->children;
         lua_pushinteger (L, i + 1);
         lua_newtable (L);
-        build_table_from_xml_reader (L, doc, it->data);
+        build_table_from_xml_reader (L, doc, node);
         lua_settable(L, -3);
         it = it->next;
       }

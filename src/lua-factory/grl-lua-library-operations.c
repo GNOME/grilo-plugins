@@ -137,7 +137,7 @@ priv_state_metatable_gc (lua_State *L)
 static void
 priv_state_set_metatable (lua_State *L)
 {
-  g_assert_true (lua_istable(L, -1));
+  g_return_if_fail(lua_istable(L, -1));
 
   /* create the metatable */
   lua_createtable (L, 0, 1);
@@ -160,18 +160,18 @@ priv_state_get_rw_table (lua_State *L,
   gint top_stack = 3;
 
   lua_getglobal (L, GRILO_LUA_LIBRARY_NAME);
-  g_assert_true (lua_istable (L, -1));
+  g_return_if_fail (lua_istable (L, -1));
   lua_getfield (L, -1, LUA_SOURCE_PRIV_STATE);
-  g_assert_true (lua_istable (L, -1));
+  g_return_if_fail (lua_istable (L, -1));
 
   if (!g_str_equal (table_name, LUA_SOURCE_PRIV_STATE)) {
     top_stack = 4;
     lua_getfield (L, -1, table_name);
-    g_assert_true (lua_istable (L, -1));
+    g_return_if_fail (lua_istable (L, -1));
   }
 
   proxy_table_get_rw (L, -1);
-  g_assert_true (lua_istable (L, -1));
+  g_return_if_fail (lua_istable (L, -1));
 
   /* keep the rw table but remove the others */
   lua_replace (L, -top_stack);
@@ -200,7 +200,7 @@ priv_state_current_op_set (lua_State *L,
   }
   lua_pop (L, 1);
 
-  g_assert_true (lua_istable (L, -1));
+  g_return_if_fail (lua_istable (L, -1));
 
   /* Set current operation */
   lua_pushstring (L, LUA_SOURCE_CURRENT_OP);
@@ -225,7 +225,7 @@ priv_state_current_op_remove (lua_State *L)
 
   /* Check for a ongoing operation */
   lua_getfield (L, -1, LUA_SOURCE_CURRENT_OP);
-  g_assert_true (lua_istable (L, -1));
+  g_return_if_fail (lua_istable (L, -1));
   lua_pop (L, 1);
 
   /* Remove current operation */
@@ -253,9 +253,9 @@ priv_state_current_op_get_op_data (lua_State *L)
   }
 
   lua_getfield (L, -1, SOURCE_OP_DATA);
-  g_assert_true (lua_islightuserdata (L, -1));
+  g_return_val_if_fail (lua_islightuserdata (L, -1), NULL);
   os = lua_touserdata (L, -1);
-  g_assert_nonnull (os);
+  g_return_val_if_fail (os != NULL, NULL);
 
   lua_pop (L, 3);
   return os;
@@ -398,7 +398,7 @@ priv_state_operations_source_get_state_str (lua_State *L,
     return NULL;
   }
 
-  g_assert_true (lua_istable (L, -1));
+  g_return_val_if_fail (lua_istable (L, -1), NULL);
   lua_getfield (L, -1, SOURCE_OP_STATE);
   str = lua_tostring (L, -1);
 
@@ -445,7 +445,7 @@ priv_state_operations_source_get_op_data (lua_State *L,
     return NULL;
   }
 
-  g_assert_true (lua_istable (L, -1));
+  g_return_val_if_fail (lua_istable (L, -1), NULL);
   lua_getfield (L, -1, SOURCE_OP_DATA);
   os = lua_touserdata (L, -1);
 
@@ -524,7 +524,7 @@ priv_state_properties_free (lua_State *L)
   priv_state_get_rw_table (L, LUA_SOURCE_PROPERTIES);
 
   lua_getfield (L, -1, SOURCE_PROP_NET_WC);
-  g_assert_true (lua_islightuserdata (L, -1));
+  g_return_if_fail (lua_islightuserdata (L, -1));
   wc = lua_touserdata (L, -1);
   g_object_unref (wc);
 
@@ -702,7 +702,7 @@ grl_lua_operations_init_priv_state (lua_State *L)
   GRL_LOG_DOMAIN_INIT (lua_library_operations_log_domain, "lua-library-operations");
   GRL_DEBUG ("lua-library-operations");
 
-  g_assert_true (lua_istable (L, -1));
+  g_return_if_fail (lua_istable (L, -1));
   lua_pushstring (L, LUA_SOURCE_PRIV_STATE);
   lua_newtable (L);
 
@@ -742,7 +742,7 @@ void
 grl_lua_operations_set_proxy_table (lua_State *L,
                                     gint index)
 {
-  g_assert_true (lua_istable (L, index));
+  g_return_if_fail (lua_istable (L, index));
 
   /* Proxy table that will be switched with the one at index */
   lua_newtable (L);
@@ -843,9 +843,9 @@ grl_lua_operations_pcall (lua_State *L,
 {
   gint ret;
 
-  g_assert_nonnull (os);
-  g_assert_nonnull (err);
-  g_assert_null (*err);
+  g_return_val_if_fail (os != NULL, FALSE);
+  g_return_val_if_fail (err != NULL, FALSE);
+  g_return_val_if_fail (*err == NULL, FALSE);
 
   GRL_DEBUG ("%s | %s (op-id: %u)", __func__,
              grl_source_get_id (os->source),
@@ -890,8 +890,8 @@ grl_lua_operations_set_source_state (lua_State *L,
                                      LuaSourceState state,
                                      OperationSpec *os)
 {
-  g_assert (state < LUA_SOURCE_NUM_STATES);
-  g_assert_nonnull (os);
+  g_return_if_fail (state < LUA_SOURCE_NUM_STATES);
+  g_return_if_fail (os != NULL);
 
   GRL_DEBUG ("%s | %s (op-id: %u) state: %s", __func__,
              grl_source_get_id (os->source),

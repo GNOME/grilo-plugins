@@ -81,7 +81,8 @@ function get_id(results, title)
   local results_table = grl.lua.xml.string_to_table(results)
   if not results_table or
      not results_table.Data or
-     not results_table.Data.Game then
+     not results_table.Data.Game or
+     #results_table.Data.Game == 0 then
     return nil
   end
   for index, game in pairs(results_table.Data.Game) do

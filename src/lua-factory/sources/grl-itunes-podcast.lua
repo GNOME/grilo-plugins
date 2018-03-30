@@ -70,6 +70,17 @@ ldata = {}
 
 countries = { "AE", "AG", "AI", "AL", "AM", "AO", "AR", "AT", "AU", "AZ", "BB", "BE", "BF", "BG", "BH", "BJ", "BM", "BN", "BO", "BR", "BS", "BT", "BW", "BY", "BZ", "CA", "CG", "CH", "CL", "CN", "CO", "CR", "CV", "CY", "CZ", "DE", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "ES", "FI", "FJ", "FM", "FR", "GB", "GD", "GH", "GM", "GR", "GT", "GW", "GY", "HK", "HN", "HR", "HU", "ID", "IE", "IL", "IN", "IS", "IT", "JM", "JO", "JP", "KE", "KG", "KH", "KN", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LK", "LR", "LT", "LU", "LV", "MD", "MG", "MK", "ML", "MN", "MO", "MR", "MS", "MT", "MU", "MW", "MX", "MY", "MZ", "NA", "NE", "NG", "NI", "NL", "NO", "NP", "NZ", "OM", "PA", "PE", "PG", "PH", "PK", "PL", "PT", "PW", "PY", "QA", "RO", "RU", "SA", "SB", "SC", "SE", "SG", "SI", "SK", "SL", "SN", "SR", "ST", "SV", "SZ", "TC", "TD", "TH", "TJ", "TM", "TN", "TR", "TT", "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VC", "VE", "VG", "VN", "YE", "ZA", "ZW", }
 
+function get_count()
+   -- itunes api does not handle limit=-1
+   local count = grl.get_options("count")
+
+   if count == -1 then
+      return MAX_ITEMS
+   end
+
+   return count
+end
+
 function grl_source_init(configs)
   ldata.country = 'US'
 
@@ -94,7 +105,7 @@ end
 ---------------------------------
 
 function grl_source_browse(media_id)
-  local count = grl.get_options("count")
+  local count = get_count()
   local skip = grl.get_options("skip")
 
   if skip + count > MAX_ITEMS then
@@ -108,7 +119,7 @@ function grl_source_browse(media_id)
 end
 
 function grl_source_search(text)
-  local count = grl.get_options("count")
+  local count = get_count()
   local skip = grl.get_options("skip")
 
   if skip + count > MAX_ITEMS then
@@ -128,7 +139,7 @@ end
 ---------------
 
 function fetch_browse_results_cb(results)
-  local count = grl.get_options("count")
+  local count = get_count()
   local skip = grl.get_options("skip")
 
   if not results then
@@ -182,7 +193,7 @@ function fetch_browse_results_cb(results)
 end
 
 function fetch_search_results_cb(results)
-  local count = grl.get_options("count")
+  local count = get_count()
   local skip = grl.get_options("skip")
 
   if not results then

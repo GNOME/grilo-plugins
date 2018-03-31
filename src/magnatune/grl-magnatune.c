@@ -345,7 +345,7 @@ magnatune_get_crc_done(GObject *source_object,
   gchar *new_crc_path = NULL;
   gchar *content = NULL;
   gsize length = 0;
-  gboolean ret = FALSE; 
+  gboolean ret = FALSE;
   GError *err = NULL;
 
   GRL_DEBUG("magnatune_get_crc_done");
@@ -380,7 +380,7 @@ static void
 magnatune_get_crc_async(void)
 {
   GrlNetWc *wc = NULL;
-  
+
   GRL_DEBUG("magnatune_get_crc_async");
 
   wc = grl_net_wc_new();
@@ -505,7 +505,7 @@ magnatune_check_update_done(GObject *source_object,
   gchar *new_crc = NULL;
   gchar *old_crc = NULL;
   gsize length = 0;
-  gboolean ret = FALSE; 
+  gboolean ret = FALSE;
   GError *err = NULL;
 
   ret = grl_net_wc_request_finish(GRL_NET_WC(source_object),
@@ -673,7 +673,7 @@ build_media_id_name_from_stmt(sqlite3_stmt *sql_stmt)
   return media;
 }
 
-static GList* 
+static GList*
 magnatune_sqlite_execute(OperationSpec *os,
                          gchar *sql,
                          MagnatuneBuildMediaFn build_media_fn,
@@ -699,7 +699,7 @@ magnatune_sqlite_execute(OperationSpec *os,
     goto end_sqlite_execute;
   }
 
-  while ((ret = sqlite3_step(sql_stmt)) == SQLITE_BUSY); 
+  while ((ret = sqlite3_step(sql_stmt)) == SQLITE_BUSY);
 
   while (ret == SQLITE_ROW) {
     media = build_media_fn(sql_stmt);

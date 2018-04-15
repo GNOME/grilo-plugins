@@ -209,6 +209,7 @@ function get_platform_name(mime_type, suffix)
     platform_names['application/x-atari-2600-rom'] = 'Atari 2600'
     platform_names['application/x-atari-5200-rom'] = 'Atari 5200'
     platform_names['application/x-atari-7800-rom'] = 'Atari 7800'
+    platform_names['application/x-atari-lynx-rom'] = 'Atari Lynx'
     platform_names['application/x-dc-rom'] = 'Sega Dreamcast'
     platform_names['application/x-gameboy-rom'] = 'Nintendo Game Boy'
     platform_names['application/x-gameboy-color-rom'] = 'Nintendo Game Boy Color'

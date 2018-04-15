@@ -220,6 +220,7 @@ function get_platform_name(mime_type, suffix)
     platform_names['application/x-genesis-32x-rom'] = 'Sega 32X'
     platform_names['application/x-n64-rom'] = 'Nintendo 64'
     platform_names['application/x-neo-geo-pocket-rom'] = 'Neo Geo Pocket'
+    platform_names['application/x-neo-geo-pocket-color-rom'] = 'Neo Geo Pocket Color'
     platform_names['application/x-nes-rom'] = 'Nintendo Entertainment System (NES)'
     platform_names['application/x-nintendo-ds-rom'] = 'Nintendo DS'
     platform_names['application/x-pc-engine-rom'] = 'TurboGrafx 16'

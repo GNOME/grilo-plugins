@@ -224,8 +224,6 @@ function get_platform_name(mime_type, suffix)
     platform_names['application/x-nes-rom'] = 'Nintendo Entertainment System (NES)'
     platform_names['application/x-nintendo-ds-rom'] = 'Nintendo DS'
     platform_names['application/x-pc-engine-rom'] = 'TurboGrafx 16'
-    -- 'application/x-playstation-rom' is an unregistered MIME type
-    platform_names['application/x-playstation-rom'] = 'Sony Playstation'
     platform_names['application/x-saturn-rom'] = 'Sega Saturn'
     platform_names['application/x-sega-cd-rom'] = 'Sega CD'
     -- Also represents 'Sega Game Gear' through magic
@@ -235,6 +233,12 @@ function get_platform_name(mime_type, suffix)
     platform_names['application/x-wii-wad'] = 'Nintendo Wii'
     platform_names['application/x-wonderswan-rom'] = 'WonderSwan'
     platform_names['application/x-wonderswan-color-rom'] = 'WonderSwan Color'
+
+    -- CD image file types that can't be identified via magic, but
+    -- should still be differentiated. Usually they are represented
+    -- via application/octet-stream + application/x-cue combination
+    platform_names['application/x-pc-engine-cd-rom'] = 'TurboGrafx CD'
+    platform_names['application/x-playstation-rom'] = 'Sony Playstation'
 
     -- For disambiguation
     if suffix and

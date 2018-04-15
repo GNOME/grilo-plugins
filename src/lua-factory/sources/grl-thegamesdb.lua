@@ -232,6 +232,8 @@ function get_platform_name(mime_type, suffix)
     platform_names['application/x-gamegear-rom'] = 'Sega Game Gear'
     platform_names['application/x-wii-rom'] = 'Nintendo Wii'
     platform_names['application/x-wii-wad'] = 'Nintendo Wii'
+    platform_names['application/x-wonderswan-rom'] = 'WonderSwan'
+    platform_names['application/x-wonderswan-color-rom'] = 'WonderSwan Color'
 
     -- For disambiguation
     if suffix and

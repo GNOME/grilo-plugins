@@ -1343,7 +1343,7 @@ grl_tmdb_source_resolve (GrlSource *source,
   GRL_DEBUG ("grl_tmdb_source_resolve");
 
   closure = g_slice_new0 (ResolveClosure);
-  closure->self = g_object_ref (source);
+  closure->self = g_object_ref (self);
   closure->rs = rs;
   closure->pending_requests = g_queue_new ();
   closure->keys = g_hash_table_new (g_direct_hash, g_direct_equal);

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Data>
+<baseImgUrl>http://thegamesdb.net/banners/</baseImgUrl>
+<Game>
+<id>22619</id>
+<GameTitle>Shatterhand</GameTitle>
+<PlatformId>7</PlatformId>
+<Platform>Nintendo Entertainment System (NES)</Platform>
+<ReleaseDate>12/01/1991</ReleaseDate>
+<Overview>Imagine packing the power of 100 strategic missiles in every punch. Imagine needing every single megaton just to hold your own against a cybernetic army of metallic monstrosities. That's the guts of SHATTERHAND, the game that redefines hand-to-hand combat in the 21st century... along with all the standards for single-player action games for the NES. Seven levels of programmed adventure - you choose the action! State-of-the-art graphics featuring 8-direction scrolling! "Anti-gravity" levels force you to fight upside-down! Armed "satellite robots" assist you in battle. No arms on Earth can withstand the power in your hands!</Overview>
+<Genres><genre>Action</genre><genre>Platform</genre></Genres><Players>1</Players><Co-op>No</Co-op>
+<Youtube>http://www.youtube.com/watch?v=R1VCf_pDSKY</Youtube>
+<Publisher>Jaleco</Publisher>
+<Developer>Natsume</Developer>
+<Rating>10</Rating><Images>
+<boxart side="back" width="640" height="905" thumb="boxart/thumb/original/back/22619-1.jpg">boxart/original/back/22619-1.jpg</boxart>
+<boxart side="front" width="640" height="908" thumb="boxart/thumb/original/front/22619-1.jpg">boxart/original/front/22619-1.jpg</boxart>
+<banner width="760" height="140">graphical/22619-g.jpg</banner><screenshot>
+<original width="540" height="405">screenshots/22619-1.jpg</original>
+<thumb>screenshots/thumb/22619-1.jpg</thumb>
+</screenshot>
+<screenshot>
+<original width="540" height="454">screenshots/22619-2.jpg</original>
+<thumb>screenshots/thumb/22619-2.jpg</thumb>
+</screenshot>
+<screenshot>
+<original width="540" height="447">screenshots/22619-3.jpg</original>
+<thumb>screenshots/thumb/22619-3.jpg</thumb>
+</screenshot>
+<screenshot>
+<original width="540" height="473">screenshots/22619-4.jpg</original>
+<thumb>screenshots/thumb/22619-4.jpg</thumb>
+</screenshot>
+<screenshot>
+<original width="512" height="464">screenshots/22619-5.jpg</original>
+<thumb>screenshots/thumb/22619-5.jpg</thumb>
+</screenshot>
+<clearlogo width="400" height="261">clearlogo/22619.png</clearlogo></Images>
+</Game>
+</Data>

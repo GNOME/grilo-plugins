@@ -84,6 +84,10 @@ function get_id(results, title)
      not results_table.Data.Game then
     return nil
   end
+  -- If there's only a single match, just return it
+  if results_table.Data.Game.id then
+    return results_table.Data.Game.id.xml
+  end
   for index, game in pairs(results_table.Data.Game) do
     if game.GameTitle and
        string.lower(game.GameTitle.xml) == string.lower(title) then

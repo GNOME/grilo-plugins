@@ -106,8 +106,17 @@ test_resolve_metrolyrics (void)
     g_clear_pointer (&file, g_object_unref);
 
     if (g_ascii_strncasecmp (lyrics, data, size - 1) != 0) {
-      g_warning ("Lyrics of '%s' from '%s' changed. Check if metrolyrics.com changed",
-                  audios[i].title, audios[i].artist);
+      char *filename;
+      int fd;
+
+      fd = g_file_open_tmp ("metrolyrics-test-XXXXXX", &filename, NULL);
+      g_assert (fd > 0);
+      g_assert (g_file_set_contents (filename, lyrics, -1, NULL));
+      close (fd);
+
+      g_warning ("Lyrics of '%s' from '%s' changed. Check if metrolyrics.com changed. New lyrics saved in '%s'",
+                  audios[i].title, audios[i].artist, filename);
+      g_free (filename);
     }
     g_clear_pointer (&lyrics, g_free);
     g_clear_pointer (&data, g_free);

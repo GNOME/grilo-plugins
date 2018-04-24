@@ -7,7 +7,7 @@
 
 include $(top_srcdir)/gtester.mk
 
-TEST_PROGS +=	\
+noinst_PROGS =	\
 	test_lua_metrolyrics
 
 test_lua_factory_defines =	\

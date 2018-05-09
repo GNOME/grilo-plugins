@@ -35,6 +35,13 @@
 
 #include "grl-common.h"
 
+struct AuthCb {
+  DMAPConnection *connection;
+  SoupSession *session;
+  SoupMessage *msg;
+  SoupAuth *auth;
+};
+
 gchar *
 grl_dmap_build_url (DMAPMdnsBrowserService *service)
 {
@@ -42,4 +49,41 @@ grl_dmap_build_url (DMAPMdnsBrowserService *service)
                           service->service_name,
                           service->host,
                           service->port);
+}
+
+void
+grl_dmap_auth_cb (DMAPConnection *connection,
+                  const char *name,
+                  SoupSession *session,
+                  SoupMessage *msg,
+                  SoupAuth *auth,
+                  gboolean retrying,
+                  GrlSource *source)
+{
+  g_return_if_fail (GRL_IS_SOURCE (source));
+
+  struct AuthCb *auth_data = g_new(struct AuthCb, 1);
+  auth_data->connection    = connection;
+  auth_data->session       = session;
+  auth_data->msg           = msg;
+  auth_data->auth          = auth;
+
+  grl_source_notify_authenticate (source, auth_data);
+}
+
+void grl_dmap_source_continue_with_password (GrlSource *source,
+                                             gpointer opaque,
+                                             gchar *password)
+{
+  struct AuthCb *auth = opaque;
+
+  dmap_connection_authenticate_message(auth->connection,
+                                       auth->session,
+                                       auth->msg,
+                                       auth->auth,
+                                       password);
+
+  g_warning("%s\n", "authentication complete");
+
+  g_free (auth);
 }

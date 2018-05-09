@@ -78,10 +78,6 @@ static void grl_daap_source_browse (GrlSource *source,
 static void grl_daap_source_search (GrlSource *source,
                                     GrlSourceSearchSpec *ss);
 
-static void grl_daap_source_continue_with_password (GrlSource *source,
-                                                    gpointer opaque,
-                                                    gchar *password);
-
 static void grl_daap_service_added_cb (DMAPMdnsBrowser *browser,
                                        DMAPMdnsBrowserService *service,
                                        GrlPlugin *plugin);
@@ -197,7 +193,7 @@ grl_daap_source_class_init (GrlDaapSourceClass * klass)
 
   source_class->browse = grl_daap_source_browse;
   source_class->search = grl_daap_source_search;
-  source_class->continue_with_password = grl_daap_source_continue_with_password;
+  source_class->continue_with_password = grl_dmap_source_continue_with_password;
   source_class->supported_keys = grl_daap_source_supported_keys;
 
   G_OBJECT_CLASS (source_class)->finalize = grl_daap_source_finalize;
@@ -335,33 +331,6 @@ grl_daap_service_removed_cb (DMAPMdnsBrowser *browser,
   }
 }
 
-struct AuthCb {
-  DMAPConnection *connection;
-  SoupSession *session;
-  SoupMessage *msg;
-  SoupAuth *auth;
-};
-
-static void
-grl_daap_auth_cb (DMAPConnection *connection,
-                  const char *name,
-                  SoupSession *session,
-                  SoupMessage *msg,
-                  SoupAuth *auth,
-                  gboolean retrying,
-                  GrlSource *source)
-{
-  g_return_if_fail (GRL_IS_SOURCE (source));
-
-  struct AuthCb *auth_data = g_new(struct AuthCb, 1);
-  auth_data->connection    = connection;
-  auth_data->session       = session;
-  auth_data->msg           = msg;
-  auth_data->auth          = auth;
-
-  grl_source_notify_authenticate (source, auth_data);
-}
-
 static void
 grl_daap_connect (gchar *name, gchar *host, guint port, ResultCbAndArgsAndDb *cb_and_db, DMAPConnectionCallback callback)
 {
@@ -370,7 +339,7 @@ grl_daap_connect (gchar *name, gchar *host, guint port, ResultCbAndArgsAndDb *cb
 
   factory = DMAP_RECORD_FACTORY (grl_daap_record_factory_new ());
   connection = DMAP_CONNECTION (daap_connection_new (name, host, port, DMAP_DB (cb_and_db->db), factory));
-  g_signal_connect (connection, "authenticate", G_CALLBACK(grl_daap_auth_cb), cb_and_db->cb.source);
+  g_signal_connect (connection, "authenticate", G_CALLBACK(grl_dmap_auth_cb), cb_and_db->cb.source);
   dmap_connection_connect (connection, (DMAPConnectionCallback) callback, cb_and_db);
 }
 
@@ -482,21 +451,4 @@ static void grl_daap_source_search (GrlSource *source,
   }
 
   g_free (url);
-}
-
-static void grl_daap_source_continue_with_password (GrlSource *source,
-                                                    gpointer opaque,
-                                                    gchar *password)
-{
-  struct AuthCb *auth = opaque;
-
-  dmap_connection_authenticate_message(auth->connection,
-                                       auth->session,
-                                       auth->msg,
-                                       auth->auth,
-                                       password);
-
-  g_warning("%s\n", "authentication complete");
-
-  g_free (auth);
 }

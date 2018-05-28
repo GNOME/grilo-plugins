@@ -46,4 +46,16 @@ typedef struct {
 
 gchar *grl_dmap_build_url (DMAPMdnsBrowserService *service);
 
+void grl_dmap_auth_cb (DMAPConnection *connection,
+                       const char *name,
+                       SoupSession *session,
+                       SoupMessage *msg,
+                       SoupAuth *auth,
+                       gboolean retrying,
+                       GrlSource *source);
+
+void grl_dmap_source_continue_with_password (GrlSource *source,
+                                             gpointer opaque,
+                                             gchar *password);
+
 #endif /* _GRL_COMMON_H_ */

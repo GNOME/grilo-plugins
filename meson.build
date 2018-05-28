@@ -27,12 +27,14 @@ datadir = get_option('datadir')
 pluginsdir =join_paths(libdir, 'grilo-@0@.@1@'.format(grl_major, grl_minor))
 
 glib2_required = '2.44'
+grilo_required = '0.3.6'
 glib2_required_info = '>= @0@'.format(glib2_required)
+grilo_required_info = '>= @0@'.format(grilo_required)
 
 glib_dep = dependency('glib-2.0', version: glib2_required_info, required: true)
 gmodule_dep = dependency('gmodule-2.0', version: glib2_required_info, required: true)
 gobject_dep = dependency('gobject-2.0', version: glib2_required_info, required: true)
-grilo_dep = dependency('grilo-0.3', version: '>= 0.3.1', required: true)
+grilo_dep = dependency('grilo-0.3', version: grilo_required_info, required: true)
 
 avahi_client_dep = dependency('avahi-client', required: false)
 avahi_glib_dep = dependency('avahi-glib', required: false)

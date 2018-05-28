@@ -91,11 +91,12 @@ fi
 # ----------------------------------------------------------
 
 GLIB2_REQUIRED=2.44
+GRILO_REQUIRED=0.3.6
 
 PKG_CHECK_MODULES([DEPS], glib-2.0 >= $GLIB2_REQUIRED \
                           gobject-2.0 >= $GLIB2_REQUIRED \
                           gmodule-2.0 >= $GLIB2_REQUIRED \
-                          ${GRL_NAME} >= 0.3.1)
+                          ${GRL_NAME} >= $GRILO_REQUIRED)
 
 GLIB_COMPILE_RESOURCES=`$PKG_CONFIG --variable glib_compile_resources gio-2.0`
 AC_SUBST(GLIB_COMPILE_RESOURCES)

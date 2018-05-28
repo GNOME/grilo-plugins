@@ -26,7 +26,7 @@ source = {
   id = "grl-thegamesdb",
   name = "TheGamesDB.net",
   description = "TheGamesDB.net",
-  supported_keys = { "description", "thumbnail", "external-url", "rating", "publication-date", "genre" },
+  supported_keys = { "description", "thumbnail", "external-url", "rating", "publication-date", "genre", "developer", "publisher", "coop"},
   resolve_keys = {
     ["type"] = "none",
     required = { "title" },
@@ -176,20 +176,20 @@ function fetch_game_cb(results)
     end
 
     if game.Developer then
-      -- FIXME media.developer = game.Developer.xml
+      media.developer = game.Developer.xml
     end
 
     if game.Publisher then
-      -- FIXME media.publisher = game.Publisher.xml
+      media.publisher = game.Publisher.xml
     end
 
     if game.Players then
-      -- FIXME media.players = tonumber(game.Players.xml)
+      media.players = game.Players.xml
     end
 
     if game['Co-op'] then
       if game['Co-op'].xml == 'Yes' then
-        -- FIXME media.coop = true
+        media.coop = true
       end
     end
 

@@ -270,6 +270,38 @@ verify_plaintext_fetch (lua_State  *L,
 
 /* Top of the stack must be a table */
 static void
+grl_util_add_table_to_unregistered_media (lua_State *L,
+                                          GrlMedia *media,
+                                          const gchar *key_name)
+{
+  GValue value = { 0, };
+  gint i;
+  gint array_len = luaL_len (L, -1);
+
+  /* Insert new values */
+  for (i = 0; i < array_len; i++) {
+    lua_pushinteger (L, i + 1);
+    lua_gettable (L, -2);
+    if (lua_isinteger (L, -1)) {
+      g_value_init (&value, G_TYPE_INT64);
+      g_value_set_int64 (&value, lua_tointeger (L, -1));
+    } else if (lua_isnumber (L, -1)) {
+      g_value_init (&value, G_TYPE_FLOAT);
+      g_value_set_float (&value, lua_tonumber (L, -1));
+    } else if (lua_isstring (L, -1)) {
+      g_value_init (&value, G_TYPE_STRING);
+      g_value_set_string (&value, lua_tostring (L, -1));
+    } else {
+      GRL_WARNING ("'%s' is being ignored as G_TYPE is not being handled", key_name);
+    }
+    grl_data_add_for_id (GRL_DATA (media), key_name, &value);
+    g_value_unset (&value);
+    lua_pop (L, 1);
+  }
+}
+
+/* Top of the stack must be a table */
+static void
 grl_util_add_table_to_media (lua_State *L,
                              GrlMedia *media,
                              GrlKeyID key_id,
@@ -327,6 +359,7 @@ grl_util_build_media (lua_State *L,
 {
   GrlRegistry *registry;
   GrlMedia *media = user_media;
+  GValue value = { 0, };
 
   if (!lua_istable (L, 1)) {
     if (!lua_isnil (L, 1))
@@ -457,8 +490,49 @@ grl_util_build_media (lua_State *L,
         }
       }
     } else {
-      GRL_WARNING ("'%s' is not a valid keyword", key_name);
+      GRL_WARNING ("'%s' isn't a registered key.", key_name);
+      if (lua_isinteger (L, -1)) {
+        g_value_init (&value, G_TYPE_INT64);
+        g_value_set_int64 (&value, lua_tointeger (L, -1));
+        grl_data_set_for_id (GRL_DATA (media), key_name, &value);
+      } else if (lua_isnumber (L, -1)) {
+        g_value_init (&value, G_TYPE_FLOAT);
+        g_value_set_float (&value, lua_tonumber (L, -1));
+        grl_data_set_for_id (GRL_DATA (media), key_name, &value);
+      } else if (lua_isstring (L, -1)) {
+        g_value_init (&value, G_TYPE_STRING);
+        g_value_set_string (&value, lua_tostring (L, -1));
+        grl_data_set_for_id (GRL_DATA (media), key_name, &value);
+      } else if (lua_isboolean (L, -1)) {
+        g_value_init (&value, G_TYPE_BOOLEAN);
+        g_value_set_boolean (&value, lua_toboolean (L, -1));
+        grl_data_set_for_id (GRL_DATA (media), key_name, &value);
+      } else if (lua_istable (L, -1)) {
+        grl_util_add_table_to_unregistered_media (L, media, key_name);
+      } else {
+        GDateTime *date;
+        const char *date_str = lua_tostring (L, -1);
+        date = grl_date_time_from_iso8601 (date_str);
+        /* Try a number of seconds since Epoch */
+        if (!date) {
+          gint64 date_int = g_ascii_strtoll (date_str, NULL, 0);
+          if (date_int) {
+            date = g_date_time_new_from_unix_utc (date_int);
+          }
+        }
+        if (date) {
+          g_value_init (&value, G_TYPE_DATE_TIME);
+          g_value_set_boxed (&value, date);
+          g_date_time_unref (date);
+          grl_data_set_for_id (GRL_DATA (media), key_name, &value);
+        } else {
+          GRL_WARNING ("'%s' is being ignored as '%s' is not being handled.", key_name, lua_typename (L, -1));
+        }
+        g_free (date_str);
+      }
+      g_value_unset (&value);
     }
+
 
 next_key:
     g_free (key_name);

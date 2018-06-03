@@ -105,9 +105,9 @@ function create_media(item)
 
   media.type = "video"
   media.id = item.id
-  media.url = item.webUrl
   media.title = grl.unescape(item.webTitle)
-  media.thumbnail = item.fields.thumbnail
+  media.url = item.fields.main:match('src="(.-%.mp4)"')
+  media.thumbnail = item.fields.main:match('poster="(.-%.jpg)"')
 
   return media
 end

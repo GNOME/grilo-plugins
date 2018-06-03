@@ -105,9 +105,31 @@ function create_media(item)
 
   media.type = "video"
   media.id = item.id
-  media.url = item.webUrl
   media.title = grl.unescape(item.webTitle)
-  media.thumbnail = item.fields.thumbnail
+
+  main = item.fields.main
+
+  -- Some entries rarely don't have a 'main' field. So, we bail out.
+  if main then
+    media.url = main:match('src="(.-%.mp4)"')
+    media.thumbnail = main:match('poster="(.-%.jpg)"')
+
+    if not media.url then
+      grl.warning ("No media streaming URL found for: " .. media.title)
+    end
+
+    if not media.thumbnail then
+      -- Try to see if we have a 'thumbnail' field. This field seems
+      -- to exist for some entries, which don't have a 'poster' field
+      if item.fields.thumbnail then
+	media.thumbnail = item.fields.thumbnail
+      else
+	grl.warning ("No media thumbnail URL found for: " .. media.title)
+      end
+    end
+  else
+    grl.warning ("No media URL metadata found for: " .. media.title)
+  end
 
   return media
 end

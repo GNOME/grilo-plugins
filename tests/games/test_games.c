@@ -47,6 +47,74 @@ test_setup (void)
 }
 #define DESCRIPTION "Set in the future, the game centers around a secret organization of ninja-like operatives known as \"Striders\", who specializes in various kinds of wetworks such as smuggling, kidnapping, demolitions, and disruption. The player takes control Strider Hiryu, the youngest elite-class Strider in the organization. Hiryu is summoned by the organization's second-in-command, Vice Director Matic, to assassinate his friend Kain, who has been captured by hostile forces and has become a liability to the Striders. Instead of killing him, Hiryu decides to rescue Kain from his captors. With the help of his fellow Strider Sheena, Hiryu uncovers a conspiracy between a certain faction of the Strider organization led by Matic himself and an unknown organization known simply as the \"Enterprise\" (headed by a man named Faceas Clay) which involves the development of a mind-control weapon codenamed \"Zain\". In the course of finding and destroying these Zain units, Hiryu learns that the faction of conspirators is headed by Vice Director Matic himself. Hiryu eventually tracks Matic to an orbiting space station where the two Striders face off; after a brief battle Hiryu bests Matic and kills him. Afterwards Hiryu locates and destroys the last of the Zain units.\n\nIn the epilogue, it is revealed that though Hiryu was asked to return to the Strider organization he instead opted to retire. The final credits show him sheathing his weapon and walking away."
 
+/* FIXME: Move tests to g_test_add() to init/deinit the registry for each test */
+static void
+test_resolve_key_found (GrlRegistry *registry,
+                        GrlSource *source,
+                        GList *keys,
+                        GrlOperationOptions *options,
+                        const gchar *key_name,
+                        const gchar *title,
+                        const gchar *mime,
+                        guint no_of_values)
+{
+  GError *error = NULL;
+  GrlMedia *media;
+  GrlKeyID key;
+  guint expected_n_values;
+
+  media = build_game_media (title);
+  grl_media_set_mime (media, mime);
+
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
+
+  key = grl_registry_lookup_metadata_key (registry, key_name);
+
+  g_assert_cmpuint (key, ==, GRL_METADATA_KEY_INVALID);
+
+  grl_source_resolve_sync (source, media, keys, options, &error);
+
+  g_assert_no_error (error);
+
+  key = grl_registry_lookup_metadata_key (registry, key_name);
+
+  g_assert_cmpuint (key, !=, GRL_METADATA_KEY_INVALID);
+
+  /* We should get a value */
+  expected_n_values = grl_data_length (GRL_DATA (media), key);
+  g_assert_cmpuint (expected_n_values, ==, no_of_values);
+
+  g_object_unref (media);
+}
+
+static void
+test_resolve_keys_found (void)
+{
+  GList *keys;
+  GrlOperationOptions *options;
+  GrlRegistry *registry;
+  GrlSource *source;
+
+  registry = grl_registry_get_default ();
+  source = grl_registry_lookup_source (registry, THEGAMESDB);
+  g_assert (source);
+
+  keys = grl_metadata_key_list_new (GRL_METADATA_KEY_GENRE,
+                                    NULL);
+
+  options = grl_operation_options_new (NULL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_FULL);
+
+  test_resolve_key_found (registry, source, keys, options,
+                          "developer",
+                          "Kirby & the Amazing Mirror",
+                          "application/x-gba-rom",
+                           1);
+
+  g_list_free (keys);
+  g_object_unref (options);
+}
+
 static void
 test_resolve_good_found (void)
 {
@@ -280,6 +348,7 @@ main(int argc, char **argv)
 
   test_setup ();
 
+  g_test_add_func ("/thegamesdb/resolve/keys-found", test_resolve_keys_found);
   g_test_add_func ("/thegamesdb/resolve/good-found", test_resolve_good_found);
   g_test_add_func ("/thegamesdb/resolve/thumbnails-found", test_resolve_thumbnails_found);
   g_test_add_func ("/thegamesdb/resolve/genre-found", test_resolve_genres_found);

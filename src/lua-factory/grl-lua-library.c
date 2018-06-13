@@ -271,7 +271,7 @@ verify_plaintext_fetch (lua_State  *L,
 static int
 grl_util_init_value (lua_State *L,
                      GValue *value,
-                     const gcahr *key_name)
+                     const gchar *key_name)
 {
   if (lua_isinteger (L, -1)) {
     g_value_init (value, G_TYPE_INT64);

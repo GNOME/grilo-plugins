@@ -26,7 +26,7 @@ source = {
   id = "grl-thegamesdb",
   name = "TheGamesDB.net",
   description = "TheGamesDB.net",
-  supported_keys = { "description", "thumbnail", "external-url", "rating", "publication-date", "genre", "developer", "publisher", "coop"},
+  supported_keys = { "description", "thumbnail", "external-url", "rating", "publication-date", "genre", "developer", "publisher", "coop", "players"},
   resolve_keys = {
     ["type"] = "none",
     required = { "title" },
@@ -184,7 +184,9 @@ function fetch_game_cb(results)
     end
 
     if game.Players then
-      media.players = game.Players.xml
+      media.players = tostring(game.Players.xml)
+      print(type(media.players))
+      print(type(game.Players.xml),"======================Players=====================================")
     end
 
     if game['Co-op'] then

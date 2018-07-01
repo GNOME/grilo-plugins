@@ -276,12 +276,12 @@ grl_util_init_value (lua_State *L,
   if (lua_isinteger (L, -1)) {
     g_value_init (value, G_TYPE_INT64);
     g_value_set_int64 (value, lua_tointeger (L, -1));
-  } else if (lua_isnumber (L, -1)) {
-    g_value_init (value, G_TYPE_FLOAT);
-    g_value_set_float (value, lua_tonumber (L, -1));
   } else if (lua_isstring (L, -1)) {
     g_value_init (value, G_TYPE_STRING);
     g_value_set_string (value, lua_tostring (L, -1));
+  } else if (lua_isnumber (L, -1)) {
+    g_value_init (value, G_TYPE_FLOAT);
+    g_value_set_float (value, lua_tonumber (L, -1));
   } else if (lua_isboolean (L, -1)) {
     g_value_init (value, G_TYPE_BOOLEAN);
     g_value_set_boolean (value, lua_toboolean (L, -1));

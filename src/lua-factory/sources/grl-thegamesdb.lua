@@ -42,7 +42,7 @@ netopts = {
 -- Source utils --
 ------------------
 
-THEGAMESDB_BASE_API_URL = "http://thegamesdb.net/api/"
+THEGAMESDB_BASE_API_URL = "http://legacy.thegamesdb.net/api/"
 
 ---------------------------------
 -- Handlers of Grilo functions --

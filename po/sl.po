@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
 "POT-Creation-Date: 2018-07-09 13:13+0000\n"
-"PO-Revision-Date: 2018-07-11 21:45+0200\n"
+"PO-Revision-Date: 2018-07-11 21:47+0200\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenščina <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -548,10 +548,9 @@ msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Vstavek za iskanje predstavnih vsebin z uporabo sistema Tracker"
 
 #: src/tracker/grl-tracker-utils.c:738
-#, fuzzy, c-format
-#| msgid "Removable - %s"
+#, c-format
 msgid "Removable — %s"
-msgstr "Odstranljivo - %s"
+msgstr "Odstranljivo – %s"
 
 #: src/tracker/grl-tracker-utils.c:750
 msgid "Local files"

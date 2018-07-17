@@ -33,7 +33,7 @@ resources = [
 foreach s: sources
     f = s + '.lua'
     install_data(f,
-        install_dir: luafactorydir)
+        install_dir: join_paths(datadir, luafactorydir))
 endforeach
 
 foreach r: resources
@@ -43,7 +43,7 @@ foreach r: resources
         output: output,
         input: input,
         install: true,
-        install_dir: luafactorydir,
+        install_dir: join_paths(datadir, luafactorydir),
         command: [glib_compile_resources,
             '--sourcedir', meson.current_source_dir(),
             '--target', '@OUTPUT@',

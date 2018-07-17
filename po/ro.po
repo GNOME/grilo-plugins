@@ -6,11 +6,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
-"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/"
-"enter_bug.cgi?product=grilo&keywords=I18N+L10N&component=plugins\n"
-"POT-Creation-Date: 2018-03-31 19:45+0000\n"
-"PO-Revision-Date: 2018-04-08 21:43+0200\n"
-"Last-Translator: Daniel Șerbănescu <daniel [at] serbanescu [dot] dk>\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
+"POT-Creation-Date: 2018-07-06 09:16+0000\n"
+"PO-Revision-Date: 2018-07-17 19:21+0300\n"
+"Last-Translator: Florentina Mușat <florentina.musat.28 [at] gmail [dot] "
+"com>\n"
 "Language-Team: Gnome Romanian Translation Team\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2);;\n"
-"X-Generator: Virtaal 0.7.1\n"
+"X-Generator: Poedit 2.0.9\n"
 "X-Project-Style: gnome\n"
 
 #: src/bookmarks/grl-bookmarks.c:65
@@ -64,7 +64,7 @@ msgstr "Un modul pentru a obține metadate utilizând o platformă gstreamer"
 
 #: src/dleyna/grl-dleyna-source.c:34
 #, c-format
-msgid "A source for browsing the DLNA server '%s'"
+msgid "A source for browsing the DLNA server “%s”"
 msgstr "O sursă pentru navigarea serverului DLNA „%s”"
 
 #: src/dleyna/grl-dleyna-source.c:278
@@ -73,8 +73,8 @@ msgstr "Încărcare eșuată, sursa țintă distrusă"
 
 #: src/dleyna/grl-dleyna-source.c:380
 #, c-format
-msgid "Upload failed, '%s', transferred %lu of %lu bytes"
-msgstr "Încărcare eșuată, „%s”, transferat %lu din %lu octeți"
+msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
+msgstr "Încărcarea a eșuat, „%s”, transferat %lu din %lu octeți"
 
 #: src/dleyna/grl-dleyna-source.c:885
 #, c-format
@@ -89,7 +89,7 @@ msgstr "Încărcarea a eșuat, lipsește un URL de la obiectul media de transfer
 
 #: src/dmap/grl-daap.c:50
 #, c-format
-msgid "A source for browsing the DAAP server '%s'"
+msgid "A source for browsing the DAAP server “%s”"
 msgstr "O sursă pentru navigarea serverului DAAP „%s”"
 
 #: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:795
@@ -110,7 +110,7 @@ msgstr "Identificator de recipient nevalid %s"
 
 #: src/dmap/grl-dpap.c:50
 #, c-format
-msgid "A source for browsing the DPAP server '%s'"
+msgid "A source for browsing the DPAP server “%s”"
 msgstr "O sursă pentru navigarea serverului DPAP „%s”"
 
 #: src/dmap/grl-dpap-db.c:36
@@ -142,13 +142,13 @@ msgstr "O sursă pentru navigarea și căutarea de fotografii Flickr"
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:67
 #, c-format
-msgid "%s's Flickr"
+msgid "%s’s Flickr"
 msgstr "Flickr-ul lui %s"
 
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:69
 #, c-format
-msgid "A source for browsing and searching %s's flickr photos"
+msgid "A source for browsing and searching %s’s flickr photos"
 msgstr "O sursă pentru navigarea și căutarea fotografiilor flickr ale lui %s"
 
 #: src/freebox/grl-freebox.c:48
@@ -241,7 +241,7 @@ msgstr "Nu s-a putut naviga: %s este o pistă"
 
 #: src/jamendo/grl-jamendo.c:1287
 #, c-format
-msgid "Malformed query \"%s\""
+msgid "Malformed query “%s”"
 msgstr "Interogare eronată „%s”"
 
 #: src/local-metadata/grl-local-metadata.c:42
@@ -282,8 +282,8 @@ msgstr "Nu s-a putut obține baza de date de la magnatune: %s"
 
 #: src/magnatune/grl-magnatune.c:458
 #, c-format
-msgid "Failed to save database from magnatune - '%s'"
-msgstr "Nu s-a putut salva baza de date de la magnatune - „%s”"
+msgid "Failed to save database from magnatune: “%s”"
+msgstr "Nu s-a putut salva baza de date de la magnatune: „%s”"
 
 #: src/magnatune/grl-magnatune.c:729
 #, c-format
@@ -321,8 +321,8 @@ msgstr "Nu s-au putut actualiza metadatele"
 
 #: src/metadata-store/grl-metadata-store.c:792
 #: src/metadata-store/grl-metadata-store.c:837
-msgid "\"source-id\" not available"
-msgstr "„source-id” nedisponibil"
+msgid "“source-id” not available"
+msgstr "„source-id” nu este disponibil"
 
 #: src/metadata-store/grl-metadata-store.c:812
 msgid "Failed to resolve"
@@ -540,7 +540,7 @@ msgstr "Interogare goală"
 
 #: src/tracker/grl-tracker-source-api.c:1088
 #, c-format
-msgid "ID '%s' is not known in this source"
+msgid "ID “%s” is not known in this source"
 msgstr "ID-ul „%s” nu este cunoscut în această sursă"
 
 #: src/tracker/grl-tracker-source-priv.h:44
@@ -549,8 +549,8 @@ msgstr "Un modul pentru căutarea de conținut multimedia utilizând Tracker"
 
 #: src/tracker/grl-tracker-utils.c:738
 #, c-format
-msgid "Removable - %s"
-msgstr "Detașabil - %s"
+msgid "Removable — %s"
+msgstr "Detașabil — %s"
 
 #: src/tracker/grl-tracker-utils.c:750
 msgid "Local files"

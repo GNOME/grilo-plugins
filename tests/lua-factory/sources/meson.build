@@ -14,7 +14,7 @@ metrolyrics_resources = gnome.compile_resources('metrolyricsresources',
     c_name: '_grl_lua_metrolyrics')
 
 source_tests = [
-    'test_lua_metrolyrics',
+#    'test_lua_metrolyrics',
 ]
 
 if chromaprint_enabled

@@ -45,7 +45,7 @@ lua_library_sources += [ htmlentity_c ]
 configure_file(output: 'config.h',
     configuration: cdata)
 
-luafactorydir = join_paths(datadir, 'grilo-plugins', 'grl-lua-factory')
+luafactorydir = join_paths('grilo-plugins', 'grl-lua-factory')
 
 shared_library('grlluafactory',
     sources: lua_factory_sources + lua_factory_resources + lua_library_sources,

@@ -44,6 +44,10 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-bookmarks \
                             --enable-vimeo \
                             --enable-youtube
 
+EXTRA_DIST = \
+	$(shell find "$(top_srcdir)" -type f -name meson.build ! -path "$(top_srcdir)/grilo-plugins-*" ) \
+	meson_options.txt
+
 if GCOV_ENABLED
 lcov-clean:
 	@rm -fr coverage

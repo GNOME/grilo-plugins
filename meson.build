@@ -23,6 +23,7 @@ grl_minor = version_array[1]
 prefix = get_option('prefix')
 localedir = join_paths(prefix, get_option('localedir'))
 libdir = get_option('libdir')
+datadir = get_option('datadir')
 pluginsdir =join_paths(libdir, 'grilo-@0@.@1@'.format(grl_major, grl_minor))
 
 glib_dep = dependency('glib-2.0', version: '>= 2.34', required: true)

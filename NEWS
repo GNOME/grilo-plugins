@@ -1,3 +1,69 @@
+NEW in 0.3.6
+============
+  * New translations
+    * Dutch
+    * Croatian
+    * Romanian
+    * Slovenian
+
+  * Updated translations
+    * Catalan
+    * Chinese
+    * Danish
+    * Turkish
+    * Hungarian
+    * Spanish
+    * Brazilian Portuguese
+    * German
+    * Polish
+
+  * Gravatar plugin
+    * Fix memory leak
+
+  * Opensubtitles
+    * Fix memory leak
+
+  * Lua-Factory
+    * Replace assert() with critical messages
+    * Apple trailers - Fix warnings
+    * itunes podcast - Fix maximum items
+    * The Games DB
+      - Add support to TurboGrafx-CD
+      - Add support to Neo-Geo Pocket Color
+      - Add support to WonderSwan and WonderSwan Color
+      - Add support to Famicom
+      - Add support to Atari Lynx
+      - Add support to Virtual Boy
+      - Fix multiple Genres per game
+
+  * Magnatue
+    * Add cover art support
+
+  * Contributors to this release:
+    1PunMan <saurabhsingh412@gmail.com>
+    Alexander Mikhaylenko <exalm7659@gmail.com>
+    Ask Hjorth Larsen <asklarsen@gmail.com>
+    Balázs Meskó <meskobalazs@fedoraproject.org>
+    Bastien Nocera <hadess@hadess.net>
+    Bruno Lopes da Silva <brunolopesbldsb@gmail.com>
+    Cheng-Chia Tseng <pswo10680@gmail.com>
+    Christophe Fergeau <cfergeau@redhat.com>
+    Claude Paroz <claude@2xlibre.net>
+    Daniel Mustieles <daniel.mustieles.contractor@bbva.com>
+    Daniel Șerbănescu <daniel@serbanescu.dk>
+    Emin Tufan Çetin <etcetin@gmail.com>
+    Exalm <exalm7659@gmail.com>
+    gogo <trebelnik2@gmail.com>
+    Jean Felder <jfelder@src.gnome.org>
+    Jordi Mas <jmas@softcatala.org>
+    Justin van Steijn <jvs@fsfe.org>
+    Matej Urbančič <mateju@svn.gnome.org>
+    Piotr Drąg <piotrdrag@gmail.com>
+    Tim Sabsch <tim@sabsch.com>
+    veer <bveer428@gmail.com>
+    Victor Toso <me@victortoso.com>
+    Xavi Ivars <xavi.ivars@gmail.com>
+
 NEW in 0.3.5
 ============
 

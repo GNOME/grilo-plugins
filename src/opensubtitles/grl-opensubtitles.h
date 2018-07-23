@@ -50,14 +50,14 @@
                               GrlOpenSubtitlesSourceClass))
 
 typedef struct _GrlOpenSubtitlesSource     GrlOpenSubtitlesSource;
-typedef struct _GrlOpenSubtitlesSourcePriv GrlOpenSubtitlesSourcePriv;
+typedef struct _GrlOpenSubtitlesSourcePriv GrlOpenSubtitlesSourcePrivate;
 
 struct _GrlOpenSubtitlesSource {
 
   GrlSource parent;
 
   /*< private >*/
-  GrlOpenSubtitlesSourcePriv *priv;
+  GrlOpenSubtitlesSourcePrivate *priv;
 
 };
 

@@ -22,8 +22,6 @@
 
 #include "bookmarks-resource.h"
 
-G_DEFINE_TYPE(BookmarksResource, bookmarks_resource, GOM_TYPE_RESOURCE)
-
 struct _BookmarksResourcePrivate
 {
    int            id;
@@ -53,6 +51,8 @@ enum
 };
 
 static GParamSpec *specs[LAST_PROP];
+
+G_DEFINE_TYPE_WITH_PRIVATE (BookmarksResource, bookmarks_resource, GOM_TYPE_RESOURCE)
 
 static void
 bookmarks_resource_finalize (GObject *object)
@@ -167,7 +167,6 @@ bookmarks_resource_class_init (BookmarksResourceClass *klass)
    object_class->finalize = bookmarks_resource_finalize;
    object_class->get_property = bookmarks_resource_get_property;
    object_class->set_property = bookmarks_resource_set_property;
-   g_type_class_add_private(object_class, sizeof(BookmarksResourcePrivate));
 
    resource_class = GOM_RESOURCE_CLASS(klass);
    gom_resource_class_set_table(resource_class, "bookmarks");
@@ -262,9 +261,7 @@ bookmarks_resource_class_init (BookmarksResourceClass *klass)
 static void
 bookmarks_resource_init (BookmarksResource *resource)
 {
-   resource->priv = G_TYPE_INSTANCE_GET_PRIVATE(resource,
-                                                BOOKMARKS_TYPE_RESOURCE,
-                                                BookmarksResourcePrivate);
+   resource->priv = bookmarks_resource_get_instance_private (resource);
 }
 
 GType

@@ -29,11 +29,6 @@
 
 #include "grl-chromaprint.h"
 
-#define GRL_CHROMAPRINT_GET_PRIVATE(object)                  \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                  \
-                               GRL_CHROMAPRINT_SOURCE_TYPE,  \
-                               GrlChromaprintPrivate))
-
 /* --------- Logging  -------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT chromaprint_log_domain
@@ -154,6 +149,8 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== Chromaprint GObject ================= */
 
+G_DEFINE_TYPE_WITH_PRIVATE (GrlChromaprintSource, grl_chromaprint_source, GRL_TYPE_SOURCE)
+
 static GrlChromaprintSource *
 grl_chromaprint_source_new ()
 {
@@ -183,8 +180,6 @@ grl_chromaprint_source_class_init (GrlChromaprintSourceClass * klass)
   source_class->may_resolve = grl_chromaprint_source_may_resolve;
   source_class->resolve = grl_chromaprint_source_resolve;
   gobject_class->finalize = grl_chromaprint_source_finalize;
-
-  g_type_class_add_private (klass, sizeof (GrlChromaprintPrivate));
 }
 
 static void
@@ -192,7 +187,7 @@ grl_chromaprint_source_init (GrlChromaprintSource *source)
 {
   GRL_DEBUG ("chromaprint_source_init");
 
-  source->priv = GRL_CHROMAPRINT_GET_PRIVATE (source);
+  source->priv = grl_chromaprint_source_get_instance_private (source);
 
   /* All supported keys in a GList */
   source->priv->supported_keys =
@@ -200,8 +195,6 @@ grl_chromaprint_source_init (GrlChromaprintSource *source)
                                GRL_METADATA_KEY_DURATION,
                                GRL_METADATA_KEY_INVALID);
 }
-
-G_DEFINE_TYPE (GrlChromaprintSource, grl_chromaprint_source, GRL_TYPE_SOURCE);
 
 static void
 grl_chromaprint_source_finalize (GObject *object)

@@ -54,14 +54,14 @@
                               GrlJamendoSourceClass))
 
 typedef struct _GrlJamendoSource GrlJamendoSource;
-typedef struct _GrlJamendoSourcePriv GrlJamendoSourcePriv;
+typedef struct _GrlJamendoSourcePriv GrlJamendoSourcePrivate;
 
 struct _GrlJamendoSource {
 
   GrlSource parent;
 
   /*< private >*/
-  GrlJamendoSourcePriv *priv;
+  GrlJamendoSourcePrivate *priv;
 
 };
 

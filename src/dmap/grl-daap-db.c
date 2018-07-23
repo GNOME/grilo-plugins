@@ -375,6 +375,7 @@ dmap_db_interface_init (gpointer iface, gpointer data)
 }
 
 G_DEFINE_TYPE_WITH_CODE (GrlDAAPDb, grl_daap_db, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (GrlDAAPDb)
                          G_IMPLEMENT_INTERFACE (DMAP_TYPE_DB, dmap_db_interface_init))
 
 static GObject*
@@ -390,7 +391,7 @@ grl_daap_db_constructor (GType type, guint n_construct_params, GObjectConstructP
 static void
 grl_daap_db_init (GrlDAAPDb *db)
 {
-  db->priv = GRL_DAAP_DB_GET_PRIVATE (db);
+  db->priv = grl_daap_db_get_instance_private (db);
 
   db->priv->albums_container  = grl_media_container_new ();
   db->priv->artists_container = grl_media_container_new ();
@@ -454,8 +455,6 @@ static void
 grl_daap_db_class_init (GrlDAAPDbClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (GrlDAAPDbPrivate));
 
   object_class->finalize = grl_daap_db_finalize;
   object_class->constructor = grl_daap_db_constructor;

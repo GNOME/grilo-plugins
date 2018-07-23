@@ -209,6 +209,8 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== GrlTmdbMetadata GObject ================ */
 
+G_DEFINE_TYPE_WITH_PRIVATE (GrlTmdbSource, grl_tmdb_source, GRL_TYPE_SOURCE)
+
 static GrlTmdbSource *
 grl_tmdb_source_new (const char *api_key)
 {
@@ -238,8 +240,6 @@ grl_tmdb_source_class_init (GrlTmdbSourceClass * klass)
   metadata_class->may_resolve = grl_tmdb_source_may_resolve;
   metadata_class->resolve = grl_tmdb_source_resolve;
 
-  g_type_class_add_private (klass, sizeof (GrlTmdbSourcePrivate));
-
   gobject_class->set_property = grl_tmdb_source_set_property;
   gobject_class->finalize = grl_tmdb_source_finalize;
 
@@ -257,9 +257,7 @@ grl_tmdb_source_class_init (GrlTmdbSourceClass * klass)
 static void
 grl_tmdb_source_init (GrlTmdbSource *self)
 {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self,
-                                            GRL_TMDB_SOURCE_TYPE,
-                                            GrlTmdbSourcePrivate);
+  self->priv = grl_tmdb_source_get_instance_private (self);
   self->priv->supported_keys = g_hash_table_new (g_direct_hash, g_direct_equal);
   self->priv->slow_keys = g_hash_table_new (g_direct_hash, g_direct_equal);
 
@@ -319,10 +317,6 @@ grl_tmdb_source_init (GrlTmdbSource *self)
   self->priv->config_pending = FALSE;
   self->priv->pending_resolves = g_queue_new ();
 }
-
-G_DEFINE_TYPE (GrlTmdbSource,
-               grl_tmdb_source,
-               GRL_TYPE_SOURCE);
 
 /* GObject vfuncs */
 static void

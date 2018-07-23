@@ -155,9 +155,7 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== DMAP GObject ====================== */
 
-G_DEFINE_TYPE (GrlDpapSource,
-               grl_dpap_source,
-               GRL_TYPE_SOURCE);
+G_DEFINE_TYPE_WITH_PRIVATE (GrlDpapSource, grl_dpap_source, GRL_TYPE_SOURCE)
 
 static GrlDpapSource *
 grl_dpap_source_new (DMAPMdnsBrowserService *service)
@@ -197,14 +195,12 @@ grl_dpap_source_class_init (GrlDpapSourceClass * klass)
   source_class->supported_keys = grl_dpap_source_supported_keys;
 
   G_OBJECT_CLASS (source_class)->finalize = grl_dpap_source_finalize;
-
-  g_type_class_add_private (klass, sizeof (GrlDpapSourcePrivate));
 }
 
 static void
 grl_dpap_source_init (GrlDpapSource *source)
 {
-  source->priv = GRL_DPAP_SOURCE_GET_PRIVATE (source);
+  source->priv = grl_dpap_source_get_instance_private (source);
 }
 
 static void

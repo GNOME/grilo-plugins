@@ -43,11 +43,6 @@
 #include "grl-flickr.h"
 #include "gflickr.h"
 
-#define GRL_FLICKR_SOURCE_GET_PRIVATE(object)                          \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                               \
-                               GRL_FLICKR_SOURCE_TYPE,                 \
-                               GrlFlickrSourcePrivate))
-
 /* --------- Logging  -------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT flickr_log_domain
@@ -263,7 +258,7 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== Flickr GObject ================ */
 
-G_DEFINE_TYPE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_SOURCE);
+G_DEFINE_TYPE_WITH_PRIVATE (GrlFlickrSource, grl_flickr_source, GRL_TYPE_SOURCE)
 
 static GrlFlickrSource *
 grl_flickr_source_public_new (const gchar *flickr_api_key,
@@ -341,14 +336,12 @@ grl_flickr_source_class_init (GrlFlickrSourceClass * klass)
   source_class->browse = grl_flickr_source_browse;
   source_class->resolve = grl_flickr_source_resolve;
   source_class->search = grl_flickr_source_search;
-
-  g_type_class_add_private (klass, sizeof (GrlFlickrSourcePrivate));
 }
 
 static void
 grl_flickr_source_init (GrlFlickrSource *source)
 {
-  source->priv = GRL_FLICKR_SOURCE_GET_PRIVATE (source);
+  source->priv = grl_flickr_source_get_instance_private (source);
 
   grl_source_set_auto_split_threshold (GRL_SOURCE (source), SEARCH_MAX);
 }

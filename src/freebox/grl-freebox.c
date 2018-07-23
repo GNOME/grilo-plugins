@@ -54,11 +54,6 @@ GRL_LOG_DOMAIN_STATIC(freebox_log_domain);
 
 /* --- Grilo Freebox Private --- */
 
-#define GRL_FREEBOX_SOURCE_GET_PRIVATE(object)           \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                       \
-                               GRL_FREEBOX_SOURCE_TYPE,  \
-                               GrlFreeboxSourcePrivate))
-
 struct _GrlFreeboxSourcePrivate {
   GrlMedia *media;
   int       last_seen_channel;
@@ -182,10 +177,7 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== Freebox GObject ================ */
 
-
-G_DEFINE_TYPE (GrlFreeboxSource,
-               grl_freebox_source,
-               GRL_TYPE_SOURCE);
+G_DEFINE_TYPE_WITH_PRIVATE (GrlFreeboxSource, grl_freebox_source, GRL_TYPE_SOURCE)
 
 static GrlFreeboxSource *
 grl_freebox_source_new_tv (void)
@@ -259,8 +251,6 @@ grl_freebox_source_class_init (GrlFreeboxSourceClass * klass)
 
   source_class->supported_keys = grl_freebox_source_supported_keys;
   source_class->browse = grl_freebox_source_browse;
-
-  g_type_class_add_private (klass, sizeof (GrlFreeboxSourcePrivate));
 }
 
 static void
@@ -268,7 +258,7 @@ grl_freebox_source_init (GrlFreeboxSource *source)
 {
   GrlFreeboxSourcePrivate *priv;
 
-  priv = source->priv = GRL_FREEBOX_SOURCE_GET_PRIVATE(source);
+  priv = source->priv = grl_freebox_source_get_instance_private (source);
 
   priv->media = grl_media_new ();
 }

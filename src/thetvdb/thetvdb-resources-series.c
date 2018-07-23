@@ -22,8 +22,6 @@
 
 #include "thetvdb-resources.h"
 
-G_DEFINE_TYPE (SeriesResource, series_resource, GOM_TYPE_RESOURCE)
-
 struct _SeriesResourcePrivate {
   gint64      db_id;
   gdouble     rating;
@@ -64,6 +62,8 @@ enum {
 };
 
 static GParamSpec *specs[LAST_PROP];
+
+G_DEFINE_TYPE_WITH_PRIVATE (SeriesResource, series_resource, GOM_TYPE_RESOURCE)
 
 static void
 series_resource_finalize (GObject *object)
@@ -229,7 +229,6 @@ series_resource_class_init (SeriesResourceClass *klass)
   object_class->finalize = series_resource_finalize;
   object_class->get_property = series_resource_get_property;
   object_class->set_property = series_resource_set_property;
-  g_type_class_add_private(object_class, sizeof(SeriesResourcePrivate));
 
   resource_class = GOM_RESOURCE_CLASS(klass);
   gom_resource_class_set_table(resource_class, SERIES_TABLE_NAME);
@@ -332,7 +331,5 @@ series_resource_class_init (SeriesResourceClass *klass)
 static void
 series_resource_init (SeriesResource *resource)
 {
-  resource->priv = G_TYPE_INSTANCE_GET_PRIVATE(resource,
-                                               SERIES_TYPE_RESOURCE,
-                                               SeriesResourcePrivate);
+  resource->priv = series_resource_get_instance_private (resource);
 }

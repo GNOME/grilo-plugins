@@ -9,12 +9,6 @@
 #include <grilo.h>
 #include <net/grl-net.h>
 
-
-#define G_FLICKR_GET_PRIVATE(object)            \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),        \
-                               G_FLICKR_TYPE,   \
-                               GFlickrPrivate))
-
 #define GRL_LOG_DOMAIN_DEFAULT flickr_log_domain
 
 #define FLICKR_PHOTO_ORIG_URL                           \
@@ -65,21 +59,19 @@ static void g_flickr_finalize (GObject *object);
 
 /* -------------------- GOBJECT -------------------- */
 
-G_DEFINE_TYPE (GFlickr, g_flickr, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (GFlickr, g_flickr, G_TYPE_OBJECT)
 
 static void
 g_flickr_class_init (GFlickrClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize = g_flickr_finalize;
-
-  g_type_class_add_private (klass, sizeof (GFlickrPrivate));
 }
 
 static void
 g_flickr_init (GFlickr *f)
 {
-  f->priv = G_FLICKR_GET_PRIVATE (f);
+  f->priv = g_flickr_get_instance_private (f);
 
   f->priv->consumer_key = NULL;
   f->priv->consumer_secret = NULL;

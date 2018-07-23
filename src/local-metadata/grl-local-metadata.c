@@ -44,11 +44,6 @@ GRL_LOG_DOMAIN_STATIC(local_metadata_log_domain);
 
 /**/
 
-#define GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE(object)           \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                        \
-                               GRL_LOCAL_METADATA_SOURCE_TYPE,	\
-                               GrlLocalMetadataSourcePriv))
-
 struct _GrlLocalMetadataSourcePriv {
   GrlKeyID hash_keyid;
 };
@@ -80,8 +75,8 @@ static gboolean grl_local_metadata_source_may_resolve (GrlSource *source,
 gboolean grl_local_metadata_source_plugin_init (GrlRegistry *registry,
                                                 GrlPlugin *plugin,
                                                 GList *configs);
-static resolution_flags_t get_resolution_flags (GList                      *keys,
-                                                GrlLocalMetadataSourcePriv *priv);
+static resolution_flags_t get_resolution_flags (GList                         *keys,
+                                                GrlLocalMetadataSourcePrivate *priv);
 
 /**/
 
@@ -123,6 +118,8 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== GrlLocalMetadata GObject ================ */
 
+G_DEFINE_TYPE_WITH_PRIVATE (GrlLocalMetadataSource, grl_local_metadata_source, GRL_TYPE_SOURCE)
+
 static GrlLocalMetadataSource *
 grl_local_metadata_source_new (void)
 {
@@ -143,18 +140,14 @@ grl_local_metadata_source_class_init (GrlLocalMetadataSourceClass * klass)
   source_class->cancel = grl_local_metadata_source_cancel;
   source_class->may_resolve = grl_local_metadata_source_may_resolve;
   source_class->resolve = grl_local_metadata_source_resolve;
-
-  g_type_class_add_private (klass, sizeof (GrlLocalMetadataSourcePriv));
 }
 
 static void
 grl_local_metadata_source_init (GrlLocalMetadataSource *source)
 {
+    source->priv = grl_local_metadata_source_get_instance_private (source);
 }
 
-G_DEFINE_TYPE (GrlLocalMetadataSource,
-               grl_local_metadata_source,
-               GRL_TYPE_SOURCE);
 
 /* ======================= Utilities ==================== */
 
@@ -257,9 +250,9 @@ extract_gibest_hash (GTask        *task,
   gint i;
   char *str;
   ResolveData *resolve_data = task_data;
-  GrlLocalMetadataSourcePriv *priv;
+  GrlLocalMetadataSourcePrivate *priv;
 
-  priv = GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (resolve_data->source);
+  priv = GRL_LOCAL_METADATA_SOURCE (resolve_data->source)->priv;
 
   stream = G_INPUT_STREAM (g_file_read (file, cancellable, &error));
   if (stream == NULL)
@@ -327,14 +320,14 @@ got_file_info (GFile *file,
   GError *error = NULL;
   const gchar *thumbnail_path;
   gboolean thumbnail_is_valid;
-  GrlLocalMetadataSourcePriv *priv;
+  GrlLocalMetadataSourcePrivate *priv;
   ResolveData *resolve_data = user_data;
   GrlSourceResolveSpec *rs = resolve_data->rs;
   resolution_flags_t flags;
 
   GRL_DEBUG ("got_file_info");
 
-  priv = GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (resolve_data->source);
+  priv = GRL_LOCAL_METADATA_SOURCE (resolve_data->source)->priv;
 
   cancellable = resolve_data_ensure_cancellable (resolve_data);
 
@@ -552,8 +545,8 @@ has_compatible_media_url (GrlMedia *media)
 }
 
 static resolution_flags_t
-get_resolution_flags (GList                      *keys,
-                      GrlLocalMetadataSourcePriv *priv)
+get_resolution_flags (GList                         *keys,
+                      GrlLocalMetadataSourcePrivate *priv)
 {
   GList *iter = keys;
   resolution_flags_t flags = 0;
@@ -574,7 +567,7 @@ get_resolution_flags (GList                      *keys,
 /* ================== API Implementation ================ */
 
 static void
-ensure_hash_keyid (GrlLocalMetadataSourcePriv *priv)
+ensure_hash_keyid (GrlLocalMetadataSourcePrivate *priv)
 {
   if (priv->hash_keyid == GRL_METADATA_KEY_INVALID) {
     GrlRegistry *registry = grl_registry_get_default ();
@@ -586,8 +579,7 @@ static const GList *
 grl_local_metadata_source_supported_keys (GrlSource *source)
 {
   static GList *keys = NULL;
-  GrlLocalMetadataSourcePriv *priv =
-          GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (source);
+  GrlLocalMetadataSourcePrivate *priv = GRL_LOCAL_METADATA_SOURCE (source)->priv;
 
   ensure_hash_keyid (priv);
   if (!keys) {
@@ -658,8 +650,7 @@ grl_local_metadata_source_resolve (GrlSource *source,
 {
   GError *error = NULL;
   resolution_flags_t flags;
-  GrlLocalMetadataSourcePriv *priv =
-    GRL_LOCAL_METADATA_SOURCE_GET_PRIVATE (source);
+  GrlLocalMetadataSourcePrivate *priv = GRL_LOCAL_METADATA_SOURCE (source)->priv;
   gboolean can_access;
   ResolveData *data = NULL;
 

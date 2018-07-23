@@ -47,12 +47,12 @@
                              GRL_CHROMAPRINT_SOURCE_TYPE,  \
                              GrlCHROMAPRINTSourceClass))
 
-typedef struct _GrlChromaprintPrivate GrlChromaprintPrivate;
+typedef struct _GrlChromaprintPrivate GrlChromaprintSourcePrivate;
 typedef struct _GrlChromaprintSource  GrlChromaprintSource;
 
 struct _GrlChromaprintSource {
   GrlSource parent;
-  GrlChromaprintPrivate *priv;
+  GrlChromaprintSourcePrivate *priv;
 };
 
 typedef struct _GrlChromaprintSourceClass GrlChromaprintSourceClass;

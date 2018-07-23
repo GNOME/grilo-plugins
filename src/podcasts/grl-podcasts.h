@@ -51,7 +51,7 @@
                               GRL_PODCASTS_SOURCE_TYPE, \
                               GrlPodcastsSourceClass))
 
-typedef struct _GrlPodcastsPrivate GrlPodcastsPrivate;
+typedef struct _GrlPodcastsPrivate GrlPodcastsSourcePrivate;
 typedef struct _GrlPodcastsSource  GrlPodcastsSource;
 
 struct _GrlPodcastsSource {
@@ -59,7 +59,7 @@ struct _GrlPodcastsSource {
   GrlSource parent;
 
   /*< private >*/
-  GrlPodcastsPrivate *priv;
+  GrlPodcastsSourcePrivate *priv;
 };
 
 typedef struct _GrlPodcastsSourceClass GrlPodcastsSourceClass;

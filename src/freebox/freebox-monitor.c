@@ -34,9 +34,7 @@ struct _FreeboxMonitorPrivate {
   AvahiServiceBrowser *browser;
 };
 
-#define GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), FREEBOX_TYPE_MONITOR, FreeboxMonitorPrivate))
-
-G_DEFINE_TYPE (FreeboxMonitor, freebox_monitor, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (FreeboxMonitor, freebox_monitor, G_TYPE_OBJECT)
 
 enum {
   FOUND,
@@ -126,8 +124,6 @@ freebox_monitor_class_init (FreeboxMonitorClass *klass)
 {
     GObjectClass *o_class = (GObjectClass *)klass;
 
-    g_type_class_add_private (klass, sizeof (FreeboxMonitorPrivate));
-
     o_class->finalize = freebox_monitor_finalize;
 
     signals[FOUND] = g_signal_new ("found",
@@ -154,7 +150,7 @@ freebox_monitor_init (FreeboxMonitor *self)
   FreeboxMonitorPrivate *priv;
   int error;
 
-  priv = self->priv = GET_PRIVATE (self);
+  priv = self->priv = freebox_monitor_get_instance_private (self);
 
   priv->poll = avahi_glib_poll_new (NULL, G_PRIORITY_DEFAULT);
   priv->client = avahi_client_new (avahi_glib_poll_get (priv->poll),

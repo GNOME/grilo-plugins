@@ -46,11 +46,6 @@ GRL_LOG_DOMAIN_STATIC(optical_media_log_domain);
 
 /* --- Grilo OpticalMedia Private --- */
 
-#define GRL_OPTICAL_MEDIA_SOURCE_GET_PRIVATE(object)           \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                       \
-                               GRL_OPTICAL_MEDIA_SOURCE_TYPE,  \
-                               GrlOpticalMediaSourcePrivate))
-
 #define NUM_MONITOR_SIGNALS 3
 
 struct _GrlOpticalMediaSourcePrivate {
@@ -140,9 +135,7 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 /* ================== OpticalMedia GObject ================ */
 
 
-G_DEFINE_TYPE (GrlOpticalMediaSource,
-               grl_optical_media_source,
-               GRL_TYPE_SOURCE);
+G_DEFINE_TYPE_WITH_PRIVATE (GrlOpticalMediaSource, grl_optical_media_source, GRL_TYPE_SOURCE)
 
 static GrlOpticalMediaSource *
 grl_optical_media_source_new (void)
@@ -170,14 +163,12 @@ grl_optical_media_source_class_init (GrlOpticalMediaSourceClass * klass)
 
   source_class->notify_change_start = grl_optical_media_source_notify_change_start;
   source_class->notify_change_stop = grl_optical_media_source_notify_change_stop;
-
-  g_type_class_add_private (klass, sizeof (GrlOpticalMediaSourcePrivate));
 }
 
 static void
 grl_optical_media_source_init (GrlOpticalMediaSource *source)
 {
-  source->priv = GRL_OPTICAL_MEDIA_SOURCE_GET_PRIVATE (source);
+  source->priv = grl_optical_media_source_get_instance_private (source);
 
   source->priv->cancellable = g_cancellable_new ();
   source->priv->monitor = g_volume_monitor_get ();

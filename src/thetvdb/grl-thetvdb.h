@@ -47,12 +47,12 @@
                              GRL_THETVDB_SOURCE_TYPE,  \
                              GrlTheTVDBSourceClass))
 
-typedef struct _GrlTheTVDBPrivate GrlTheTVDBPrivate;
+typedef struct _GrlTheTVDBPrivate GrlTheTVDBSourcePrivate;
 typedef struct _GrlTheTVDBSource  GrlTheTVDBSource;
 
 struct _GrlTheTVDBSource {
   GrlSource parent;
-  GrlTheTVDBPrivate *priv;
+  GrlTheTVDBSourcePrivate *priv;
 };
 
 typedef struct _GrlTheTVDBSourceClass GrlTheTVDBSourceClass;

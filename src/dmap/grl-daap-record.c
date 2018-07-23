@@ -256,8 +256,6 @@ grl_daap_record_class_init (GrlDAAPRecordClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (klass, sizeof (GrlDAAPRecordPrivate));
-
   gobject_class->set_property = grl_daap_record_set_property;
   gobject_class->get_property = grl_daap_record_get_property;
   gobject_class->finalize     = grl_daap_record_finalize;
@@ -303,6 +301,7 @@ grl_daap_record_dmap_iface_init (gpointer iface, gpointer data)
 
 
 G_DEFINE_TYPE_WITH_CODE (GrlDAAPRecord, grl_daap_record, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (GrlDAAPRecord)
                          G_IMPLEMENT_INTERFACE (DAAP_TYPE_RECORD, grl_daap_record_daap_iface_init)
                          G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD, grl_daap_record_dmap_iface_init))
 

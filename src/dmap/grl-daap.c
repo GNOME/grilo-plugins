@@ -51,11 +51,6 @@ GRL_LOG_DOMAIN_STATIC(daap_log_domain);
 
 /* --- Grilo DAAP Private --- */
 
-#define GRL_DAAP_SOURCE_GET_PRIVATE(object)           \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),              \
-                               GRL_DAAP_SOURCE_TYPE,  \
-                               GrlDaapSourcePrivate))
-
 struct _GrlDaapSourcePrivate {
   DMAPMdnsBrowserService *service;
 };
@@ -155,9 +150,7 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== DAAP GObject ====================== */
 
-G_DEFINE_TYPE (GrlDaapSource,
-               grl_daap_source,
-               GRL_TYPE_SOURCE);
+G_DEFINE_TYPE_WITH_PRIVATE (GrlDaapSource, grl_daap_source, GRL_TYPE_SOURCE)
 
 static GrlDaapSource *
 grl_daap_source_new (DMAPMdnsBrowserService *service)
@@ -197,14 +190,12 @@ grl_daap_source_class_init (GrlDaapSourceClass * klass)
   source_class->supported_keys = grl_daap_source_supported_keys;
 
   G_OBJECT_CLASS (source_class)->finalize = grl_daap_source_finalize;
-
-  g_type_class_add_private (klass, sizeof (GrlDaapSourcePrivate));
 }
 
 static void
 grl_daap_source_init (GrlDaapSource *source)
 {
-  source->priv = GRL_DAAP_SOURCE_GET_PRIVATE (source);
+  source->priv = grl_daap_source_get_instance_private (source);
 }
 
 static void

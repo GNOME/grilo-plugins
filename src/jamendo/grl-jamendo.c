@@ -165,11 +165,6 @@ struct _GrlJamendoSourcePriv {
   GCancellable *cancellable;
 };
 
-#define GRL_JAMENDO_SOURCE_GET_PRIVATE(object)		\
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                \
-                               GRL_JAMENDO_SOURCE_TYPE,	\
-                               GrlJamendoSourcePriv))
-
 static GrlJamendoSource *grl_jamendo_source_new (void);
 
 gboolean grl_jamendo_plugin_init (GrlRegistry *registry,
@@ -231,6 +226,8 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== Jamendo GObject ================ */
 
+G_DEFINE_TYPE_WITH_PRIVATE (GrlJamendoSource, grl_jamendo_source, GRL_TYPE_SOURCE)
+
 static GrlJamendoSource *
 grl_jamendo_source_new (void)
 {
@@ -248,8 +245,6 @@ grl_jamendo_source_new (void)
 		       "source-tags", tags,
 		       NULL);
 }
-
-G_DEFINE_TYPE (GrlJamendoSource, grl_jamendo_source, GRL_TYPE_SOURCE);
 
 static void
 grl_jamendo_source_finalize (GObject *object)
@@ -278,14 +273,12 @@ grl_jamendo_source_class_init (GrlJamendoSourceClass * klass)
   source_class->browse = grl_jamendo_source_browse;
   source_class->query = grl_jamendo_source_query;
   source_class->search = grl_jamendo_source_search;
-
-  g_type_class_add_private (klass, sizeof (GrlJamendoSourcePriv));
 }
 
 static void
 grl_jamendo_source_init (GrlJamendoSource *source)
 {
-  source->priv = GRL_JAMENDO_SOURCE_GET_PRIVATE (source);
+  source->priv = grl_jamendo_source_get_instance_private (source);
 
   /* If we try to get too much elements in a single step, Jamendo might return
      nothing. So limit the maximum amount of elements in each query */
@@ -1397,11 +1390,11 @@ static void
 grl_jamendo_source_cancel (GrlSource *source, guint operation_id)
 {
   XmlParseEntries *xpe;
-  GrlJamendoSourcePriv *priv;
+  GrlJamendoSourcePrivate *priv;
 
   g_return_if_fail (GRL_IS_JAMENDO_SOURCE (source));
 
-  priv = GRL_JAMENDO_SOURCE_GET_PRIVATE (source);
+  priv = GRL_JAMENDO_SOURCE (source)->priv;
 
   if (priv->cancellable && G_IS_CANCELLABLE (priv->cancellable))
     g_cancellable_cancel (priv->cancellable);

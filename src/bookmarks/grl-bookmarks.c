@@ -35,11 +35,6 @@
 #include "grl-bookmarks.h"
 #include "bookmarks-resource.h"
 
-#define GRL_BOOKMARKS_GET_PRIVATE(object)                         \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                         \
-                               GRL_BOOKMARKS_SOURCE_TYPE,        \
-                               GrlBookmarksPrivate))
-
 #define GRL_ROOT_TITLE "Bookmarks"
 
 /* --------- Logging  -------- */
@@ -211,8 +206,6 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
    source_class->resolve = grl_bookmarks_source_resolve;
    source_class->notify_change_start = grl_bookmarks_source_notify_change_start;
    source_class->notify_change_stop = grl_bookmarks_source_notify_change_stop;
-
-   g_type_class_add_private (klass, sizeof (GrlBookmarksPrivate));
 }
 
 static void
@@ -230,6 +223,8 @@ migrate_cb (GObject      *object,
    }
 }
 
+G_DEFINE_TYPE_WITH_PRIVATE (GrlBookmarksSource, grl_bookmarks_source, GRL_TYPE_SOURCE)
+
 static void
 grl_bookmarks_source_init (GrlBookmarksSource *source)
 {
@@ -238,7 +233,7 @@ grl_bookmarks_source_init (GrlBookmarksSource *source)
   gchar *db_path;
   GList *object_types;
 
-  source->priv = GRL_BOOKMARKS_GET_PRIVATE (source);
+  source->priv = grl_bookmarks_source_get_instance_private (source);
 
   path = g_build_filename (g_get_user_data_dir (), "grilo-plugins", NULL);
 
@@ -263,8 +258,6 @@ grl_bookmarks_source_init (GrlBookmarksSource *source)
   object_types = g_list_prepend(NULL, GINT_TO_POINTER(BOOKMARKS_TYPE_RESOURCE));
   gom_repository_automatic_migrate_async (source->priv->repository, 2, object_types, migrate_cb, source);
 }
-
-G_DEFINE_TYPE (GrlBookmarksSource, grl_bookmarks_source, GRL_TYPE_SOURCE);
 
 static void
 grl_bookmarks_source_finalize (GObject *object)

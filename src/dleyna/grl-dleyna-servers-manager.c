@@ -47,7 +47,7 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 static GObject *grl_dleyna_servers_manager_singleton = NULL;
 
-G_DEFINE_TYPE (GrlDleynaServersManager, grl_dleyna_servers_manager, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (GrlDleynaServersManager, grl_dleyna_servers_manager, G_TYPE_OBJECT)
 
 static void
 grl_dleyna_servers_manager_dispose (GObject *object)
@@ -202,8 +202,7 @@ grl_dleyna_servers_manager_init (GrlDleynaServersManager *self)
 {
   GrlDleynaServersManagerPrivate *priv;
 
-  self->priv = priv = G_TYPE_INSTANCE_GET_PRIVATE (self, GRL_TYPE_DLEYNA_SERVERS_MANAGER,
-                                                   GrlDleynaServersManagerPrivate);
+  self->priv = priv = grl_dleyna_servers_manager_get_instance_private (self);
 
   grl_dleyna_manager_proxy_new_for_bus (G_BUS_TYPE_SESSION, G_DBUS_PROXY_FLAGS_NONE,
                                         "com.intel.dleyna-server", "/com/intel/dLeynaServer", NULL,
@@ -228,8 +227,6 @@ grl_dleyna_servers_manager_class_init (GrlDleynaServersManagerClass *class)
                                        G_SIGNAL_RUN_LAST, 0, NULL, NULL,
                                        g_cclosure_marshal_VOID__OBJECT,
                                        G_TYPE_NONE, 1, GRL_TYPE_DLEYNA_SERVER);
-
-  g_type_class_add_private (class, sizeof (GrlDleynaServersManagerPrivate));
 }
 
 GrlDleynaServersManager *

@@ -36,11 +36,6 @@
 
 #include "grl-podcasts.h"
 
-#define GRL_PODCASTS_GET_PRIVATE(object)                        \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                        \
-                               GRL_PODCASTS_SOURCE_TYPE,        \
-                               GrlPodcastsPrivate))
-
 #define GRL_ROOT_TITLE "Podcasts"
 
 /* --------- Logging  -------- */
@@ -330,6 +325,8 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== Podcasts GObject ================ */
 
+G_DEFINE_TYPE_WITH_PRIVATE (GrlPodcastsSource, grl_podcasts_source, GRL_TYPE_SOURCE)
+
 static GrlPodcastsSource *
 grl_podcasts_source_new (void)
 {
@@ -363,8 +360,6 @@ grl_podcasts_source_class_init (GrlPodcastsSourceClass * klass)
   source_class->remove = grl_podcasts_source_remove;
   source_class->notify_change_start = grl_podcasts_source_notify_change_start;
   source_class->notify_change_stop = grl_podcasts_source_notify_change_stop;
-
-  g_type_class_add_private (klass, sizeof (GrlPodcastsPrivate));
 }
 
 static void
@@ -375,7 +370,7 @@ grl_podcasts_source_init (GrlPodcastsSource *source)
   gchar *db_path;
   gchar *sql_error = NULL;
 
-  source->priv = GRL_PODCASTS_GET_PRIVATE (source);
+  source->priv = grl_podcasts_source_get_instance_private (source);
 
   path = g_strconcat (g_get_user_data_dir (),
                       G_DIR_SEPARATOR_S, "grilo-plugins",
@@ -422,8 +417,6 @@ grl_podcasts_source_init (GrlPodcastsSource *source)
   }
   GRL_DEBUG ("  OK");
 }
-
-G_DEFINE_TYPE (GrlPodcastsSource, grl_podcasts_source, GRL_TYPE_SOURCE);
 
 static void
 grl_podcasts_source_finalize (GObject *object)

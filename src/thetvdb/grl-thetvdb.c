@@ -35,11 +35,6 @@
 #include "grl-thetvdb.h"
 #include "thetvdb-resources.h"
 
-#define GRL_THETVDB_GET_PRIVATE(object)                  \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                 \
-                               GRL_THETVDB_SOURCE_TYPE,  \
-                               GrlTheTVDBPrivate))
-
 /* --------- Logging  -------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT thetvdb_log_domain
@@ -303,6 +298,8 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== TheTVDB GObject ================= */
 
+G_DEFINE_TYPE_WITH_PRIVATE (GrlTheTVDBSource, grl_thetvdb_source, GRL_TYPE_SOURCE)
+
 static GrlTheTVDBSource *
 grl_thetvdb_source_new (const gchar *api_key)
 {
@@ -338,8 +335,6 @@ grl_thetvdb_source_class_init (GrlTheTVDBSourceClass * klass)
   source_class->may_resolve = grl_thetvdb_source_may_resolve;
   source_class->resolve = grl_thetvdb_source_resolve;
   gobject_class->finalize = grl_thetvdb_source_finalize;
-
-  g_type_class_add_private (klass, sizeof (GrlTheTVDBPrivate));
 }
 
 static void
@@ -352,7 +347,7 @@ grl_thetvdb_source_init (GrlTheTVDBSource *source)
 
   GRL_DEBUG ("thetvdb_source_init");
 
-  source->priv = GRL_THETVDB_GET_PRIVATE (source);
+  source->priv = grl_thetvdb_source_get_instance_private (source);
 
   /* All supported keys in a GList */
   source->priv->supported_keys =
@@ -411,8 +406,6 @@ grl_thetvdb_source_init (GrlTheTVDBSource *source)
   gom_repository_automatic_migrate_async (source->priv->repository, GOM_DB_VERSION,
                                           tables, thetvdb_migrate_db_done, source);
 }
-
-G_DEFINE_TYPE (GrlTheTVDBSource, grl_thetvdb_source, GRL_TYPE_SOURCE);
 
 static void
 grl_thetvdb_source_finalize (GObject *object)

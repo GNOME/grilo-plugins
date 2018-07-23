@@ -56,6 +56,7 @@ enum
 static void grl_dleyna_server_async_initable_iface_init (GAsyncInitableIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (GrlDleynaServer, grl_dleyna_server, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (GrlDleynaServer)
                          G_IMPLEMENT_INTERFACE (G_TYPE_ASYNC_INITABLE, grl_dleyna_server_async_initable_iface_init))
 
 static void
@@ -152,8 +153,7 @@ grl_dleyna_server_init (GrlDleynaServer *self)
 {
   GrlDleynaServerPrivate *priv;
 
-  self->priv = priv = G_TYPE_INSTANCE_GET_PRIVATE (self, GRL_TYPE_DLEYNA_SERVER,
-                                                   GrlDleynaServerPrivate);
+  self->priv = priv = grl_dleyna_server_get_instance_private (self);
 }
 
 static void
@@ -217,8 +217,6 @@ grl_dleyna_server_class_init (GrlDleynaServerClass *class)
                                                         G_PARAM_STATIC_NAME |
                                                         G_PARAM_STATIC_BLURB |
                                                         G_PARAM_STATIC_NICK));
-
-  g_type_class_add_private (class, sizeof (GrlDleynaServerPrivate));
 }
 
 void

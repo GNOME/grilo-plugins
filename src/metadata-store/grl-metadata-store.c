@@ -33,11 +33,6 @@
 
 #include "grl-metadata-store.h"
 
-#define GRL_METADATA_STORE_GET_PRIVATE(object)			 \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),			 \
-                               GRL_METADATA_STORE_SOURCE_TYPE,	 \
-                               GrlMetadataStorePrivate))
-
 #define GRL_LOG_DOMAIN_DEFAULT metadata_store_log_domain
 GRL_LOG_DOMAIN_STATIC(metadata_store_log_domain);
 
@@ -150,7 +145,7 @@ gboolean grl_metadata_store_source_plugin_init (GrlRegistry *registry,
                                                 GrlPlugin *plugin,
                                                 GList *configs);
 
-G_DEFINE_TYPE (GrlMetadataStoreSource, grl_metadata_store_source, GRL_TYPE_SOURCE);
+G_DEFINE_TYPE_WITH_PRIVATE (GrlMetadataStoreSource, grl_metadata_store_source, GRL_TYPE_SOURCE)
 
 /* =================== GrlMetadataStore Plugin  =============== */
 
@@ -216,8 +211,6 @@ grl_metadata_store_source_class_init (GrlMetadataStoreSourceClass * klass)
   source_class->may_resolve = grl_metadata_store_source_may_resolve;
   source_class->resolve = grl_metadata_store_source_resolve;
   source_class->store_metadata = grl_metadata_store_source_store_metadata;
-
-  g_type_class_add_private (klass, sizeof (GrlMetadataStorePrivate));
 }
 
 static void
@@ -238,7 +231,7 @@ grl_metadata_store_source_init (GrlMetadataStoreSource *source)
   gchar *db_path;
   gchar *sql_error = NULL;
 
-  source->priv = GRL_METADATA_STORE_GET_PRIVATE (source);
+  source->priv = grl_metadata_store_source_get_instance_private (source);
 
   path = g_strconcat (g_get_user_data_dir (),
                       G_DIR_SEPARATOR_S, "grilo-plugins",

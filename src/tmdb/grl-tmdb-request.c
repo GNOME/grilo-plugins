@@ -91,7 +91,7 @@ struct _GrlTmdbRequestPrivate {
   GList *details;
 };
 
-G_DEFINE_TYPE (GrlTmdbRequest, grl_tmdb_request, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (GrlTmdbRequest, grl_tmdb_request, G_TYPE_OBJECT)
 
 /* Implementation */
 
@@ -103,8 +103,6 @@ static void
 grl_tmdb_request_class_init (GrlTmdbRequestClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (GrlTmdbRequestPrivate));
 
   gobject_class->set_property = grl_tmdb_request_set_property;
   gobject_class->finalize = grl_tmdb_request_finalize;
@@ -143,9 +141,7 @@ grl_tmdb_request_class_init (GrlTmdbRequestClass * klass)
 static void
 grl_tmdb_request_init (GrlTmdbRequest *self)
 {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self,
-                                            GRL_TMDB_REQUEST_TYPE,
-                                            GrlTmdbRequestPrivate);
+  self->priv = grl_tmdb_request_get_instance_private (self);
   self->priv->base = soup_uri_new (TMDB_BASE_URI);
   self->priv->parser = json_parser_new ();
   self->priv->detail = GRL_TMDB_REQUEST_DETAIL_COUNT;

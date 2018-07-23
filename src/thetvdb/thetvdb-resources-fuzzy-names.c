@@ -22,8 +22,6 @@
 
 #include "thetvdb-resources.h"
 
-G_DEFINE_TYPE (FuzzySeriesNamesResource, fuzzy_series_names_resource, GOM_TYPE_RESOURCE)
-
 struct _FuzzySeriesNamesResourcePrivate {
   gint64      db_id;
   gchar      *series_id;
@@ -39,6 +37,8 @@ enum {
 };
 
 static GParamSpec *specs[LAST_PROP];
+
+G_DEFINE_TYPE_WITH_PRIVATE (FuzzySeriesNamesResource, fuzzy_series_names_resource, GOM_TYPE_RESOURCE)
 
 static void
 fuzzy_series_names_resource_finalize (GObject *object)
@@ -109,7 +109,6 @@ fuzzy_series_names_resource_class_init (FuzzySeriesNamesResourceClass *klass)
   object_class->finalize = fuzzy_series_names_resource_finalize;
   object_class->get_property = fuzzy_series_names_resource_get_property;
   object_class->set_property = fuzzy_series_names_resource_set_property;
-  g_type_class_add_private(object_class, sizeof(FuzzySeriesNamesResourcePrivate));
 
   resource_class = GOM_RESOURCE_CLASS(klass);
   gom_resource_class_set_table(resource_class, FUZZY_SERIES_NAMES_TABLE_NAME);
@@ -149,7 +148,5 @@ fuzzy_series_names_resource_class_init (FuzzySeriesNamesResourceClass *klass)
 static void
 fuzzy_series_names_resource_init (FuzzySeriesNamesResource *resource)
 {
-  resource->priv = G_TYPE_INSTANCE_GET_PRIVATE(resource,
-                                               FUZZY_SERIES_NAMES_TYPE_RESOURCE,
-                                               FuzzySeriesNamesResourcePrivate);
+  resource->priv = fuzzy_series_names_resource_get_instance_private (resource);
 }

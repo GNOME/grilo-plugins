@@ -39,11 +39,6 @@
 #include "grl-vimeo.h"
 #include "gvimeo.h"
 
-#define GRL_VIMEO_SOURCE_GET_PRIVATE(object)                           \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                                \
-                               GRL_VIMEO_SOURCE_TYPE,                  \
-                               GrlVimeoSourcePrivate))
-
 /* --------- Logging  -------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT vimeo_log_domain
@@ -175,6 +170,8 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== Vimeo GObject ================ */
 
+G_DEFINE_TYPE_WITH_PRIVATE (GrlVimeoSource, grl_vimeo_source, GRL_TYPE_SOURCE)
+
 static GrlVimeoSource *
 grl_vimeo_source_new (void)
 {
@@ -217,19 +214,15 @@ grl_vimeo_source_class_init (GrlVimeoSourceClass * klass)
   source_class->search = grl_vimeo_source_search;
 
   object_class->finalize = grl_vimeo_source_finalize;
-
-  g_type_class_add_private (klass, sizeof (GrlVimeoSourcePrivate));
 }
 
 static void
 grl_vimeo_source_init (GrlVimeoSource *source)
 {
-  source->priv = GRL_VIMEO_SOURCE_GET_PRIVATE (source);
+  source->priv = grl_vimeo_source_get_instance_private (source);
 
   grl_source_set_auto_split_threshold (GRL_SOURCE (source), MAX_ELEMENTS);
 }
-
-G_DEFINE_TYPE (GrlVimeoSource, grl_vimeo_source, GRL_TYPE_SOURCE);
 
 static void
 grl_vimeo_source_finalize (GObject *object)

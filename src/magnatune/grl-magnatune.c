@@ -33,11 +33,6 @@
 
 #include "grl-magnatune.h"
 
-#define GRL_MAGNATUNE_GET_PRIVATE(object)                 \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                  \
-                               GRL_MAGNATUNE_SOURCE_TYPE, \
-                               GrlMagnatunePrivate))
-
 /* --------- Logging  -------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT magnatune_log_domain
@@ -227,6 +222,8 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== Magnatune GObject ================= */
 
+G_DEFINE_TYPE_WITH_PRIVATE (GrlMagnatuneSource, grl_magnatune_source, GRL_TYPE_SOURCE)
+
 static GrlMagnatuneSource *
 grl_magnatune_source_new(void)
 {
@@ -263,8 +260,6 @@ grl_magnatune_source_class_init(GrlMagnatuneSourceClass * klass)
   source_class->supported_keys = grl_magnatune_source_supported_keys;
   source_class->search = grl_magnatune_source_search;
   source_class->browse = grl_magnatune_source_browse;
-
-  g_type_class_add_private(klass, sizeof(GrlMagnatunePrivate));
 }
 
 static void
@@ -279,7 +274,7 @@ grl_magnatune_source_init(GrlMagnatuneSource *source)
 
   GRL_DEBUG("magnatune_source_init");
 
-  source->priv = GRL_MAGNATUNE_GET_PRIVATE(source);
+  source->priv = grl_magnatune_source_get_instance_private (source);
   source->priv->db = NULL;
 
   path = g_build_filename(g_get_user_data_dir(), "grilo-plugins", NULL);
@@ -322,8 +317,6 @@ grl_magnatune_source_init(GrlMagnatuneSource *source)
   g_free(db_path);
   g_free(path);
 }
-
-G_DEFINE_TYPE(GrlMagnatuneSource, grl_magnatune_source, GRL_TYPE_SOURCE);
 
 static void
 grl_magnatune_source_finalize(GObject *object)

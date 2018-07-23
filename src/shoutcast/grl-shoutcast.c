@@ -34,11 +34,6 @@
 
 #include "grl-shoutcast.h"
 
-#define GRL_SHOUTCAST_SOURCE_GET_PRIVATE(object)            \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                    \
-                               GRL_SHOUTCAST_SOURCE_TYPE,   \
-                               GrlShoutcastSourcePriv))
-
 #define EXPIRE_CACHE_TIMEOUT 300
 
 #define SHOUTCAST_DEV_KEY "dev-key"
@@ -180,6 +175,8 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== SHOUTcast GObject ================ */
 
+G_DEFINE_TYPE_WITH_PRIVATE (GrlShoutcastSource, grl_shoutcast_source, GRL_TYPE_SOURCE)
+
 static GrlShoutcastSource *
 grl_shoutcast_source_new (const gchar *dev_key)
 {
@@ -217,18 +214,14 @@ grl_shoutcast_source_class_init (GrlShoutcastSourceClass * klass)
   source_class->resolve = grl_shoutcast_source_resolve;
   source_class->browse = grl_shoutcast_source_browse;
   source_class->search = grl_shoutcast_source_search;
-
-  g_type_class_add_private (klass, sizeof (GrlShoutcastSourcePriv));
 }
 
 static void
 grl_shoutcast_source_init (GrlShoutcastSource *source)
 {
-  source->priv = GRL_SHOUTCAST_SOURCE_GET_PRIVATE (source);
+  source->priv = grl_shoutcast_source_get_instance_private (source);
   source->priv->cached_page_expired = TRUE;
 }
-
-G_DEFINE_TYPE (GrlShoutcastSource, grl_shoutcast_source, GRL_TYPE_SOURCE);
 
 static void
 grl_shoutcast_source_finalize (GObject *object)
@@ -791,11 +784,9 @@ static void
 grl_shoutcast_source_cancel (GrlSource *source, guint operation_id)
 {
   OperationData *op_data;
-  GrlShoutcastSourcePriv *priv;
+  GrlShoutcastSourcePrivate *priv = GRL_SHOUTCAST_SOURCE(source)->priv;
 
   GRL_DEBUG ("grl_shoutcast_source_cancel");
-
-  priv = GRL_SHOUTCAST_SOURCE_GET_PRIVATE (source);
 
   if (priv->cancellable && G_IS_CANCELLABLE (priv->cancellable)) {
     g_cancellable_cancel (priv->cancellable);

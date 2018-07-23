@@ -314,6 +314,7 @@ dmap_db_interface_init (gpointer iface, gpointer data)
 }
 
 G_DEFINE_TYPE_WITH_CODE (GrlDPAPDb, grl_dpap_db, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (GrlDPAPDb)
                          G_IMPLEMENT_INTERFACE (DMAP_TYPE_DB, dmap_db_interface_init))
 
 static GObject*
@@ -329,7 +330,7 @@ grl_dpap_db_constructor (GType type, guint n_construct_params, GObjectConstructP
 static void
 grl_dpap_db_init (GrlDPAPDb *db)
 {
-  db->priv = GRL_DPAP_DB_GET_PRIVATE (db);
+  db->priv = grl_dpap_db_get_instance_private (db);
 
   db->priv->photos_container  = grl_media_container_new ();
 
@@ -358,8 +359,6 @@ static void
 grl_dpap_db_class_init (GrlDPAPDbClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (GrlDPAPDbPrivate));
 
   object_class->finalize = grl_dpap_db_finalize;
   object_class->constructor = grl_dpap_db_constructor;

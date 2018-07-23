@@ -515,16 +515,14 @@ grl_lua_factory_source_class_init (GrlLuaFactorySourceClass *klass)
   source_class->resolve = grl_lua_factory_source_resolve;
   source_class->may_resolve = grl_lua_factory_source_may_resolve;
   source_class->cancel = grl_lua_factory_source_cancel;
-
-  g_type_class_add_private (klass, sizeof (GrlLuaFactorySourcePrivate));
 }
 
-G_DEFINE_TYPE (GrlLuaFactorySource, grl_lua_factory_source, GRL_TYPE_SOURCE);
+G_DEFINE_TYPE_WITH_PRIVATE (GrlLuaFactorySource, grl_lua_factory_source, GRL_TYPE_SOURCE)
 
 static void
 grl_lua_factory_source_init (GrlLuaFactorySource *source)
 {
-  source->priv = GRL_LUA_FACTORY_SOURCE_GET_PRIVATE (source);
+  source->priv = grl_lua_factory_source_get_instance_private (source);
 }
 
 static void

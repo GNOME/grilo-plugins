@@ -51,6 +51,14 @@ enum {
   PROP_THUMBNAIL
 };
 
+static void grl_dpap_record_dmap_iface_init (gpointer iface, gpointer data);
+static void grl_dpap_record_dpap_iface_init (gpointer iface, gpointer data);
+
+G_DEFINE_TYPE_WITH_CODE (GrlDPAPRecord, grl_dpap_record, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (GrlDPAPRecord)
+                         G_IMPLEMENT_INTERFACE (DPAP_TYPE_RECORD, grl_dpap_record_dpap_iface_init)
+                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD, grl_dpap_record_dmap_iface_init))
+
 static void
 grl_dpap_record_set_property (GObject *object,
                                 guint prop_id,
@@ -177,7 +185,7 @@ grl_dpap_record_read (DPAPRecord *record, GError **error)
 static void
 grl_dpap_record_init (GrlDPAPRecord *record)
 {
-  record->priv = SIMPLE_DPAP_RECORD_GET_PRIVATE (record);
+  record->priv = grl_dpap_record_get_instance_private (record);
 }
 
 static void grl_dpap_record_finalize (GObject *object);
@@ -186,8 +194,6 @@ static void
 grl_dpap_record_class_init (GrlDPAPRecordClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (GrlDPAPRecordPrivate));
 
   gobject_class->set_property = grl_dpap_record_set_property;
   gobject_class->get_property = grl_dpap_record_get_property;
@@ -223,11 +229,6 @@ grl_dpap_record_dmap_iface_init (gpointer iface, gpointer data)
 
   g_assert (G_TYPE_FROM_INTERFACE (dmap_record) == DMAP_TYPE_RECORD);
 }
-
-
-G_DEFINE_TYPE_WITH_CODE (GrlDPAPRecord, grl_dpap_record, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (DPAP_TYPE_RECORD, grl_dpap_record_dpap_iface_init)
-                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD, grl_dpap_record_dmap_iface_init))
 
 static void
 grl_dpap_record_finalize (GObject *object)

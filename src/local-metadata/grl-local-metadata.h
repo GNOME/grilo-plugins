@@ -52,14 +52,14 @@
                               GrlLocalMetadataSourceClass))
 
 typedef struct _GrlLocalMetadataSource     GrlLocalMetadataSource;
-typedef struct _GrlLocalMetadataSourcePriv GrlLocalMetadataSourcePriv;
+typedef struct _GrlLocalMetadataSourcePriv GrlLocalMetadataSourcePrivate;
 
 struct _GrlLocalMetadataSource {
 
   GrlSource parent;
 
   /*< private >*/
-  GrlLocalMetadataSourcePriv *priv;
+  GrlLocalMetadataSourcePrivate *priv;
 
 };
 

@@ -104,7 +104,7 @@ static gchar * encode_uri (const gchar *uri);
 
 /* -------------------- GOBJECT -------------------- */
 
-G_DEFINE_TYPE (GVimeo, g_vimeo, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (GVimeo, g_vimeo, G_TYPE_OBJECT);
 
 static void
 g_vimeo_class_init (GVimeoClass *klass)
@@ -112,8 +112,6 @@ g_vimeo_class_init (GVimeoClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize = g_vimeo_finalize;
   gobject_class->dispose = g_vimeo_dispose;
-
-  g_type_class_add_private (klass, sizeof (GVimeoPrivate));
 }
 
 static void
@@ -128,7 +126,7 @@ entry_parsed_cb (TotemPlParser *parser,
 static void
 g_vimeo_init (GVimeo *vimeo)
 {
-  vimeo->priv = G_VIMEO_GET_PRIVATE (vimeo);
+  vimeo->priv = g_vimeo_get_instance_private (vimeo);
   vimeo->priv->per_page = 50;
   vimeo->priv->wc = grl_net_wc_new ();
   g_object_set (vimeo->priv->wc, "user-agent", PLUGIN_USER_AGENT, NULL);

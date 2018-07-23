@@ -39,11 +39,6 @@ enum {
   PROP_SERVICE,
 };
 
-#define GRL_YOUTUBE_SOURCE_GET_PRIVATE(object)            \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                  \
-                               GRL_YOUTUBE_SOURCE_TYPE,   \
-                               GrlYoutubeSourcePriv))
-
 /* --------- Logging  -------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT youtube_log_domain
@@ -312,7 +307,7 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 
 /* ================== YouTube GObject ================ */
 
-G_DEFINE_TYPE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_SOURCE);
+G_DEFINE_TYPE_WITH_PRIVATE (GrlYoutubeSource, grl_youtube_source, GRL_TYPE_SOURCE)
 
 static GrlYoutubeSource *
 grl_youtube_source_new (const gchar *api_key, const gchar *client_id, const gchar *format)
@@ -387,14 +382,12 @@ grl_youtube_source_class_init (GrlYoutubeSourceClass * klass)
                                                         G_PARAM_WRITABLE
                                                         | G_PARAM_CONSTRUCT_ONLY
                                                         | G_PARAM_STATIC_NAME));
-
-  g_type_class_add_private (klass, sizeof (GrlYoutubeSourcePriv));
 }
 
 static void
 grl_youtube_source_init (GrlYoutubeSource *source)
 {
-  source->priv = GRL_YOUTUBE_SOURCE_GET_PRIVATE (source);
+  source->priv = grl_youtube_source_get_instance_private (source);
 }
 
 static void

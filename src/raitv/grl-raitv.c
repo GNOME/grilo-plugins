@@ -92,14 +92,6 @@ GRL_LOG_DOMAIN_STATIC(raitv_log_domain);
 #define SOURCE_NAME "Rai.tv"
 #define SOURCE_DESC _("A source for browsing and searching Rai.tv videos")
 
-
-G_DEFINE_TYPE (GrlRaitvSource, grl_raitv_source, GRL_TYPE_SOURCE)
-
-#define RAITV_SOURCE_PRIVATE(o)                          \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((o),                     \
-                                GRL_TYPE_RAITV_SOURCE,   \
-                                GrlRaitvSourcePrivate))
-
 typedef enum {
   RAITV_MEDIA_TYPE_ROOT,
   RAITV_MEDIA_TYPE_POPULARS,
@@ -159,6 +151,7 @@ struct _GrlRaitvSourcePrivate
   GList *raitv_browse_mappings;
 };
 
+G_DEFINE_TYPE_WITH_PRIVATE (GrlRaitvSource, grl_raitv_source, GRL_TYPE_SOURCE)
 
 guint root_dir_size = 2;
 CategoryInfo root_dir[] = {
@@ -323,8 +316,6 @@ grl_raitv_source_class_init (GrlRaitvSourceClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GrlSourceClass *source_class = GRL_SOURCE_CLASS (klass);
 
-  g_type_class_add_private (klass, sizeof (GrlRaitvSourcePrivate));
-
   object_class->dispose = grl_raitv_source_dispose;
   object_class->finalize = grl_raitv_source_finalize;
 
@@ -351,7 +342,7 @@ raitv_build_mapping (GrlKeyID grl_key, const gchar *exp)
 static void
 grl_raitv_source_init (GrlRaitvSource *self)
 {
-  self->priv = RAITV_SOURCE_PRIVATE (self);
+  self->priv = grl_raitv_source_get_instance_private (self);
 
   self->priv->wc = grl_net_wc_new ();
   grl_net_wc_set_throttling (self->priv->wc, 1);

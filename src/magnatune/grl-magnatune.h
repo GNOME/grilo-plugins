@@ -47,12 +47,12 @@
                               GRL_MAGNATUNE_SOURCE_TYPE, \
                               GrlMagnatuneSourceClass))
 
-typedef struct _GrlMagnatunePrivate GrlMagnatunePrivate;
+typedef struct _GrlMagnatunePrivate GrlMagnatuneSourcePrivate;
 typedef struct _GrlMagnatuneSource  GrlMagnatuneSource;
 
 struct _GrlMagnatuneSource {
   GrlSource parent;
-  GrlMagnatunePrivate *priv;
+  GrlMagnatuneSourcePrivate *priv;
 };
 
 typedef struct _GrlMagnatuneSourceClass GrlMagnatuneSourceClass;

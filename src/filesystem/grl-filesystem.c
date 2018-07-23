@@ -60,11 +60,6 @@ GRL_LOG_DOMAIN_STATIC(filesystem_log_domain);
 
 /* --- Grilo Filesystem Private --- */
 
-#define GRL_FILESYSTEM_SOURCE_GET_PRIVATE(object)         \
-  (G_TYPE_INSTANCE_GET_PRIVATE((object),                  \
-			     GRL_FILESYSTEM_SOURCE_TYPE,  \
-			     GrlFilesystemSourcePrivate))
-
 struct _GrlFilesystemSourcePrivate {
   GList *chosen_uris;
   guint max_search_depth;
@@ -212,9 +207,7 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 /* ================== Filesystem GObject ================ */
 
 
-G_DEFINE_TYPE (GrlFilesystemSource,
-               grl_filesystem_source,
-               GRL_TYPE_SOURCE);
+G_DEFINE_TYPE_WITH_PRIVATE (GrlFilesystemSource, grl_filesystem_source, GRL_TYPE_SOURCE)
 
 static GrlFilesystemSource *
 grl_filesystem_source_new (void)
@@ -245,14 +238,12 @@ grl_filesystem_source_class_init (GrlFilesystemSourceClass * klass)
   source_class->resolve = grl_filesystem_source_resolve;
   source_class->test_media_from_uri = grl_filesystem_test_media_from_uri;
   source_class->media_from_uri = grl_filesystem_get_media_from_uri;
-
-  g_type_class_add_private (klass, sizeof (GrlFilesystemSourcePrivate));
 }
 
 static void
 grl_filesystem_source_init (GrlFilesystemSource *source)
 {
-  source->priv = GRL_FILESYSTEM_SOURCE_GET_PRIVATE (source);
+  source->priv = grl_filesystem_source_get_instance_private (source);
   source->priv->cancellables = g_hash_table_new (NULL, NULL);
   source->priv->monitors = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                   g_free, g_object_unref);

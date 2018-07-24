@@ -1,0 +1,35 @@
+image: fedora:rawhide
+
+variables:
+  DEPENDENCIES_GRILO: gobject-introspection-devel libxml2-devel
+                      libsoup-devel glib2-devel gtk3-devel
+                      liboauth-devel totem-pl-parser-devel
+                      meson redhat-rpm-config gcc gcc-c++ glibc-devel git
+
+  DEPENDENCIES: intltool sqlite-devel libgcrypt-devel itstool lua-devel
+                libsoup-devel gperf libarchive-devel json-glib-devel
+                avahi-gobject-devel totem-pl-parser-devel rest-devel
+                tracker-devel gmime30-devel libdmapsharing-devel libmediaart-devel
+                gom-devel gnome-online-accounts-devel libgdata-devel
+
+build_stable:
+  before_script:
+    # Work-around https://bugzilla.redhat.com/show_bug.cgi?id=1607172#c4
+    - echo "update dnf gdbm" >> translist.txt
+    - echo "remove python3-modulemd" >> translist.txt
+    - dnf shell -y --nogpgcheck translist.txt
+    - dnf update -y --nogpgcheck
+    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO
+    # Build grilo from git, grilo and grilo-plugins must be in sync
+    - git clone https://gitlab.gnome.org/GNOME/grilo.git
+    - cd grilo
+    - meson . _build --prefix=/usr
+    - ninja -C _build
+    - ninja -C _build install
+    - cd ..
+  script:
+    - dnf install -y --nogpgcheck $DEPENDENCIES
+    - meson . _build --prefix=/usr
+    - ninja -C _build
+    - ninja -C _build install
+    - ninja -C _build test

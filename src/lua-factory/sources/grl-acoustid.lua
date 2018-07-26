@@ -28,7 +28,7 @@ source = {
   id = "grl-acoustid",
   name = "Acoustid",
   description = "a source that provides audio identification",
-  supported_keys = { "title", "album", "artist", "mb-recording-id", "mb-album-id", "mb-artist-id" },
+  supported_keys = { "title", "album", "artist", "mb-recording-id", "mb-album-id", "mb-artist-id", "mb-release-group-id" },
   supported_media = { 'audio' },
   config_keys = {
     required = { "api-key" },
@@ -50,7 +50,7 @@ netopts = {
 acoustid = {}
 
 -- https://acoustid.org/webservice#lookup
-ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=recordings+releasegroups&duration=%d&fingerprint=%s"
+ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=recordings+releasegroups+releases&duration=%d&fingerprint=%s"
 
 ---------------------------------
 -- Handlers of Grilo functions --
@@ -117,7 +117,7 @@ function build_media(results)
 
     album = record.releasegroups[1]
     media.album = keys.album and album.title or nil
-    media.mb_album_id = keys.mb_album_id and album.id or nil
+    media.mb_release_group_id = keys.mb_album_id and album.id or nil
   end
 
   -- FIXME: related-keys on lua sources are in the TODO list
@@ -127,6 +127,11 @@ function build_media(results)
     artist = record.artists[1]
     media.artist = keys.artist and artist.name or nil
     media.mb_artist_id = keys.mb_artist_id and artist.id or nil
+  end
+
+  if album.releases and #album.releases > 0 then
+    release = album.releases[1]
+    media.mb_album_id = keys.mb_album_id and release.id or nil
   end
 
   return media

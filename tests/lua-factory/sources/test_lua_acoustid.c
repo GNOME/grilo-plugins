@@ -47,13 +47,14 @@ resolve (GrlSource   *source,
          gchar      **out_mb_album_id,
          gchar      **out_album,
          gchar      **out_mb_recording_id,
-         gchar      **out_title)
+         gchar      **out_title,
+         gchar      **out_mb_release_group_id)
 {
   GList *keys;
   GrlMedia *audio;
   GrlOperationOptions *options;
   GrlRegistry *registry;
-  GrlKeyID chromaprint_key;
+  GrlKeyID chromaprint_key, mb_release_group_id_key;
   GError *error = NULL;
 
   registry = grl_registry_get_default ();
@@ -81,12 +82,17 @@ resolve (GrlSource   *source,
                            &error);
   g_assert_no_error (error);
 
+  mb_release_group_id_key = grl_registry_lookup_metadata_key (registry, "mb-release-group-id");
+  g_assert_cmpint (mb_release_group_id_key, !=, GRL_METADATA_KEY_INVALID);
+
   *out_mb_artist_id = g_strdup (grl_media_get_mb_artist_id (audio));
   *out_artist = g_strdup (grl_media_get_artist (audio));
   *out_mb_album_id = g_strdup (grl_media_get_mb_album_id (audio));
   *out_album = g_strdup (grl_media_get_album (audio));
   *out_mb_recording_id = g_strdup (grl_media_get_mb_recording_id (audio));
   *out_title = g_strdup (grl_media_get_title (audio));
+  *out_mb_release_group_id = g_strdup (grl_data_get_string (GRL_DATA (audio),
+                                                            mb_release_group_id_key));
 
   g_list_free (keys);
   g_object_unref (options);
@@ -109,27 +115,33 @@ test_resolve_fingerprint (void)
     gchar *album;
     gchar *mb_recording_id;
     gchar *title;
+    gchar *mb_release_group_id;
   } audios[] = {
    { FINGERPRINT_LUDOVICO_EI, 445,
      "fa34b363-79df-434f-a5b8-be4e6898543f", "Ludovico Einaudi",
-     "39f2c673-1387-4272-9db9-5f19d48e47cb", "Divenire",
-     "70088e7c-1c01-48cb-9103-ba8b500c68a4", "Primavera" },
+     "931d4cfa-53c6-41cd-8ab0-a2917a7c1f3e", "Divenire",
+     "70088e7c-1c01-48cb-9103-ba8b500c68a4", "Primavera",
+     "39f2c673-1387-4272-9db9-5f19d48e47cb" },
    { FINGERPRINT_NORAH_JONES, 160,
      "985c709c-7771-4de3-9024-7bda29ebe3f9", "Norah Jones",
-     "f5cffa96-262c-49af-9747-3f04a1d42c78", "\u00d63 Greatest Hits 49",
-     "6d8ba615-d8fe-4f99-b38f-0a17d657b1bb", "Chasing Pirates" },
+     "1ee64f6c-560f-421f-83dc-7fd34e5b0674", "\u00d63 Greatest Hits 49",
+     "6d8ba615-d8fe-4f99-b38f-0a17d657b1bb", "Chasing Pirates",
+     "f5cffa96-262c-49af-9747-3f04a1d42c78" },
    { FINGERPRINT_TROMBONE_SH, 243,
      "cae4fd51-4d58-4d48-92c1-6198cc2e45ed", "Trombone Shorty",
-     "c3418122-387b-4477-90cf-e5e6d110e054", "For True",
-     "96483bdd-f219-4ae3-a94e-04feeeef22a4", "Buckjump" },
+     "567621e3-b80f-4c30-af5f-2ecf0882e94a", "For True",
+     "96483bdd-f219-4ae3-a94e-04feeeef22a4", "Buckjump",
+     "c3418122-387b-4477-90cf-e5e6d110e054" },
    { FINGERPRINT_PHILIP_GLAS, 601,
      "5ae54dee-4dba-49c0-802a-a3b3b3adfe9b", "Philip Glass",
-     "52f1f9d5-5166-4ceb-9289-6fb1a87f367c", "The Passion of Ramakrishna",
-     "298e15a1-b29b-4947-9dca-ec3634f9ebde", "Part 2" },
+     "2807def3-7873-4277-b079-c9a963d99993", "The Passion of Ramakrishna",
+     "298e15a1-b29b-4947-9dca-ec3634f9ebde", "Part 2",
+     "52f1f9d5-5166-4ceb-9289-6fb1a87f367c" },
    { FINGERPRINT_RADIOHEAD_PA, 385,
      "a74b1b7f-71a5-4011-9441-d0b5e4122711", "Radiohead",
-     "aaf960f9-bfe9-3130-9f14-af412880c360", "Superhits of the 90's",
+     "7c095f83-fbf8-4d88-9228-8af138ab6f12", "Superhits of the 90's",
      "7a7c3a58-288b-4725-93af-3b0b4fcd3870", "Paranoid Android",
+     "aaf960f9-bfe9-3130-9f14-af412880c360",
    },
   };
 
@@ -139,7 +151,8 @@ test_resolve_fingerprint (void)
     GFile *file;
     gsize size;
     GError *error = NULL;
-    gchar *mb_artist_id, *artist, *mb_album_id, *album, *mb_recording_id, *title;
+    gchar *mb_artist_id, *artist, *mb_album_id, *album, *mb_recording_id, *title,
+          *mb_release_group_id;
 
     file = g_file_new_for_uri (audios[i].fingerprint_file);
     g_file_load_contents (file, NULL, &data, &size, NULL, &error);
@@ -147,7 +160,8 @@ test_resolve_fingerprint (void)
     g_clear_pointer (&file, g_object_unref);
 
     resolve (source, data, audios[i].duration,
-             &mb_artist_id, &artist, &mb_album_id, &album, &mb_recording_id, &title);
+             &mb_artist_id, &artist, &mb_album_id, &album, &mb_recording_id, &title,
+             &mb_release_group_id);
     g_free (data);
 
     g_assert_cmpstr (audios[i].title, ==, title);
@@ -162,6 +176,8 @@ test_resolve_fingerprint (void)
     g_free (album);
     g_assert_cmpstr (audios[i].mb_recording_id, ==, mb_recording_id);
     g_free (mb_recording_id);
+    g_assert_cmpstr (audios[i].mb_release_group_id, ==, mb_release_group_id);
+    g_free (mb_release_group_id);
   }
 }
 

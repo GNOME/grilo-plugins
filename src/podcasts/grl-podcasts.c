@@ -32,7 +32,7 @@
 #include <libxml/xpath.h>
 #include <sqlite3.h>
 #include <string.h>
-#include <gmime/gmime-utils.h>
+#include <totem-pl-parser.h>
 
 #include "grl-podcasts.h"
 
@@ -638,10 +638,14 @@ build_media (GrlMedia *content,
 
     grl_media_set_id (media, url);
     if (date) {
-      GDateTime *date_time;
-      date_time = g_mime_utils_header_decode_date (date);
-      grl_media_set_publication_date (media, date_time);
-      g_date_time_unref (date_time);
+      guint64 epoch;
+      epoch = totem_pl_parser_parse_date (date, FALSE);
+      if (epoch != -1) {
+        GDateTime *time;
+        time = g_date_time_new_from_unix_utc (epoch);
+        grl_media_set_publication_date (media, time);
+        g_date_time_unref (time);
+      }
     }
     if (desc)
       grl_media_set_description (media, desc);
@@ -1275,11 +1279,9 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   /* Check podcast pubDate (if available), if it has not been updated
      recently then we can use the cache and avoid parsing the feed */
   if (podcast_data->published != NULL) {
-    GDateTime *date_time =
-      g_mime_utils_header_decode_date (podcast_data->published);
-    gint64 pub_time = g_date_time_to_unix (date_time);
-    g_date_time_unref (date_time);
-    if (pub_time == 0) {
+    guint64 pub_time;
+    pub_time = totem_pl_parser_parse_date (podcast_data->published, FALSE);
+    if (pub_time != -1) {
       GRL_DEBUG ("Invalid podcast pubDate: '%s'", podcast_data->published);
       /* We will parse the feed again just in case */
     } else if (os->last_refreshed >= pub_time) {

@@ -105,7 +105,7 @@ plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['metadata-store', [sqlite3_dep], []],
     ['opensubtitles', [gio_dep, libsoup_dep], []],
     ['optical-media', [totem_plparser_dep], []],
-    ['podcasts', [grilo_net_dep, libxml_dep, sqlite3_dep, gmime_dep], []],
+    ['podcasts', [grilo_net_dep, libxml_dep, sqlite3_dep, totem_plparser_dep], []],
     ['raitv', [grilo_net_dep, libxml_dep], []],
     ['shoutcast', [grilo_net_dep, libxml_dep], []],
     ['thetvdb', [grilo_net_dep, libxml_dep, libarchive_dep, gom_dep], []],

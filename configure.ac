@@ -8,7 +8,7 @@
 m4_define([prj_name],          [grilo-plugins])
 m4_define([grl_major_version], [0])
 m4_define([grl_minor_version], [3])
-m4_define([grl_micro_version], [7])
+m4_define([grl_micro_version], [8])
 m4_define([prj_version],       [grl_major_version.grl_minor_version.grl_micro_version])
 
 AC_INIT([prj_name],

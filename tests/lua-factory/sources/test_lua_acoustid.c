@@ -116,8 +116,8 @@ test_resolve_fingerprint (void)
      "70088e7c-1c01-48cb-9103-ba8b500c68a4", "Primavera" },
    { FINGERPRINT_NORAH_JONES, 160,
      "985c709c-7771-4de3-9024-7bda29ebe3f9", "Norah Jones",
-     "8e264957-2754-4888-bbc5-9e165cd01d09", "Chasing Pirates Remix EP",
-     "4116ff10-92cb-43e9-b45d-ea2262b186de", "Chasing Pirates (original album version)" },
+     "f5cffa96-262c-49af-9747-3f04a1d42c78", "\u00d63 Greatest Hits 49",
+     "6d8ba615-d8fe-4f99-b38f-0a17d657b1bb", "Chasing Pirates" },
    { FINGERPRINT_TROMBONE_SH, 243,
      "cae4fd51-4d58-4d48-92c1-6198cc2e45ed", "Trombone Shorty",
      "c3418122-387b-4477-90cf-e5e6d110e054", "For True",
@@ -128,8 +128,8 @@ test_resolve_fingerprint (void)
      "298e15a1-b29b-4947-9dca-ec3634f9ebde", "Part 2" },
    { FINGERPRINT_RADIOHEAD_PA, 385,
      "a74b1b7f-71a5-4011-9441-d0b5e4122711", "Radiohead",
-     "67b2ff2a-38e9-32d0-84a0-85ac98cb16b4", "The Greatest Hits of 1997",
-     "33e369bb-b8de-402f-b88f-594dea3544dc", "Paranoid Android",
+     "aaf960f9-bfe9-3130-9f14-af412880c360", "Superhits of the 90's",
+     "7a7c3a58-288b-4725-93af-3b0b4fcd3870", "Paranoid Android",
    },
   };
 

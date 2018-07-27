@@ -38,6 +38,8 @@ dist_noinst_DATA =                    \
    data/resolve-sonic-sms.data        \
    data/resolve-asterix.data          \
    data/resolve-getgame-asterix.data  \
+   data/resolve-shatterhand.data           \
+   data/resolve-getgame-shatterhand.data   \
    data/resolve-sonic.data            \
    data/resolve-getgame-sonic.data
 

@@ -1,3 +1,29 @@
+NEW in 0.3.7
+============
+  * Last release with autotools
+  * Meson
+    - Fix Lua sourcers directory
+
+  * Updated translations
+    * Italian
+    * Swedish
+    * Romanian
+
+  * Lua-Factory
+    * Allow lua sources to register metadata-keys
+     * The Games DB
+       - Add developer, publisher, coop and players
+         metadata information with is own metata-keys
+
+  * Contributors to this release:
+    * 1PunMan <saurabhsingh412@gmail.com>
+    * Alexander Mikhaylenko <exalm7659@gmail.com>
+    * Anders Jonsson <anders.jonsson@norsjovallen.se>
+    * Bastien Nocera <hadess@hadess.net>
+    * Daniel Șerbănescu <daniel@serbanescu.dk>
+    * Milo Casagrande <milo@ubuntu.com>
+    * Victor Toso <me@victortoso.com>
+
 NEW in 0.3.6
 ============
   * New translations

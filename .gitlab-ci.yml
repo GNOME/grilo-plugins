@@ -9,7 +9,7 @@ variables:
   DEPENDENCIES: intltool sqlite-devel libgcrypt-devel itstool lua-devel
                 libsoup-devel gperf libarchive-devel json-glib-devel
                 avahi-gobject-devel totem-pl-parser-devel rest-devel
-                tracker-devel gmime30-devel libdmapsharing-devel libmediaart-devel
+                tracker-devel libdmapsharing-devel libmediaart-devel
                 gom-devel gnome-online-accounts-devel libgdata-devel
                 gstreamer1-plugins-good gstreamer1-plugins-bad-free-extras
 

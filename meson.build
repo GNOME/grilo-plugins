@@ -41,7 +41,6 @@ avahi_glib_dep = dependency('avahi-glib', required: false)
 avahi_gobject_dep = dependency('avahi-gobject', required: false)
 gio_dep = dependency('gio-2.0', required: false)
 gio_unix_dep = dependency('gio-unix-2.0', required: false)
-gmime_dep = dependency('gmime-3.0', required: false)
 goa_dep = dependency('goa-1.0', version: '>= 3.17.91', required: false)
 gom_dep = dependency('gom-1.0', version: '>= 0.3.2', required: false)
 grilo_net_dep = dependency('grilo-net-0.3', version: '>= 0.3.0', required: false)
@@ -105,7 +104,7 @@ plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['metadata-store', [sqlite3_dep], []],
     ['opensubtitles', [gio_dep, libsoup_dep], []],
     ['optical-media', [totem_plparser_dep], []],
-    ['podcasts', [grilo_net_dep, libxml_dep, sqlite3_dep, gmime_dep], []],
+    ['podcasts', [grilo_net_dep, libxml_dep, sqlite3_dep, totem_plparser_dep], []],
     ['raitv', [grilo_net_dep, libxml_dep], []],
     ['shoutcast', [grilo_net_dep, libxml_dep], []],
     ['thetvdb', [grilo_net_dep, libxml_dep, libarchive_dep, gom_dep], []],

@@ -167,8 +167,6 @@ fi
 
 PKG_CHECK_MODULES([JSON], [json-glib-1.0], HAVE_JSON_GLIB=yes, HAVE_JSON_GLIB=no)
 
-PKG_CHECK_MODULES(GMIME, [gmime-3.0], HAVE_GMIME=yes, HAVE_GMIME=no)
-
 PKG_CHECK_MODULES(AVAHI, [avahi-gobject avahi-glib avahi-client], HAVE_AVAHI=yes, HAVE_AVAHI=no)
 
 PKG_CHECK_MODULES(MEDIAART, [libmediaart-2.0], HAVE_MEDIAART=yes, HAVE_MEDIAART=no)
@@ -488,17 +486,13 @@ AC_ARG_ENABLE(podcasts,
                         if test "x$HAVE_SQLITE" = "xno"; then
                            AC_MSG_ERROR([sqlite3 not found, install it or use --disable-podcasts])
                         fi
-                        if test "x$HAVE_GMIME" = "xno"; then
-                           AC_MSG_ERROR([gmime-3.0 not found, install it or use --disable-podcasts])
-                        fi
                         ;;
                 esac
         ],
         [
                 if test "x$HAVE_GRLNET" = "xyes" -a \
                         "x$HAVE_XML" = "xyes" -a \
-                        "x$HAVE_SQLITE" = "xyes" -a \
-                        "x$HAVE_GMIME" = "xyes"; then
+                        "x$HAVE_SQLITE" = "xyes"; then
                    enable_podcasts=yes
                 else
                    enable_podcasts=no
@@ -516,9 +510,9 @@ PODCASTS_PLUGIN_ID="grl-podcasts"
 AC_SUBST(PODCASTS_PLUGIN_ID)
 AC_DEFINE_UNQUOTED([PODCASTS_PLUGIN_ID], ["$PODCASTS_PLUGIN_ID"], [Podcasts plugin ID])
 
-DEPS_PODCASTS_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS $SQLITE_CFLAGS $GMIME_CFLAGS"
+DEPS_PODCASTS_CFLAGS="$DEPS_CFLAGS $GRLNET_CFLAGS $XML_CFLAGS $SQLITE_CFLAGS"
 AC_SUBST(DEPS_PODCASTS_CFLAGS)
-DEPS_PODCASTS_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS $SQLITE_LIBS $GMIME_LIBS"
+DEPS_PODCASTS_LIBS="$DEPS_LIBS $GRLNET_LIBS $XML_LIBS $SQLITE_LIBS"
 AC_SUBST(DEPS_PODCASTS_LIBS)
 
 # ----------------------------------------------------------

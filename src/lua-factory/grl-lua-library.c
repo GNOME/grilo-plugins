@@ -585,7 +585,7 @@ grl_util_fetch_done (GObject *source_object,
 
   if (err != NULL) {
     if (!cancelled)
-      GRL_WARNING ("Can't fetch element %d (URL: %s): '%s'", fo->index + 1, fo->url, err->message);
+      GRL_DEBUG ("Can't fetch element %d (URL: %s): '%s'", fo->index + 1, fo->url, err->message);
     g_clear_error (&err);
   } else {
     GRL_DEBUG ("fetch_done element %d of %d urls", fo->index + 1, fo->num_urls);

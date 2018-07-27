@@ -103,6 +103,7 @@ function build_media(release)
 
   res = {}
   res[#res + 1] = string.format(MUSICBRAINZ_DEFAULT_QUERY, release, id)
+  res[#res + 1] = string.format(MUSICBRAINZ_DEFAULT_QUERY .. '-1200', release, id)
   res[#res + 1] = string.format(MUSICBRAINZ_DEFAULT_QUERY .. '-500', release, id)
   res[#res + 1] = string.format(MUSICBRAINZ_DEFAULT_QUERY .. '-250', release, id)
 

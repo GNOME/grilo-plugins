@@ -362,7 +362,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
 }
 
 /* I can haz templatze ?? */
-#define TRACKER_QUERY_CB(spec_type,name)                                \
+#define TRACKER_QUERY_CB(spec_type,name,error)                          \
                                                                         \
   static void                                                           \
   tracker_##name##_result_cb (GObject      *source_object,              \
@@ -397,7 +397,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
                      spec->operation_id, tracker_error->message);       \
                                                                         \
         error = g_error_new (GRL_CORE_ERROR,                            \
-                             GRL_CORE_ERROR_BROWSE_FAILED,              \
+                             GRL_CORE_ERROR_##error##_FAILED,           \
                              _("Failed to query: %s"),                  \
                              tracker_error->message);                   \
                                                                         \
@@ -480,7 +480,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
                    spec->operation_id, tracker_error->message);         \
                                                                         \
       error = g_error_new (GRL_CORE_ERROR,                              \
-                           GRL_CORE_ERROR_BROWSE_FAILED,                \
+                           GRL_CORE_ERROR_##error##_FAILED,             \
                            _("Failed to query: %s"),                    \
                            tracker_error->message);                     \
                                                                         \
@@ -501,9 +501,9 @@ get_sparql_type_filter (GrlOperationOptions *options,
                                       (gpointer) os);                   \
   }
 
-TRACKER_QUERY_CB(GrlSourceQuerySpec, query)
-TRACKER_QUERY_CB(GrlSourceBrowseSpec, browse)
-TRACKER_QUERY_CB(GrlSourceSearchSpec, search)
+TRACKER_QUERY_CB(GrlSourceQuerySpec, query, QUERY)
+TRACKER_QUERY_CB(GrlSourceBrowseSpec, browse, BROWSE)
+TRACKER_QUERY_CB(GrlSourceSearchSpec, search, SEARCH)
 
 static void
 tracker_resolve_cb (GObject      *source_object,
@@ -526,7 +526,7 @@ tracker_resolve_cb (GObject      *source_object,
                  tracker_error->message);
 
     error = g_error_new (GRL_CORE_ERROR,
-                        GRL_CORE_ERROR_BROWSE_FAILED,
+                         GRL_CORE_ERROR_RESOLVE_FAILED,
                          _("Failed to resolve: %s"),
                          tracker_error->message);
 

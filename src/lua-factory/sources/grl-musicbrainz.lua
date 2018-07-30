@@ -34,7 +34,7 @@ source = {
     ["type"] = "audio",
     required = { "mb-album-id" },
   },
-  tags = { 'music', 'net:internet' },
+  tags = { 'music', 'net:plaintext' },
 }
 
 MUSICBRAINZ_DEFAULT_QUERY = "http://coverartarchive.org/release/%s/front"

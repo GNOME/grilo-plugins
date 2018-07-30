@@ -1,0 +1,32 @@
+# Format of each line:
+# <Preferred address in AUTHORS> <other alias used by same author>
+
+# Only emails (sorted)
+<atriwidada@gnome.org> <andika@gmail.com>
+<berto@igalia.com> <agarcia@igalia.com>
+<christian.kirbach@gmail.com> <Christian.Kirbach@gmail.com>
+<christian.kirbach@gmail.com> <Christian.Kirbach@googlemail.com>
+<claudio.arseni@gmail.com> <claudio.arseni@ubuntu.com>
+<daniel.mustieles.contractor@bbva.com> <daniel.mustieles@gmail.com>
+<daniel.mustieles.contractor@bbva.com> <dnaiel.mustieles@gmail.com>
+<eiosifidis@gnome.org> <iosifidis@opensuse.org>
+<gcampagna@src.gnome.org> <gcampagn@cs.stanford.edu>
+<gemont@igalia.com> <guijemont@igalia.com>
+<jensg@openismus.com> <mail@jensge.org>
+<meskobalazs@fedoraproject.org> <meskobalazs@gmail.com>
+<mschraal@gnome.org> <mschraal@scr.gnome.org>
+<philip.withnall@collabora.co.uk> <philip@tecnocode.co.uk>
+<pnormand@igalia.com> <phil@base-art.net>
+<shcho@gnome.org> <darkcircle.0426@gmail.com>
+<tomtryf@gnome.org> <tomtryf@gmail.com>
+
+# Preferred names and emails (sorted)
+Ask Hjorth Larsen <asklarsen@gmail.com>
+Fran Diéguez <fran.dieguez@mabishu.com>
+Gábor Kelemen <kelemeng@openscope.org> <kelemeng@gnome.hu>
+Iago Toral <itoral@igalia.com> 
+Juan A. Suarez Romero <jasuarez@igalia.com>
+Miguel Rodríguez Núñez <bokerones.fritos@gmail.com>
+Murray Cumming <murrayc@murrayc.com> <murrayc@openismus.com>
+Simon Pena <spena@igalia.com> <spenap@gmail.com>
+Víctor Manuel Jáquez Leal <vjaquez@igalia.com>

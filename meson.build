@@ -36,6 +36,18 @@ gmodule_dep = dependency('gmodule-2.0', version: glib2_required_info, required: 
 gobject_dep = dependency('gobject-2.0', version: glib2_required_info, required: true)
 grilo_dep = dependency('grilo-0.3', version: grilo_required_info, required: true)
 
+pkgconf = configuration_data()
+pkgconf.set('prefix', prefix)
+pkgconf.set('libdir', libdir)
+pkgconf.set('VERSION', plugin_version)
+
+pkgconfig_file = 'grilo-plugins-@0@.@1@'.format(grl_major, grl_minor)
+
+configure_file(input: pkgconfig_file + '.pc.in',
+               output: pkgconfig_file + '.pc',
+               configuration: pkgconf,
+               install_dir: '@0@/pkgconfig'.format(get_option('libdir')))
+
 avahi_client_dep = dependency('avahi-client', required: false)
 avahi_glib_dep = dependency('avahi-glib', required: false)
 avahi_gobject_dep = dependency('avahi-gobject', required: false)

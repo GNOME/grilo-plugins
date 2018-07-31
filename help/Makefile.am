@@ -7,7 +7,7 @@ HELP_ID = grilo-plugins
 HELP_FILES = grilo-plugins.xml
 HELP_EXTRA = legal.xml
 HELP_MEDIA = ../examples/example-tmdb.c
-HELP_LINGUAS =
+HELP_LINGUAS = es
 
 # For manual checking:
 XMLLINT = xmllint

@@ -13,7 +13,7 @@ project('grilo-plugins', 'c',
             'warning_level=1'
         ],
         license: 'LGPL 2.1',
-        meson_version: '>= 0.36.0')
+        meson_version: '>= 0.37.0')
 
 plugin_version = meson.project_version()
 version_array = plugin_version.split('.')

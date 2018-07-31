@@ -1318,6 +1318,13 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [The domain to use with g
 #AM_GLIB_GNU_GETTEXT
 
 # ----------------------------------------------------------
+# PKGCONFIG
+# ----------------------------------------------------------
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = grilo-plugins-0.3.pc
+
+# ----------------------------------------------------------
 # WORKAROUNDS
 # ----------------------------------------------------------
 
@@ -1336,6 +1343,7 @@ YELP_HELP_INIT
 
 AC_CONFIG_FILES([
   Makefile
+  grilo-plugins-${GRL_MAJOR}.${GRL_MINOR}.pc
   help/Makefile
   help/examples/Makefile
   po/Makefile.in

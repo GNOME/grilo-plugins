@@ -76,6 +76,9 @@ endif
 lua_dep = dependency('lua', version: '>= 5.3.0', required: false)
 if not lua_dep.found()
     lua_dep = dependency('lua5.3', version: '>= 5.3.0', required: false)
+    if not lua_dep.found()
+        lua_dep = dependency('lua-5.3', version: '>= 5.3.0', required: false)
+    endif
 endif
 
 gperf = find_program('gperf', required: false)

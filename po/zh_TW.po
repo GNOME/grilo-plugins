@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2018-08-01 17:25+0000\n"
+"POT-Creation-Date: 2018-08-12 10:25+0000\n"
 "PO-Revision-Date: 2018-08-12 17:37+0800\n"
 "Last-Translator: pan93412 <pan93412@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) <chinese-l10n@googlegroups.com>\n"
@@ -61,7 +61,7 @@ msgstr "用來使用 gstreamer 框架取得中介資料的外掛程式"
 #: src/dleyna/grl-dleyna-source.c:34
 #, c-format
 msgid "A source for browsing the DLNA server “%s”"
-msgstr "瀏覽 DLNA 伺服器 '%s' 的來源"
+msgstr "瀏覽 DLNA 伺服器「%s」的來源"
 
 #: src/dleyna/grl-dleyna-source.c:273
 msgid "Upload failed, target source destroyed"
@@ -85,7 +85,7 @@ msgstr "上傳失敗，要傳輸的媒體物件 URL 遺失"
 #: src/dmap/grl-daap.c:50
 #, c-format
 msgid "A source for browsing the DAAP server “%s”"
-msgstr "瀏覽 DAAP 伺服器 '%s' 的來源"
+msgstr "瀏覽 DAAP 伺服器「%s」的來源"
 
 #: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:788
 #: src/magnatune/grl-magnatune.c:122
@@ -106,7 +106,7 @@ msgstr "無效的容器辨識碼 %s"
 #: src/dmap/grl-dpap.c:50
 #, c-format
 msgid "A source for browsing the DPAP server “%s”"
-msgstr "瀏覽 DPAP 伺服器 '%s' 的來源"
+msgstr "瀏覽 DPAP 伺服器「%s」的來源"
 
 #: src/dmap/grl-dpap-db.c:36
 msgid "Photos"

@@ -1,7 +1,7 @@
 # Korean translation for grilo-plugins.
 # Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
-# Seong-ho Cho <shcho@gnome.org>, 2013-2015, 2016.
+# Seong-ho Cho <shcho@gnome.org>, 2013-2015, 2016, 2018.
 #
 # NOTE: 용어 번역은 번역 내용을 참고하십시오
 #
@@ -10,612 +10,612 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=grilo&keywords=I18N+L10N&component=plugins\n"
-"POT-Creation-Date: 2016-08-18 21:14+0000\n"
-"PO-Revision-Date: 2016-09-02 03:00+0900\n"
-"Last-Translator: Seong-ho Cho <darkcircle.0426@gmail.com>\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
+"POT-Creation-Date: 2018-08-01 17:25+0000\n"
+"PO-Revision-Date: 2018-08-22 20:54+0900\n"
+"Last-Translator: Seong-ho Cho <shcho@gnome.org>\n"
 "Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.8.7\n"
+"X-Generator: Poedit 2.1.1\n"
 
-#: ../src/bookmarks/grl-bookmarks.c:65
+#: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
 msgstr "즐겨찾기"
 
-#: ../src/bookmarks/grl-bookmarks.c:66
+#: src/bookmarks/grl-bookmarks.c:61
 msgid "A source for organizing media bookmarks"
 msgstr "미디어 즐겨찾기 정리 원본"
 
-#: ../src/bookmarks/grl-bookmarks.c:434
+#: src/bookmarks/grl-bookmarks.c:427
 msgid "Failed to get bookmark metadata"
 msgstr "즐겨찾기 메타데이터 가져오기에 실패했습니다"
 
-#: ../src/bookmarks/grl-bookmarks.c:464 ../src/bookmarks/grl-bookmarks.c:481
+#: src/bookmarks/grl-bookmarks.c:457 src/bookmarks/grl-bookmarks.c:474
 #, c-format
 msgid "Failed to find bookmarks: %s"
 msgstr "즐겨찾기 검색에 실패했습니다: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:633 ../src/podcasts/grl-podcasts.c:828
-#: ../src/podcasts/grl-podcasts.c:860 ../src/podcasts/grl-podcasts.c:892
+#: src/bookmarks/grl-bookmarks.c:626 src/podcasts/grl-podcasts.c:823
+#: src/podcasts/grl-podcasts.c:855 src/podcasts/grl-podcasts.c:887
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "제거에 실패했습니다: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:773 ../src/podcasts/grl-podcasts.c:933
-#: ../src/podcasts/grl-podcasts.c:966 ../src/podcasts/grl-podcasts.c:1811
+#: src/bookmarks/grl-bookmarks.c:766 src/podcasts/grl-podcasts.c:928
+#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1806
 #, c-format
 msgid "Failed to store: %s"
 msgstr "저장에 실패했습니다: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:847 ../src/bookmarks/grl-bookmarks.c:882
-#: ../src/bookmarks/grl-bookmarks.c:913 ../src/bookmarks/grl-bookmarks.c:971
-#: ../src/metadata-store/grl-metadata-store.c:869
-#: ../src/podcasts/grl-podcasts.c:1667 ../src/podcasts/grl-podcasts.c:1711
-#: ../src/podcasts/grl-podcasts.c:1745 ../src/podcasts/grl-podcasts.c:1780
+#: src/bookmarks/grl-bookmarks.c:840 src/bookmarks/grl-bookmarks.c:875
+#: src/bookmarks/grl-bookmarks.c:906 src/bookmarks/grl-bookmarks.c:964
+#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1662
+#: src/podcasts/grl-podcasts.c:1706 src/podcasts/grl-podcasts.c:1740
+#: src/podcasts/grl-podcasts.c:1775
 msgid "No database connection"
 msgstr "데이터베이스 연결이 없습니다"
 
-#: ../src/chromaprint/grl-chromaprint.c:46
+#: src/chromaprint/grl-chromaprint.c:41
 msgid "A plugin to get metadata using gstreamer framework"
 msgstr "지스트리머 프레임워크로 메타데이터를 가져오는 플러그인"
 
-#: ../src/dleyna/grl-dleyna-source.c:34
+#: src/dleyna/grl-dleyna-source.c:34
 #, c-format
-msgid "A source for browsing the DLNA server '%s'"
-msgstr "'%s' DLNA 서버 탐색 원본"
+msgid "A source for browsing the DLNA server “%s”"
+msgstr "“%s” DLNA 서버 탐색 원본"
 
-#: ../src/dleyna/grl-dleyna-source.c:278
+#: src/dleyna/grl-dleyna-source.c:273
 msgid "Upload failed, target source destroyed"
 msgstr "업로드에 실패하였고, 대상 원본이 깨졌습니다"
 
-#: ../src/dleyna/grl-dleyna-source.c:380
+# NOTE: 원문의 의미에 대한 설명이 불분명한 사유로 부정확한 또는 잘못 적은 번역을
+# 오랫동안 방치한 부분입니다. 일부 검토 및 수정 필요.
+#: src/dleyna/grl-dleyna-source.c:375
 #, c-format
-msgid "Upload failed, '%s', transferred %lu of %lu bytes"
-msgstr ""
-"업로드에 실패하였고, '%1$s', %3$lu 바이트 중 %2$lu 바이트를 전송했습니다"
+msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
+msgstr "업로드에 실패하였고, “%1$s”, %3$lu 바이트 중 %2$lu 바이트를 전송했습니다"
 
-#: ../src/dleyna/grl-dleyna-source.c:881
+#: src/dleyna/grl-dleyna-source.c:880
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr "항목 속성 가져오기에 실패했습니다(BrowseObjects 오류 %d: %s)"
 
-#: ../src/dleyna/grl-dleyna-source.c:1520
+#: src/dleyna/grl-dleyna-source.c:1519
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr "업로드에 실패하였고, 전송할 미디어 객체의 URL이 빠졌습니다"
 
-#: ../src/dmap/grl-daap.c:50
+#: src/dmap/grl-daap.c:50
 #, c-format
-msgid "A source for browsing the DAAP server '%s'"
-msgstr "'%s' DAAP 서버 탐색 원본"
+msgid "A source for browsing the DAAP server “%s”"
+msgstr "“%s” DAAP 서버 탐색 원본"
 
-#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:795
-#: ../src/magnatune/grl-magnatune.c:121
+#: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:788
+#: src/magnatune/grl-magnatune.c:122
 msgid "Albums"
 msgstr "앨범"
 
-#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:784
-#: ../src/magnatune/grl-magnatune.c:120
+#: src/dmap/grl-daap-db.c:64 src/jamendo/grl-jamendo.c:777
+#: src/magnatune/grl-magnatune.c:121
 msgid "Artists"
 msgstr "음악가"
 
-#: ../src/dmap/grl-daap-db.c:285 ../src/jamendo/grl-jamendo.c:1122
-#: ../src/jamendo/grl-jamendo.c:1233 ../src/magnatune/grl-magnatune.c:841
+#: src/dmap/grl-daap-db.c:292 src/jamendo/grl-jamendo.c:1115
+#: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "잘못된 컨테이너 식별자 %s 입니다"
 
-#: ../src/dmap/grl-dpap.c:50
+#: src/dmap/grl-dpap.c:50
 #, c-format
-msgid "A source for browsing the DPAP server '%s'"
-msgstr "'%s' DPAP 서버 탐색 원본"
+msgid "A source for browsing the DPAP server “%s”"
+msgstr "“%s” DPAP 서버 탐색 원본"
 
-#: ../src/dmap/grl-dpap-db.c:36
+#: src/dmap/grl-dpap-db.c:36
 msgid "Photos"
 msgstr "사진"
 
-#: ../src/filesystem/grl-filesystem.c:58
+#: src/filesystem/grl-filesystem.c:58
 msgid "Filesystem"
 msgstr "파일 시스템"
 
-#: ../src/filesystem/grl-filesystem.c:59
+#: src/filesystem/grl-filesystem.c:59
 msgid "A source for browsing the filesystem"
 msgstr "파일 시스템 탐색 원본"
 
-#: ../src/filesystem/grl-filesystem.c:1179
+#: src/filesystem/grl-filesystem.c:1170
 #, c-format
 msgid "File %s does not exist"
 msgstr "%s 파일이 없습니다"
 
-#: ../src/filesystem/grl-filesystem.c:1257 ../src/youtube/grl-youtube.c:1520
+#: src/filesystem/grl-filesystem.c:1248 src/youtube/grl-youtube.c:1505
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "%s에서 미디어를 가져올 수 없습니다"
 
-#: ../src/flickr/grl-flickr.c:61
+#: src/flickr/grl-flickr.c:58
 msgid "A source for browsing and searching Flickr photos"
 msgstr "플리커 사진 탐색 및 검색 원본"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:65
+#: src/flickr/grl-flickr.c:62
 #, c-format
-msgid "%s's Flickr"
-msgstr "%s의 플리커"
+msgid "%s’s Flickr"
+msgstr "%s의 플리커 계정"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:67
+#: src/flickr/grl-flickr.c:64
 #, c-format
-msgid "A source for browsing and searching %s's flickr photos"
+msgid "A source for browsing and searching %s’s flickr photos"
 msgstr "%s의 플리커 사진 탐색 및 검색 원본"
 
-#: ../src/freebox/grl-freebox.c:48
+#: src/freebox/grl-freebox.c:48
 msgid "Freebox TV"
 msgstr "프리박스 TV"
 
-#: ../src/freebox/grl-freebox.c:49
+#: src/freebox/grl-freebox.c:49
 msgid "A source for browsing Freebox TV channels"
 msgstr "프리박스 TV 채널 탐색 원본"
 
-#: ../src/freebox/grl-freebox.c:52
+#: src/freebox/grl-freebox.c:52
 msgid "Freebox Radio"
 msgstr "프리박스 라디오"
 
-#: ../src/freebox/grl-freebox.c:53
+#: src/freebox/grl-freebox.c:53
 msgid "A source for browsing Freebox radio channels"
 msgstr "프리박스 라디오 채널 탐색 원본"
 
-#: ../src/gravatar/grl-gravatar.c:46
+#: src/gravatar/grl-gravatar.c:46
 msgid "Avatar provider from Gravatar"
 msgstr "그라바타의 아바타 제공자"
 
-#: ../src/gravatar/grl-gravatar.c:47
+#: src/gravatar/grl-gravatar.c:47
 msgid "A plugin to get avatars for artist and author fields"
 msgstr "제작자나 작가 필드에서 아바타를 가져오는 플러그인"
 
-#: ../src/jamendo/grl-jamendo.c:91
+#: src/jamendo/grl-jamendo.c:91
 msgid "A source for browsing and searching Jamendo music"
 msgstr "자멘도 음악 탐색 및 검색 원본"
 
-#: ../src/jamendo/grl-jamendo.c:149
+#: src/jamendo/grl-jamendo.c:149
 msgid "Albums of the week"
 msgstr "금주의 앨범"
 
-#: ../src/jamendo/grl-jamendo.c:151
+#: src/jamendo/grl-jamendo.c:151
 msgid "Tracks of the week"
 msgstr "금주의 트랙"
 
-#: ../src/jamendo/grl-jamendo.c:153
+#: src/jamendo/grl-jamendo.c:153
 msgid "New releases"
 msgstr "새 앨범"
 
-#: ../src/jamendo/grl-jamendo.c:155
+#: src/jamendo/grl-jamendo.c:155
 msgid "Top artists"
 msgstr "상위 음악가"
 
-#: ../src/jamendo/grl-jamendo.c:157
+#: src/jamendo/grl-jamendo.c:157
 msgid "Top albums"
 msgstr "상위 앨범"
 
-#: ../src/jamendo/grl-jamendo.c:159
+#: src/jamendo/grl-jamendo.c:159
 msgid "Top tracks"
 msgstr "상위 트랙"
 
-#: ../src/jamendo/grl-jamendo.c:348 ../src/jamendo/grl-jamendo.c:708
-#: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:470
+#: src/jamendo/grl-jamendo.c:341 src/jamendo/grl-jamendo.c:701
+#: src/shoutcast/grl-shoutcast.c:409 src/shoutcast/grl-shoutcast.c:463
 msgid "Failed to parse response"
 msgstr "해석 응답에 실패했습니다"
 
-#: ../src/jamendo/grl-jamendo.c:356 ../src/jamendo/grl-jamendo.c:363
-#: ../src/podcasts/grl-podcasts.c:1368 ../src/shoutcast/grl-shoutcast.c:424
+#: src/jamendo/grl-jamendo.c:349 src/jamendo/grl-jamendo.c:356
+#: src/podcasts/grl-podcasts.c:1363 src/shoutcast/grl-shoutcast.c:417
 msgid "Empty response"
 msgstr "빈 응답"
 
-#: ../src/jamendo/grl-jamendo.c:677 ../src/shoutcast/grl-shoutcast.c:558
+#: src/jamendo/grl-jamendo.c:670 src/shoutcast/grl-shoutcast.c:551
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "연결에 실패했습니다: %s"
 
-#: ../src/jamendo/grl-jamendo.c:806
+#: src/jamendo/grl-jamendo.c:799
 msgid "Feeds"
 msgstr "피드"
 
-#: ../src/jamendo/grl-jamendo.c:990 ../src/jamendo/grl-jamendo.c:1035
-#: ../src/jamendo/grl-jamendo.c:1062
+#: src/jamendo/grl-jamendo.c:983 src/jamendo/grl-jamendo.c:1028
+#: src/jamendo/grl-jamendo.c:1055
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "잘못된 식별자 %s 입니다"
 
-#: ../src/jamendo/grl-jamendo.c:1049 ../src/youtube/grl-youtube.c:1112
-#: ../src/youtube/grl-youtube.c:1245 ../src/youtube/grl-youtube.c:1457
+#: src/jamendo/grl-jamendo.c:1042 src/youtube/grl-youtube.c:1097
+#: src/youtube/grl-youtube.c:1230 src/youtube/grl-youtube.c:1442
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "잘못된 카테고리 식별지 %s 입니다"
 
-#: ../src/jamendo/grl-jamendo.c:1228
+#: src/jamendo/grl-jamendo.c:1221
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "탐색에 실패했습니다: %s 요소는 트랙입니다"
 
-#: ../src/jamendo/grl-jamendo.c:1287
+#: src/jamendo/grl-jamendo.c:1280
 #, c-format
-msgid "Malformed query \"%s\""
-msgstr "잘못된 쿼리 \"%s\" 입니다"
+msgid "Malformed query “%s”"
+msgstr "잘못된 “%s” 쿼리 입니다"
 
-#: ../src/local-metadata/grl-local-metadata.c:42
+#: src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
 msgstr "로컬 메타데이터 제공자"
 
-#: ../src/local-metadata/grl-local-metadata.c:43
+#: src/local-metadata/grl-local-metadata.c:43
 msgid "A source providing locally available metadata"
 msgstr "로컬에서 사용할 수 있는 메타데이터의 제공 원본"
 
-#: ../src/local-metadata/grl-local-metadata.c:388
-#: ../src/metadata-store/grl-metadata-store.c:779 ../src/raitv/grl-raitv.c:874
-#: ../src/tracker/grl-tracker-source-api.c:527
+#: src/local-metadata/grl-local-metadata.c:381
+#: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "분석에 실패했습니다: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:682
+#: src/local-metadata/grl-local-metadata.c:673
 msgid "Cannot resolve any of the given keys"
 msgstr "주어진 그 어떤 키 조차도 분석할 수 없습니다"
 
-#: ../src/local-metadata/grl-local-metadata.c:686
+#: src/local-metadata/grl-local-metadata.c:677
 msgid "A GIO supported URL for images is required"
 msgstr "그림에 대한 GIO 지원 URL이 필요합니다"
 
-#: ../src/magnatune/grl-magnatune.c:122
+#: src/magnatune/grl-magnatune.c:123
 msgid "Genres"
 msgstr "장르"
 
-#: ../src/magnatune/grl-magnatune.c:130
+#: src/magnatune/grl-magnatune.c:131
 msgid "A source for browsing music"
 msgstr "음악 탐색 원본"
 
-#: ../src/magnatune/grl-magnatune.c:422
+#: src/magnatune/grl-magnatune.c:421
 #, c-format
 msgid "Failed to get database from magnatune: %s"
 msgstr "매그너튠 데이터베이스 가져오기에 실패했습니다: %s"
 
-#: ../src/magnatune/grl-magnatune.c:452
+#: src/magnatune/grl-magnatune.c:451
 #, c-format
-msgid "Failed to save database from magnatune - '%s'"
-msgstr "매그너튠 데이터베이스 저장에 실패했습니다 - '%s'"
+msgid "Failed to save database from magnatune: “%s”"
+msgstr "매그너튠 데이터베이스 저장에 실패했습니다: “%s”"
 
-#: ../src/magnatune/grl-magnatune.c:697
+#: src/magnatune/grl-magnatune.c:722
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
 msgstr "매그너튠 데이터베이스에서 테이블 가져오기에 실패했습니다: %s"
 
-#: ../src/magnatune/grl-magnatune.c:713
+#: src/magnatune/grl-magnatune.c:738
 #, c-format
 msgid "Fail before returning media to user: %s"
 msgstr "사용자에게 미디어를 반환하기 이전에 실패가 있습니다: %s"
 
-#: ../src/metadata-store/grl-metadata-store.c:45
+#: src/metadata-store/grl-metadata-store.c:40
 msgid "Metadata Store"
 msgstr "메타데이터 저장소"
 
-#: ../src/metadata-store/grl-metadata-store.c:46
+#: src/metadata-store/grl-metadata-store.c:41
 msgid "A plugin for storing extra metadata information"
 msgstr "추가 메타데이터 정보를 저장하는 플러그인"
 
-#: ../src/metadata-store/grl-metadata-store.c:593
-#: ../src/metadata-store/grl-metadata-store.c:612
-#: ../src/metadata-store/grl-metadata-store.c:824
-#: ../src/tracker/grl-tracker-source-api.c:637
+#: src/metadata-store/grl-metadata-store.c:598
+#: src/metadata-store/grl-metadata-store.c:617
+#: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "메타데이터 업데이트에 실패했습니다: %s"
 
-#: ../src/metadata-store/grl-metadata-store.c:594
+#: src/metadata-store/grl-metadata-store.c:599
 msgid "specified keys are not writable"
 msgstr "지정한 키에 기록할 수 없습니다"
 
-#: ../src/metadata-store/grl-metadata-store.c:634
+#: src/metadata-store/grl-metadata-store.c:639
 msgid "Failed to update metadata"
 msgstr "메타데이터 업데이트에 실패했습니다"
 
-#: ../src/metadata-store/grl-metadata-store.c:780
-#: ../src/metadata-store/grl-metadata-store.c:825
-msgid "\"source-id\" not available"
-msgstr "\"source-id\"가 없습니다"
+#: src/metadata-store/grl-metadata-store.c:785
+#: src/metadata-store/grl-metadata-store.c:830
+msgid "“source-id” not available"
+msgstr "“source-id”가 없습니다"
 
-#: ../src/metadata-store/grl-metadata-store.c:800
+#: src/metadata-store/grl-metadata-store.c:805
 msgid "Failed to resolve"
 msgstr "분석에 실패했습니다"
 
-#: ../src/metadata-store/grl-metadata-store.c:937
-#: ../src/metadata-store/grl-metadata-store.c:974 ../src/raitv/grl-raitv.c:432
-#: ../src/shoutcast/grl-shoutcast.c:756 ../src/vimeo/grl-vimeo.c:547
+#: src/metadata-store/grl-metadata-store.c:942
+#: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
+#: src/shoutcast/grl-shoutcast.c:749 src/vimeo/grl-vimeo.c:540
 #, c-format
 msgid "Failed to search: %s"
 msgstr "검색에 실패했습니다: %s"
 
-#: ../src/opensubtitles/grl-opensubtitles.c:40
+#: src/opensubtitles/grl-opensubtitles.c:40
 msgid "OpenSubtitles Provider"
 msgstr "OpenSubtitles 제공자"
 
-#: ../src/opensubtitles/grl-opensubtitles.c:41
+#: src/opensubtitles/grl-opensubtitles.c:41
 msgid "A source providing a list of subtitles for a video"
 msgstr "비디오 자막 목록을 제공하는 공급원"
 
-#: ../src/optical-media/grl-optical-media.c:44
+#: src/optical-media/grl-optical-media.c:44
 msgid "Optical Media"
 msgstr "광 미디어"
 
-#: ../src/optical-media/grl-optical-media.c:45
+#: src/optical-media/grl-optical-media.c:45
 msgid "A source for browsing optical media"
 msgstr "광 미디어 탐색 원본"
 
-#: ../src/podcasts/grl-podcasts.c:153
+#: src/podcasts/grl-podcasts.c:148
 msgid "A source for browsing podcasts"
 msgstr "팟캐스트 탐색 원본"
 
-#: ../src/podcasts/grl-podcasts.c:764 ../src/podcasts/grl-podcasts.c:784
+#: src/podcasts/grl-podcasts.c:759 src/podcasts/grl-podcasts.c:779
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "팟캐스트 스트림 가져오기에 실패했습니다: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1250 ../src/podcasts/grl-podcasts.c:1259
-#: ../src/podcasts/grl-podcasts.c:1269
+#: src/podcasts/grl-podcasts.c:1245 src/podcasts/grl-podcasts.c:1254
+#: src/podcasts/grl-podcasts.c:1264
 msgid "Failed to parse content"
 msgstr "컨텐트 해석에 실패했습니다"
 
-#: ../src/podcasts/grl-podcasts.c:1302
+#: src/podcasts/grl-podcasts.c:1297
 msgid "Failed to parse podcast contents"
 msgstr "팟캐스트 컨텐트 해석에 실패했습니다"
 
-#: ../src/podcasts/grl-podcasts.c:1457
+#: src/podcasts/grl-podcasts.c:1452
 msgid "Failed to get podcast information"
 msgstr "팟캐스트 정보 가져오기에 실패했습니다"
 
-#: ../src/podcasts/grl-podcasts.c:1497 ../src/podcasts/grl-podcasts.c:1517
+#: src/podcasts/grl-podcasts.c:1492 src/podcasts/grl-podcasts.c:1512
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "팟캐스트 목록 가져오기에 실패했습니다: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1570 ../src/podcasts/grl-podcasts.c:1585
+#: src/podcasts/grl-podcasts.c:1565 src/podcasts/grl-podcasts.c:1580
 msgid "Failed to get podcast stream metadata"
 msgstr "팟캐스트 스트림 메타데이터 가져오기에 실패했습니다"
 
-#: ../src/podcasts/grl-podcasts.c:1623
+#: src/podcasts/grl-podcasts.c:1618
 msgid "Failed to get podcast metadata"
 msgstr "팟캐스트 메타데이터 가져오기에 실패했습니다"
 
-#: ../src/podcasts/grl-podcasts.c:1807
+#: src/podcasts/grl-podcasts.c:1802
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "컨테이너를 만들 수 없습니다. 피드만 허용합니다"
 
-#: ../src/podcasts/grl-podcasts.c:1812
+#: src/podcasts/grl-podcasts.c:1807
 msgid "URL required"
 msgstr "URL이 필요합니다"
 
-#: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
+#: src/raitv/grl-raitv.c:49 src/youtube/grl-youtube.c:73
 msgid "Most Popular"
 msgstr "가장 인기있는 내용"
 
-#: ../src/raitv/grl-raitv.c:52
+#: src/raitv/grl-raitv.c:52
 msgid "Recent"
 msgstr "최근"
 
-#: ../src/raitv/grl-raitv.c:93
+#: src/raitv/grl-raitv.c:93
 msgid "A source for browsing and searching Rai.tv videos"
 msgstr "Rai.tv 동영상 탐색 및 검색 원본"
 
-#: ../src/raitv/grl-raitv.c:171
+#: src/raitv/grl-raitv.c:164
 msgid "All"
 msgstr "모두"
 
-#: ../src/raitv/grl-raitv.c:172
+#: src/raitv/grl-raitv.c:165
 msgid "Black and White"
 msgstr "흑백"
 
-#: ../src/raitv/grl-raitv.c:173
+#: src/raitv/grl-raitv.c:166
 msgid "Cinema"
 msgstr "영화"
 
-#: ../src/raitv/grl-raitv.c:174
+#: src/raitv/grl-raitv.c:167
 msgid "Comedians"
 msgstr "코미디"
 
-#: ../src/raitv/grl-raitv.c:175
+#: src/raitv/grl-raitv.c:168
 msgid "Chronicle"
 msgstr "연대기"
 
-#: ../src/raitv/grl-raitv.c:176
+#: src/raitv/grl-raitv.c:169
 msgid "Culture"
 msgstr "문화"
 
-#: ../src/raitv/grl-raitv.c:177
+#: src/raitv/grl-raitv.c:170
 msgid "Economy"
 msgstr "경제"
 
-#: ../src/raitv/grl-raitv.c:178
+#: src/raitv/grl-raitv.c:171
 msgid "Fiction"
 msgstr "소설"
 
-#: ../src/raitv/grl-raitv.c:179
+#: src/raitv/grl-raitv.c:172
 msgid "Junior"
 msgstr "어린이"
 
-#: ../src/raitv/grl-raitv.c:180
+#: src/raitv/grl-raitv.c:173
 msgid "Investigations"
 msgstr "수사"
 
-#: ../src/raitv/grl-raitv.c:181
+#: src/raitv/grl-raitv.c:174
 msgid "Interviews"
 msgstr "인터뷰"
 
-#: ../src/raitv/grl-raitv.c:182
+#: src/raitv/grl-raitv.c:175
 msgid "Music"
 msgstr "음악"
 
-#: ../src/raitv/grl-raitv.c:183
+#: src/raitv/grl-raitv.c:176
 msgid "News"
 msgstr "뉴스"
 
-#: ../src/raitv/grl-raitv.c:184
+#: src/raitv/grl-raitv.c:177
 msgid "Health"
 msgstr "건강"
 
-#: ../src/raitv/grl-raitv.c:185
+#: src/raitv/grl-raitv.c:178
 msgid "Satire"
 msgstr "풍자"
 
-#: ../src/raitv/grl-raitv.c:187
+#: src/raitv/grl-raitv.c:180
 msgid "Society"
 msgstr "사회"
 
 # NOTE: 컨텐트 장르 이름. false alarm에 따라 "보이기"로 번역하지 마십시오.
-#: ../src/raitv/grl-raitv.c:188
+#: src/raitv/grl-raitv.c:181
 msgid "Show"
 msgstr "쇼"
 
-#: ../src/raitv/grl-raitv.c:189
+#: src/raitv/grl-raitv.c:182
 msgid "Sport"
 msgstr "스포츠"
 
-#: ../src/raitv/grl-raitv.c:190
+#: src/raitv/grl-raitv.c:183
 msgid "History"
 msgstr "역사"
 
-#: ../src/raitv/grl-raitv.c:191
+#: src/raitv/grl-raitv.c:184
 msgid "Politics"
 msgstr "정치"
 
-#: ../src/raitv/grl-raitv.c:192
+#: src/raitv/grl-raitv.c:185
 msgid "Leisure"
 msgstr "레저"
 
-#: ../src/raitv/grl-raitv.c:193
+#: src/raitv/grl-raitv.c:186
 msgid "Travel"
 msgstr "여행"
 
-#: ../src/raitv/grl-raitv.c:625
+#: src/raitv/grl-raitv.c:616
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "탐색에 실패했습니다: %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:65
+#: src/shoutcast/grl-shoutcast.c:60
 msgid "A source for browsing SHOUTcast radios"
 msgstr "샤우트캐스트 라디오 탐색 원본"
 
-#: ../src/shoutcast/grl-shoutcast.c:462
+#: src/shoutcast/grl-shoutcast.c:455
 #, c-format
 msgid "Cannot find media %s"
 msgstr "%s 미디어를 찾을 수 없습니다"
 
-#: ../src/shoutcast/grl-shoutcast.c:757 ../src/vimeo/grl-vimeo.c:548
+#: src/shoutcast/grl-shoutcast.c:750 src/vimeo/grl-vimeo.c:541
 msgid "non-NULL search text is required"
 msgstr "비어있지 않은 검색 텍스트가 필요합니다"
 
-#: ../src/thetvdb/grl-thetvdb.c:98
+#: src/thetvdb/grl-thetvdb.c:93
 msgid "A source for fetching metadata of television shows"
 msgstr "텔레비전 쇼 프로그램의 메타데이터 가져오기 원본"
 
-#: ../src/tmdb/grl-tmdb.c:1004
+#: src/tmdb/grl-tmdb.c:998
 msgid "Remote data does not contain valid identifier"
 msgstr "원격 데이터에 유효한 식별자가 없습니다"
 
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:398
-#: ../src/tracker/grl-tracker-source-api.c:481
+#: src/tracker/grl-tracker-source-api.c:401
+#: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
 msgstr "쿼리에 실패했습니다: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:582
+#: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "URI에서 미디어 가져오기에 실패했습니다: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:802
+#: src/tracker/grl-tracker-source-api.c:806
 msgid "Empty query"
 msgstr "빈 쿼리입니다"
 
-#: ../src/tracker/grl-tracker-source-api.c:1077
+#: src/tracker/grl-tracker-source-api.c:1088
 #, c-format
-msgid "ID '%s' is not known in this source"
-msgstr "이 원본에 ID '%s'이(가) 없습니다"
+msgid "ID “%s” is not known in this source"
+msgstr "이 원본에 “%s” ID가 없습니다"
 
-#: ../src/tracker/grl-tracker-source-priv.h:44
+#: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Tracker를 활용한 멀티미디어 컨텐트 검색 플러그인"
 
-#: ../src/tracker/grl-tracker-utils.c:691
+#: src/tracker/grl-tracker-utils.c:738
 #, c-format
-msgid "Removable - %s"
-msgstr "이동식 - %s"
+msgid "Removable — %s"
+msgstr "이동식 — %s"
 
-#: ../src/tracker/grl-tracker-utils.c:703
+#: src/tracker/grl-tracker-utils.c:750
 msgid "Local files"
 msgstr "로컬 파일"
 
-#: ../src/vimeo/grl-vimeo.c:56
+#: src/vimeo/grl-vimeo.c:51
 msgid "A source for browsing and searching Vimeo videos"
 msgstr "비미오 동영상 탐색 및 검색 원본"
 
-#: ../src/youtube/grl-youtube.c:60
+#: src/youtube/grl-youtube.c:55
 msgid "Standard feeds"
 msgstr "표준 피드"
 
-#: ../src/youtube/grl-youtube.c:63
+#: src/youtube/grl-youtube.c:58
 msgid "Categories"
 msgstr "카테고리"
 
-#: ../src/youtube/grl-youtube.c:69
+#: src/youtube/grl-youtube.c:64
 msgid "Top Rated"
 msgstr "가장 순위가 높은 내용"
 
-#: ../src/youtube/grl-youtube.c:72
+#: src/youtube/grl-youtube.c:67
 msgid "Top Favorites"
 msgstr "가장 많이 찾는 내용"
 
-#: ../src/youtube/grl-youtube.c:75
+#: src/youtube/grl-youtube.c:70
 msgid "Most Viewed"
 msgstr "가장 많이 본 내용"
 
-#: ../src/youtube/grl-youtube.c:81
+#: src/youtube/grl-youtube.c:76
 msgid "Most Recent"
 msgstr "가장 최근의 내용"
 
-#: ../src/youtube/grl-youtube.c:84
+#: src/youtube/grl-youtube.c:79
 msgid "Most Discussed"
 msgstr "가장 많이 토론한 내용"
 
-#: ../src/youtube/grl-youtube.c:87
+#: src/youtube/grl-youtube.c:82
 msgid "Most Linked"
 msgstr "가장 많이 링크한 내용"
 
-#: ../src/youtube/grl-youtube.c:90
+#: src/youtube/grl-youtube.c:85
 msgid "Most Responded"
 msgstr "가장 많은 반응을 보인 내용"
 
-#: ../src/youtube/grl-youtube.c:93
+#: src/youtube/grl-youtube.c:88
 msgid "Recently Featured"
 msgstr "최근 내용"
 
-#: ../src/youtube/grl-youtube.c:96
+#: src/youtube/grl-youtube.c:91
 msgid "Watch On Mobile"
 msgstr "모바일 버전으로 보기"
 
-#: ../src/youtube/grl-youtube.c:115
+#: src/youtube/grl-youtube.c:110
 msgid "A source for browsing and searching YouTube videos"
 msgstr "유튜브 동영상 탐색 및 검색 원본"
 
-#: ../src/youtube/grl-youtube.c:871
+#: src/youtube/grl-youtube.c:856
 msgid "Failed to get feed"
 msgstr "피드 가져오기에 실패했습니다"
 
-#: ../src/youtube/grl-youtube.c:1048 ../src/youtube/grl-youtube.c:1436
+#: src/youtube/grl-youtube.c:1033 src/youtube/grl-youtube.c:1421
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "잘못된 피드 식별자 %s 입니다"

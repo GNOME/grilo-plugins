@@ -100,7 +100,7 @@ function fetch_cb(result)
   local media = {}
   local thumb = {}
   for _, val in ipairs(covers_fields) do
-    thumb[#thumb + 1] = json.album[val] or nil
+    thumb[#thumb + 1] = json.album[1][val] or nil
   end
 
   media.thumbnail = thumb

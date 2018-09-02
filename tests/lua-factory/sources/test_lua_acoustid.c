@@ -122,10 +122,10 @@ test_resolve_fingerprint (void)
     gchar *mb_release_id;
   } audios[] = {
    { FINGERPRINT_LUDOVICO_EI, 445,
-     "fa34b363-79df-434f-a5b8-be4e6898543f", "Ludovico Einaudi",
-     "39f2c673-1387-4272-9db9-5f19d48e47cb", "Divenire",
-     "70088e7c-1c01-48cb-9103-ba8b500c68a4", "Primavera",
-     "931d4cfa-53c6-41cd-8ab0-a2917a7c1f3e" },
+     "e7d8aea3-9c1d-4fe0-b93a-481d545296fc", "Craig Ogden",
+     "2cde60bc-829c-49af-a62c-e20283167c30", "Classic FM Summer Guitar",
+     "5d72b7d4-d0c4-4d0d-ab7f-3a737075e1c9", "Primavera",
+     "5fd10cc8-30e0-48aa-9ba1-19d05b871a75" },
    { FINGERPRINT_NORAH_JONES, 160,
      "985c709c-7771-4de3-9024-7bda29ebe3f9", "Norah Jones",
      "f5cffa96-262c-49af-9747-3f04a1d42c78", "\u00d63 Greatest Hits 49",
@@ -143,9 +143,9 @@ test_resolve_fingerprint (void)
      "2807def3-7873-4277-b079-c9a963d99993" },
    { FINGERPRINT_RADIOHEAD_PA, 385,
      "a74b1b7f-71a5-4011-9441-d0b5e4122711", "Radiohead",
-     "aaf960f9-bfe9-3130-9f14-af412880c360", "Superhits of the 90's",
-     "7a7c3a58-288b-4725-93af-3b0b4fcd3870", "Paranoid Android",
-     "7c095f83-fbf8-4d88-9228-8af138ab6f12",
+     "5156ef3b-6d06-46d9-874d-4e7e41ef3be0", "ROCK DA PLACE",
+     "5188ac5f-6000-483a-b689-b4773d0b1afa", "Paranoid Android",
+     "f9f6ab9e-65da-4e90-853f-23960b04736a",
    },
   };
 

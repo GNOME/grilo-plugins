@@ -28,7 +28,7 @@ source = {
   id = "grl-acoustid",
   name = "Acoustid",
   description = "a source that provides audio identification",
-  supported_keys = { "title", "album", "artist", "mb-recording-id", "mb-album-id", "mb-artist-id", "mb-release-group-id", "mb-release-id" },
+  supported_keys = { "title", "album", "artist", "mb-recording-id", "mb-album-id", "mb-artist-id", "mb-release-group-id", "mb-release-id", "album-disc-number", "publication-date", "track-number" },
   supported_media = { 'audio' },
   config_keys = {
     required = { "api-key" },
@@ -50,7 +50,7 @@ netopts = {
 acoustid = {}
 
 -- https://acoustid.org/webservice#lookup
-ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=recordings+releasegroups+releases&duration=%d&fingerprint=%s"
+ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=recordings+releasegroups+releases+tracks+compress&duration=%d&fingerprint=%s"
 
 ---------------------------------
 -- Handlers of Grilo functions --
@@ -135,6 +135,22 @@ function build_media(results)
   if album and album.releases and #album.releases > 0 then
     release = album.releases[1]
     media.mb_release_id = keys.mb_album_id and release.id or nil
+
+    if release.date then
+      local date = release.date
+      local month = date.month or 1
+      local day = date.day or 1
+      date = string.format('%04d-%02d-%02d', date.year, month, day)
+      media.publication_date = keys.publication_date and date or nil
+    end
+
+    if release.mediums and #release.mediums > 0 then
+       medium = release.mediums[1]
+      media.album_disc_number = keys.album_disc_number and medium.position or nil
+      if medium.tracks and #medium.tracks > 0 then
+	media.track_number = keys.track_number and medium.tracks[1].position or nil
+      end
+    end
   end
 
   return media

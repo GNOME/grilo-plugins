@@ -14,7 +14,6 @@ sources = [
     'grl-lastfm-cover',
     'grl-musicbrainz-coverart',
     'grl-radiofrance',
-    'grl-spotify-cover',
     'grl-steam-store',
     'grl-theaudiodb-cover',
     'grl-thegamesdb',

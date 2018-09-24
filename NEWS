@@ -1,3 +1,71 @@
+NEW in 0.3.8
+============
+  * Autotools removed
+  * Add pkgconfig file
+  * meson
+    * Fixes finding lua-5.3 in FreeBSD
+
+  * Tracker
+    * Fixes error types (gnome-bz 794691)
+
+  * Lua-Factory
+    * New source: TheAudioDB cover source
+    * AcoustID
+      - Add support to MusicBrainz' release and release-group
+    * MusicBrainz
+      - Add support to release-group cover art
+
+  * Added translations in help
+    * German
+    * pt_BR
+    * Swedish
+    * Finish
+    * Czech
+
+  * Updated translations
+    * Lithuanian
+    * Spanish
+    * Romanian
+    * Turkish
+    * Friulian
+    * French
+    * Chinese (Taiwan)
+    * Czech
+    * Korean
+    * Indonesian
+    * Galician
+    * Danish
+    * Latvian
+    * Croatian
+
+  * Contributors to this release:
+    * Anders Jonsson <anders.jonsson@norsjovallen.se>
+    * Ask Hjorth Larsen <asklarsen@gmail.com>
+    * Aurimas Černius <aurisc4@gmail.com>
+    * Bastien Nocera <hadess@hadess.net>
+    * Daniel Mustieles <daniel.mustieles.contractor@bbva.com>
+    * Emin Tufan Çetin <etcetin@gmail.com>
+    * Fabio Tomat <f.t.public@gmail.com>
+    * Fran Dieguez <frandieguez@gnome.org>
+    * gogo <trebelnik2@gmail.com>
+    * Jean Felder <jfelder@src.gnome.org>
+    * Juan A. Suarez Romero <jasuarez@igalia.com>
+    * Marek Cernocky <marek_cernocky@conel.cz>
+    * Marinus Schraal <mschraal@gnome.org>
+    * Mario Blättermann <mario.blaettermann@gmail.com>
+    * Piotr Drąg <piotrdrag@gmail.com>
+    * Rafael Fontenelle <rafaelff@gnome.org>
+    * Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>
+    * Seong-ho Cho <shcho@gnome.org>
+    * Ting-Wei Lan <lantw@src.gnome.org>
+    * Victor Toso <me@victortoso.com>
+
+  * New contributors to this release
+    * Charles Monzat <charles.monzat@numericable.fr>
+    * Jiri Grönroos <jiri.gronroos@iki.fi>
+    * Kukuh Syafaat <kukuhsyafaat@gnome.org>
+    * Yi-Jyun Pan <pan93412@gmail.com>
+
 NEW in 0.3.7
 ============
   * Last release with autotools

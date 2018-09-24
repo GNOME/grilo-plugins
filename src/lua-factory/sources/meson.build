@@ -12,7 +12,6 @@ sources = [
     'grl-guardianvideos',
     'grl-itunes-podcast',
     'grl-lastfm-cover',
-    'grl-metrolyrics',
     'grl-musicbrainz',
     'grl-pocket',
     'grl-radiofrance',

@@ -9,12 +9,7 @@ acoustid_resources = gnome.compile_resources('acoustidresources',
     'test_lua_acoustid.gresource.xml',
     c_name: '_grl_lua_acoustid')
 
-metrolyrics_resources = gnome.compile_resources('metrolyricsresources',
-    'test_lua_metrolyrics.gresource.xml',
-    c_name: '_grl_lua_metrolyrics')
-
 source_tests = [
-#    'test_lua_metrolyrics',
 ]
 
 if chromaprint_enabled
@@ -28,7 +23,7 @@ source_common = [
     'test_lua_factory_utils.h',
 ]
 
-resources = acoustid_resources + metrolyrics_resources
+resources = acoustid_resources
 
 foreach t: source_tests
     exe = executable(t, [t + '.c'] + source_common + resources,

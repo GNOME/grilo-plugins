@@ -8,7 +8,7 @@ option('enable-freebox', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value:
 option('enable-gravatar', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Gravatar plugin')
 option('enable-jamendo', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Jamendo plugin')
 option('enable-local-metadata', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Local Metadata plugin')
-option('enable-lua-factory', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Lua Factory plugin')
+option('enable-lua-factory', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'yes', description: 'Enable Lua Factory plugin')
 option('enable-magnatune', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Magnatune plugin')
 option('enable-metadata-store', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Metadata Store plugin')
 option('enable-opensubtitles', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Opensubtitles plugin')

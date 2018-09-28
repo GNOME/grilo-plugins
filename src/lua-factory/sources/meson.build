@@ -15,6 +15,7 @@ sources = [
     'grl-metrolyrics',
     'grl-musicbrainz',
     'grl-pocket',
+    'grl-radio-browser',
     'grl-radiofrance',
     'grl-spotify-cover',
     'grl-theaudiodb-cover',
@@ -25,6 +26,7 @@ sources = [
 resources = [
     'grl-euronews',
     'grl-guardianvideos',
+    'grl-radio-browser',
     'grl-radiofrance',
     'grl-pocket',
     'grl-appletrailers',

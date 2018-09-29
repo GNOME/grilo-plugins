@@ -69,7 +69,7 @@ function grl_source_resolve()
     end
   end
   grl.debug('Fetching URL ' .. url .. ' for game ' .. req.title .. ' (' .. tostring(req.mime_type) ..')')
-  grl.fetch(url, fetch_results_cb, netopts)
+  grl.fetch(url, netopts, fetch_results_cb)
 end
 
 ---------------

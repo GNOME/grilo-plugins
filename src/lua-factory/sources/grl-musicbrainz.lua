@@ -69,7 +69,7 @@ function grl_source_resolve()
     end
   end
 
-  grl.fetch(urls, fetch_results_cb, netopts)
+  grl.fetch(urls, netopts, fetch_results_cb)
 end
 
 ---------------

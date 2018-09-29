@@ -71,7 +71,7 @@ function grl_source_resolve()
   title = title:gsub("%s+", "-")
   title = grl.encode(title)
   url = string.format(METROLYRICS_DEFAULT_QUERY, title, artist)
-  grl.fetch(url, fetch_page_cb, netopts)
+  grl.fetch(url, netopts, fetch_page_cb)
 end
 
 ---------------

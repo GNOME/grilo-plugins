@@ -76,7 +76,7 @@ function grl_source_resolve()
   artist = grl.encode(keys.artist)
   album = grl.encode(keys.album)
   url = string.format(THEAUDIODB_SEARCH_ALBUM, theaudiodb.api_key, artist, album)
-  grl.fetch(url, fetch_cb, netopts)
+  grl.fetch(url, netopts, fetch_cb)
 end
 
 ---------------

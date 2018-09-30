@@ -16,6 +16,7 @@ sources = [
     'grl-pocket',
     'grl-radiofrance',
     'grl-spotify-cover',
+    'grl-steam-store',
     'grl-theaudiodb-cover',
     'grl-thegamesdb',
     'grl-video-title-parsing',

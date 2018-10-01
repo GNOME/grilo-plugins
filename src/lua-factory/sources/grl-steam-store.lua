@@ -1,21 +1,21 @@
 --[[
- * Copyright (C) 2018 Grilo Project
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA
- *
+* Copyright (C) 2018 Grilo Project
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public License
+* as published by the Free Software Foundation; version 2.1 of
+* the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful, but
+* WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+* 02110-1301 USA
+*
 --]]
 
 ---------------------------
@@ -68,85 +68,85 @@ end
 ---------------
 
 function format_date(date)
-	local month_map = {
-		Jan = 1,
-		Feb = 2,
-		Mar = 3,
-		Apr = 4,
-		May = 5,
-		Jun = 6,
-		Jul = 7,
-		Aug = 8,
-		Sep = 9,
-		Oct = 10,
-		Nov = 11,
-		Dec = 12,
-	}
-	month, day, year = string.match(date, '^(%w+) (%d+), (%d+)')
-	day = tonumber(day)
-	year = tonumber(year)
+  local month_map = {
+    Jan = 1,
+    Feb = 2,
+    Mar = 3,
+    Apr = 4,
+    May = 5,
+    Jun = 6,
+    Jul = 7,
+    Aug = 8,
+    Sep = 9,
+    Oct = 10,
+    Nov = 11,
+    Dec = 12,
+  }
+  month, day, year = string.match(date, '^(%w+) (%d+), (%d+)')
+  day = tonumber(day)
+  year = tonumber(year)
 
-	if month == nil or month_map[month] == nil or day == nil or year == nil then
-		grl.warning('could not parse date: ' .. date)
-		return nil
-	end
+  if not month or not month_map[month] or not day or not year then
+    grl.warning('could not parse date: ' .. date)
+    return nil
+  end
 
-	return tostring(year) .. '-' .. tostring(month_map[month]) .. '-' .. tostring(day)
+  return string.format("%d-%d-%d", year, month_map[month], day)
 end
 
 function fetch_game_cb(results, appid)
-	local results_table, data, media
-	
-	results_table = grl.lua.json.string_to_table(results)
+  local results_table, data, media
 
-	if not results_table[appid] or not results_table[appid].data then
-		grl.warning('Got a result without data')
-		grl.callback()
-		return
-	end
+  results_table = grl.lua.json.string_to_table(results)
 
-	data = results_table[appid].data
+  if not results_table[appid] or not results_table[appid].data then
+    grl.warning('Got a result without data')
+    grl.callback()
+    return
+  end
 
-	media = {}
+  data = results_table[appid].data
 
-	-- simple properties
-	local propmap = {
-		title = 'name',
-		description = 'about_the_game',
-		thumbnail = 'header_image',
-		external_url = 'website',
-		developer = 'developers',
-		publisher = 'publishers',
-	}
+  media = {}
 
-	for media_key, data_key in pairs(propmap) do
-		if data[data_key] then
-			media[media_key] = data[data_key]
-		end
-	end
+  -- simple properties
+  local propmap = {
+    title = 'name',
+    description = 'about_the_game',
+    thumbnail = 'header_image',
+    external_url = 'website',
+    developer = 'developers',
+    publisher = 'publishers',
+  }
 
-	-- genre
-	if type(data.genres) == 'table' then
-		media.genre = {}
-		for i, genre_info in ipairs(data.genres) do
-			if genre_info.description then
-				table.insert(media.genre, genre_info.description)
-			end
-		end
-	end
+  for media_key, data_key in pairs(propmap) do
+    if data[data_key] then
+      media[media_key] = data[data_key]
+    end
+  end
 
-	-- rating
-	if type(data.metacritic) == 'table' and data.metacritic.score ~= nil then
-		media.rating = data.metacritic.score
-	end
+  -- genre
+  if data.genres and #data.genres > 0 then
+    media.genre = {}
+    for i, genre_info in ipairs(data.genres) do
+      if genre_info.description then
+        table.insert(media.genre, genre_info.description)
+      end
+    end
+  end
 
-	-- publication-date
-	if type(data.release_date) == 'table' and data.release_date.date ~= nil then
-		local date = format_date(data.release_date.date)
-		if date ~= nil then
-			media.publication_date = date
-		end
-	end
+  -- rating
+  if type(data.metacritic) == 'table' and data.metacritic.score then
+    media.rating = data.metacritic.score
+  end
 
-	grl.callback(media, 0)
+  -- publication-date
+  if type(data.release_date) == 'table' and data.release_date.date then
+    local date = format_date(data.release_date.date)
+    if date then
+      media.publication_date = date
+    end
+  end
+
+  grl.callback(media, 0)
 end

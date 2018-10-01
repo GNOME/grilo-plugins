@@ -17,6 +17,7 @@ test_plugins = [
 test_lua_sources = [
     'games',
     'spotify-cover',
+    'steam-store',
 ]
 
 # Plugins

@@ -13,7 +13,6 @@ sources = [
     'grl-itunes-podcast',
     'grl-lastfm-cover',
     'grl-musicbrainz',
-    'grl-pocket',
     'grl-radiofrance',
     'grl-spotify-cover',
     'grl-theaudiodb-cover',
@@ -25,7 +24,6 @@ resources = [
     'grl-euronews',
     'grl-guardianvideos',
     'grl-radiofrance',
-    'grl-pocket',
     'grl-appletrailers',
     'grl-itunes-podcast',
 ]

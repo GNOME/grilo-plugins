@@ -50,7 +50,7 @@ netopts = {
 acoustid = {}
 
 -- https://acoustid.org/webservice#lookup
-ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=recordings+releasegroups+releases&duration=%d&fingerprint=%s"
+ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=recordings+releasegroups+releases+sources&duration=%d&fingerprint=%s"
 
 ---------------------------------
 -- Handlers of Grilo functions --
@@ -102,11 +102,17 @@ function build_media(results)
   local keys = grl.get_requested_keys ()
   local record, album, artist
   local release_group_id
+  local sources = 0
 
   if results and #results > 0 and
       results[1].recordings and
       #results[1].recordings > 0 then
-    record = results[1].recordings[1]
+    for _, recording in ipairs(results[1].recordings) do
+      if recording.sources > sources then
+        sources = recording.sources
+        record = recording
+      end
+    end
 
     media.title = keys.title and record.title or nil
     media.mb_recording_id = keys.mb_recording_id and record.id or nil

@@ -123,9 +123,9 @@ test_resolve_fingerprint (void)
   } audios[] = {
    { FINGERPRINT_LUDOVICO_EI, 445,
      "fa34b363-79df-434f-a5b8-be4e6898543f", "Ludovico Einaudi",
-     "39f2c673-1387-4272-9db9-5f19d48e47cb", "Divenire",
-     "70088e7c-1c01-48cb-9103-ba8b500c68a4", "Primavera",
-     "931d4cfa-53c6-41cd-8ab0-a2917a7c1f3e" },
+     "ac615d26-df00-3053-9462-7636375603b4", "The Number One Classical Album 2008",
+     "8f6ac978-95cf-41e8-82fb-043624652e04", "Primavera",
+     "d73e4041-375c-4b9f-8366-46089bca304c" },
    { FINGERPRINT_NORAH_JONES, 160,
      "985c709c-7771-4de3-9024-7bda29ebe3f9", "Norah Jones",
      "f5cffa96-262c-49af-9747-3f04a1d42c78", "\u00d63 Greatest Hits 49",
@@ -143,9 +143,9 @@ test_resolve_fingerprint (void)
      "2807def3-7873-4277-b079-c9a963d99993" },
    { FINGERPRINT_RADIOHEAD_PA, 385,
      "a74b1b7f-71a5-4011-9441-d0b5e4122711", "Radiohead",
-     "aaf960f9-bfe9-3130-9f14-af412880c360", "Superhits of the 90's",
-     "7a7c3a58-288b-4725-93af-3b0b4fcd3870", "Paranoid Android",
-     "7c095f83-fbf8-4d88-9228-8af138ab6f12",
+     "dd02a722-bb7f-4771-9a5b-681f5556ce71", "3X plus de bruit!",
+     "9f9cf187-d6f9-437f-9d98-d59cdbd52757", "Paranoid Android",
+     "67016a2b-118d-483d-9e36-49080ae43df4",
    },
   };
 

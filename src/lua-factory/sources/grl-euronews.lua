@@ -21,7 +21,7 @@
 --]]
 
 LANG_EN                 = "en"
-EURONEWS_URL            = 'http://%s.euronews.com/api/watchlive.json'
+EURONEWS_URL            = 'https://%s.euronews.com/api/watchlive.json'
 
 local langs = {
   arabic = "Arabic",
@@ -96,7 +96,7 @@ function euronews_initial_fetch_cb(results, lang)
     return
   end
 
-  grl.fetch(json.url, euronews_fetch_cb, lang)
+  grl.fetch("https:" .. json.url, euronews_fetch_cb, lang)
 end
 
 

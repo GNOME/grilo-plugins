@@ -686,6 +686,7 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
   gchar *str_id;
   GError *local_error = NULL;
   gboolean ret;
+  gboolean is_new_bookmark = FALSE;
 
   GRL_DEBUG ("store_bookmark");
 
@@ -722,6 +723,7 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
                              "parent", parent_id,
                              "type", type,
                              NULL);
+    is_new_bookmark = TRUE;
   }
 
   if (type == BOOKMARK_TYPE_STREAM) {
@@ -780,7 +782,7 @@ store_bookmark (GrlBookmarksSource *bookmarks_source,
   if (bookmarks_source->priv->notify_changes) {
     grl_source_notify_change (GRL_SOURCE (bookmarks_source),
                               bookmark,
-                              GRL_CONTENT_ADDED,
+                              is_new_bookmark ? GRL_CONTENT_ADDED : GRL_CONTENT_CHANGED,
                               FALSE);
   }
 }

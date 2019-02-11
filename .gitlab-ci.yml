@@ -16,10 +16,6 @@ variables:
 
 build_stable:
   before_script:
-    # Work-around https://bugzilla.redhat.com/show_bug.cgi?id=1607172#c4
-    - echo "update dnf gdbm" >> translist.txt
-    - echo "remove python3-modulemd" >> translist.txt
-    - dnf shell -y --nogpgcheck translist.txt
     - dnf update -y --nogpgcheck
     - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO
     # Build grilo from git, grilo and grilo-plugins must be in sync

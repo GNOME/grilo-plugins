@@ -1269,6 +1269,13 @@ parse_feed (OperationSpec *os, const gchar *str, GError **error)
   xmlXPathFreeObject (xpathObj);
   xpathObj = NULL;
 
+  if(podcast_data == NULL) {
+    *error = g_error_new_literal (GRL_CORE_ERROR,
+                                  os->error_code,
+                                  _("Failed to parse podcast contents"));
+    goto free_resources;
+  }
+
   /* Check podcast pubDate (if available), if it has not been updated
      recently then we can use the cache and avoid parsing the feed */
   if (podcast_data->published != NULL) {

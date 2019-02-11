@@ -5,6 +5,7 @@ variables:
                       libsoup-devel glib2-devel gtk3-devel
                       liboauth-devel totem-pl-parser-devel
                       meson redhat-rpm-config gcc gcc-c++ glibc-devel git vala
+                      gtk-doc
 
   DEPENDENCIES: sqlite-devel libgcrypt-devel itstool lua-devel
                 libsoup-devel gperf libarchive-devel json-glib-devel

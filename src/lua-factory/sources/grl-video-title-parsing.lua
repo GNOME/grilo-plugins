@@ -105,7 +105,7 @@ function parse_as_movie(media)
   local str = clean_title_from_blacklist (media.title)
   for i, parser in ipairs(parsers.movies) do
     title, date = str:match(parser)
-    if title and date then
+    if title and title ~= '' and date and date ~= '' then
       media.title = clean_title(title)
       media.publication_date = date
       return true

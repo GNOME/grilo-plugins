@@ -13,7 +13,7 @@ project('grilo-plugins', 'c',
             'warning_level=1'
         ],
         license: 'LGPL 2.1',
-        meson_version: '>= 0.44.0')
+        meson_version: '>= 0.47.0')
 
 plugin_version = meson.project_version()
 version_array = plugin_version.split('.')
@@ -52,7 +52,7 @@ avahi_glib_dep = dependency('avahi-glib', required: false)
 avahi_gobject_dep = dependency('avahi-gobject', required: false)
 gio_dep = dependency('gio-2.0', required: false)
 gio_unix_dep = dependency('gio-unix-2.0', required: false)
-goa_dep = dependency('goa-1.0', version: '>= 3.17.91', required: false)
+goa_dep = dependency('goa-1.0', version: '>= 3.17.91', required: get_option('goa'))
 gom_dep = dependency('gom-1.0', version: '>= 0.4', required: false)
 grilo_net_dep = dependency('grilo-net-0.3', version: '>= 0.3.0', required: false,
                            fallback: ['grilo', 'libgrlnet_dep'])

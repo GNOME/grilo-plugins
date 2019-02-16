@@ -21,4 +21,5 @@ option('enable-tmdb', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'a
 option('enable-tracker', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Tracker plugin (DEPRECATED)')
 option('enable-tracker3', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Tracker3 plugin')
 option('enable-youtube', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable YouTube plugin')
+option('goa', type: 'feature', value: 'auto', description: 'Enable gnome-online-accounts usage')
 option('help', type: 'combo', choices: [ 'yes', 'no' ], value: 'yes', description: 'Build examples developers')

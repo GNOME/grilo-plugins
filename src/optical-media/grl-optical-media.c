@@ -53,6 +53,7 @@ struct _GrlOpticalMediaSourcePrivate {
   guint monitor_signal_ids[NUM_MONITOR_SIGNALS];
   /* List of GrlMedia */
   GList *list;
+  GHashTable *ignored_schemes;
   GCancellable *cancellable;
   gboolean notify_changes;
 };
@@ -96,11 +97,39 @@ on_g_volume_monitor_added_event (GVolumeMonitor        *monitor,
 
 /* =================== OpticalMedia Plugin  =============== */
 
+static char *
+normalise_scheme (const char *scheme)
+{
+  char *s;
+
+  if (scheme == NULL)
+    return NULL;
+
+  if (!g_ascii_isalnum (scheme[0])) {
+    GRL_DEBUG ("Ignoring 'ignore-scheme' '%s' as it is not valid", scheme);
+    return NULL;
+  }
+
+  for (s = (char *) (scheme + 1); *s != '\0'; s++) {
+    if (!g_ascii_isalnum (*s) &&
+        *s != '+' &&
+        *s != '-' &&
+        *s != '.') {
+      GRL_DEBUG ("Ignoring 'ignore-scheme' '%s' as it is not valid", scheme);
+      return NULL;
+    }
+  }
+
+  return g_ascii_strdown (scheme, -1);
+}
+
 gboolean
 grl_optical_media_plugin_init (GrlRegistry *registry,
                                GrlPlugin *plugin,
                                GList *configs)
 {
+  GrlOpticalMediaSource *source;
+
   GRL_LOG_DOMAIN_INIT (optical_media_log_domain, "optical_media");
 
   GRL_DEBUG ("%s", __FUNCTION__);
@@ -109,7 +138,21 @@ grl_optical_media_plugin_init (GrlRegistry *registry,
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
-  GrlOpticalMediaSource *source = grl_optical_media_source_new ();
+  source = grl_optical_media_source_new ();
+  source->priv->ignored_schemes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+  for (; configs; configs = g_list_next (configs)) {
+    GrlConfig *config = configs->data;
+    gchar *scheme, *normalised_scheme;
+
+    scheme = grl_config_get_string (config, GRILO_CONF_IGNORED_SCHEME);
+    normalised_scheme = normalise_scheme (scheme);
+    g_free (scheme);
+    if (normalised_scheme)
+      g_hash_table_insert (source->priv->ignored_schemes, normalised_scheme, GINT_TO_POINTER(1));
+    else
+      g_free (normalised_scheme);
+  }
 
   grl_registry_register_source (registry,
                                 plugin,
@@ -189,6 +232,8 @@ grl_optical_media_source_finalize (GObject *object)
 
   g_cancellable_cancel (source->priv->cancellable);
   g_clear_object (&source->priv->cancellable);
+  g_hash_table_destroy (source->priv->ignored_schemes);
+  source->priv->ignored_schemes = NULL;
 
   for (i = 0; i < NUM_MONITOR_SIGNALS; i++) {
     g_signal_handler_disconnect (G_OBJECT (source->priv->monitor),
@@ -542,6 +587,28 @@ typedef struct {
 
 static void resolve_disc_urls (BrowseData *data);
 
+static gboolean
+ignore_url (BrowseData *data)
+{
+  GrlOpticalMediaSource *source = GRL_OPTICAL_MEDIA_SOURCE (data->bs->source);
+  GrlMedia *media = data->media;
+  char *scheme, *scheme_lower;
+  gboolean ret = FALSE;
+  const char *url;
+
+  url = grl_media_get_url (media);
+  if (url == NULL)
+    return TRUE;
+
+  scheme = g_uri_parse_scheme (url);
+  scheme_lower = g_ascii_strdown (scheme, -1);
+  g_free (scheme);
+  ret = g_hash_table_lookup (source->priv->ignored_schemes, scheme_lower) != NULL;
+  g_free (scheme_lower);
+
+  return ret;
+}
+
 static void
 parsed_finished (TotemPlParser *pl, GAsyncResult *result, BrowseData *data)
 {
@@ -559,7 +626,7 @@ parsed_finished (TotemPlParser *pl, GAsyncResult *result, BrowseData *data)
   }
 
   if (retval == TOTEM_PL_PARSER_RESULT_SUCCESS &&
-      grl_media_get_url (data->media) != NULL) {
+      !ignore_url (data)) {
     GrlOpticalMediaSource *source;
 
     source = GRL_OPTICAL_MEDIA_SOURCE (data->bs->source);

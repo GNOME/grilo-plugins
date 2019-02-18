@@ -51,6 +51,8 @@
                               GRL_OPTICAL_MEDIA_SOURCE_TYPE,   \
                               GrlOpticalMediaSourceClass))
 
+/* --- Grilo Configuration --- */
+#define GRILO_CONF_IGNORED_SCHEME "ignored-scheme"
 
 typedef struct _GrlOpticalMediaSource GrlOpticalMediaSource;
 typedef struct _GrlOpticalMediaSourcePrivate GrlOpticalMediaSourcePrivate;

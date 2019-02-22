@@ -704,6 +704,7 @@ grl_optical_media_source_browse (GrlSource *source,
   GRL_DEBUG ("%s", __FUNCTION__);
 
   g_list_free_full (priv->list, g_object_unref);
+  priv->list = NULL;
 
   media_list = NULL;
 

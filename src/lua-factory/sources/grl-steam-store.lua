@@ -34,15 +34,28 @@ source = {
   tags = { 'games', 'net:internet' },
 }
 
-netopts = {
-  user_agent = "Grilo Source SteamStore/0.3.0",
-}
+
+function get_netopts_for_lang(lang)
+  local netopts
+  -- nil means use the system lang
+  netopts = {
+    user_agent = "Grilo Source SteamStore/0.3.0",
+  }
+  if lang then
+    netopts['headers'] = {}
+    netopts['headers']['Accept-Language'] = lang
+  end
+
+  return netopts
+end
 
 ------------------
 -- Source utils --
 ------------------
 
-BASE_API_URL = "https://store.steampowered.com/api/appdetails?appids="
+function get_steam_store_url(appid)
+  return "https://store.steampowered.com/api/appdetails?appids=" .. appid
+end
 
 ---------------------------------
 -- Handlers of Grilo functions --
@@ -58,9 +71,13 @@ function grl_source_resolve()
     return
   end
 
-  url = BASE_API_URL .. req.id
-  grl.debug('Fetching URL ' .. url .. ' for appid ' .. req.id)
-  grl.fetch(url, netopts, fetch_game_cb, req.id)
+  url = get_steam_store_url(req.id)
+  grl.debug('Fetching URL ' .. url .. ' for appid ' .. req.id .. ' for US locale')
+  -- We do two requests for the data. The first request uses accept-language
+  -- for en-US because we know how to parse a date from this locale. We use all
+  -- other information from the system locale which is automatically set by
+  -- libsoup when no accept-language header is given.
+  grl.fetch(url, get_netopts_for_lang('en-US'), fetch_game_cb_us, req.id)
 end
 
 ---------------
@@ -68,6 +85,7 @@ end
 ---------------
 
 function format_date(date)
+  -- this will only work if the date comes from the en-US locale
   local month_map = {
     Jan = 1,
     Feb = 2,
@@ -94,13 +112,41 @@ function format_date(date)
   return string.format("%d-%d-%d", year, month_map[month], day)
 end
 
-function fetch_game_cb(results, appid)
-  local results_table, data, media
+function validate_results(results_table, appid)
+  return (results_table[appid] and results_table[appid].data)
+end
+
+function fetch_game_cb_us(results, appid)
+  local user_data, us_results
+
+  us_results = grl.lua.json.string_to_table(results)
+
+  if not validate_results(us_results, appid) then
+    grl.warning('Got a result for us lang with invalid data')
+    grl.callback()
+    return
+  end
+
+  user_data = {}
+  user_data.appid = appid
+  user_data.us_data = us_results[appid].data
+
+  url = get_steam_store_url(appid)
+  grl.debug('Fetching URL ' .. url .. ' for appid ' .. appid .. ' for system locale')
+  -- the second request will use the accept-lang header for the system language
+  grl.fetch(url, get_netopts_for_lang(nil), fetch_game_cb_system_lang, user_data)
+end
+
+function fetch_game_cb_system_lang(results, user_data)
+  local results_table, data, media, appid, us_data
+
+  appid = user_data.appid
+  us_data = user_data.us_data
 
   results_table = grl.lua.json.string_to_table(results)
 
-  if not results_table[appid] or not results_table[appid].data then
-    grl.warning('Got a result without data')
+  if not validate_results(results_table, appid) then
+    grl.warning('Got a result for system lang with invalid data')
     grl.callback()
     return
   end
@@ -140,9 +186,9 @@ function fetch_game_cb(results, appid)
     media.rating = data.metacritic.score
   end
 
-  -- publication-date
-  if type(data.release_date) == 'table' and data.release_date.date then
-    local date = format_date(data.release_date.date)
+  -- publication-date (from the US data since we know the date format)
+  if type(us_data.release_date) == 'table' and us_data.release_date.date then
+    local date = format_date(us_data.release_date.date)
     if date then
       media.publication_date = date
     end

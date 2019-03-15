@@ -784,6 +784,49 @@ free_unzip_op:
   g_free (uo);
 }
 
+/**
+ * netopts_get_headers
+ *
+ * Get the headers of a netopts Lua table argument from the function stack.
+ *
+ * @L: the Lua state for the function call stack.
+ * @arg_offset: the argument offset for the netopts table.
+ * @returns: the "headers" member of netopts as a GHashTable or NULL if it is not set in the netopts.
+ */
+static GHashTable *
+netopts_get_headers (lua_State *L,
+                     guint      arg_offset)
+{
+  GHashTable *headers = NULL;
+  lua_pushstring (L, "headers");
+  lua_gettable (L, arg_offset);
+
+  if (lua_isnil (L, -1)) {
+    /* the headers are not set */
+    lua_pop (L, 1);
+    return NULL;
+  }
+
+  if (!lua_istable (L, -1)) {
+    /* headers must be a table */
+    lua_pop (L, 1);
+    return NULL;
+  }
+
+  headers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  lua_pushnil (L);
+  while (lua_next (L, -2) != 0) {
+    const gchar *key = lua_tostring (L, -2);
+    const gchar *value = lua_tostring (L, -1);
+    g_hash_table_insert (headers, g_strdup (key), g_strdup (value));
+    lua_pop (L, 1);
+  }
+
+  lua_pop (L, 1);
+  return headers;
+}
+
 static GrlNetWc *
 net_wc_new_with_options (lua_State *L,
                          guint      arg_offset)
@@ -1295,6 +1338,7 @@ grl_l_fetch (lua_State *L)
   }
 
   wc = net_wc_new_with_options (L, 2);
+  GHashTable *headers = netopts_get_headers (L, 2);
 
   /* shared data between urls */
   results = g_new0 (gchar *, num_urls);
@@ -1313,7 +1357,12 @@ grl_l_fetch (lua_State *L)
     fo->is_table = is_table;
     fo->results = results;
 
-    grl_net_wc_request_async (wc, urls[i], os->cancellable, grl_util_fetch_done, fo);
+    if (headers != NULL) {
+      grl_net_wc_request_with_headers_hash_async (wc, urls[i], headers, os->cancellable, grl_util_fetch_done, fo);
+      g_hash_table_unref (headers);
+    } else {
+      grl_net_wc_request_async (wc, urls[i], os->cancellable, grl_util_fetch_done, fo);
+    }
   }
   g_free (urls);
 

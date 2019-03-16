@@ -784,6 +784,47 @@ free_unzip_op:
   g_free (uo);
 }
 
+/**
+ * netopts_get_headers
+ *
+ * Get the headers of a netopts Lua table argument from the function stack.
+ *
+ * @L: the Lua state for the function call stack.
+ * @arg_offset: the argument offset for the netopts table.
+ * @returns: the headers that should be set as a GHashTable or NULL if there are no headers.
+ */
+static GHashTable *
+netopts_get_headers (lua_State *L,
+                     guint      arg_offset)
+{
+  GHashTable *headers = NULL;
+
+  if (!lua_istable (L, arg_offset)) {
+    /* the netopts are not set */
+    return NULL;
+  }
+
+  lua_pushstring (L, "accept_language");
+  lua_gettable (L, arg_offset);
+
+  if (lua_isnil (L, -1)) {
+    /* the accept_language option is not set */
+    lua_pop (L, 1);
+    return NULL;
+  }
+
+  if (!lua_isstring (L, -1)) {
+    GRL_ERROR ("Got a value for \"accept_language\" in netopts that is not a string");
+    lua_pop (L, 1);
+    return NULL;
+  }
+
+  headers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  g_hash_table_insert (headers, g_strdup ("Accept-Language"), g_strdup (lua_tostring (L, -1)));
+  lua_pop (L, 1);
+  return headers;
+}
+
 static GrlNetWc *
 net_wc_new_with_options (lua_State *L,
                          guint      arg_offset)
@@ -1295,6 +1336,7 @@ grl_l_fetch (lua_State *L)
   }
 
   wc = net_wc_new_with_options (L, 2);
+  GHashTable *headers = netopts_get_headers (L, 2);
 
   /* shared data between urls */
   results = g_new0 (gchar *, num_urls);
@@ -1313,9 +1355,17 @@ grl_l_fetch (lua_State *L)
     fo->is_table = is_table;
     fo->results = results;
 
-    grl_net_wc_request_async (wc, urls[i], os->cancellable, grl_util_fetch_done, fo);
+    if (headers != NULL) {
+      grl_net_wc_request_with_headers_hash_async (wc, urls[i], headers, os->cancellable, grl_util_fetch_done, fo);
+    } else {
+      grl_net_wc_request_async (wc, urls[i], os->cancellable, grl_util_fetch_done, fo);
+    }
   }
   g_free (urls);
+
+  if (headers != NULL) {
+    g_hash_table_unref (headers);
+  }
 
   /* Set the state as wating for this async operation */
   grl_lua_operations_set_source_state (L, LUA_SOURCE_WAITING, os);

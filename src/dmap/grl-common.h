@@ -41,9 +41,9 @@ typedef struct {
 
 typedef struct {
   ResultCbAndArgs cb;
-  DMAPDb *db;
+  DmapDb *db;
 } ResultCbAndArgsAndDb;
 
-gchar *grl_dmap_build_url (DMAPMdnsBrowserService *service);
+gchar *grl_dmap_build_url (DmapMdnsService *service);
 
 #endif /* _GRL_COMMON_H_ */

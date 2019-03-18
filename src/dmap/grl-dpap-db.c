@@ -38,7 +38,7 @@
 /* Media IDs start at max and go down. Container IDs start at 1 and go up. */
 static guint nextid = G_MAXINT; /* NOTE: this should be G_MAXUINT, but iPhoto can't handle it. */
 
-struct GrlDPAPDbPrivate {
+struct GrlDpapDbPrivate {
   /* Contains each picture container (tracked with photos hash table) */
   GrlMedia *photos_container;
 
@@ -63,31 +63,31 @@ container_equal (gconstpointer a, gconstpointer b)
   return g_str_equal (grl_media_get_id (GRL_MEDIA (a)), grl_media_get_id (GRL_MEDIA (b)));
 }
 
-GrlDPAPDb *
+GrlDpapDb *
 grl_dpap_db_new (void)
 {
-  GrlDPAPDb *db = g_object_new (TYPE_GRL_DPAP_DB, NULL);
+  GrlDpapDb *db = g_object_new (TYPE_GRL_DPAP_DB, NULL);
 
   return db;
 }
 
-static DMAPRecord *
-grl_dpap_db_lookup_by_id (const DMAPDb *db, guint id)
+static DmapRecord *
+grl_dpap_db_lookup_by_id (const DmapDb *db, guint id)
 {
   g_warning ("Not implemented");
   return NULL;
 }
 
 static void
-grl_dpap_db_foreach (const DMAPDb *db,
-                        GHFunc func,
-                        gpointer data)
+grl_dpap_db_foreach (const DmapDb *db,
+                     DmapIdRecordFunc func,
+                     gpointer data)
 {
   g_warning ("Not implemented");
 }
 
 static gint64
-grl_dpap_db_count (const DMAPDb *db)
+grl_dpap_db_count (const DmapDb *db)
 {
   g_warning ("Not implemented");
   return 0;
@@ -119,20 +119,20 @@ set_insert (GHashTable *category, const char *category_name, char *set_name, Grl
 }
 
 static guint
-grl_dpap_db_add (DMAPDb *_db, DMAPRecord *_record)
+grl_dpap_db_add (DmapDb *_db, DmapRecord *_record, GError **error)
 {
   g_assert (IS_GRL_DPAP_DB (_db));
-  g_assert (IS_DPAP_RECORD (_record));
+  g_assert (IS_DMAP_IMAGE_RECORD (_record));
 
-  GrlDPAPDb *db = GRL_DPAP_DB (_db);
-  DPAPRecord *record = DPAP_RECORD (_record);
+  GrlDpapDb *db = GRL_DPAP_DB (_db);
+  DmapImageRecord *record = DMAP_IMAGE_RECORD (_record);
 
   gint        height        = 0,
               width         = 0,
               largefilesize = 0,
               creationdate  = 0,
               rating        = 0;
-  GByteArray *thumbnail     = NULL;
+  GArray     *thumbnail     = NULL;
   gchar      *id_s          = NULL,
              *filename      = NULL,
              *aspectratio   = NULL,
@@ -188,6 +188,12 @@ grl_dpap_db_add (DMAPDb *_db, DMAPRecord *_record)
 
   g_free (id_s);
   g_object_unref (media);
+  g_free (filename);
+  g_free (aspectratio);
+  g_free (format);
+  g_free (comments);
+  g_array_unref (thumbnail);
+  g_free (url);
 
   return --nextid;
 }
@@ -199,7 +205,7 @@ same_media (GrlMedia *a, GrlMedia *b)
 }
 
 void
-grl_dpap_db_browse (GrlDPAPDb *db,
+grl_dpap_db_browse (GrlDpapDb *db,
                     GrlMedia *container,
                     GrlSource *source,
                     guint op_id,
@@ -251,7 +257,7 @@ done:
 }
 
 void
-grl_dpap_db_search (GrlDPAPDb *db,
+grl_dpap_db_search (GrlDpapDb *db,
                     GrlSource *source,
                     guint op_id,
                     GHRFunc predicate,
@@ -303,7 +309,7 @@ grl_dpap_db_search (GrlDPAPDb *db,
 static void
 dmap_db_interface_init (gpointer iface, gpointer data)
 {
-  DMAPDbIface *dpap_db = iface;
+  DmapDbInterface *dpap_db = iface;
 
   g_assert (G_TYPE_FROM_INTERFACE (dpap_db) == DMAP_TYPE_DB);
 
@@ -313,8 +319,8 @@ dmap_db_interface_init (gpointer iface, gpointer data)
   dpap_db->count = grl_dpap_db_count;
 }
 
-G_DEFINE_TYPE_WITH_CODE (GrlDPAPDb, grl_dpap_db, G_TYPE_OBJECT,
-                         G_ADD_PRIVATE (GrlDPAPDb)
+G_DEFINE_TYPE_WITH_CODE (GrlDpapDb, grl_dpap_db, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (GrlDpapDb)
                          G_IMPLEMENT_INTERFACE (DMAP_TYPE_DB, dmap_db_interface_init))
 
 static GObject*
@@ -328,7 +334,7 @@ grl_dpap_db_constructor (GType type, guint n_construct_params, GObjectConstructP
 }
 
 static void
-grl_dpap_db_init (GrlDPAPDb *db)
+grl_dpap_db_init (GrlDpapDb *db)
 {
   db->priv = grl_dpap_db_get_instance_private (db);
 
@@ -346,9 +352,9 @@ grl_dpap_db_init (GrlDPAPDb *db)
 static void
 grl_dpap_db_finalize (GObject *object)
 {
-  GrlDPAPDb *db = GRL_DPAP_DB (object);
+  GrlDpapDb *db = GRL_DPAP_DB (object);
 
-  GRL_DEBUG ("Finalizing GrlDPAPDb");
+  GRL_DEBUG ("Finalizing GrlDpapDb");
 
   g_object_unref (db->priv->photos_container);
 
@@ -356,7 +362,7 @@ grl_dpap_db_finalize (GObject *object)
 }
 
 static void
-grl_dpap_db_class_init (GrlDPAPDbClass *klass)
+grl_dpap_db_class_init (GrlDpapDbClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 

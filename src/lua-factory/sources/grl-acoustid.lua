@@ -50,7 +50,7 @@ netopts = {
 acoustid = {}
 
 -- https://acoustid.org/webservice#lookup
-ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=recordings+releasegroups+releases+sources&duration=%d&fingerprint=%s"
+ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=compress+recordings+releasegroups+releases+sources&duration=%d&fingerprint=%s"
 
 ---------------------------------
 -- Handlers of Grilo functions --

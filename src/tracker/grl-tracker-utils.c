@@ -82,6 +82,7 @@ set_date (TrackerSparqlCursor *cursor,
 {
   const gchar *str = tracker_sparql_cursor_get_string (cursor, column, NULL);
   if (key == GRL_METADATA_KEY_CREATION_DATE
+      || key == GRL_METADATA_KEY_LAST_PLAYED
       || key == GRL_METADATA_KEY_MODIFICATION_DATE) {
     GDateTime *date = grl_date_time_from_iso8601 (str);
     if (date) {

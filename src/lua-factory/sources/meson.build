@@ -12,6 +12,7 @@ sources = [
     'grl-guardianvideos',
     'grl-itunes-podcast',
     'grl-lastfm-cover',
+    'grl-musicbrainz',
     'grl-musicbrainz-coverart',
     'grl-radiofrance',
     'grl-spotify-cover',

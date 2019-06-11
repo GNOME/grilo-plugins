@@ -37,6 +37,8 @@ static GHashTable *sparql_to_grl_mapping = NULL;
 
 GrlKeyID grl_metadata_key_tracker_urn;
 GrlKeyID grl_metadata_key_gibest_hash;
+GrlKeyID grl_metadata_key_mb_release_id;
+GrlKeyID grl_metadata_key_mb_release_group_id;
 
 
 /**/
@@ -207,6 +209,12 @@ grl_tracker_setup_key_mappings (void)
   grl_metadata_key_gibest_hash =
     grl_registry_lookup_metadata_key (registry, "gibest-hash");
 
+  grl_metadata_key_mb_release_id =
+    grl_registry_lookup_metadata_key (registry, "mb-release-id");
+
+  grl_metadata_key_mb_release_group_id =
+    grl_registry_lookup_metadata_key (registry, "mb-release-group-id");
+
   grl_to_sparql_mapping = g_hash_table_new (g_direct_hash, g_direct_equal);
   sparql_to_grl_mapping = g_hash_table_new (g_str_hash, g_str_equal);
 
@@ -274,6 +282,31 @@ grl_tracker_setup_key_mappings (void)
   insert_key_mapping (GRL_METADATA_KEY_DURATION,
                       "nfo:duration",
                       "nfo:duration(?urn)",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_MB_TRACK_ID,
+                      "nmm:mbTrackID",
+                      "nmm:mbTrackID(?urn)",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_MB_ARTIST_ID,
+                      "nmm:mbArtistID",
+                      "nmm:mbArtistID(?urn)",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_MB_RECORDING_ID,
+                      "nmm:mbRecordingID",
+                      "nmm:mbRecordingID(?urn)",
+                      "audio");
+
+  insert_key_mapping (grl_metadata_key_mb_release_id,
+                      "nmm:mbReleaseID",
+                      "nmm:mbReleaseID(?urn)",
+                      "audio");
+
+  insert_key_mapping (grl_metadata_key_mb_release_group_id,
+                      "nmm:mbReleaseGroupID",
+                      "nmm:mbReleaseGroupID(?urn)",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_FRAMERATE,

@@ -27,7 +27,7 @@ datadir = get_option('datadir')
 pluginsdir =join_paths(libdir, 'grilo-@0@.@1@'.format(grl_major, grl_minor))
 
 glib2_required = '2.44'
-grilo_required = '0.3.6'
+grilo_required = '0.3.8'
 glib2_required_info = '>= @0@'.format(glib2_required)
 grilo_required_info = '>= @0@'.format(grilo_required)
 

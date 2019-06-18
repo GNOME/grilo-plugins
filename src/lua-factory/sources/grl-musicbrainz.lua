@@ -1,7 +1,7 @@
 --[[
- * Copyright (C) 2014 Victor Toso.
+ * Copyright (C) 2016 Saiful B. Khan.
  *
- * Contact: Bastien Nocera <hadess@hadess.net>
+ * Contact: Saiful B. Khan <saifulbkhan@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -25,93 +25,225 @@
 ---------------------------
 
 source = {
-  id = "grl-musicbrainz-coverart",
-  name = "Musicbrainz Cover Art",
-  description = "a source for coverart",
-  supported_keys = { "thumbnail" },
-  supported_media = { 'audio', 'video' },
+  id = "grl-musicbrainz",
+  name = "MusicBrainz",
+  description = "A plugin for fetching music metadata",
+  supported_keys = {
+    "title",
+    "artist",
+    "album",
+    "album-disc-number",
+    "track-number",
+    "genre",
+    "publication-date",
+    "composer",
+    "author",
+    "mb-artist-id",
+    "mb-album-id",
+  },
+  supported_media = { "audio" },
   resolve_keys = {
     ["type"] = "audio",
-    required = { "mb-album-id" },
+    required = {
+   	  "mb-recording-id"
+    },
+    --Without a 'required' key the plugin fails.
   },
   tags = { 'music', 'net:internet' },
 }
 
 netopts = {
-  user_agent = "Grilo Source Musicbrainz/0.3.8",
+  user_agent = "Grilo Source MusicBrainz/0.3.0",
 }
 
-MUSICBRAINZ_DEFAULT_QUERY = "https://coverartarchive.org/%s/%s"
-MUSICBRAINZ_RELEASES = {
-  {name = "release", id = "mb_release_id"},
-  {name = "release-group", id = "mb_release_group_id"}
-}
+------------------
+-- Source utils --
+------------------
+
+MUSICBRAINZ_BASE = "https://musicbrainz.org/ws/2/"
+MUSICBRAINZ_LOOKUP_RECORDING = MUSICBRAINZ_BASE .. "recording/%s?inc=releaseswork-relsrelease-groupsmediumsartiststags"
+MUSICBRAINZ_LOOKUP_WORK = MUSICBRAINZ_BASE .. "work/%s?inc=artist-rels"
 
 ---------------------------------
 -- Handlers of Grilo functions --
 ---------------------------------
 
 function grl_source_resolve()
-  req = grl.get_media_keys()
-  if not req then
+  local media = grl.get_media_keys()
+
+  rec_id = media.mb_recording_id
+  if rec_id then
+    musicbrainz_resolve_by_recording_id(rec_id)
+  else
     grl.callback()
     return
   end
-
-  -- try to get the cover art associated with the mb_album_id
-  -- if it does not exist, try the mb_release_group_id one
-  -- if none of them exist, return nothing.
-  local urls = {}
-  for _, release in ipairs(MUSICBRAINZ_RELEASES) do
-    id = req[release.id]
-    if id and #id > 0 then
-      urls[#urls + 1] = string.format(MUSICBRAINZ_DEFAULT_QUERY, release.name, id)
-    end
-  end
-
-  grl.fetch(urls, netopts, fetch_results_cb)
 end
 
 ---------------
 -- Utilities --
 ---------------
 
-function fetch_results_cb(results)
-  local json_results = nil
+function musicbrainz_resolve_by_recording_id(rec_id)
+  --[[Resolve recording related keys first as it can provide artist and
+      release related metadata if it were requested]]
+  local recording_url = string.format (MUSICBRAINZ_LOOKUP_RECORDING, rec_id)
+  local debug_str = string.format ("Resolving metadata for recording ID: %s", rec_id)
+  grl.debug(debug_str)
+  grl.fetch(recording_url, netopts, fetch_recording_cb)
+end
 
-  for index, feed in ipairs(results) do
-    local json = grl.lua.json.string_to_table (feed)
-    if json and json.images then
-      json_results = json.images
-      break
+--[[These functions append fetched values to the table 'media' which
+    is then returned to grl.callback]]
+function fetch_recording_cb(results)
+  local recording = get_xml_entity(results, 'recording')
+  local media = grl.get_media_keys()
+  local keys = grl.get_requested_keys()
+  local work_id
+
+  if recording then
+    if recording.title then
+      media.title = recording.title.xml
+    end
+
+    if recording['artist-credit'] and
+        recording['artist-credit']['name-credit'] and
+        recording['artist-credit']['name-credit'].artist then
+      local artist = recording['artist-credit']['name-credit'].artist
+      if keys.artist then media.artist = artist.name.xml end
+      if keys.mb_artist_id then media.mb_artist_id = artist.id end
+    end
+
+    if recording['relation-list'] and
+        recording['relation-list'].relation then
+      work_id = recording['relation-list'].relation.work.id
+    end
+
+    if recording['tag-list'] and keys.genre then
+      media.genre = {}
+      for index, tag in pairs(recording['tag-list']) do
+        if tag.name then
+          table.insert(media.genre, tostring(tag.name.xml))
+        else
+          for _ , val in pairs(tag) do
+            table.insert(media.genre, tostring(val.name.xml))
+          end
+        end
+      end
+    end
+
+    if recording['release-list'] then
+      local release = recording['release-list']['release'][1]
+      if not release then
+        release = recording['release-list']['release']
+      end
+
+      if not release then
+        grl.debug("Recording not found")
+        return
+      end
+
+      if keys.album then media.album = release.title.xml end
+      if keys.mb_album_id then media.mb_album_id = release.id end
+
+      local release_date = nil
+      if release.date then release_date = release.date.xml
+      else
+        if release['release-group'] and
+            release['release-group']['first-release-date'] then
+          release_date = release['release-group']['first-release-date'].xml
+        end
+      end
+      if release_date and keys.publication_date then
+        local y, m, d = nil
+        while not y do
+          y, m, d = string.match(release_date, "(%d)-(%d)-(%d)")
+          release_date = release_date .. "-01"
+        end
+        media.publication_date = string.format('%04d-%02d-%02d', y, m, d)
+      end
+
+      if release['medium-list'] then
+        local medium = release['medium-list'].medium
+        if keys.album_disc_number then
+          media.album_disc_number = medium.position.xml
+        end
+
+        if medium['track-list'] and keys.track_number then
+          media.track_number = medium['track-list'].track.position.xml
+        end
+      end
+    end
+
+    --Add recording independent metadata like composer, writer, etc. to songs
+    if work_id and (keys.author or keys.composer) then
+      song_work_url = string.format(MUSICBRAINZ_LOOKUP_WORK, work_id)
+      grl.debug('Fetching work related metadata')
+      grl.fetch(song_work_url, netopts, fetch_work_relations_cb, media)
+    else
+      grl.callback(media)
+      return
     end
   end
+end
 
-  if not json_results then
-    grl.callback()
+function fetch_work_relations_cb(results, media)
+  local work = get_xml_entity(results, 'work')
+  if not work or not work['relation-list'] then
+    grl.callback(media)
     return
   end
 
-  media = build_media(json_results)
+  media.composer = {}
+  media.author = {}
+  local relation = nil
+  if work['relation-list'].relation then
+    relation = work['relation-list']['relation'][1]
+  end
+  if relation and relation.type then add_song_artist(relation, media)
+  else
+    for _ , val in pairs(relation) do
+      add_song_artist(val, media)
+    end
+  end
   grl.callback(media)
 end
 
-function build_media(results)
-  local media = {}
-  local res = {}
+function add_song_artist(rel, media)
+  local type = rel.type
+  if type == "composer" then
+    table.insert(media.composer, rel.artist.name.xml)
+  --[[For now writer and lyricist are stored in 'author' until seperate key for lyricist exists]]
+  elseif type == "writer" or type == "lyricist" then
+    table.insert(media.author, rel.artist.name.xml)
+  end
+end
 
-  if results and #results > 0 then
-    local result = results[1]
-    -- force urls to https
-    res[1] = result.image and result.image:gsub("http://", "https://") or nil
-
-    if result.thumbnails then
-      for _, url in pairs(result.thumbnails) do
-        res[#res + 1] = url and url:gsub("http://", "https://") or nil
-      end
-    end
+function get_xml_entity(results, entity_name)
+  if not results then return nil end
+  if string.find(results, '{') == 1 then
+    local error_table = grl.lua.json.string_to_table(results)
+    grl.warning('grl-musicbrainz: ' .. error_table.error)
+    return
   end
 
-  media.thumbnail = res
-  return media
+  local results_table = grl.lua.xml.string_to_table(results)
+  if not results_table then return nil end
+
+  if results_table.metadata then
+    if entity_name == 'recording' and
+        results_table.metadata.recording then
+      return results_table.metadata.recording
+    elseif entity_name == 'release-group' and
+        results_table.metadata['release-group'] then
+      return results_table.metadata['release-group']
+    elseif entity_name == 'work' and
+        results_table.metadata.work then
+      return results_table.metadata.work
+    elseif entity_name == 'recording_list' and
+        results_table.metadata['recording-list'].count ~= 0 then
+      return results_table.metadata['recording-list'].recording
+    end
+  end
+  return nil
 end

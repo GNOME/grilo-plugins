@@ -32,7 +32,7 @@ source = {
   supported_media = { 'audio', 'video' },
   resolve_keys = {
     ["type"] = "audio",
-    required = { "mb-album-id" },
+    required = { "mb-release-id" },
   },
   tags = { 'music', 'net:internet' },
 }

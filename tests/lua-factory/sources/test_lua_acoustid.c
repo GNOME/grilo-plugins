@@ -72,7 +72,8 @@ resolve (GrlSource   *source,
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_MB_ARTIST_ID,
                                     GRL_METADATA_KEY_ARTIST,
-                                    GRL_METADATA_KEY_MB_ALBUM_ID,
+                                    GRL_METADATA_KEY_MB_RELEASE_ID,
+                                    GRL_METADATA_KEY_MB_RELEASE_GROUP_ID,
                                     GRL_METADATA_KEY_ALBUM,
                                     GRL_METADATA_KEY_MB_RECORDING_ID,
                                     GRL_METADATA_KEY_TITLE,
@@ -83,17 +84,12 @@ resolve (GrlSource   *source,
   options = grl_operation_options_new (NULL);
   grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_NORMAL);
 
-  grl_source_resolve_sync (source,
+  grl_source_browse_sync (source,
                            GRL_MEDIA (audio),
                            keys,
                            options,
                            &error);
   g_assert_no_error (error);
-
-  mb_release_id_key = grl_registry_lookup_metadata_key (registry, "mb-release-id");
-  g_assert_cmpint (mb_release_id_key, !=, GRL_METADATA_KEY_INVALID);
-  mb_release_group_id_key = grl_registry_lookup_metadata_key (registry, "mb-release-group-id");
-  g_assert_cmpint (mb_release_group_id_key, !=, GRL_METADATA_KEY_INVALID);
 
   *out_mb_artist_id = g_strdup (grl_media_get_mb_artist_id (audio));
   *out_artist = g_strdup (grl_media_get_artist (audio));
@@ -101,9 +97,8 @@ resolve (GrlSource   *source,
   *out_album = g_strdup (grl_media_get_album (audio));
   *out_mb_recording_id = g_strdup (grl_media_get_mb_recording_id (audio));
   *out_title = g_strdup (grl_media_get_title (audio));
-  *out_mb_release_id = g_strdup (grl_data_get_string (GRL_DATA (audio), mb_release_id_key));
-  *out_mb_release_group_id = g_strdup (grl_data_get_string (GRL_DATA (audio),
-                                                            mb_release_group_id_key));
+  *out_mb_release_id = g_strdup (grl_media_get_mb_release_id (audio));
+  *out_mb_release_group_id = g_strdup (grl_media_get_mb_release_group_id (audio));
   *out_album_disc_number = grl_media_get_album_disc_number (audio);
   date = grl_media_get_publication_date (audio);
   *out_publication_date = g_date_time_format (date, "%Y-%m-%d");
@@ -195,15 +190,13 @@ test_resolve_fingerprint (void)
     g_free (mb_artist_id);
     g_assert_cmpstr (audios[i].artist, ==, artist);
     g_free (artist);
-    g_assert_cmpstr (audios[i].mb_album_id, ==, mb_album_id);
-    g_free (mb_album_id);
     g_assert_cmpstr (audios[i].album, ==, album);
     g_free (album);
     g_assert_cmpstr (audios[i].mb_recording_id, ==, mb_recording_id);
     g_free (mb_recording_id);
     g_assert_cmpstr (audios[i].mb_release_id, ==, mb_release_id);
     g_free (mb_release_id);
-    g_assert_cmpstr (audios[i].mb_album_id, ==, mb_release_group_id);
+    g_assert_cmpstr (audios[i].mb_release_group_id, ==, mb_release_group_id);
     g_free (mb_release_group_id);
     g_assert_cmpint (audios[i].album_disc_number, ==, album_disc_number);
     g_assert_cmpstr (audios[i].publication_date, ==, publication_date);

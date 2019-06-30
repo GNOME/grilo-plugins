@@ -60,7 +60,7 @@ function grl_source_init (configs)
     return true
 end
 
-function grl_source_resolve (media, options, callback)
+function grl_source_browse (media, options, callback)
   local url
   local media = grl.get_media_keys()
 
@@ -81,7 +81,20 @@ end
 -- Utilities --
 ---------------
 
+function get_count(results)
+  local count = 0
+
+  for _,result in ipairs(results) do
+    for _,recording in ipairs(result.recordings) do
+        count = count + #recording.releasegroups
+    end
+  end
+
+  return count
+end
+
 function lookup_cb (feed)
+  local count = 0
   if not feed then
     grl.callback()
     return
@@ -92,41 +105,41 @@ function lookup_cb (feed)
     grl.callback()
   end
 
-  media = build_media (json.results)
-  grl.callback (media)
+  count = get_count(json.results)
+
+  for i,result in ipairs(json.results) do
+    if result.recordings and
+      #result.recordings > 0 then
+      for _, recording in ipairs(result.recordings) do
+          if recording.releasegroups and
+             #recording.releasegroups > 0 then
+            for _, releasegroup in ipairs(recording.releasegroups) do
+                count = count - 1
+                media = build_media (recording, releasegroup)
+                grl.callback (media, count)
+            end
+          end
+      end
+    end
+  end
+
 end
 
 
-function build_media(results)
+function build_media(record, releasegroup)
   local media = grl.get_media_keys ()
   local keys = grl.get_requested_keys ()
-  local record, album, artist
-  local release_group_id
-  local sources = 0
+  local album, release
 
-  if results and #results > 0 and
-      results[1].recordings and
-      #results[1].recordings > 0 then
-    for _, recording in ipairs(results[1].recordings) do
-      if recording.sources > sources then
-        sources = recording.sources
-        record = recording
-      end
-    end
-
+  if record then
     media.title = keys.title and record.title or nil
     media.mb_recording_id = keys.mb_recording_id and record.id or nil
   end
 
-  if record and
-      record.releasegroups and
-      #record.releasegroups > 0 then
-
-    album = record.releasegroups[1]
+  if releasegroup then
+    album = releasegroup
     media.album = keys.album and album.title or nil
-    release_group_id = keys.mb_album_id and album.id or nil
-    media.mb_album_id = release_group_id
-    media.mb_release_group_id = release_group_id
+    media.mb_release_group_id = keys.mb_release_group_id and album.id or nil
   end
 
   -- FIXME: related-keys on lua sources are in the TODO list
@@ -140,7 +153,7 @@ function build_media(results)
 
   if album and album.releases and #album.releases > 0 then
     release = album.releases[1]
-    media.mb_release_id = keys.mb_album_id and release.id or nil
+    media.mb_release_id = keys.mb_release_id and release.id or nil
 
     if release.date then
       local date = release.date

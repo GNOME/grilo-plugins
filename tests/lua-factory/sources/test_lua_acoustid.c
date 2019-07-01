@@ -39,6 +39,92 @@
 #define FINGERPRINT_RADIOHEAD_PA GRESOURCE_PREFIX "chromaprint_radiohead_paranoid_android.txt"
 
 static gchar *
+test_browse (void)
+{
+  GList *keys;
+  GrlMedia *audio;
+  GrlOperationOptions *options;
+  GrlRegistry *registry;
+  GDateTime *date;
+  GrlKeyID chromaprint_key;
+  gchar *fingerprint, *publication_date;
+  GrlMedia *media;
+  GError *error = NULL;
+  GList *results;
+  GFile *file;
+  gsize size;
+  GrlSource *source;
+  registry = grl_registry_get_default ();
+  chromaprint_key = grl_registry_lookup_metadata_key (registry, "chromaprint");
+  g_assert_cmpint (chromaprint_key, !=, GRL_METADATA_KEY_INVALID);
+
+  file = g_file_new_for_uri (FINGERPRINT_LUDOVICO_EI);
+  g_file_load_contents (file, NULL, &fingerprint, &size, NULL, &error);
+
+  audio = grl_media_audio_new ();
+  grl_data_set_string (GRL_DATA (audio), chromaprint_key, fingerprint);
+  grl_media_set_duration (audio, 445);
+
+  source = test_lua_factory_get_source (ACOUSTID_ID, ACOUSTID_OPS);
+
+  keys = grl_metadata_key_list_new (GRL_METADATA_KEY_MB_ARTIST_ID,
+                                    GRL_METADATA_KEY_ARTIST,
+                                    GRL_METADATA_KEY_MB_RELEASE_ID,
+                                    GRL_METADATA_KEY_MB_RELEASE_GROUP_ID,
+                                    GRL_METADATA_KEY_ALBUM,
+                                    GRL_METADATA_KEY_MB_RECORDING_ID,
+                                    GRL_METADATA_KEY_TITLE,
+                                    GRL_METADATA_KEY_ALBUM_DISC_NUMBER,
+                                    GRL_METADATA_KEY_PUBLICATION_DATE,
+                                    GRL_METADATA_KEY_TRACK_NUMBER,
+                                    NULL);
+  options = grl_operation_options_new (NULL);
+  grl_operation_options_set_resolution_flags (options, GRL_RESOLVE_NORMAL);
+
+  results = grl_source_browse_sync (source,
+                           GRL_MEDIA (audio),
+                           keys,
+                           options,
+                           &error);
+  g_assert_no_error (error);
+  g_assert_cmpint (g_list_length (results), ==, 12);
+
+  media = GRL_MEDIA (results->data);
+  g_assert_cmpstr (grl_media_get_title (media), ==, "Primavera");
+  g_assert_cmpstr (grl_media_get_album (media), ==, "Classic FM Summer Guitar");
+  g_assert_cmpstr (grl_media_get_artist (media), ==, "Craig Ogden");
+  g_assert_cmpstr (grl_media_get_mb_recording_id (media), ==, "5d72b7d4-d0c4-4d0d-ab7f-3a737075e1c9");
+  g_assert_cmpstr (grl_media_get_mb_release_id (media), ==, "5fd10cc8-30e0-48aa-9ba1-19d05b871a75");
+  g_assert_cmpstr (grl_media_get_mb_release_group_id (media), ==, "2cde60bc-829c-49af-a62c-e20283167c30");
+  g_assert_cmpstr (grl_media_get_mb_artist_id (media), ==, "e7d8aea3-9c1d-4fe0-b93a-481d545296fc");
+  g_assert_cmpint (grl_media_get_album_disc_number (media), ==, 1);
+  g_assert_cmpint (grl_media_get_track_number (media), ==, 8);
+  date = grl_media_get_publication_date (media);
+  publication_date = g_date_time_format(date , "%Y-%m-%d");
+  g_assert_cmpstr (publication_date, ==, "2009-01-01");
+
+  media = GRL_MEDIA (results->next->next->data);
+  g_assert_cmpstr (grl_media_get_title (media), ==, "Primavera");
+  g_assert_cmpstr (grl_media_get_album (media), ==, "Einaudi essentiel");
+  g_assert_cmpstr (grl_media_get_artist (media), ==, "Ludovico Einaudi");
+  g_assert_cmpstr (grl_media_get_mb_recording_id (media), ==, "75e72e13-cf02-47f8-a4a7-98b916b3b18c");
+  g_assert_cmpstr (grl_media_get_mb_release_id (media), ==, "7a06eb11-6013-4eb8-8aef-a2302ef4ed79");
+  g_assert_cmpstr (grl_media_get_mb_release_group_id (media), ==, "6c42f326-7c15-41d5-851d-e887b544e217");
+  g_assert_cmpstr (grl_media_get_mb_artist_id (media), ==, "fa34b363-79df-434f-a5b8-be4e6898543f");
+  g_assert_cmpint (grl_media_get_album_disc_number (media), ==, 1);
+  g_assert_cmpint (grl_media_get_track_number (media), ==, 11);
+  date = grl_media_get_publication_date (media);
+  publication_date = g_date_time_format(date , "%Y-%m-%d");
+  g_assert_cmpstr (publication_date, ==, "2012-01-01");
+
+
+  g_list_free (keys);
+  g_object_unref (options);
+  g_object_unref (audio);
+  return NULL;
+}
+
+static gchar *
 resolve (GrlSource   *source,
          const gchar *fingerprint,
          gint         duration,
@@ -256,6 +342,8 @@ main (gint argc, gchar **argv)
   g_test_add_func ("/lua_factory/sources/acoustid", test_resolve_fingerprint);
 
   gint result = g_test_run ();
+
+  test_browse();
 
   test_lua_factory_shutdown ();
   test_lua_factory_deinit ();

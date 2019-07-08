@@ -28,7 +28,7 @@ source = {
   id = "grl-acoustid",
   name = "Acoustid",
   description = "a source that provides audio identification",
-  supported_keys = { "title", "album", "artist", "mb-recording-id", "mb-album-id", "mb-artist-id", "mb-release-group-id", "mb-release-id", "album-disc-number", "publication-date", "track-number" },
+  supported_keys = { "title", "album", "artist", "mb-recording-id", "mb-album-id", "mb-artist-id", "mb-release-group-id", "mb-release-id", "album-disc-number", "publication-date", "track-number", "creation-date" },
   supported_media = { 'audio' },
   config_keys = {
     required = { "api-key" },
@@ -103,6 +103,7 @@ function build_media(results)
   local record, album, artist
   local release_group_id
   local sources = 0
+  local creation_date = nil
 
   if results and #results > 0 and
       results[1].recordings and
@@ -139,6 +140,30 @@ function build_media(results)
   end
 
   if album and album.releases and #album.releases > 0 then
+    if keys.creation_date then
+      for _, release in ipairs(album.releases) do
+        if release.date then
+          local month = release.date.month or 1
+          local day = release.date.day or 1
+          local year= release.date.year
+        if not creation_date or
+              year < creation_date.year or
+              (year == creation_date.year and
+                month < creation_date.month) or
+              (year == creation_date.year and
+                month == creation_date.month and
+                day < creation_date.day) then
+            creation_date = {day=day, month=month, year=year}
+          end
+        end
+      end
+
+      if creation_date then
+        media.creation_date = string.format('%04d-%02d-%02d', creation_date.year,
+                                            creation_date.month, creation_date.day)
+      end
+    end
+
     release = album.releases[1]
     media.mb_release_id = keys.mb_album_id and release.id or nil
 

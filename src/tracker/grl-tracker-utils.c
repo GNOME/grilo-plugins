@@ -684,6 +684,8 @@ grl_tracker_build_grilo_media_default (GHashTable *ht)
     return grl_media_container_new ();
   } else if (g_hash_table_lookup (ht, RDF_TYPE_FOLDER)) {
     return grl_media_container_new ();
+  } else if (g_hash_table_lookup (ht, RDF_TYPE_PLAYLIST)) {
+    return grl_media_container_new ();
   }
 
   return NULL;

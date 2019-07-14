@@ -39,6 +39,7 @@
 #define RDF_TYPE_FOLDER    "nfo#Folder"
 #define RDF_TYPE_DOCUMENT  "nfo#Document"
 #define RDF_TYPE_CONTAINER "grilo#Container"
+#define RDF_TYPE_PLAYLIST  "nmm#Playlist"
 
 #define RDF_TYPE_VOLUME "tracker#Volume"
 #define RDF_TYPE_UPNP   "upnp#ContentDirectory"

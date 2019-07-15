@@ -1,3 +1,84 @@
+NEW in 0.3.9
+============
+  * Require Grilo >= 0.3.8
+  * Lua enabled by default
+
+  * Lua-Factory
+    * Fix parameter order in grl.fetch()
+    * Add Steam Store plugin
+    * Remove Metrolyrics plugin
+    * Remove Pocket plugin
+    * Rename grl-musicbrainz to grl-musicbrainz-coverart
+
+    * TheGamesDB
+      * Add Sega Pico and SG-1000 MIME types
+    * Euronews
+      * Use https instead of http
+    * Video title parsing
+      * Fix setting empty titles
+    * AcoustID
+      * Sort records by submissions count instead of submission date
+      * Add support for album-disc-number, publication-date, track-number
+      * Add support for creation-date
+    * MusicBrainz Coverart
+      * Use mb-release-id instead of mb-album-id for better accuracy
+
+  * Bookmarks
+    * Fix adding duplicated entry
+
+  * Podcasts
+    * Fix crash when parsing unsupported format
+
+  * Optical Media
+    * Add "ignored-scheme" configuration
+
+  * Tracker
+    * Fix last played mapping
+    * Add mapping from tracker for MusicBrainz IDs
+    * Mark playlists as containers in Grilo
+    * Remove per-device-source configuration
+    * Rewrite tracker GrlSource notification to use TrackerNotifier
+
+  * Added translations in help
+
+  * Updated translations
+    * Serbian
+    * Basque
+    * French
+    * Greek
+    * Polish
+    * Swedish
+    * Dutch
+    * Catalan
+    * Spanish
+    * Czech
+    * German
+
+  * Contributors to this release:
+    * Adrien Plazas <kekun.plazas@laposte.net>
+    * Anders Jonsson <anders.jonsson@norsjovallen.se>
+    * Bastien Nocera <hadess@hadess.net>
+    * Carlos Garnacho <carlosg@gnome.org>
+    * Charles Monzat <charles.monzat@numericable.fr>
+    * Christian Kirbach <christian.kirbach@gmail.com>
+    * Daniel Mustieles <daniel.mustieles.contractor@bbva.com>
+    * Efstathios Iosifidis <eiosifidis@gnome.org>
+    * Iñaki Larrañaga Murgoitio <dooteo@zundan.com>
+    * Jean Felder <jfelder@src.gnome.org>
+    * Jordi Mas <jmas@softcatala.org>
+    * Marek Cernocky <marek_cernocky@conel.cz>
+    * Marinus Schraal <mschraal@gnome.org>
+    * Piotr Drąg <piotrdrag@gmail.com>
+    * Victor Toso <me@victortoso.com>
+
+  * New contributors to this release
+    * Andre Klapper <a9016009@gmx.de>
+    * Марко Костић <marko.m.kostic@gmail.com>
+    * Nathan Follens <nathan@anche.no>
+    * Sumaid Syed <sumaidsyed@gmail.com>
+    * Thiago Mendes <thiago@posteo.de>
+    * Tony Crisci <tony@dubstepdish.com>
+
 NEW in 0.3.8
 ============
   * Autotools removed

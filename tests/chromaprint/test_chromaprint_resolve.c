@@ -55,6 +55,9 @@ get_chromaprint_fingerprint (GrlSource   *source,
                            options,
                            NULL);
 
+  if (!grl_data_has_key (GRL_DATA (audio), GRL_METADATA_KEY_DURATION))
+    g_error ("Necessary audio decoders not installed, verify your installation");
+
   *duration = grl_media_get_duration (GRL_MEDIA (audio));
   *fingerprint = g_strdup (grl_data_get_string (GRL_DATA (audio),
                                                 key_fingerprint));
@@ -68,9 +71,6 @@ test_fingerprint (void)
 {
   GrlSource *source;
   guint i;
-
-  /* FIXME: We should probably check in the tests if tester has decoder
-   * for flac and ogg */
 
   struct {
     gchar *url;

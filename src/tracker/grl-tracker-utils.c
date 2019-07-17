@@ -220,12 +220,16 @@ void
 grl_tracker_setup_key_mappings (void)
 {
   GrlRegistry *registry = grl_registry_get_default ();
+  GrlKeyID grl_metadata_key_chromaprint;
 
   grl_metadata_key_tracker_urn =
     grl_registry_lookup_metadata_key (registry, "tracker-urn");
 
   grl_metadata_key_gibest_hash =
     grl_registry_lookup_metadata_key (registry, "gibest-hash");
+
+  grl_metadata_key_chromaprint =
+    grl_registry_lookup_metadata_key (registry, "chromaprint");
 
   grl_to_sparql_mapping = g_hash_table_new (g_direct_hash, g_direct_equal);
   sparql_to_grl_mapping = g_hash_table_new (g_str_hash, g_str_equal);
@@ -322,6 +326,12 @@ grl_tracker_setup_key_mappings (void)
                       "nmm:mbReleaseGroupID",
                       "nmm:mbReleaseGroupID(?urn)",
                       "audio");
+
+  insert_key_mapping_with_setter (grl_metadata_key_chromaprint,
+                                  NULL,
+                                  "(select nfo:hashValue(?h) { ?urn nfo:hasHash ?h . ?h nfo:hashAlgorithm \"chromaprint\" })",
+                                  "audio",
+                                  set_string_metadata_keys);
 
   insert_key_mapping (GRL_METADATA_KEY_FRAMERATE,
                       "nfo:frameRate",
@@ -606,6 +616,14 @@ grl_tracker_tracker_get_insert_string (GrlMedia *media, const GList *keys)
       if (!grl_data_has_key (GRL_DATA (media), key_id))
         continue;
 
+      /* Special case for key title, nfo:fileName is read-only.
+       * It cannot be modified.
+       */
+      if (assoc->grl_key == GRL_METADATA_KEY_TITLE &&
+          g_strcmp0 (assoc->sparql_key_attr, "nfo:fileName") == 0) {
+        continue;
+      }
+
       if (!first)
         g_string_append (gstr, " ; ");
 
@@ -632,6 +650,15 @@ grl_tracker_get_delete_string (const GList *keys)
     while (assoc_list != NULL) {
       assoc = (tracker_grl_sparql_t *) assoc_list->data;
       if (assoc != NULL) {
+        /* Special case for key title, nfo:fileName is read-only.
+         * It cannot be modified.
+         */
+        if (assoc->grl_key == GRL_METADATA_KEY_TITLE &&
+            g_strcmp0 (assoc->sparql_key_attr, "nfo:fileName") == 0) {
+          assoc_list = assoc_list->next;
+          continue;
+        }
+
         if (first) {
           g_string_append_printf (gstr, "%s ?v%i",
                                   assoc->sparql_key_attr, var_n);
@@ -669,6 +696,15 @@ grl_tracker_get_delete_conditional_string (const gchar *urn,
     while (assoc_list != NULL) {
       assoc = (tracker_grl_sparql_t *) assoc_list->data;
       if (assoc != NULL) {
+        /* Special case for key title, nfo:fileName is read-only.
+         * It cannot be modified.
+         */
+        if (assoc->grl_key == GRL_METADATA_KEY_TITLE &&
+            g_strcmp0 (assoc->sparql_key_attr, "nfo:fileName") == 0) {
+          assoc_list = assoc_list->next;
+          continue;
+        }
+
         if (first) {
           g_string_append_printf (gstr, "OPTIONAL { <%s>  %s ?v%i }",
                                   urn,  assoc->sparql_key_attr, var_n);

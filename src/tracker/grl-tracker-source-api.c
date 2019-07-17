@@ -657,12 +657,31 @@ const GList *
 grl_tracker_source_writable_keys (GrlSource *source)
 {
   static GList *keys = NULL;
+  GrlRegistry *registry;
+  GrlKeyID chromaprint_key;
+  
   if (!keys) {
+    registry = grl_registry_get_default ();
+    chromaprint_key = grl_registry_lookup_metadata_key (registry, "chromaprint");
+    g_assert_cmpint (chromaprint_key, !=, GRL_METADATA_KEY_INVALID);
+    
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_PLAY_COUNT,
                                       GRL_METADATA_KEY_LAST_PLAYED,
                                       GRL_METADATA_KEY_LAST_POSITION,
                                       GRL_METADATA_KEY_FAVOURITE,
-                                      NULL);
+                                      GRL_METADATA_KEY_MB_ARTIST_ID,
+                                      GRL_METADATA_KEY_MB_RELEASE_ID,
+                                      GRL_METADATA_KEY_MB_RELEASE_GROUP_ID,
+                                      GRL_METADATA_KEY_MB_TRACK_ID,
+                                      GRL_METADATA_KEY_MB_RECORDING_ID,
+                                      GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_ARTIST,
+                                      GRL_METADATA_KEY_ALBUM,
+                                      GRL_METADATA_KEY_ALBUM_DISC_NUMBER,
+                                      GRL_METADATA_KEY_TRACK_NUMBER,
+                                      GRL_METADATA_KEY_CREATION_DATE,
+                                      chromaprint_key,
+                                      NULL);    
   }
   return keys;
 }

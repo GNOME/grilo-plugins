@@ -657,11 +657,23 @@ const GList *
 grl_tracker_source_writable_keys (GrlSource *source)
 {
   static GList *keys = NULL;
+  GrlRegistry *registry;
+  GrlKeyID grl_metadata_key_chromaprint;
+
   if (!keys) {
+    registry = grl_registry_get_default ();
+    grl_metadata_key_chromaprint = grl_registry_lookup_metadata_key (registry, "chromaprint");
+
     keys = grl_metadata_key_list_new (GRL_METADATA_KEY_PLAY_COUNT,
                                       GRL_METADATA_KEY_LAST_PLAYED,
                                       GRL_METADATA_KEY_LAST_POSITION,
                                       GRL_METADATA_KEY_FAVOURITE,
+                                      GRL_METADATA_KEY_MB_TRACK_ID,
+                                      GRL_METADATA_KEY_MB_RECORDING_ID,
+                                      GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_TRACK_NUMBER,
+                                      GRL_METADATA_KEY_CREATION_DATE,
+                                      grl_metadata_key_chromaprint,
                                       NULL);
   }
   return keys;

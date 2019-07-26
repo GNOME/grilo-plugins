@@ -131,6 +131,26 @@ set_title (TrackerSparqlCursor *cursor,
   grl_media_set_title (media, str);
 }
 
+static void
+set_string_metadata_keys (TrackerSparqlCursor *cursor,
+                          gint                 column,
+                          GrlMedia            *media,
+                          GrlKeyID             key)
+{
+  const gchar *str = tracker_sparql_cursor_get_string (cursor, column, NULL);
+  grl_data_set_string (GRL_DATA (media), key, str);
+}
+
+static void
+set_int_metadata_keys (TrackerSparqlCursor *cursor,
+                       gint                 column,
+                       GrlMedia            *media,
+                       GrlKeyID             key)
+{
+  const gint64 value = tracker_sparql_cursor_get_integer (cursor, column);
+  grl_data_set_int (GRL_DATA (media), key, value);
+}
+
 static tracker_grl_sparql_t *
 insert_key_mapping (GrlKeyID     grl_key,
                     const gchar *sparql_key_attr,
@@ -276,20 +296,22 @@ grl_tracker_setup_key_mappings (void)
                       "nfo:duration(?urn)",
                       "audio");
 
-  insert_key_mapping (GRL_METADATA_KEY_MB_TRACK_ID,
-                      "nmm:mbTrackID",
-                      "nmm:mbTrackID(?urn)",
-                      "audio");
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_MB_TRACK_ID,
+                                  "nmm:mbTrackID",
+                                  "nmm:mbTrackID(?urn)",
+                                  "audio",
+                                  set_string_metadata_keys);
 
   insert_key_mapping (GRL_METADATA_KEY_MB_ARTIST_ID,
                       "nmm:mbArtistID",
                       "nmm:mbArtistID(?urn)",
                       "audio");
 
-  insert_key_mapping (GRL_METADATA_KEY_MB_RECORDING_ID,
-                      "nmm:mbRecordingID",
-                      "nmm:mbRecordingID(?urn)",
-                      "audio");
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_MB_RECORDING_ID,
+                                  "nmm:mbRecordingID",
+                                  "nmm:mbRecordingID(?urn)",
+                                  "audio",
+                                  set_string_metadata_keys);
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RELEASE_ID,
                       "nmm:mbReleaseID",
@@ -424,10 +446,11 @@ grl_tracker_setup_key_mappings (void)
                         "media");
   }
 
-  insert_key_mapping (GRL_METADATA_KEY_TRACK_NUMBER,
-                      "nmm:trackNumber",
-                      "nmm:trackNumber(?urn)",
-                      "audio");
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_TRACK_NUMBER,
+                                  "nmm:trackNumber",
+                                  "nmm:trackNumber(?urn)",
+                                  "audio",
+                                  set_int_metadata_keys);
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_FAVOURITE,
                                   "nao:hasTag",

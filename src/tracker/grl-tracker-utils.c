@@ -131,6 +131,26 @@ set_title (TrackerSparqlCursor *cursor,
   grl_media_set_title (media, str);
 }
 
+static void
+set_string_metadata_keys (TrackerSparqlCursor *cursor,
+                          gint                 column,
+                          GrlMedia            *media,
+                          GrlKeyID             key)
+{
+  const gchar *str = tracker_sparql_cursor_get_string (cursor, column, NULL);
+  grl_data_set_string (GRL_DATA (media), key, str);
+}
+
+static void
+set_int_metadata_keys (TrackerSparqlCursor *cursor,
+                       gint                 column,
+                       GrlMedia            *media,
+                       GrlKeyID             key)
+{
+  const gint64 value = tracker_sparql_cursor_get_integer (cursor, column);
+  grl_data_set_int (GRL_DATA (media), key, value);
+}
+
 static tracker_grl_sparql_t *
 insert_key_mapping (GrlKeyID     grl_key,
                     const gchar *sparql_key_attr,
@@ -200,12 +220,16 @@ void
 grl_tracker_setup_key_mappings (void)
 {
   GrlRegistry *registry = grl_registry_get_default ();
+  GrlKeyID grl_metadata_key_chromaprint;
 
   grl_metadata_key_tracker_urn =
     grl_registry_lookup_metadata_key (registry, "tracker-urn");
 
   grl_metadata_key_gibest_hash =
     grl_registry_lookup_metadata_key (registry, "gibest-hash");
+
+  grl_metadata_key_chromaprint =
+    grl_registry_lookup_metadata_key (registry, "chromaprint");
 
   grl_to_sparql_mapping = g_hash_table_new (g_direct_hash, g_direct_equal);
   sparql_to_grl_mapping = g_hash_table_new (g_str_hash, g_str_equal);
@@ -276,20 +300,22 @@ grl_tracker_setup_key_mappings (void)
                       "nfo:duration(?urn)",
                       "audio");
 
-  insert_key_mapping (GRL_METADATA_KEY_MB_TRACK_ID,
-                      "nmm:mbTrackID",
-                      "nmm:mbTrackID(?urn)",
-                      "audio");
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_MB_TRACK_ID,
+                                  "nmm:mbTrackID",
+                                  "nmm:mbTrackID(?urn)",
+                                  "audio",
+                                  set_string_metadata_keys);
 
   insert_key_mapping (GRL_METADATA_KEY_MB_ARTIST_ID,
                       "nmm:mbArtistID",
                       "nmm:mbArtistID(?urn)",
                       "audio");
 
-  insert_key_mapping (GRL_METADATA_KEY_MB_RECORDING_ID,
-                      "nmm:mbRecordingID",
-                      "nmm:mbRecordingID(?urn)",
-                      "audio");
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_MB_RECORDING_ID,
+                                  "nmm:mbRecordingID",
+                                  "nmm:mbRecordingID(?urn)",
+                                  "audio",
+                                  set_string_metadata_keys);
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RELEASE_ID,
                       "nmm:mbReleaseID",
@@ -300,6 +326,12 @@ grl_tracker_setup_key_mappings (void)
                       "nmm:mbReleaseGroupID",
                       "nmm:mbReleaseGroupID(?urn)",
                       "audio");
+
+  insert_key_mapping_with_setter (grl_metadata_key_chromaprint,
+                                  NULL,
+                                  "(select nfo:hashValue(?h) { ?urn nfo:hasHash ?h . ?h nfo:hashAlgorithm \"chromaprint\" })",
+                                  "audio",
+                                  set_string_metadata_keys);
 
   insert_key_mapping (GRL_METADATA_KEY_FRAMERATE,
                       "nfo:frameRate",
@@ -424,10 +456,11 @@ grl_tracker_setup_key_mappings (void)
                         "media");
   }
 
-  insert_key_mapping (GRL_METADATA_KEY_TRACK_NUMBER,
-                      "nmm:trackNumber",
-                      "nmm:trackNumber(?urn)",
-                      "audio");
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_TRACK_NUMBER,
+                                  "nmm:trackNumber",
+                                  "nmm:trackNumber(?urn)",
+                                  "audio",
+                                  set_int_metadata_keys);
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_FAVOURITE,
                                   "nao:hasTag",

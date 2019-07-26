@@ -51,6 +51,7 @@ acoustid = {}
 
 -- https://acoustid.org/webservice#lookup
 ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=compress+recordings+releasegroups+releases+sources+tracks&duration=%d&fingerprint=%s"
+ACOUSTID_ROOT_URL = "https://api.acoustid.org/v2/lookup?client=%s&meta=compress+recordings+releasegroups+releases+sources+tracks"
 
 ---------------------------------
 -- Handlers of Grilo functions --
@@ -77,9 +78,101 @@ function grl_source_resolve (media, options, callback)
   grl.fetch (url, netopts, lookup_cb)
 end
 
+-- Query is a Method of acoustid's webservice to perform a lookup operation
+-- See: https://acoustid.org/webservice
+-- by fingerprint: meta=compress+recordings+releasegroups+releases+sources+tracks&duration=duration&fingerprint=fingerprint
+-- by trackid: meta=compress+recordings+releasegroups+releases+sources+tracks&acoustid=trackid
+function grl_source_query (query)
+  if check_input(query) then
+    local url = string.format(ACOUSTID_ROOT_URL .. "&" .. query, acoustid.api_key)
+    grl.fetch (url, netopts, lookup_cb_query)
+  end
+end
+
 ---------------
 -- Utilities --
 ---------------
+
+function check_input(query)
+  if not query then
+    return false
+  end
+  local duration = ""
+  local fingerprint = ""
+  local j = 0
+  for i = 10, string.len(query) do
+    chars = string.sub(query, i, i)
+    if chars ~= '&' then
+      duration = duration .. string.sub(query, i, i)
+    else
+      j = i + 13
+      break
+    end
+  end
+
+  for i = j, string.len(query) do
+    fingerprint = fingerprint .. string.sub(query, i, i)
+  end
+
+  if duration and string.len(duration) > 0 and
+    fingerprint and string.len(fingerprint) > 0 then
+    return true
+  else
+    return false
+  end
+end
+
+function get_count(results)
+  local count = 0
+
+  if results and #results > 0 then
+    for _,result in ipairs(results) do
+      if result.recordings and #result.recordings > 0 then
+        for _,recording in ipairs(result.recordings) do
+          count = count + #recording.releasegroups
+        end
+      end
+    end
+  end
+
+  return count
+end
+
+function lookup_cb_query (feed)
+  local count = 0
+  if not feed then
+    grl.callback()
+    return
+  end
+
+  local json = grl.lua.json.string_to_table (feed)
+  if not json or json.status ~= "ok" then
+    grl.callback()
+  end
+
+  if not json.results or #json.results == 0 then
+    grl.callback()
+    return
+  end
+
+  count = get_count(json.results)
+  for i,result in ipairs(json.results) do
+    if result.recordings and
+      #result.recordings > 0 then
+      for _, recording in ipairs(result.recordings) do
+        if recording.releasegroups and
+          #recording.releasegroups > 0 then
+          for _, releasegroup in ipairs(recording.releasegroups) do
+            count = count - 1
+            media = build_media_query (recording, releasegroup)
+            grl.callback (media, count)
+          end
+        end
+      end
+    end
+  end
+end
+
 
 function lookup_cb (feed)
   if not feed then
@@ -166,6 +259,55 @@ function build_media(results)
 
     release = album.releases[1]
     media.mb_release_id = keys.mb_album_id and release.id or nil
+
+    if release.date then
+      local date = release.date
+      local month = date.month or 1
+      local day = date.day or 1
+      date = string.format('%04d-%02d-%02d', date.year, month, day)
+      media.publication_date = keys.publication_date and date or nil
+    end
+
+    if release.mediums and #release.mediums > 0 then
+      medium = release.mediums[1]
+      media.album_disc_number = keys.album_disc_number and medium.position or nil
+      if medium.tracks and #medium.tracks > 0 then
+        media.track_number = keys.track_number and medium.tracks[1].position or nil
+      end
+    end
+  end
+
+  return media
+end
+
+function build_media_query(record, releasegroup)
+  local media = {}
+  local keys = grl.get_requested_keys ()
+  local album, release
+
+  if record then
+    media.title = keys.title and record.title or nil
+    media.mb_recording_id = keys.mb_recording_id and record.id or nil
+  end
+
+  if releasegroup then
+    album = releasegroup
+    media.album = keys.album and album.title or nil
+    media.mb_release_group_id = keys.mb_release_group_id and album.id or nil
+  end
+
+  -- FIXME: related-keys on lua sources are in the TODO list
+  -- https://bugzilla.gnome.org/show_bug.cgi?id=756203
+  -- and for that reason we are only returning first of all metadata
+  if record and record.artists and #record.artists > 0 then
+    artist = record.artists[1]
+    media.artist = keys.artist and artist.name or nil
+    media.mb_artist_id = keys.mb_artist_id and artist.id or nil
+  end
+
+  if album and album.releases and #album.releases > 0 then
+    release = album.releases[1]
+    media.mb_release_id = keys.mb_release_id and release.id or nil
 
     if release.date then
       local date = release.date

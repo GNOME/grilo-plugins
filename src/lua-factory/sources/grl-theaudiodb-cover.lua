@@ -63,7 +63,7 @@ end
 
 function grl_source_resolve()
   local url, keys
-  local artist, title
+  local artist, album
 
   keys = grl.get_media_keys()
   if not keys or not keys.artist or not keys.album
@@ -72,7 +72,7 @@ function grl_source_resolve()
     return
   end
 
-  -- Prepare artist and title strings to the url
+  -- Prepare artist and album strings to the url
   artist = grl.encode(keys.artist)
   album = grl.encode(keys.album)
   url = string.format(THEAUDIODB_SEARCH_ALBUM, theaudiodb.api_key, artist, album)

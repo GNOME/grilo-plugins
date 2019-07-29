@@ -56,8 +56,8 @@ ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=compress+re
 -- Handlers of Grilo functions --
 ---------------------------------
 function grl_source_init (configs)
-    acoustid.api_key = configs.api_key
-    return true
+  acoustid.api_key = configs.api_key
+  return true
 end
 
 function grl_source_resolve (media, options, callback)
@@ -65,9 +65,9 @@ function grl_source_resolve (media, options, callback)
   local media = grl.get_media_keys()
 
   if not media or
-      not media.duration or
-      not media.chromaprint or
-      #media.chromaprint == 0 then
+     not media.duration or
+     not media.chromaprint or
+     #media.chromaprint == 0 then
     grl.callback ()
     return
   end
@@ -106,8 +106,8 @@ function build_media(results)
   local creation_date = nil
 
   if results and #results > 0 and
-      results[1].recordings and
-      #results[1].recordings > 0 then
+     results[1].recordings and
+     #results[1].recordings > 0 then
     for _, recording in ipairs(results[1].recordings) do
       if recording.sources > sources then
         sources = recording.sources
@@ -120,8 +120,8 @@ function build_media(results)
   end
 
   if record and
-      record.releasegroups and
-      #record.releasegroups > 0 then
+     record.releasegroups and
+     #record.releasegroups > 0 then
 
     album = record.releasegroups[1]
     media.album = keys.album and album.title or nil
@@ -147,12 +147,12 @@ function build_media(results)
           local day = release.date.day or 1
           local year= release.date.year
         if not creation_date or
-              year < creation_date.year or
-              (year == creation_date.year and
-                month < creation_date.month) or
-              (year == creation_date.year and
-                month == creation_date.month and
-                day < creation_date.day) then
+           year < creation_date.year or
+           (year == creation_date.year and
+           month < creation_date.month) or
+           (year == creation_date.year and
+           month == creation_date.month and
+           day < creation_date.day) then
             creation_date = {day=day, month=month, year=year}
           end
         end

@@ -60,7 +60,7 @@ function grl_source_init (configs)
   return true
 end
 
-function grl_source_resolve (media, options, callback)
+function grl_source_resolve ()
   local url
   local media = grl.get_media_keys()
 

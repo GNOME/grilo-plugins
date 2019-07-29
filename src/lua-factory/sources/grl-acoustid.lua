@@ -82,6 +82,8 @@ end
 ---------------
 
 function lookup_cb_resolve (feed)
+  local sources = 0
+  local record, releasegroup
   if not feed then
     grl.callback()
     return
@@ -92,43 +94,40 @@ function lookup_cb_resolve (feed)
     grl.callback()
   end
 
-  media = build_media (json.results)
-  grl.callback (media)
+  for _, recording in ipairs(json.results[1].recordings) do
+    if recording.sources > sources then
+      sources = recording.sources
+      if #recording.releasegroups > 0 then
+        record = recording
+        releasegroup = recording.releasegroups[1]
+      end
+    end
+  end
+
+  if record and releasegroup then
+    media = build_media (record, releasegroup)
+    grl.callback (media)
+  else
+    grl.callback ()
+  end
 end
 
 
-function build_media(results)
-  local media = grl.get_media_keys ()
+function build_media(record, releasegroup)
+  local media = {}
   local keys = grl.get_requested_keys ()
-  local record, album, artist
+  local album, release, artist
   local release_group_id
-  local sources = 0
   local creation_date = nil
 
-  if results and #results > 0 and
-     results[1].recordings and
-     #results[1].recordings > 0 then
-    for _, recording in ipairs(results[1].recordings) do
-      if recording.sources > sources then
-        sources = recording.sources
-        record = recording
-      end
-    end
+  media.title = keys.title and record.title or nil
+  media.mb_recording_id = keys.mb_recording_id and record.id or nil
 
-    media.title = keys.title and record.title or nil
-    media.mb_recording_id = keys.mb_recording_id and record.id or nil
-  end
-
-  if record and
-     record.releasegroups and
-     #record.releasegroups > 0 then
-
-    album = record.releasegroups[1]
-    media.album = keys.album and album.title or nil
-    release_group_id = keys.mb_album_id and album.id or nil
-    media.mb_album_id = release_group_id
-    media.mb_release_group_id = release_group_id
-  end
+  album = releasegroup
+  media.album = keys.album and album.title or nil
+  release_group_id = releasegroup.id or nil
+  media.mb_album_id = release_group_id
+  media.mb_release_group_id = release_group_id
 
   -- FIXME: related-keys on lua sources are in the TODO list
   -- https://bugzilla.gnome.org/show_bug.cgi?id=756203

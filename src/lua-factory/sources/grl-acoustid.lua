@@ -74,14 +74,14 @@ function grl_source_resolve ()
 
   url = string.format (ACOUSTID_LOOKUP, acoustid.api_key, media.duration,
                        media.chromaprint)
-  grl.fetch (url, netopts, lookup_cb)
+  grl.fetch (url, netopts, lookup_cb_resolve)
 end
 
 ---------------
 -- Utilities --
 ---------------
 
-function lookup_cb (feed)
+function lookup_cb_resolve (feed)
   if not feed then
     grl.callback()
     return

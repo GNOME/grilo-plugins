@@ -130,7 +130,6 @@ function build_media(record, releasegroup)
   album = releasegroup
   media.album = keys.album and album.title or nil
   release_group_id = releasegroup.id or nil
-  media.mb_album_id = release_group_id
   media.mb_release_group_id = release_group_id
 
   -- FIXME: related-keys on lua sources are in the TODO list

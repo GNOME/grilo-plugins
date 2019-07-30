@@ -130,7 +130,7 @@ test_resolve_fingerprint (void)
     gint   duration;
     gchar *mb_artist_id;
     gchar *artist;
-    gchar *mb_album_id;
+    gchar *mb_release_group_id;
     gchar *album;
     gchar *mb_recording_id;
     gchar *title;
@@ -200,16 +200,14 @@ test_resolve_fingerprint (void)
     g_free (mb_artist_id);
     g_assert_cmpstr (audios[i].artist, ==, artist);
     g_free (artist);
-    g_assert_cmpstr (audios[i].mb_album_id, ==, mb_album_id);
-    g_free (mb_album_id);
+    g_assert_cmpstr (audios[i].mb_release_group_id, ==, mb_release_group_id);
+    g_free (mb_release_group_id);
     g_assert_cmpstr (audios[i].album, ==, album);
     g_free (album);
     g_assert_cmpstr (audios[i].mb_recording_id, ==, mb_recording_id);
     g_free (mb_recording_id);
     g_assert_cmpstr (audios[i].mb_release_id, ==, mb_release_id);
     g_free (mb_release_id);
-    g_assert_cmpstr (audios[i].mb_album_id, ==, mb_release_group_id);
-    g_free (mb_release_group_id);
     g_assert_cmpint (audios[i].album_disc_number, ==, album_disc_number);
     g_assert_cmpstr (audios[i].publication_date, ==, publication_date);
     g_free (publication_date);

@@ -168,7 +168,7 @@ function build_media(record, releasegroup)
     end
 
     release = album.releases[1]
-    media.mb_release_id = keys.mb_album_id and release.id or nil
+    media.mb_release_id = (keys.mb_release_id or keys.mb_album_id) and release.id or nil
 
     if release.date then
       local date = release.date

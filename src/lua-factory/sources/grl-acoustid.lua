@@ -50,7 +50,8 @@ netopts = {
 acoustid = {}
 
 -- https://acoustid.org/webservice#lookup
-ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=compress+recordings+releasegroups+releases+sources+tracks&duration=%d&fingerprint=%s"
+ACOUSTID_ROOT_URL = "https://api.acoustid.org/v2/lookup?client=%s&meta=compress+recordings+releasegroups+releases+sources+tracks"
+ACOUSTID_LOOKUP_FINGERPRINT = ACOUSTID_ROOT_URL .. "&duration=%d&fingerprint=%s"
 
 ---------------------------------
 -- Handlers of Grilo functions --
@@ -72,14 +73,45 @@ function grl_source_resolve ()
     return
   end
 
-  url = string.format (ACOUSTID_LOOKUP, acoustid.api_key, media.duration,
+  url = string.format (ACOUSTID_LOOKUP_FINGERPRINT, acoustid.api_key, media.duration,
                        media.chromaprint)
   grl.fetch (url, netopts, lookup_cb_resolve)
+end
+
+-- Query is a Method of acoustid's webservice to perform a lookup operation
+-- See: https://acoustid.org/webservice
+-- by fingerprint: duration=duration&fingerprint=fingerprint
+function grl_source_query (query)
+  local url
+  duration, fingerprint = query:match("duration=(%d+)&fingerprint=(%w+)")
+  if duration and fingerprint then
+    url = string.format(ACOUSTID_ROOT_URL .. "&" .. query, acoustid.api_key)
+    grl.fetch (url, netopts, lookup_cb_query)
+  else
+    grl.callback ()
+    return
+  end
 end
 
 ---------------
 -- Utilities --
 ---------------
+
+function get_count(results)
+  local count = 0
+
+  if results and #results > 0 then
+    for _,result in ipairs(results) do
+      if result.recordings and #result.recordings > 0 then
+        for _,recording in ipairs(result.recordings) do
+          count = count + #recording.releasegroups
+        end
+      end
+    end
+  end
+
+  return count
+end
 
 function lookup_cb_resolve (feed)
   local sources = 0
@@ -116,12 +148,47 @@ function lookup_cb_resolve (feed)
   end
 end
 
+function lookup_cb_query (feed)
+  local count
+  if not feed then
+    grl.callback()
+    return
+  end
+
+  local json = grl.lua.json.string_to_table (feed)
+  if not json or json.status ~= "ok" or
+     not json.results or #json.results <= 0 then
+    grl.callback()
+  end
+
+  count = grl.get_options("count")
+  if not count or count <= 0 then
+    count = get_count(json.results)
+  end
+  for _,result in ipairs(json.results) do
+    if result.recordings and
+      #result.recordings > 0 then
+      for _, recording in ipairs(result.recordings) do
+        if recording.releasegroups and
+          #recording.releasegroups > 0 then
+          for _, releasegroup in ipairs(recording.releasegroups) do
+            count = count - 1
+            media = build_media (recording, releasegroup)
+            grl.callback (media, count)
+            if count == 0 then
+              return
+            end
+          end
+        end
+      end
+    end
+  end
+end
 
 function build_media(record, releasegroup)
   local media = {}
   local keys = grl.get_requested_keys ()
   local album, release, artist
-  local release_group_id
   local creation_date = nil
 
   media.title = keys.title and record.title or nil

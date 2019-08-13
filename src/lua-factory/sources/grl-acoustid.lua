@@ -90,7 +90,9 @@ function lookup_cb_resolve (feed)
   end
 
   local json = grl.lua.json.string_to_table (feed)
-  if not json or json.status ~= "ok" then
+  if not json or json.status ~= "ok" or
+     not json.results or #json.results <= 0 or
+     not json.results[1].recordings or #json.results[1].recordings <= 0 then
     grl.callback()
   end
 

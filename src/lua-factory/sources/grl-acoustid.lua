@@ -90,12 +90,12 @@ function lookup_cb_resolve (feed)
   end
 
   local json = grl.lua.json.string_to_table (feed)
-  if not json or json.status ~= "ok" then
+  if not json or json.status ~= "ok" or
+     not json.results and #json.results <= 0 then
     grl.callback()
   end
 
-  if json.results and #json.results > 0 and
-     json.results[1].recordings and
+  if json.results[1].recordings and
      #json.results[1].recordings > 0 then
     for _, recording in ipairs(json.results[1].recordings) do
       if recording.sources > sources then

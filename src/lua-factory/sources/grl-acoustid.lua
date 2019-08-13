@@ -129,9 +129,8 @@ function build_media(record, releasegroup)
 
   album = releasegroup
   media.album = keys.album and album.title or nil
-  release_group_id = releasegroup.id or nil
-  media.mb_album_id = release_group_id
-  media.mb_release_group_id = release_group_id
+  media.mb_album_id = keys.mb_album_id and album.id or nil
+  media.mb_release_group_id = keys.mb_release_group_id and album.id or nil
 
   -- FIXME: related-keys on lua sources are in the TODO list
   -- https://bugzilla.gnome.org/show_bug.cgi?id=756203

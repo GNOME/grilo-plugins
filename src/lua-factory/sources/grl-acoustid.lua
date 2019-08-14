@@ -50,85 +50,152 @@ netopts = {
 acoustid = {}
 
 -- https://acoustid.org/webservice#lookup
-ACOUSTID_LOOKUP = "https://api.acoustid.org/v2/lookup?client=%s&meta=compress+recordings+releasegroups+releases+sources+tracks&duration=%d&fingerprint=%s"
+ACOUSTID_ROOT_URL = "https://api.acoustid.org/v2/lookup?client=%s&meta=compress+recordings+releasegroups+releases+sources+tracks"
+ACOUSTID_LOOKUP_FINGERPRINT = ACOUSTID_ROOT_URL .. "&duration=%d&fingerprint=%s"
 
 ---------------------------------
 -- Handlers of Grilo functions --
 ---------------------------------
 function grl_source_init (configs)
-    acoustid.api_key = configs.api_key
-    return true
+  acoustid.api_key = configs.api_key
+  return true
 end
 
-function grl_source_resolve (media, options, callback)
+function grl_source_resolve ()
   local url
   local media = grl.get_media_keys()
 
   if not media or
-      not media.duration or
-      not media.chromaprint or
-      #media.chromaprint == 0 then
+     not media.duration or
+     not media.chromaprint or
+     #media.chromaprint == 0 then
     grl.callback ()
     return
   end
 
-  url = string.format (ACOUSTID_LOOKUP, acoustid.api_key, media.duration,
+  url = string.format (ACOUSTID_LOOKUP_FINGERPRINT, acoustid.api_key, media.duration,
                        media.chromaprint)
-  grl.fetch (url, netopts, lookup_cb)
+  grl.fetch (url, netopts, lookup_cb_resolve)
+end
+
+-- Query is a Method of acoustid's webservice to perform a lookup operation
+-- See: https://acoustid.org/webservice
+-- by fingerprint: duration=duration&fingerprint=fingerprint
+function grl_source_query (query)
+  local url
+  duration, fingerprint = query:match("duration=(%d+)&fingerprint=(%w+)")
+  if duration and fingerprint then
+    url = string.format(ACOUSTID_ROOT_URL .. "&" .. query, acoustid.api_key)
+    grl.fetch (url, netopts, lookup_cb_query)
+  else
+    grl.callback ()
+    return
+  end
 end
 
 ---------------
 -- Utilities --
 ---------------
 
-function lookup_cb (feed)
+function get_count(results)
+  local count = 0
+
+  if results and #results > 0 then
+    for _,result in ipairs(results) do
+      if result.recordings and #result.recordings > 0 then
+        for _,recording in ipairs(result.recordings) do
+          count = count + #recording.releasegroups
+        end
+      end
+    end
+  end
+
+  return count
+end
+
+function lookup_cb_resolve (feed)
+  local sources = 0
+  local record, releasegroup
   if not feed then
     grl.callback()
     return
   end
 
   local json = grl.lua.json.string_to_table (feed)
-  if not json or json.status ~= "ok" then
+  if not json or json.status ~= "ok" or
+     not json.results or #json.results <= 0 or
+     not json.results[1].recordings or #json.results[1].recordings <= 0 then
     grl.callback()
   end
 
-  media = build_media (json.results)
-  grl.callback (media)
-end
-
-
-function build_media(results)
-  local media = grl.get_media_keys ()
-  local keys = grl.get_requested_keys ()
-  local record, album, artist
-  local release_group_id
-  local sources = 0
-  local creation_date = nil
-
-  if results and #results > 0 and
-      results[1].recordings and
-      #results[1].recordings > 0 then
-    for _, recording in ipairs(results[1].recordings) do
-      if recording.sources > sources then
-        sources = recording.sources
+  for _, recording in ipairs(json.results[1].recordings) do
+    if recording.sources > sources then
+      sources = recording.sources
+      if #recording.releasegroups > 0 then
         record = recording
+        releasegroup = recording.releasegroups[1]
       end
     end
-
-    media.title = keys.title and record.title or nil
-    media.mb_recording_id = keys.mb_recording_id and record.id or nil
   end
 
-  if record and
-      record.releasegroups and
-      #record.releasegroups > 0 then
-
-    album = record.releasegroups[1]
-    media.album = keys.album and album.title or nil
-    release_group_id = keys.mb_album_id and album.id or nil
-    media.mb_album_id = release_group_id
-    media.mb_release_group_id = release_group_id
+  if record and releasegroup then
+    media = build_media (record, releasegroup)
+    grl.callback (media)
+  else
+    grl.callback ()
   end
+end
+
+function lookup_cb_query (feed)
+  local count
+  if not feed then
+    grl.callback()
+    return
+  end
+
+  local json = grl.lua.json.string_to_table (feed)
+  if not json or json.status ~= "ok" or
+     not json.results or #json.results <= 0 then
+    grl.callback()
+  end
+
+  count = grl.get_options("count")
+  if not count or count <= 0 then
+    count = get_count(json.results)
+  end
+  for _,result in ipairs(json.results) do
+    if result.recordings and
+      #result.recordings > 0 then
+      for _, recording in ipairs(result.recordings) do
+        if recording.releasegroups and
+          #recording.releasegroups > 0 then
+          for _, releasegroup in ipairs(recording.releasegroups) do
+            count = count - 1
+            media = build_media (recording, releasegroup)
+            grl.callback (media, count)
+            if count == 0 then
+              return
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+function build_media(record, releasegroup)
+  local media = {}
+  local keys = grl.get_requested_keys ()
+  local album, release, artist
+  local creation_date = nil
+
+  media.title = keys.title and record.title or nil
+  media.mb_recording_id = keys.mb_recording_id and record.id or nil
+
+  album = releasegroup
+  media.album = keys.album and album.title or nil
+  media.mb_album_id = keys.mb_album_id and album.id or nil
+  media.mb_release_group_id = keys.mb_release_group_id and album.id or nil
 
   -- FIXME: related-keys on lua sources are in the TODO list
   -- https://bugzilla.gnome.org/show_bug.cgi?id=756203
@@ -147,12 +214,12 @@ function build_media(results)
           local day = release.date.day or 1
           local year= release.date.year
         if not creation_date or
-              year < creation_date.year or
-              (year == creation_date.year and
-                month < creation_date.month) or
-              (year == creation_date.year and
-                month == creation_date.month and
-                day < creation_date.day) then
+           year < creation_date.year or
+           (year == creation_date.year and
+           month < creation_date.month) or
+           (year == creation_date.year and
+           month == creation_date.month and
+           day < creation_date.day) then
             creation_date = {day=day, month=month, year=year}
           end
         end
@@ -165,7 +232,7 @@ function build_media(results)
     end
 
     release = album.releases[1]
-    media.mb_release_id = keys.mb_album_id and release.id or nil
+    media.mb_release_id = (keys.mb_release_id or keys.mb_album_id) and release.id or nil
 
     if release.date then
       local date = release.date

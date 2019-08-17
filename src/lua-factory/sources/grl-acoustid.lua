@@ -157,6 +157,7 @@ function lookup_cb_query (feed)
   if not json or json.status ~= "ok" or
      not json.results or #json.results <= 0 then
     grl.callback()
+    return
   end
 
   count = grl.get_options("count")

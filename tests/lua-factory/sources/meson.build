@@ -10,6 +10,7 @@ acoustid_resources = gnome.compile_resources('acoustidresources',
     c_name: '_grl_lua_acoustid')
 
 source_tests = [
+    'test_lua_theaudiodb'
 ]
 
 if chromaprint_enabled

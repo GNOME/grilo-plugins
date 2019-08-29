@@ -16,11 +16,11 @@ multimedia content providers.
 
 We have a wiki page at
 
-https://wiki.gnome.org/Projects/Grilo
+<https://wiki.gnome.org/Projects/Grilo>
 
 You can subscribe to our mailing list:
 
-http://mail.gnome.org/mailman/listinfo/grilo-list
+<http://mail.gnome.org/mailman/listinfo/grilo-list>
 
 You can join us on the IRC:
 
@@ -36,7 +36,7 @@ file first :)
 Make sure you have Grilo installed first! If you do then:
 
 ```bash
-$ git clone git://git.gnome.org/grilo-plugins
+$ git clone https://gitlab.gnome.org/GNOME/grilo-plugins.git
 $ cd grilo-plugins
 $ ./autogen.sh
 $ make

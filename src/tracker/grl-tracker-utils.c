@@ -277,29 +277,29 @@ grl_tracker_setup_key_mappings (void)
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_TRACK_ID,
-                      "nmm:mbTrackID",
-                      "nmm:mbTrackID(?urn)",
+                      NULL,
+                      "(SELECT tracker:referenceIdentifier(?t) AS ?t_id { ?urn tracker:hasExternalReference ?t . ?t tracker:referenceSource \"https://musicbrainz.org/doc/Track\" })",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_ARTIST_ID,
-                      "nmm:mbArtistID",
-                      "nmm:mbArtistID(?urn)",
+                      NULL,
+		      "(SELECT tracker:referenceIdentifier(?a) AS ?a_id { ?urn nmm:performer ?artist . ?artist tracker:hasExternalReference ?a . ?a tracker:referenceSource \"https://musicbrainz.org/doc/Artist\" })",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RECORDING_ID,
-                      "nmm:mbRecordingID",
-                      "nmm:mbRecordingID(?urn)",
+		      NULL,
+                      "(SELECT tracker:referenceIdentifier(?r) AS ?r_id { ?urn tracker:hasExternalReference ?r . ?r tracker:referenceSource \"https://musicbrainz.org/doc/Recording\" })",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RELEASE_ID,
-                      "nmm:mbReleaseID",
-                      "nmm:mbReleaseID(?urn)",
+                      NULL,
+		      "(SELECT tracker:referenceIdentifier(?re) AS ?re_id { ?urn nmm:musicAlbum ?album . ?album tracker:hasExternalReference ?re . ?re tracker:referenceSource \"https://musicbrainz.org/doc/Release\" })",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RELEASE_GROUP_ID,
-                      "nmm:mbReleaseGroupID",
-                      "nmm:mbReleaseGroupID(?urn)",
-                      "audio");
+                      NULL,
+		      "(SELECT tracker:referenceIdentifier(?rg) AS ?rg_id { ?urn nmm:musicAlbum ?album . ?album tracker:hasExternalReference ?rg . ?rg tracker:referenceSource \"https://musicbrainz.org/doc/Release_Group\" })",
+		      "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_FRAMERATE,
                       "nfo:frameRate",

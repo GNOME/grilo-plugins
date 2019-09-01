@@ -38,8 +38,9 @@ Make sure you have Grilo installed first! If you do then:
 ```bash
 $ git clone https://gitlab.gnome.org/GNOME/grilo-plugins.git
 $ cd grilo-plugins
-$ ./autogen.sh
-$ make
+$ meson . build
+$ ninja -C build
+$ sudo ninja -C build install
 ```
 
 Enjoy!

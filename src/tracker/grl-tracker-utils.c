@@ -217,7 +217,7 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_ALBUM,
                       NULL,
-                      "nmm:albumTitle(nmm:musicAlbum(?urn))",
+                      "nie:title(nmm:musicAlbum(?urn))",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_ALBUM_DISC_NUMBER,

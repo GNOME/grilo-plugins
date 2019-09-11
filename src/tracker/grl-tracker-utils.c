@@ -300,22 +300,20 @@ grl_tracker_setup_key_mappings (void)
                       "nfo:duration(?urn)",
                       "audio");
 
-  insert_key_mapping_with_setter (GRL_METADATA_KEY_MB_TRACK_ID,
-                                  "nmm:mbTrackID",
-                                  "nmm:mbTrackID(?urn)",
-                                  "audio",
-                                  set_string_metadata_keys);
+  insert_key_mapping (GRL_METADATA_KEY_MB_TRACK_ID,
+                      "nmm:mbTrackID",
+                      "nmm:mbTrackID(?urn)",
+                      "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_ARTIST_ID,
                       "nmm:mbArtistID",
                       "nmm:mbArtistID(?urn)",
                       "audio");
 
-  insert_key_mapping_with_setter (GRL_METADATA_KEY_MB_RECORDING_ID,
-                                  "nmm:mbRecordingID",
-                                  "nmm:mbRecordingID(?urn)",
-                                  "audio",
-                                  set_string_metadata_keys);
+  insert_key_mapping (GRL_METADATA_KEY_MB_RECORDING_ID,
+                      "nmm:mbRecordingID",
+                      "nmm:mbRecordingID(?urn)",
+                      "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RELEASE_ID,
                       "nmm:mbReleaseID",

@@ -668,8 +668,6 @@ grl_tracker_source_writable_keys (GrlSource *source)
                                       GRL_METADATA_KEY_LAST_PLAYED,
                                       GRL_METADATA_KEY_LAST_POSITION,
                                       GRL_METADATA_KEY_FAVOURITE,
-                                      GRL_METADATA_KEY_MB_TRACK_ID,
-                                      GRL_METADATA_KEY_MB_RECORDING_ID,
                                       GRL_METADATA_KEY_TITLE,
                                       GRL_METADATA_KEY_TRACK_NUMBER,
                                       GRL_METADATA_KEY_CREATION_DATE,

@@ -1,3 +1,38 @@
+NEW in 0.3.10
+=============
+  * Tracker plugin now requires >= 2.3.0
+
+  * !61 - Convert README to Markdown
+
+  * Tracker
+    * !29 - #14 Implement source notification through TrackerNotifier
+    * !56 - Mark playlists as a container
+    * !62 - Use the correct property to retrieve album title
+    * !63 - Use tracker:ExternalReference to retrieve musicbrainz ids
+
+  * Chromaprint
+    * !58 - Throw an error on missing decoders
+
+  * Lua-Factory
+    * !53 - Renamed grl-musicbrainz to grl-musicbrainz-coverart
+    * Acoustid
+      * !54 - Return Multiple Results from AcoustID Plugin
+      * !55 - Add support for creation_date
+      * !60 - Return from source in case of no match
+    * TheAudioDB
+      * !59 - Add the ability to retrieve artist art
+
+  * Contributors to this release:
+    * Bastien Nocera <hadess@hadess.net>
+    * Jean Felder <jfelder@src.gnome.org>
+    * Rafael Fontenelle <rafaelff@gnome.org>
+    * Roger <sachanroger@gmail.com>
+    * Sumaid Syed <sumaidsyed@gmail.com>
+    * Victor Toso <me@victortoso.com>
+
+  * Updated translations
+    * Brazilian Portuguese
+
 NEW in 0.3.9
 ============
   * Require Grilo >= 0.3.8

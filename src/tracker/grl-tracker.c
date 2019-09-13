@@ -65,6 +65,12 @@ GRL_LOG_DOMAIN_STATIC(tracker_general_log_domain);
   "<%s> tracker:notify true "                   \
   "}"
 
+#define TRACKER_QUERY_IF_COMPAT_WITH_2_3_0 \
+  "SELECT ?e WHERE " \
+  "{ " \
+  "?e a tracker:ExternalReference . " \
+  "}"
+
 /* --- Other --- */
 
 gboolean grl_tracker_plugin_init (GrlRegistry *registry,
@@ -78,12 +84,18 @@ GrlPlugin *grl_tracker_plugin;
 GCancellable *grl_tracker_plugin_init_cancel = NULL;
 gboolean grl_tracker_upnp_present = FALSE;
 GrlTrackerQueue *grl_tracker_queue = NULL;
+gboolean tracker_daemon_compat_2_3_0 = FALSE;
 
 /* tracker plugin config */
 gboolean grl_tracker_browse_filesystem = FALSE;
 gboolean grl_tracker_show_documents    = FALSE;
 
 /* =================== Tracker Plugin  =============== */
+
+gboolean grl_tracker_is_2_3_0_compat (void)
+{
+  return tracker_daemon_compat_2_3_0;
+}
 
 static void
 init_sources (void)
@@ -100,11 +112,45 @@ init_sources (void)
 }
 
 static void
+tracker_version_compat_check_cb (GObject      *object,
+                                 GAsyncResult *result,
+                                 gpointer       data)
+{
+  GError *error = NULL;
+  TrackerSparqlCursor  *cursor;
+
+  GRL_DEBUG ("%s", __FUNCTION__);
+
+  cursor = tracker_sparql_connection_query_finish (grl_tracker_connection,
+                                                   result, &error);
+  if (error != NULL) {
+    GRL_DEBUG("Compat check failed: %s", error->message);
+    g_error_free (error);
+  } else {
+    tracker_daemon_compat_2_3_0 = TRUE;
+    g_clear_object(&cursor);
+  }
+
+  init_sources();
+}
+
+/* For now we are only checking against one version */
+static void
+tracker_version_compat_check (void)
+{
+  tracker_sparql_connection_query_async (grl_tracker_connection,
+                                         TRACKER_QUERY_IF_COMPAT_WITH_2_3_0,
+                                         grl_tracker_plugin_init_cancel,
+                                         tracker_version_compat_check_cb,
+                                         NULL);
+}
+
+static void
 tracker_update_folder_class_cb (GObject      *object,
                                 GAsyncResult *result,
                                 gpointer      data)
 {
-  init_sources ();
+  tracker_version_compat_check ();
 }
 
 static void
@@ -127,7 +173,7 @@ tracker_get_folder_class_cb (GObject      *object,
   }
 
   if (!cursor) {
-    init_sources ();
+    tracker_version_compat_check ();
     return;
   }
 
@@ -184,7 +230,7 @@ tracker_get_upnp_class_cb (GObject      *object,
                                            tracker_get_folder_class_cb,
                                            NULL);
   else
-    init_sources ();
+    tracker_version_compat_check ();
 }
 
 static void

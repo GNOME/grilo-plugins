@@ -30,6 +30,34 @@
 #include "grl-tracker-utils.h"
 #include <glib/gi18n-lib.h>
 
+/* Queries that are uses tracker:hasExternalReference introduced in 2.3
+ * (development) cycle of tracker */
+
+#define ATTR_CALL_MB_TRACK_ID \
+        "(SELECT tracker:referenceIdentifier(?t) AS ?t_id { " \
+        "?urn tracker:hasExternalReference ?t . ?t " \
+        "tracker:referenceSource \"https://musicbrainz.org/doc/Track\" })"
+
+#define ATTR_CALL_MB_ARTIST_ID \
+        "(SELECT tracker:referenceIdentifier(?a) AS ?a_id { " \
+        "?urn nmm:performer ?artist . ?artist tracker:hasExternalReference ?a . ?a " \
+        "tracker:referenceSource \"https://musicbrainz.org/doc/Artist\" })"
+
+#define ATTR_CALL_MB_RECORDING_ID \
+        "(SELECT tracker:referenceIdentifier(?r) AS ?r_id { " \
+        "?urn tracker:hasExternalReference ?r . ?r " \
+        "tracker:referenceSource \"https://musicbrainz.org/doc/Recording\" })"
+
+#define ATTR_CALL_MB_RELEASE_ID \
+        "(SELECT tracker:referenceIdentifier(?re) AS ?re_id { " \
+        "?urn nmm:musicAlbum ?album . ?album tracker:hasExternalReference ?re . ?re " \
+        "tracker:referenceSource \"https://musicbrainz.org/doc/Release\" })"
+
+#define ATTR_CALL_MB_RELEASE_GROUP_ID \
+        "(SELECT tracker:referenceIdentifier(?rg) AS ?rg_id { " \
+        "?urn nmm:musicAlbum ?album . ?album tracker:hasExternalReference ?rg . ?rg " \
+        "tracker:referenceSource \"https://musicbrainz.org/doc/Release_Group\" })"
+
 /**/
 
 static GHashTable *grl_to_sparql_mapping = NULL;
@@ -302,28 +330,28 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_MB_TRACK_ID,
                       NULL,
-                      "(SELECT tracker:referenceIdentifier(?t) AS ?t_id { ?urn tracker:hasExternalReference ?t . ?t tracker:referenceSource \"https://musicbrainz.org/doc/Track\" })",
-		      "audio");
+                      ATTR_CALL_MB_TRACK_ID,
+                      "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_ARTIST_ID,
                       NULL,
-		      "(SELECT tracker:referenceIdentifier(?a) AS ?a_id { ?urn nmm:performer ?artist . ?artist tracker:hasExternalReference ?a . ?a tracker:referenceSource \"https://musicbrainz.org/doc/Artist\" })",
+                      ATTR_CALL_MB_ARTIST_ID,
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RECORDING_ID,
                       NULL,
-		      "(SELECT tracker:referenceIdentifier(?r) AS ?r_id { ?urn tracker:hasExternalReference ?r . ?r tracker:referenceSource \"https://musicbrainz.org/doc/Recording\" })",
+                      ATTR_CALL_MB_RECORDING_ID,
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RELEASE_ID,
                       NULL,
-		      "(SELECT tracker:referenceIdentifier(?re) AS ?re_id { ?urn nmm:musicAlbum ?album . ?album tracker:hasExternalReference ?re . ?re tracker:referenceSource \"https://musicbrainz.org/doc/Release\" })",
+                      ATTR_CALL_MB_RELEASE_ID,
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RELEASE_GROUP_ID,
                       NULL,
-		      "(SELECT tracker:referenceIdentifier(?rg) AS ?rg_id { ?urn nmm:musicAlbum ?album . ?album tracker:hasExternalReference ?rg . ?rg tracker:referenceSource \"https://musicbrainz.org/doc/Release_Group\" })",
-		      "audio");
+                      ATTR_CALL_MB_RELEASE_GROUP_ID,
+                      "audio");
 
   insert_key_mapping_with_setter (grl_metadata_key_chromaprint,
                                   NULL,

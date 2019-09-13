@@ -70,6 +70,16 @@ totem_plparser_dep = dependency('totem-plparser', version: '>= 3.4.1', required:
 totem_plparser_mini_dep = dependency('totem-plparser-mini', version: '>= 3.4.1', required: false)
 tracker_sparql_dep = dependency('tracker-sparql-2.0', version: '>= 2.3.0', required: false)
 
+cdata = configuration_data()
+cdata.set('TRACKER_COMPAT_2_3_0', tracker_sparql_dep.found())
+
+if not tracker_sparql_dep.found()
+    tracker_sparql_dep = dependency('tracker-sparql-2.0', required: false)
+    if not tracker_sparql_dep.found()
+        tracker_sparql_dep = dependency('tracker-sparql-1.0', required: false)
+    endif
+endif
+
 lua_dep = dependency('lua', version: '>= 5.3.0', required: false)
 if not lua_dep.found()
     lua_dep = dependency('lua5.3', version: '>= 5.3.0', required: false)
@@ -83,7 +93,6 @@ glib_compile_resources = find_program('glib-compile-resources', required: false)
 
 must_deps = [glib_dep, gmodule_dep, gobject_dep, grilo_dep]
 
-cdata = configuration_data()
 cdata.set('GRL_MAJOR', grl_major)
 cdata.set('GRL_MINOR', grl_minor)
 cdata.set_quoted('GETTEXT_PACKAGE', meson.project_name())

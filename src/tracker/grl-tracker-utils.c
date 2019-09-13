@@ -328,6 +328,7 @@ grl_tracker_setup_key_mappings (void)
                       "nfo:duration(?urn)",
                       "audio");
 
+#ifdef TRACKER_COMPAT_2_3_0
   insert_key_mapping (GRL_METADATA_KEY_MB_TRACK_ID,
                       NULL,
                       ATTR_CALL_MB_TRACK_ID,
@@ -352,6 +353,32 @@ grl_tracker_setup_key_mappings (void)
                       NULL,
                       ATTR_CALL_MB_RELEASE_GROUP_ID,
                       "audio");
+#else
+  insert_key_mapping (GRL_METADATA_KEY_MB_TRACK_ID,
+                      "nmm:mbTrackID",
+                      "nmm:mbTrackID(?urn)",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_MB_ARTIST_ID,
+                      "nmm:mbArtistID",
+                      "nmm:mbArtistID(?urn)",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_MB_RECORDING_ID,
+                      "nmm:mbRecordingID",
+                      "nmm:mbRecordingID(?urn)",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_MB_RELEASE_ID,
+                      "nmm:mbReleaseID",
+                      "nmm:mbReleaseID(?urn)",
+                      "audio");
+
+  insert_key_mapping (GRL_METADATA_KEY_MB_RELEASE_GROUP_ID,
+                      "nmm:mbReleaseGroupID",
+                      "nmm:mbReleaseGroupID(?urn)",
+                      "audio");
+#endif
 
   insert_key_mapping_with_setter (grl_metadata_key_chromaprint,
                                   NULL,

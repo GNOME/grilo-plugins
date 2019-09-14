@@ -9,6 +9,7 @@ sources = [
     'grl-acoustid',
     'grl-appletrailers',
     'grl-euronews',
+    'grl-goodreads',
     'grl-guardianvideos',
     'grl-itunes-podcast',
     'grl-lastfm-cover',

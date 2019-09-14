@@ -78,7 +78,6 @@ static void grl_dpap_source_browse (GrlSource *source,
 static void grl_dpap_source_search (GrlSource *source,
                                     GrlSourceSearchSpec *ss);
 
-
 static void grl_dpap_service_added_cb (DMAPMdnsBrowser *browser,
                                        DMAPMdnsBrowserService *service,
                                        GrlPlugin *plugin);
@@ -192,6 +191,7 @@ grl_dpap_source_class_init (GrlDpapSourceClass * klass)
 
   source_class->browse = grl_dpap_source_browse;
   source_class->search = grl_dpap_source_search;
+  source_class->continue_with_password = grl_dmap_source_continue_with_password;
   source_class->supported_keys = grl_dpap_source_supported_keys;
 
   G_OBJECT_CLASS (source_class)->finalize = grl_dpap_source_finalize;
@@ -335,6 +335,7 @@ grl_dpap_connect (gchar *name, gchar *host, guint port, ResultCbAndArgsAndDb *cb
 
   factory = DMAP_RECORD_FACTORY (grl_dpap_record_factory_new ());
   connection = DMAP_CONNECTION (dpap_connection_new (name, host, port, DMAP_DB (cb_and_db->db), factory));
+  g_signal_connect (connection, "authenticate", G_CALLBACK(grl_dmap_auth_cb), cb_and_db->cb.source);
   dmap_connection_connect (connection, (DMAPConnectionCallback) callback, cb_and_db);
 }
 

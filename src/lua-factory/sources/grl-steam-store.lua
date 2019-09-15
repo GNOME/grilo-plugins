@@ -34,15 +34,27 @@ source = {
   tags = { 'games', 'net:internet' },
 }
 
-netopts = {
-  user_agent = "Grilo Source SteamStore/0.3.0",
-}
+
+function get_netopts_for_lang(lang)
+  local netopts
+  -- nil means use the system lang
+  netopts = {
+    user_agent = "Grilo Source SteamStore/0.3.0",
+  }
+  if lang then
+    netopts.accept_language = lang
+  end
+
+  return netopts
+end
 
 ------------------
 -- Source utils --
 ------------------
 
-BASE_API_URL = "https://store.steampowered.com/api/appdetails?appids="
+function get_steam_store_url(appid)
+  return "https://store.steampowered.com/api/appdetails?appids=" .. appid
+end
 
 ---------------------------------
 -- Handlers of Grilo functions --
@@ -58,9 +70,9 @@ function grl_source_resolve()
     return
   end
 
-  url = BASE_API_URL .. req.id
-  grl.debug('Fetching URL ' .. url .. ' for appid ' .. req.id)
-  grl.fetch(url, netopts, fetch_game_cb, req.id)
+  url = get_steam_store_url(req.id)
+  grl.debug('Fetching URL ' .. url .. ' for appid ' .. req.id .. ' for system locale')
+  grl.fetch(url, get_netopts_for_lang(nil), fetch_game_cb_system_lang, req.id)
 end
 
 ---------------
@@ -68,6 +80,7 @@ end
 ---------------
 
 function format_date(date)
+  -- this will only work if the date comes from the en-US locale
   local month_map = {
     Jan = 1,
     Feb = 2,
@@ -87,25 +100,44 @@ function format_date(date)
   year = tonumber(year)
 
   if not month or not month_map[month] or not day or not year then
-    grl.warning('could not parse date: ' .. date)
     return nil
   end
 
   return string.format("%d-%d-%d", year, month_map[month], day)
 end
 
-function fetch_game_cb(results, appid)
-  local results_table, data, media
+function get_data_from_results(results, appid)
+  local results_table
 
   results_table = grl.lua.json.string_to_table(results)
 
-  if not results_table[appid] or not results_table[appid].data then
-    grl.warning('Got a result without data')
+  if not results_table then
+    grl.warning('Could not parse json from results: ' .. results)
+    return nil
+  end
+
+  if not results_table[appid] then
+    grl.warning('Results did not contain an appid toplevel member: ' .. results)
+    return nil
+  end
+
+  if not results_table[appid].data then
+    grl.warning('Results for the appid did not contain "data" member: ' .. results)
+    return nil
+  end
+
+  return results_table[appid].data
+end
+
+function fetch_game_cb_system_lang(results, appid)
+  local data, media
+
+  data = get_data_from_results(results, appid)
+
+  if not data then
     grl.callback()
     return
   end
-
-  data = results_table[appid].data
 
   media = {}
 
@@ -148,5 +180,41 @@ function fetch_game_cb(results, appid)
     end
   end
 
-  grl.callback(media, 0)
+  if media.publication_date then
+    grl.callback(media, 0)
+  else
+    local url, user_data, netopts
+    url = get_steam_store_url(appid)
+    user_data = {
+      appid = appid,
+      media = media,
+    }
+    -- libsoup will automatically use the system language for requests to the
+    -- api, but the publication date may be localized to a date format we don't
+    -- know how to parse. When this is the case, do a second request explicitly
+    -- for the en-US locale to get the publication date in a format we can
+    -- parse.
+    netopts = get_netopts_for_lang('en-US')
+    grl.debug('Fetching URL ' .. url .. ' for appid ' .. appid .. ' for US locale to get dates')
+    grl.fetch(url, netopts, fetch_game_cb_us, user_data)
+  end
+end
+
+function fetch_game_cb_us(results, user_data)
+  data = get_data_from_results(results, user_data.appid)
+
+  if not data then
+    grl.callback(user_data.media, 0)
+    return
+  end
+
+  -- publication-date
+  if type(data.release_date) == 'table' and data.release_date.date then
+    local date = format_date(data.release_date.date)
+    if date then
+      user_data.media.publication_date = date
+    end
+  end
+
+  grl.callback(user_data.media, 0)
 end

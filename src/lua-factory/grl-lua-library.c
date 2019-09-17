@@ -789,7 +789,6 @@ net_wc_new_with_options (lua_State *L,
                          guint      arg_offset)
 {
   GrlNetWc *wc;
-
   wc = grl_lua_operations_get_grl_net_wc (L);
   if (arg_offset <= lua_gettop (L) && lua_istable (L, arg_offset)) {
     /* Set GrlNetWc options */
@@ -817,6 +816,21 @@ net_wc_new_with_options (lua_State *L,
       } else if (g_strcmp0 (key, "loglevel") == 0) {
         guint level = lua_tointeger (L, -1);
         grl_net_wc_set_log_level (wc, level);
+
+      } else if (g_strcmp0 (key, "http_method") == 0 ||
+                 g_strcmp0 (key, "http-method") == 0) {
+        const gchar *method_type = lua_tostring (L, -1);
+        g_object_set (wc, "http_method", method_type, NULL);
+
+      } else if (g_strcmp0 (key, "http_content_type") == 0 ||
+                 g_strcmp0 (key, "http-content-type") == 0) {
+        const gchar *content_type = lua_tostring (L, -1);
+        g_object_set (wc, "http_content_type", content_type, NULL);
+
+      } else if (g_strcmp0 (key, "http_params") == 0 ||
+                 g_strcmp0 (key, "http-params") == 0) {
+          const gchar * params = lua_tostring (L, -1);
+          g_object_set(wc, "http_params", params, NULL);
 
       } else {
         GRL_DEBUG ("GrlNetWc property not know: '%s'", key);

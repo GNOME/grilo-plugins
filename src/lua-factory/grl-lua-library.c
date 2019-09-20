@@ -388,14 +388,180 @@ grl_util_add_table_to_media (lua_State *L,
   }
 }
 
+static void
+grl_util_add_key(lua_State *L,
+		 GObject *object,
+		 gboolean is_media)
+{
+  GrlRegistry *registry = grl_registry_get_default ();
+  GrlKeyID key_id = GRL_METADATA_KEY_INVALID;
+  gchar *key_name = g_strdup (lua_tostring (L, -2));
+  gchar *ptr = NULL;
+  GType type = G_TYPE_NONE;
+  GValue value = { 0, };
+
+  /* Handled above */
+  if (g_strcmp0 (key_name, "type") == 0) {
+    g_free (key_name);
+    return;
+  }
+
+  /* Replace '_' to '-': convenient for the developer */
+  while ((ptr = strstr (key_name, "_")) != NULL) {
+    *ptr = '-';
+  }
+
+  key_id = grl_registry_lookup_metadata_key (registry, key_name);
+  if (key_id == GRL_METADATA_KEY_INVALID) {
+    GRL_DEBUG ("'%s' isn't a registered key.", key_name);
+    if (lua_istable (L, -1)){
+      grl_util_add_table_to_unregistered_media (L, GRL_MEDIA (object), key_name);
+    } else {
+      gboolean success = grl_util_init_value (L, &value, key_name);
+      if (success) {
+	success = grl_data_set_for_id (GRL_DATA (object), key_name, &value);
+	g_value_unset (&value);
+      }
+      if (!success)
+	GRL_DEBUG ("Value for %s was not set", key_name);
+    }
+    g_free (key_name);
+    return;
+  }
+
+  type = grl_registry_lookup_metadata_key_type (registry, key_id);
+
+  switch (type) {
+  case G_TYPE_INT:
+  case G_TYPE_INT64:
+    if (lua_isnumber (L, -1)) {
+      gint success;
+      gint64 value = lua_tointegerx (L, -1, &success);
+      if (success) {
+	if (type == G_TYPE_INT) {
+	  if (is_media) {
+	    grl_data_set_int (GRL_DATA (object), key_id, value);
+	  } else {
+	    grl_related_keys_set_int (GRL_RELATED_KEYS (object), key_id, value);
+	  }
+	} else {
+	  if (is_media) {
+	    grl_data_set_int64 (GRL_DATA (object), key_id, value);
+	  } else {
+	    grl_related_keys_set_int64 (GRL_RELATED_KEYS (object), key_id, value);
+	  }
+	}
+      } else {
+	GRL_WARNING ("'%s' requires an INT type, while a value '%s' was provided",
+		     key_name, lua_tostring(L, -1));
+      }
+    } else if (lua_istable (L, -1)) {
+      if (is_media) {
+	grl_util_add_table_to_media (L, GRL_MEDIA (object), key_id, key_name, type);
+      } else {
+	GRL_WARNING ("GrlRelatedKeys does not support tables");
+      }
+    } else if (!lua_isnil (L, -1)) {
+      GRL_WARNING ("'%s' is not compatible for '%s'",
+		   lua_typename (L, lua_type(L, -1)), key_name);
+    }
+    break;
+
+  case G_TYPE_FLOAT:
+    if (lua_isnumber (L, -1)) {
+      if (is_media) {
+	grl_data_set_float (GRL_DATA (object), key_id, lua_tonumber (L, -1));
+      } else {
+	grl_related_keys_set_float ( GRL_RELATED_KEYS (object), key_id, lua_tonumber (L, -1));
+      }
+    } else if (lua_istable (L, -1)) {
+      if (is_media) {
+	grl_util_add_table_to_media (L, GRL_MEDIA (object), key_id, key_name, type);
+      } else {
+	GRL_WARNING ("GrlRelatedKeys does not support tables");
+      }
+    } else if (!lua_isnil (L, -1)) {
+      GRL_WARNING ("'%s' is not compatible for '%s'",
+		   lua_typename (L, lua_type(L, -1)), key_name);
+    }
+    break;
+
+  case G_TYPE_STRING:
+    if (lua_isstring (L, -1)) {
+      if (is_media) {
+	grl_data_set_lua_string (GRL_DATA (object), key_id, key_name, lua_tostring (L, -1));
+      } else {
+	grl_related_keys_set_string (GRL_RELATED_KEYS (object), key_id, lua_tostring (L, -1));
+      }
+    } else if (lua_istable (L, -1)) {
+      if (is_media) {
+	grl_util_add_table_to_media (L, GRL_MEDIA (object), key_id, key_name, type);
+      } else {
+	GRL_WARNING ("GrlRelatedKeys does not support tables");
+      }
+    } else if (!lua_isnil (L, -1)) {
+      GRL_WARNING ("'%s' is not compatible for '%s'",
+		   lua_typename (L, lua_type(L, -1)), key_name);
+    }
+    break;
+
+  case G_TYPE_BOOLEAN:
+    if (lua_isboolean (L, -1)) {
+      if (is_media) {
+	grl_data_set_boolean (GRL_DATA (object), key_id, lua_toboolean (L, -1));
+      } else {
+	grl_related_keys_set_boolean (GRL_RELATED_KEYS (object), key_id, lua_toboolean (L, -1));
+      }
+    } else if (!lua_isnil (L, -1)) {
+      GRL_WARNING ("'%s' is not compatible for '%s'",
+		   lua_typename (L, lua_type(L, -1)), key_name);
+    }
+    break;
+
+  default:
+    /* Non-fundamental types don't reduce to ints, so can't be
+     * in the switch statement */
+    if (type == G_TYPE_DATE_TIME) {
+      GDateTime *date;
+      const char *date_str = lua_tostring (L, -1);
+      date = grl_date_time_from_iso8601 (date_str);
+      /* Try a number of seconds since Epoch */
+      if (!date) {
+	gint64 date_int = g_ascii_strtoll (date_str, NULL, 0);
+	if (date_int)
+	  date = g_date_time_new_from_unix_utc (date_int);
+      }
+      if (date) {
+	if (is_media) {
+	  grl_data_set_boxed (GRL_DATA (object), key_id, date);
+	} else {
+	  grl_related_keys_set_boxed (GRL_RELATED_KEYS (object), key_id, date);
+	}
+	g_date_time_unref (date);
+      } else {
+	GRL_WARNING ("'%s' is not a valid ISO-8601 or Epoch date", date_str);
+      }
+    } else if (type == G_TYPE_BYTE_ARRAY) {
+      gsize size = luaL_len (L, -1);
+      const guint8 *binary = (const guint8 *) lua_tostring (L, -1);
+      if (is_media) {
+	grl_data_set_binary (GRL_DATA (object), key_id, binary, size);
+      } else {
+	grl_related_keys_set_binary (GRL_RELATED_KEYS (object), key_id, binary, size);
+      }
+    } else if (!lua_isnil (L, -1)) {
+      GRL_WARNING ("'%s' is being ignored as G_TYPE is not being handled.",
+		   key_name);
+    }
+  }
+}
+
 static GrlMedia *
 grl_util_build_media (lua_State *L,
                       GrlMedia *user_media)
 {
-  GrlRegistry *registry;
   GrlMedia *media = user_media;
-  GValue value = { 0, };
-  gboolean success;
+  gint array_len;
 
   if (!lua_istable (L, 1)) {
     if (!lua_isnil (L, 1))
@@ -422,126 +588,30 @@ grl_util_build_media (lua_State *L,
     lua_pop (L, 1);
   }
 
-  registry = grl_registry_get_default ();
+  lua_len (L, 1);
+  array_len = lua_tointeger (L, -1);
+  lua_pop (L, 1);
+
   lua_pushnil (L);
   while (lua_next (L, 1) != 0) {
-    GrlKeyID key_id = GRL_METADATA_KEY_INVALID;
-    gchar *key_name = g_strdup (lua_tostring (L, -2));
-    gchar *ptr = NULL;
-    GType type = G_TYPE_NONE;
-
-    /* Handled above */
-    if (g_strcmp0 (key_name, "type") == 0) {
-      goto next_key;
-    }
-
-    /* Replace '_' to '-': convenient for the developer */
-    while ((ptr = strstr (key_name, "_")) != NULL) {
-      *ptr = '-';
-    }
-
-    key_id = grl_registry_lookup_metadata_key (registry, key_name);
-    if (key_id != GRL_METADATA_KEY_INVALID) {
-      type = grl_registry_lookup_metadata_key_type (registry, key_id);
-
-      switch (type) {
-      case G_TYPE_INT:
-      case G_TYPE_INT64:
-        if (lua_isnumber (L, -1)) {
-          gint success;
-          gint64 value = lua_tointegerx (L, -1, &success);
-          if (success) {
-            if (type == G_TYPE_INT)
-              grl_data_set_int (GRL_DATA (media), key_id, value);
-            else
-              grl_data_set_int64 (GRL_DATA (media), key_id, value);
-          } else {
-            GRL_WARNING ("'%s' requires an INT type, while a value '%s' was provided",
-                       key_name, lua_tostring(L, -1));
-          }
-        } else if (lua_istable (L, -1)) {
-          grl_util_add_table_to_media (L, media, key_id, key_name, type);
-        } else if (!lua_isnil (L, -1)) {
-          GRL_WARNING ("'%s' is not compatible for '%s'",
-                       lua_typename (L, lua_type(L, -1)), key_name);
-        }
-        break;
-
-      case G_TYPE_FLOAT:
-        if (lua_isnumber (L, -1)) {
-          grl_data_set_float (GRL_DATA (media), key_id, lua_tonumber (L, -1));
-        } else if (lua_istable (L, -1)) {
-          grl_util_add_table_to_media (L, media, key_id, key_name, type);
-        } else if (!lua_isnil (L, -1)) {
-          GRL_WARNING ("'%s' is not compatible for '%s'",
-                       lua_typename (L, lua_type(L, -1)), key_name);
-        }
-        break;
-
-      case G_TYPE_STRING:
-        if (lua_isstring (L, -1)) {
-          grl_data_set_lua_string (GRL_DATA (media), key_id, key_name, lua_tostring (L, -1));
-        } else if (lua_istable (L, -1)) {
-          grl_util_add_table_to_media (L, media, key_id, key_name, type);
-        } else if (!lua_isnil (L, -1)) {
-          GRL_WARNING ("'%s' is not compatible for '%s'",
-                       lua_typename (L, lua_type(L, -1)), key_name);
-        }
-        break;
-      case G_TYPE_BOOLEAN:
-        if (lua_isboolean (L, -1)) {
-          grl_data_set_boolean (GRL_DATA (media), key_id, lua_toboolean (L, -1));
-        } else if (!lua_isnil (L, -1)) {
-          GRL_WARNING ("'%s' is not compatible for '%s'",
-                       lua_typename (L, lua_type(L, -1)), key_name);
-        }
-        break;
-
-      default:
-        /* Non-fundamental types don't reduce to ints, so can't be
-         * in the switch statement */
-        if (type == G_TYPE_DATE_TIME) {
-          GDateTime *date;
-          const char *date_str = lua_tostring (L, -1);
-          date = grl_date_time_from_iso8601 (date_str);
-          /* Try a number of seconds since Epoch */
-          if (!date) {
-            gint64 date_int = g_ascii_strtoll (date_str, NULL, 0);
-            if (date_int)
-              date = g_date_time_new_from_unix_utc (date_int);
-          }
-          if (date) {
-            grl_data_set_boxed (GRL_DATA (media), key_id, date);
-            g_date_time_unref (date);
-          } else {
-            GRL_WARNING ("'%s' is not a valid ISO-8601 or Epoch date", date_str);
-          }
-        } else if (type == G_TYPE_BYTE_ARRAY) {
-           gsize size = luaL_len (L, -1);
-           const guint8 *binary = (const guint8 *) lua_tostring (L, -1);
-           grl_data_set_binary (GRL_DATA (media), key_id, binary, size);
-        } else if (!lua_isnil (L, -1)) {
-          GRL_WARNING ("'%s' is being ignored as G_TYPE is not being handled.",
-                       key_name);
-        }
+    if (lua_type (L, -2) == LUA_TNUMBER &&
+	lua_tointeger (L, -2) >= 1 && lua_tointeger (L, -2) <= array_len) {
+      if (lua_type (L, -1) != LUA_TTABLE) {
+	GRL_WARNING ("Array index should map to a table to be resolved to \
+                      GrlRelatedKeys");
+	lua_pop (L, 1);
+	continue;
       }
+      GrlRelatedKeys *related_keys = grl_related_keys_new ();
+      lua_pushnil (L);
+      while (lua_next (L, -2) != 0) {
+        grl_util_add_key (L, G_OBJECT (related_keys), FALSE);
+        lua_pop (L, 1);
+      }
+      grl_data_add_related_keys (GRL_DATA (media), related_keys);
     } else {
-      GRL_DEBUG ("'%s' isn't a registered key.", key_name);
-      if (lua_istable (L, -1)){
-        grl_util_add_table_to_unregistered_media (L, media, key_name);
-      } else {
-        success = grl_util_init_value (L, &value, key_name);
-        if (success) {
-          success = grl_data_set_for_id (GRL_DATA (media), key_name, &value);
-          g_value_unset (&value);
-        }
-        if (!success)
-          GRL_DEBUG ("Value for %s was not set", key_name);
-      }
+      grl_util_add_key (L, G_OBJECT (media), TRUE);
     }
-
-next_key:
-    g_free (key_name);
     lua_pop (L, 1);
   }
   return media;

@@ -20,6 +20,7 @@
  *
  */
 
+#include <locale.h>
 #include <grilo.h>
 
 #define VIMEO_ID "grl-vimeo"
@@ -232,6 +233,8 @@ int
 main (int argc, char **argv)
 {
   gint result;
+
+  setlocale (LC_ALL, "");
 
   g_setenv ("GRL_PLUGIN_PATH", VIMEO_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", VIMEO_ID, TRUE);

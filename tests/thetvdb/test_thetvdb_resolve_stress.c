@@ -21,6 +21,7 @@
  */
 
 #include "test_thetvdb_utils.h"
+#include <locale.h>
 #include <grilo.h>
 
 static gint num_tests;
@@ -297,6 +298,8 @@ gint
 main (gint argc, gchar **argv)
 {
   gint result;
+
+  setlocale (LC_ALL, "");
 
   g_setenv ("GRL_PLUGIN_PATH", THETVDB_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", THETVDB_ID, TRUE);

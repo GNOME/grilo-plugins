@@ -15,6 +15,7 @@
  * along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <locale.h>
 #include "test_dleyna_utils.h"
 
 typedef struct {
@@ -429,6 +430,8 @@ test_notifications (TestDleynaFixture *fixture,
 int
 main(int argc, char **argv)
 {
+  setlocale (LC_ALL, "");
+
   g_setenv ("GRL_PLUGIN_PATH", GRILO_PLUGINS_TESTS_DLEYNA_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", DLEYNA_PLUGIN_ID, TRUE);
 

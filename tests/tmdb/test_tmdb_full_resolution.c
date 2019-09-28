@@ -20,6 +20,7 @@
  *
  */
 
+#include <locale.h>
 #include <grilo.h>
 #include "test_tmdb_utils.h"
 #include <math.h>
@@ -156,6 +157,8 @@ int
 main(int argc, char **argv)
 {
   gint result;
+
+  setlocale (LC_ALL, "");
 
   g_setenv ("GRL_PLUGIN_PATH", GRILO_PLUGINS_TESTS_TMDB_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", TMDB_PLUGIN_ID, TRUE);

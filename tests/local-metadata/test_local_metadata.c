@@ -20,6 +20,7 @@
  *
  */
 
+#include <locale.h>
 #include <grilo.h>
 
 #define LUA_FACTORY_ID "grl-lua-factory"
@@ -188,6 +189,8 @@ test_title_override (void)
 int
 main(int argc, char **argv)
 {
+  setlocale (LC_ALL, "");
+
   g_setenv ("GRL_PLUGIN_PATH", LUA_FACTORY_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", LUA_FACTORY_ID, TRUE);
   g_setenv ("GRL_LUA_SOURCES_PATH", LUA_SOURCES_PATH, TRUE);

@@ -20,6 +20,7 @@
  *
  */
 
+#include <locale.h>
 #include "test_lua_factory_utils.h"
 
 #define THEAUDIODB_ID  "grl-theaudiodb-cover"
@@ -178,6 +179,8 @@ test_theaudiodb_setup (gint *p_argc,
 gint
 main (gint argc, gchar **argv)
 {
+  setlocale (LC_ALL, "");
+
   test_theaudiodb_setup (&argc, &argv);
 
   g_test_add_func ("/lua_factory/sources/theaudiodb/resolve/albumcover",

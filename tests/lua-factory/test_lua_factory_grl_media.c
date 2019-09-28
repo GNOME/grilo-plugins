@@ -20,6 +20,7 @@
  *
  */
 
+#include <locale.h>
 #include <grilo.h>
 #include <string.h>
 #include <json-glib/json-glib.h>
@@ -270,6 +271,8 @@ test_build_media (void)
 gint
 main (gint argc, gchar **argv)
 {
+  setlocale (LC_ALL, "");
+
   g_setenv ("GRL_PLUGIN_PATH", LUA_FACTORY_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", LUA_FACTORY_ID, TRUE);
   g_setenv ("GRL_NET_MOCKED", LUA_FACTORY_DATA_PATH "config.ini", TRUE);

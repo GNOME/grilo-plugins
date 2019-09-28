@@ -20,6 +20,7 @@
  *
  */
 
+#include <locale.h>
 #include "test_lua_factory_utils.h"
 
 #define ACOUSTID_ID  "grl-acoustid"
@@ -329,6 +330,8 @@ test_acoustid_setup (gint *p_argc,
 gint
 main (gint argc, gchar **argv)
 {
+  setlocale (LC_ALL, "");
+
   test_acoustid_setup (&argc, &argv);
 
   g_test_add_func ("/lua_factory/sources/acoustid/resolve/fingerprint",

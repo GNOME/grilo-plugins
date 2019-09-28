@@ -20,6 +20,7 @@
  *
  */
 
+#include <locale.h>
 #include <grilo.h>
 
 #define SPOTIFY_ALBUMART_ID "grl-spotify-cover"
@@ -262,6 +263,8 @@ test_resolve_missing_key (void)
 int
 main(int argc, char **argv)
 {
+  setlocale (LC_ALL, "");
+
   g_setenv ("GRL_PLUGIN_PATH", LUA_FACTORY_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_LUA_SOURCES_PATH", LUA_SOURCES_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", "grl-lua-factory", TRUE);

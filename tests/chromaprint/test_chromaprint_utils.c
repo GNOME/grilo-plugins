@@ -21,6 +21,7 @@
  */
 
 #include <grilo.h>
+#include <gst/gst.h>
 #include "test_chromaprint_utils.h"
 
 GrlSource *source = NULL;
@@ -29,7 +30,15 @@ void
 test_setup_chromaprint (void)
 {
   GrlRegistry *registry;
+  GstElement *chromaprint;
   GError *error = NULL;
+
+  gst_init (NULL, NULL);
+  chromaprint = gst_element_factory_make ("chromaprint", "test");
+  if (chromaprint == NULL) {
+      g_warning ("chromaprint GStreamer plugin missing, verify your installation");
+      g_assert_nonnull (chromaprint);
+  }
 
   registry = grl_registry_get_default ();
   grl_registry_load_plugin (registry,

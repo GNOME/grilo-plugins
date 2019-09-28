@@ -17,7 +17,7 @@ source_common = [
 foreach t: source_tests
     exe = executable(t, [t + '.c'] + source_common,
         install: false,
-        dependencies: must_deps,
+        dependencies: [ must_deps, gstreamer_dep ],
         c_args: [
             '-DCHROMAPRINT_PLUGIN_PATH="@0@/src/chromaprint/"'.format(meson.build_root()),
             '-DCHROMAPRINT_PLUGIN_TEST_DATA_PATH="@0@/data/"'.format(meson.current_source_dir()),

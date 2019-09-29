@@ -34,7 +34,8 @@ grilo_required_info = '>= @0@'.format(grilo_required)
 glib_dep = dependency('glib-2.0', version: glib2_required_info, required: true)
 gmodule_dep = dependency('gmodule-2.0', version: glib2_required_info, required: true)
 gobject_dep = dependency('gobject-2.0', version: glib2_required_info, required: true)
-grilo_dep = dependency('grilo-0.3', version: grilo_required_info, required: true)
+grilo_dep = dependency('grilo-0.3', version: grilo_required_info, required: true,
+                       fallback: ['grilo', 'libgrl_dep'])
 
 pkgconf = configuration_data()
 pkgconf.set('VERSION', plugin_version)

@@ -162,6 +162,8 @@ insert_key_mapping (GrlKeyID     grl_key,
                                            GRLKEYID_TO_POINTER (grl_key));
   gchar *canon_name = g_strdup (GRL_METADATA_KEY_GET_NAME (grl_key));
 
+  g_return_val_if_fail (canon_name != NULL, NULL);
+
   assoc->grl_key               = grl_key;
   assoc->sparql_key_name       = build_flavored_key (canon_name,
                                                      sparql_key_flavor);

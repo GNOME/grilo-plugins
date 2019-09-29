@@ -325,11 +325,13 @@ grl_tracker_setup_key_mappings (void)
 		      "(SELECT tracker:referenceIdentifier(?rg) AS ?rg_id { ?urn nmm:musicAlbum ?album . ?album tracker:hasExternalReference ?rg . ?rg tracker:referenceSource \"https://musicbrainz.org/doc/Release_Group\" })",
 		      "audio");
 
-  insert_key_mapping_with_setter (grl_metadata_key_chromaprint,
-                                  NULL,
-                                  "(select nfo:hashValue(?h) { ?urn nfo:hasHash ?h . ?h nfo:hashAlgorithm \"chromaprint\" })",
-                                  "audio",
-                                  set_string_metadata_keys);
+  if (grl_metadata_key_chromaprint != 0) {
+    insert_key_mapping_with_setter (grl_metadata_key_chromaprint,
+                                    NULL,
+                                    "(select nfo:hashValue(?h) { ?urn nfo:hasHash ?h . ?h nfo:hashAlgorithm \"chromaprint\" })",
+                                    "audio",
+                                    set_string_metadata_keys);
+  };
 
   insert_key_mapping (GRL_METADATA_KEY_FRAMERATE,
                       "nfo:frameRate",

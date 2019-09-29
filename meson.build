@@ -34,7 +34,8 @@ grilo_required_info = '>= @0@'.format(grilo_required)
 glib_dep = dependency('glib-2.0', version: glib2_required_info, required: true)
 gmodule_dep = dependency('gmodule-2.0', version: glib2_required_info, required: true)
 gobject_dep = dependency('gobject-2.0', version: glib2_required_info, required: true)
-grilo_dep = dependency('grilo-0.3', version: grilo_required_info, required: true)
+grilo_dep = dependency('grilo-0.3', version: grilo_required_info, required: true,
+                       fallback: ['grilo', 'libgrl_dep'])
 
 pkgconf = configuration_data()
 pkgconf.set('VERSION', plugin_version)
@@ -53,8 +54,10 @@ gio_dep = dependency('gio-2.0', required: false)
 gio_unix_dep = dependency('gio-unix-2.0', required: false)
 goa_dep = dependency('goa-1.0', version: '>= 3.17.91', required: false)
 gom_dep = dependency('gom-1.0', version: '>= 0.3.2', required: false)
-grilo_net_dep = dependency('grilo-net-0.3', version: '>= 0.3.0', required: false)
-grilo_pls_dep = dependency('grilo-pls-0.3', version: '>= 0.3.0', required: false)
+grilo_net_dep = dependency('grilo-net-0.3', version: '>= 0.3.0', required: false,
+                           fallback: ['grilo', 'libgrlnet_dep'])
+grilo_pls_dep = dependency('grilo-pls-0.3', version: '>= 0.3.0', required: false,
+                           fallback: ['grilo', 'libgrlpls_dep'])
 gstreamer_dep = dependency('gstreamer-1.0', required: false)
 gthread_dep = dependency('gthread-2.0', required: false)
 json_glib_dep = dependency('json-glib-1.0', required: false)

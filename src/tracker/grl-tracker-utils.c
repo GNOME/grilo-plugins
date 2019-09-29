@@ -157,6 +157,8 @@ insert_key_mapping (GrlKeyID     grl_key,
                     const gchar *sparql_key_attr_call,
                     const gchar *sparql_key_flavor)
 {
+  g_return_val_if_fail (grl_key != GRL_METADATA_KEY_INVALID, NULL);
+
   tracker_grl_sparql_t *assoc = g_new0 (tracker_grl_sparql_t, 1);
   GList *assoc_list = g_hash_table_lookup (grl_to_sparql_mapping,
                                            GRLKEYID_TO_POINTER (grl_key));

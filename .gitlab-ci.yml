@@ -17,16 +17,10 @@ variables:
 build_stable:
   before_script:
     - dnf update -y --nogpgcheck
-    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO
-    # Build grilo from git, grilo and grilo-plugins must be in sync
-    - git clone https://gitlab.gnome.org/GNOME/grilo.git
-    - cd grilo
-    - meson . _build --prefix=/usr
-    - ninja -C _build
-    - ninja -C _build install
-    - cd ..
   script:
-    - dnf install -y --nogpgcheck $DEPENDENCIES
+    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES
+    # As part of configuring grilo-plugins.git for build, the latest code from
+    # grilo.git will be fetched by Meson and it will be built as a subproject.
     - meson . _build --prefix=/usr
     - ninja -C _build
     - ninja -C _build install

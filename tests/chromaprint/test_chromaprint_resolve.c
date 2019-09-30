@@ -21,6 +21,7 @@
  */
 
 #include "test_chromaprint_utils.h"
+#include <locale.h>
 #include <grilo.h>
 
 static void
@@ -100,6 +101,8 @@ test_fingerprint (void)
 gint
 main (gint argc, gchar **argv)
 {
+  setlocale (LC_ALL, "");
+
   g_setenv ("GRL_PLUGIN_PATH", CHROMAPRINT_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_PLUGIN_LIST", CHROMAPRINT_ID, TRUE);
 

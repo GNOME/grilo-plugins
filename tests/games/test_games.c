@@ -20,6 +20,7 @@
  *
  */
 
+#include <locale.h>
 #include <grilo.h>
 
 #define THEGAMESDB "grl-thegamesdb"
@@ -339,6 +340,8 @@ int
 main(int argc, char **argv)
 {
   gint result;
+
+  setlocale (LC_ALL, "");
 
   g_setenv ("GRL_PLUGIN_PATH", LUA_FACTORY_PLUGIN_PATH, TRUE);
   g_setenv ("GRL_LUA_SOURCES_PATH", LUA_SOURCES_PATH, TRUE);

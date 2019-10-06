@@ -176,3 +176,7 @@ subdir('src')
 subdir('help')
 subdir('po')
 subdir('tests')
+
+# This is a dummy dependency for use when grilo-plugins is built as a Meson
+# subproject.
+grilo_plugins_dep = declare_dependency()

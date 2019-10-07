@@ -70,6 +70,8 @@ gboolean grl_tracker_key_is_supported (const GrlKeyID key);
 
 void grl_tracker_setup_key_mappings (void);
 
+gboolean grl_tracker_is_2_3_0_compat (void);
+
 tracker_grl_sparql_t *grl_tracker_get_mapping_from_sparql (const gchar *key);
 
 GrlMedia *grl_tracker_build_grilo_media (const gchar   *rdf_type,

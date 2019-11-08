@@ -57,12 +57,12 @@ GRL_LOG_DOMAIN_STATIC(dmap_log_domain);
                                GrlDpapSourcePrivate))
 
 struct _GrlDpapSourcePrivate {
-  DmapMdnsService *service;
+  DMAPMdnsBrowserService *service;
 };
 
 /* --- Data types --- */
 
-static GrlDpapSource *grl_dpap_source_new (DmapMdnsService *service);
+static GrlDpapSource *grl_dpap_source_new (DMAPMdnsBrowserService *service);
 
 static void grl_dpap_source_finalize (GObject *object);
 
@@ -79,16 +79,16 @@ static void grl_dpap_source_search (GrlSource *source,
                                     GrlSourceSearchSpec *ss);
 
 
-static void grl_dpap_service_added_cb (DmapMdnsBrowser *browser,
-                                       DmapMdnsService *service,
+static void grl_dpap_service_added_cb (DMAPMdnsBrowser *browser,
+                                       DMAPMdnsBrowserService *service,
                                        GrlPlugin *plugin);
 
-static void grl_dpap_service_removed_cb (DmapMdnsBrowser *browser,
+static void grl_dpap_service_removed_cb (DMAPMdnsBrowser *browser,
                                          const gchar *service_name,
                                          GrlPlugin *plugin);
 
 /* ===================== Globals  ======================= */
-static DmapMdnsBrowser *browser;
+static DMAPMdnsBrowser *browser;
 /* Maps URIs to DBs */
 static GHashTable *connections;
 /* Map DPAP services to Grilo media sources */
@@ -111,7 +111,7 @@ grl_dpap_plugin_init (GrlRegistry *registry,
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
-  browser     = dmap_mdns_browser_new (DMAP_MDNS_SERVICE_TYPE_DPAP);
+  browser     = dmap_mdns_browser_new (DMAP_MDNS_BROWSER_SERVICE_TYPE_DPAP);
   connections = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
   sources     = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 
@@ -158,10 +158,8 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 G_DEFINE_TYPE_WITH_PRIVATE (GrlDpapSource, grl_dpap_source, GRL_TYPE_SOURCE)
 
 static GrlDpapSource *
-grl_dpap_source_new (DmapMdnsService *service)
+grl_dpap_source_new (DMAPMdnsBrowserService *service)
 {
-  gchar *name;
-  gchar *service_name;
   gchar *source_desc;
   gchar *source_id;
 
@@ -169,16 +167,12 @@ grl_dpap_source_new (DmapMdnsService *service)
 
   GRL_DEBUG ("grl_dpap_source_new");
 
-  g_object_get(service, "name", &name,
-                        "service-name", &service_name,
-                         NULL);
-
-  source_desc = g_strdup_printf (SOURCE_DESC_TEMPLATE, name);
-  source_id = g_strdup_printf (SOURCE_ID_TEMPLATE, name);
+  source_desc = g_strdup_printf (SOURCE_DESC_TEMPLATE, service->name);
+  source_id = g_strdup_printf (SOURCE_ID_TEMPLATE, service->name);
 
   source = g_object_new (GRL_DPAP_SOURCE_TYPE,
                          "source-id",   source_id,
-                         "source-name", service_name,
+                         "source-name", service->name,
                          "source-desc", source_desc,
                          "supported-media", GRL_SUPPORTED_MEDIA_IMAGE,
                          NULL);
@@ -187,8 +181,6 @@ grl_dpap_source_new (DmapMdnsService *service)
 
   g_free (source_desc);
   g_free (source_id);
-  g_free (service_name);
-  g_free (name);
 
   return source;
 }
@@ -249,7 +241,7 @@ grl_dpap_do_search (ResultCbAndArgsAndDb *cb_and_db)
 }
 
 static void
-browse_connected_cb (DmapConnection       *connection,
+browse_connected_cb (DMAPConnection       *connection,
                      gboolean              result,
                      const char           *reason,
                      ResultCbAndArgsAndDb *cb_and_db)
@@ -274,7 +266,7 @@ browse_connected_cb (DmapConnection       *connection,
 }
 
 static void
-search_connected_cb (DmapConnection       *connection,
+search_connected_cb (DMAPConnection       *connection,
                      gboolean              result,
                      const char           *reason,
                      ResultCbAndArgsAndDb *cb_and_db)
@@ -299,8 +291,8 @@ search_connected_cb (DmapConnection       *connection,
 }
 
 static void
-grl_dpap_service_added_cb (DmapMdnsBrowser *browser,
-                           DmapMdnsService *service,
+grl_dpap_service_added_cb (DMAPMdnsBrowser *browser,
+                           DMAPMdnsBrowserService *service,
                            GrlPlugin *plugin)
 {
   GrlRegistry   *registry = grl_registry_get_default ();
@@ -314,16 +306,13 @@ grl_dpap_service_added_cb (DmapMdnsBrowser *browser,
                                 GRL_SOURCE (source),
                                 NULL);
   if (source != NULL) {
-    gchar *name;
-    g_object_get(service, "name", &name, NULL);
-    g_hash_table_insert (sources, g_strdup (name), g_object_ref (source));
+    g_hash_table_insert (sources, g_strdup (service->name), g_object_ref (source));
     g_object_remove_weak_pointer (G_OBJECT (source), (gpointer *) &source);
-    g_free(name);
   }
 }
 
 static void
-grl_dpap_service_removed_cb (DmapMdnsBrowser *browser,
+grl_dpap_service_removed_cb (DMAPMdnsBrowser *browser,
                              const gchar *service_name,
                              GrlPlugin *plugin)
 {
@@ -339,14 +328,14 @@ grl_dpap_service_removed_cb (DmapMdnsBrowser *browser,
 }
 
 static void
-grl_dpap_connect (gchar *name, gchar *host, guint port, ResultCbAndArgsAndDb *cb_and_db, DmapConnectionFunc callback)
+grl_dpap_connect (gchar *name, gchar *host, guint port, ResultCbAndArgsAndDb *cb_and_db, DMAPConnectionCallback callback)
 {
-  DmapRecordFactory *factory;
-  DmapConnection *connection;
+  DMAPRecordFactory *factory;
+  DMAPConnection *connection;
 
   factory = DMAP_RECORD_FACTORY (grl_dpap_record_factory_new ());
-  connection = DMAP_CONNECTION (dmap_image_connection_new (name, host, port, DMAP_DB (cb_and_db->db), factory));
-  dmap_connection_start (connection, (DmapConnectionFunc) callback, cb_and_db);
+  connection = DMAP_CONNECTION (dpap_connection_new (name, host, port, DMAP_DB (cb_and_db->db), factory));
+  dmap_connection_connect (connection, (DMAPConnectionCallback) callback, cb_and_db);
 }
 
 static gboolean
@@ -407,26 +396,15 @@ grl_dpap_source_browse (GrlSource *source,
     browse_connected_cb (NULL, TRUE, NULL, cb_and_db);
   } else {
     /* Connect */
-    gchar *name, *host;
-    guint port;
-
     cb_and_db->db = DMAP_DB (grl_dpap_db_new ());
 
-    g_object_get (dmap_source->priv->service, "name", &name,
-                                              "host", &host,
-                                              "port", &port,
-                                               NULL);
-
-    grl_dpap_connect (name,
-                      host,
-                      port,
+    grl_dpap_connect (dmap_source->priv->service->name,
+                      dmap_source->priv->service->host,
+                      dmap_source->priv->service->port,
                       cb_and_db,
-                      (DmapConnectionFunc) browse_connected_cb);
+                      (DMAPConnectionCallback) browse_connected_cb);
 
     g_hash_table_insert (connections, g_strdup (url), cb_and_db->db);
-
-    g_free (name);
-    g_free (host);
   }
 
   g_free (url);
@@ -438,7 +416,7 @@ static void grl_dpap_source_search (GrlSource *source,
   GrlDpapSource *dmap_source = GRL_DPAP_SOURCE (source);
 
   ResultCbAndArgsAndDb *cb_and_db;
-  DmapMdnsService *service = dmap_source->priv->service;
+  DMAPMdnsBrowserService *service = dmap_source->priv->service;
   gchar *url = grl_dmap_build_url (service);
 
   cb_and_db = g_new (ResultCbAndArgsAndDb, 1);
@@ -456,26 +434,9 @@ static void grl_dpap_source_search (GrlSource *source,
     search_connected_cb (NULL, TRUE, NULL, cb_and_db);
   } else {
     /* Connect */
-    gchar *name, *host;
-    guint port;
-
     cb_and_db->db = DMAP_DB (grl_dpap_db_new ());
-
-    g_object_get (dmap_source->priv->service, "name", &name,
-                                              "host", &host,
-                                              "port", &port,
-                                               NULL);
-
-    grl_dpap_connect (name,
-                      host,
-                      port,
-                      cb_and_db,
-                      (DmapConnectionFunc) search_connected_cb);
-
+    grl_dpap_connect (service->name, service->host, service->port, cb_and_db, (DMAPConnectionCallback) search_connected_cb);
     g_hash_table_insert (connections, g_strdup (url), cb_and_db->db);
-
-    g_free (name);
-    g_free (host);
   }
 
   g_free (url);

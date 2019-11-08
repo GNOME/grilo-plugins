@@ -1,5 +1,5 @@
 /*
- * GrlDpapRecord factory class
+ * GrlDPAPRecord factory class
  *
  * Copyright (C) 2008 W. Michael Petullo <mike@flyn.org>
  *
@@ -31,12 +31,12 @@ G_BEGIN_DECLS
 #define SIMPLE_DPAP_RECORD_FACTORY(o)                          \
   (G_TYPE_CHECK_INSTANCE_CAST((o),                             \
                               TYPE_SIMPLE_DPAP_RECORD_FACTORY, \
-                              GrlDpapRecordFactory))
+                              GrlDPAPRecordFactory))
 
 #define SIMPLE_DPAP_RECORD_FACTORY_CLASS(k)                 \
   (G_TYPE_CHECK_CLASS_CAST((k),                             \
                            TYPE_SIMPLE_DPAP_RECORD_FACTORY, \
-                           GrlDpapRecordFactoryClass))
+                           GrlDPAPRecordFactoryClass))
 
 #define IS_SIMPLE_DPAP_RECORD_FACTORY(o)                          \
   (G_TYPE_CHECK_INSTANCE_TYPE((o),                                \
@@ -49,23 +49,23 @@ G_BEGIN_DECLS
 #define SIMPLE_DPAP_RECORD_FACTORY_GET_CLASS(o)                \
   (G_TYPE_INSTANCE_GET_CLASS((o),                              \
                              TYPE_SIMPLE_DPAP_RECORD_FACTORY,  \
-                             GrlDpapRecordFactoryClass))
+                             GrlDPAPRecordFactoryClass))
 
-typedef struct GrlDpapRecordFactoryPrivate GrlDpapRecordFactoryPrivate;
+typedef struct GrlDPAPRecordFactoryPrivate GrlDPAPRecordFactoryPrivate;
 
 typedef struct {
   GObject parent;
-} GrlDpapRecordFactory;
+} GrlDPAPRecordFactory;
 
 typedef struct {
   GObjectClass parent;
-} GrlDpapRecordFactoryClass;
+} GrlDPAPRecordFactoryClass;
 
 GType                    grl_dpap_record_factory_get_type (void);
 
-GrlDpapRecordFactory *grl_dpap_record_factory_new      (void);
+GrlDPAPRecordFactory *grl_dpap_record_factory_new      (void);
 
-DmapRecord              *grl_dpap_record_factory_create   (DmapRecordFactory *factory, gpointer user_data, GError **error);
+DMAPRecord              *grl_dpap_record_factory_create   (DMAPRecordFactory *factory, gpointer user_data);
 
 #endif /* __SIMPLE_DPAP_RECORD_FACTORY */
 

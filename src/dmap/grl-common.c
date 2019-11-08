@@ -36,23 +36,10 @@
 #include "grl-common.h"
 
 gchar *
-grl_dmap_build_url (DmapMdnsService *service)
+grl_dmap_build_url (DMAPMdnsBrowserService *service)
 {
-  gchar *url = NULL;
-  gchar *service_name, *host;
-  guint port;
-
-  g_object_get(service, "service-name", &service_name,
-                        "host", &host,
-                        "port", &port, NULL);
-
-  url = g_strdup_printf ("%s://%s:%u",
-                          service_name,
-                          host,
-                          port);
-
-  g_free(service_name);
-  g_free(host);
-
-  return url;
+  return g_strdup_printf ("%s://%s:%u",
+                          service->service_name,
+                          service->host,
+                          service->port);
 }

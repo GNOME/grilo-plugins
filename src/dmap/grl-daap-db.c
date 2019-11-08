@@ -66,7 +66,7 @@
 /* Media ID's start at max and go down. Container ID's start at 1 and go up. */
 static guint nextid = G_MAXINT; /* NOTE: this should be G_MAXUINT, but iPhoto can't handle it. */
 
-struct GrlDaapDbPrivate {
+struct GrlDAAPDbPrivate {
   /* Contains each album container (tracked with albums hash table) */
   GrlMedia *albums_container;
 
@@ -95,31 +95,31 @@ container_equal (gconstpointer a, gconstpointer b)
   return g_str_equal (grl_media_get_id (GRL_MEDIA (a)), grl_media_get_id (GRL_MEDIA (b)));
 }
 
-GrlDaapDb *
+GrlDAAPDb *
 grl_daap_db_new (void)
 {
-  GrlDaapDb *db = g_object_new (TYPE_GRL_DAAP_DB, NULL);
+  GrlDAAPDb *db = g_object_new (TYPE_GRL_DAAP_DB, NULL);
 
   return db;
 }
 
-static DmapRecord *
-grl_daap_db_lookup_by_id (const DmapDb *db, guint id)
+static DMAPRecord *
+grl_daap_db_lookup_by_id (const DMAPDb *db, guint id)
 {
   g_error ("Not implemented");
   return NULL;
 }
 
 static void
-grl_daap_db_foreach (const DmapDb *db,
-                     DmapIdRecordFunc func,
-                     gpointer data)
+grl_daap_db_foreach (const DMAPDb *db,
+                        GHFunc func,
+                        gpointer data)
 {
   g_error ("Not implemented");
 }
 
 static gint64
-grl_daap_db_count (const DmapDb *db)
+grl_daap_db_count (const DMAPDb *db)
 {
   g_error ("Not implemented");
   return 0;
@@ -151,13 +151,13 @@ set_insert (GHashTable *category, const char *category_name, char *set_name, Grl
 }
 
 static guint
-grl_daap_db_add (DmapDb *_db, DmapRecord *_record, GError **error)
+grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
 {
   g_assert (IS_GRL_DAAP_DB (_db));
-  g_assert (IS_DMAP_AV_RECORD (_record));
+  g_assert (IS_DAAP_RECORD (_record));
 
-  GrlDaapDb *db = GRL_DAAP_DB (_db);
-  DmapAvRecord *record = DMAP_AV_RECORD (_record);
+  GrlDAAPDb *db = GRL_DAAP_DB (_db);
+  DAAPRecord *record = DAAP_RECORD (_record);
 
   gint   duration = 0;
   gint32  bitrate = 0,
@@ -242,11 +242,6 @@ grl_daap_db_add (DmapDb *_db, DmapRecord *_record, GError **error)
 
   g_free (id_s);
   g_object_unref (media);
-  g_free (album);
-  g_free (artist);
-  g_free (genre);
-  g_free (title);
-  g_free (url);
 
   return --nextid;
 }
@@ -258,7 +253,7 @@ same_media (GrlMedia *a, GrlMedia *b)
 }
 
 void
-grl_daap_db_browse (GrlDaapDb *db,
+grl_daap_db_browse (GrlDAAPDb *db,
                     GrlMedia *container,
                     GrlSource *source,
                     guint op_id,
@@ -317,7 +312,7 @@ done:
 }
 
 void
-grl_daap_db_search (GrlDaapDb *db,
+grl_daap_db_search (GrlDAAPDb *db,
                     GrlSource *source,
                     guint op_id,
                     GHRFunc predicate,
@@ -369,7 +364,7 @@ grl_daap_db_search (GrlDaapDb *db,
 static void
 dmap_db_interface_init (gpointer iface, gpointer data)
 {
-  DmapDbInterface *daap_db = iface;
+  DMAPDbIface *daap_db = iface;
 
   g_assert (G_TYPE_FROM_INTERFACE (daap_db) == DMAP_TYPE_DB);
 
@@ -379,8 +374,8 @@ dmap_db_interface_init (gpointer iface, gpointer data)
   daap_db->count = grl_daap_db_count;
 }
 
-G_DEFINE_TYPE_WITH_CODE (GrlDaapDb, grl_daap_db, G_TYPE_OBJECT,
-                         G_ADD_PRIVATE (GrlDaapDb)
+G_DEFINE_TYPE_WITH_CODE (GrlDAAPDb, grl_daap_db, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (GrlDAAPDb)
                          G_IMPLEMENT_INTERFACE (DMAP_TYPE_DB, dmap_db_interface_init))
 
 static GObject*
@@ -394,7 +389,7 @@ grl_daap_db_constructor (GType type, guint n_construct_params, GObjectConstructP
 }
 
 static void
-grl_daap_db_init (GrlDaapDb *db)
+grl_daap_db_init (GrlDAAPDb *db)
 {
   db->priv = grl_daap_db_get_instance_private (db);
 
@@ -418,9 +413,9 @@ grl_daap_db_init (GrlDaapDb *db)
 static void
 grl_daap_db_finalize (GObject *object)
 {
-  GrlDaapDb *db = GRL_DAAP_DB (object);
+  GrlDAAPDb *db = GRL_DAAP_DB (object);
 
-  GRL_DEBUG ("Finalizing GrlDaapDb");
+  GRL_DEBUG ("Finalizing GrlDAAPDb");
 
   g_object_unref (db->priv->albums_container);
   g_object_unref (db->priv->artists_container);
@@ -457,7 +452,7 @@ grl_daap_db_get_property (GObject *object,
 
 
 static void
-grl_daap_db_class_init (GrlDaapDbClass *klass)
+grl_daap_db_class_init (GrlDAAPDbClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 

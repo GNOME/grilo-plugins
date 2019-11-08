@@ -22,13 +22,13 @@
 
 #include "grl-dpap-record.h"
 
-struct GrlDpapRecordPrivate {
+struct GrlDPAPRecordPrivate {
   char *location;
   gint largefilesize;
   gint creationdate;
   gint rating;
   char *filename;
-  GArray *thumbnail;
+  GByteArray *thumbnail;
   char *aspectratio;
   gint height;
   gint width;
@@ -54,9 +54,9 @@ enum {
 static void grl_dpap_record_dmap_iface_init (gpointer iface, gpointer data);
 static void grl_dpap_record_dpap_iface_init (gpointer iface, gpointer data);
 
-G_DEFINE_TYPE_WITH_CODE (GrlDpapRecord, grl_dpap_record, G_TYPE_OBJECT,
-                         G_ADD_PRIVATE (GrlDpapRecord)
-                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_IMAGE_RECORD, grl_dpap_record_dpap_iface_init)
+G_DEFINE_TYPE_WITH_CODE (GrlDPAPRecord, grl_dpap_record, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (GrlDPAPRecord)
+                         G_IMPLEMENT_INTERFACE (DPAP_TYPE_RECORD, grl_dpap_record_dpap_iface_init)
                          G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD, grl_dpap_record_dmap_iface_init))
 
 static void
@@ -65,7 +65,7 @@ grl_dpap_record_set_property (GObject *object,
                                 const GValue *value,
                                 GParamSpec *pspec)
 {
-  GrlDpapRecord *record = SIMPLE_DPAP_RECORD (object);
+  GrlDPAPRecord *record = SIMPLE_DPAP_RECORD (object);
 
   switch (prop_id) {
   case PROP_LOCATION:
@@ -105,8 +105,8 @@ grl_dpap_record_set_property (GObject *object,
     break;
   case PROP_THUMBNAIL:
     if (record->priv->thumbnail)
-      g_array_unref (record->priv->thumbnail);
-    record->priv->thumbnail = g_value_get_boxed (value);
+      g_byte_array_unref (record->priv->thumbnail);
+    record->priv->thumbnail = g_byte_array_ref (g_value_get_pointer (value));
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -120,7 +120,7 @@ grl_dpap_record_get_property (GObject *object,
                                  GValue *value,
                                  GParamSpec *pspec)
 {
-  GrlDpapRecord *record = SIMPLE_DPAP_RECORD (object);
+  GrlDPAPRecord *record = SIMPLE_DPAP_RECORD (object);
 
   switch (prop_id) {
   case PROP_LOCATION:
@@ -154,7 +154,7 @@ grl_dpap_record_get_property (GObject *object,
     g_value_set_static_string (value, record->priv->comments);
     break;
   case PROP_THUMBNAIL:
-    g_value_set_boxed (value, record->priv->thumbnail);
+    g_value_set_pointer (value, record->priv->thumbnail);
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -162,14 +162,14 @@ grl_dpap_record_get_property (GObject *object,
   }
 }
 
-GrlDpapRecord *
+GrlDPAPRecord *
 grl_dpap_record_new (void)
 {
   return SIMPLE_DPAP_RECORD (g_object_new (TYPE_SIMPLE_DPAP_RECORD, NULL));
 }
 
 GInputStream *
-grl_dpap_record_read (DmapImageRecord *record, GError **error)
+grl_dpap_record_read (DPAPRecord *record, GError **error)
 {
   GFile *file;
   GInputStream *stream;
@@ -183,7 +183,7 @@ grl_dpap_record_read (DmapImageRecord *record, GError **error)
 }
 
 static void
-grl_dpap_record_init (GrlDpapRecord *record)
+grl_dpap_record_init (GrlDPAPRecord *record)
 {
   record->priv = grl_dpap_record_get_instance_private (record);
 }
@@ -191,7 +191,7 @@ grl_dpap_record_init (GrlDpapRecord *record)
 static void grl_dpap_record_finalize (GObject *object);
 
 static void
-grl_dpap_record_class_init (GrlDpapRecordClass *klass)
+grl_dpap_record_class_init (GrlDPAPRecordClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
@@ -215,9 +215,9 @@ grl_dpap_record_class_init (GrlDpapRecordClass *klass)
 static void
 grl_dpap_record_dpap_iface_init (gpointer iface, gpointer data)
 {
-  DmapImageRecordInterface *dpap_record = iface;
+  DPAPRecordIface *dpap_record = iface;
 
-  g_assert (G_TYPE_FROM_INTERFACE (dpap_record) == DMAP_TYPE_IMAGE_RECORD);
+  g_assert (G_TYPE_FROM_INTERFACE (dpap_record) == DPAP_TYPE_RECORD);
 
   dpap_record->read = grl_dpap_record_read;
 }
@@ -225,7 +225,7 @@ grl_dpap_record_dpap_iface_init (gpointer iface, gpointer data)
 static void
 grl_dpap_record_dmap_iface_init (gpointer iface, gpointer data)
 {
-  DmapRecordInterface *dmap_record = iface;
+  DMAPRecordIface *dmap_record = iface;
 
   g_assert (G_TYPE_FROM_INTERFACE (dmap_record) == DMAP_TYPE_RECORD);
 }
@@ -233,7 +233,7 @@ grl_dpap_record_dmap_iface_init (gpointer iface, gpointer data)
 static void
 grl_dpap_record_finalize (GObject *object)
 {
-  GrlDpapRecord *record = SIMPLE_DPAP_RECORD (object);
+  GrlDPAPRecord *record = SIMPLE_DPAP_RECORD (object);
 
   g_free (record->priv->location);
   g_free (record->priv->filename);
@@ -242,7 +242,7 @@ grl_dpap_record_finalize (GObject *object)
   g_free (record->priv->comments);
 
   if (record->priv->thumbnail)
-    g_array_unref (record->priv->thumbnail);
+    g_byte_array_unref (record->priv->thumbnail);
 
   G_OBJECT_CLASS (grl_dpap_record_parent_class)->finalize (object);
 }

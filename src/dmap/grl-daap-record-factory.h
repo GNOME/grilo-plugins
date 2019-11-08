@@ -1,5 +1,5 @@
 /*
- * GrlDaapRecord factory class
+ * GrlDAAPRecord factory class
  *
  * Copyright (C) 2008 W. Michael Petullo <mike@flyn.org>
  *
@@ -31,12 +31,12 @@ G_BEGIN_DECLS
 #define SIMPLE_DAAP_RECORD_FACTORY(o)                          \
   (G_TYPE_CHECK_INSTANCE_CAST((o),                             \
                               TYPE_SIMPLE_DAAP_RECORD_FACTORY, \
-                              GrlDaapRecordFactory))
+                              GrlDAAPRecordFactory))
 
 #define SIMPLE_DAAP_RECORD_FACTORY_CLASS(k)                 \
   (G_TYPE_CHECK_CLASS_CAST((k),                             \
                            TYPE_SIMPLE_DAAP_RECORD_FACTORY, \
-                           GrlDaapRecordFactoryClass))
+                           GrlDAAPRecordFactoryClass))
 
 #define IS_SIMPLE_DAAP_RECORD_FACTORY(o)                          \
   (G_TYPE_CHECK_INSTANCE_TYPE((o),                                \
@@ -49,23 +49,23 @@ G_BEGIN_DECLS
 #define SIMPLE_DAAP_RECORD_FACTORY_GET_CLASS(o)                \
   (G_TYPE_INSTANCE_GET_CLASS((o),                              \
                              TYPE_SIMPLE_DAAP_RECORD_FACTORY,  \
-                             GrlDaapRecordFactoryClass))
+                             GrlDAAPRecordFactoryClass))
 
-typedef struct GrlDaapRecordFactoryPrivate GrlDaapRecordFactoryPrivate;
+typedef struct GrlDAAPRecordFactoryPrivate GrlDAAPRecordFactoryPrivate;
 
 typedef struct {
   GObject parent;
-} GrlDaapRecordFactory;
+} GrlDAAPRecordFactory;
 
 typedef struct {
   GObjectClass parent;
-} GrlDaapRecordFactoryClass;
+} GrlDAAPRecordFactoryClass;
 
 GType                    grl_daap_record_factory_get_type (void);
 
-GrlDaapRecordFactory *grl_daap_record_factory_new      (void);
+GrlDAAPRecordFactory *grl_daap_record_factory_new      (void);
 
-DmapRecord              *grl_daap_record_factory_create   (DmapRecordFactory *factory, gpointer user_data, GError **error);
+DMAPRecord              *grl_daap_record_factory_create   (DMAPRecordFactory *factory, gpointer user_data);
 
 #endif /* __SIMPLE_DAAP_RECORD_FACTORY */
 

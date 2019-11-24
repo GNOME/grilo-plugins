@@ -550,7 +550,7 @@ gen_prop_insert_string (GString *gstr,
 
   switch (type) {
   case G_TYPE_STRING:
-    tmp = g_strescape (grl_data_get_string (data, assoc->grl_key), NULL);
+    tmp = tracker_sparql_escape_string (grl_data_get_string (data, assoc->grl_key));
     g_string_append_printf (gstr, "%s \"%s\"",
                             assoc->sparql_key_attr, tmp);
     g_free (tmp);

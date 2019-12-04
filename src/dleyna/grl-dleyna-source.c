@@ -36,8 +36,6 @@
 #define MEDIA_ID_PREFIX "dleyna:"
 #define MEDIA_ID_PREFIX_LENGTH 7
 
-#define DLEYNA_DBUS_NAME "com.intel.dleyna-server"
-
 #define DLEYNA_SEARCH_SPEC                \
   "(DisplayName contains \"%s\" or "      \
   "Album contains \"%s\" or "             \

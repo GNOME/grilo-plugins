@@ -1,6 +1,7 @@
 option('enable-bookmarks', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Bookmarks plugin')
 option('enable-chromaprint', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Chromaprint plugin')
 option('enable-dleyna', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable dLeyna plugin')
+option('dleyna-service-name', type: 'string', value : 'com.intel.dleyna-server', description: 'D-Bus name for dLeyna server')
 option('enable-dmap', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable DMAP plugin')
 option('enable-filesystem', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Filesystem plugin')
 option('enable-flickr', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Flickr plugin')

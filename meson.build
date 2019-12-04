@@ -153,6 +153,9 @@ foreach p: plugins
         cdata.set_quoted('DPAP_PLUGIN_ID', 'grl-dpap')
         cdata.set_quoted('DAAP_PLUGIN_ID', 'grl-daap')
     endif
+    if p[NAME] == 'dleyna'
+      cdata.set_quoted('DLEYNA_DBUS_NAME', get_option('dleyna-service-name'))
+    endif
     idx = idx + 1
 endforeach
 

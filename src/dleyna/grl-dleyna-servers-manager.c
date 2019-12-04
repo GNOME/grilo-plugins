@@ -97,7 +97,7 @@ grl_dleyna_servers_manager_server_found_cb (GrlDleynaServersManager *self,
                                             gpointer                *data)
 {
   grl_dleyna_server_new_for_bus (G_BUS_TYPE_SESSION, G_DBUS_PROXY_FLAGS_NONE,
-                                 "com.intel.dleyna-server", object_path, NULL,
+                                 DLEYNA_DBUS_NAME, object_path, NULL,
                                  grl_dleyna_servers_manager_server_new_cb, self);
 }
 
@@ -205,7 +205,7 @@ grl_dleyna_servers_manager_init (GrlDleynaServersManager *self)
   self->priv = priv = grl_dleyna_servers_manager_get_instance_private (self);
 
   grl_dleyna_manager_proxy_new_for_bus (G_BUS_TYPE_SESSION, G_DBUS_PROXY_FLAGS_NONE,
-                                        "com.intel.dleyna-server", "/com/intel/dLeynaServer", NULL,
+                                        DLEYNA_DBUS_NAME, "/com/intel/dLeynaServer", NULL,
                                         grl_dleyna_servers_manager_proxy_new_cb, g_object_ref (self));
   priv->servers = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
 }

@@ -1,0 +1,613 @@
+# Malay translation for grilo-plugins.
+# Copyright (C) 2019 grilo-plugins's COPYRIGHT HOLDER
+# This file is distributed under the same license as the grilo-plugins package.
+# abuyop <abuyop@gmail.com>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: grilo-plugins master\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
+"POT-Creation-Date: 2019-11-23 13:09+0000\n"
+"PO-Revision-Date: 2019-12-25 16:20+0800\n"
+"Language-Team: Malay <ms@li.org>\n"
+"Language: ms\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: abuyop <abuyop@gmail.com>\n"
+"X-Generator: Poedit 2.0.6\n"
+
+#: src/bookmarks/grl-bookmarks.c:60
+msgid "Bookmarks"
+msgstr "Tanda Buku"
+
+#: src/bookmarks/grl-bookmarks.c:61
+msgid "A source for organizing media bookmarks"
+msgstr "Satu sumber untuk mengurus tanda buku media"
+
+#: src/bookmarks/grl-bookmarks.c:427
+msgid "Failed to get bookmark metadata"
+msgstr "Gagal mendapatkan data meta tanda buku"
+
+#: src/bookmarks/grl-bookmarks.c:457 src/bookmarks/grl-bookmarks.c:474
+#, c-format
+msgid "Failed to find bookmarks: %s"
+msgstr "Gagal mencari tanda buku: %s"
+
+#: src/bookmarks/grl-bookmarks.c:626 src/podcasts/grl-podcasts.c:823
+#: src/podcasts/grl-podcasts.c:855 src/podcasts/grl-podcasts.c:887
+#, c-format
+msgid "Failed to remove: %s"
+msgstr "Gagal membuang: %s"
+
+#: src/bookmarks/grl-bookmarks.c:768 src/podcasts/grl-podcasts.c:928
+#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1813
+#, c-format
+msgid "Failed to store: %s"
+msgstr "Gagal menyimpan: %s"
+
+#: src/bookmarks/grl-bookmarks.c:842 src/bookmarks/grl-bookmarks.c:877
+#: src/bookmarks/grl-bookmarks.c:908 src/bookmarks/grl-bookmarks.c:966
+#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1669
+#: src/podcasts/grl-podcasts.c:1713 src/podcasts/grl-podcasts.c:1747
+#: src/podcasts/grl-podcasts.c:1782
+msgid "No database connection"
+msgstr "Tiada sambungan pangkalan data"
+
+#: src/chromaprint/grl-chromaprint.c:41
+msgid "A plugin to get metadata using gstreamer framework"
+msgstr "Satu pemalam untuk mendapatkan data meta menggunakan bingkai kerja gstreamer"
+
+#: src/dleyna/grl-dleyna-source.c:34
+#, c-format
+msgid "A source for browsing the DLNA server “%s”"
+msgstr "Satu sumber untuk melayari pelayan DLNA \"%s\""
+
+#: src/dleyna/grl-dleyna-source.c:273
+msgid "Upload failed, target source destroyed"
+msgstr "Muat naik gagal, sumber sasaran telah musnah"
+
+#: src/dleyna/grl-dleyna-source.c:375
+#, c-format
+msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
+msgstr "Muat naik gagal, \"%s\", telah memindahkan %lu daripada %lu bait"
+
+#: src/dleyna/grl-dleyna-source.c:880
+#, c-format
+msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
+msgstr "Gagal memperoleh sifat-sifat item (ralat BrowseObjects %d: %s)"
+
+#: src/dleyna/grl-dleyna-source.c:1519
+#, c-format
+msgid "Upload failed, URL missing on the media object to be transferred"
+msgstr "Muat naik gagal, URL hilang dalam objek media yang dipindahkan"
+
+#: src/dmap/grl-daap.c:50
+#, c-format
+msgid "A source for browsing the DAAP server “%s”"
+msgstr "Satu sumber untuk melayari pelayan DAAP \"%s\""
+
+#: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:788
+#: src/magnatune/grl-magnatune.c:122
+msgid "Albums"
+msgstr "Album"
+
+#: src/dmap/grl-daap-db.c:64 src/jamendo/grl-jamendo.c:777
+#: src/magnatune/grl-magnatune.c:121
+msgid "Artists"
+msgstr "Artis"
+
+#: src/dmap/grl-daap-db.c:292 src/jamendo/grl-jamendo.c:1115
+#: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
+#, c-format
+msgid "Invalid container identifier %s"
+msgstr "Pengecam bekas %s tidak sah"
+
+#: src/dmap/grl-dpap.c:50
+#, c-format
+msgid "A source for browsing the DPAP server “%s”"
+msgstr "Satu sumber untuk melayari pelayan DPAP \"%s\""
+
+#: src/dmap/grl-dpap-db.c:36
+msgid "Photos"
+msgstr "Foto"
+
+#: src/filesystem/grl-filesystem.c:58
+msgid "Filesystem"
+msgstr "Sistem Fail"
+
+#: src/filesystem/grl-filesystem.c:59
+msgid "A source for browsing the filesystem"
+msgstr "Satu sumber untuk melayari sistem fail"
+
+#: src/filesystem/grl-filesystem.c:1171
+#, c-format
+msgid "File %s does not exist"
+msgstr "Fail %s tidak wujud"
+
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
+#, c-format
+msgid "Cannot get media from %s"
+msgstr "Tidak memperoleh media daripada %s"
+
+#: src/flickr/grl-flickr.c:58
+msgid "A source for browsing and searching Flickr photos"
+msgstr "Satu sumber untuk melayari dan menggelintar foto-foto Flickr"
+
+#. "%s" is a full user name, like "John Doe"
+#: src/flickr/grl-flickr.c:62
+#, c-format
+msgid "%s’s Flickr"
+msgstr "Flickr %s"
+
+#. "%s" is a full user name, like "John Doe"
+#: src/flickr/grl-flickr.c:64
+#, c-format
+msgid "A source for browsing and searching %s’s flickr photos"
+msgstr "Satu sumber untuk melayari dan menggelintar foto-foto Flickr %s"
+
+#: src/freebox/grl-freebox.c:48
+msgid "Freebox TV"
+msgstr "Freebox TV"
+
+#: src/freebox/grl-freebox.c:49
+msgid "A source for browsing Freebox TV channels"
+msgstr "Satu sumber untuk melayari saluran-saluran Freebox TV"
+
+#: src/freebox/grl-freebox.c:52
+msgid "Freebox Radio"
+msgstr "Freebox Radio"
+
+#: src/freebox/grl-freebox.c:53
+msgid "A source for browsing Freebox radio channels"
+msgstr "Satu sumber untuk melayari saluran-saluran Freebox radio"
+
+#: src/gravatar/grl-gravatar.c:46
+msgid "Avatar provider from Gravatar"
+msgstr "Penyedia Avatar daripada Gravatar"
+
+#: src/gravatar/grl-gravatar.c:47
+msgid "A plugin to get avatars for artist and author fields"
+msgstr "Satu pemalam untuk mendapatkan avatar bagi artis dan pengarang"
+
+#: src/jamendo/grl-jamendo.c:91
+msgid "A source for browsing and searching Jamendo music"
+msgstr "Satu sumber untuk melayari dan menggelintar muzik Jamendo"
+
+#: src/jamendo/grl-jamendo.c:149
+msgid "Albums of the week"
+msgstr "Album minggu ini"
+
+#: src/jamendo/grl-jamendo.c:151
+msgid "Tracks of the week"
+msgstr "Trek minggu ini"
+
+#: src/jamendo/grl-jamendo.c:153
+msgid "New releases"
+msgstr "Keluaran baharu"
+
+#: src/jamendo/grl-jamendo.c:155
+msgid "Top artists"
+msgstr "Artis terbaik"
+
+#: src/jamendo/grl-jamendo.c:157
+msgid "Top albums"
+msgstr "Album terbaik"
+
+#: src/jamendo/grl-jamendo.c:159
+msgid "Top tracks"
+msgstr "Trek terbaik"
+
+#: src/jamendo/grl-jamendo.c:341 src/jamendo/grl-jamendo.c:701
+#: src/shoutcast/grl-shoutcast.c:409 src/shoutcast/grl-shoutcast.c:463
+msgid "Failed to parse response"
+msgstr "Gagal menghurai respons"
+
+#: src/jamendo/grl-jamendo.c:349 src/jamendo/grl-jamendo.c:356
+#: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
+msgid "Empty response"
+msgstr "Respons kosong"
+
+#: src/jamendo/grl-jamendo.c:670 src/shoutcast/grl-shoutcast.c:551
+#, c-format
+msgid "Failed to connect: %s"
+msgstr "Gagal bersambung: %s"
+
+#: src/jamendo/grl-jamendo.c:799
+msgid "Feeds"
+msgstr "Suapan"
+
+#: src/jamendo/grl-jamendo.c:983 src/jamendo/grl-jamendo.c:1028
+#: src/jamendo/grl-jamendo.c:1055
+#, c-format
+msgid "Invalid identifier %s"
+msgstr "Pengecam %s tidak sah"
+
+#: src/jamendo/grl-jamendo.c:1042 src/youtube/grl-youtube.c:1097
+#: src/youtube/grl-youtube.c:1230 src/youtube/grl-youtube.c:1442
+#, c-format
+msgid "Invalid category identifier %s"
+msgstr "Pengecam kategori %s tidak sah"
+
+#: src/jamendo/grl-jamendo.c:1221
+#, c-format
+msgid "Failed to browse: %s is a track"
+msgstr "Gagal layari: %s ialah satu trek"
+
+#: src/jamendo/grl-jamendo.c:1280
+#, c-format
+msgid "Malformed query “%s”"
+msgstr "Petanyaan \"%s\" cacat"
+
+#: src/local-metadata/grl-local-metadata.c:42
+msgid "Local Metadata Provider"
+msgstr "Penyedia Data Meta Setempat"
+
+#: src/local-metadata/grl-local-metadata.c:43
+msgid "A source providing locally available metadata"
+msgstr "Satu sumber yang menyediakan data meta yang tersedia secara setempat"
+
+#: src/local-metadata/grl-local-metadata.c:381
+#: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker/grl-tracker-source-api.c:530
+#, c-format
+msgid "Failed to resolve: %s"
+msgstr "Gagal lerai: %s"
+
+#: src/local-metadata/grl-local-metadata.c:673
+msgid "Cannot resolve any of the given keys"
+msgstr "Tidak dapat meleraikan mana-mana kunci yang diberi"
+
+#: src/local-metadata/grl-local-metadata.c:677
+msgid "A GIO supported URL for images is required"
+msgstr "Satu URL disokong GIO untuk imej diperlukan"
+
+#: src/magnatune/grl-magnatune.c:123
+msgid "Genres"
+msgstr "Genre"
+
+#: src/magnatune/grl-magnatune.c:131
+msgid "A source for browsing music"
+msgstr "Satu sumber untuk melayari muzik"
+
+#: src/magnatune/grl-magnatune.c:421
+#, c-format
+msgid "Failed to get database from magnatune: %s"
+msgstr "Gagal mendapatkan pangkalan data daripada magnatune: %s"
+
+#: src/magnatune/grl-magnatune.c:451
+#, c-format
+msgid "Failed to save database from magnatune: “%s”"
+msgstr "Gagal menyimpan pangkalan data daripada magnatune: \"%s\""
+
+#: src/magnatune/grl-magnatune.c:722
+#, c-format
+msgid "Failed to get table from magnatune db: %s"
+msgstr "Gagal mendapatkan jadual daripada db magnatune: %s"
+
+#: src/magnatune/grl-magnatune.c:738
+#, c-format
+msgid "Fail before returning media to user: %s"
+msgstr "Gagal sebelum mengembalikan media kepada pengguna: %s"
+
+#: src/metadata-store/grl-metadata-store.c:40
+msgid "Metadata Store"
+msgstr "Stor Data Meta"
+
+#: src/metadata-store/grl-metadata-store.c:41
+msgid "A plugin for storing extra metadata information"
+msgstr "Satu pemalam untuk menyimpan maklumat data meta tambahan"
+
+#: src/metadata-store/grl-metadata-store.c:598
+#: src/metadata-store/grl-metadata-store.c:617
+#: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker/grl-tracker-source-api.c:640
+#, c-format
+msgid "Failed to update metadata: %s"
+msgstr "Gagal mengemas kini data meta: %s"
+
+#: src/metadata-store/grl-metadata-store.c:599
+msgid "specified keys are not writable"
+msgstr "kunci-kunci yang dinyatakan tidak boleh ditulis"
+
+#: src/metadata-store/grl-metadata-store.c:639
+msgid "Failed to update metadata"
+msgstr "Gagal mengemas kini data meta"
+
+#: src/metadata-store/grl-metadata-store.c:785
+#: src/metadata-store/grl-metadata-store.c:830
+msgid "“source-id” not available"
+msgstr "“source-id” tidak tersedia"
+
+#: src/metadata-store/grl-metadata-store.c:805
+msgid "Failed to resolve"
+msgstr "Gagal dileraikan"
+
+#: src/metadata-store/grl-metadata-store.c:942
+#: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
+#: src/shoutcast/grl-shoutcast.c:749 src/vimeo/grl-vimeo.c:540
+#, c-format
+msgid "Failed to search: %s"
+msgstr "Gagal gelintar: %s"
+
+#: src/opensubtitles/grl-opensubtitles.c:40
+msgid "OpenSubtitles Provider"
+msgstr "Penyedia OpenSubtitles"
+
+#: src/opensubtitles/grl-opensubtitles.c:41
+msgid "A source providing a list of subtitles for a video"
+msgstr "Satu sumber yang menyediakan satu senarai sari kata untuk sesebuah video"
+
+#: src/optical-media/grl-optical-media.c:44
+msgid "Optical Media"
+msgstr "Media Optik"
+
+#: src/optical-media/grl-optical-media.c:45
+msgid "A source for browsing optical media"
+msgstr "Satu sumber untuk melayari media optik"
+
+#: src/podcasts/grl-podcasts.c:148
+msgid "A source for browsing podcasts"
+msgstr "Satu sumber untuk melayari podcast-podcast"
+
+#: src/podcasts/grl-podcasts.c:759 src/podcasts/grl-podcasts.c:779
+#, c-format
+msgid "Failed to get podcast streams: %s"
+msgstr "Gagal mendapatkan strim podcast: %s"
+
+#: src/podcasts/grl-podcasts.c:1245 src/podcasts/grl-podcasts.c:1254
+#: src/podcasts/grl-podcasts.c:1264
+msgid "Failed to parse content"
+msgstr "Gagal menghurai kandungan"
+
+#: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
+msgid "Failed to parse podcast contents"
+msgstr "Gagal menghurai kandungan podcast"
+
+#: src/podcasts/grl-podcasts.c:1459
+msgid "Failed to get podcast information"
+msgstr "Gagal mendapatkan maklumat podcast"
+
+#: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
+#, c-format
+msgid "Failed to get podcasts list: %s"
+msgstr "Gagal mendapatkan senarai podcast: %s"
+
+#: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
+msgid "Failed to get podcast stream metadata"
+msgstr "Gagal mendapatkan data meta strim podcast"
+
+#: src/podcasts/grl-podcasts.c:1625
+msgid "Failed to get podcast metadata"
+msgstr "Gagal mendapatkan data meta podcast"
+
+#: src/podcasts/grl-podcasts.c:1809
+msgid "Cannot create containers. Only feeds are accepted"
+msgstr "Tidak dapat mencipta bekas. Hanya suapan diterima"
+
+#: src/podcasts/grl-podcasts.c:1814
+msgid "URL required"
+msgstr "URL diperlukan"
+
+#: src/raitv/grl-raitv.c:49 src/youtube/grl-youtube.c:73
+msgid "Most Popular"
+msgstr "Paling Terkenal"
+
+#: src/raitv/grl-raitv.c:52
+msgid "Recent"
+msgstr "Baru-baru Ini"
+
+#: src/raitv/grl-raitv.c:93
+msgid "A source for browsing and searching Rai.tv videos"
+msgstr "Satu sumber untuk melayari dan menggelintar video Rai.tv"
+
+#: src/raitv/grl-raitv.c:164
+msgid "All"
+msgstr "Semua"
+
+#: src/raitv/grl-raitv.c:165
+msgid "Black and White"
+msgstr "Hitam dan Putih"
+
+#: src/raitv/grl-raitv.c:166
+msgid "Cinema"
+msgstr "Wayang"
+
+#: src/raitv/grl-raitv.c:167
+msgid "Comedians"
+msgstr "Komedi"
+
+#: src/raitv/grl-raitv.c:168
+msgid "Chronicle"
+msgstr "Babad"
+
+#: src/raitv/grl-raitv.c:169
+msgid "Culture"
+msgstr "Budaya"
+
+#: src/raitv/grl-raitv.c:170
+msgid "Economy"
+msgstr "Ekonomi"
+
+#: src/raitv/grl-raitv.c:171
+msgid "Fiction"
+msgstr "Cerekaan"
+
+#: src/raitv/grl-raitv.c:172
+msgid "Junior"
+msgstr "Anak-anak"
+
+#: src/raitv/grl-raitv.c:173
+msgid "Investigations"
+msgstr "Penyiasatan"
+
+#: src/raitv/grl-raitv.c:174
+msgid "Interviews"
+msgstr "Wawancara"
+
+#: src/raitv/grl-raitv.c:175
+msgid "Music"
+msgstr "Muzik"
+
+#: src/raitv/grl-raitv.c:176
+msgid "News"
+msgstr "Berita"
+
+#: src/raitv/grl-raitv.c:177
+msgid "Health"
+msgstr "Kesihatan"
+
+#: src/raitv/grl-raitv.c:178
+msgid "Satire"
+msgstr "Lawak"
+
+#: src/raitv/grl-raitv.c:180
+msgid "Society"
+msgstr "Masyarakat"
+
+#: src/raitv/grl-raitv.c:181
+msgid "Show"
+msgstr "Rancangan"
+
+#: src/raitv/grl-raitv.c:182
+msgid "Sport"
+msgstr "Sukan"
+
+#: src/raitv/grl-raitv.c:183
+msgid "History"
+msgstr "Sejarah"
+
+#: src/raitv/grl-raitv.c:184
+msgid "Politics"
+msgstr "Politik"
+
+#: src/raitv/grl-raitv.c:185
+msgid "Leisure"
+msgstr "Waktu Lapang"
+
+#: src/raitv/grl-raitv.c:186
+msgid "Travel"
+msgstr "Pengembaraan"
+
+#: src/raitv/grl-raitv.c:616
+#, c-format
+msgid "Failed to browse: %s"
+msgstr "Gagal layari: %s"
+
+#: src/shoutcast/grl-shoutcast.c:60
+msgid "A source for browsing SHOUTcast radios"
+msgstr "Satu sumber untuk melayari radio SHOUTcast"
+
+#: src/shoutcast/grl-shoutcast.c:455
+#, c-format
+msgid "Cannot find media %s"
+msgstr "Tidak dapat mencari media %s"
+
+#: src/shoutcast/grl-shoutcast.c:750 src/vimeo/grl-vimeo.c:541
+msgid "non-NULL search text is required"
+msgstr "teks gelintar bukan-NOL diperlukan"
+
+#: src/thetvdb/grl-thetvdb.c:93
+msgid "A source for fetching metadata of television shows"
+msgstr "Satu sumber untuk mendapatkan data meta bagi rancangan televisyen"
+
+#: src/tmdb/grl-tmdb.c:998
+msgid "Remote data does not contain valid identifier"
+msgstr "Data jauh tidak mengandungi pengecam yang sah"
+
+#. I can haz templatze ??
+#. Only emit this last one if more result than expected
+#. Schedule the next line to parse
+#: src/tracker/grl-tracker-source-api.c:401
+#: src/tracker/grl-tracker-source-api.c:484
+#, c-format
+msgid "Failed to query: %s"
+msgstr "Gagal menanya: %s"
+
+#: src/tracker/grl-tracker-source-api.c:585
+#, c-format
+msgid "Failed to get media from uri: %s"
+msgstr "Gagal mendapatkan media dari uri: %s"
+
+#: src/tracker/grl-tracker-source-api.c:816
+msgid "Empty query"
+msgstr "Pertanyaan kosong"
+
+#: src/tracker/grl-tracker-source-api.c:1087
+#, c-format
+msgid "ID “%s” is not known in this source"
+msgstr "ID \"%s\" tidak diketahui dalam sumber ini"
+
+#: src/tracker/grl-tracker-source-priv.h:44
+msgid "A plugin for searching multimedia content using Tracker"
+msgstr "Satu pemalam untuk menggelintar kandungan multimedia menggunakan Penjejak"
+
+#: src/tracker/grl-tracker-utils.c:831
+#, c-format
+msgid "Removable — %s"
+msgstr "Boleh Tanggal — %s"
+
+#: src/tracker/grl-tracker-utils.c:843
+msgid "Local files"
+msgstr "Fail setempat"
+
+#: src/vimeo/grl-vimeo.c:51
+msgid "A source for browsing and searching Vimeo videos"
+msgstr "Satu sumber untuk melayari dan menggelintar video Vimeo"
+
+#: src/youtube/grl-youtube.c:55
+msgid "Standard feeds"
+msgstr "Suapan piawai"
+
+#: src/youtube/grl-youtube.c:58
+msgid "Categories"
+msgstr "Kategori"
+
+#: src/youtube/grl-youtube.c:64
+msgid "Top Rated"
+msgstr "Penarafan Tertinggi"
+
+#: src/youtube/grl-youtube.c:67
+msgid "Top Favorites"
+msgstr "Kegemaran Terbaik"
+
+#: src/youtube/grl-youtube.c:70
+msgid "Most Viewed"
+msgstr "Terbanyak Ditonton"
+
+#: src/youtube/grl-youtube.c:76
+msgid "Most Recent"
+msgstr "Paling Terkini"
+
+#: src/youtube/grl-youtube.c:79
+msgid "Most Discussed"
+msgstr "Terbanyak Dibincangkan"
+
+#: src/youtube/grl-youtube.c:82
+msgid "Most Linked"
+msgstr "Terbanyak Dipautkan"
+
+#: src/youtube/grl-youtube.c:85
+msgid "Most Responded"
+msgstr "Terbanyak Mendapat Respons"
+
+#: src/youtube/grl-youtube.c:88
+msgid "Recently Featured"
+msgstr "Difiturkan Terkini"
+
+#: src/youtube/grl-youtube.c:91
+msgid "Watch On Mobile"
+msgstr "Tonton Di Mudah Alih"
+
+#: src/youtube/grl-youtube.c:110
+msgid "A source for browsing and searching YouTube videos"
+msgstr "Satu sumber untuk melayari dan menggelintar video YouTube"
+
+#: src/youtube/grl-youtube.c:856
+msgid "Failed to get feed"
+msgstr "Gagal mendapatkan suapan"
+
+#: src/youtube/grl-youtube.c:1033 src/youtube/grl-youtube.c:1421
+#, c-format
+msgid "Invalid feed identifier %s"
+msgstr "Pengecam suapan %s tidak sah"

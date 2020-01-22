@@ -28,7 +28,7 @@ source = {
   id = "grl-acoustid",
   name = "Acoustid",
   description = "a source that provides audio identification",
-  supported_keys = { "title", "album", "artist", "mb-recording-id", "mb-album-id", "mb-artist-id", "mb-release-group-id", "mb-release-id", "album-disc-number", "publication-date", "track-number", "creation-date" },
+  supported_keys = { "title", "album", "album-artist", "artist", "mb-recording-id", "mb-album-id", "mb-artist-id", "mb-release-group-id", "mb-release-id", "album-disc-number", "publication-date", "track-number", "creation-date" },
   supported_media = { 'audio' },
   config_keys = {
     required = { "api-key" },
@@ -197,6 +197,13 @@ function build_media(record, releasegroup)
   media.album = keys.album and album.title or nil
   media.mb_album_id = keys.mb_album_id and album.id or nil
   media.mb_release_group_id = keys.mb_release_group_id and album.id or nil
+
+  if album.artists and keys.album_artist then
+    media.album_artist = {}
+    for _, artist in ipairs(album.artists) do
+      table.insert(media.album_artist, artist.name)
+    end
+  end
 
   -- FIXME: related-keys on lua sources are in the TODO list
   -- https://bugzilla.gnome.org/show_bug.cgi?id=756203

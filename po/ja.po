@@ -1,22 +1,22 @@
 # Japanese translation for grilo-plugins.
-# Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
+# Copyright (C) 2013, 2020 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
 # Nishio Futoshi <fut_nis@d3.dion.ne.jp>, 2013.
+# sicklylife <translation@sicklylife.jp>, 2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
 "POT-Creation-Date: 2020-01-08 15:18+0000\n"
-"PO-Revision-Date: 2013-09-15 10:21+0900\n"
-"Last-Translator: Nishio Futoshi <fut_nis@d3.dion.ne.jp>\n"
-"Language-Team: 日本語 Japanese <gnome-translation@gnome.gr.jp>>\n"
+"PO-Revision-Date: 2020-01-28 00:00+0900\n"
+"Last-Translator: sicklylife <translation@sicklylife.jp>\n"
+"Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Gtranslator 2.91.6\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -31,10 +31,9 @@ msgid "Failed to get bookmark metadata"
 msgstr "ブックマークのメタデータの取得に失敗しました"
 
 #: src/bookmarks/grl-bookmarks.c:457 src/bookmarks/grl-bookmarks.c:474
-#, fuzzy, c-format
-#| msgid "Failed to get bookmarks list: %s"
+#, c-format
 msgid "Failed to find bookmarks: %s"
-msgstr "ブックマークリストの取得に失敗しました: %s"
+msgstr "ブックマークが見つかりません: %s"
 
 # remove を 削除と訳出した。移動かも？
 #: src/bookmarks/grl-bookmarks.c:626 src/podcasts/grl-podcasts.c:823
@@ -58,41 +57,37 @@ msgid "No database connection"
 msgstr "データベースへの接続がありません"
 
 #: src/chromaprint/grl-chromaprint.c:41
-#, fuzzy
-#| msgid "A plugin for storing extra metadata information"
 msgid "A plugin to get metadata using gstreamer framework"
-msgstr "追加のメタデータ情報を保存するプラグイン"
+msgstr "gstreamer フレームワークを使用してメタデータを取得するプラグイン"
 
 #: src/dleyna/grl-dleyna-source.c:34
-#, fuzzy, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
+#, c-format
 msgid "A source for browsing the DLNA server “%s”"
-msgstr "DMAP サーバー '%s' の閲覧のソース"
+msgstr "DLNA サーバー“%s”の閲覧のソース"
 
 #: src/dleyna/grl-dleyna-source.c:273
 msgid "Upload failed, target source destroyed"
-msgstr ""
+msgstr "対象のソースが破棄されたためアップロードに失敗しました"
 
 #: src/dleyna/grl-dleyna-source.c:375
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
-msgstr ""
+msgstr "アップロードに失敗しました: “%s” (%lu / %lu バイト転送)"
 
 #: src/dleyna/grl-dleyna-source.c:880
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
-msgstr ""
+msgstr "アイテムのプロパティ取得に失敗しました (BrowseObjects エラー %d: %s)"
 
 #: src/dleyna/grl-dleyna-source.c:1519
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
-msgstr ""
+msgstr "転送するメディアオブジェクトに URL がないためアップロードに失敗しました"
 
 #: src/dmap/grl-daap.c:50
-#, fuzzy, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
+#, c-format
 msgid "A source for browsing the DAAP server “%s”"
-msgstr "DMAP サーバー '%s' の閲覧のソース"
+msgstr "DAAP サーバー“%s”の閲覧のソース"
 
 #: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:788
 #: src/magnatune/grl-magnatune.c:122
@@ -111,14 +106,13 @@ msgid "Invalid container identifier %s"
 msgstr "無効なコンテナー識別子 %s"
 
 #: src/dmap/grl-dpap.c:50
-#, fuzzy, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
+#, c-format
 msgid "A source for browsing the DPAP server “%s”"
-msgstr "DMAP サーバー '%s' の閲覧のソース"
+msgstr "DPAP サーバー“%s”の閲覧のソース"
 
 #: src/dmap/grl-dpap-db.c:36
 msgid "Photos"
-msgstr ""
+msgstr "フォト"
 
 #: src/filesystem/grl-filesystem.c:58
 msgid "Filesystem"
@@ -144,37 +138,31 @@ msgstr "Flickr フォトの閲覧と検索のソース"
 
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:62
-#, fuzzy, c-format
-#| msgid "%s's Flickr"
+#, c-format
 msgid "%s’s Flickr"
 msgstr "%s の Flickr"
 
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:64
-#, fuzzy, c-format
-#| msgid "A source for browsing and searching %s's flickr photos"
+#, c-format
 msgid "A source for browsing and searching %s’s flickr photos"
-msgstr "%s のFlickr フォトの閲覧と検索のソース"
+msgstr "%s の Flickr フォトの閲覧と検索のソース"
 
 #: src/freebox/grl-freebox.c:48
 msgid "Freebox TV"
-msgstr ""
+msgstr "Freebox TV"
 
 #: src/freebox/grl-freebox.c:49
-#, fuzzy
-#| msgid "A source for browsing podcasts"
 msgid "A source for browsing Freebox TV channels"
-msgstr "ポッドキャストの閲覧のソース"
+msgstr "Freebox TV チャンネルの閲覧のソース"
 
 #: src/freebox/grl-freebox.c:52
 msgid "Freebox Radio"
-msgstr ""
+msgstr "Freebox ラジオ"
 
 #: src/freebox/grl-freebox.c:53
-#, fuzzy
-#| msgid "A source for browsing podcasts"
 msgid "A source for browsing Freebox radio channels"
-msgstr "ポッドキャストの閲覧のソース"
+msgstr "Freebox ラジオチャンネルの閲覧のソース"
 
 #: src/gravatar/grl-gravatar.c:46
 msgid "Avatar provider from Gravatar"
@@ -252,10 +240,9 @@ msgid "Failed to browse: %s is a track"
 msgstr "閲覧に失敗しました: %s はトラックです"
 
 #: src/jamendo/grl-jamendo.c:1280
-#, fuzzy, c-format
-#| msgid "Malformed query \"%s\""
+#, c-format
 msgid "Malformed query “%s”"
-msgstr "\"%s\" は不正な要求です"
+msgstr "“%s”は不正な要求です"
 
 #: src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
@@ -296,10 +283,9 @@ msgid "Failed to get database from magnatune: %s"
 msgstr "magnatune からのデータベースの取得に失敗しました: %s"
 
 #: src/magnatune/grl-magnatune.c:451
-#, fuzzy, c-format
-#| msgid "Failed to save database from magnatune - '%s'"
+#, c-format
 msgid "Failed to save database from magnatune: “%s”"
-msgstr "magnatune からのデータベースの保存に失敗しました: %s"
+msgstr "magnatune からのデータベースの保存に失敗しました: “%s”"
 
 #: src/magnatune/grl-magnatune.c:722
 #, c-format
@@ -338,10 +324,8 @@ msgstr "メタデータの更新に失敗しました"
 
 #: src/metadata-store/grl-metadata-store.c:785
 #: src/metadata-store/grl-metadata-store.c:830
-#, fuzzy
-#| msgid "\"source-id\" not available"
 msgid "“source-id” not available"
-msgstr "\"source-id\" は利用できません"
+msgstr "“source-id”は利用できません"
 
 #: src/metadata-store/grl-metadata-store.c:805
 msgid "Failed to resolve"
@@ -356,11 +340,11 @@ msgstr "検索に失敗しました: %s"
 
 #: src/opensubtitles/grl-opensubtitles.c:40
 msgid "OpenSubtitles Provider"
-msgstr ""
+msgstr "OpenSubtitles プロバイダー"
 
 #: src/opensubtitles/grl-opensubtitles.c:41
 msgid "A source providing a list of subtitles for a video"
-msgstr ""
+msgstr "動画字幕提供のソース"
 
 #: src/optical-media/grl-optical-media.c:44
 msgid "Optical Media"
@@ -427,7 +411,7 @@ msgstr "Rai.tv 動画の閲覧と検索のソース"
 
 #: src/raitv/grl-raitv.c:164
 msgid "All"
-msgstr "全て"
+msgstr "すべて"
 
 #: src/raitv/grl-raitv.c:165
 msgid "Black and White"
@@ -534,7 +518,7 @@ msgstr "空文字ではない検索テキストが必要です"
 
 #: src/thetvdb/grl-thetvdb.c:93
 msgid "A source for fetching metadata of television shows"
-msgstr ""
+msgstr "テレビ番組のメタデータ取得のソース"
 
 #: src/tmdb/grl-tmdb.c:998
 msgid "Remote data does not contain valid identifier"
@@ -551,10 +535,9 @@ msgstr "要求に失敗しました: %s"
 
 # http://magnatune.com/
 #: src/tracker/grl-tracker-source-api.c:585
-#, fuzzy, c-format
-#| msgid "Failed to get database from magnatune: %s"
+#, c-format
 msgid "Failed to get media from uri: %s"
-msgstr "magnatune からのデータベースの取得に失敗しました: %s"
+msgstr "URI からのメディアの取得に失敗しました: %s"
 
 #: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
@@ -563,17 +546,16 @@ msgstr "空の要求"
 #: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
-msgstr ""
+msgstr "このソースの ID “%s”は不明です"
 
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Tracker を使用するマルチメディアコンテンツの検索プラグイン"
 
 #: src/tracker/grl-tracker-utils.c:831
-#, fuzzy, c-format
-#| msgid "Removable - %s"
+#, c-format
 msgid "Removable — %s"
-msgstr "リムーバブルメディア - %s"
+msgstr "リムーバブルメディア — %s"
 
 #: src/tracker/grl-tracker-utils.c:843
 msgid "Local files"
@@ -589,7 +571,7 @@ msgstr "標準的なフィード"
 
 #: src/youtube/grl-youtube.c:58
 msgid "Categories"
-msgstr "カテゴリ"
+msgstr "カテゴリー"
 
 #: src/youtube/grl-youtube.c:64
 msgid "Top Rated"

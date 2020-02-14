@@ -9,7 +9,7 @@ test_plugins = [
     'chromaprint',
     # 'dleyna',
     'lua-factory',
-    'thetvdb',
+    # 'thetvdb', See: https://gitlab.gnome.org/GNOME/grilo-plugins/issues/64
     'tmdb',
     'vimeo',
 ]

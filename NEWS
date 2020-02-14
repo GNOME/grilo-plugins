@@ -1,3 +1,17 @@
+NEW in 0.3.11
+=============
+  * !67 tracker: Fix crash if chromaprint plugin isn't installed
+  * !72 tracker: Correctly escape strings on sparql updates
+  * !74 Acoustid: add support for album artist
+
+  * Added translations
+    * Malay
+
+  * Updated translations
+    * Spanish
+    * Japanese
+    * Slovak
+
 NEW in 0.3.10
 =============
   * Tracker plugin now requires >= 2.3.0

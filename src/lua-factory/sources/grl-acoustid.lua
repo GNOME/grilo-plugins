@@ -104,7 +104,9 @@ function get_count(results)
     for _,result in ipairs(results) do
       if result.recordings and #result.recordings > 0 then
         for _,recording in ipairs(result.recordings) do
-          count = count + #recording.releasegroups
+          if recording.releasegroups ~= nil then
+            count = count + #recording.releasegroups
+          end
         end
       end
     end

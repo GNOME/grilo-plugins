@@ -91,7 +91,7 @@ function format_date(date)
     return nil
   end
 
-  return string.format("%d-%d-%d", year, month_map[month], day)
+  return string.format("%d-%02d-%02d", year, month_map[month], day)
 end
 
 function fetch_game_cb(results, appid)

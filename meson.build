@@ -53,7 +53,7 @@ avahi_gobject_dep = dependency('avahi-gobject', required: false)
 gio_dep = dependency('gio-2.0', required: false)
 gio_unix_dep = dependency('gio-unix-2.0', required: false)
 goa_dep = dependency('goa-1.0', version: '>= 3.17.91', required: false)
-gom_dep = dependency('gom-1.0', version: '>= 0.3.2', required: false)
+gom_dep = dependency('gom-1.0', version: '>= 0.4', required: false)
 grilo_net_dep = dependency('grilo-net-0.3', version: '>= 0.3.0', required: false,
                            fallback: ['grilo', 'libgrlnet_dep'])
 grilo_pls_dep = dependency('grilo-pls-0.3', version: '>= 0.3.0', required: false,

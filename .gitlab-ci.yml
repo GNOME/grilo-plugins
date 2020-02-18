@@ -19,6 +19,9 @@ build_stable:
     - dnf update -y --nogpgcheck
   script:
     - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES
+    # FIXME until stable
+    - rpm -Uvh https://kojipkgs.fedoraproject.org//packages/gom/0.4/1.fc33/x86_64/gom-0.4-1.fc33.x86_64.rpm
+      https://kojipkgs.fedoraproject.org//packages/gom/0.4/1.fc33/x86_64/gom-devel-0.4-1.fc33.x86_64.rpm
     # As part of configuring grilo-plugins.git for build, the latest code from
     # grilo.git will be fetched by Meson and it will be built as a subproject.
     - meson . _build --prefix=/usr

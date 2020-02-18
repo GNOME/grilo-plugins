@@ -22,6 +22,29 @@ build_stable:
     # As part of configuring grilo-plugins.git for build, the latest code from
     # grilo.git will be fetched by Meson and it will be built as a subproject.
     - meson . _build --prefix=/usr
+      -Denable-bookmarks=yes
+      -Denable-chromaprint=yes
+      -Denable-dleyna=yes
+      -Denable-dmap=yes
+      -Denable-filesystem=yes
+      -Denable-flickr=yes
+      -Denable-freebox=yes
+      -Denable-gravatar=yes
+      -Denable-jamendo=yes
+      -Denable-local-metadata=yes
+      -Denable-lua-factory=yes
+      -Denable-magnatune=yes
+      -Denable-metadata-store=yes
+      -Denable-opensubtitles=yes
+      -Denable-optical-media=yes
+      -Denable-podcasts=yes
+      -Denable-raitv=yes
+      -Denable-shoutcast=yes
+      -Denable-thetvdb=yes
+      -Denable-tmdb=yes
+      -Denable-tracker=yes
+      -Denable-vimeo=yes
+      -Denable-youtube=yes
     - ninja -C _build
     - ninja -C _build install
     - meson test -C _build --suite=grilo-plugins

@@ -88,8 +88,6 @@ void grl_tracker_source_sources_init (void);
 
 void grl_tracker_add_source (GrlTrackerSource *source);
 
-void grl_tracker_del_source (GrlTrackerSource *source);
-
 GrlTrackerSource *grl_tracker_source_find (const gchar *id);
 
 GrlTrackerSource *grl_tracker_source_find_source (const gchar *id);

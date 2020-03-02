@@ -232,6 +232,11 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
 
   g_free (id_s);
   g_object_unref (media);
+  g_free(album);
+  g_free(artist);
+  g_free(genre);
+  g_free(title);
+  g_free(url);
 
   return --nextid;
 }

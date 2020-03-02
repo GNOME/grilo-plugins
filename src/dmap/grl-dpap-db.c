@@ -177,6 +177,12 @@ grl_dpap_db_add (DMAPDb *_db, DMAPRecord *_record)
 
   g_free (id_s);
   g_object_unref (media);
+  g_free(filename);
+  g_free(aspectratio);
+  g_free(format);
+  g_free(comments);
+  g_free(url);
+  g_byte_array_unref(thumbnail);
 
   return --nextid;
 }

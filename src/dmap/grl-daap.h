@@ -26,6 +26,8 @@
 
 #include <grilo.h>
 
+#include "grl-daap-compat.h"
+
 #define GRL_DAAP_SOURCE_TYPE (grl_daap_source_get_type ())
 
 #define GRL_DAAP_SOURCE(obj)                                                   \

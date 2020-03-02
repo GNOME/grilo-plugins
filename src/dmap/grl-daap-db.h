@@ -24,6 +24,8 @@
 #include <libdmapsharing/dmap.h>
 #include <grilo.h>
 
+#include "grl-daap-compat.h"
+
 G_BEGIN_DECLS
 
 #define TYPE_GRL_DAAP_DB (grl_daap_db_get_type ())

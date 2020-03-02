@@ -18,11 +18,18 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <grilo.h>
+#include <libdmapsharing/dmap.h>
+
+#include "grl-dpap-compat.h"
+#include "grl-common.h"
 #include "grl-dpap-record-factory.h"
 #include "grl-dpap-record.h"
 
-DMAPRecord *
-grl_dpap_record_factory_create (DMAPRecordFactory *factory, gpointer user_data)
+DmapRecord *
+grl_dpap_record_factory_create (DmapRecordFactory *factory,
+                                gpointer user_data,
+                                GError **error)
 {
   return DMAP_RECORD (grl_dpap_record_new ());
 }
@@ -40,11 +47,11 @@ grl_dpap_record_factory_class_init (GrlDPAPRecordFactoryClass *klass)
 static void
 grl_dpap_record_factory_interface_init (gpointer iface, gpointer data)
 {
-  DMAPRecordFactoryIface *factory = iface;
+  DmapRecordFactoryInterface *factory = iface;
 
   g_assert (G_TYPE_FROM_INTERFACE (factory) == DMAP_TYPE_RECORD_FACTORY);
 
-  factory->create = grl_dpap_record_factory_create;
+  factory->create = grl_dpap_record_factory_create_compat;
 }
 
 G_DEFINE_TYPE_WITH_CODE (GrlDPAPRecordFactory, grl_dpap_record_factory, G_TYPE_OBJECT,

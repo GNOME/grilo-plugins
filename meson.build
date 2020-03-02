@@ -62,7 +62,12 @@ gstreamer_dep = dependency('gstreamer-1.0', required: false)
 gthread_dep = dependency('gthread-2.0', required: false)
 json_glib_dep = dependency('json-glib-1.0', required: false)
 libarchive_dep = dependency('libarchive', required: false)
-libdmapsharing_dep = dependency('libdmapsharing-3.0', version: '>= 2.9.12', required: false)
+libdmapsharing4_dep = dependency('libdmapsharing-4.0', version: '>= 3.9.4', required: false)
+if libdmapsharing4_dep.found()
+    libdmapsharing_dep = libdmapsharing4_dep
+else
+    libdmapsharing_dep = dependency('libdmapsharing-3.0', version: '>= 2.9.12', required: false)
+endif
 libgdata_dep = dependency('libgdata', version: '>= 0.9.1', required: false)
 libmediaart_dep = dependency('libmediaart-2.0', required: false)
 libsoup_dep = dependency('libsoup-2.4', required: false)

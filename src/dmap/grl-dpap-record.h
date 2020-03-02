@@ -23,6 +23,8 @@
 
 #include <libdmapsharing/dmap.h>
 
+#include "grl-dpap-compat.h"
+
 G_BEGIN_DECLS
 
 #define TYPE_SIMPLE_DPAP_RECORD (grl_dpap_record_get_type ())
@@ -69,8 +71,8 @@ typedef struct {
 GType grl_dpap_record_get_type (void);
 
 GrlDPAPRecord *grl_dpap_record_new (void);
-GInputStream *grl_dpap_record_read (DPAPRecord *record, GError **error);
-gint grl_dpap_record_get_id (DPAPRecord *record);
+GInputStream *grl_dpap_record_read (DmapImageRecord *record, GError **error);
+gint grl_dpap_record_get_id (DmapImageRecord *record);
 
 #endif /* __SIMPLE_DPAP_RECORD */
 

@@ -23,6 +23,8 @@
 
 #include <libdmapsharing/dmap.h>
 
+#include "grl-daap-compat.h"
+
 G_BEGIN_DECLS
 
 #define TYPE_SIMPLE_DAAP_RECORD_FACTORY (grl_daap_record_factory_get_type ())
@@ -63,8 +65,6 @@ typedef struct {
 GType grl_daap_record_factory_get_type (void);
 
 GrlDAAPRecordFactory *grl_daap_record_factory_new (void);
-
-DMAPRecord *grl_daap_record_factory_create (DMAPRecordFactory *factory, gpointer user_data);
 
 #endif /* __SIMPLE_DAAP_RECORD_FACTORY */
 

@@ -20,6 +20,11 @@
  *
  */
 
+#include <grilo.h>
+#include <libdmapsharing/dmap.h>
+
+#include "grl-daap-compat.h"
+#include "grl-common.h"
 #include "grl-daap-record.h"
 
 struct GrlDAAPRecordPrivate {
@@ -226,7 +231,7 @@ grl_daap_record_new (void)
 }
 
 GInputStream *
-grl_daap_record_read (DAAPRecord *record, GError **error)
+grl_daap_record_read (DmapAvRecord *record, GError **error)
 {
   GFile *file;
   GInputStream *stream;
@@ -280,9 +285,9 @@ grl_daap_record_class_init (GrlDAAPRecordClass *klass)
 static void
 grl_daap_record_daap_iface_init (gpointer iface, gpointer data)
 {
-  DAAPRecordIface *daap_record = iface;
+  DmapAvRecordInterface *daap_record = iface;
 
-  g_assert (G_TYPE_FROM_INTERFACE (daap_record) == DAAP_TYPE_RECORD);
+  g_assert (G_TYPE_FROM_INTERFACE (daap_record) == DMAP_TYPE_AV_RECORD);
 
   daap_record->read = grl_daap_record_read;
 }
@@ -290,7 +295,7 @@ grl_daap_record_daap_iface_init (gpointer iface, gpointer data)
 static void
 grl_daap_record_dmap_iface_init (gpointer iface, gpointer data)
 {
-  DMAPRecordIface *dmap_record = iface;
+  DmapRecordInterface *dmap_record = iface;
 
   g_assert (G_TYPE_FROM_INTERFACE (dmap_record) == DMAP_TYPE_RECORD);
 }
@@ -298,7 +303,7 @@ grl_daap_record_dmap_iface_init (gpointer iface, gpointer data)
 
 G_DEFINE_TYPE_WITH_CODE (GrlDAAPRecord, grl_daap_record, G_TYPE_OBJECT,
                          G_ADD_PRIVATE (GrlDAAPRecord)
-                         G_IMPLEMENT_INTERFACE (DAAP_TYPE_RECORD, grl_daap_record_daap_iface_init)
+                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_AV_RECORD, grl_daap_record_daap_iface_init)
                          G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD, grl_daap_record_dmap_iface_init))
 
 static void

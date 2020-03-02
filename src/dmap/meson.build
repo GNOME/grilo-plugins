@@ -31,6 +31,15 @@ dpap_sources = [
     'grl-dpap.h',
 ]
 
+args = [
+    '-DG_LOG_DOMAIN="GrlDmap"',
+    '-DHAVE_CONFIG_H',
+]
+
+if not libdmapsharing4_dep.found()
+    args += '-DLIBDMAPSHARING_COMPAT'
+endif
+
 configure_file(output: 'config.h',
     configuration: cdata)
 
@@ -39,17 +48,11 @@ shared_library('grldaap',
     install: true,
     install_dir: pluginsdir,
     dependencies: must_deps + plugins[dmap_idx][REQ_DEPS] + plugins[dmap_idx][OPT_DEPS],
-    c_args: [
-        '-DG_LOG_DOMAIN="GrlDmap"',
-        '-DHAVE_CONFIG_H',
-    ])
+    c_args: args)
 
 shared_library('grldpap',
     sources: dpap_sources,
     install: true,
     install_dir: pluginsdir,
     dependencies: must_deps + plugins[dmap_idx][REQ_DEPS] + plugins[dmap_idx][OPT_DEPS],
-    c_args: [
-        '-DG_LOG_DOMAIN="GrlDmap"',
-        '-DHAVE_CONFIG_H',
-    ])
+    c_args: args)

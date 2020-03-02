@@ -23,6 +23,8 @@
 
 #include <libdmapsharing/dmap.h>
 
+#include "grl-dpap-compat.h"
+
 G_BEGIN_DECLS
 
 #define TYPE_SIMPLE_DPAP_RECORD_FACTORY (grl_dpap_record_factory_get_type ())
@@ -64,7 +66,7 @@ GType grl_dpap_record_factory_get_type (void);
 
 GrlDPAPRecordFactory *grl_dpap_record_factory_new (void);
 
-DMAPRecord *grl_dpap_record_factory_create (DMAPRecordFactory *factory, gpointer user_data);
+DmapRecord *grl_dpap_record_factory_create (DmapRecordFactory *factory, gpointer user_data, GError **error);
 
 #endif /* __SIMPLE_DPAP_RECORD_FACTORY */
 

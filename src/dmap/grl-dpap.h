@@ -26,6 +26,8 @@
 
 #include <grilo.h>
 
+#include "grl-dpap-compat.h"
+
 #define GRL_DPAP_SOURCE_TYPE (grl_dpap_source_get_type ())
 
 #define GRL_DPAP_SOURCE(obj)                                                   \

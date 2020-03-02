@@ -54,8 +54,12 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <glib.h>
+#include <grilo.h>
 #include <string.h>
+#include <libdmapsharing/dmap.h>
 
+#include "grl-daap-compat.h"
+#include "grl-common.h"
 #include "grl-daap-db.h"
 
 #define ALBUMS_ID    "albums"
@@ -103,23 +107,23 @@ grl_daap_db_new (void)
   return db;
 }
 
-static DMAPRecord *
-grl_daap_db_lookup_by_id (const DMAPDb *db, guint id)
+static DmapRecord *
+grl_daap_db_lookup_by_id (const DmapDb *db, guint id)
 {
   g_error ("Not implemented");
   return NULL;
 }
 
 static void
-grl_daap_db_foreach (const DMAPDb *db,
-                     GHFunc func,
+grl_daap_db_foreach (const DmapDb *db,
+                     DmapIdRecordFunc func,
                      gpointer data)
 {
   g_error ("Not implemented");
 }
 
 static gint64
-grl_daap_db_count (const DMAPDb *db)
+grl_daap_db_count (const DmapDb *db)
 {
   g_error ("Not implemented");
   return 0;
@@ -150,14 +154,14 @@ set_insert (GHashTable *category, const char *category_name, char *set_name, Grl
   g_object_unref (container);
 }
 
-static guint
-grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
+guint
+grl_daap_db_add (DmapDb *_db, DmapRecord *_record, GError **error)
 {
   g_assert (IS_GRL_DAAP_DB (_db));
-  g_assert (IS_DAAP_RECORD (_record));
+  g_assert (IS_DMAP_AV_RECORD (_record));
 
   GrlDAAPDb *db = GRL_DAAP_DB (_db);
-  DAAPRecord *record = DAAP_RECORD (_record);
+  DmapAvRecord *record = DMAP_AV_RECORD (_record);
 
   gint   duration = 0;
   gint32  bitrate = 0,
@@ -232,11 +236,11 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
 
   g_free (id_s);
   g_object_unref (media);
-  g_free(album);
-  g_free(artist);
-  g_free(genre);
-  g_free(title);
-  g_free(url);
+  g_free (album);
+  g_free (artist);
+  g_free (genre);
+  g_free (title);
+  g_free (url);
 
   return --nextid;
 }
@@ -359,11 +363,11 @@ grl_daap_db_search (GrlDAAPDb *db,
 static void
 dmap_db_interface_init (gpointer iface, gpointer data)
 {
-  DMAPDbIface *daap_db = iface;
+  DmapDbInterface *daap_db = iface;
 
   g_assert (G_TYPE_FROM_INTERFACE (daap_db) == DMAP_TYPE_DB);
 
-  daap_db->add = grl_daap_db_add;
+  daap_db->add = grl_daap_db_add_compat;
   daap_db->lookup_by_id = grl_daap_db_lookup_by_id;
   daap_db->foreach = grl_daap_db_foreach;
   daap_db->count = grl_daap_db_count;

@@ -24,6 +24,8 @@
 #include <libdmapsharing/dmap.h>
 #include <grilo.h>
 
+#include "grl-dpap-compat.h"
+
 G_BEGIN_DECLS
 
 #define TYPE_GRL_DPAP_DB (grl_dpap_db_get_type ())

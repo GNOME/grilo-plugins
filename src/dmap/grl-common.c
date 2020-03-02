@@ -33,13 +33,27 @@
 #include <stdlib.h>
 #include <libdmapsharing/dmap.h>
 
+#include "grl-dmap-compat.h"
 #include "grl-common.h"
 
 gchar *
-grl_dmap_build_url (DMAPMdnsBrowserService *service)
+grl_dmap_build_url (DmapMdnsService *service)
 {
-  return g_strdup_printf ("%s://%s:%u",
-                           service->service_name,
-                           service->host,
-                           service->port);
+  gchar *url = NULL;
+  gchar *service_name, *host;
+  guint port;
+
+  service_name = grl_dmap_service_get_service_name (service);
+  host         = grl_dmap_service_get_host (service);
+  port         = grl_dmap_service_get_port (service);
+
+  url = g_strdup_printf ("%s://%s:%u",
+                          service_name,
+                          host,
+                          port);
+
+  g_free (service_name);
+  g_free (host);
+
+  return url;
 }

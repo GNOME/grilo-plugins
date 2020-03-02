@@ -20,6 +20,11 @@
  *
  */
 
+#include <grilo.h>
+#include <libdmapsharing/dmap.h>
+
+#include "grl-dpap-compat.h"
+#include "grl-common.h"
 #include "grl-dpap-record.h"
 
 struct GrlDPAPRecordPrivate {
@@ -28,7 +33,7 @@ struct GrlDPAPRecordPrivate {
   gint creationdate;
   gint rating;
   char *filename;
-  GByteArray *thumbnail;
+  void *thumbnail; /* GByteArray or GArray, depending on libdmapsharing ver. */
   char *aspectratio;
   gint height;
   gint width;
@@ -56,7 +61,7 @@ static void grl_dpap_record_dpap_iface_init (gpointer iface, gpointer data);
 
 G_DEFINE_TYPE_WITH_CODE (GrlDPAPRecord, grl_dpap_record, G_TYPE_OBJECT,
                          G_ADD_PRIVATE (GrlDPAPRecord)
-                         G_IMPLEMENT_INTERFACE (DPAP_TYPE_RECORD, grl_dpap_record_dpap_iface_init)
+                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_IMAGE_RECORD, grl_dpap_record_dpap_iface_init)
                          G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD, grl_dpap_record_dmap_iface_init))
 
 static void
@@ -104,9 +109,7 @@ grl_dpap_record_set_property (GObject *object,
     record->priv->comments = g_value_dup_string (value);
     break;
   case PROP_THUMBNAIL:
-    if (record->priv->thumbnail)
-      g_byte_array_unref (record->priv->thumbnail);
-    record->priv->thumbnail = g_byte_array_ref (g_value_get_pointer (value));
+    record->priv->thumbnail = get_thumbnail (record->priv->thumbnail, value);
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -154,7 +157,7 @@ grl_dpap_record_get_property (GObject *object,
     g_value_set_static_string (value, record->priv->comments);
     break;
   case PROP_THUMBNAIL:
-    g_value_set_pointer (value, record->priv->thumbnail);
+    set_thumbnail (value, record->priv->thumbnail);
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -169,7 +172,7 @@ grl_dpap_record_new (void)
 }
 
 GInputStream *
-grl_dpap_record_read (DPAPRecord *record, GError **error)
+grl_dpap_record_read (DmapImageRecord *record, GError **error)
 {
   GFile *file;
   GInputStream *stream;
@@ -215,9 +218,9 @@ grl_dpap_record_class_init (GrlDPAPRecordClass *klass)
 static void
 grl_dpap_record_dpap_iface_init (gpointer iface, gpointer data)
 {
-  DPAPRecordIface *dpap_record = iface;
+  DmapImageRecordInterface *dpap_record = iface;
 
-  g_assert (G_TYPE_FROM_INTERFACE (dpap_record) == DPAP_TYPE_RECORD);
+  g_assert (G_TYPE_FROM_INTERFACE (dpap_record) == DMAP_TYPE_IMAGE_RECORD);
 
   dpap_record->read = grl_dpap_record_read;
 }
@@ -225,7 +228,7 @@ grl_dpap_record_dpap_iface_init (gpointer iface, gpointer data)
 static void
 grl_dpap_record_dmap_iface_init (gpointer iface, gpointer data)
 {
-  DMAPRecordIface *dmap_record = iface;
+  DmapRecordInterface *dmap_record = iface;
 
   g_assert (G_TYPE_FROM_INTERFACE (dmap_record) == DMAP_TYPE_RECORD);
 }
@@ -242,7 +245,7 @@ grl_dpap_record_finalize (GObject *object)
   g_free (record->priv->comments);
 
   if (record->priv->thumbnail)
-    g_byte_array_unref (record->priv->thumbnail);
+    unref_thumbnail (record->priv->thumbnail);
 
   G_OBJECT_CLASS (grl_dpap_record_parent_class)->finalize (object);
 }

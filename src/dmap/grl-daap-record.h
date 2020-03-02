@@ -23,6 +23,8 @@
 
 #include <libdmapsharing/dmap.h>
 
+#include "grl-daap-compat.h"
+
 G_BEGIN_DECLS
 
 #define TYPE_SIMPLE_DAAP_RECORD (grl_daap_record_get_type ())
@@ -69,8 +71,8 @@ typedef struct {
 GType grl_daap_record_get_type (void);
 
 GrlDAAPRecord *grl_daap_record_new (void);
-GInputStream *grl_daap_record_read (DAAPRecord *record, GError **error);
-gint grl_daap_record_get_id (DAAPRecord *record);
+GInputStream *grl_daap_record_read (DmapAvRecord *record, GError **error);
+gint grl_daap_record_get_id (DmapAvRecord *record);
 
 #endif /* __SIMPLE_DAAP_RECORD */
 

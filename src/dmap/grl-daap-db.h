@@ -26,34 +26,34 @@
 
 G_BEGIN_DECLS
 
-#define TYPE_GRL_DAAP_DB                     \
-  (grl_daap_db_get_type ())
+#define TYPE_GRL_DAAP_DB (grl_daap_db_get_type ())
 
-#define GRL_DAAP_DB(o)                             \
-  (G_TYPE_CHECK_INSTANCE_CAST ((o),                   \
-                               TYPE_GRL_DAAP_DB,   \
-                               GrlDAAPDb))
+#define GRL_DAAP_DB(o)                                                         \
+  (G_TYPE_CHECK_INSTANCE_CAST ((o),                                            \
+                                TYPE_GRL_DAAP_DB,                              \
+                                GrlDAAPDb))
 
-#define GRL_DAAP_DB_CLASS(k)                 \
-  (G_TYPE_CHECK_CLASS_CAST((k),                 \
-                           TYPE_GRL_DAAP_DB, \
-                           GrlDAAPDbClass))
-#define IS_GRL_DAAP_DB(o)                          \
-  (G_TYPE_CHECK_INSTANCE_TYPE((o),                    \
-                              TYPE_GRL_DAAP_DB))
-#define IS_GRL_DAAP_DB_CLASS(k)                       \
-  (G_TYPE_CHECK_CLASS_TYPE((k),                          \
-                           TYPE_GRL_DAAP_DB_CLASS))
-
-#define GRL_DAAP_DB_GET_CLASS(o)                \
-  (G_TYPE_INSTANCE_GET_CLASS((o),                  \
-                             TYPE_GRL_DAAP_DB,  \
+#define GRL_DAAP_DB_CLASS(k)                                                   \
+  (G_TYPE_CHECK_CLASS_CAST ((k),                                               \
+                             TYPE_GRL_DAAP_DB,                                 \
                              GrlDAAPDbClass))
+#define IS_GRL_DAAP_DB(o)                                                      \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((o),                                            \
+                                TYPE_GRL_DAAP_DB))
 
-#define GRL_DAAP_DB_GET_PRIVATE(o)                 \
-  (G_TYPE_INSTANCE_GET_PRIVATE((o),                   \
-                               TYPE_GRL_DAAP_DB,   \
-                               GrlDAAPDbPrivate))
+#define IS_GRL_DAAP_DB_CLASS(k)                                                \
+  (G_TYPE_CHECK_CLASS_TYPE ((k),                                               \
+                             TYPE_GRL_DAAP_DB_CLASS))
+
+#define GRL_DAAP_DB_GET_CLASS(o)                                               \
+  (G_TYPE_INSTANCE_GET_CLASS ((o),                                             \
+                               TYPE_GRL_DAAP_DB,                               \
+                               GrlDAAPDbClass))
+
+#define GRL_DAAP_DB_GET_PRIVATE(o)                                             \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((o),                                           \
+                                 TYPE_GRL_DAAP_DB,                             \
+                                 GrlDAAPDbPrivate))
 
 typedef struct GrlDAAPDbPrivate GrlDAAPDbPrivate;
 

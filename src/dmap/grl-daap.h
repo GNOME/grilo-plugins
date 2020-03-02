@@ -26,31 +26,30 @@
 
 #include <grilo.h>
 
-#define GRL_DAAP_SOURCE_TYPE                    \
-  (grl_daap_source_get_type ())
+#define GRL_DAAP_SOURCE_TYPE (grl_daap_source_get_type ())
 
-#define GRL_DAAP_SOURCE(obj)                          \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj),                 \
-                               GRL_DAAP_SOURCE_TYPE,  \
-                               GrlDaapSource))
+#define GRL_DAAP_SOURCE(obj)                                                   \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj),                                          \
+                                GRL_DAAP_SOURCE_TYPE,                          \
+                                GrlDaapSource))
 
-#define GRL_IS_DAAP_SOURCE(obj)                       \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj),                 \
-                               GRL_DAAP_SOURCE_TYPE))
+#define GRL_IS_DAAP_SOURCE(obj)                                                \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj),                                          \
+                                GRL_DAAP_SOURCE_TYPE))
 
-#define GRL_DAAP_SOURCE_CLASS(klass)               \
-  (G_TYPE_CHECK_CLASS_CAST((klass),                \
-                           GRL_DAAP_SOURCE_TYPE,   \
-                           GrlDaapSourceClass))
+#define GRL_DAAP_SOURCE_CLASS(klass)                                           \
+  (G_TYPE_CHECK_CLASS_CAST ((klass),                                           \
+                             GRL_DAAP_SOURCE_TYPE,                             \
+                             GrlDaapSourceClass))
 
-#define GRL_IS_DAAP_SOURCE_CLASS(klass)            \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),                \
-                           GRL_DAAP_SOURCE_TYPE))
+#define GRL_IS_DAAP_SOURCE_CLASS(klass)                                        \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass),                                           \
+                             GRL_DAAP_SOURCE_TYPE))
 
-#define GRL_DAAP_SOURCE_GET_CLASS(obj)                \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj),                  \
-                              GRL_DAAP_SOURCE_TYPE,   \
-                              GrlDaapSourceClass))
+#define GRL_DAAP_SOURCE_GET_CLASS(obj)                                         \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj),                                           \
+                               GRL_DAAP_SOURCE_TYPE,                           \
+                               GrlDaapSourceClass))
 
 typedef struct _GrlDaapSourcePrivate GrlDaapSourcePrivate;
 typedef struct _GrlDaapSource  GrlDaapSource;

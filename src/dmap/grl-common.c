@@ -39,7 +39,7 @@ gchar *
 grl_dmap_build_url (DMAPMdnsBrowserService *service)
 {
   return g_strdup_printf ("%s://%s:%u",
-                          service->service_name,
-                          service->host,
-                          service->port);
+                           service->service_name,
+                           service->host,
+                           service->port);
 }

@@ -25,30 +25,29 @@
 
 G_BEGIN_DECLS
 
-#define TYPE_SIMPLE_DPAP_RECORD_FACTORY         \
-  (grl_dpap_record_factory_get_type ())
+#define TYPE_SIMPLE_DPAP_RECORD_FACTORY (grl_dpap_record_factory_get_type ())
 
-#define SIMPLE_DPAP_RECORD_FACTORY(o)                          \
-  (G_TYPE_CHECK_INSTANCE_CAST((o),                             \
-                              TYPE_SIMPLE_DPAP_RECORD_FACTORY, \
-                              GrlDPAPRecordFactory))
+#define SIMPLE_DPAP_RECORD_FACTORY(o)                                          \
+  (G_TYPE_CHECK_INSTANCE_CAST ((o),                                            \
+                                TYPE_SIMPLE_DPAP_RECORD_FACTORY,               \
+                                GrlDPAPRecordFactory))
 
-#define SIMPLE_DPAP_RECORD_FACTORY_CLASS(k)                 \
-  (G_TYPE_CHECK_CLASS_CAST((k),                             \
-                           TYPE_SIMPLE_DPAP_RECORD_FACTORY, \
-                           GrlDPAPRecordFactoryClass))
+#define SIMPLE_DPAP_RECORD_FACTORY_CLASS(k)                                    \
+  (G_TYPE_CHECK_CLASS_CAST ((k),                                               \
+                             TYPE_SIMPLE_DPAP_RECORD_FACTORY,                  \
+                             GrlDPAPRecordFactoryClass))
 
-#define IS_SIMPLE_DPAP_RECORD_FACTORY(o)                          \
-  (G_TYPE_CHECK_INSTANCE_TYPE((o),                                \
+#define IS_SIMPLE_DPAP_RECORD_FACTORY(o)                                       \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((o),                                            \
                               TYPE_SIMPLE_DPAP_RECORD_FACTORY))
 
-#define IS_SIMPLE_DPAP_RECORD_FACTORY_CLASS(k)                       \
-  (G_TYPE_CHECK_CLASS_TYPE((k),                                      \
-                           TYPE_SIMPLE_DPAP_RECORD_FACTORY_CLASS))
+#define IS_SIMPLE_DPAP_RECORD_FACTORY_CLASS(k)                                 \
+  (G_TYPE_CHECK_CLASS_TYPE ((k),                                               \
+                             TYPE_SIMPLE_DPAP_RECORD_FACTORY_CLASS))
 
-#define SIMPLE_DPAP_RECORD_FACTORY_GET_CLASS(o)                \
-  (G_TYPE_INSTANCE_GET_CLASS((o),                              \
-                             TYPE_SIMPLE_DPAP_RECORD_FACTORY,  \
+#define SIMPLE_DPAP_RECORD_FACTORY_GET_CLASS(o)                                \
+  (G_TYPE_INSTANCE_GET_CLASS ((o),                                             \
+                             TYPE_SIMPLE_DPAP_RECORD_FACTORY,                  \
                              GrlDPAPRecordFactoryClass))
 
 typedef struct GrlDPAPRecordFactoryPrivate GrlDPAPRecordFactoryPrivate;
@@ -61,11 +60,11 @@ typedef struct {
   GObjectClass parent;
 } GrlDPAPRecordFactoryClass;
 
-GType                    grl_dpap_record_factory_get_type (void);
+GType grl_dpap_record_factory_get_type (void);
 
-GrlDPAPRecordFactory *grl_dpap_record_factory_new      (void);
+GrlDPAPRecordFactory *grl_dpap_record_factory_new (void);
 
-DMAPRecord              *grl_dpap_record_factory_create   (DMAPRecordFactory *factory, gpointer user_data);
+DMAPRecord *grl_dpap_record_factory_create (DMAPRecordFactory *factory, gpointer user_data);
 
 #endif /* __SIMPLE_DPAP_RECORD_FACTORY */
 

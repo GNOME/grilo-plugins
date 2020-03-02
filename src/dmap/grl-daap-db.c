@@ -112,8 +112,8 @@ grl_daap_db_lookup_by_id (const DMAPDb *db, guint id)
 
 static void
 grl_daap_db_foreach (const DMAPDb *db,
-                        GHFunc func,
-                        gpointer data)
+                     GHFunc func,
+                     gpointer data)
 {
   g_error ("Not implemented");
 }
@@ -135,7 +135,7 @@ set_insert (GHashTable *category, const char *category_name, char *set_name, Grl
   id = g_strdup_printf ("%s-%s", category_name, set_name);
 
   container = grl_media_container_new ();
-  grl_media_set_id    (container, id);
+  grl_media_set_id (container, id);
   grl_media_set_title (container, set_name);
 
   set = g_hash_table_lookup (category, container);
@@ -173,26 +173,16 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
   GrlMedia *media;
 
   g_object_get (record,
-               "songalbum",
-               &album,
-               "songartist",
-               &artist,
-               "bitrate",
-               &bitrate,
-               "duration",
-               &duration,
-               "songgenre",
-               &genre,
-               "title",
-               &title,
-               "track",
-               &track,
-               "disc",
-               &disc,
-               "location",
-               &url,
-               "has-video",
-               &has_video,
+               "songalbum", &album,
+               "songartist", &artist,
+               "bitrate", &bitrate,
+               "duration", &duration,
+               "songgenre", &genre,
+               "title", &title,
+               "track", &track,
+               "disc", &disc,
+               "location", &url,
+               "has-video", &has_video,
                 NULL);
 
   id_s = g_strdup_printf ("%u", nextid);
@@ -203,8 +193,8 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
     media = grl_media_audio_new ();
   }
 
-  grl_media_set_id           (media, id_s);
-  grl_media_set_duration     (media, duration);
+  grl_media_set_id (media, id_s);
+  grl_media_set_duration (media, duration);
 
   if (title) {
     grl_media_set_title (media, title);
@@ -217,7 +207,7 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
   }
 
   if (has_video == FALSE) {
-    grl_media_set_bitrate      (media, bitrate);
+    grl_media_set_bitrate (media, bitrate);
     grl_media_set_track_number (media, track);
 
     if (disc != 0) {
@@ -249,7 +239,7 @@ grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record)
 static gboolean
 same_media (GrlMedia *a, GrlMedia *b)
 {
-  return (strcmp (grl_media_get_id (a), grl_media_get_id (b)) == 0);
+  return strcmp (grl_media_get_id (a), grl_media_get_id (b)) == 0;
 }
 
 void
@@ -334,7 +324,7 @@ grl_daap_db_search (GrlDAAPDb *db,
   results = g_hash_table_new (g_str_hash, g_str_equal);
 
   /* For albums and artists... */
-  for (i = 0; i < G_N_ELEMENTS(hash_tables); i++) {
+  for (i = 0; i < G_N_ELEMENTS (hash_tables); i++) {
     g_hash_table_iter_init (&iter1, hash_tables[i]);
     /* For each album or artist in above... */
     for (j = 0; g_hash_table_iter_next (&iter1, &key1, &val1); j++) {
@@ -396,10 +386,10 @@ grl_daap_db_init (GrlDAAPDb *db)
   db->priv->albums_container  = grl_media_container_new ();
   db->priv->artists_container = grl_media_container_new ();
 
-  grl_media_set_id    (GRL_MEDIA (db->priv->albums_container), ALBUMS_ID);
+  grl_media_set_id (GRL_MEDIA (db->priv->albums_container), ALBUMS_ID);
   grl_media_set_title (GRL_MEDIA (db->priv->albums_container), ALBUMS_NAME);
 
-  grl_media_set_id    (GRL_MEDIA (db->priv->artists_container), ARTISTS_ID);
+  grl_media_set_id (GRL_MEDIA (db->priv->artists_container), ARTISTS_ID);
   grl_media_set_title (GRL_MEDIA (db->priv->artists_container), ARTISTS_NAME);
 
   db->priv->root    = g_hash_table_new_full (container_hash, container_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);
@@ -426,9 +416,9 @@ grl_daap_db_finalize (GObject *object)
 
 static void
 grl_daap_db_set_property (GObject *object,
-                             guint prop_id,
-                             const GValue *value,
-                             GParamSpec *pspec)
+                          guint prop_id,
+                          const GValue *value,
+                          GParamSpec *pspec)
 {
   switch (prop_id) {
   default:
@@ -439,9 +429,9 @@ grl_daap_db_set_property (GObject *object,
 
 static void
 grl_daap_db_get_property (GObject *object,
-                             guint prop_id,
-                             GValue *value,
-                             GParamSpec *pspec)
+                          guint prop_id,
+                          GValue *value,
+                          GParamSpec *pspec)
 {
   switch (prop_id) {
   default:

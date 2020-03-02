@@ -25,36 +25,35 @@
 
 G_BEGIN_DECLS
 
-#define TYPE_SIMPLE_DAAP_RECORD                 \
-  (grl_daap_record_get_type ())
+#define TYPE_SIMPLE_DAAP_RECORD (grl_daap_record_get_type ())
 
-#define SIMPLE_DAAP_RECORD(o)                            \
-  (G_TYPE_CHECK_INSTANCE_CAST((o),                       \
-                              TYPE_SIMPLE_DAAP_RECORD,   \
-                              GrlDAAPRecord))
+#define SIMPLE_DAAP_RECORD(o)                                                  \
+  (G_TYPE_CHECK_INSTANCE_CAST ((o),                                            \
+                                TYPE_SIMPLE_DAAP_RECORD,                       \
+                                GrlDAAPRecord))
 
-#define SIMPLE_DAAP_RECORD_CLASS(k)                   \
-  (G_TYPE_CHECK_CLASS_CAST((k),                       \
-                           TYPE_SIMPLE_DAAP_RECORD,   \
-                           GrlDAAPRecordClass))
-
-#define IS_SIMPLE_DAAP_RECORD(o)                         \
-  (G_TYPE_CHECK_INSTANCE_TYPE((o),                       \
-                              TYPE_SIMPLE_DAAP_RECORD))
-
-#define IS_SIMPLE_DAAP_RECORD_CLASS(k)                      \
-  (G_TYPE_CHECK_CLASS_TYPE((k),                             \
-                           TYPE_SIMPLE_DAAP_RECORD_CLASS))
-
-#define SIMPLE_DAAP_RECORD_GET_CLASS(o)               \
-  (G_TYPE_INSTANCE_GET_CLASS((o),                     \
-                             TYPE_SIMPLE_DAAP_RECORD, \
+#define SIMPLE_DAAP_RECORD_CLASS(k)                                            \
+  (G_TYPE_CHECK_CLASS_CAST ((k),                                               \
+                             TYPE_SIMPLE_DAAP_RECORD,                          \
                              GrlDAAPRecordClass))
 
-#define SIMPLE_DAAP_RECORD_GET_PRIVATE(o)                \
-  (G_TYPE_INSTANCE_GET_PRIVATE((o),                      \
-                               TYPE_SIMPLE_DAAP_RECORD,  \
-                               GrlDAAPRecordPrivate))
+#define IS_SIMPLE_DAAP_RECORD(o)                                               \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((o),                                            \
+                                TYPE_SIMPLE_DAAP_RECORD))
+
+#define IS_SIMPLE_DAAP_RECORD_CLASS(k)                                         \
+  (G_TYPE_CHECK_CLASS_TYPE ((k),                                               \
+                             TYPE_SIMPLE_DAAP_RECORD_CLASS))
+
+#define SIMPLE_DAAP_RECORD_GET_CLASS(o)                                        \
+  (G_TYPE_INSTANCE_GET_CLASS ((o),                                             \
+                               TYPE_SIMPLE_DAAP_RECORD,                        \
+                               GrlDAAPRecordClass))
+
+#define SIMPLE_DAAP_RECORD_GET_PRIVATE(o)                                      \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((o),                                           \
+                                 TYPE_SIMPLE_DAAP_RECORD,                      \
+                                 GrlDAAPRecordPrivate))
 
 typedef struct GrlDAAPRecordPrivate GrlDAAPRecordPrivate;
 
@@ -69,9 +68,9 @@ typedef struct {
 
 GType grl_daap_record_get_type (void);
 
-GrlDAAPRecord *grl_daap_record_new    (void);
-GInputStream     *grl_daap_record_read   (DAAPRecord *record, GError **error);
-gint              grl_daap_record_get_id (DAAPRecord *record);
+GrlDAAPRecord *grl_daap_record_new (void);
+GInputStream *grl_daap_record_read (DAAPRecord *record, GError **error);
+gint grl_daap_record_get_id (DAAPRecord *record);
 
 #endif /* __SIMPLE_DAAP_RECORD */
 

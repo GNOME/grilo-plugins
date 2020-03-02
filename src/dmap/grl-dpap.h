@@ -26,31 +26,30 @@
 
 #include <grilo.h>
 
-#define GRL_DPAP_SOURCE_TYPE                    \
-  (grl_dpap_source_get_type ())
+#define GRL_DPAP_SOURCE_TYPE (grl_dpap_source_get_type ())
 
-#define GRL_DPAP_SOURCE(obj)                          \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj),                 \
-                               GRL_DPAP_SOURCE_TYPE,  \
-                               GrlDpapSource))
+#define GRL_DPAP_SOURCE(obj)                                                   \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj),                                          \
+                                GRL_DPAP_SOURCE_TYPE,                          \
+                                GrlDpapSource))
 
-#define GRL_IS_DPAP_SOURCE(obj)                       \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj),                 \
-                               GRL_DPAP_SOURCE_TYPE))
+#define GRL_IS_DPAP_SOURCE(obj)                                                \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj),                                          \
+                                GRL_DPAP_SOURCE_TYPE))
 
-#define GRL_DPAP_SOURCE_CLASS(klass)               \
-  (G_TYPE_CHECK_CLASS_CAST((klass),                \
-                           GRL_DPAP_SOURCE_TYPE,   \
-                           GrlDpapSourceClass))
+#define GRL_DPAP_SOURCE_CLASS(klass)                                           \
+  (G_TYPE_CHECK_CLASS_CAST ((klass),                                           \
+                             GRL_DPAP_SOURCE_TYPE,                             \
+                             GrlDpapSourceClass))
 
-#define GRL_IS_DPAP_SOURCE_CLASS(klass)            \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),                \
-                           GRL_DPAP_SOURCE_TYPE))
+#define GRL_IS_DPAP_SOURCE_CLASS(klass)                                        \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass),                                           \
+                             GRL_DPAP_SOURCE_TYPE))
 
-#define GRL_DPAP_SOURCE_GET_CLASS(obj)                \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj),                  \
-                              GRL_DPAP_SOURCE_TYPE,   \
-                              GrlDpapSourceClass))
+#define GRL_DPAP_SOURCE_GET_CLASS(obj)                                         \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj),                                           \
+                               GRL_DPAP_SOURCE_TYPE,                           \
+                               GrlDpapSourceClass))
 
 typedef struct _GrlDpapSourcePrivate GrlDpapSourcePrivate;
 typedef struct _GrlDpapSource  GrlDpapSource;

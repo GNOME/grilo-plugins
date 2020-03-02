@@ -22,9 +22,9 @@
 #include "grl-dpap-record.h"
 
 DMAPRecord *
-grl_dpap_record_factory_create  (DMAPRecordFactory *factory, gpointer user_data)
+grl_dpap_record_factory_create (DMAPRecordFactory *factory, gpointer user_data)
 {
-	return DMAP_RECORD (grl_dpap_record_new ());
+  return DMAP_RECORD (grl_dpap_record_new ());
 }
 
 static void
@@ -40,19 +40,19 @@ grl_dpap_record_factory_class_init (GrlDPAPRecordFactoryClass *klass)
 static void
 grl_dpap_record_factory_interface_init (gpointer iface, gpointer data)
 {
-	DMAPRecordFactoryIface *factory = iface;
+  DMAPRecordFactoryIface *factory = iface;
 
-	g_assert (G_TYPE_FROM_INTERFACE (factory) == DMAP_TYPE_RECORD_FACTORY);
+  g_assert (G_TYPE_FROM_INTERFACE (factory) == DMAP_TYPE_RECORD_FACTORY);
 
-	factory->create = grl_dpap_record_factory_create;
+  factory->create = grl_dpap_record_factory_create;
 }
 
 G_DEFINE_TYPE_WITH_CODE (GrlDPAPRecordFactory, grl_dpap_record_factory, G_TYPE_OBJECT,
-			 G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD_FACTORY,
-					        grl_dpap_record_factory_interface_init))
+                         G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD_FACTORY,
+                                                grl_dpap_record_factory_interface_init))
 
 GrlDPAPRecordFactory *
 grl_dpap_record_factory_new (void)
 {
-	return SIMPLE_DPAP_RECORD_FACTORY (g_object_new (TYPE_SIMPLE_DPAP_RECORD_FACTORY, NULL));
+  return SIMPLE_DPAP_RECORD_FACTORY (g_object_new (TYPE_SIMPLE_DPAP_RECORD_FACTORY, NULL));
 }

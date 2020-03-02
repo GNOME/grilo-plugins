@@ -69,9 +69,9 @@ enum {
 
 static void
 grl_daap_record_set_property (GObject *object,
-                                 guint prop_id,
-                                 const GValue *value,
-                                 GParamSpec *pspec)
+                              guint prop_id,
+                              const GValue *value,
+                              GParamSpec *pspec)
 {
   GrlDAAPRecord *record = SIMPLE_DAAP_RECORD (object);
 
@@ -86,27 +86,27 @@ grl_daap_record_set_property (GObject *object,
     break;
   case PROP_ALBUM:
     g_free (record->priv->album);
-    record->priv->album = g_value_dup_string(value);
+    record->priv->album = g_value_dup_string (value);
     break;
   case PROP_SORT_ALBUM:
     g_free (record->priv->sort_album);
-    record->priv->sort_album = g_value_dup_string(value);
+    record->priv->sort_album = g_value_dup_string (value);
     break;
   case PROP_ARTIST:
     g_free (record->priv->artist);
-    record->priv->artist = g_value_dup_string(value);
+    record->priv->artist = g_value_dup_string (value);
     break;
   case PROP_SORT_ARTIST:
     g_free (record->priv->sort_artist);
-    record->priv->sort_artist = g_value_dup_string(value);
+    record->priv->sort_artist = g_value_dup_string (value);
     break;
   case PROP_GENRE:
     g_free (record->priv->genre);
-    record->priv->genre = g_value_dup_string(value);
+    record->priv->genre = g_value_dup_string (value);
     break;
   case PROP_FORMAT:
     g_free (record->priv->format);
-    record->priv->format = g_value_dup_string(value);
+    record->priv->format = g_value_dup_string (value);
     break;
   case PROP_MEDIAKIND:
     record->priv->mediakind = g_value_get_enum (value);
@@ -142,18 +142,16 @@ grl_daap_record_set_property (GObject *object,
     record->priv->has_video = g_value_get_boolean (value);
     break;
   default:
-    G_OBJECT_WARN_INVALID_PROPERTY_ID (object,
-                                       prop_id,
-                                       pspec);
+    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
   }
 }
 
 static void
 grl_daap_record_get_property (GObject *object,
-                                 guint prop_id,
-                                 GValue *value,
-                                 GParamSpec *pspec)
+                              guint prop_id,
+                              GValue *value,
+                              GParamSpec *pspec)
 {
   GrlDAAPRecord *record = SIMPLE_DAAP_RECORD (object);
 
@@ -216,9 +214,7 @@ grl_daap_record_get_property (GObject *object,
     g_value_set_boolean (value, record->priv->has_video);
     break;
   default:
-    G_OBJECT_WARN_INVALID_PROPERTY_ID (object,
-                                       prop_id,
-                                       pspec);
+    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
   }
 }

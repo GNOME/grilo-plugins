@@ -25,36 +25,35 @@
 
 G_BEGIN_DECLS
 
-#define TYPE_SIMPLE_DPAP_RECORD                 \
-  (grl_dpap_record_get_type ())
+#define TYPE_SIMPLE_DPAP_RECORD (grl_dpap_record_get_type ())
 
-#define SIMPLE_DPAP_RECORD(o)                            \
-  (G_TYPE_CHECK_INSTANCE_CAST((o),                       \
-                              TYPE_SIMPLE_DPAP_RECORD,   \
-                              GrlDPAPRecord))
+#define SIMPLE_DPAP_RECORD(o)                                                  \
+  (G_TYPE_CHECK_INSTANCE_CAST ((o),                                            \
+                                TYPE_SIMPLE_DPAP_RECORD,                       \
+                                GrlDPAPRecord))
 
-#define SIMPLE_DPAP_RECORD_CLASS(k)                   \
-  (G_TYPE_CHECK_CLASS_CAST((k),                       \
-                           TYPE_SIMPLE_DPAP_RECORD,   \
-                           GrlDPAPRecordClass))
-
-#define IS_SIMPLE_DPAP_RECORD(o)                         \
-  (G_TYPE_CHECK_INSTANCE_TYPE((o),                       \
-                              TYPE_SIMPLE_DPAP_RECORD))
-
-#define IS_SIMPLE_DPAP_RECORD_CLASS(k)                      \
-  (G_TYPE_CHECK_CLASS_TYPE((k),                             \
-                           TYPE_SIMPLE_DPAP_RECORD_CLASS))
-
-#define SIMPLE_DPAP_RECORD_GET_CLASS(o)               \
-  (G_TYPE_INSTANCE_GET_CLASS((o),                     \
-                             TYPE_SIMPLE_DPAP_RECORD, \
+#define SIMPLE_DPAP_RECORD_CLASS(k)                                            \
+  (G_TYPE_CHECK_CLASS_CAST ((k),                                               \
+                             TYPE_SIMPLE_DPAP_RECORD,                          \
                              GrlDPAPRecordClass))
 
-#define SIMPLE_DPAP_RECORD_GET_PRIVATE(o)                \
-  (G_TYPE_INSTANCE_GET_PRIVATE((o),                      \
-                               TYPE_SIMPLE_DPAP_RECORD,  \
-                               GrlDPAPRecordPrivate))
+#define IS_SIMPLE_DPAP_RECORD(o)                                               \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((o),                                            \
+                                TYPE_SIMPLE_DPAP_RECORD))
+
+#define IS_SIMPLE_DPAP_RECORD_CLASS(k)                                         \
+  (G_TYPE_CHECK_CLASS_TYPE ((k),                                               \
+                            TYPE_SIMPLE_DPAP_RECORD_CLASS))
+
+#define SIMPLE_DPAP_RECORD_GET_CLASS(o)                                        \
+  (G_TYPE_INSTANCE_GET_CLASS ((o),                                             \
+                              TYPE_SIMPLE_DPAP_RECORD,                         \
+                              GrlDPAPRecordClass))
+
+#define SIMPLE_DPAP_RECORD_GET_PRIVATE(o)                                      \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((o),                                           \
+                                TYPE_SIMPLE_DPAP_RECORD,                       \
+                                GrlDPAPRecordPrivate))
 
 typedef struct GrlDPAPRecordPrivate GrlDPAPRecordPrivate;
 
@@ -69,9 +68,9 @@ typedef struct {
 
 GType grl_dpap_record_get_type (void);
 
-GrlDPAPRecord    *grl_dpap_record_new    (void);
-GInputStream     *grl_dpap_record_read   (DPAPRecord *record, GError **error);
-gint              grl_dpap_record_get_id (DPAPRecord *record);
+GrlDPAPRecord *grl_dpap_record_new (void);
+GInputStream *grl_dpap_record_read (DPAPRecord *record, GError **error);
+gint grl_dpap_record_get_id (DPAPRecord *record);
 
 #endif /* __SIMPLE_DPAP_RECORD */
 

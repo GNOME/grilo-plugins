@@ -61,9 +61,9 @@ G_DEFINE_TYPE_WITH_CODE (GrlDPAPRecord, grl_dpap_record, G_TYPE_OBJECT,
 
 static void
 grl_dpap_record_set_property (GObject *object,
-                                guint prop_id,
-                                const GValue *value,
-                                GParamSpec *pspec)
+                              guint prop_id,
+                              const GValue *value,
+                              GParamSpec *pspec)
 {
   GrlDPAPRecord *record = SIMPLE_DPAP_RECORD (object);
 
@@ -116,9 +116,9 @@ grl_dpap_record_set_property (GObject *object,
 
 static void
 grl_dpap_record_get_property (GObject *object,
-                                 guint prop_id,
-                                 GValue *value,
-                                 GParamSpec *pspec)
+                              guint prop_id,
+                              GValue *value,
+                              GParamSpec *pspec)
 {
   GrlDPAPRecord *record = SIMPLE_DPAP_RECORD (object);
 

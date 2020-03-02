@@ -42,7 +42,7 @@
 /* --------- Logging  -------- */
 
 #define GRL_LOG_DOMAIN_DEFAULT daap_log_domain
-GRL_LOG_DOMAIN_STATIC(daap_log_domain);
+GRL_LOG_DOMAIN_STATIC (daap_log_domain);
 
 /* --- Plugin information --- */
 
@@ -111,19 +111,19 @@ grl_daap_plugin_init (GrlRegistry *registry,
   sources     = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 
   g_signal_connect (G_OBJECT (browser),
-                    "service-added",
+                   "service-added",
                     G_CALLBACK (grl_daap_service_added_cb),
                     (gpointer) plugin);
 
   g_signal_connect (G_OBJECT (browser),
-                    "service-removed",
+                   "service-removed",
                     G_CALLBACK (grl_daap_service_removed_cb),
                     (gpointer) plugin);
 
   if (!dmap_mdns_browser_start (browser, &error)) {
     GRL_DEBUG ("error starting browser. code: %d message: %s",
-               error->code,
-               error->message);
+                error->code,
+                error->message);
     g_error_free (error);
 
     g_hash_table_unref (connections);
@@ -138,12 +138,12 @@ grl_daap_plugin_init (GrlRegistry *registry,
 GRL_PLUGIN_DEFINE (GRL_MAJOR,
                    GRL_MINOR,
                    DAAP_PLUGIN_ID,
-                   "DAAP",
-                   "A plugin for browsing DAAP servers",
-                   "W. Michael Petullo",
+                  "DAAP",
+                  "A plugin for browsing DAAP servers",
+                  "W. Michael Petullo",
                    VERSION,
-                   "LGPL",
-                   "http://www.flyn.org",
+                  "LGPL",
+                  "http://www.flyn.org",
                    grl_daap_plugin_init,
                    NULL,
                    NULL);
@@ -166,10 +166,10 @@ grl_daap_source_new (DMAPMdnsBrowserService *service)
   source_id = g_strdup_printf (SOURCE_ID_TEMPLATE, service->name);
 
   source = g_object_new (GRL_DAAP_SOURCE_TYPE,
-                         "source-id",   source_id,
-                         "source-name", service->name,
-                         "source-desc", source_desc,
-                         "supported-media", GRL_SUPPORTED_MEDIA_AUDIO,
+                        "source-id",   source_id,
+                        "source-name", service->name,
+                        "source-desc", source_desc,
+                        "supported-media", GRL_SUPPORTED_MEDIA_AUDIO,
                          NULL);
 
   source->priv->service = service;
@@ -209,14 +209,14 @@ grl_daap_source_finalize (GObject *object)
 static void
 grl_daap_do_browse (ResultCbAndArgsAndDb *cb_and_db)
 {
-  grl_daap_db_browse(GRL_DAAP_DB(cb_and_db->db),
-                     cb_and_db->cb.container,
-                     cb_and_db->cb.source,
-                     cb_and_db->cb.op_id,
-                     cb_and_db->cb.skip,
-                     cb_and_db->cb.count,
-                     cb_and_db->cb.callback,
-                     cb_and_db->cb.user_data);
+  grl_daap_db_browse (GRL_DAAP_DB(cb_and_db->db),
+                      cb_and_db->cb.container,
+                      cb_and_db->cb.source,
+                      cb_and_db->cb.op_id,
+                      cb_and_db->cb.skip,
+                      cb_and_db->cb.count,
+                      cb_and_db->cb.callback,
+                      cb_and_db->cb.user_data);
 
   g_free (cb_and_db);
 }
@@ -224,13 +224,13 @@ grl_daap_do_browse (ResultCbAndArgsAndDb *cb_and_db)
 static void
 grl_daap_do_search (ResultCbAndArgsAndDb *cb_and_db)
 {
-  grl_daap_db_search(GRL_DAAP_DB(cb_and_db->db),
-                     cb_and_db->cb.source,
-                     cb_and_db->cb.op_id,
-                     (GHRFunc) cb_and_db->cb.predicate,
-                     cb_and_db->cb.predicate_data,
-                     cb_and_db->cb.callback,
-                     cb_and_db->cb.user_data);
+  grl_daap_db_search (GRL_DAAP_DB (cb_and_db->db),
+                      cb_and_db->cb.source,
+                      cb_and_db->cb.op_id,
+                      (GHRFunc) cb_and_db->cb.predicate,
+                      cb_and_db->cb.predicate_data,
+                      cb_and_db->cb.callback,
+                      cb_and_db->cb.user_data);
 
   g_free (cb_and_db);
 }

@@ -80,8 +80,8 @@ grl_dpap_db_lookup_by_id (const DMAPDb *db, guint id)
 
 static void
 grl_dpap_db_foreach (const DMAPDb *db,
-                        GHFunc func,
-                        gpointer data)
+                     GHFunc func,
+                     gpointer data)
 {
   g_warning ("Not implemented");
 }
@@ -103,7 +103,7 @@ set_insert (GHashTable *category, const char *category_name, char *set_name, Grl
   id = g_strdup_printf ("%s-%s", category_name, set_name);
 
   container = grl_media_container_new ();
-  grl_media_set_id    (container, id);
+  grl_media_set_id (container, id);
   grl_media_set_title (container, set_name);
 
   set = g_hash_table_lookup (category, container);
@@ -142,35 +142,24 @@ grl_dpap_db_add (DMAPDb *_db, DMAPRecord *_record)
   GrlMedia   *media;
 
   g_object_get (record,
-               "large-filesize",
-               &largefilesize,
-               "creation-date",
-               &creationdate,
-               "rating",
-               &rating,
-               "filename",
-               &filename,
-               "aspect-ratio",
-               &aspectratio,
-               "pixel-height",
-               &height,
-               "pixel-width",
-               &width,
-               "format",
-               &format,
-               "comments",
-               &comments,
-               "thumbnail",
-               &thumbnail,
-               "location",
-               &url,
+               "large-filesize", &largefilesize,
+               "creation-date", &creationdate,
+               "rating", &rating,
+               "filename", &filename,
+               "aspect-ratio", &aspectratio,
+               "pixel-height", &height,
+               "pixel-width", &width,
+               "format", &format,
+               "comments", &comments,
+               "thumbnail", &thumbnail,
+               "location", &url,
                 NULL);
 
   id_s = g_strdup_printf ("%u", nextid);
 
   media = grl_media_image_new ();
 
-  grl_media_set_id           (media, id_s);
+  grl_media_set_id (media, id_s);
 
   if (filename)
     grl_media_set_title (media, filename);
@@ -181,7 +170,7 @@ grl_dpap_db_add (DMAPDb *_db, DMAPRecord *_record)
     grl_media_set_url (media, url);
   }
 
-  grl_media_set_width  (media, width);
+  grl_media_set_width (media, width);
   grl_media_set_height (media, height);
 
   set_insert (db->priv->photos,  PHOTOS_ID, "Unknown",  media);
@@ -195,7 +184,7 @@ grl_dpap_db_add (DMAPDb *_db, DMAPRecord *_record)
 static gboolean
 same_media (GrlMedia *a, GrlMedia *b)
 {
-  return (strcmp (grl_media_get_id (a), grl_media_get_id (b)) == 0);
+  return strcmp (grl_media_get_id (a), grl_media_get_id (b)) == 0;
 }
 
 void
@@ -230,7 +219,7 @@ grl_dpap_db_browse (GrlDPAPDb *db,
   if (hash_table == NULL) {
     GError *error = g_error_new (GRL_CORE_ERROR,
                                  GRL_CORE_ERROR_BROWSE_FAILED,
-                                 "Invalid container identifier %s",
+                                "Invalid container identifier %s",
                                  container_id);
     func (source, op_id, NULL, 0, user_data, error);
     goto done;
@@ -334,7 +323,7 @@ grl_dpap_db_init (GrlDPAPDb *db)
 
   db->priv->photos_container  = grl_media_container_new ();
 
-  grl_media_set_id    (GRL_MEDIA (db->priv->photos_container), PHOTOS_ID);
+  grl_media_set_id (GRL_MEDIA (db->priv->photos_container), PHOTOS_ID);
   grl_media_set_title (GRL_MEDIA (db->priv->photos_container), PHOTOS_NAME);
 
   db->priv->root   = g_hash_table_new_full (container_hash, container_equal, g_object_unref, (GDestroyNotify) g_hash_table_destroy);

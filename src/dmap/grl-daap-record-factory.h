@@ -25,31 +25,30 @@
 
 G_BEGIN_DECLS
 
-#define TYPE_SIMPLE_DAAP_RECORD_FACTORY         \
-  (grl_daap_record_factory_get_type ())
+#define TYPE_SIMPLE_DAAP_RECORD_FACTORY (grl_daap_record_factory_get_type ())
 
-#define SIMPLE_DAAP_RECORD_FACTORY(o)                          \
-  (G_TYPE_CHECK_INSTANCE_CAST((o),                             \
-                              TYPE_SIMPLE_DAAP_RECORD_FACTORY, \
-                              GrlDAAPRecordFactory))
+#define SIMPLE_DAAP_RECORD_FACTORY(o)                                          \
+  (G_TYPE_CHECK_INSTANCE_CAST ((o),                                            \
+                                TYPE_SIMPLE_DAAP_RECORD_FACTORY,               \
+                                GrlDAAPRecordFactory))
 
-#define SIMPLE_DAAP_RECORD_FACTORY_CLASS(k)                 \
-  (G_TYPE_CHECK_CLASS_CAST((k),                             \
-                           TYPE_SIMPLE_DAAP_RECORD_FACTORY, \
-                           GrlDAAPRecordFactoryClass))
-
-#define IS_SIMPLE_DAAP_RECORD_FACTORY(o)                          \
-  (G_TYPE_CHECK_INSTANCE_TYPE((o),                                \
-                              TYPE_SIMPLE_DAAP_RECORD_FACTORY))
-
-#define IS_SIMPLE_DAAP_RECORD_FACTORY_CLASS(k)                       \
-  (G_TYPE_CHECK_CLASS_TYPE((k),                                      \
-                           TYPE_SIMPLE_DAAP_RECORD_FACTORY_CLASS))
-
-#define SIMPLE_DAAP_RECORD_FACTORY_GET_CLASS(o)                \
-  (G_TYPE_INSTANCE_GET_CLASS((o),                              \
-                             TYPE_SIMPLE_DAAP_RECORD_FACTORY,  \
+#define SIMPLE_DAAP_RECORD_FACTORY_CLASS(k)                                    \
+  (G_TYPE_CHECK_CLASS_CAST ((k),                                               \
+                             TYPE_SIMPLE_DAAP_RECORD_FACTORY,                  \
                              GrlDAAPRecordFactoryClass))
+
+#define IS_SIMPLE_DAAP_RECORD_FACTORY(o)                                       \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((o),                                            \
+                                TYPE_SIMPLE_DAAP_RECORD_FACTORY))
+
+#define IS_SIMPLE_DAAP_RECORD_FACTORY_CLASS(k)                                 \
+  (G_TYPE_CHECK_CLASS_TYPE ((k),                                               \
+                             TYPE_SIMPLE_DAAP_RECORD_FACTORY_CLASS))
+
+#define SIMPLE_DAAP_RECORD_FACTORY_GET_CLASS(o)                                \
+  (G_TYPE_INSTANCE_GET_CLASS ((o),                                             \
+                               TYPE_SIMPLE_DAAP_RECORD_FACTORY,                \
+                               GrlDAAPRecordFactoryClass))
 
 typedef struct GrlDAAPRecordFactoryPrivate GrlDAAPRecordFactoryPrivate;
 
@@ -61,11 +60,11 @@ typedef struct {
   GObjectClass parent;
 } GrlDAAPRecordFactoryClass;
 
-GType                    grl_daap_record_factory_get_type (void);
+GType grl_daap_record_factory_get_type (void);
 
-GrlDAAPRecordFactory *grl_daap_record_factory_new      (void);
+GrlDAAPRecordFactory *grl_daap_record_factory_new (void);
 
-DMAPRecord              *grl_daap_record_factory_create   (DMAPRecordFactory *factory, gpointer user_data);
+DMAPRecord *grl_daap_record_factory_create (DMAPRecordFactory *factory, gpointer user_data);
 
 #endif /* __SIMPLE_DAAP_RECORD_FACTORY */
 

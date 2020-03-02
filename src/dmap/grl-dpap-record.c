@@ -27,7 +27,7 @@
 #include "grl-common.h"
 #include "grl-dpap-record.h"
 
-struct GrlDPAPRecordPrivate {
+struct GrlDpapRecordPrivate {
   char *location;
   gint largefilesize;
   gint creationdate;
@@ -59,8 +59,8 @@ enum {
 static void grl_dpap_record_dmap_iface_init (gpointer iface, gpointer data);
 static void grl_dpap_record_dpap_iface_init (gpointer iface, gpointer data);
 
-G_DEFINE_TYPE_WITH_CODE (GrlDPAPRecord, grl_dpap_record, G_TYPE_OBJECT,
-                         G_ADD_PRIVATE (GrlDPAPRecord)
+G_DEFINE_TYPE_WITH_CODE (GrlDpapRecord, grl_dpap_record, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (GrlDpapRecord)
                          G_IMPLEMENT_INTERFACE (DMAP_TYPE_IMAGE_RECORD, grl_dpap_record_dpap_iface_init)
                          G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD, grl_dpap_record_dmap_iface_init))
 
@@ -70,7 +70,7 @@ grl_dpap_record_set_property (GObject *object,
                               const GValue *value,
                               GParamSpec *pspec)
 {
-  GrlDPAPRecord *record = SIMPLE_DPAP_RECORD (object);
+  GrlDpapRecord *record = SIMPLE_DPAP_RECORD (object);
 
   switch (prop_id) {
   case PROP_LOCATION:
@@ -123,7 +123,7 @@ grl_dpap_record_get_property (GObject *object,
                               GValue *value,
                               GParamSpec *pspec)
 {
-  GrlDPAPRecord *record = SIMPLE_DPAP_RECORD (object);
+  GrlDpapRecord *record = SIMPLE_DPAP_RECORD (object);
 
   switch (prop_id) {
   case PROP_LOCATION:
@@ -165,7 +165,7 @@ grl_dpap_record_get_property (GObject *object,
   }
 }
 
-GrlDPAPRecord *
+GrlDpapRecord *
 grl_dpap_record_new (void)
 {
   return SIMPLE_DPAP_RECORD (g_object_new (TYPE_SIMPLE_DPAP_RECORD, NULL));
@@ -186,7 +186,7 @@ grl_dpap_record_read (DmapImageRecord *record, GError **error)
 }
 
 static void
-grl_dpap_record_init (GrlDPAPRecord *record)
+grl_dpap_record_init (GrlDpapRecord *record)
 {
   record->priv = grl_dpap_record_get_instance_private (record);
 }
@@ -194,7 +194,7 @@ grl_dpap_record_init (GrlDPAPRecord *record)
 static void grl_dpap_record_finalize (GObject *object);
 
 static void
-grl_dpap_record_class_init (GrlDPAPRecordClass *klass)
+grl_dpap_record_class_init (GrlDpapRecordClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
@@ -236,7 +236,7 @@ grl_dpap_record_dmap_iface_init (gpointer iface, gpointer data)
 static void
 grl_dpap_record_finalize (GObject *object)
 {
-  GrlDPAPRecord *record = SIMPLE_DPAP_RECORD (object);
+  GrlDpapRecord *record = SIMPLE_DPAP_RECORD (object);
 
   g_free (record->priv->location);
   g_free (record->priv->filename);

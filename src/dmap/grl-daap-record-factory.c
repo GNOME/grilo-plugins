@@ -33,12 +33,12 @@ grl_daap_record_factory_create (DmapRecordFactory *factory, gpointer user_data, 
 }
 
 static void
-grl_daap_record_factory_init (GrlDAAPRecordFactory *factory)
+grl_daap_record_factory_init (GrlDaapRecordFactory *factory)
 {
 }
 
 static void
-grl_daap_record_factory_class_init (GrlDAAPRecordFactoryClass *klass)
+grl_daap_record_factory_class_init (GrlDaapRecordFactoryClass *klass)
 {
 }
 
@@ -52,11 +52,11 @@ grl_daap_record_factory_interface_init (gpointer iface, gpointer data)
   factory->create = grl_daap_record_factory_create_compat;
 }
 
-G_DEFINE_TYPE_WITH_CODE (GrlDAAPRecordFactory, grl_daap_record_factory, G_TYPE_OBJECT,
+G_DEFINE_TYPE_WITH_CODE (GrlDaapRecordFactory, grl_daap_record_factory, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (DMAP_TYPE_RECORD_FACTORY,
                                                grl_daap_record_factory_interface_init))
 
-GrlDAAPRecordFactory *
+GrlDaapRecordFactory *
 grl_daap_record_factory_new (void)
 {
   return SIMPLE_DAAP_RECORD_FACTORY (g_object_new (TYPE_SIMPLE_DAAP_RECORD_FACTORY, NULL));

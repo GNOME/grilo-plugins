@@ -33,12 +33,12 @@ G_BEGIN_DECLS
 #define GRL_DAAP_DB(o)                                                         \
   (G_TYPE_CHECK_INSTANCE_CAST ((o),                                            \
                                 TYPE_GRL_DAAP_DB,                              \
-                                GrlDAAPDb))
+                                GrlDaapDb))
 
 #define GRL_DAAP_DB_CLASS(k)                                                   \
   (G_TYPE_CHECK_CLASS_CAST ((k),                                               \
                              TYPE_GRL_DAAP_DB,                                 \
-                             GrlDAAPDbClass))
+                             GrlDaapDbClass))
 #define IS_GRL_DAAP_DB(o)                                                      \
   (G_TYPE_CHECK_INSTANCE_TYPE ((o),                                            \
                                 TYPE_GRL_DAAP_DB))
@@ -50,25 +50,25 @@ G_BEGIN_DECLS
 #define GRL_DAAP_DB_GET_CLASS(o)                                               \
   (G_TYPE_INSTANCE_GET_CLASS ((o),                                             \
                                TYPE_GRL_DAAP_DB,                               \
-                               GrlDAAPDbClass))
+                               GrlDaapDbClass))
 
 #define GRL_DAAP_DB_GET_PRIVATE(o)                                             \
   (G_TYPE_INSTANCE_GET_PRIVATE ((o),                                           \
                                  TYPE_GRL_DAAP_DB,                             \
-                                 GrlDAAPDbPrivate))
+                                 GrlDaapDbPrivate))
 
-typedef struct GrlDAAPDbPrivate GrlDAAPDbPrivate;
+typedef struct GrlDaapDbPrivate GrlDaapDbPrivate;
 
 typedef struct {
   GObject parent;
-  GrlDAAPDbPrivate *priv;
-} GrlDAAPDb;
+  GrlDaapDbPrivate *priv;
+} GrlDaapDb;
 
 typedef struct {
   GObjectClass parent;
-} GrlDAAPDbClass;
+} GrlDaapDbClass;
 
-void grl_daap_db_browse (GrlDAAPDb *db,
+void grl_daap_db_browse (GrlDaapDb *db,
                          GrlMedia *container,
                          GrlSource *source,
                          guint op_id,
@@ -77,7 +77,7 @@ void grl_daap_db_browse (GrlDAAPDb *db,
                          GrlSourceResultCb func,
                          gpointer user_data);
 
-void grl_daap_db_search (GrlDAAPDb *db,
+void grl_daap_db_search (GrlDaapDb *db,
                          GrlSource *source,
                          guint op_id,
                          GHRFunc predicate,
@@ -85,7 +85,7 @@ void grl_daap_db_search (GrlDAAPDb *db,
                          GrlSourceResultCb func,
                          gpointer user_data);
 
-GrlDAAPDb *grl_daap_db_new (void);
+GrlDaapDb *grl_daap_db_new (void);
 
 GType grl_daap_db_get_type (void);
 

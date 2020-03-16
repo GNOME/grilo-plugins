@@ -1,614 +1,632 @@
 # Ukrainian translation for grilo-plugins.
 # Copyright (C) 2014 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
-# Mykola Tkach <Stuartlittle1970@gmail.com>, 2014.
 #
+# Mykola Tkach <Stuartlittle1970@gmail.com>, 2014.
+# Yuri Chornoivan <yurchor@ukr.net>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=grilo-plugins&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-02-05 09:44+0000\n"
-"PO-Revision-Date: 2014-02-06 19:02+0300\n"
-"Last-Translator: Mykola Tkach <Stuartlittle1970@gmail.com>\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
+"POT-Creation-Date: 2020-01-27 16:11+0000\n"
+"PO-Revision-Date: 2020-03-12 20:27+0200\n"
+"Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n"
+"%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Lokalize 20.03.70\n"
 
-#: ../src/apple-trailers/grl-apple-trailers.c:55
-msgid "Apple Movie Trailers"
-msgstr "Трейлери до фільмів Apple"
-
-#: ../src/apple-trailers/grl-apple-trailers.c:56
-msgid "A plugin for browsing Apple Movie Trailers"
-msgstr "Додаток огляду трейлерів до фільмів Apple"
-
-#: ../src/apple-trailers/grl-apple-trailers.c:462
-#: ../src/jamendo/grl-jamendo.c:336
-#: ../src/jamendo/grl-jamendo.c:696
-#: ../src/shoutcast/grl-shoutcast.c:416
-#: ../src/shoutcast/grl-shoutcast.c:472
-msgid "Failed to parse response"
-msgstr "Не вдалося розібрати відповідь"
-
-#: ../src/apple-trailers/grl-apple-trailers.c:470
-#: ../src/jamendo/grl-jamendo.c:344
-#: ../src/jamendo/grl-jamendo.c:351
-#: ../src/podcasts/grl-podcasts.c:1360
-#: ../src/shoutcast/grl-shoutcast.c:424
-msgid "Empty response"
-msgstr "Порожня відповідь"
-
-#: ../src/apple-trailers/grl-apple-trailers.c:529
-#: ../src/jamendo/grl-jamendo.c:666
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:251
-#: ../src/shoutcast/grl-shoutcast.c:565
-#, c-format
-msgid "Failed to connect: %s"
-msgstr "Не вдалося під'єднатися: %s"
-
-#: ../src/bliptv/grl-bliptv.c:60
-msgid "A source for browsing and searching Blip.tv videos"
-msgstr "Джерело для огляду та пошуку відео у Blip.tv"
-
-#: ../src/bookmarks/grl-bookmarks.c:119
+#: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
 msgstr "Закладки"
 
-#: ../src/bookmarks/grl-bookmarks.c:120
+#: src/bookmarks/grl-bookmarks.c:61
 msgid "A source for organizing media bookmarks"
 msgstr "Джерело для організування закладок до медіаконтенту"
 
-#: ../src/bookmarks/grl-bookmarks.c:441
-#: ../src/bookmarks/grl-bookmarks.c:456
+#: src/bookmarks/grl-bookmarks.c:427
 msgid "Failed to get bookmark metadata"
 msgstr "Не вдалося отримати метадані закладки"
 
-#: ../src/bookmarks/grl-bookmarks.c:486
-#: ../src/bookmarks/grl-bookmarks.c:506
+#: src/bookmarks/grl-bookmarks.c:457 src/bookmarks/grl-bookmarks.c:474
 #, c-format
-msgid "Failed to get bookmarks list: %s"
-msgstr "Не вдалося отримати перелік закладок: %s"
+#| msgid "Failed to get bookmarks list: %s"
+msgid "Failed to find bookmarks: %s"
+msgstr "Не вдалося знайти закладки: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:592
-#: ../src/podcasts/grl-podcasts.c:817
-#: ../src/podcasts/grl-podcasts.c:849
-#: ../src/podcasts/grl-podcasts.c:881
+#: src/bookmarks/grl-bookmarks.c:626 src/podcasts/grl-podcasts.c:823
+#: src/podcasts/grl-podcasts.c:855 src/podcasts/grl-podcasts.c:887
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Не вдалося вилучити: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:660
-#: ../src/bookmarks/grl-bookmarks.c:718
-#: ../src/podcasts/grl-podcasts.c:922
-#: ../src/podcasts/grl-podcasts.c:955
-#: ../src/podcasts/grl-podcasts.c:1804
+#: src/bookmarks/grl-bookmarks.c:768 src/podcasts/grl-podcasts.c:928
+#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1813
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Не вдалося зберегти: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:772
-#: ../src/bookmarks/grl-bookmarks.c:807
-#: ../src/bookmarks/grl-bookmarks.c:839
-#: ../src/bookmarks/grl-bookmarks.c:901
-#: ../src/metadata-store/grl-metadata-store.c:852
-#: ../src/podcasts/grl-podcasts.c:1660
-#: ../src/podcasts/grl-podcasts.c:1704
-#: ../src/podcasts/grl-podcasts.c:1738
-#: ../src/podcasts/grl-podcasts.c:1773
+#: src/bookmarks/grl-bookmarks.c:842 src/bookmarks/grl-bookmarks.c:877
+#: src/bookmarks/grl-bookmarks.c:908 src/bookmarks/grl-bookmarks.c:966
+#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1669
+#: src/podcasts/grl-podcasts.c:1713 src/podcasts/grl-podcasts.c:1747
+#: src/podcasts/grl-podcasts.c:1782
 msgid "No database connection"
 msgstr "Немає з'єднання з базою даних"
 
-#: ../src/dmap/grl-dmap.c:51
+#: src/chromaprint/grl-chromaprint.c:41
+#| msgid "A plugin for storing extra metadata information"
+msgid "A plugin to get metadata using gstreamer framework"
+msgstr "Додаток для отримання метаданих за допомогою бібліотек gstreamer"
+
+#: src/dleyna/grl-dleyna-source.c:34
 #, c-format
-msgid "A source for browsing the DMAP server '%s'"
-msgstr "Джерело для огляду сервера DMAP «%s»"
+#| msgid "A source for browsing the DMAP server '%s'"
+msgid "A source for browsing the DLNA server “%s”"
+msgstr "Джерело для огляду сервера DLNA «%s»"
 
-#: ../src/filesystem/grl-filesystem.c:77
-msgid "Filesystem"
-msgstr "Файлова система"
+#: src/dleyna/grl-dleyna-source.c:273
+msgid "Upload failed, target source destroyed"
+msgstr "Не вдалося вивантажити, джерело призначення було знищено"
 
-#: ../src/filesystem/grl-filesystem.c:78
-msgid "A source for browsing the filesystem"
-msgstr "Джерело для огляду файлової системи"
-
-#: ../src/filesystem/grl-filesystem.c:1343
+#: src/dleyna/grl-dleyna-source.c:375
 #, c-format
-msgid "File %s does not exist"
-msgstr "Файл %s не існує"
+msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
+msgstr "Не вдалося вивантажити, «%s», передано %lu з %lu байтів"
 
-#: ../src/filesystem/grl-filesystem.c:1420
-#: ../src/youtube/grl-youtube.c:1638
+#: src/dleyna/grl-dleyna-source.c:880
 #, c-format
-msgid "Cannot get media from %s"
-msgstr "Не вдалося отримати медіаконтент з %s"
+msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
+msgstr "Не вдалося отримати властивості запису (помилка BrowseObjects %d: %s)"
 
-#: ../src/flickr/grl-flickr.c:63
-msgid "A source for browsing and searching Flickr photos"
-msgstr "Джерело для огляду та пошуку фотографій Flickr"
-
-#. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:67
+#: src/dleyna/grl-dleyna-source.c:1519
 #, c-format
-msgid "%s's Flickr"
-msgstr "Flickr користувача %s"
+msgid "Upload failed, URL missing on the media object to be transferred"
+msgstr ""
+"Не вдалося вивантажити, у мультимедійному об'єкті не вказано адреси для"
+" перенесення даних"
 
-#. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:69
+#: src/dmap/grl-daap.c:50
 #, c-format
-msgid "A source for browsing and searching %s's flickr photos"
-msgstr "Джерело для огляду та пошуку фотографій flickr користувача %s"
+#| msgid "A source for browsing the DMAP server '%s'"
+msgid "A source for browsing the DAAP server “%s”"
+msgstr "Джерело для огляду сервера DAAP «%s»"
 
-#: ../src/gravatar/grl-gravatar.c:48
-msgid "Avatar provider from Gravatar"
-msgstr "Постачальник аватарів від Gravatar"
-
-#: ../src/gravatar/grl-gravatar.c:49
-msgid "A plugin to get avatars for artist and author fields"
-msgstr "Додаток отримання аватарів за полями «Виконавець» та «Автор»"
-
-#: ../src/jamendo/grl-jamendo.c:93
-msgid "A source for browsing and searching Jamendo music"
-msgstr "Джерело для огляду та пошуку музики Jamendo"
-
-#: ../src/jamendo/grl-jamendo.c:149
-msgid "Albums of the week"
-msgstr "Альбоми тижня"
-
-#: ../src/jamendo/grl-jamendo.c:151
-msgid "Tracks of the week"
-msgstr "Треки тижня"
-
-#: ../src/jamendo/grl-jamendo.c:153
-msgid "New releases"
-msgstr "Нові випуски"
-
-#: ../src/jamendo/grl-jamendo.c:155
-msgid "Top artists"
-msgstr "Верхівка виконавців"
-
-#: ../src/jamendo/grl-jamendo.c:157
-msgid "Top albums"
-msgstr "Верхівка альбомів"
-
-#: ../src/jamendo/grl-jamendo.c:159
-msgid "Top tracks"
-msgstr "Верхівка доріжок"
-
-#: ../src/jamendo/grl-jamendo.c:774
-#: ../src/magnatune/grl-magnatune.c:120
-msgid "Artists"
-msgstr "Виконавці"
-
-#: ../src/jamendo/grl-jamendo.c:785
-#: ../src/magnatune/grl-magnatune.c:121
+#: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:788
+#: src/magnatune/grl-magnatune.c:122
 msgid "Albums"
 msgstr "Альбоми"
 
-#: ../src/jamendo/grl-jamendo.c:796
-msgid "Feeds"
-msgstr "Канали"
+#: src/dmap/grl-daap-db.c:64 src/jamendo/grl-jamendo.c:777
+#: src/magnatune/grl-magnatune.c:121
+msgid "Artists"
+msgstr "Виконавці"
 
-#: ../src/jamendo/grl-jamendo.c:982
-#: ../src/jamendo/grl-jamendo.c:1027
-#: ../src/jamendo/grl-jamendo.c:1054
-#, c-format
-msgid "Invalid identifier %s"
-msgstr "Некоректний ідентифікатор %s"
-
-#: ../src/jamendo/grl-jamendo.c:1041
-#: ../src/youtube/grl-youtube.c:1202
-#: ../src/youtube/grl-youtube.c:1345
-#: ../src/youtube/grl-youtube.c:1565
-#, c-format
-msgid "Invalid category identifier %s"
-msgstr "Некоректний ідентифікатор категорії %s"
-
-#: ../src/jamendo/grl-jamendo.c:1116
-#: ../src/jamendo/grl-jamendo.c:1191
-#: ../src/magnatune/grl-magnatune.c:829
+#: src/dmap/grl-daap-db.c:292 src/jamendo/grl-jamendo.c:1115
+#: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Некоректний ідентифікатор контейнера %s"
 
-#: ../src/jamendo/grl-jamendo.c:1186
+#: src/dmap/grl-dpap.c:50
+#, c-format
+#| msgid "A source for browsing the DMAP server '%s'"
+msgid "A source for browsing the DPAP server “%s”"
+msgstr "Джерело для огляду сервера DPAP «%s»"
+
+#: src/dmap/grl-dpap-db.c:36
+msgid "Photos"
+msgstr "Фотографії"
+
+#: src/filesystem/grl-filesystem.c:58
+msgid "Filesystem"
+msgstr "Файлова система"
+
+#: src/filesystem/grl-filesystem.c:59
+msgid "A source for browsing the filesystem"
+msgstr "Джерело для огляду файлової системи"
+
+#: src/filesystem/grl-filesystem.c:1171
+#, c-format
+msgid "File %s does not exist"
+msgstr "Файл %s не існує"
+
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
+#, c-format
+msgid "Cannot get media from %s"
+msgstr "Не вдалося отримати медіаконтент з %s"
+
+#: src/flickr/grl-flickr.c:58
+msgid "A source for browsing and searching Flickr photos"
+msgstr "Джерело для огляду та пошуку фотографій Flickr"
+
+#. "%s" is a full user name, like "John Doe"
+#: src/flickr/grl-flickr.c:62
+#, c-format
+#| msgid "%s's Flickr"
+msgid "%s’s Flickr"
+msgstr "Flickr користувача %s"
+
+#. "%s" is a full user name, like "John Doe"
+#: src/flickr/grl-flickr.c:64
+#, c-format
+#| msgid "A source for browsing and searching %s's flickr photos"
+msgid "A source for browsing and searching %s’s flickr photos"
+msgstr "Джерело для огляду та пошуку фотографій flickr користувача %s"
+
+#: src/freebox/grl-freebox.c:48
+msgid "Freebox TV"
+msgstr "Телебачення Freebox"
+
+#: src/freebox/grl-freebox.c:49
+#| msgid "A source for browsing podcasts"
+msgid "A source for browsing Freebox TV channels"
+msgstr "Джерело для навігації каналами телебачення Freebox"
+
+#: src/freebox/grl-freebox.c:52
+msgid "Freebox Radio"
+msgstr "Радіо Freebox"
+
+#: src/freebox/grl-freebox.c:53
+#| msgid "A source for browsing podcasts"
+msgid "A source for browsing Freebox radio channels"
+msgstr "Джерело для навігації радіоканалами Freebox"
+
+#: src/gravatar/grl-gravatar.c:46
+msgid "Avatar provider from Gravatar"
+msgstr "Постачальник аватарів від Gravatar"
+
+#: src/gravatar/grl-gravatar.c:47
+msgid "A plugin to get avatars for artist and author fields"
+msgstr "Додаток отримання аватарів за полями «Виконавець» та «Автор»"
+
+#: src/jamendo/grl-jamendo.c:91
+msgid "A source for browsing and searching Jamendo music"
+msgstr "Джерело для огляду та пошуку музики Jamendo"
+
+#: src/jamendo/grl-jamendo.c:149
+msgid "Albums of the week"
+msgstr "Альбоми тижня"
+
+#: src/jamendo/grl-jamendo.c:151
+msgid "Tracks of the week"
+msgstr "Треки тижня"
+
+#: src/jamendo/grl-jamendo.c:153
+msgid "New releases"
+msgstr "Нові випуски"
+
+#: src/jamendo/grl-jamendo.c:155
+msgid "Top artists"
+msgstr "Верхівка виконавців"
+
+#: src/jamendo/grl-jamendo.c:157
+msgid "Top albums"
+msgstr "Верхівка альбомів"
+
+#: src/jamendo/grl-jamendo.c:159
+msgid "Top tracks"
+msgstr "Верхівка доріжок"
+
+#: src/jamendo/grl-jamendo.c:341 src/jamendo/grl-jamendo.c:701
+#: src/shoutcast/grl-shoutcast.c:409 src/shoutcast/grl-shoutcast.c:463
+msgid "Failed to parse response"
+msgstr "Не вдалося розібрати відповідь"
+
+#: src/jamendo/grl-jamendo.c:349 src/jamendo/grl-jamendo.c:356
+#: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
+msgid "Empty response"
+msgstr "Порожня відповідь"
+
+#: src/jamendo/grl-jamendo.c:670 src/shoutcast/grl-shoutcast.c:551
+#, c-format
+msgid "Failed to connect: %s"
+msgstr "Не вдалося під'єднатися: %s"
+
+#: src/jamendo/grl-jamendo.c:799
+msgid "Feeds"
+msgstr "Канали"
+
+#: src/jamendo/grl-jamendo.c:983 src/jamendo/grl-jamendo.c:1028
+#: src/jamendo/grl-jamendo.c:1055
+#, c-format
+msgid "Invalid identifier %s"
+msgstr "Некоректний ідентифікатор %s"
+
+#: src/jamendo/grl-jamendo.c:1042 src/youtube/grl-youtube.c:1097
+#: src/youtube/grl-youtube.c:1230 src/youtube/grl-youtube.c:1442
+#, c-format
+msgid "Invalid category identifier %s"
+msgstr "Некоректний ідентифікатор категорії %s"
+
+#: src/jamendo/grl-jamendo.c:1221
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Не вдалося переглянути: %s — доріжка"
 
-#: ../src/jamendo/grl-jamendo.c:1248
+#: src/jamendo/grl-jamendo.c:1280
 #, c-format
-msgid "Malformed query \"%s\""
+#| msgid "Malformed query \"%s\""
+msgid "Malformed query “%s”"
 msgstr "Некоректно сформований запит «%s»"
 
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:60
-msgid "Album art Provider from Last.FM"
-msgstr "Постачальник обкладинок від Last.FM"
-
-#: ../src/lastfm-albumart/grl-lastfm-albumart.c:61
-msgid "A plugin for getting album arts using Last.FM as backend"
-msgstr "Додаток отримання обкладинок через Last.FM"
-
-#: ../src/local-metadata/grl-local-metadata.c:42
+#: src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
 msgstr "Постачальник локальних метаданих"
 
-#: ../src/local-metadata/grl-local-metadata.c:43
+#: src/local-metadata/grl-local-metadata.c:43
 msgid "A source providing locally available metadata"
 msgstr "Джерело, що постачає локально доступні метадані"
 
-#: ../src/local-metadata/grl-local-metadata.c:481
-#: ../src/metadata-store/grl-metadata-store.c:760
-#: ../src/raitv/grl-raitv.c:869
-#: ../src/tracker/grl-tracker-source-api.c:460
+#: src/local-metadata/grl-local-metadata.c:381
+#: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Не вдалося розв'язати: %s"
 
-#: ../src/local-metadata/grl-local-metadata.c:1014
+#: src/local-metadata/grl-local-metadata.c:673
 msgid "Cannot resolve any of the given keys"
 msgstr "Не вдалося розв'язати жодного з наданих ключів"
 
-#: ../src/local-metadata/grl-local-metadata.c:1018
+#: src/local-metadata/grl-local-metadata.c:677
 msgid "A GIO supported URL for images is required"
 msgstr "Для зображень потрібна URL з підтримкою GIO"
 
-#: ../src/magnatune/grl-magnatune.c:122
+#: src/magnatune/grl-magnatune.c:123
 msgid "Genres"
 msgstr "Жанри"
 
-#: ../src/magnatune/grl-magnatune.c:130
+#: src/magnatune/grl-magnatune.c:131
 msgid "A source for browsing music"
 msgstr "Джерело для огляду музики"
 
-#: ../src/magnatune/grl-magnatune.c:406
+#: src/magnatune/grl-magnatune.c:421
 #, c-format
 msgid "Failed to get database from magnatune: %s"
 msgstr "Не вдалося отримати базу даних з magnatune: %s"
 
-#: ../src/magnatune/grl-magnatune.c:436
+#: src/magnatune/grl-magnatune.c:451
 #, c-format
-msgid "Failed to save database from magnatune - '%s'"
+#| msgid "Failed to save database from magnatune - '%s'"
+msgid "Failed to save database from magnatune: “%s”"
 msgstr "Не вдалося зберегти базу даних з magnatune — «%s»"
 
-#: ../src/magnatune/grl-magnatune.c:684
+#: src/magnatune/grl-magnatune.c:722
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
 msgstr "Не вдалося отримати таблицю з бази даних magnatune: %s"
 
-#: ../src/magnatune/grl-magnatune.c:700
+#: src/magnatune/grl-magnatune.c:738
 #, c-format
 msgid "Fail before returning media to user: %s"
 msgstr "Трапилася помилка перед поверненням медіаконтента користувачу: %s"
 
-#: ../src/metadata-store/grl-metadata-store.c:47
+#: src/metadata-store/grl-metadata-store.c:40
 msgid "Metadata Store"
 msgstr "Сховище метаданих"
 
-#: ../src/metadata-store/grl-metadata-store.c:48
+#: src/metadata-store/grl-metadata-store.c:41
 msgid "A plugin for storing extra metadata information"
 msgstr "Додаток зберігання додаткової інформації метаданих"
 
-#: ../src/metadata-store/grl-metadata-store.c:574
-#: ../src/metadata-store/grl-metadata-store.c:593
-#: ../src/metadata-store/grl-metadata-store.c:805
-#: ../src/tracker/grl-tracker-source-api.c:511
+#: src/metadata-store/grl-metadata-store.c:598
+#: src/metadata-store/grl-metadata-store.c:617
+#: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Не вдалося оновити метадані: %s"
 
-#: ../src/metadata-store/grl-metadata-store.c:575
+#: src/metadata-store/grl-metadata-store.c:599
 msgid "specified keys are not writable"
 msgstr "вказані ключі не записувані"
 
-#: ../src/metadata-store/grl-metadata-store.c:615
+#: src/metadata-store/grl-metadata-store.c:639
 msgid "Failed to update metadata"
 msgstr "Не вдалося оновити метадані"
 
-#: ../src/metadata-store/grl-metadata-store.c:761
-#: ../src/metadata-store/grl-metadata-store.c:806
-msgid "\"source-id\" not available"
+#: src/metadata-store/grl-metadata-store.c:785
+#: src/metadata-store/grl-metadata-store.c:830
+#| msgid "\"source-id\" not available"
+msgid "“source-id” not available"
 msgstr "«source-id» недоступний"
 
-#: ../src/metadata-store/grl-metadata-store.c:781
-#: ../src/upnp/grl-upnp.c:1433
+#: src/metadata-store/grl-metadata-store.c:805
 msgid "Failed to resolve"
 msgstr "Не вдалося розв'язати"
 
-#: ../src/metadata-store/grl-metadata-store.c:920
-#: ../src/metadata-store/grl-metadata-store.c:957
-#: ../src/raitv/grl-raitv.c:420
-#: ../src/shoutcast/grl-shoutcast.c:759
-#: ../src/vimeo/grl-vimeo.c:534
+#: src/metadata-store/grl-metadata-store.c:942
+#: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
+#: src/shoutcast/grl-shoutcast.c:749 src/vimeo/grl-vimeo.c:540
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Не вдалося знайти: %s"
 
-#: ../src/optical-media/grl-optical-media.c:46
+#: src/opensubtitles/grl-opensubtitles.c:40
+msgid "OpenSubtitles Provider"
+msgstr "Надавач OpenSubtitles"
+
+#: src/opensubtitles/grl-opensubtitles.c:41
+msgid "A source providing a list of subtitles for a video"
+msgstr "Джерело, яка надає список субтитрів до відео"
+
+#: src/optical-media/grl-optical-media.c:44
 msgid "Optical Media"
 msgstr "Оптичний носій"
 
-#: ../src/optical-media/grl-optical-media.c:47
+#: src/optical-media/grl-optical-media.c:45
 msgid "A source for browsing optical media"
 msgstr "Джерело для огляду оптичних носіїв"
 
-#: ../src/podcasts/grl-podcasts.c:155
+#: src/podcasts/grl-podcasts.c:148
 msgid "A source for browsing podcasts"
 msgstr "Джерело для огляду радіотрансляції"
 
-#: ../src/podcasts/grl-podcasts.c:753
-#: ../src/podcasts/grl-podcasts.c:773
+#: src/podcasts/grl-podcasts.c:759 src/podcasts/grl-podcasts.c:779
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "Не вдалося отримати потоки радіотрансляції: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1239
-#: ../src/podcasts/grl-podcasts.c:1248
-#: ../src/podcasts/grl-podcasts.c:1258
+#: src/podcasts/grl-podcasts.c:1245 src/podcasts/grl-podcasts.c:1254
+#: src/podcasts/grl-podcasts.c:1264
 msgid "Failed to parse content"
 msgstr "Не вдалося розібрати вміст"
 
-#: ../src/podcasts/grl-podcasts.c:1291
+#: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
 msgid "Failed to parse podcast contents"
 msgstr "Не вдалося розібрати вміст радіотрансляції"
 
-#: ../src/podcasts/grl-podcasts.c:1449
+#: src/podcasts/grl-podcasts.c:1459
 msgid "Failed to get podcast information"
 msgstr "Не вдалося отримати інформацію про радіотрансляцію"
 
-#: ../src/podcasts/grl-podcasts.c:1489
-#: ../src/podcasts/grl-podcasts.c:1509
+#: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Не вдалося отримати перелік радіотрансляцій: %s"
 
-#: ../src/podcasts/grl-podcasts.c:1563
-#: ../src/podcasts/grl-podcasts.c:1578
+#: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
 msgid "Failed to get podcast stream metadata"
 msgstr "Не вдалося отримати метадані потоку радіотрансляції"
 
-#: ../src/podcasts/grl-podcasts.c:1616
+#: src/podcasts/grl-podcasts.c:1625
 msgid "Failed to get podcast metadata"
 msgstr "Не вдалося отримати метадані радіотрансляції"
 
-#: ../src/podcasts/grl-podcasts.c:1800
+#: src/podcasts/grl-podcasts.c:1809
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Не вдалося створити контейнери. Допустимі лише подачі"
 
-#: ../src/podcasts/grl-podcasts.c:1805
+#: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
 msgstr "Потрібна URL"
 
-#: ../src/raitv/grl-raitv.c:49
-#: ../src/youtube/grl-youtube.c:78
+#: src/raitv/grl-raitv.c:49 src/youtube/grl-youtube.c:73
 msgid "Most Popular"
 msgstr "Найпопулярніше"
 
-#: ../src/raitv/grl-raitv.c:52
+#: src/raitv/grl-raitv.c:52
 msgid "Recent"
 msgstr "Останнє"
 
-#: ../src/raitv/grl-raitv.c:95
+#: src/raitv/grl-raitv.c:93
 msgid "A source for browsing and searching Rai.tv videos"
 msgstr "Джерело для огляду та пошуку відеозаписів Rai.tv"
 
-#: ../src/raitv/grl-raitv.c:173
+#: src/raitv/grl-raitv.c:164
 msgid "All"
 msgstr "Усе"
 
-#: ../src/raitv/grl-raitv.c:174
+#: src/raitv/grl-raitv.c:165
 msgid "Black and White"
 msgstr "Чорне і біле"
 
-#: ../src/raitv/grl-raitv.c:175
+#: src/raitv/grl-raitv.c:166
 msgid "Cinema"
 msgstr "Кіно"
 
-#: ../src/raitv/grl-raitv.c:176
+#: src/raitv/grl-raitv.c:167
 msgid "Comedians"
 msgstr "Комедії"
 
-#: ../src/raitv/grl-raitv.c:177
+#: src/raitv/grl-raitv.c:168
 msgid "Chronicle"
 msgstr "Хроніка"
 
-#: ../src/raitv/grl-raitv.c:178
+#: src/raitv/grl-raitv.c:169
 msgid "Culture"
 msgstr "Культура"
 
-#: ../src/raitv/grl-raitv.c:179
+#: src/raitv/grl-raitv.c:170
 msgid "Economy"
 msgstr "Економіка"
 
-#: ../src/raitv/grl-raitv.c:180
+#: src/raitv/grl-raitv.c:171
 msgid "Fiction"
 msgstr "Художня література"
 
-#: ../src/raitv/grl-raitv.c:181
+#: src/raitv/grl-raitv.c:172
 msgid "Junior"
 msgstr "Молодь"
 
-#: ../src/raitv/grl-raitv.c:182
+#: src/raitv/grl-raitv.c:173
 msgid "Investigations"
 msgstr "Дослідження"
 
-#: ../src/raitv/grl-raitv.c:183
+#: src/raitv/grl-raitv.c:174
 msgid "Interviews"
 msgstr "Інтерв'ю"
 
-#: ../src/raitv/grl-raitv.c:184
+#: src/raitv/grl-raitv.c:175
 msgid "Music"
 msgstr "Музика"
 
-#: ../src/raitv/grl-raitv.c:185
+#: src/raitv/grl-raitv.c:176
 msgid "News"
 msgstr "Новини"
 
-#: ../src/raitv/grl-raitv.c:186
+#: src/raitv/grl-raitv.c:177
 msgid "Health"
 msgstr "Здоров'я"
 
-#: ../src/raitv/grl-raitv.c:187
+#: src/raitv/grl-raitv.c:178
 msgid "Satire"
 msgstr "Гумор"
 
-#: ../src/raitv/grl-raitv.c:189
+#: src/raitv/grl-raitv.c:180
 msgid "Society"
 msgstr "Суспільство"
 
-#: ../src/raitv/grl-raitv.c:190
+#: src/raitv/grl-raitv.c:181
 msgid "Show"
 msgstr "Розваги"
 
-#: ../src/raitv/grl-raitv.c:191
+#: src/raitv/grl-raitv.c:182
 msgid "Sport"
 msgstr "Спорт"
 
-#: ../src/raitv/grl-raitv.c:192
+#: src/raitv/grl-raitv.c:183
 msgid "History"
 msgstr "Історія"
 
-#: ../src/raitv/grl-raitv.c:193
+#: src/raitv/grl-raitv.c:184
 msgid "Politics"
 msgstr "Політика"
 
-#: ../src/raitv/grl-raitv.c:194
+#: src/raitv/grl-raitv.c:185
 msgid "Leisure"
 msgstr "Дозвілля"
 
-#: ../src/raitv/grl-raitv.c:195
+#: src/raitv/grl-raitv.c:186
 msgid "Travel"
 msgstr "Мандрівки"
 
-#: ../src/raitv/grl-raitv.c:616
+#: src/raitv/grl-raitv.c:616
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Не вдалося виконати огляд: %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:67
+#: src/shoutcast/grl-shoutcast.c:60
 msgid "A source for browsing SHOUTcast radios"
 msgstr "Джерело для огляду радіостанцій SHOUTcast"
 
-#: ../src/shoutcast/grl-shoutcast.c:462
+#: src/shoutcast/grl-shoutcast.c:455
 #, c-format
 msgid "Cannot find media %s"
 msgstr "Не вдалося знайти медіаконтент %s"
 
-#: ../src/shoutcast/grl-shoutcast.c:760
-#: ../src/vimeo/grl-vimeo.c:535
+#: src/shoutcast/grl-shoutcast.c:750 src/vimeo/grl-vimeo.c:541
 msgid "non-NULL search text is required"
 msgstr "Рядок пошуку повинен бути непорожнім"
 
-#: ../src/tmdb/grl-tmdb.c:962
+#: src/thetvdb/grl-thetvdb.c:93
+msgid "A source for fetching metadata of television shows"
+msgstr "Джерело для отримання метаданих щодо телепрограм"
+
+#: src/tmdb/grl-tmdb.c:998
 msgid "Remote data does not contain valid identifier"
 msgstr "Віддалені дані не містять коректного ідентифікатора"
 
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:332
-#: ../src/tracker/grl-tracker-source-api.c:414
+#: src/tracker/grl-tracker-source-api.c:401
+#: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Не вдалося виконати запит: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:628
+#: src/tracker/grl-tracker-source-api.c:585
+#, c-format
+#| msgid "Failed to get database from magnatune: %s"
+msgid "Failed to get media from uri: %s"
+msgstr "Не вдалося отримати мультимедійні дані з адреси: %s"
+
+#: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Порожній запит"
 
-#: ../src/tracker/grl-tracker-source-priv.h:44
+#: src/tracker/grl-tracker-source-api.c:1087
+#, c-format
+msgid "ID “%s” is not known in this source"
+msgstr "Ідентифікатор «%s» є невідомим у цьому джерелі"
+
+#: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Додаток пошуку мультимедійного контенту за допомогою Tracker"
 
-#: ../src/tracker/grl-tracker-utils.c:606
+#: src/tracker/grl-tracker-utils.c:831
 #, c-format
-msgid "Removable - %s"
+#| msgid "Removable - %s"
+msgid "Removable — %s"
 msgstr "Змінний — %s"
 
-#: ../src/tracker/grl-tracker-utils.c:618
+#: src/tracker/grl-tracker-utils.c:843
 msgid "Local files"
 msgstr "Локальні файли"
 
-#: ../src/upnp/grl-upnp.c:53
-#, c-format
-msgid "A source for browsing the UPnP server '%s'"
-msgstr "Джерело для огляду сервера UPnP «%s»"
-
-#: ../src/upnp/grl-upnp.c:1263
-#: ../src/upnp/grl-upnp.c:1320
-msgid "Failed to browse"
-msgstr "Не вдалося виконати огляд"
-
-#: ../src/upnp/grl-upnp.c:1383
-msgid "Failed to query"
-msgstr "Не вдалося виконати запит"
-
-#: ../src/upnp/grl-upnp.c:1502
-#, c-format
-msgid "Unable to listen for changes in %s"
-msgstr "Неможливо відстежити зміни у %s"
-
-#: ../src/vimeo/grl-vimeo.c:58
+#: src/vimeo/grl-vimeo.c:51
 msgid "A source for browsing and searching Vimeo videos"
 msgstr "Джерело для огляду та пошуку відеозаписів Vimeo"
 
-#: ../src/youtube/grl-youtube.c:60
+#: src/youtube/grl-youtube.c:55
 msgid "Standard feeds"
 msgstr "Стандартні подачі"
 
-#: ../src/youtube/grl-youtube.c:63
+#: src/youtube/grl-youtube.c:58
 msgid "Categories"
 msgstr "Категорії"
 
-#: ../src/youtube/grl-youtube.c:69
+#: src/youtube/grl-youtube.c:64
 msgid "Top Rated"
 msgstr "Верхівка найкращих"
 
-#: ../src/youtube/grl-youtube.c:72
+#: src/youtube/grl-youtube.c:67
 msgid "Top Favorites"
 msgstr "Верхівка улюблених"
 
-#: ../src/youtube/grl-youtube.c:75
+#: src/youtube/grl-youtube.c:70
 msgid "Most Viewed"
 msgstr "Найпереглядуваніше"
 
-#: ../src/youtube/grl-youtube.c:81
+#: src/youtube/grl-youtube.c:76
 msgid "Most Recent"
 msgstr "Найостанніше"
 
-#: ../src/youtube/grl-youtube.c:84
+#: src/youtube/grl-youtube.c:79
 msgid "Most Discussed"
 msgstr "Найобговорюваніше"
 
-#: ../src/youtube/grl-youtube.c:87
+#: src/youtube/grl-youtube.c:82
 msgid "Most Linked"
 msgstr "Найадресованіше"
 
-#: ../src/youtube/grl-youtube.c:90
+#: src/youtube/grl-youtube.c:85
 msgid "Most Responded"
 msgstr "Найжвавіше"
 
-#: ../src/youtube/grl-youtube.c:93
+#: src/youtube/grl-youtube.c:88
 msgid "Recently Featured"
 msgstr "Нещодавнє особливе"
 
-#: ../src/youtube/grl-youtube.c:96
+#: src/youtube/grl-youtube.c:91
 msgid "Watch On Mobile"
 msgstr "Дивитися мобільну версію"
 
-#: ../src/youtube/grl-youtube.c:117
+#: src/youtube/grl-youtube.c:110
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Джерело для огляду та пошуку відеозаписів YouTube"
 
-#: ../src/youtube/grl-youtube.c:951
+#: src/youtube/grl-youtube.c:856
 msgid "Failed to get feed"
 msgstr "Не вдалося отримати подачу"
 
-#: ../src/youtube/grl-youtube.c:1129
-#: ../src/youtube/grl-youtube.c:1545
+#: src/youtube/grl-youtube.c:1033 src/youtube/grl-youtube.c:1421
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Некоректний ідентифікатор подачі %s"
-

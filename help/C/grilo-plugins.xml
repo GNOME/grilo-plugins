@@ -87,7 +87,7 @@
 
 <sect1 id="sec-plugin-gravatar">
 <title>Gravatar</title>
-<para>This is a Grilo plugin for Gravatar Its plugin ID is <literal>"grl-gravatar"</literal>.</para>
+<para>This is a Grilo plugin for Gravatar. Its plugin ID is <literal>"grl-gravatar"</literal></para>
 </sect1>
 
 <sect1 id="sec-plugin-jamendo">

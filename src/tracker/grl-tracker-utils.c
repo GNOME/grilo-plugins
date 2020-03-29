@@ -108,6 +108,30 @@ set_favourite (TrackerSparqlCursor *cursor,
 }
 
 static void
+set_genre (TrackerSparqlCursor *cursor,
+           gint                 column,
+           GrlMedia            *media,
+           GrlKeyID             key)
+{
+  /* Tracker concatenetes multiple genres with a comma (vorbis or flac files).
+     ID3 (mp3 files) does not support multiple genres. A usual workaround is
+     to use a delimiter character such as a semi-colon or slashes.
+   */
+  const gchar *str = tracker_sparql_cursor_get_string (cursor, column, NULL);
+  gchar **genres = g_strsplit_set (str, ",;/", -1);
+
+  if (genres) {
+    gint i = 0;
+    gchar *genre = genres[i];
+    while (genre != NULL) {
+      grl_media_add_genre (media, g_strstrip (genre));
+      genre = genres[++i];
+    }
+  }
+  g_strfreev (genres);
+}
+
+static void
 set_title_from_filename (TrackerSparqlCursor *cursor,
                          gint                 column,
                          GrlMedia            *media,
@@ -284,6 +308,12 @@ grl_tracker_setup_key_mappings (void)
                       NULL,
                       "nmm:artistName(nmm:composer(?urn))",
                       "audio");
+
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_GENRE,
+                                  "nfo:genre",
+                                  "nfo:genre(?urn)",
+                                  "audio",
+                                  set_genre);
 
   insert_key_mapping (GRL_METADATA_KEY_SIZE,
                       NULL,

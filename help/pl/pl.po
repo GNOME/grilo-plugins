@@ -1,14 +1,14 @@
 # Polish translation for grilo-plugins help.
-# Copyright © 2018-2019 the grilo-plugins authors.
+# Copyright © 2018-2020 the grilo-plugins authors.
 # This file is distributed under the same license as the grilo-plugins help.
-# Piotr Drąg <piotrdrag@gmail.com>, 2018-2019.
-# Aviary.pl <community-poland@mozilla.org>, 2018-2019.
+# Piotr Drąg <piotrdrag@gmail.com>, 2018-2020.
+# Aviary.pl <community-poland@mozilla.org>, 2018-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins-help\n"
-"POT-Creation-Date: 2019-02-12 01:59+0000\n"
-"PO-Revision-Date: 2019-02-12 12:47+0100\n"
+"POT-Creation-Date: 2020-04-03 20:39+0000\n"
+"PO-Revision-Date: 2020-04-05 10:58+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
 "Language: pl\n"
@@ -22,8 +22,8 @@ msgstr ""
 msgctxt "_"
 msgid "translator-credits"
 msgstr ""
-"Piotr Drąg <piotrdrag@gmail.com>, 2018-2019\n"
-"Aviary.pl <community-poland@mozilla.org>, 2018-2019"
+"Piotr Drąg <piotrdrag@gmail.com>, 2018-2020\n"
+"Aviary.pl <community-poland@mozilla.org>, 2018-2020"
 
 #. (itstool) path: bookinfo/title
 #. (itstool) path: chapter/title
@@ -155,11 +155,11 @@ msgstr "Gravatar"
 #. (itstool) path: sect1/para
 #: C/grilo-plugins.xml:90
 msgid ""
-"This is a Grilo plugin for Gravatar Its plugin ID is <literal>\"grl-gravatar"
-"\"</literal>."
+"This is a Grilo plugin for Gravatar. Its plugin ID is <literal>\"grl-gravatar"
+"\"</literal>"
 msgstr ""
 "To wtyczka Grilo dla serwisu Gravatar. Jej identyfikator to <literal>\"grl-"
-"gravatar\"</literal>."
+"gravatar\"</literal>"
 
 #. (itstool) path: sect1/title
 #: C/grilo-plugins.xml:94

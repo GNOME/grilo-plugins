@@ -1,24 +1,22 @@
 # Danish translation for grilo-plugins.
 # Copyright (C) 2013-16, 2018 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
-#
 # Ask Hjorth Larsen <asklarsen@gmail.com>, 2013-16, 2018.
-# scootergrisen, 2015.
+# scootergrisen, 2015, 2020.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2018-08-01 17:25+0000\n"
-"PO-Revision-Date: 2018-09-01 17:37+0200\n"
-"Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
+"POT-Creation-Date: 2020-04-03 19:54+0000\n"
+"PO-Revision-Date: 2020-04-14 00:00+0000\n"
+"Last-Translator: scootergrisen\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Virtaal 0.7.1\n"
-"X-Project-Style: gnome\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -43,17 +41,17 @@ msgstr "Kunne ikke finde bogmærker: %s"
 msgid "Failed to remove: %s"
 msgstr "Kunne ikke fjerne: %s"
 
-#: src/bookmarks/grl-bookmarks.c:766 src/podcasts/grl-podcasts.c:928
-#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1806
+#: src/bookmarks/grl-bookmarks.c:768 src/podcasts/grl-podcasts.c:928
+#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1813
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Kunne ikke gemme: %s"
 
-#: src/bookmarks/grl-bookmarks.c:840 src/bookmarks/grl-bookmarks.c:875
-#: src/bookmarks/grl-bookmarks.c:906 src/bookmarks/grl-bookmarks.c:964
-#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1662
-#: src/podcasts/grl-podcasts.c:1706 src/podcasts/grl-podcasts.c:1740
-#: src/podcasts/grl-podcasts.c:1775
+#: src/bookmarks/grl-bookmarks.c:842 src/bookmarks/grl-bookmarks.c:877
+#: src/bookmarks/grl-bookmarks.c:908 src/bookmarks/grl-bookmarks.c:966
+#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1669
+#: src/podcasts/grl-podcasts.c:1713 src/podcasts/grl-podcasts.c:1747
+#: src/podcasts/grl-podcasts.c:1782
 msgid "No database connection"
 msgstr "Ingen databaseforbindelse"
 
@@ -67,53 +65,53 @@ msgstr ""
 msgid "A source for browsing the DLNA server “%s”"
 msgstr "En kilde til at gennemse DLNA-serveren “%s”"
 
-#: src/dleyna/grl-dleyna-source.c:273
+#: src/dleyna/grl-dleyna-source.c:271
 msgid "Upload failed, target source destroyed"
 msgstr "Forsendelse mislykkedes; målkilden ødelagt"
 
-#: src/dleyna/grl-dleyna-source.c:375
+#: src/dleyna/grl-dleyna-source.c:373
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
 msgstr "Forsendelse mislykkedes; “%s”; overførte %lu af %lu byte"
 
-#: src/dleyna/grl-dleyna-source.c:880
+#: src/dleyna/grl-dleyna-source.c:878
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr "Kunne ikke hente egenskaber for element (BrowseObjects-fejl %d: %s)"
 
-#: src/dleyna/grl-dleyna-source.c:1519
+#: src/dleyna/grl-dleyna-source.c:1517
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr ""
 "Forsendelse mislykkedes; URL mangler på medieobjektet, der skal overføres"
 
-#: src/dmap/grl-daap.c:50
+#: src/dmap/grl-daap.c:51
 #, c-format
 msgid "A source for browsing the DAAP server “%s”"
 msgstr "En kilde til at gennemse DAAP-serveren “%s”"
 
-#: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:788
+#: src/dmap/grl-daap-db.c:66 src/jamendo/grl-jamendo.c:788
 #: src/magnatune/grl-magnatune.c:122
 msgid "Albums"
 msgstr "Album"
 
-#: src/dmap/grl-daap-db.c:64 src/jamendo/grl-jamendo.c:777
+#: src/dmap/grl-daap-db.c:68 src/jamendo/grl-jamendo.c:777
 #: src/magnatune/grl-magnatune.c:121
 msgid "Artists"
 msgstr "Kunstnere"
 
-#: src/dmap/grl-daap-db.c:292 src/jamendo/grl-jamendo.c:1115
+#: src/dmap/grl-daap-db.c:291 src/jamendo/grl-jamendo.c:1115
 #: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Ugyldig beholder-id %s"
 
-#: src/dmap/grl-dpap.c:50
+#: src/dmap/grl-dpap.c:51
 #, c-format
 msgid "A source for browsing the DPAP server “%s”"
 msgstr "En kilde til at gennemse DPAP-serveren “%s”"
 
-#: src/dmap/grl-dpap-db.c:36
+#: src/dmap/grl-dpap-db.c:40
 msgid "Photos"
 msgstr "Billeder"
 
@@ -125,12 +123,12 @@ msgstr "Filsystem"
 msgid "A source for browsing the filesystem"
 msgstr "En kilde til at gennemse filsystemet"
 
-#: src/filesystem/grl-filesystem.c:1170
+#: src/filesystem/grl-filesystem.c:1171
 #, c-format
 msgid "File %s does not exist"
 msgstr "Filen %s findes ikke"
 
-#: src/filesystem/grl-filesystem.c:1248 src/youtube/grl-youtube.c:1505
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Kan ikke hente medie fra %s"
@@ -211,7 +209,7 @@ msgid "Failed to parse response"
 msgstr "Kunne ikke fortolke svar"
 
 #: src/jamendo/grl-jamendo.c:349 src/jamendo/grl-jamendo.c:356
-#: src/podcasts/grl-podcasts.c:1363 src/shoutcast/grl-shoutcast.c:417
+#: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
 msgid "Empty response"
 msgstr "Tomt svar"
 
@@ -249,7 +247,7 @@ msgstr "Fejludformet forespørgsel “%s”"
 
 #: src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
-msgstr "Lokal metadatatjeneste"
+msgstr "Lokale metadata-tjeneste"
 
 #: src/local-metadata/grl-local-metadata.c:43
 msgid "A source providing locally available metadata"
@@ -344,11 +342,11 @@ msgstr "OpenSubtitles-udbyder"
 
 #: src/opensubtitles/grl-opensubtitles.c:41
 msgid "A source providing a list of subtitles for a video"
-msgstr "En kilde som udbyder en liste af undertekster til en video"
+msgstr "En kilde som udbyder en liste over undertekster til en video"
 
 #: src/optical-media/grl-optical-media.c:44
 msgid "Optical Media"
-msgstr "Optisk medie"
+msgstr "Optiske medier"
 
 #: src/optical-media/grl-optical-media.c:45
 msgid "A source for browsing optical media"
@@ -368,33 +366,33 @@ msgstr "Kunne ikke hente podcast-strømme: %s"
 msgid "Failed to parse content"
 msgstr "Kunne ikke fortolke indhold"
 
-#: src/podcasts/grl-podcasts.c:1297
+#: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
 msgid "Failed to parse podcast contents"
 msgstr "Kunne ikke fortolke podcast-indhold"
 
-#: src/podcasts/grl-podcasts.c:1452
+#: src/podcasts/grl-podcasts.c:1459
 msgid "Failed to get podcast information"
 msgstr "Kunne ikke hente podcast-information"
 
-#: src/podcasts/grl-podcasts.c:1492 src/podcasts/grl-podcasts.c:1512
+#: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Kunne ikke hente podcast-liste: %s"
 
-#: src/podcasts/grl-podcasts.c:1565 src/podcasts/grl-podcasts.c:1580
+#: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
 msgid "Failed to get podcast stream metadata"
 msgstr "Kunne ikke hente metadata for podcast-strøm"
 
-#: src/podcasts/grl-podcasts.c:1618
+#: src/podcasts/grl-podcasts.c:1625
 msgid "Failed to get podcast metadata"
 msgstr "Kunne ikke hente metadata for podcast"
 
 # ??
-#: src/podcasts/grl-podcasts.c:1802
+#: src/podcasts/grl-podcasts.c:1809
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Kan ikke oprette beholdere. Kun kanaler accepteres"
 
-#: src/podcasts/grl-podcasts.c:1807
+#: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
 msgstr "URL påkrævet"
 
@@ -538,11 +536,11 @@ msgstr "Kunne ikke forespørge: %s"
 msgid "Failed to get media from uri: %s"
 msgstr "Kunne ikke hente medie fra uri: %s"
 
-#: src/tracker/grl-tracker-source-api.c:806
+#: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Tom forespørgsel"
 
-#: src/tracker/grl-tracker-source-api.c:1088
+#: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
 msgstr "Id “%s” kendes ikke i denne kilde"
@@ -550,15 +548,6 @@ msgstr "Id “%s” kendes ikke i denne kilde"
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Et udvidelsesmodul til at søge i multimedieindhold med Tracker"
-
-#: src/tracker/grl-tracker-utils.c:738
-#, c-format
-msgid "Removable — %s"
-msgstr "Kan fjernes — %s"
-
-#: src/tracker/grl-tracker-utils.c:750
-msgid "Local files"
-msgstr "Lokale filer"
 
 #: src/vimeo/grl-vimeo.c:51
 msgid "A source for browsing and searching Vimeo videos"
@@ -621,9 +610,3 @@ msgstr "Kunne ikke hente kanal"
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Ugyldig kanal-id %s"
-
-#~ msgid "Album art Provider from Last.FM"
-#~ msgstr "Albumbilledtjeneste fra Last.FM"
-
-#~ msgid "A plugin for getting album arts using Last.FM as backend"
-#~ msgstr "Et udvidelsesmodul til at hente albumbilleder med Last.FM som motor"

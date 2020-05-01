@@ -2,5 +2,6 @@
 <gresources>
   <gresource prefix="/org/gnome/grilo/plugins/test/lua-factory/">
     <file compressed="false">data/grl-media-test-all-metadata.json</file>
+    <file compressed="false">data/grl-media-test-related-keys.json</file>
   </gresource>
 </gresources>

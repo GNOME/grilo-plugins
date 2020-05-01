@@ -76,7 +76,8 @@ test_lua_factory_shutdown (void)
 static void
 check_metadata (GrlMedia *media,
                 GrlKeyID key_id,
-                JsonReader *reader)
+                JsonReader *reader,
+                gint64 index)
 {
   GrlRegistry *registry = grl_registry_get_default ();
   GType type = grl_registry_lookup_metadata_key_type (registry, key_id);
@@ -120,8 +121,14 @@ check_metadata (GrlMedia *media,
       g_assert_null (list);
 
     } else {
-      const gchar *from_json = json_reader_get_string_value (reader);
-      const gchar *from_media = grl_data_get_string (GRL_DATA (media), key_id);
+      GrlRelatedKeys *relkeys;
+      const gchar *from_media;
+      const gchar *from_json;
+
+      from_json = json_reader_get_string_value (reader);
+      relkeys = grl_data_get_related_keys (GRL_DATA (media), key_id, index);
+      g_assert (relkeys);
+      from_media = grl_related_keys_get_string (relkeys, key_id);
       g_assert_cmpstr (from_json, ==, from_media);
     }
   break;
@@ -188,10 +195,31 @@ test_metadata_from_media (GrlMedia *media,
 
       json_reader_read_element (reader, i);
       key_name = json_reader_get_member_name (reader);
-      if (g_strcmp0 (key_name, "type") != 0) {
+      if (g_strcmp0 (key_name, "related-keys") == 0) {
+        gint rel_key_index;
+        gint rel_keys_nr = json_reader_count_elements (reader);
+
+        for (rel_key_index = 0; rel_key_index < rel_keys_nr; rel_key_index++) {
+          const gchar *rel_key_name;
+          guint key_index;
+          guint len_rel_key;
+
+          json_reader_read_element (reader, rel_key_index);
+          len_rel_key = json_reader_count_members (reader);
+          for (key_index = 0; key_index < len_rel_key; key_index++) {
+            json_reader_read_element (reader, key_index);
+            rel_key_name = json_reader_get_member_name (reader);
+            key_id = grl_registry_lookup_metadata_key (registry, rel_key_name);
+            g_assert (key_id != GRL_METADATA_KEY_INVALID);
+            check_metadata (media, key_id, reader, rel_key_index);
+            json_reader_end_element (reader);
+          }
+          json_reader_end_element (reader);
+        }
+      } else if (g_strcmp0 (key_name, "type") != 0) {
         key_id = grl_registry_lookup_metadata_key (registry, key_name);
         g_assert (key_id != GRL_METADATA_KEY_INVALID);
-        check_metadata (media, key_id, reader);
+        check_metadata (media, key_id, reader, 0);
       }
       json_reader_end_element (reader);
     }
@@ -268,6 +296,34 @@ test_build_media (void)
   }
 }
 
+static void
+test_related_keys (void)
+{
+  gint i;
+
+  struct {
+    gchar *uri;
+    gchar *url;
+  } media_tests[] = {
+    /* This is a basic test to check that related keys are correctly set. */
+    { GRESOURCE_PREFIX "grl-media-test-related-keys.json",
+      TEST_GRL_MEDIA_URL "related-keys.json" }
+  };
+
+  for (i = 0; i < G_N_ELEMENTS (media_tests); i++) {
+    GFile *file;
+    gchar *input;
+    GError *error = NULL;
+
+    file = g_file_new_for_uri (media_tests[i].uri);
+    g_file_load_contents (file, NULL, &input, NULL, NULL, &error);
+    g_assert_no_error (error);
+    g_object_unref (file);
+    resolve_fake_src (input, media_tests[i].url);
+    g_free (input);
+  }
+}
+
 gint
 main (gint argc, gchar **argv)
 {
@@ -285,9 +341,12 @@ main (gint argc, gchar **argv)
 
   /* Check if metadata-keys are created with value we expect with no errors */
   g_test_add_func ("/lua-factory/lua-library/metadata-keys", test_build_media);
+
+  /* test GrlRelatedKeys */
+  g_test_add_func ("/lua-factory/lua-library/related-keys", test_related_keys);
+
   /* TODO:
-   * 1-) keys with array of all provided by grl_data_add_* (binary, boxed, float,..)
-   * 2-) test for GrlRelatedKeys after: https://bugzilla.gnome.org/show_bug.cgi?id=756203
+   * keys with array of all provided by grl_data_add_* (binary, boxed, float,..)
    */
 
   gint result = g_test_run ();

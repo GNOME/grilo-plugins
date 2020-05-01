@@ -1,0 +1,18 @@
+{
+  "title": "this is a song",
+  "related-keys": [
+    {
+      "artist": "first artist",
+      "mb-artist-id": "bf24ca37-25f4-4e34-9aec-460b94364cfc"
+    },
+    {
+      "artist": "second artist",
+      "mb-artist-id": "6b28ecf0-94e6-48bb-aa2a-5ede325b675b"
+    },
+    {
+      "artist": "third artist",
+      "mb-artist-id": "84a87594-8c48-4865-9ac2-5d8aa29c800a"
+    }
+  ],
+  "mb-release-id": "f14638e1-fb36-358c-aba2-39b084864b13"
+}

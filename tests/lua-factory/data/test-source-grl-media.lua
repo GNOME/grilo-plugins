@@ -66,5 +66,14 @@ function fetch_url_cb(feed)
     grl.callback()
     return
   end
+
+  -- related keys need to have an index
+  if media["related-keys"] then
+    for _, rel_key in pairs(media["related-keys"]) do
+      media[#media + 1] = rel_key
+    end
+    media["related-keys"] = nil
+  end
+
   grl.callback(media, 0)
 end

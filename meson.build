@@ -77,6 +77,7 @@ sqlite3_dep = dependency('sqlite3', required: false)
 totem_plparser_dep = dependency('totem-plparser', version: '>= 3.4.1', required: false)
 totem_plparser_mini_dep = dependency('totem-plparser-mini', version: '>= 3.4.1', required: false)
 tracker_sparql_dep = dependency('tracker-sparql-2.0', version: '>= 2.3.0', required: false)
+tracker3_dep = dependency('tracker-sparql-3.0', required: false)
 
 lua_dep = dependency('lua', version: '>= 5.3.0', required: false)
 if not lua_dep.found()
@@ -128,6 +129,7 @@ plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['thetvdb', [grilo_net_dep, libxml_dep, libarchive_dep, gom_dep], []],
     ['tmdb', [json_glib_dep, libsoup_dep, grilo_net_dep], []],
     ['tracker', [tracker_sparql_dep], []],
+    ['tracker3', [tracker3_dep], []],
     ['vimeo', [grilo_net_dep, libxml_dep, totem_plparser_dep], []],
     ['youtube', [grilo_net_dep, libxml_dep, libgdata_dep, totem_plparser_dep], []],
 ]

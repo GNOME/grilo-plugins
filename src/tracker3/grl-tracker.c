@@ -57,7 +57,6 @@ GCancellable *grl_tracker_plugin_init_cancel = NULL;
 GrlTrackerQueue *grl_tracker_queue = NULL;
 
 /* tracker plugin config */
-gboolean grl_tracker_show_documents    = FALSE;
 gchar *grl_tracker_store_path = NULL;
 
 /* =================== Tracker Plugin  =============== */
@@ -126,8 +125,6 @@ grl_tracker3_plugin_init (GrlRegistry *registry,
 
     config = GRL_CONFIG (configs->data);
 
-    grl_tracker_show_documents =
-      grl_config_get_boolean (config, "show-documents");
     grl_tracker_store_path =
       grl_config_get_string (config, "store-path");
   }

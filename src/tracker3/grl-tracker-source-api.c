@@ -113,32 +113,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "OFFSET %u "                                  \
   "LIMIT %u"
 
-#define TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST          \
-  "SELECT DISTINCT rdf:type(?urn) %s "                  \
-  "WHERE "                                              \
-  "{ "                                                  \
-  "%s "                                                 \
-  "{ ?urn a nfo:Folder } %s "                           \
-  "%s "                                                 \
-  "FILTER (!bound(nfo:belongsToContainer(?urn))) "      \
-  "} "                                                  \
-  "ORDER BY DESC(nfo:fileLastModified(?urn)) "          \
-  "OFFSET %u "                                          \
-  "LIMIT %u"
-
-#define TRACKER_BROWSE_FILESYSTEM_REQUEST                       \
-  "SELECT DISTINCT rdf:type(?urn) %s "                          \
-  "WHERE "                                                      \
-  "{ "                                                          \
-    "%s "                                                       \
-  "{ ?urn a nfo:Folder } %s "                                   \
-  "%s "                                                         \
-  "FILTER(tracker:id(nfo:belongsToContainer(?urn)) = %s) "      \
-  "} "                                                          \
-  "ORDER BY DESC(nfo:fileLastModified(?urn)) "                  \
-  "OFFSET %u "                                                  \
-  "LIMIT %u"
-
 #define TRACKER_RESOLVE_REQUEST                 \
   "SELECT %s "                                  \
   "WHERE "                                      \
@@ -1217,67 +1191,6 @@ grl_tracker_source_browse_category (GrlSource *source,
   g_free (duration_constraint);
 }
 
-static void
-grl_tracker_source_browse_filesystem (GrlSource *source,
-                                      GrlSourceBrowseSpec *bs)
-{
-  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *constraint;
-  gchar                *sparql_select;
-  gchar                *sparql_final;
-  gchar                *sparql_type_filter;
-  GrlTrackerOp         *os;
-  gint count = grl_operation_options_get_count (bs->options);
-  guint skip = grl_operation_options_get_skip (bs->options);
-  int min_dur, max_dur;
-  char *duration_constraint;
-
-  GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->operation_id);
-
-  sparql_select = grl_tracker_source_get_select_string (bs->keys);
-  constraint = grl_tracker_source_get_device_constraint (priv);
-  sparql_type_filter = get_sparql_type_filter (bs->options, TRUE);
-  grl_tracker_source_get_duration_min_max (bs->options, &min_dur, &max_dur);
-  duration_constraint = grl_tracker_source_create_constraint (min_dur, max_dur);
-
-  if (bs->container == NULL ||
-      !grl_media_get_id (bs->container)) {
-    sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_ROOT_REQUEST,
-                                    sparql_select,
-                                    grl_tracker_show_documents? TRACKER_BROWSE_SHOW_DOCUMENTS: "",
-                                    sparql_type_filter,
-                                    constraint,
-                                    skip, count);
-
-  } else {
-    sparql_final = g_strdup_printf (TRACKER_BROWSE_FILESYSTEM_REQUEST,
-                                    sparql_select,
-                                    grl_tracker_show_documents? TRACKER_BROWSE_SHOW_DOCUMENTS: "",
-                                    sparql_type_filter,
-                                    constraint,
-                                    grl_media_get_id (bs->container),
-                                    skip, count);
-  }
-
-  GRL_IDEBUG ("\tselect: '%s'", sparql_final);
-
-  os = grl_tracker_op_initiate_query (bs->operation_id,
-                                      sparql_final,
-                                      (GAsyncReadyCallback) tracker_browse_cb,
-                                      bs);
-  os->keys  = bs->keys;
-  os->skip  = skip;
-  os->count = count;
-  os->type_filter = grl_operation_options_get_type_filter (bs->options);
-
-  grl_tracker_queue_push (grl_tracker_queue, os);
-
-  g_free (sparql_type_filter);
-  g_free (constraint);
-  g_free (sparql_select);
-  g_free (duration_constraint);
-}
-
 void
 grl_tracker_source_browse (GrlSource *source,
                            GrlSourceBrowseSpec *bs)
@@ -1286,10 +1199,7 @@ grl_tracker_source_browse (GrlSource *source,
   if (!g_list_find (bs->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID)))
     bs->keys = g_list_prepend (bs->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID));
 
-  if (grl_tracker_browse_filesystem)
-    grl_tracker_source_browse_filesystem (source, bs);
-  else
-    grl_tracker_source_browse_category (source, bs);
+  grl_tracker_source_browse_category (source, bs);
 }
 
 void

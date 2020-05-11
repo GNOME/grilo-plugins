@@ -43,21 +43,6 @@
 #define GRL_LOG_DOMAIN_DEFAULT tracker_general_log_domain
 GRL_LOG_DOMAIN_STATIC(tracker_general_log_domain);
 
-/* ------- Definitions ------- */
-
-#define TRACKER_FOLDER_CLASS_REQUEST           \
-  "SELECT ?urn WHERE "                         \
-  "{ "                                         \
-  "?urn a rdfs:Class . "                       \
-  "FILTER(fn:ends-with(?urn,\"nfo#Folder\")) " \
-  "}"
-
-#define TRACKER_NOTIFY_FOLDER_UPDATE            \
-  "INSERT "                                     \
-  "{ "                                          \
-  "<%s> tracker:notify true "                   \
-  "}"
-
 /* --- Other --- */
 
 gboolean grl_tracker3_plugin_init (GrlRegistry *registry,
@@ -72,7 +57,6 @@ GCancellable *grl_tracker_plugin_init_cancel = NULL;
 GrlTrackerQueue *grl_tracker_queue = NULL;
 
 /* tracker plugin config */
-gboolean grl_tracker_browse_filesystem = FALSE;
 gboolean grl_tracker_show_documents    = FALSE;
 
 /* =================== Tracker Plugin  =============== */
@@ -92,59 +76,6 @@ init_sources (void)
 }
 
 static void
-tracker_update_folder_class_cb (GObject      *object,
-                                GAsyncResult *result,
-                                gpointer      data)
-{
-  init_sources ();
-}
-
-static void
-tracker_get_folder_class_cb (GObject      *object,
-                             GAsyncResult *result,
-                             gpointer       data)
-{
-  GError *error = NULL;
-  TrackerSparqlCursor  *cursor;
-
-  GRL_DEBUG ("%s", __FUNCTION__);
-
-  cursor = tracker_sparql_connection_query_finish (grl_tracker_connection,
-                                                   result, &error);
-
-  if (error) {
-    GRL_INFO ("Could not execute sparql query for folder class: %s",
-              error->message);
-    g_error_free (error);
-  }
-
-  if (!cursor) {
-    init_sources ();
-    return;
-  }
-
-  if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-    gchar *update = g_strdup_printf (TRACKER_NOTIFY_FOLDER_UPDATE,
-                                     tracker_sparql_cursor_get_string (cursor,
-                                                                       0,
-                                                                       NULL));
-
-    GRL_DEBUG ("\tupdate query: '%s'", update);
-
-    tracker_sparql_connection_update_async (grl_tracker_connection,
-                                            update,
-                                            G_PRIORITY_DEFAULT,
-                                            NULL,
-                                            tracker_update_folder_class_cb,
-                                            NULL);
-
-    g_free (update);
-  }
-
-  g_object_unref (cursor);
-}
-
-static void
 tracker_new_connection_cb (GObject      *object,
                            GAsyncResult *res,
                            GrlPlugin    *plugin)
@@ -161,16 +92,7 @@ tracker_new_connection_cb (GObject      *object,
     return;
   }
 
-  GRL_DEBUG ("\trequest : '%s'", TRACKER_FOLDER_CLASS_REQUEST);
-
-  if (grl_tracker_browse_filesystem)
-    tracker_sparql_connection_query_async (grl_tracker_connection,
-                                           TRACKER_FOLDER_CLASS_REQUEST,
-                                           grl_tracker_plugin_init_cancel,
-                                           tracker_get_folder_class_cb,
-                                           NULL);
-  else
-    init_sources ();
+  init_sources ();
 }
 
 gboolean
@@ -202,8 +124,6 @@ grl_tracker3_plugin_init (GrlRegistry *registry,
 
     config = GRL_CONFIG (configs->data);
 
-    grl_tracker_browse_filesystem =
-      grl_config_get_boolean (config, "browse-filesystem");
     grl_tracker_show_documents =
       grl_config_get_boolean (config, "show-documents");
   }

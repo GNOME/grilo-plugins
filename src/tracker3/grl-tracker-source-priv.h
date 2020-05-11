@@ -80,7 +80,6 @@ extern GrlPlugin *grl_tracker_plugin;
 extern GrlTrackerCache *grl_tracker_item_cache;
 
 /* tracker plugin config */
-extern gboolean grl_tracker_browse_filesystem;
 extern gboolean grl_tracker_show_documents;
 
 #endif /* _GRL_TRACKER_SOURCE_PRIV_H_ */

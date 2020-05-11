@@ -78,7 +78,6 @@ extern GrlPlugin *grl_tracker_plugin;
 
 /* shared data across  */
 extern GrlTrackerCache *grl_tracker_item_cache;
-extern gboolean grl_tracker_upnp_present;
 
 /* tracker plugin config */
 extern gboolean grl_tracker_browse_filesystem;

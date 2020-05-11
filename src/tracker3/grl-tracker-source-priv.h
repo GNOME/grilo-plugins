@@ -81,5 +81,6 @@ extern GrlTrackerCache *grl_tracker_item_cache;
 
 /* tracker plugin config */
 extern gboolean grl_tracker_show_documents;
+extern gchar *grl_tracker_store_path;
 
 #endif /* _GRL_TRACKER_SOURCE_PRIV_H_ */

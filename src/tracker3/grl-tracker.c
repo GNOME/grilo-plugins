@@ -58,6 +58,7 @@ GrlTrackerQueue *grl_tracker_queue = NULL;
 
 /* tracker plugin config */
 gboolean grl_tracker_show_documents    = FALSE;
+gchar *grl_tracker_store_path = NULL;
 
 /* =================== Tracker Plugin  =============== */
 
@@ -102,7 +103,8 @@ grl_tracker3_plugin_init (GrlRegistry *registry,
 {
   GrlConfig *config;
   gint config_count;
-  GFile *ontology;
+  GFile *store = NULL, *ontology;
+  TrackerSparqlConnectionFlags flags = TRACKER_SPARQL_CONNECTION_FLAGS_NONE;
 
   GRL_LOG_DOMAIN_INIT (tracker_general_log_domain, "tracker3-general");
 
@@ -126,18 +128,25 @@ grl_tracker3_plugin_init (GrlRegistry *registry,
 
     grl_tracker_show_documents =
       grl_config_get_boolean (config, "show-documents");
+    grl_tracker_store_path =
+      grl_config_get_string (config, "store-path");
   }
 
   grl_tracker_plugin_init_cancel = g_cancellable_new ();
+  if (grl_tracker_store_path) {
+    store = g_file_new_for_path (grl_tracker_store_path);
+    flags = TRACKER_SPARQL_CONNECTION_FLAGS_READONLY;
+  }
+
   ontology = tracker_sparql_get_ontology_nepomuk ();
-  tracker_sparql_connection_new_async (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
-                                       NULL,
+  tracker_sparql_connection_new_async (flags,
+                                       store,
                                        ontology,
                                        grl_tracker_plugin_init_cancel,
                                        (GAsyncReadyCallback) tracker_new_connection_cb,
                                        plugin);
+  g_clear_object (&store);
   g_object_unref (ontology);
-
   return TRUE;
 }
 

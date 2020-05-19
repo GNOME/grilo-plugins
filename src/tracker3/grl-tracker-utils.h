@@ -87,9 +87,4 @@ gchar *grl_tracker_get_delete_string (const GList *keys);
 gchar *grl_tracker_get_delete_conditional_string (const gchar *urn,
                                                   const GList *keys);
 
-gchar *grl_tracker_get_source_name (const gchar *rdf_type,
-                                    const gchar *uri,
-                                    const gchar *datasource,
-                                    const gchar *datasource_name);
-
 #endif /* _GRL_TRACKER_UTILS_H_ */

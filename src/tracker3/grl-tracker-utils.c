@@ -393,8 +393,8 @@ grl_tracker_setup_key_mappings (void)
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_SEASON,
-                      "nmm:season",
-                      "nmm:season(?urn)",
+                      NULL,
+                      "nmm:seasonNumber(nmm:isPartOfSeason(?urn))",
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_EPISODE,

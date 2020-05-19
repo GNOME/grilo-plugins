@@ -42,6 +42,8 @@ grl_tracker_op_terminate (GrlTrackerOp *os)
   if (os == NULL)
     return;
 
+  g_clear_object (&os->statement);
+  g_clear_pointer (&os->arguments, g_hash_table_unref);
   g_clear_object (&os->cursor);
   g_object_unref (os->cancel);
   g_free (os->request);
@@ -65,17 +67,20 @@ grl_tracker_op_initiate (gchar               *request,
 }
 
 GrlTrackerOp *
-grl_tracker_op_initiate_query (guint                operation_id,
-                               gchar               *request,
-                               GAsyncReadyCallback  callback,
-                               gpointer             data)
+grl_tracker_op_initiate_query (guint                   operation_id,
+                               TrackerSparqlStatement *statement,
+                               GHashTable             *arguments,
+                               GAsyncReadyCallback     callback,
+                               gpointer                data)
 {
-  GrlTrackerOp *os = grl_tracker_op_initiate (request,
+  GrlTrackerOp *os = grl_tracker_op_initiate (NULL,
                                               callback,
                                               data);
 
   os->type         = GRL_TRACKER_OP_TYPE_QUERY;
   os->operation_id = operation_id;
+  os->statement    = g_object_ref (statement);
+  os->arguments    = arguments ? g_hash_table_ref (arguments) : NULL;
 
   /* g_hash_table_insert (grl_tracker_operations, */
   /*                      GSIZE_TO_POINTER (operation_id), os); */
@@ -84,15 +89,18 @@ grl_tracker_op_initiate_query (guint                operation_id,
 }
 
 GrlTrackerOp *
-grl_tracker_op_initiate_metadata (gchar               *request,
-                                  GAsyncReadyCallback  callback,
-                                  gpointer             data)
+grl_tracker_op_initiate_metadata (TrackerSparqlStatement *statement,
+                                  GHashTable             *arguments,
+                                  GAsyncReadyCallback     callback,
+                                  gpointer                data)
 {
-  GrlTrackerOp *os = grl_tracker_op_initiate (request,
+  GrlTrackerOp *os = grl_tracker_op_initiate (NULL,
                                               callback,
                                               data);
 
   os->type = GRL_TRACKER_OP_TYPE_QUERY;
+  os->statement = g_object_ref (statement);
+  os->arguments = arguments ? g_hash_table_ref (arguments) : NULL;
 
   return os;
 }
@@ -112,12 +120,28 @@ grl_tracker_op_initiate_set_metadata (gchar               *request,
 }
 
 static void
+set_up_statement (TrackerSparqlStatement *statement,
+                  GHashTable             *arguments)
+{
+  GHashTableIter iter;
+  gpointer key, value;
+
+  if (!arguments)
+    return;
+
+  g_hash_table_iter_init (&iter, arguments);
+
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    tracker_sparql_statement_bind_string (statement, key, value);
+}
+
+static void
 grl_tracker_op_start (GrlTrackerOp *os)
 {
   switch (os->type) {
   case GRL_TRACKER_OP_TYPE_QUERY:
-    tracker_sparql_connection_query_async (grl_tracker_connection,
-                                           os->request,
+    set_up_statement (os->statement, os->arguments);
+    tracker_sparql_statement_execute_async (os->statement,
                                            NULL,
                                            os->callback,
                                            os);

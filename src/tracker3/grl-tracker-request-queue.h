@@ -40,6 +40,8 @@ typedef struct {
   GAsyncReadyCallback      callback;
   GCancellable            *cancel;
   TrackerSparqlConnection *connection;
+  TrackerSparqlStatement  *statement;
+  GHashTable              *arguments;
   gchar                   *request;
   const GList             *keys;
   gpointer                 data;
@@ -58,14 +60,16 @@ typedef struct _GrlTrackerQueue GrlTrackerQueue;
 
 /**/
 
-GrlTrackerOp *grl_tracker_op_initiate_query (guint                operation_id,
-                                             gchar               *request,
-                                             GAsyncReadyCallback  callback,
-                                             gpointer             data);
+GrlTrackerOp *grl_tracker_op_initiate_query (guint                   operation_id,
+                                             TrackerSparqlStatement *statement,
+                                             GHashTable             *arguments,
+                                             GAsyncReadyCallback     callback,
+                                             gpointer                data);
 
-GrlTrackerOp *grl_tracker_op_initiate_metadata (gchar               *request,
-                                                GAsyncReadyCallback  callback,
-                                                gpointer             data);
+GrlTrackerOp *grl_tracker_op_initiate_metadata (TrackerSparqlStatement *statement,
+                                                GHashTable             *arguments,
+                                                GAsyncReadyCallback     callback,
+                                                gpointer                data);
 
 GrlTrackerOp *grl_tracker_op_initiate_set_metadata (gchar               *request,
                                                     GAsyncReadyCallback  callback,

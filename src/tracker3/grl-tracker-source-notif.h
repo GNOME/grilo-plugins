@@ -34,22 +34,6 @@
 #define GRL_TRACKER_TYPE_SOURCE_NOTIFY grl_tracker_source_notify_get_type ()
 G_DECLARE_FINAL_TYPE (GrlTrackerSourceNotify, grl_tracker_source_notify, GRL_TRACKER, SOURCE_NOTIFY, GObject)
 
-#define TRACKER_DATASOURCES_REQUEST                                     \
-  "SELECT "                                                             \
-  "(SELECT GROUP_CONCAT(rdf:type(?source), \":\") "                     \
-  " WHERE { ?urn nie:dataSource ?source }) "                            \
-  "nie:dataSource(?urn) "                                               \
-  "(SELECT GROUP_CONCAT(nie:title(?source), \":\") "                    \
-  " WHERE { ?urn nie:dataSource ?source }) "                            \
-  "(SELECT GROUP_CONCAT(nie:url(tracker:mountPoint(?source)), \":\") "  \
-  " WHERE { ?urn nie:dataSource ?source }) "                            \
-  "tracker:available(?urn) "                                            \
-  "WHERE "                                                              \
-  "{ "                                                                  \
-  "?urn a nfo:FileDataObject . FILTER (bound(nie:dataSource(?urn)))"    \
-  "} "                                                                  \
-  "GROUP BY (nie:dataSource(?urn))"
-
 /**/
 
 GrlTrackerSourceNotify * grl_tracker_source_notify_new (GrlSource               *source,

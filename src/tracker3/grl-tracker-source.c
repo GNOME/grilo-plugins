@@ -55,7 +55,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_log_domain);
 enum {
   PROP_0,
   PROP_TRACKER_CONNECTION,
-  PROP_TRACKER_DATASOURCE,
 };
 
 static void grl_tracker_source_set_property (GObject      *object,
@@ -71,7 +70,6 @@ static void grl_tracker_source_constructed (GObject *object);
 
 /* shared data across  */
 GrlTrackerCache *grl_tracker_item_cache;
-GHashTable *grl_tracker_source_sources;
 
 /* ================== TrackerSource GObject ================ */
 
@@ -87,7 +85,6 @@ grl_tracker_source_new (TrackerSparqlConnection *connection)
                        "source-name", GRL_TRACKER_SOURCE_NAME,
                        "source-desc", GRL_TRACKER_SOURCE_DESC,
                        "tracker-connection", connection,
-                       "tracker-datasource", "",
                        NULL);
 }
 
@@ -126,16 +123,6 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
                                                         G_PARAM_WRITABLE
                                                         | G_PARAM_CONSTRUCT_ONLY
                                                         | G_PARAM_STATIC_NAME));
-
- g_object_class_install_property (g_class,
-                                  PROP_TRACKER_DATASOURCE,
-                                  g_param_spec_string ("tracker-datasource",
-                                                       "tracker datasource",
-                                                       "A Tracker nie:DataSource URN",
-                                                       NULL,
-                                                       G_PARAM_WRITABLE
-                                                       | G_PARAM_CONSTRUCT_ONLY
-                                                       | G_PARAM_STATIC_NAME));
 
   g_type_class_add_private (klass, sizeof (GrlTrackerSourcePriv));
 }
@@ -190,26 +177,9 @@ grl_tracker_source_set_property (GObject      *object,
       priv->tracker_connection = g_object_ref (g_value_get_object (value));
       break;
 
-    case PROP_TRACKER_DATASOURCE:
-      g_clear_pointer (&priv->tracker_datasource, g_free);
-      priv->tracker_datasource = g_strdup (g_value_get_string (value));
-      break;
-
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, propid, pspec);
   }
-}
-
-const gchar *
-grl_tracker_source_get_tracker_source (GrlTrackerSource *source)
-{
-  GrlTrackerSourcePriv *priv;
-
-  g_return_val_if_fail (GRL_IS_TRACKER_SOURCE (source), NULL);
-
-  priv = source->priv;
-
-  return priv->tracker_datasource;
 }
 
 TrackerSparqlConnection *
@@ -234,9 +204,6 @@ grl_tracker_add_source (GrlTrackerSource *source)
   GRL_DEBUG ("====================>add source '%s'",
              grl_source_get_name (GRL_SOURCE (source)));
 
-  g_hash_table_insert (grl_tracker_source_sources,
-                       (gpointer) grl_tracker_source_get_tracker_source (source),
-                       g_object_ref (source));
   priv->state = GRL_TRACKER_SOURCE_STATE_RUNNING;
   grl_registry_register_source (grl_registry_get_default (),
                                 grl_tracker_plugin,
@@ -252,8 +219,6 @@ grl_tracker_del_source (GrlTrackerSource *source)
   GRL_DEBUG ("==================>del source '%s'",
              grl_source_get_name (GRL_SOURCE (source)));
 
-  g_hash_table_remove (grl_tracker_source_sources,
-                       grl_tracker_source_get_tracker_source (source));
   grl_tracker_source_cache_del_source (grl_tracker_item_cache, source);
   priv->state = GRL_TRACKER_SOURCE_STATE_DELETED;
   grl_registry_unregister_source (grl_registry_get_default (),
@@ -272,40 +237,6 @@ grl_tracker_source_can_notify (GrlTrackerSource *source)
   return FALSE;
 }
 
-GrlTrackerSource *
-grl_tracker_source_find (const gchar *id)
-{
-  GrlTrackerSource *source;
-
-  source = g_hash_table_lookup (grl_tracker_source_sources, id);
-  return source;
-}
-
-static gboolean
-match_plugin_id (gpointer key,
-                 gpointer value,
-                 gpointer user_data)
-{
-  if (g_strcmp0 (grl_source_get_id (GRL_SOURCE (value)),
-                 (gchar *) user_data) == 0) {
-    return TRUE;
-  }
-
-  return FALSE;
-}
-
-/* Search for registered plugin with @id */
-GrlTrackerSource *
-grl_tracker_source_find_source (const gchar *id)
-{
-  GrlTrackerSource *source;
-
-  source = g_hash_table_find (grl_tracker_source_sources,
-                              match_plugin_id,
-                              (gpointer) id);
-  return source;
-}
-
 void
 grl_tracker_source_sources_init (void)
 {
@@ -316,8 +247,6 @@ grl_tracker_source_sources_init (void)
 
   grl_tracker_item_cache =
     grl_tracker_source_cache_new (TRACKER_ITEM_CACHE_SIZE);
-  grl_tracker_source_sources = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                      NULL, g_object_unref);
 
   if (grl_tracker_connection != NULL) {
     GrlTrackerSource *source;

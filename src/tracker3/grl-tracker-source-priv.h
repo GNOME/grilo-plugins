@@ -68,7 +68,6 @@ struct _GrlTrackerSourcePriv {
   GHashTable *operations;
   GrlTrackerSourceNotify *notifier;
 
-  gchar *tracker_datasource;
   gboolean notify_changes;
 
   GrlTrackerSourceState state;

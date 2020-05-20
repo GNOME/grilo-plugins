@@ -63,7 +63,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
 
 #define TRACKER_QUERY_PARTIAL_REQUEST           \
   "SELECT rdf:type(?urn) %s "                   \
-  "WHERE { %s . %s } "                          \
+  "WHERE { %s } "                               \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
   TRACKER_QUERY_LIMIT
 
@@ -78,7 +78,7 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "%s "                                         \
   "?urn tracker:available ?tr . "               \
   "?urn fts:match \"%s\" . "                    \
-  "%s %s "                                      \
+  "%s "                                         \
   "} "                                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
   TRACKER_QUERY_LIMIT
@@ -87,7 +87,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "SELECT DISTINCT rdf:type(?urn) %s "          \
   "WHERE "                                      \
   "{ "                                          \
-  "%s "                                         \
   "?urn tracker:available ?tr . "               \
   "%s %s "                                      \
   "} "                                          \
@@ -101,7 +100,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "?urn a %s . "                                \
   "?urn nie:isStoredAs ?file . "                \
   "?file tracker:available ?tr . "              \
-  "%s "                                         \
   "%s "                                         \
   "} "                                          \
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
@@ -138,7 +136,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "?urn nie:url \"%s\" ; "                              \
   "tracker:available true ; "                           \
   "a nfo:Media . "                                      \
-  "%s "                                                 \
   "}"
 
 #define TRACKER_MEDIA_FROM_URI_REQUEST          \
@@ -147,7 +144,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "{ "                                          \
   "?urn nie:url \"%s\" ; "                      \
   "tracker:available ?tr . "                    \
-  "%s "                                         \
   "} "                                          \
 
 /**/
@@ -757,7 +753,6 @@ grl_tracker_source_query (GrlSource *source,
 {
   GError               *error = NULL;
   GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *constraint;
   gchar                *sparql_final;
   gchar                *sparql_select;
   GrlTrackerOp         *os;
@@ -776,15 +771,12 @@ grl_tracker_source_query (GrlSource *source,
 
   /* Check if it is a full sparql query */
   if (g_ascii_strncasecmp (qs->query, "select ", 7) != 0) {
-    constraint = grl_tracker_source_get_device_constraint (priv);
     sparql_select = grl_tracker_source_get_select_string (qs->keys);
     sparql_final = g_strdup_printf (TRACKER_QUERY_PARTIAL_REQUEST,
                                     sparql_select,
                                     qs->query,
-                                    constraint,
                                     skip,
                                     count);
-    g_free (constraint);
     g_free (qs->query);
     g_free (sparql_select);
     qs->query = sparql_final;
@@ -832,7 +824,7 @@ grl_tracker_source_resolve (GrlSource *source,
                             GrlSourceResolveSpec *rs)
 {
   GrlTrackerSourcePriv *priv               = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *constraint         = NULL, *sparql_select, *sparql_final;
+  gchar                *sparql_select, *sparql_final;
   gchar                *sparql_type_filter = NULL;
   const gchar          *url                = grl_media_get_url (rs->media);
   GrlTrackerOp         *os;
@@ -840,25 +832,18 @@ grl_tracker_source_resolve (GrlSource *source,
 
   GRL_IDEBUG ("%s: id=%i", __FUNCTION__, rs->operation_id);
 
-  /* Check if the media comes from this source or another */
-  if (g_strcmp0 (priv->tracker_datasource, grl_source_get_id (rs->source)) == 0) {
-    if (grl_media_get_id (rs->media) == NULL) {
-      rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
-      return;
-    } else {
-      sparql_select = grl_tracker_source_get_select_string (rs->keys);
-      sparql_final = g_strdup_printf (TRACKER_RESOLVE_REQUEST, sparql_select,
-                                      grl_media_get_id (rs->media));
-    }
+  if (grl_media_get_id (rs->media) != NULL) {
+    sparql_select = grl_tracker_source_get_select_string (rs->keys);
+    sparql_final = g_strdup_printf (TRACKER_RESOLVE_REQUEST, sparql_select,
+                                    grl_media_get_id (rs->media));
+  } else if (grl_media_get_url (rs->media) != NULL) {
+    sparql_select = grl_tracker_source_get_select_string (rs->keys);
+    sparql_final = g_strdup_printf (TRACKER_RESOLVE_URL_REQUEST,
+                                    sparql_select,
+                                    grl_media_get_url (rs->media));
   } else {
-    if (url) {
-      sparql_select = grl_tracker_source_get_select_string (rs->keys);
-      sparql_final = g_strdup_printf (TRACKER_RESOLVE_URL_REQUEST,
-                                      sparql_select, url);
-    } else {
-      rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
-      return;
-    }
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+    return;
   }
 
   GRL_IDEBUG ("\request: '%s'", sparql_final);
@@ -876,7 +861,6 @@ grl_tracker_source_resolve (GrlSource *source,
   grl_tracker_queue_push (grl_tracker_queue, os);
 
   g_clear_pointer (&sparql_type_filter, g_free);
-  g_clear_pointer (&constraint, g_free);
   g_clear_pointer (&sparql_select, g_free);
   g_clear_object (&statement);
 }
@@ -888,10 +872,6 @@ grl_tracker_source_may_resolve (GrlSource *source,
                                 GList    **missing_keys)
 {
   GRL_IDEBUG ("%s: key=%s", __FUNCTION__, GRL_METADATA_KEY_GET_NAME (key_id));
-
-  if (media && grl_tracker_source_find_source (grl_media_get_source (media))) {
-    return TRUE;
-  }
 
   if (!grl_tracker_key_is_supported (key_id)) {
     return FALSE;
@@ -955,7 +935,6 @@ void
 grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
 {
   GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
   gchar                *sparql_type_filter;
@@ -969,7 +948,6 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, ss->operation_id);
 
-  constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_select = grl_tracker_source_get_select_string (ss->keys);
   sparql_type_filter = get_sparql_type_filter (ss->options, FALSE);
   grl_tracker_source_get_duration_min_max (ss->options, &min_dur, &max_dur);
@@ -977,13 +955,13 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
   if (!ss->text || ss->text[0] == '\0') {
     /* Search all */
     sparql_final = g_strdup_printf (TRACKER_SEARCH_ALL_REQUEST, sparql_select,
-                                    constraint, duration_constraint, sparql_type_filter,
+                                    duration_constraint, sparql_type_filter,
                                     skip, count);
   } else {
     escaped_text = tracker_sparql_escape_string (ss->text);
     sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
                                     sparql_type_filter, escaped_text,
-                                    constraint, duration_constraint, skip, count);
+                                    duration_constraint, skip, count);
     g_free (escaped_text);
   }
 
@@ -1005,7 +983,6 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 
-  g_free (constraint);
   g_free (sparql_select);
   g_free (sparql_type_filter);
   g_free (duration_constraint);
@@ -1027,7 +1004,6 @@ grl_tracker_source_browse_category (GrlSource *source,
                                     GrlSourceBrowseSpec *bs)
 {
   GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
   GrlTrackerOp         *os;
@@ -1154,12 +1130,10 @@ grl_tracker_source_browse_category (GrlSource *source,
 
   grl_tracker_source_get_duration_min_max (bs->options, &min_dur, &max_dur);
   duration_constraint = grl_tracker_source_create_constraint (min_dur, max_dur);
-  constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_select = grl_tracker_source_get_select_string (bs->keys);
   sparql_final = g_strdup_printf (TRACKER_BROWSE_CATEGORY_REQUEST,
                                   sparql_select,
                                   category,
-                                  constraint,
                                   duration_constraint,
                                   skip, count);
 
@@ -1181,7 +1155,6 @@ grl_tracker_source_browse_category (GrlSource *source,
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 
-  g_free (constraint);
   g_free (sparql_select);
   g_free (duration_constraint);
   g_clear_object (&statement);
@@ -1298,19 +1271,15 @@ grl_tracker_source_test_media_from_uri (GrlSource *source,
   GError               *error = NULL;
   TrackerSparqlCursor  *cursor;
   gboolean              empty;
-  gchar                *constraint;
   gchar                *sparql_final;
 
-  constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_final = g_strdup_printf (TRACKER_TEST_MEDIA_FROM_URI_REQUEST,
-                                  uri,
-                                  constraint);
+                                  uri);
 
   cursor = tracker_sparql_connection_query (grl_tracker_connection,
                                             sparql_final,
                                             NULL,
                                             &error);
-  g_free (constraint);
   g_free (sparql_final);
 
   if (error) {
@@ -1337,7 +1306,6 @@ grl_tracker_source_get_media_from_uri (GrlSource *source,
                                        GrlSourceMediaFromUriSpec *mfus)
 {
   GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *constraint;
   gchar                *sparql_select;
   gchar                *sparql_final;
   GrlTrackerOp         *os;
@@ -1349,12 +1317,10 @@ grl_tracker_source_get_media_from_uri (GrlSource *source,
   if (!g_list_find (mfus->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID)))
     mfus->keys = g_list_prepend (mfus->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID));
 
-  constraint = grl_tracker_source_get_device_constraint (priv);
   sparql_select = grl_tracker_source_get_select_string (mfus->keys);
   sparql_final = g_strdup_printf (TRACKER_MEDIA_FROM_URI_REQUEST,
                                   sparql_select,
-                                  mfus->uri,
-                                  constraint);
+                                  mfus->uri);
 
   GRL_IDEBUG ("\tselect: '%s'", sparql_final);
 
@@ -1370,7 +1336,6 @@ grl_tracker_source_get_media_from_uri (GrlSource *source,
 
   grl_tracker_queue_push (grl_tracker_queue, os);
 
-  g_free (constraint);
   g_free (sparql_select);
   g_clear_object (&statement);
 }

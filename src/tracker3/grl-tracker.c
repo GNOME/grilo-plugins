@@ -68,11 +68,8 @@ init_sources (void)
 
   grl_tracker_queue = grl_tracker_queue_new ();
 
-  if (grl_tracker_connection != NULL) {
-    grl_tracker_notify_init (grl_tracker_connection);
-
+  if (grl_tracker_connection != NULL)
     grl_tracker_source_sources_init ();
-  }
 }
 
 static void

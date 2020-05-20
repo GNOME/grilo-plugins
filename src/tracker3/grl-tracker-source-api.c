@@ -1217,7 +1217,8 @@ grl_tracker_source_change_start (GrlSource *source, GError **error)
 {
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
 
-  priv->notify_changes = TRUE;
+  priv->notifier =
+    grl_tracker_source_notify_new (source, priv->tracker_connection);
 
   return TRUE;
 }
@@ -1227,7 +1228,7 @@ grl_tracker_source_change_stop (GrlSource *source, GError **error)
 {
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
 
-  priv->notify_changes = FALSE;
+  g_clear_object (&priv->notifier);
 
   return TRUE;
 }

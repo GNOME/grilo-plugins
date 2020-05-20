@@ -31,6 +31,9 @@
 
 /* ------- Definitions ------- */
 
+#define GRL_TRACKER_TYPE_SOURCE_NOTIFY grl_tracker_source_notify_get_type ()
+G_DECLARE_FINAL_TYPE (GrlTrackerSourceNotify, grl_tracker_source_notify, GRL_TRACKER, SOURCE_NOTIFY, GObject)
+
 #define TRACKER_DATASOURCES_REQUEST                                     \
   "SELECT "                                                             \
   "(SELECT GROUP_CONCAT(rdf:type(?source), \":\") "                     \
@@ -49,7 +52,7 @@
 
 /**/
 
-void grl_tracker_notify_init     (TrackerSparqlConnection *sparql_conn);
-void grl_tracker_notify_shutdown (void);
+GrlTrackerSourceNotify * grl_tracker_source_notify_new (GrlSource               *source,
+                                                        TrackerSparqlConnection *sparql_conn);
 
 #endif /* _GRL_TRACKER_SOURCE_NOTIF_H_ */

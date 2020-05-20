@@ -65,6 +65,8 @@ static void grl_tracker_source_set_property (GObject      *object,
 
 static void grl_tracker_source_finalize (GObject *object);
 
+static void grl_tracker_source_constructed (GObject *object);
+
 /* ===================== Globals  ================= */
 
 /* shared data across  */
@@ -97,6 +99,7 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
 
   g_class->finalize     = grl_tracker_source_finalize;
   g_class->set_property = grl_tracker_source_set_property;
+  g_class->constructed  = grl_tracker_source_constructed;
 
   source_class->cancel              = grl_tracker_source_cancel;
   source_class->supported_keys      = grl_tracker_supported_keys;
@@ -148,12 +151,25 @@ grl_tracker_source_init (GrlTrackerSource *source)
 }
 
 static void
+grl_tracker_source_constructed (GObject *object)
+{
+  GrlTrackerSource *self;
+
+  self = GRL_TRACKER_SOURCE (object);
+
+  g_clear_object (&self->priv->tracker_connection);
+
+  G_OBJECT_CLASS (grl_tracker_source_parent_class)->constructed (object);
+}
+
+static void
 grl_tracker_source_finalize (GObject *object)
 {
   GrlTrackerSource *self;
 
   self = GRL_TRACKER_SOURCE (object);
 
+  g_clear_object (&self->priv->notifier);
   g_clear_object (&self->priv->tracker_connection);
 
   G_OBJECT_CLASS (grl_tracker_source_parent_class)->finalize (object);
@@ -251,7 +267,7 @@ grl_tracker_source_can_notify (GrlTrackerSource *source)
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
 
   if (priv->state == GRL_TRACKER_SOURCE_STATE_RUNNING)
-    return priv->notify_changes;
+    return priv->notifier != NULL;
 
   return FALSE;
 }
@@ -305,8 +321,6 @@ grl_tracker_source_sources_init (void)
 
   if (grl_tracker_connection != NULL) {
     GrlTrackerSource *source;
-
-    grl_tracker_notify_init (grl_tracker_connection);
 
     /* One source to rule them all. */
     source = grl_tracker_source_new (grl_tracker_connection);

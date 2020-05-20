@@ -29,6 +29,7 @@
 
 #include "grl-tracker-source.h"
 #include "grl-tracker-source-cache.h"
+#include "grl-tracker-source-notif.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -65,6 +66,7 @@ struct _GrlTrackerSourcePriv {
   TrackerSparqlConnection *tracker_connection;
 
   GHashTable *operations;
+  GrlTrackerSourceNotify *notifier;
 
   gchar *tracker_datasource;
   gboolean notify_changes;

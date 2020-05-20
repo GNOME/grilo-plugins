@@ -36,27 +36,24 @@
 #define GRL_LOG_DOMAIN_DEFAULT tracker_notif_log_domain
 GRL_LOG_DOMAIN_STATIC(tracker_notif_log_domain);
 
-#define GRL_TRACKER_TYPE_SOURCE_NOTIFY grl_tracker_source_notify_get_type ()
-G_DECLARE_FINAL_TYPE (GrlTrackerSourceNotify, grl_tracker_source_notify, GRL_TRACKER, SOURCE_NOTIFY, GObject)
-
 struct _GrlTrackerSourceNotify {
   GObject parent;
   TrackerSparqlConnection *connection;
   TrackerNotifier *notifier;
+  GrlSource *source;
   guint events_signal_id;
 };
 
 enum {
   PROP_0,
   PROP_CONNECTION,
+  PROP_SOURCE,
   N_PROPS
 };
 
 static GParamSpec *props[N_PROPS] = { 0, };
 
 G_DEFINE_TYPE (GrlTrackerSourceNotify, grl_tracker_source_notify, G_TYPE_OBJECT)
-
-static GrlTrackerSourceNotify *singleton = NULL;
 
 static GrlMedia *
 media_for_event (GrlTrackerSourceNotify *self,
@@ -83,16 +80,10 @@ handle_changes (GrlTrackerSourceNotify   *self,
                 TrackerNotifierEventType  tracker_type,
                 GrlSourceChangeType       change_type)
 {
-  GrlTrackerSource *source = NULL;
   TrackerNotifierEvent *event;
   GPtrArray *change_list;
   GrlMedia *media;
   gint i;
-
-  source = grl_tracker_source_find ("");
-
-  if (!source || !grl_tracker_source_can_notify (source))
-    return;
 
   change_list = g_ptr_array_new ();
 
@@ -105,7 +96,7 @@ handle_changes (GrlTrackerSourceNotify   *self,
     g_ptr_array_add (change_list, media);
   }
 
-  grl_source_notify_change_list (GRL_SOURCE (source), change_list,
+  grl_source_notify_change_list (self->source, change_list,
                                  change_type, FALSE);
 }
 
@@ -139,6 +130,9 @@ grl_tracker_source_notify_get_property (GObject    *object,
   case PROP_CONNECTION:
     g_value_set_object (value, self->connection);
     break;
+  case PROP_SOURCE:
+    g_value_set_object (value, self->source);
+    break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
@@ -156,6 +150,9 @@ grl_tracker_source_notify_set_property (GObject      *object,
   switch (prop_id) {
   case PROP_CONNECTION:
     self->connection = g_value_get_object (value);
+    break;
+  case PROP_SOURCE:
+    self->source = g_value_get_object (value);
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -207,6 +204,14 @@ grl_tracker_source_notify_class_init (GrlTrackerSourceNotifyClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+  props[PROP_SOURCE] =
+    g_param_spec_object ("source",
+                         "Source",
+                         "Source being notified",
+                         GRL_TYPE_SOURCE,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 }
@@ -216,19 +221,12 @@ grl_tracker_source_notify_init (GrlTrackerSourceNotify *self)
 {
 }
 
-void
-grl_tracker_notify_init (TrackerSparqlConnection *sparql_conn)
+GrlTrackerSourceNotify *
+grl_tracker_source_notify_new (GrlSource               *source,
+                               TrackerSparqlConnection *sparql_conn)
 {
-  if (singleton != NULL)
-    return;
-
-  singleton = g_object_new (GRL_TRACKER_TYPE_SOURCE_NOTIFY,
-                            "connection", sparql_conn,
-                            NULL);
-}
-
-void
-grl_tracker_notify_shutdown (void)
-{
-  g_clear_object (&singleton);
+  return g_object_new (GRL_TRACKER_TYPE_SOURCE_NOTIFY,
+                       "source", source,
+                       "connection", sparql_conn,
+                       NULL);
 }

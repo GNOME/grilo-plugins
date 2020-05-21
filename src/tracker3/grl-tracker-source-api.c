@@ -332,17 +332,6 @@ get_sparql_type_filter (GrlOperationOptions *options,
                                                                         \
     GRL_ODEBUG ("%s", __FUNCTION__);                                    \
                                                                         \
-    if (g_cancellable_is_cancelled (os->cancel)) {                      \
-      GRL_ODEBUG ("\tOperation %u cancelled", spec->operation_id);      \
-      spec->callback (spec->source,                        \
-                      spec->operation_id,                               \
-                      NULL, 0,                                          \
-                      spec->user_data, NULL);                           \
-      grl_tracker_queue_done (grl_tracker_queue, os);                   \
-                                                                        \
-      return;                                                           \
-    }                                                                   \
-                                                                        \
     if (!tracker_sparql_cursor_next_finish (os->cursor,                 \
                                             result,                     \
                                             &tracker_error)) {          \
@@ -350,17 +339,18 @@ get_sparql_type_filter (GrlOperationOptions *options,
         GRL_WARNING ("\terror in parsing query id=%u : %s",             \
                      spec->operation_id, tracker_error->message);       \
                                                                         \
-        error = g_error_new (GRL_CORE_ERROR,                            \
-                             GRL_CORE_ERROR_##error##_FAILED,           \
-                             _("Failed to query: %s"),                  \
-                             tracker_error->message);                   \
+        if (!g_error_matches (tracker_error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) \
+          error = g_error_new (GRL_CORE_ERROR,                          \
+                               GRL_CORE_ERROR_##error##_FAILED,         \
+                               _("Failed to query: %s"),                \
+                               tracker_error->message);                 \
                                                                         \
         spec->callback (spec->source,                      \
                         spec->operation_id,                             \
                         NULL, 0,                                        \
                         spec->user_data, error);                        \
                                                                         \
-        g_error_free (error);                                           \
+        g_clear_error (&error);                                         \
         g_error_free (tracker_error);                                   \
       } else {                                                          \
         GRL_ODEBUG ("\tend of parsing id=%u :)", spec->operation_id);   \

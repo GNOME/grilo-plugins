@@ -365,12 +365,10 @@ get_sparql_type_filter (GrlOperationOptions *options,
       } else {                                                          \
         GRL_ODEBUG ("\tend of parsing id=%u :)", spec->operation_id);   \
                                                                         \
-        /* Only emit this last one if more result than expected */      \
-        if (os->count > 1)                                              \
-          spec->callback (spec->source,                    \
-                          spec->operation_id,                           \
-                          NULL, 0,                                      \
-                          spec->user_data, NULL);                       \
+        spec->callback (spec->source,                                   \
+                        spec->operation_id,                             \
+                        NULL, 0,                                        \
+                        spec->user_data, NULL);                         \
       }                                                                 \
                                                                         \
       grl_tracker_queue_done (grl_tracker_queue, os);                   \
@@ -381,8 +379,8 @@ get_sparql_type_filter (GrlOperationOptions *options,
                                                     0,                  \
                                                     NULL);              \
                                                                         \
-    GRL_ODEBUG ("\tParsing line %i of type %s",                         \
-                os->current, sparql_type);                              \
+    GRL_ODEBUG ("\tParsing line of type %s",                            \
+                sparql_type);                                           \
                                                                         \
     media = grl_tracker_build_grilo_media (sparql_type, os->type_filter);\
                                                                         \
@@ -398,19 +396,15 @@ get_sparql_type_filter (GrlOperationOptions *options,
       spec->callback (spec->source,                                     \
                       spec->operation_id,                               \
                       media,                                            \
-                      --os->count,                                      \
+                      GRL_SOURCE_REMAINING_UNKNOWN,                     \
                       spec->user_data,                                  \
                       NULL);                                            \
     }                                                                   \
                                                                         \
-    /* Schedule the next line to parse */                               \
-    os->current++;                                                      \
-    if (os->count < 1)                                                  \
-      grl_tracker_queue_done (grl_tracker_queue, os);                   \
-    else                                                                \
-      tracker_sparql_cursor_next_async (os->cursor, os->cancel,         \
-                                        (GAsyncReadyCallback) tracker_##name##_result_cb, \
-                                        (gpointer) os);                 \
+    /* Schedule the next row to parse */                                \
+    tracker_sparql_cursor_next_async (os->cursor, os->cancel,           \
+                                      (GAsyncReadyCallback) tracker_##name##_result_cb, \
+                                      (gpointer) os);                   \
   }                                                                     \
                                                                         \
   static void                                                           \
@@ -447,7 +441,6 @@ get_sparql_type_filter (GrlOperationOptions *options,
     }                                                                   \
                                                                         \
     /* Start parsing results */                                         \
-    os->current = 0;                                                    \
     tracker_sparql_cursor_next_async (os->cursor, NULL,                 \
                                       (GAsyncReadyCallback) tracker_##name##_result_cb, \
                                       (gpointer) os);                   \
@@ -802,7 +795,6 @@ grl_tracker_source_query (GrlSource *source,
 
   os->keys  = qs->keys;
   os->skip  = skip;
-  os->count = count;
   os->type_filter = grl_operation_options_get_type_filter (qs->options);
   os->data  = qs;
   /* os->cb.sr     = qs->callback; */
@@ -978,7 +970,6 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
                                       ss);
   os->keys  = ss->keys;
   os->skip  = skip;
-  os->count = count;
   os->type_filter = grl_operation_options_get_type_filter (ss->options);
 
   grl_tracker_queue_push (grl_tracker_queue, os);
@@ -1150,7 +1141,6 @@ grl_tracker_source_browse_category (GrlSource *source,
                                       bs);
   os->keys  = bs->keys;
   os->skip  = skip;
-  os->count = count;
   os->type_filter = grl_operation_options_get_type_filter (bs->options);
 
   grl_tracker_queue_push (grl_tracker_queue, os);

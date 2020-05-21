@@ -46,8 +46,6 @@ typedef struct {
   const GList             *keys;
   gpointer                 data;
 
-  TrackerSparqlCursor *cursor;
-
   guint operation_id;
 
   guint skip;

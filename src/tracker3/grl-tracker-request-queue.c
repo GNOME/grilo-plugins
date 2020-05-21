@@ -44,7 +44,6 @@ grl_tracker_op_terminate (GrlTrackerOp *os)
 
   g_clear_object (&os->statement);
   g_clear_pointer (&os->arguments, g_hash_table_unref);
-  g_clear_object (&os->cursor);
   g_object_unref (os->cancel);
   g_free (os->request);
 

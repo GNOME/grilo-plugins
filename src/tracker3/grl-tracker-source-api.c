@@ -323,6 +323,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
                               GAsyncResult *result,                     \
                               GrlTrackerOp *os)                         \
   {                                                                     \
+    TrackerSparqlCursor *cursor = TRACKER_SPARQL_CURSOR (source_object);\
     gint         col;                                                   \
     const gchar *sparql_type;                                           \
     GError      *tracker_error = NULL, *error = NULL;                   \
@@ -332,7 +333,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
                                                                         \
     GRL_ODEBUG ("%s", __FUNCTION__);                                    \
                                                                         \
-    if (!tracker_sparql_cursor_next_finish (os->cursor,                 \
+    if (!tracker_sparql_cursor_next_finish (cursor,                     \
                                             result,                     \
                                             &tracker_error)) {          \
       if (tracker_error != NULL) {                                      \
@@ -362,10 +363,11 @@ get_sparql_type_filter (GrlOperationOptions *options,
       }                                                                 \
                                                                         \
       grl_tracker_queue_done (grl_tracker_queue, os);                   \
+      g_object_unref (cursor);                                          \
       return;                                                           \
     }                                                                   \
                                                                         \
-    sparql_type = tracker_sparql_cursor_get_string (os->cursor,         \
+    sparql_type = tracker_sparql_cursor_get_string (cursor,             \
                                                     0,                  \
                                                     NULL);              \
                                                                         \
@@ -376,10 +378,10 @@ get_sparql_type_filter (GrlOperationOptions *options,
                                                                         \
     if (media != NULL) {                                                \
       for (col = 1 ;                                                    \
-           col < tracker_sparql_cursor_get_n_columns (os->cursor) ;     \
+           col < tracker_sparql_cursor_get_n_columns (cursor) ;         \
            col++) {                                                     \
         fill_grilo_media_from_sparql (GRL_TRACKER_SOURCE (spec->source), \
-                                      media, os->cursor, col);          \
+                                      media, cursor, col);              \
       }                                                                 \
       set_title_from_filename (media);                                  \
                                                                         \
@@ -392,7 +394,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
     }                                                                   \
                                                                         \
     /* Schedule the next row to parse */                                \
-    tracker_sparql_cursor_next_async (os->cursor, os->cancel,           \
+    tracker_sparql_cursor_next_async (cursor, os->cancel,               \
                                       (GAsyncReadyCallback) tracker_##name##_result_cb, \
                                       (gpointer) os);                   \
   }                                                                     \
@@ -404,10 +406,11 @@ get_sparql_type_filter (GrlOperationOptions *options,
   {                                                                     \
     GError *tracker_error = NULL, *error = NULL;                        \
     spec_type *spec = (spec_type *) os->data;                           \
+    TrackerSparqlCursor *cursor;                                        \
                                                                         \
     GRL_ODEBUG ("%s", __FUNCTION__);                                    \
                                                                         \
-    os->cursor =                                                        \
+    cursor =                                                            \
       tracker_sparql_statement_execute_finish (os->statement,           \
                                                result, &tracker_error); \
                                                                         \
@@ -431,7 +434,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
     }                                                                   \
                                                                         \
     /* Start parsing results */                                         \
-    tracker_sparql_cursor_next_async (os->cursor, NULL,                 \
+    tracker_sparql_cursor_next_async (cursor, NULL,                     \
                                       (GAsyncReadyCallback) tracker_##name##_result_cb, \
                                       (gpointer) os);                   \
   }

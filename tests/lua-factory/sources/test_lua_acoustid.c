@@ -82,7 +82,7 @@ test_query_by_fingerprint (void)
                                    options,
                                    &error);
   g_assert_no_error (error);
-  g_assert_cmpint (g_list_length (results), ==, 12);
+  g_assert_cmpint (g_list_length (results), ==, 8);
 
   media = GRL_MEDIA (results->data);
   g_assert_cmpstr (grl_media_get_title (media), ==, "Primavera");

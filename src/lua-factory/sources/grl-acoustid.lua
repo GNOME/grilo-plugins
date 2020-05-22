@@ -99,12 +99,15 @@ end
 
 function get_count(results)
   local count = 0
+  local recordings_found = {}
 
   if results and #results > 0 then
     for _,result in ipairs(results) do
       if result.recordings and #result.recordings > 0 then
         for _,recording in ipairs(result.recordings) do
-          if recording.releasegroups ~= nil then
+          if recording.releasegroups ~= nil and
+	      not recordings_found[recording.id] then
+	    recordings_found[recording.id] = true
             count = count + #recording.releasegroups
           end
         end
@@ -150,6 +153,7 @@ end
 
 function lookup_cb_query (feed)
   local count
+  local recordings_found = {}
   if not feed then
     grl.callback()
     return
@@ -171,7 +175,9 @@ function lookup_cb_query (feed)
       #result.recordings > 0 then
       for _, recording in ipairs(result.recordings) do
         if recording.releasegroups and
-          #recording.releasegroups > 0 then
+            #recording.releasegroups > 0 and
+	    not recordings_found[recording.id] then
+	  recordings_found[recording.id] = true
           for _, releasegroup in ipairs(recording.releasegroups) do
             count = count - 1
             media = build_media (recording, releasegroup)

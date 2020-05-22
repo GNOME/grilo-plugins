@@ -6,8 +6,6 @@
 # Copyright (C) 2016 Igalia S.L. All rights reserved.
 
 tracker_sources = [
-    'grl-tracker-request-queue.c',
-    'grl-tracker-request-queue.h',
     'grl-tracker-source-api.c',
     'grl-tracker-source-api.h',
     'grl-tracker-source-cache.c',

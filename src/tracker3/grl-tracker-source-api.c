@@ -35,7 +35,6 @@
 #include "grl-tracker-source-api.h"
 #include "grl-tracker-source-cache.h"
 #include "grl-tracker-source-priv.h"
-#include "grl-tracker-request-queue.h"
 #include "grl-tracker-utils.h"
 
 /* --------- Logging  -------- */
@@ -153,10 +152,12 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
 static GrlKeyID    grl_metadata_key_tracker_category;
 static GHashTable *grl_tracker_operations;
 
-/**/
-
-
-/**/
+typedef struct {
+  GCancellable *cancel;
+  const GList *keys;
+  gpointer data;
+  GrlTypeFilter type_filter;
+} GrlTrackerOp;
 
 /**/
 
@@ -315,6 +316,29 @@ get_sparql_type_filter (GrlOperationOptions *options,
   return g_string_free (sparql_filter, FALSE);
 }
 
+static GrlTrackerOp *
+grl_tracker_op_new (GrlTypeFilter  type_filter,
+                    const GList   *keys,
+                    gpointer       data)
+{
+  GrlTrackerOp *os;
+
+  os = g_new0 (GrlTrackerOp, 1);
+  os->cancel = g_cancellable_new ();
+  os->keys = keys;
+  os->type_filter = type_filter;
+  os->data = data;
+
+  return os;
+}
+
+static void
+grl_tracker_op_free (GrlTrackerOp *os)
+{
+  g_object_unref (os->cancel);
+  g_free (os);
+}
+
 /* I can haz templatze ?? */
 #define TRACKER_QUERY_CB(spec_type,name,error)                          \
                                                                         \
@@ -362,7 +386,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
                         spec->user_data, NULL);                         \
       }                                                                 \
                                                                         \
-      grl_tracker_queue_done (grl_tracker_queue, os);                   \
+      grl_tracker_op_free (os);                                         \
       g_object_unref (cursor);                                          \
       return;                                                           \
     }                                                                   \
@@ -404,6 +428,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
                        GAsyncResult *result,                            \
                        GrlTrackerOp *os)                                \
   {                                                                     \
+    TrackerSparqlStatement *statement = TRACKER_SPARQL_STATEMENT (source_object); \
     GError *tracker_error = NULL, *error = NULL;                        \
     spec_type *spec = (spec_type *) os->data;                           \
     TrackerSparqlCursor *cursor;                                        \
@@ -411,7 +436,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
     GRL_ODEBUG ("%s", __FUNCTION__);                                    \
                                                                         \
     cursor =                                                            \
-      tracker_sparql_statement_execute_finish (os->statement,           \
+      tracker_sparql_statement_execute_finish (statement,               \
                                                result, &tracker_error); \
                                                                         \
     if (tracker_error) {                                                \
@@ -428,7 +453,7 @@ get_sparql_type_filter (GrlOperationOptions *options,
                                                                         \
       g_error_free (tracker_error);                                     \
       g_error_free (error);                                             \
-      grl_tracker_queue_done (grl_tracker_queue, os);                   \
+      grl_tracker_op_free (os);                                         \
                                                                         \
       return;                                                           \
     }                                                                   \
@@ -448,6 +473,7 @@ tracker_resolve_cb (GObject      *source_object,
                     GAsyncResult *result,
                     GrlTrackerOp *os)
 {
+  TrackerSparqlStatement *statement = TRACKER_SPARQL_STATEMENT (source_object);
   GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) os->data;
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (rs->source);
   gint                  col;
@@ -456,7 +482,7 @@ tracker_resolve_cb (GObject      *source_object,
 
   GRL_ODEBUG ("%s", __FUNCTION__);
 
-  cursor = tracker_sparql_statement_execute_finish (os->statement,
+  cursor = tracker_sparql_statement_execute_finish (statement,
                                                     result, &tracker_error);
 
   if (tracker_error) {
@@ -493,7 +519,7 @@ tracker_resolve_cb (GObject      *source_object,
  end_operation:
   g_clear_object (&cursor);
 
-  grl_tracker_queue_done (grl_tracker_queue, os);
+  grl_tracker_op_free (os);
 }
 
 static void
@@ -501,6 +527,7 @@ tracker_media_from_uri_cb (GObject      *source_object,
                            GAsyncResult *result,
                            GrlTrackerOp *os)
 {
+  TrackerSparqlStatement    *statement = TRACKER_SPARQL_STATEMENT (source_object); \
   GrlSourceMediaFromUriSpec *mfus = (GrlSourceMediaFromUriSpec *) os->data;
   GrlTrackerSourcePriv      *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (mfus->source);
   GError                    *tracker_error = NULL, *error = NULL;
@@ -511,7 +538,7 @@ tracker_media_from_uri_cb (GObject      *source_object,
 
   GRL_ODEBUG ("%s", __FUNCTION__);
 
-  cursor = tracker_sparql_statement_execute_finish (os->statement,
+  cursor = tracker_sparql_statement_execute_finish (statement,
                                                     result, &tracker_error);
 
   if (tracker_error) {
@@ -552,7 +579,7 @@ tracker_media_from_uri_cb (GObject      *source_object,
  end_operation:
   g_clear_object (&cursor);
 
-  grl_tracker_queue_done (grl_tracker_queue, os);
+  grl_tracker_op_free (os);
 }
 
 static void
@@ -586,7 +613,7 @@ tracker_store_metadata_cb (GObject      *source_object,
     sms->callback (sms->source, sms->media, NULL, sms->user_data, error);
   }
 
-  grl_tracker_queue_done (grl_tracker_queue, os);
+  grl_tracker_op_free (os);
 }
 
 /**/
@@ -781,19 +808,13 @@ grl_tracker_source_query (GrlSource *source,
                                                qs->query,
                                                NULL, NULL);
 
-  os = grl_tracker_op_initiate_query (qs->operation_id,
-                                      statement, NULL,
-                                      (GAsyncReadyCallback) tracker_query_cb,
-                                      qs);
+  os = grl_tracker_op_new (grl_operation_options_get_type_filter (qs->options),
+                           qs->keys, qs);
 
-  os->keys  = qs->keys;
-  os->skip  = skip;
-  os->type_filter = grl_operation_options_get_type_filter (qs->options);
-  os->data  = qs;
-  /* os->cb.sr     = qs->callback; */
-  /* os->user_data = qs->user_data; */
-
-  grl_tracker_queue_push (grl_tracker_queue, os);
+  tracker_sparql_statement_execute_async (statement,
+                                          os->cancel,
+                                          (GAsyncReadyCallback) tracker_query_cb,
+                                          os);
 
   g_clear_object (&statement);
 
@@ -838,12 +859,12 @@ grl_tracker_source_resolve (GrlSource *source,
                                                sparql_final,
                                                NULL, NULL);
 
-  os = grl_tracker_op_initiate_metadata (statement, NULL,
-                                         (GAsyncReadyCallback) tracker_resolve_cb,
-                                         rs);
-  os->keys = rs->keys;
+  os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, rs->keys, rs);
 
-  grl_tracker_queue_push (grl_tracker_queue, os);
+  tracker_sparql_statement_execute_async (statement,
+                                          os->cancel,
+                                          (GAsyncReadyCallback) tracker_resolve_cb,
+                                          os);
 
   g_clear_pointer (&sparql_type_filter, g_free);
   g_clear_pointer (&sparql_select, g_free);
@@ -880,6 +901,7 @@ void
 grl_tracker_source_store_metadata (GrlSource *source,
                                    GrlSourceStoreMetadataSpec *sms)
 {
+  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
   gchar *sparql_delete, *sparql_cdelete, *sparql_insert, *sparql_final;
   const gchar *urn = grl_data_get_string (GRL_DATA (sms->media),
                                           grl_metadata_key_tracker_urn);
@@ -902,14 +924,16 @@ grl_tracker_source_store_metadata (GrlSource *source,
                                     urn, sparql_insert);
   }
 
-  os = grl_tracker_op_initiate_set_metadata (sparql_final,
-                                             (GAsyncReadyCallback) tracker_store_metadata_cb,
-                                             sms);
-  os->keys = sms->keys;
-
   GRL_IDEBUG ("\trequest: '%s'", sparql_final);
 
-  grl_tracker_queue_push (grl_tracker_queue, os);
+  os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, sms->keys, sms);
+
+  tracker_sparql_connection_update_async (priv->tracker_connection,
+                                          sparql_final,
+                                          G_PRIORITY_DEFAULT,
+                                          os->cancel,
+                                          tracker_store_metadata_cb,
+                                          os);
 
   g_free (sparql_delete);
   g_free (sparql_cdelete);
@@ -957,15 +981,13 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
                                                sparql_final,
                                                NULL, NULL);
 
-  os = grl_tracker_op_initiate_query (ss->operation_id,
-                                      statement, NULL,
-                                      (GAsyncReadyCallback) tracker_search_cb,
-                                      ss);
-  os->keys  = ss->keys;
-  os->skip  = skip;
-  os->type_filter = grl_operation_options_get_type_filter (ss->options);
+  os = grl_tracker_op_new (grl_operation_options_get_type_filter (ss->options),
+                           ss->keys, ss);
 
-  grl_tracker_queue_push (grl_tracker_queue, os);
+  tracker_sparql_statement_execute_async (statement,
+                                          os->cancel,
+                                          (GAsyncReadyCallback) tracker_search_cb,
+                                          os);
 
   g_free (sparql_select);
   g_free (sparql_type_filter);
@@ -1128,15 +1150,13 @@ grl_tracker_source_browse_category (GrlSource *source,
                                                sparql_final,
                                                NULL, NULL);
 
-  os = grl_tracker_op_initiate_query (bs->operation_id,
-                                      statement, NULL,
-                                      (GAsyncReadyCallback) tracker_browse_cb,
-                                      bs);
-  os->keys  = bs->keys;
-  os->skip  = skip;
-  os->type_filter = grl_operation_options_get_type_filter (bs->options);
+  os = grl_tracker_op_new (grl_operation_options_get_type_filter (bs->options),
+                           bs->keys, bs);
 
-  grl_tracker_queue_push (grl_tracker_queue, os);
+  tracker_sparql_statement_execute_async (statement,
+                                          os->cancel,
+                                          (GAsyncReadyCallback) tracker_browse_cb,
+                                          os);
 
   g_free (sparql_select);
   g_free (duration_constraint);
@@ -1165,7 +1185,7 @@ grl_tracker_source_cancel (GrlSource *source, guint operation_id)
                             GSIZE_TO_POINTER (operation_id));
 
   if (os != NULL)
-    grl_tracker_queue_cancel (grl_tracker_queue, os);
+    g_cancellable_cancel (os->cancel);
 }
 
 gboolean
@@ -1312,12 +1332,12 @@ grl_tracker_source_get_media_from_uri (GrlSource *source,
                                                sparql_final,
                                                NULL, NULL);
 
-  os = grl_tracker_op_initiate_metadata (statement, NULL,
-                                         (GAsyncReadyCallback) tracker_media_from_uri_cb,
-                                         mfus);
-  os->keys  = mfus->keys;
+  os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, mfus->keys, mfus);
 
-  grl_tracker_queue_push (grl_tracker_queue, os);
+  tracker_sparql_statement_execute_async (statement,
+                                          os->cancel,
+                                          (GAsyncReadyCallback) tracker_media_from_uri_cb,
+                                          os);
 
   g_free (sparql_select);
   g_clear_object (&statement);

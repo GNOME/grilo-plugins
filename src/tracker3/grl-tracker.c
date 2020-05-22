@@ -35,7 +35,6 @@
 #include "grl-tracker-source.h"
 #include "grl-tracker-source-api.h"
 #include "grl-tracker-source-notif.h"
-#include "grl-tracker-request-queue.h"
 #include "grl-tracker-utils.h"
 
 /* --------- Logging  -------- */
@@ -54,7 +53,6 @@ gboolean grl_tracker3_plugin_init (GrlRegistry *registry,
 TrackerSparqlConnection *grl_tracker_connection = NULL;
 GrlPlugin *grl_tracker_plugin;
 GCancellable *grl_tracker_plugin_init_cancel = NULL;
-GrlTrackerQueue *grl_tracker_queue = NULL;
 
 /* tracker plugin config */
 gchar *grl_tracker_store_path = NULL;
@@ -65,8 +63,6 @@ static void
 init_sources (void)
 {
   grl_tracker_setup_key_mappings ();
-
-  grl_tracker_queue = grl_tracker_queue_new ();
 
   if (grl_tracker_connection != NULL)
     grl_tracker_source_sources_init ();

@@ -13,6 +13,8 @@ tracker_sources = [
     'grl-tracker-source-notif.c',
     'grl-tracker-source-notif.h',
     'grl-tracker-source-priv.h',
+    'grl-tracker-source-statements.c',
+    'grl-tracker-source-statements.h',
     'grl-tracker-source.c',
     'grl-tracker-source.h',
     'grl-tracker-utils.c',

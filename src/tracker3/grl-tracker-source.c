@@ -64,8 +64,6 @@ static void grl_tracker_source_set_property (GObject      *object,
 
 static void grl_tracker_source_finalize (GObject *object);
 
-static void grl_tracker_source_constructed (GObject *object);
-
 /* ===================== Globals  ================= */
 
 /* shared data across  */
@@ -96,7 +94,6 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
 
   g_class->finalize     = grl_tracker_source_finalize;
   g_class->set_property = grl_tracker_source_set_property;
-  g_class->constructed  = grl_tracker_source_constructed;
 
   source_class->cancel              = grl_tracker_source_cancel;
   source_class->supported_keys      = grl_tracker_supported_keys;
@@ -135,18 +132,6 @@ grl_tracker_source_init (GrlTrackerSource *source)
   source->priv = priv;
 
   priv->operations = g_hash_table_new (g_direct_hash, g_direct_equal);
-}
-
-static void
-grl_tracker_source_constructed (GObject *object)
-{
-  GrlTrackerSource *self;
-
-  self = GRL_TRACKER_SOURCE (object);
-
-  g_clear_object (&self->priv->tracker_connection);
-
-  G_OBJECT_CLASS (grl_tracker_source_parent_class)->constructed (object);
 }
 
 static void

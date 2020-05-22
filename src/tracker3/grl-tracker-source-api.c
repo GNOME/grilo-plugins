@@ -35,6 +35,7 @@
 #include "grl-tracker-source-api.h"
 #include "grl-tracker-source-cache.h"
 #include "grl-tracker-source-priv.h"
+#include "grl-tracker-source-statements.h"
 #include "grl-tracker-utils.h"
 
 /* --------- Logging  -------- */
@@ -136,14 +137,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "tracker:available true ; "                           \
   "a nfo:Media . "                                      \
   "}"
-
-#define TRACKER_MEDIA_FROM_URI_REQUEST          \
-  "SELECT rdf:type(?urn) %s "                   \
-  "WHERE "                                      \
-  "{ "                                          \
-  "?urn nie:url \"%s\" ; "                      \
-  "tracker:available ?tr . "                    \
-  "} "                                          \
 
 /**/
 
@@ -529,7 +522,6 @@ tracker_media_from_uri_cb (GObject      *source_object,
 {
   TrackerSparqlStatement    *statement = TRACKER_SPARQL_STATEMENT (source_object); \
   GrlSourceMediaFromUriSpec *mfus = (GrlSourceMediaFromUriSpec *) os->data;
-  GrlTrackerSourcePriv      *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (mfus->source);
   GError                    *tracker_error = NULL, *error = NULL;
   GrlMedia                  *media;
   TrackerSparqlCursor       *cursor;
@@ -1308,9 +1300,7 @@ void
 grl_tracker_source_get_media_from_uri (GrlSource *source,
                                        GrlSourceMediaFromUriSpec *mfus)
 {
-  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *sparql_select;
-  gchar                *sparql_final;
+  GError               *error = NULL;
   GrlTrackerOp         *os;
   TrackerSparqlStatement *statement;
 
@@ -1320,25 +1310,25 @@ grl_tracker_source_get_media_from_uri (GrlSource *source,
   if (!g_list_find (mfus->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID)))
     mfus->keys = g_list_prepend (mfus->keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ID));
 
-  sparql_select = grl_tracker_source_get_select_string (mfus->keys);
-  sparql_final = g_strdup_printf (TRACKER_MEDIA_FROM_URI_REQUEST,
-                                  sparql_select,
-                                  mfus->uri);
-
-  GRL_IDEBUG ("\tselect: '%s'", sparql_final);
-
-  statement =
-    tracker_sparql_connection_query_statement (priv->tracker_connection,
-                                               sparql_final,
-                                               NULL, NULL);
+  statement = grl_tracker_source_create_statement (GRL_TRACKER_SOURCE (source),
+                                                   GRL_TRACKER_QUERY_MEDIA_FROM_URI,
+                                                   mfus->options,
+                                                   mfus->keys,
+                                                   NULL,
+                                                   &error);
+  if (!statement) {
+    mfus->callback (source, mfus->operation_id, NULL, NULL, error);
+    g_error_free (error);
+    return;
+  }
 
   os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, mfus->keys, mfus);
 
+  tracker_sparql_statement_bind_string (statement, "uri", mfus->uri);
   tracker_sparql_statement_execute_async (statement,
                                           os->cancel,
                                           (GAsyncReadyCallback) tracker_media_from_uri_cb,
                                           os);
 
-  g_free (sparql_select);
   g_clear_object (&statement);
 }

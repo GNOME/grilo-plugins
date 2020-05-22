@@ -34,6 +34,7 @@
 /**/
 
 typedef enum {
+  GRL_TRACKER_QUERY_MEDIA_FROM_URI, /* Arguments: ~uri */
   GRL_TRACKER_QUERY_N_QUERIES,
 } GrlTrackerQueryType;
 

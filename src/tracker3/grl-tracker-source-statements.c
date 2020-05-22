@@ -53,6 +53,8 @@ struct _CachedStatement
 };
 
 static const gchar *query_bases[GRL_TRACKER_QUERY_N_QUERIES] = {
+  /* GRL_TRACKER_QUERY_MEDIA_FROM_URI */
+  "?urn nie:isStoredAs ~uri ",
 };
 
 static void

@@ -105,23 +105,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
   TRACKER_QUERY_LIMIT
 
-#define TRACKER_RESOLVE_REQUEST                 \
-  "SELECT %s "                                  \
-  "WHERE "                                      \
-  "{ "                                          \
-  "?urn a nie:InformationElement ; "            \
-  "  nie:isStoredAs ?file . "                   \
-  "FILTER (tracker:id(?urn) = %s) "             \
-  "}"
-
-#define TRACKER_RESOLVE_URL_REQUEST             \
-  "SELECT %s "                                  \
-  "WHERE "                                      \
-  "{ "                                          \
-  "?urn a nie:DataObject . "                    \
-  "?urn nie:url \"%s\" "                        \
-  "}"
-
 #define TRACKER_DELETE_REQUEST                          \
   "DELETE { <%s> %s } WHERE { <%s> a nfo:Media . %s }"
 
@@ -459,7 +442,6 @@ tracker_resolve_cb (GObject      *source_object,
 {
   TrackerSparqlStatement *statement = TRACKER_SPARQL_STATEMENT (source_object);
   GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) os->data;
-  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (rs->source);
   gint                  col;
   GError               *tracker_error = NULL, *error = NULL;
   TrackerSparqlCursor  *cursor;
@@ -812,45 +794,44 @@ void
 grl_tracker_source_resolve (GrlSource *source,
                             GrlSourceResolveSpec *rs)
 {
-  GrlTrackerSourcePriv *priv               = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *sparql_select, *sparql_final;
-  gchar                *sparql_type_filter = NULL;
-  const gchar          *url                = grl_media_get_url (rs->media);
   GrlTrackerOp         *os;
+  GrlTrackerQueryType   query_type;
+  const gchar          *arg, *value;
+  GError               *error = NULL;
   TrackerSparqlStatement *statement;
 
   GRL_IDEBUG ("%s: id=%i", __FUNCTION__, rs->operation_id);
 
   if (grl_media_get_id (rs->media) != NULL) {
-    sparql_select = grl_tracker_source_get_select_string (rs->keys);
-    sparql_final = g_strdup_printf (TRACKER_RESOLVE_REQUEST, sparql_select,
-                                    grl_media_get_id (rs->media));
+    query_type = GRL_TRACKER_QUERY_RESOLVE;
+    arg = "resource";
+    value = grl_media_get_id (rs->media);
   } else if (grl_media_get_url (rs->media) != NULL) {
-    sparql_select = grl_tracker_source_get_select_string (rs->keys);
-    sparql_final = g_strdup_printf (TRACKER_RESOLVE_URL_REQUEST,
-                                    sparql_select,
-                                    grl_media_get_url (rs->media));
+    query_type = GRL_TRACKER_QUERY_RESOLVE_URI;
+    arg = "uri";
+    value = grl_media_get_url (rs->media);
   } else {
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
     return;
   }
 
-  GRL_IDEBUG ("\request: '%s'", sparql_final);
-
   statement =
-    tracker_sparql_connection_query_statement (priv->tracker_connection,
-                                               sparql_final,
-                                               NULL, NULL);
+    grl_tracker_source_create_statement (GRL_TRACKER_SOURCE (source),
+                                         query_type, NULL,
+                                         rs->keys, NULL, &error);
+  if (!statement) {
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
+    g_error_free (error);
+    return;
+  }
 
   os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, rs->keys, rs);
 
+  tracker_sparql_statement_bind_string (statement, arg, value);
   tracker_sparql_statement_execute_async (statement,
                                           os->cancel,
                                           (GAsyncReadyCallback) tracker_resolve_cb,
                                           os);
-
-  g_clear_pointer (&sparql_type_filter, g_free);
-  g_clear_pointer (&sparql_select, g_free);
   g_clear_object (&statement);
 }
 

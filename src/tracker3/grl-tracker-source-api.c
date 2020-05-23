@@ -57,20 +57,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
 
 /* ------- Definitions ------- */
 
-#define TRACKER_QUERY_LIMIT                     \
-  "OFFSET %u "                                  \
-  "LIMIT %u"
-
-#define TRACKER_QUERY_PARTIAL_REQUEST           \
-  "SELECT rdf:type(?urn) %s "                   \
-  "WHERE { %s } "                               \
-  "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
-  TRACKER_QUERY_LIMIT
-
-#define TRACKER_QUERY_FULL_REQUEST              \
-  "%s "                                         \
-  TRACKER_QUERY_LIMIT
-
 #define TRACKER_DELETE_REQUEST                          \
   "DELETE { <%s> %s } WHERE { <%s> a nfo:Media . %s }"
 
@@ -696,12 +682,7 @@ grl_tracker_source_query (GrlSource *source,
                           GrlSourceQuerySpec *qs)
 {
   GError               *error = NULL;
-  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *sparql_final;
-  gchar                *sparql_select;
   GrlTrackerOp         *os;
-  gint count = grl_operation_options_get_count (qs->options);
-  guint skip = grl_operation_options_get_skip (qs->options);
   TrackerSparqlStatement *statement;
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, qs->operation_id);
@@ -713,31 +694,15 @@ grl_tracker_source_query (GrlSource *source,
     goto send_error;
   }
 
-  /* Check if it is a full sparql query */
-  if (g_ascii_strncasecmp (qs->query, "select ", 7) != 0) {
-    sparql_select = grl_tracker_source_get_select_string (qs->keys);
-    sparql_final = g_strdup_printf (TRACKER_QUERY_PARTIAL_REQUEST,
-                                    sparql_select,
-                                    qs->query,
-                                    skip,
-                                    count);
-    g_free (qs->query);
-    g_free (sparql_select);
-    qs->query = sparql_final;
-  } else {
-    /* Append offset and limit */
-    sparql_final = g_strdup_printf (TRACKER_QUERY_FULL_REQUEST,
-                                    qs->query,
-                                    skip,
-                                    count);
-    g_free (qs->query);
-    qs->query = sparql_final;
-  }
-
   statement =
-    tracker_sparql_connection_query_statement (priv->tracker_connection,
-                                               qs->query,
-                                               NULL, NULL);
+    grl_tracker_source_create_statement (GRL_TRACKER_SOURCE (source),
+                                         GRL_TRACKER_QUERY_ALL,
+                                         qs->options,
+                                         qs->keys,
+                                         qs->query,
+                                         &error);
+  if (!statement)
+    goto send_error;
 
   os = grl_tracker_op_new (grl_operation_options_get_type_filter (qs->options),
                            qs->keys, qs);

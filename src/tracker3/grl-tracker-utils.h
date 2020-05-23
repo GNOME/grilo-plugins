@@ -59,6 +59,7 @@ typedef struct {
   const gchar *sparql_key_attr;
   const gchar *sparql_key_attr_call;
   const gchar *sparql_key_flavor;
+  GrlTypeFilter filter;
 
   tracker_grl_sparql_setter_cb_t set_value;
 } tracker_grl_sparql_t;
@@ -70,6 +71,8 @@ const GList *grl_tracker_supported_keys (GrlSource *source);
 gboolean grl_tracker_key_is_supported (const GrlKeyID key);
 
 const gchar * grl_tracker_key_get_variable_name (const GrlKeyID key);
+const gchar * grl_tracker_key_get_sparql_statement (const GrlKeyID key,
+                                                    GrlTypeFilter  filter);
 
 void grl_tracker_setup_key_mappings (void);
 

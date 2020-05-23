@@ -153,6 +153,7 @@ set_int_metadata_keys (TrackerSparqlCursor *cursor,
 
 static tracker_grl_sparql_t *
 insert_key_mapping (GrlKeyID     grl_key,
+                    const gchar *sparql_var_name,
                     const gchar *sparql_key_attr,
                     const gchar *sparql_key_attr_call,
                     const gchar *sparql_key_flavor)
@@ -169,6 +170,7 @@ insert_key_mapping (GrlKeyID     grl_key,
   canon_name = g_strdup (GRL_METADATA_KEY_GET_NAME (grl_key));
 
   assoc->grl_key               = grl_key;
+  assoc->sparql_var_name       = sparql_var_name;
   assoc->sparql_key_name       = build_flavored_key (canon_name,
                                                      sparql_key_flavor);
   assoc->sparql_key_name_canon = g_strdup (canon_name);
@@ -205,6 +207,7 @@ insert_key_mapping (GrlKeyID     grl_key,
 
 static tracker_grl_sparql_t *
 insert_key_mapping_with_setter (GrlKeyID                       grl_key,
+                                const gchar                   *sparql_var_name,
                                 const gchar                   *sparql_key_attr,
                                 const gchar                   *sparql_key_attr_call,
                                 const gchar                   *sparql_key_flavor,
@@ -213,6 +216,7 @@ insert_key_mapping_with_setter (GrlKeyID                       grl_key,
   tracker_grl_sparql_t *assoc;
 
   assoc = insert_key_mapping (grl_key,
+                              sparql_var_name,
                               sparql_key_attr,
                               sparql_key_attr_call,
                               sparql_key_flavor);
@@ -241,98 +245,117 @@ grl_tracker_setup_key_mappings (void)
   sparql_to_grl_mapping = g_hash_table_new (g_str_hash, g_str_equal);
 
   insert_key_mapping (grl_metadata_key_tracker_urn,
+                      "urn",
                       NULL,
                       "?urn",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_ALBUM,
+                      "album",
                       NULL,
                       "nie:title(nmm:musicAlbum(?urn))",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_ALBUM_DISC_NUMBER,
+                      "albumDiscNumber",
                       NULL,
                       "nmm:setNumber(nmm:musicAlbumDisc(?urn))",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_ARTIST,
+                      "artist",
                       NULL,
                       "nmm:artistName(nmm:performer(?urn))",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_ALBUM_ARTIST,
+                      "albumArtist",
                       NULL,
                       "nmm:artistName(nmm:albumArtist(nmm:musicAlbum(?urn)))",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_AUTHOR,
+                      "author",
                       NULL,
                       "nmm:artistName(nmm:performer(?urn))",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_BITRATE,
+                      "bitrate",
                       "nfo:averageBitrate",
                       "nfo:averageBitrate(?urn)",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_CHILDCOUNT,
+                      "childCount",
                       "nfo:entryCounter",
                       "nfo:entryCounter(?urn)",
                       "directory");
 
   insert_key_mapping (GRL_METADATA_KEY_COMPOSER,
+                      "composer",
                       NULL,
                       "nmm:artistName(nmm:composer(?urn))",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_SIZE,
+                      "size",
                       NULL,
                       "nfo:fileSize(?urn)",
                       "file");
 
   insert_key_mapping (grl_metadata_key_gibest_hash,
+                      "gibestHash",
                       NULL,
                       "(select nfo:hashValue(?h) { ?urn nfo:hasHash ?h . ?h nfo:hashAlgorithm \"gibest\" })",
                       "video");
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_MODIFICATION_DATE,
+                                  "lastModified",
                                   "nfo:fileLastModified",
                                   "nfo:fileLastModified(?urn)",
                                   "file",
                                   set_date);
 
   insert_key_mapping (GRL_METADATA_KEY_DURATION,
+                      "duration",
                       "nfo:duration",
                       "nfo:duration(?urn)",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_TRACK_ID,
+                      "mbTrack",
                       NULL,
                       "(SELECT tracker:referenceIdentifier(?t) AS ?t_id { ?urn tracker:hasExternalReference ?t . ?t tracker:referenceSource \"https://musicbrainz.org/doc/Track\" })",
 		      "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_ARTIST_ID,
+                      "mbArtist",
                       NULL,
 		      "(SELECT tracker:referenceIdentifier(?a) AS ?a_id { ?urn nmm:performer ?artist . ?artist tracker:hasExternalReference ?a . ?a tracker:referenceSource \"https://musicbrainz.org/doc/Artist\" })",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RECORDING_ID,
+                      "mbRecording",
                       NULL,
 		      "(SELECT tracker:referenceIdentifier(?r) AS ?r_id { ?urn tracker:hasExternalReference ?r . ?r tracker:referenceSource \"https://musicbrainz.org/doc/Recording\" })",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RELEASE_ID,
+                      "mbRelease",
                       NULL,
 		      "(SELECT tracker:referenceIdentifier(?re) AS ?re_id { ?urn nmm:musicAlbum ?album . ?album tracker:hasExternalReference ?re . ?re tracker:referenceSource \"https://musicbrainz.org/doc/Release\" })",
                       "audio");
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RELEASE_GROUP_ID,
+                      "mbReleaseGroup",
                       NULL,
 		      "(SELECT tracker:referenceIdentifier(?rg) AS ?rg_id { ?urn nmm:musicAlbum ?album . ?album tracker:hasExternalReference ?rg . ?rg tracker:referenceSource \"https://musicbrainz.org/doc/Release_Group\" })",
 		      "audio");
 
   if (grl_metadata_key_chromaprint != 0) {
     insert_key_mapping_with_setter (grl_metadata_key_chromaprint,
+                                    "chromaprint",
                                     NULL,
                                     "(select nfo:hashValue(?h) { ?urn nfo:hasHash ?h . ?h nfo:hashAlgorithm \"chromaprint\" })",
                                     "audio",
@@ -340,128 +363,152 @@ grl_tracker_setup_key_mappings (void)
   };
 
   insert_key_mapping (GRL_METADATA_KEY_FRAMERATE,
+                      "frameRate",
                       "nfo:frameRate",
                       "nfo:frameRate(?urn)",
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_HEIGHT,
+                      "height",
                       "nfo:height",
                       "nfo:height(?urn)",
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_ID,
+                      "id",
                       "tracker:id",
                       "tracker:id(?urn)",
                       "file");
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_LAST_PLAYED,
+                                  "fileLastAccessed",
                                   "nfo:fileLastAccessed",
                                   "nfo:fileLastAccessed(?urn)",
                                   "file",
                                   set_date);
 
   insert_key_mapping (GRL_METADATA_KEY_MIME,
+                      "mimeType",
                       "nie:mimeType",
                       "nie:mimeType(?urn)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_SITE,
+                      "siteUrl",
                       "nie:url",
                       "nie:url(?urn)",
                       "file");
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_TITLE,
+                                  "title",
                                   "nie:title",
                                   "nie:title(?urn)",
                                   "audio",
                                   set_title);
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_TITLE,
+                                  "fileName",
                                   "nfo:fileName",
                                   "nfo:fileName(?urn)",
                                   "file",
                                   set_title_from_filename);
 
   insert_key_mapping (GRL_METADATA_KEY_URL,
+                      "url",
                       "nie:url",
                       "nie:url(?urn)",
                       "file");
 
   insert_key_mapping (GRL_METADATA_KEY_WIDTH,
+                      "width",
                       "nfo:width",
                       "nfo:width(?urn)",
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_SEASON,
+                      "season",
                       NULL,
                       "nmm:seasonNumber(nmm:isPartOfSeason(?urn))",
                       "video");
 
   insert_key_mapping (GRL_METADATA_KEY_EPISODE,
+                      "episode",
                       "nmm:episodeNumber",
                       "nmm:episodeNumber(?urn)",
                       "video");
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_CREATION_DATE,
+                                  "creationDate",
                                   "nie:contentCreated",
                                   "nie:contentCreated(?urn)",
                                   "image",
                                   set_date);
 
   insert_key_mapping (GRL_METADATA_KEY_CAMERA_MODEL,
+                      "cameraModel",
                       NULL,
                       "nfo:model(nfo:equipment(?urn))",
                       "image");
 
   insert_key_mapping (GRL_METADATA_KEY_FLASH_USED,
+                      "flashUsed",
                       "nmm:flash",
                       "nmm:flash(?urn)",
                       "image");
 
   insert_key_mapping (GRL_METADATA_KEY_EXPOSURE_TIME,
+                      "exposureTime",
                       "nmm:exposureTime",
                       "nmm:exposureTime(?urn)",
                       "image");
 
   insert_key_mapping (GRL_METADATA_KEY_ISO_SPEED,
+                      "isoSpeed",
                       "nmm:isoSpeed",
                       "nmm:isoSpeed(?urn)",
                       "image");
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_ORIENTATION,
+                                  "orientation",
                                   "nfo:orientation",
                                   "nfo:orientation(?urn)",
                                   "image",
                                   set_orientation);
 
   insert_key_mapping (GRL_METADATA_KEY_PLAY_COUNT,
+                      "playCount",
                       "nie:usageCounter",
                       "nie:usageCounter(?urn)",
                       "media");
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_LAST_PLAYED,
+                                  "lastPlayed",
                                   "nie:contentAccessed",
                                   "nie:contentAccessed(?urn)",
                                   "media",
                                   set_date);
 
   insert_key_mapping (GRL_METADATA_KEY_LAST_POSITION,
+                      "lastPlayPosition",
                       "nfo:lastPlayedPosition",
                       "nfo:lastPlayedPosition(?urn)",
                       "media");
 
   insert_key_mapping (GRL_METADATA_KEY_START_TIME,
+                      "startTime",
                       "nfo:audioOffset",
                       "nfo:audioOffset(?urn)",
                       "media");
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_TRACK_NUMBER,
+                                  "trackNumber",
                                   "nmm:trackNumber",
                                   "nmm:trackNumber(?urn)",
                                   "audio",
                                   set_int_metadata_keys);
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_FAVOURITE,
+                                  "favorite",
                                   "nao:hasTag",
                                   "nao:hasTag(?urn)",
                                   "audio",
@@ -799,4 +846,19 @@ grl_tracker_supported_keys (GrlSource *source)
   }
 
   return supported_keys;
+}
+
+const gchar *
+grl_tracker_key_get_variable_name (const GrlKeyID key)
+{
+  tracker_grl_sparql_t *assoc;
+  GList *assoc_list;
+
+  assoc_list = g_hash_table_lookup (grl_to_sparql_mapping,
+                                    GRLKEYID_TO_POINTER (key));
+  if (!assoc_list)
+    return NULL;
+  assoc = assoc_list->data;
+
+  return assoc->sparql_var_name;
 }

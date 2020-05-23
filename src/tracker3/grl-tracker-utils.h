@@ -53,6 +53,7 @@ typedef void (*tracker_grl_sparql_setter_cb_t) (TrackerSparqlCursor *cursor,
 
 typedef struct {
   GrlKeyID     grl_key;
+  const gchar *sparql_var_name;
   const gchar *sparql_key_name;
   const gchar *sparql_key_name_canon;
   const gchar *sparql_key_attr;
@@ -67,6 +68,8 @@ extern GrlKeyID grl_metadata_key_tracker_urn;
 const GList *grl_tracker_supported_keys (GrlSource *source);
 
 gboolean grl_tracker_key_is_supported (const GrlKeyID key);
+
+const gchar * grl_tracker_key_get_variable_name (const GrlKeyID key);
 
 void grl_tracker_setup_key_mappings (void);
 

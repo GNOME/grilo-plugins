@@ -71,28 +71,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "%s "                                         \
   TRACKER_QUERY_LIMIT
 
-#define TRACKER_SEARCH_REQUEST                  \
-  "SELECT DISTINCT rdf:type(?urn) %s "          \
-  "WHERE "                                      \
-  "{ "                                          \
-  "%s "                                         \
-  "?urn tracker:available ?tr . "               \
-  "?urn fts:match \"%s\" . "                    \
-  "%s "                                         \
-  "} "                                          \
-  "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
-  TRACKER_QUERY_LIMIT
-
-#define TRACKER_SEARCH_ALL_REQUEST              \
-  "SELECT DISTINCT rdf:type(?urn) %s "          \
-  "WHERE "                                      \
-  "{ "                                          \
-  "?urn tracker:available ?tr . "               \
-  "%s %s "                                      \
-  "} "                                          \
-  "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
-  TRACKER_QUERY_LIMIT
-
 #define TRACKER_DELETE_REQUEST                          \
   "DELETE { <%s> %s } WHERE { <%s> a nfo:Media . %s }"
 
@@ -895,55 +873,46 @@ grl_tracker_source_store_metadata (GrlSource *source,
 void
 grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
 {
-  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *sparql_select;
-  gchar                *sparql_final;
-  gchar                *sparql_type_filter;
-  gchar                *escaped_text;
   GrlTrackerOp         *os;
-  gint count = grl_operation_options_get_count (ss->options);
-  guint skip = grl_operation_options_get_skip (ss->options);
-  int min_dur, max_dur;
-  char *duration_constraint;
+  GrlTrackerQueryType   query_type;
+  GError               *error = NULL;
   TrackerSparqlStatement *statement;
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, ss->operation_id);
 
-  sparql_select = grl_tracker_source_get_select_string (ss->keys);
-  sparql_type_filter = get_sparql_type_filter (ss->options, FALSE);
-  grl_tracker_source_get_duration_min_max (ss->options, &min_dur, &max_dur);
-  duration_constraint = grl_tracker_source_create_constraint (min_dur, max_dur);
-  if (!ss->text || ss->text[0] == '\0') {
-    /* Search all */
-    sparql_final = g_strdup_printf (TRACKER_SEARCH_ALL_REQUEST, sparql_select,
-                                    duration_constraint, sparql_type_filter,
-                                    skip, count);
-  } else {
-    escaped_text = tracker_sparql_escape_string (ss->text);
-    sparql_final = g_strdup_printf (TRACKER_SEARCH_REQUEST, sparql_select,
-                                    sparql_type_filter, escaped_text,
-                                    duration_constraint, skip, count);
-    g_free (escaped_text);
-  }
-
-  GRL_IDEBUG ("\tselect: '%s'", sparql_final);
+  if (!ss->text || ss->text[0] == '\0')
+    query_type = GRL_TRACKER_QUERY_ALL;
+  else
+    query_type = GRL_TRACKER_QUERY_FTS_SEARCH;
 
   statement =
-    tracker_sparql_connection_query_statement (priv->tracker_connection,
-                                               sparql_final,
-                                               NULL, NULL);
+    grl_tracker_source_create_statement (GRL_TRACKER_SOURCE (source),
+                                         query_type,
+                                         ss->options,
+                                         ss->keys,
+                                         NULL,
+                                         &error);
+
+  if (!statement) {
+    ss->callback (ss->source, ss->operation_id, NULL, 0, ss->user_data, error);
+    g_error_free (error);
+    return;
+  }
 
   os = grl_tracker_op_new (grl_operation_options_get_type_filter (ss->options),
                            ss->keys, ss);
+
+  if (ss->text && *ss->text) {
+    /* Make it a prefix search */
+    gchar *match = g_strdup_printf ("%s*", ss->text);
+    tracker_sparql_statement_bind_string (statement, "match", match);
+    g_free (match);
+  }
 
   tracker_sparql_statement_execute_async (statement,
                                           os->cancel,
                                           (GAsyncReadyCallback) tracker_search_cb,
                                           os);
-
-  g_free (sparql_select);
-  g_free (sparql_type_filter);
-  g_free (duration_constraint);
   g_clear_object (&statement);
 }
 

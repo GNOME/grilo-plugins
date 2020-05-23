@@ -38,6 +38,7 @@ typedef enum {
   GRL_TRACKER_QUERY_RESOLVE,        /* Arguments: ~resource */
   GRL_TRACKER_QUERY_RESOLVE_URI,    /* Arguments: ~uri */
   GRL_TRACKER_QUERY_ALL,            /* No arguments */
+  GRL_TRACKER_QUERY_FTS_SEARCH,     /* Arguments: ~match */
   GRL_TRACKER_QUERY_N_QUERIES,
 } GrlTrackerQueryType;
 

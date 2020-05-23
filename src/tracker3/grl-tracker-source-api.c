@@ -193,48 +193,6 @@ fill_grilo_media_from_sparql (GrlTrackerSource    *source,
   }
 }
 
-static gchar *
-get_sparql_type_filter (GrlOperationOptions *options,
-                        gboolean prepend_union)
-{
-  GrlTypeFilter filter = grl_operation_options_get_type_filter (options);
-  GString *sparql_filter = g_string_new ("");
-
-  if (filter & GRL_TYPE_FILTER_AUDIO) {
-    if (prepend_union) {
-      sparql_filter = g_string_append (sparql_filter,
-                                       "UNION { ?urn a nfo:Audio } ");
-    } else {
-      sparql_filter = g_string_append (sparql_filter,
-                                       "{ ?urn a nfo:Audio } ");
-      prepend_union = TRUE;
-    }
-  }
-  if (filter & GRL_TYPE_FILTER_VIDEO) {
-    if (prepend_union) {
-      sparql_filter = g_string_append (sparql_filter,
-                                       "UNION { ?urn a nmm:Video } ");
-    } else {
-      sparql_filter = g_string_append (sparql_filter,
-                                       "{ ?urn a nmm:Video } ");
-      prepend_union = TRUE;
-    }
-  }
-  if (filter & GRL_TYPE_FILTER_IMAGE) {
-    if (prepend_union) {
-      sparql_filter = g_string_append (sparql_filter,
-                                       "UNION { ?urn a nmm:Photo } ");
-    } else {
-      sparql_filter = g_string_append (sparql_filter,
-                                       "{ ?urn a nmm:Photo } ");
-    }
-  }
-
-  sparql_filter = g_string_append_c (sparql_filter, '.');
-
-  return g_string_free (sparql_filter, FALSE);
-}
-
 static GrlTrackerOp *
 grl_tracker_op_new (GrlTypeFilter  type_filter,
                     const GList   *keys,
@@ -557,54 +515,6 @@ grl_tracker_source_writable_keys (GrlSource *source)
                                       NULL);
   }
   return keys;
-}
-
-static void
-grl_tracker_source_get_duration_min_max (GrlOperationOptions *options,
-                                         int                 *min,
-                                         int                 *max)
-{
-  GValue *min_val, *max_val;
-
-  grl_operation_options_get_key_range_filter (options, GRL_METADATA_KEY_DURATION,
-                                              &min_val, &max_val);
-  if (min_val)
-    *min = g_value_get_int (min_val);
-  else
-    *min = -1;
-  if (max_val)
-    *max = g_value_get_int (max_val);
-  else
-    *max = -1;
-}
-
-static char *
-grl_tracker_source_create_constraint (int min, int max)
-{
-  if (min <= 0 && max <= 0)
-    return g_strdup ("");
-  if (max <= 0) {
-    return g_strdup_printf ("?urn a nfo:FileDataObject . "
-                            "OPTIONAL {"
-                            "  ?urn nfo:duration ?duration "
-                            "} . "
-                            "FILTER(?duration > %d || !BOUND(?duration))",
-                             min);
-  }
-  if (min <= 0) {
-    return g_strdup_printf ("?urn a nfo:FileDataObject . "
-                            "OPTIONAL {"
-                            "  ?urn nfo:duration ?duration "
-                            "} . "
-                            "FILTER(?duration < %d || !BOUND(?duration))",
-                             max);
-  }
-  return g_strdup_printf ("?urn a nfo:FileDataObject . "
-                          "OPTIONAL {"
-                          "  ?urn nfo:duration ?duration "
-                          "} . "
-                          "FILTER(?duration < %d || ?duration > %d || !BOUND(?duration))",
-                           max, min);
 }
 
 /**

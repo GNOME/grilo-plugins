@@ -93,18 +93,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
   TRACKER_QUERY_LIMIT
 
-#define TRACKER_BROWSE_CATEGORY_REQUEST         \
-  "SELECT rdf:type(?urn) %s "                   \
-  "WHERE "                                      \
-  "{ "                                          \
-  "?urn a %s . "                                \
-  "?urn nie:isStoredAs ?file . "                \
-  "?file tracker:available ?tr . "              \
-  "%s "                                         \
-  "} "                                          \
-  "ORDER BY DESC(nfo:fileLastModified(?urn)) "  \
-  TRACKER_QUERY_LIMIT
-
 #define TRACKER_DELETE_REQUEST                          \
   "DELETE { <%s> %s } WHERE { <%s> a nfo:Media . %s }"
 
@@ -973,18 +961,12 @@ static void
 grl_tracker_source_browse_category (GrlSource *source,
                                     GrlSourceBrowseSpec *bs)
 {
-  GrlTrackerSourcePriv *priv  = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar                *sparql_select;
-  gchar                *sparql_final;
   GrlTrackerOp         *os;
   GrlMedia             *media;
   const gchar          *category;
+  GError               *error = NULL;
   gint remaining;
-  gint count = grl_operation_options_get_count (bs->options);
-  guint skip = grl_operation_options_get_skip (bs->options);
   GrlTypeFilter filter = grl_operation_options_get_type_filter (bs->options);
-  int min_dur, max_dur;
-  char *duration_constraint;
   TrackerSparqlStatement *statement;
 
   GRL_IDEBUG ("%s: id=%u", __FUNCTION__, bs->operation_id);
@@ -1023,9 +1005,7 @@ grl_tracker_source_browse_category (GrlSource *source,
                          category);
   }
 
-  if (is_root_box (bs->container) ||
-      !grl_data_has_key (GRL_DATA (bs->container),
-                         grl_metadata_key_tracker_category)) {
+  if (is_root_box (bs->container)) {
     /* Hardcoded categories */
     if (filter == GRL_TYPE_FILTER_ALL) {
       remaining = 3;
@@ -1050,15 +1030,7 @@ grl_tracker_source_browse_category (GrlSource *source,
 
     /* Special case: if everthing is filtered except one category, then skip the
        intermediate level and go straightly to the elements */
-    if (remaining == 1) {
-      if (filter & GRL_TYPE_FILTER_AUDIO) {
-        category = "nmm:MusicPiece";
-      } else if (filter & GRL_TYPE_FILTER_IMAGE) {
-        category = "nmm:Photo";
-      } else {
-        category = "nmm:Video";
-      }
-    } else {
+    if (remaining > 1) {
       if (filter & GRL_TYPE_FILTER_AUDIO) {
         media = grl_media_container_new ();
         grl_media_set_title (media, "Music");
@@ -1093,26 +1065,50 @@ grl_tracker_source_browse_category (GrlSource *source,
       }
       return;
     }
-  } else {
+  } else if (grl_data_has_key (GRL_DATA (bs->container),
+                               grl_metadata_key_tracker_category)) {
     category = grl_data_get_string (GRL_DATA (bs->container),
                                     grl_metadata_key_tracker_category);
+
+    if (g_strcmp0 (category, "nmm:MusicPiece") == 0)
+      grl_operation_options_set_type_filter (bs->options, GRL_TYPE_FILTER_AUDIO);
+    else if (g_strcmp0 (category, "nmm:Video") == 0)
+      grl_operation_options_set_type_filter (bs->options, GRL_TYPE_FILTER_VIDEO);
+    else if (g_strcmp0 (category, "nmm:Photo") == 0)
+      grl_operation_options_set_type_filter (bs->options, GRL_TYPE_FILTER_IMAGE);
+    else {
+      bs->callback (bs->source, bs->operation_id, NULL, 0,
+                    bs->user_data, error);
+      return;
+    }
+  } else {
+    GError *error;
+
+    error = g_error_new (GRL_CORE_ERROR,
+                         GRL_CORE_ERROR_BROWSE_FAILED,
+                         _("ID “%s” is not known in this source"),
+                         grl_media_get_id (bs->container));
+
+    bs->callback (bs->source, bs->operation_id, NULL, 0,
+                  bs->user_data, error);
+
+    g_error_free (error);
+    return;
   }
 
-  grl_tracker_source_get_duration_min_max (bs->options, &min_dur, &max_dur);
-  duration_constraint = grl_tracker_source_create_constraint (min_dur, max_dur);
-  sparql_select = grl_tracker_source_get_select_string (bs->keys);
-  sparql_final = g_strdup_printf (TRACKER_BROWSE_CATEGORY_REQUEST,
-                                  sparql_select,
-                                  category,
-                                  duration_constraint,
-                                  skip, count);
-
-  GRL_IDEBUG ("\tselect: '%s'", sparql_final);
-
-  statement =
-    tracker_sparql_connection_query_statement (priv->tracker_connection,
-                                               sparql_final,
-                                               NULL, NULL);
+  /* Use QUERY_ALL here, we use the filter type to browse specific categories */
+  statement = grl_tracker_source_create_statement (GRL_TRACKER_SOURCE (source),
+                                                   GRL_TRACKER_QUERY_ALL,
+                                                   bs->options,
+                                                   bs->keys,
+                                                   NULL,
+                                                   &error);
+  if (!statement) {
+    bs->callback (bs->source, bs->operation_id, NULL, 0,
+                  bs->user_data, error);
+    g_error_free (error);
+    return;
+  }
 
   os = grl_tracker_op_new (grl_operation_options_get_type_filter (bs->options),
                            bs->keys, bs);
@@ -1121,9 +1117,6 @@ grl_tracker_source_browse_category (GrlSource *source,
                                           os->cancel,
                                           (GAsyncReadyCallback) tracker_browse_cb,
                                           os);
-
-  g_free (sparql_select);
-  g_free (duration_constraint);
   g_clear_object (&statement);
 }
 

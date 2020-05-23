@@ -59,6 +59,8 @@ static const gchar *query_bases[GRL_TRACKER_QUERY_N_QUERIES] = {
   "FILTER (STR(?urn) = ~resource) ",
   /* GRL_TRACKER_QUERY_RESOLVE_URI */
   "FILTER (nie:isStoredAs(?urn) = ~uri) ",
+  /* GRL_TRACKER_QUERY_ALL */
+  "",
 };
 
 static void

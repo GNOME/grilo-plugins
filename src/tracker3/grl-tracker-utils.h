@@ -54,11 +54,7 @@ typedef void (*tracker_grl_sparql_setter_cb_t) (TrackerSparqlCursor *cursor,
 typedef struct {
   GrlKeyID     grl_key;
   const gchar *sparql_var_name;
-  const gchar *sparql_key_name;
-  const gchar *sparql_key_name_canon;
-  const gchar *sparql_key_attr;
   const gchar *sparql_key_attr_call;
-  const gchar *sparql_key_flavor;
   GrlTypeFilter filter;
 
   tracker_grl_sparql_setter_cb_t set_value;

@@ -192,14 +192,12 @@ fill_grilo_media_from_sparql (GrlTrackerSource    *source,
 
 static GrlTrackerOp *
 grl_tracker_op_new (GrlTypeFilter  type_filter,
-                    const GList   *keys,
                     gpointer       data)
 {
   GrlTrackerOp *os;
 
   os = g_new0 (GrlTrackerOp, 1);
   os->cancel = g_cancellable_new ();
-  os->keys = keys;
   os->type_filter = type_filter;
   os->data = data;
 
@@ -618,8 +616,7 @@ grl_tracker_source_query (GrlSource *source,
   if (!statement)
     goto send_error;
 
-  os = grl_tracker_op_new (grl_operation_options_get_type_filter (qs->options),
-                           qs->keys, qs);
+  os = grl_tracker_op_new (grl_operation_options_get_type_filter (qs->options), qs);
 
   tracker_sparql_statement_execute_async (statement,
                                           os->cancel,
@@ -670,7 +667,7 @@ grl_tracker_source_resolve (GrlSource *source,
     return;
   }
 
-  os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, rs->keys, rs);
+  os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, rs);
 
   tracker_sparql_statement_bind_string (statement, arg, value);
   tracker_sparql_statement_execute_async (statement,
@@ -716,7 +713,7 @@ grl_tracker_source_store_metadata (GrlSource *source,
 
   resource = grl_tracker_build_resource_from_media (sms->media, sms->keys);
 
-  os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, sms->keys, sms);
+  os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, sms);
 
   g_dbus_proxy_call (priv->writeback,
                      "Writeback",
@@ -759,8 +756,7 @@ grl_tracker_source_search (GrlSource *source, GrlSourceSearchSpec *ss)
     return;
   }
 
-  os = grl_tracker_op_new (grl_operation_options_get_type_filter (ss->options),
-                           ss->keys, ss);
+  os = grl_tracker_op_new (grl_operation_options_get_type_filter (ss->options), ss);
 
   if (ss->text && *ss->text) {
     /* Make it a prefix search */
@@ -939,8 +935,7 @@ grl_tracker_source_browse_category (GrlSource *source,
     return;
   }
 
-  os = grl_tracker_op_new (grl_operation_options_get_type_filter (bs->options),
-                           bs->keys, bs);
+  os = grl_tracker_op_new (grl_operation_options_get_type_filter (bs->options), bs);
 
   tracker_sparql_statement_execute_async (statement,
                                           os->cancel,
@@ -1120,7 +1115,7 @@ grl_tracker_source_get_media_from_uri (GrlSource *source,
     return;
   }
 
-  os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, mfus->keys, mfus);
+  os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, mfus);
 
   tracker_sparql_statement_bind_string (statement, "uri", mfus->uri);
   tracker_sparql_statement_execute_async (statement,

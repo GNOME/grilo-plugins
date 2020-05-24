@@ -55,15 +55,6 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_result_log_domain);
   GRL_LOG (tracker_source_result_log_domain,    \
            GRL_LOG_LEVEL_DEBUG, args)
 
-/* ------- Definitions ------- */
-
-#define TRACKER_DELETE_REQUEST                          \
-  "DELETE { <%s> %s } WHERE { <%s> a nfo:Media . %s }"
-
-#define TRACKER_SAVE_REQUEST                            \
-  "DELETE { <%s> %s } WHERE { <%s> a nfo:Media . %s } " \
-  "INSERT { <%s> a nfo:Media ; %s . }"
-
 /**/
 
 /**/
@@ -470,15 +461,13 @@ tracker_store_metadata_cb (GObject      *source_object,
 {
   GrlSourceStoreMetadataSpec *sms =
     (GrlSourceStoreMetadataSpec *) os->data;
-  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (sms->source);
   GError *tracker_error = NULL, *error = NULL;
 
-  tracker_sparql_connection_update_finish (priv->tracker_connection,
-                                           result,
-                                           &tracker_error);
+  g_dbus_proxy_call_finish (G_DBUS_PROXY (source_object),
+                            result, &tracker_error);
 
   if (tracker_error) {
-    GRL_WARNING ("Could not execute sparql update : %s",
+    GRL_WARNING ("Could not writeback metadata: %s",
                  tracker_error->message);
 
     error = g_error_new (GRL_CORE_ERROR,
@@ -491,7 +480,7 @@ tracker_store_metadata_cb (GObject      *source_object,
     g_error_free (tracker_error);
     g_error_free (error);
   } else {
-    sms->callback (sms->source, sms->media, NULL, sms->user_data, error);
+    sms->callback (sms->source, sms->media, NULL, sms->user_data, NULL);
   }
 
   grl_tracker_op_free (os);
@@ -510,15 +499,24 @@ grl_tracker_source_writable_keys (GrlSource *source)
     registry = grl_registry_get_default ();
     grl_metadata_key_chromaprint = grl_registry_lookup_metadata_key (registry, "chromaprint");
 
-    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_PLAY_COUNT,
-                                      GRL_METADATA_KEY_LAST_PLAYED,
-                                      GRL_METADATA_KEY_LAST_POSITION,
-                                      GRL_METADATA_KEY_FAVOURITE,
-                                      GRL_METADATA_KEY_TITLE,
-                                      GRL_METADATA_KEY_TRACK_NUMBER,
+    keys = grl_metadata_key_list_new (GRL_METADATA_KEY_ALBUM,
+                                      GRL_METADATA_KEY_ALBUM_DISC_NUMBER,
+                                      GRL_METADATA_KEY_ARTIST,
+                                      GRL_METADATA_KEY_ALBUM_ARTIST,
+                                      GRL_METADATA_KEY_AUTHOR,
+                                      GRL_METADATA_KEY_COMPOSER,
                                       GRL_METADATA_KEY_CREATION_DATE,
+                                      GRL_METADATA_KEY_TITLE,
+                                      GRL_METADATA_KEY_SEASON,
+                                      GRL_METADATA_KEY_EPISODE,
+                                      GRL_METADATA_KEY_TRACK_NUMBER,
+                                      GRL_METADATA_KEY_MB_RELEASE_ID,
+                                      GRL_METADATA_KEY_MB_RELEASE_GROUP_ID,
+                                      GRL_METADATA_KEY_MB_RECORDING_ID,
+                                      GRL_METADATA_KEY_MB_TRACK_ID,
+                                      GRL_METADATA_KEY_MB_ARTIST_ID,
                                       grl_metadata_key_chromaprint,
-                                      NULL);
+                                      GRL_METADATA_KEY_INVALID);
   }
   return keys;
 }
@@ -713,42 +711,23 @@ grl_tracker_source_store_metadata (GrlSource *source,
                                    GrlSourceStoreMetadataSpec *sms)
 {
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
-  gchar *sparql_delete, *sparql_cdelete, *sparql_insert, *sparql_final;
-  const gchar *urn = grl_data_get_string (GRL_DATA (sms->media),
-                                          grl_metadata_key_tracker_urn);
+  TrackerResource *resource;
   GrlTrackerOp *os;
 
-  GRL_IDEBUG ("%s: urn=%s", G_STRFUNC, urn);
-
-  sparql_delete = grl_tracker_get_delete_string (sms->keys);
-  sparql_cdelete = grl_tracker_get_delete_conditional_string (urn, sms->keys);
-  sparql_insert = grl_tracker_tracker_get_insert_string (sms->media, sms->keys);
-
-  if (g_strcmp0 (sparql_insert, "") == 0) {
-    sparql_final = g_strdup_printf (TRACKER_DELETE_REQUEST,
-                                    urn, sparql_delete,
-                                    urn, sparql_cdelete);
-  } else {
-    sparql_final = g_strdup_printf (TRACKER_SAVE_REQUEST,
-                                    urn, sparql_delete,
-                                    urn, sparql_cdelete,
-                                    urn, sparql_insert);
-  }
-
-  GRL_IDEBUG ("\trequest: '%s'", sparql_final);
+  resource = grl_tracker_build_resource_from_media (sms->media, sms->keys);
 
   os = grl_tracker_op_new (GRL_TYPE_FILTER_ALL, sms->keys, sms);
 
-  tracker_sparql_connection_update_async (priv->tracker_connection,
-                                          sparql_final,
-                                          G_PRIORITY_DEFAULT,
-                                          os->cancel,
-                                          tracker_store_metadata_cb,
-                                          os);
-
-  g_free (sparql_delete);
-  g_free (sparql_cdelete);
-  g_free (sparql_insert);
+  g_dbus_proxy_call (priv->writeback,
+                     "Writeback",
+                     g_variant_new ("(@a{sv})",
+                                    tracker_resource_serialize (resource)),
+                     G_DBUS_CALL_FLAGS_NONE,
+                     -1,
+                     os->cancel,
+                     (GAsyncReadyCallback) tracker_store_metadata_cb,
+                     os);
+  g_object_unref (resource);
 }
 
 void

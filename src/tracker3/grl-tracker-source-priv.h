@@ -64,6 +64,7 @@ typedef enum {
 
 struct _GrlTrackerSourcePriv {
   TrackerSparqlConnection *tracker_connection;
+  GDBusProxy *writeback;
 
   GHashTable *operations;
   GrlTrackerSourceNotify *notifier;

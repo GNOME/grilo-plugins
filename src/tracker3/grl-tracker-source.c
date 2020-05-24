@@ -50,6 +50,10 @@ GRL_LOG_DOMAIN_STATIC(tracker_source_log_domain);
 
 #define TRACKER_ITEM_CACHE_SIZE (10000)
 
+#define WRITEBACK_DBUS_NAME "org.freedesktop.Tracker3.Writeback"
+#define WRITEBACK_DBUS_PATH "/org/freedesktop/Tracker3/Writeback"
+#define WRITEBACK_DBUS_IFACE "org.freedesktop.Tracker3.Writeback"
+
 /* --- Other --- */
 
 enum {
@@ -128,10 +132,23 @@ static void
 grl_tracker_source_init (GrlTrackerSource *source)
 {
   GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  GDBusConnection *connection;
 
   source->priv = priv;
 
   priv->operations = g_hash_table_new (g_direct_hash, g_direct_equal);
+
+  connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+  if (connection) {
+    priv->writeback =
+      g_dbus_proxy_new_sync (connection,
+                             G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START_AT_CONSTRUCTION,
+                             NULL,
+                             WRITEBACK_DBUS_NAME,
+                             WRITEBACK_DBUS_PATH,
+                             WRITEBACK_DBUS_IFACE,
+                             NULL, NULL);
+  }
 }
 
 static void
@@ -143,6 +160,7 @@ grl_tracker_source_finalize (GObject *object)
 
   g_clear_object (&self->priv->notifier);
   g_clear_object (&self->priv->tracker_connection);
+  g_clear_object (&self->priv->writeback);
 
   G_OBJECT_CLASS (grl_tracker_source_parent_class)->finalize (object);
 }

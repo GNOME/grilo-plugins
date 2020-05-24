@@ -76,6 +76,8 @@ const gchar * grl_tracker_key_get_sparql_statement (const GrlKeyID key,
 
 void grl_tracker_setup_key_mappings (void);
 
+TrackerResource * grl_tracker_build_resource_from_media (GrlMedia *media, GList *keys);
+
 tracker_grl_sparql_t *grl_tracker_get_mapping_from_sparql (const gchar *key);
 
 GrlMedia *grl_tracker_build_grilo_media (const gchar   *rdf_type,

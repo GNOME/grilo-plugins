@@ -886,3 +886,196 @@ grl_tracker_key_get_sparql_statement (const GrlKeyID key,
 
   return assoc->sparql_key_attr_call;
 }
+
+static TrackerResource *
+ensure_resource_for_property (TrackerResource *resource,
+                              const gchar     *prop,
+                              gboolean         multivalued)
+{
+  TrackerResource *child = NULL;
+
+  if (!multivalued)
+    child = tracker_resource_get_first_relation (resource, prop);
+
+  if (!child) {
+    child = tracker_resource_new (NULL);
+    tracker_resource_add_take_relation (resource, prop, child);
+  }
+
+  return child;
+}
+
+static TrackerResource *
+ensure_resource_for_musicbrainz_tag (TrackerResource *resource,
+                                     const gchar     *source,
+                                     const gchar     *identifier)
+{
+  TrackerResource *reference;
+
+  reference = ensure_resource_for_property (resource,
+                                            "tracker:hasExternalReference",
+                                            TRUE);
+  tracker_resource_set_uri (reference,
+                            "tracker:referenceSource",
+                            source);
+  tracker_resource_set_string (reference,
+                               "tracker:referenceIdentifier",
+                               identifier);
+  return reference;
+}
+
+TrackerResource *
+grl_tracker_build_resource_from_media (GrlMedia *media, GList *keys)
+{
+  TrackerResource *resource;
+  GrlRegistry *registry;
+  GrlKeyID grl_metadata_key_chromaprint;
+  GrlMediaType type;
+  GList *l;
+
+  registry = grl_registry_get_default ();
+  grl_metadata_key_chromaprint = grl_registry_lookup_metadata_key (registry, "chromaprint");
+
+  resource = tracker_resource_new (NULL);
+  tracker_resource_set_uri (resource, "nie:isStoredAs",
+                            grl_media_get_url (media));
+
+  type = grl_media_get_media_type (media);
+  if (type & GRL_MEDIA_TYPE_IMAGE)
+    tracker_resource_add_uri (resource, "rdf:type", "nfo:Image");
+  if (type & GRL_MEDIA_TYPE_AUDIO)
+    tracker_resource_add_uri (resource, "rdf:type", "nfo:Audio");
+  if (type & GRL_MEDIA_TYPE_VIDEO)
+    tracker_resource_add_uri (resource, "rdf:type", "nfo:Video");
+
+  for (l = keys; l; l = l->next) {
+    if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TITLE)) {
+      tracker_resource_set_string (resource, "nie:title",
+                                   grl_media_get_title (media));
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_TRACK_NUMBER)) {
+      tracker_resource_set_int (resource, "nmm:trackNumber",
+                                grl_media_get_track_number (media));
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_EPISODE)) {
+      tracker_resource_set_int (resource, "nmm:episodeNumber",
+                                grl_media_get_episode (media));
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_CREATION_DATE)) {
+      GDateTime *creation;
+      gchar *date;
+
+      creation = grl_media_get_creation_date (media);
+      date = g_date_time_format_iso8601 (creation);
+      tracker_resource_set_string (resource, "nie:contentCreated", date);
+      g_free (date);
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM)) {
+      TrackerResource *album;
+      album = ensure_resource_for_property (resource, "nmm:musicAlbum", FALSE);
+      tracker_resource_set_string (album, "nie:title",
+                                   grl_media_get_album (media));
+
+      /* Handle MB release/release group inline */
+      if (g_list_find (keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_MB_RELEASE_ID))) {
+        const gchar *mb_release_id;
+
+        mb_release_id = grl_media_get_mb_release_id (media);
+        if (mb_release_id) {
+          ensure_resource_for_musicbrainz_tag (resource,
+                                               "https://musicbrainz.org/doc/Release",
+                                               mb_release_id);
+        }
+      }
+
+      if (g_list_find (keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_MB_RELEASE_GROUP_ID))) {
+        const gchar *mb_release_group_id;
+
+        mb_release_group_id = grl_media_get_mb_release_group_id (media);
+        if (mb_release_group_id) {
+          ensure_resource_for_musicbrainz_tag (resource,
+                                               "https://musicbrainz.org/doc/Release_Group",
+                                               mb_release_group_id);
+        }
+      }
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM_DISC_NUMBER)) {
+      TrackerResource *disc;
+      disc = ensure_resource_for_property (resource, "nmm:musicAlbumDisc", FALSE);
+      tracker_resource_set_int (disc, "nmm:setNumber",
+                                grl_media_get_album_disc_number (media));
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_SEASON)) {
+      TrackerResource *season;
+      season = ensure_resource_for_property (resource, "nmm:isPartOfSeason", FALSE);
+      tracker_resource_set_int (season, "nmm:seasonNumber",
+                                grl_media_get_season (media));
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM_ARTIST)) {
+      TrackerResource *album, *album_artist;
+      album = ensure_resource_for_property (resource, "nmm:musicAlbum", FALSE);
+      album_artist = ensure_resource_for_property (album, "nmm:albumArtist", FALSE);
+      tracker_resource_set_string (album_artist, "nmm:artistName",
+                                   grl_media_get_album_artist (media));
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_MB_RECORDING_ID)) {
+      const gchar *mb_recording_id;
+      mb_recording_id = grl_media_get_mb_recording_id (media);
+      if (mb_recording_id) {
+        ensure_resource_for_musicbrainz_tag (resource,
+                                             "https://musicbrainz.org/doc/Recording",
+                                             mb_recording_id);
+      }
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_MB_TRACK_ID)) {
+      const gchar *mb_track_id;
+      mb_track_id = grl_media_get_mb_track_id (media);
+      if (mb_track_id) {
+        ensure_resource_for_musicbrainz_tag (resource,
+                                             "https://musicbrainz.org/doc/Track",
+                                             mb_track_id);
+      }
+    } else if (l->data == GRLKEYID_TO_POINTER (grl_metadata_key_chromaprint)) {
+      TrackerResource *hash;
+      hash = ensure_resource_for_property (resource, "nfo:hasHash", FALSE);
+      tracker_resource_set_string (hash, "nfo:hashAlgorithm", "chromaprint");
+      tracker_resource_set_string (hash, "nfo:hashValue",
+                                   grl_data_get_string (GRL_DATA (media), l->data));
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST)) {
+      TrackerResource *artist;
+      const gchar *artist_name;
+      gint i;
+
+      for (i = 0; artist_name != NULL; i++) {
+        artist_name = grl_media_get_artist_nth (media, i);
+        artist = ensure_resource_for_property (resource, "nmm:performer", TRUE);
+        tracker_resource_set_string (artist, "nmm:artistName", artist_name);
+
+        /* Handle MB artist inline */
+        if (g_list_find (keys, GRLKEYID_TO_POINTER (GRL_METADATA_KEY_MB_ARTIST_ID))) {
+          const gchar *mb_artist_id;
+
+          mb_artist_id = grl_media_get_mb_artist_id_nth (media, i);
+          if (mb_artist_id) {
+            ensure_resource_for_musicbrainz_tag (resource,
+                                                 "https://musicbrainz.org/doc/Artist",
+                                                 mb_artist_id);
+          }
+        }
+      }
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_AUTHOR)) {
+      TrackerResource *artist;
+      const gchar *artist_name;
+      gint i;
+
+      for (i = 0; artist_name != NULL; i++) {
+        artist_name = grl_media_get_artist_nth (media, i);
+        artist = ensure_resource_for_property (resource, "nmm:performer", TRUE);
+        tracker_resource_set_string (artist, "nmm:artistName", artist_name);
+      }
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_COMPOSER)) {
+      TrackerResource *composer;
+      const gchar *composer_name;
+      gint i;
+
+      for (i = 0; composer_name != NULL; i++) {
+        composer_name = grl_media_get_composer_nth (media, i);
+        composer = ensure_resource_for_property (resource, "nmm:composer", TRUE);
+        tracker_resource_set_string (composer, "nmm:artistName", composer_name);
+      }
+    }
+  }
+
+  return resource;
+}

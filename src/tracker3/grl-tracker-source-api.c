@@ -361,6 +361,23 @@ tracker_resolve_cb (GObject      *source_object,
   cursor = tracker_sparql_statement_execute_finish (statement,
                                                     result, &tracker_error);
 
+  if (!cursor)
+    goto end_operation;
+
+  if (tracker_sparql_cursor_next (cursor, NULL, &tracker_error)) {
+    /* Translate Sparql result into Grilo result */
+    for (col = 0 ; col < tracker_sparql_cursor_get_n_columns (cursor) ; col++) {
+      fill_grilo_media_from_sparql (GRL_TRACKER_SOURCE (rs->source),
+                                    rs->media, cursor, col);
+    }
+    set_title_from_filename (rs->media);
+
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+  } else if (!tracker_error) {
+    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+  }
+
+ end_operation:
   if (tracker_error) {
     GRL_WARNING ("Could not execute sparql resolve query : %s",
                  tracker_error->message);
@@ -374,25 +391,8 @@ tracker_resolve_cb (GObject      *source_object,
 
     g_error_free (tracker_error);
     g_error_free (error);
-
-    goto end_operation;
   }
 
-
-  if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-    /* Translate Sparql result into Grilo result */
-    for (col = 0 ; col < tracker_sparql_cursor_get_n_columns (cursor) ; col++) {
-      fill_grilo_media_from_sparql (GRL_TRACKER_SOURCE (rs->source),
-                                    rs->media, cursor, col);
-    }
-    set_title_from_filename (rs->media);
-
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
-  } else {
-    rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
-  }
-
- end_operation:
   g_clear_object (&cursor);
 
   grl_tracker_op_free (os);

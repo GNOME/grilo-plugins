@@ -314,21 +314,21 @@ grl_tracker_setup_key_mappings (void)
   insert_key_mapping (GRL_METADATA_KEY_SIZE,
                       "size",
                       NULL,
-                      "nfo:fileSize(?urn)",
+                      "nie:byteSize(?urn)",
                       "file",
                       GRL_TYPE_FILTER_ALL);
 
   insert_key_mapping (grl_metadata_key_gibest_hash,
                       "gibestHash",
                       NULL,
-                      "(select nfo:hashValue(?h) { ?urn nfo:hasHash ?h . ?h nfo:hashAlgorithm \"gibest\" })",
+                      "(select nfo:hashValue(?h) { ?urn nie:isStoredAs/nfo:hasHash ?h . ?h nfo:hashAlgorithm \"gibest\" })",
                       "video",
                       GRL_TYPE_FILTER_VIDEO);
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_MODIFICATION_DATE,
                                   "lastModified",
-                                  "nfo:fileLastModified",
-                                  "nfo:fileLastModified(?urn)",
+                                  "nie:contentLastModified",
+                                  "nie:contentLastModified(?urn)",
                                   "file",
                                   GRL_TYPE_FILTER_ALL,
                                   set_date);
@@ -379,7 +379,7 @@ grl_tracker_setup_key_mappings (void)
     insert_key_mapping_with_setter (grl_metadata_key_chromaprint,
                                     "chromaprint",
                                     NULL,
-                                    "(select nfo:hashValue(?h) { ?urn nfo:hasHash ?h . ?h nfo:hashAlgorithm \"chromaprint\" })",
+                                    "(select nfo:hashValue(?h) { ?urn nie:isStoredAs/nfo:hasHash ?h . ?h nfo:hashAlgorithm \"chromaprint\" })",
                                     "audio",
                                     GRL_TYPE_FILTER_AUDIO,
                                     set_string_metadata_keys);
@@ -406,14 +406,6 @@ grl_tracker_setup_key_mappings (void)
                       "file",
                       GRL_TYPE_FILTER_ALL);
 
-  insert_key_mapping_with_setter (GRL_METADATA_KEY_LAST_PLAYED,
-                                  "fileLastAccessed",
-                                  "nfo:fileLastAccessed",
-                                  "nfo:fileLastAccessed(?urn)",
-                                  "file",
-                                  GRL_TYPE_FILTER_ALL,
-                                  set_date);
-
   insert_key_mapping (GRL_METADATA_KEY_MIME,
                       "mimeType",
                       "nie:mimeType",
@@ -423,8 +415,8 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_SITE,
                       "siteUrl",
-                      "nie:url",
-                      "nie:url(?urn)",
+                      "nie:isStoredAs",
+                      "nie:isStoredAs(?urn)",
                       "file",
                       GRL_TYPE_FILTER_ALL);
 
@@ -446,8 +438,8 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_URL,
                       "url",
-                      "nie:url",
-                      "nie:url(?urn)",
+                      "nie:isStoredAs",
+                      "nie:isStoredAs(?urn)",
                       "file",
                       GRL_TYPE_FILTER_ALL);
 

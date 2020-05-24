@@ -108,19 +108,6 @@ set_favourite (TrackerSparqlCursor *cursor,
 }
 
 static void
-set_title_from_filename (TrackerSparqlCursor *cursor,
-                         gint                 column,
-                         GrlMedia            *media,
-                         GrlKeyID             key)
-{
-  const gchar *str = tracker_sparql_cursor_get_string (cursor, column, NULL);
-  if (key == GRL_METADATA_KEY_TITLE) {
-    grl_data_set_boolean (GRL_DATA (media), GRL_METADATA_KEY_TITLE_FROM_FILENAME, TRUE);
-    grl_media_set_title (media, str);
-  }
-}
-
-static void
 set_title (TrackerSparqlCursor *cursor,
            gint                 column,
            GrlMedia            *media,
@@ -427,14 +414,6 @@ grl_tracker_setup_key_mappings (void)
                                   "audio",
                                   GRL_TYPE_FILTER_ALL,
                                   set_title);
-
-  insert_key_mapping_with_setter (GRL_METADATA_KEY_TITLE,
-                                  "fileName",
-                                  "nfo:fileName",
-                                  "nfo:fileName(?urn)",
-                                  "file",
-                                  GRL_TYPE_FILTER_ALL,
-                                  set_title_from_filename);
 
   insert_key_mapping (GRL_METADATA_KEY_URL,
                       "url",

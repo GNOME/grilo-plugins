@@ -84,8 +84,12 @@ static void
 set_title_from_filename (GrlMedia *media)
 {
   const gchar *url;
-  gchar *path, *display_name, *ext, *title;
+  gchar *path, *display_name, *ext, *title = NULL;
   guint suffix_len;
+
+  /* Prefer the real title */
+  if (grl_media_get_title (media))
+    return;
 
   url = grl_media_get_url (media);
   if (url == NULL)
@@ -97,19 +101,21 @@ set_title_from_filename (GrlMedia *media)
   display_name = g_filename_display_basename (path);
   g_free (path);
   ext = strrchr (display_name, '.');
-  if (!ext)
-    goto out;
+  if (ext) {
+    suffix_len = strlen (ext);
+    if (suffix_len != 4 && suffix_len != 5)
+      goto out;
 
-  suffix_len = strlen (ext);
-  if (suffix_len != 4 && suffix_len != 5)
-    goto out;
+    title = g_strndup (display_name, ext - display_name);
+  } else {
+    title = g_strdup (display_name);
+  }
 
-  title = g_strndup (display_name, ext - display_name);
-  if (g_strcmp0 (grl_media_get_title (media), title) == 0)
-    grl_data_set_boolean (GRL_DATA (media), GRL_METADATA_KEY_TITLE_FROM_FILENAME, TRUE);
-  g_free (title);
+  grl_data_set_string (GRL_DATA (media), GRL_METADATA_KEY_TITLE, title);
+  grl_data_set_boolean (GRL_DATA (media), GRL_METADATA_KEY_TITLE_FROM_FILENAME, TRUE);
 
 out:
+  g_free (title);
   g_free (display_name);
 }
 

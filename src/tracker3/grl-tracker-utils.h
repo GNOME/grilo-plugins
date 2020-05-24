@@ -83,16 +83,4 @@ tracker_grl_sparql_t *grl_tracker_get_mapping_from_sparql (const gchar *key);
 GrlMedia *grl_tracker_build_grilo_media (const gchar   *rdf_type,
                                          GrlTypeFilter  type_filter);
 
-gchar *grl_tracker_source_get_device_constraint (GrlTrackerSourcePriv *priv);
-
-gchar *grl_tracker_source_get_select_string (const GList *keys);
-
-gchar *grl_tracker_tracker_get_insert_string (GrlMedia *media,
-                                              const GList *keys);
-
-gchar *grl_tracker_get_delete_string (const GList *keys);
-
-gchar *grl_tracker_get_delete_conditional_string (const gchar *urn,
-                                                  const GList *keys);
-
 #endif /* _GRL_TRACKER_UTILS_H_ */

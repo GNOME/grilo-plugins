@@ -401,8 +401,8 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_ID,
                       "id",
-                      "tracker:id",
-                      "tracker:id(?urn)",
+                      "id",
+                      "?urn",
                       "file",
                       GRL_TYPE_FILTER_ALL);
 

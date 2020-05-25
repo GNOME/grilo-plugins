@@ -57,18 +57,13 @@ G_DEFINE_TYPE (GrlTrackerSourceNotify, grl_tracker_source_notify, G_TYPE_OBJECT)
 
 static GrlMedia *
 media_for_event (GrlTrackerSourceNotify *self,
-                 TrackerNotifierEvent   *event)
+                 TrackerNotifierEvent   *event,
+                 GrlMediaType            type)
 {
-  gchar *id_str;
   GrlMedia *media;
 
-  id_str = g_strdup_printf ("%" G_GINT64_FORMAT, tracker_notifier_event_get_id (event));
-  // FIXME
-  media = grl_tracker_build_grilo_media (GRL_MEDIA_TYPE_UNKNOWN);
-  grl_media_set_id (media, id_str);
-  grl_media_set_url (media, tracker_notifier_event_get_urn (event));
-
-  g_free (id_str);
+  media = grl_tracker_build_grilo_media (type);
+  grl_media_set_id (media, tracker_notifier_event_get_urn (event));
 
   return media;
 }
@@ -76,6 +71,7 @@ media_for_event (GrlTrackerSourceNotify *self,
 static void
 handle_changes (GrlTrackerSourceNotify   *self,
                 GPtrArray                *events,
+                GrlMediaType              media_type,
                 TrackerNotifierEventType  tracker_type,
                 GrlSourceChangeType       change_type)
 {
@@ -91,12 +87,25 @@ handle_changes (GrlTrackerSourceNotify   *self,
     if (tracker_notifier_event_get_event_type (event) != tracker_type)
       continue;
 
-    media = media_for_event (self, event);
+    media = media_for_event (self, event, media_type);
     g_ptr_array_add (change_list, media);
   }
 
   grl_source_notify_change_list (self->source, change_list,
                                  change_type, FALSE);
+}
+
+static GrlMediaType
+media_type_from_graph (const gchar *graph)
+{
+  if (g_str_has_suffix (graph, "#Audio"))
+    return GRL_MEDIA_TYPE_AUDIO;
+  else if (g_str_has_suffix (graph, "#Video"))
+    return GRL_MEDIA_TYPE_VIDEO;
+  else if (g_str_has_suffix (graph, "#Pictures"))
+    return GRL_MEDIA_TYPE_IMAGE;
+
+  return GRL_MEDIA_TYPE_UNKNOWN;
 }
 
 static void
@@ -106,13 +115,15 @@ notifier_event_cb (GrlTrackerSourceNotify *self,
                    GPtrArray              *events,
                    gpointer                user_data)
 {
-  handle_changes (self, events,
+  GrlMediaType type = media_type_from_graph (graph);
+
+  handle_changes (self, events, type,
                   TRACKER_NOTIFIER_EVENT_CREATE,
                   GRL_CONTENT_ADDED);
-  handle_changes (self, events,
+  handle_changes (self, events, type,
                   TRACKER_NOTIFIER_EVENT_UPDATE,
                   GRL_CONTENT_CHANGED);
-  handle_changes (self, events,
+  handle_changes (self, events, type,
                   TRACKER_NOTIFIER_EVENT_DELETE,
                   GRL_CONTENT_REMOVED);
 }

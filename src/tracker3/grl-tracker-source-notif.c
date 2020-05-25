@@ -64,8 +64,7 @@ media_for_event (GrlTrackerSourceNotify *self,
 
   id_str = g_strdup_printf ("%" G_GINT64_FORMAT, tracker_notifier_event_get_id (event));
   // FIXME
-  media = grl_tracker_build_grilo_media (NULL,//tracker_notifier_event_get_type (event),
-                                         GRL_TYPE_FILTER_NONE);
+  media = grl_tracker_build_grilo_media (GRL_MEDIA_TYPE_UNKNOWN);
   grl_media_set_id (media, id_str);
   grl_media_set_url (media, tracker_notifier_event_get_urn (event));
 

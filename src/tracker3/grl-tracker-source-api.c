@@ -220,8 +220,7 @@ grl_tracker_op_free (GrlTrackerOp *os)
                               GrlTrackerOp *os)                         \
   {                                                                     \
     TrackerSparqlCursor *cursor = TRACKER_SPARQL_CURSOR (source_object);\
-    gint         col;                                                   \
-    const gchar *sparql_type;                                           \
+    gint         col, type;                                             \
     GError      *tracker_error = NULL, *error = NULL;                   \
     GrlMedia    *media;                                                 \
     spec_type   *spec =                                                 \
@@ -263,14 +262,12 @@ grl_tracker_op_free (GrlTrackerOp *os)
       return;                                                           \
     }                                                                   \
                                                                         \
-    sparql_type = tracker_sparql_cursor_get_string (cursor,             \
-                                                    0,                  \
-                                                    NULL);              \
+    type = tracker_sparql_cursor_get_integer (cursor, 0);               \
                                                                         \
-    GRL_ODEBUG ("\tParsing line of type %s",                            \
-                sparql_type);                                           \
+    GRL_ODEBUG ("\tParsing line of type %x",                            \
+                type);                                                  \
                                                                         \
-    media = grl_tracker_build_grilo_media (sparql_type, os->type_filter);\
+    media = grl_tracker_build_grilo_media ((GrlMediaType ) type);       \
                                                                         \
     if (media != NULL) {                                                \
       for (col = 1 ;                                                    \
@@ -403,8 +400,7 @@ tracker_media_from_uri_cb (GObject      *source_object,
   GError                    *tracker_error = NULL, *error = NULL;
   GrlMedia                  *media;
   TrackerSparqlCursor       *cursor;
-  const gchar               *sparql_type;
-  gint                       col;
+  gint                       col, type;
 
   GRL_ODEBUG ("%s", __FUNCTION__);
 
@@ -431,8 +427,8 @@ tracker_media_from_uri_cb (GObject      *source_object,
 
   if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
     /* Build grilo media */
-    sparql_type = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-    media = grl_tracker_build_grilo_media (sparql_type, GRL_TYPE_FILTER_NONE);
+    type = tracker_sparql_cursor_get_integer (cursor, 0);
+    media = grl_tracker_build_grilo_media ((GrlMediaType) type);
 
     /* Translate Sparql result into Grilo result */
     for (col = 0 ; col < tracker_sparql_cursor_get_n_columns (cursor) ; col++) {

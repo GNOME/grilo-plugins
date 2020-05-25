@@ -216,7 +216,7 @@ create_query_string (GrlTrackerQueryType  type,
   else
     filter = GRL_TYPE_FILTER_ALL;
 
-  str = g_string_new ("SELECT ?resourceType ?urn ");
+  str = g_string_new ("SELECT ?mediaType ?urn ");
   append_query_variables (str, keys, filter);
   g_string_append (str, "WHERE { ");
 
@@ -231,7 +231,8 @@ create_query_string (GrlTrackerQueryType  type,
   g_string_append (str, "{ ");
 
   if (filter & GRL_TYPE_FILTER_AUDIO) {
-    g_string_append (str, "{ GRAPH tracker:Audio { SELECT (rdf:type(?urn) AS ?resourceType) ?urn ");
+    g_string_append_printf (str, "{ GRAPH tracker:Audio { SELECT (%d AS ?mediaType) ?urn ",
+                            GRL_MEDIA_TYPE_AUDIO);
     append_subselect_bindings (str, merged_list, GRL_TYPE_FILTER_AUDIO);
     g_string_append_printf (str, "{ ?urn a nfo:Audio . %s } } } ",
                             query_bases[type]);
@@ -241,7 +242,8 @@ create_query_string (GrlTrackerQueryType  type,
   }
 
   if (filter & GRL_TYPE_FILTER_VIDEO) {
-    g_string_append (str, "{ GRAPH tracker:Video { SELECT (rdf:type(?urn) AS ?resourceType) ?urn ");
+    g_string_append_printf (str, "{ GRAPH tracker:Video { SELECT (%d AS ?mediaType) ?urn ",
+                            GRL_MEDIA_TYPE_VIDEO);
     append_subselect_bindings (str, merged_list, GRL_TYPE_FILTER_VIDEO);
     g_string_append_printf (str, "{ ?urn a nfo:Video . %s } } } ",
                             query_bases[type]);
@@ -251,7 +253,8 @@ create_query_string (GrlTrackerQueryType  type,
   }
 
   if (filter & GRL_TYPE_FILTER_IMAGE) {
-    g_string_append (str, "{ GRAPH tracker:Pictures { SELECT (rdf:type(?urn) AS ?resourceType) ?urn ");
+    g_string_append_printf (str, "{ GRAPH tracker:Pictures { SELECT (%d AS ?mediaType) ?urn ",
+                            GRL_MEDIA_TYPE_IMAGE);
     append_subselect_bindings (str, merged_list, GRL_TYPE_FILTER_IMAGE);
     g_string_append_printf (str, "{ ?urn a nfo:Image . %s } } } ",
                             query_bases[type]);

@@ -428,72 +428,19 @@ grl_tracker_key_is_supported (const GrlKeyID key)
 
 /**/
 
-static GrlMedia *
-grl_tracker_build_grilo_media_default (GHashTable *ht)
-{
-  if (g_hash_table_lookup (ht, RDF_TYPE_MUSIC)) {
-    return grl_media_audio_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_VIDEO)) {
-    return grl_media_video_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_IMAGE)) {
-    return grl_media_image_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_ARTIST)) {
-    return grl_media_container_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_ALBUM)) {
-    return grl_media_container_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_CONTAINER)) {
-    return grl_media_container_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_FOLDER)) {
-    return grl_media_container_new ();
-  } else if (g_hash_table_lookup (ht, RDF_TYPE_PLAYLIST)) {
-    return grl_media_container_new ();
-  }
-
-  return NULL;
-}
-
-/**/
-
-/* Builds an appropriate GrlMedia based on ontology type returned by
-   tracker, or NULL if unknown */
+/* Builds an appropriate GrlMedia based on tracker query results */
 GrlMedia *
-grl_tracker_build_grilo_media (const gchar   *rdf_type,
-                               GrlTypeFilter  type_filter)
+grl_tracker_build_grilo_media (GrlMediaType type)
 {
   GrlMedia *media = NULL;
-  gchar **rdf_single_type;
-  int i;
-  GHashTable *ht;
 
-  if (!rdf_type) {
-    return NULL;
-  }
-
-  /* As rdf_type can be formed by several types, split them */
-  rdf_single_type = g_strsplit (rdf_type, ",", -1);
-  i = g_strv_length (rdf_single_type) - 1;
-  ht = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  for (; i>= 0; i--)
-    g_hash_table_insert (ht, g_path_get_basename (rdf_single_type[i]), GINT_TO_POINTER(TRUE));
-
-  if (type_filter == GRL_TYPE_FILTER_NONE ||
-      type_filter == GRL_TYPE_FILTER_ALL) {
-    media = grl_tracker_build_grilo_media_default (ht);
-  } else if ((type_filter & GRL_TYPE_FILTER_AUDIO) &&
-             g_hash_table_lookup (ht, RDF_TYPE_MUSIC)) {
+  if (type == GRL_MEDIA_TYPE_AUDIO) {
     media = grl_media_audio_new ();
-  } else if ((type_filter & GRL_TYPE_FILTER_VIDEO) &&
-             g_hash_table_lookup (ht, RDF_TYPE_VIDEO)) {
+  } else if (type == GRL_MEDIA_TYPE_VIDEO) {
     media = grl_media_video_new ();
-  } else if ((type_filter & GRL_TYPE_FILTER_IMAGE) &&
-             g_hash_table_lookup (ht, RDF_TYPE_IMAGE)) {
+  } else if (type == GRL_MEDIA_TYPE_IMAGE) {
     media = grl_media_image_new ();
-  } else {
-    media = grl_tracker_build_grilo_media_default (ht);
   }
-
-  g_hash_table_destroy (ht);
-  g_strfreev (rdf_single_type);
 
   if (!media)
     media = grl_media_new ();

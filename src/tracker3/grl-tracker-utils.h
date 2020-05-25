@@ -28,22 +28,6 @@
 
 #include "grl-tracker-source-priv.h"
 
-/* ------- Definitions ------- */
-
-#define RDF_TYPE_ALBUM     "nmm#MusicAlbum"
-#define RDF_TYPE_ARTIST    "nmm#Artist"
-#define RDF_TYPE_AUDIO     "nfo#Audio"
-#define RDF_TYPE_MUSIC     "nmm#MusicPiece"
-#define RDF_TYPE_IMAGE     "nmm#Photo"
-#define RDF_TYPE_VIDEO     "nmm#Video"
-#define RDF_TYPE_FOLDER    "nfo#Folder"
-#define RDF_TYPE_DOCUMENT  "nfo#Document"
-#define RDF_TYPE_CONTAINER "grilo#Container"
-#define RDF_TYPE_PLAYLIST  "nmm#Playlist"
-
-#define RDF_TYPE_VOLUME "tracker#Volume"
-#define RDF_TYPE_UPNP   "upnp#ContentDirectory"
-
 /**/
 
 typedef void (*tracker_grl_sparql_setter_cb_t) (TrackerSparqlCursor *cursor,
@@ -76,7 +60,6 @@ TrackerResource * grl_tracker_build_resource_from_media (GrlMedia *media, GList 
 
 tracker_grl_sparql_t *grl_tracker_get_mapping_from_sparql (const gchar *key);
 
-GrlMedia *grl_tracker_build_grilo_media (const gchar   *rdf_type,
-                                         GrlTypeFilter  type_filter);
+GrlMedia *grl_tracker_build_grilo_media (GrlMediaType type);
 
 #endif /* _GRL_TRACKER_UTILS_H_ */

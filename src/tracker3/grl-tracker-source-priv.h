@@ -62,7 +62,7 @@ typedef enum {
   GRL_TRACKER_SOURCE_STATE_DELETED,
 } GrlTrackerSourceState;
 
-struct _GrlTrackerSourcePriv {
+struct _GrlTrackerSourcePrivate {
   TrackerSparqlConnection *tracker_connection;
   GDBusProxy *writeback;
 

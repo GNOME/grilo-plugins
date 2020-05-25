@@ -55,14 +55,14 @@
                               GrlTrackerSourceClass))
 
 typedef struct _GrlTrackerSource GrlTrackerSource;
-typedef struct _GrlTrackerSourcePriv GrlTrackerSourcePriv;
+typedef struct _GrlTrackerSourcePrivate GrlTrackerSourcePrivate;
 
 struct _GrlTrackerSource {
 
   GrlSource parent;
 
   /*< private >*/
-  GrlTrackerSourcePriv *priv;
+  GrlTrackerSourcePrivate *priv;
 
 };
 

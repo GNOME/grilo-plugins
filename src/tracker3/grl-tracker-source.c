@@ -75,7 +75,7 @@ GrlTrackerCache *grl_tracker_item_cache;
 
 /* ================== TrackerSource GObject ================ */
 
-G_DEFINE_TYPE (GrlTrackerSource, grl_tracker_source, GRL_TYPE_SOURCE);
+G_DEFINE_TYPE_WITH_PRIVATE (GrlTrackerSource, grl_tracker_source, GRL_TYPE_SOURCE);
 
 static GrlTrackerSource *
 grl_tracker_source_new (TrackerSparqlConnection *connection)
@@ -124,14 +124,12 @@ grl_tracker_source_class_init (GrlTrackerSourceClass * klass)
                                                         G_PARAM_WRITABLE
                                                         | G_PARAM_CONSTRUCT_ONLY
                                                         | G_PARAM_STATIC_NAME));
-
-  g_type_class_add_private (klass, sizeof (GrlTrackerSourcePriv));
 }
 
 static void
 grl_tracker_source_init (GrlTrackerSource *source)
 {
-  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  GrlTrackerSourcePrivate *priv = grl_tracker_source_get_instance_private (source);
   GDBusConnection *connection;
 
   source->priv = priv;
@@ -172,7 +170,7 @@ grl_tracker_source_set_property (GObject      *object,
                                  GParamSpec   *pspec)
 
 {
-  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (object);
+  GrlTrackerSourcePrivate *priv = GRL_TRACKER_SOURCE (object)->priv;
 
   switch (propid) {
     case PROP_TRACKER_CONNECTION:
@@ -188,7 +186,7 @@ grl_tracker_source_set_property (GObject      *object,
 TrackerSparqlConnection *
 grl_tracker_source_get_tracker_connection (GrlTrackerSource *source)
 {
-  GrlTrackerSourcePriv *priv;
+  GrlTrackerSourcePrivate *priv;
 
   g_return_val_if_fail (GRL_IS_TRACKER_SOURCE (source), NULL);
 
@@ -202,7 +200,7 @@ grl_tracker_source_get_tracker_connection (GrlTrackerSource *source)
 void
 grl_tracker_add_source (GrlTrackerSource *source)
 {
-  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  GrlTrackerSourcePrivate *priv = source->priv;
 
   GRL_DEBUG ("====================>add source '%s'",
              grl_source_get_name (GRL_SOURCE (source)));
@@ -217,7 +215,7 @@ grl_tracker_add_source (GrlTrackerSource *source)
 void
 grl_tracker_del_source (GrlTrackerSource *source)
 {
-  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  GrlTrackerSourcePrivate *priv = source->priv;
 
   GRL_DEBUG ("==================>del source '%s'",
              grl_source_get_name (GRL_SOURCE (source)));
@@ -232,7 +230,7 @@ grl_tracker_del_source (GrlTrackerSource *source)
 gboolean
 grl_tracker_source_can_notify (GrlTrackerSource *source)
 {
-  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  GrlTrackerSourcePrivate *priv = source->priv;
 
   if (priv->state == GRL_TRACKER_SOURCE_STATE_RUNNING)
     return priv->notifier != NULL;

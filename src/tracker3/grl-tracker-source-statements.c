@@ -453,7 +453,7 @@ grl_tracker_source_create_statement (GrlTrackerSource     *source,
                                      const gchar          *extra_sparql,
                                      GError              **error)
 {
-  GrlTrackerSourcePriv *priv = source->priv;
+  GrlTrackerSourcePrivate *priv = source->priv;
   CachedStatement *cache;
   GError *tracker_error = NULL;
   GList *link, *keys_copy;

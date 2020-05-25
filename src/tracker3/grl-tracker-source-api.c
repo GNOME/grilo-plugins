@@ -703,7 +703,7 @@ void
 grl_tracker_source_store_metadata (GrlSource *source,
                                    GrlSourceStoreMetadataSpec *sms)
 {
-  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  GrlTrackerSourcePrivate *priv = GRL_TRACKER_SOURCE (source)->priv;
   TrackerResource *resource;
   GrlTrackerOp *os;
 
@@ -968,7 +968,7 @@ grl_tracker_source_cancel (GrlSource *source, guint operation_id)
 gboolean
 grl_tracker_source_change_start (GrlSource *source, GError **error)
 {
-  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  GrlTrackerSourcePrivate *priv = GRL_TRACKER_SOURCE (source)->priv;
 
   priv->notifier =
     grl_tracker_source_notify_new (source, priv->tracker_connection);
@@ -979,7 +979,7 @@ grl_tracker_source_change_start (GrlSource *source, GError **error)
 gboolean
 grl_tracker_source_change_stop (GrlSource *source, GError **error)
 {
-  GrlTrackerSourcePriv *priv = GRL_TRACKER_SOURCE_GET_PRIVATE (source);
+  GrlTrackerSourcePrivate *priv = GRL_TRACKER_SOURCE (source)->priv;
 
   g_clear_object (&priv->notifier);
 

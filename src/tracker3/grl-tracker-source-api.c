@@ -602,13 +602,21 @@ grl_tracker_source_query (GrlSource *source,
     goto send_error;
   }
 
-  statement =
-    grl_tracker_source_create_statement (GRL_TRACKER_SOURCE (source),
-                                         GRL_TRACKER_QUERY_ALL,
-                                         qs->options,
-                                         qs->keys,
-                                         qs->query,
-                                         &error);
+  if (g_ascii_strncasecmp (qs->query, "select ", 7) == 0) {
+    statement =
+      tracker_sparql_connection_query_statement (GRL_TRACKER_SOURCE (source)->priv->tracker_connection,
+                                                 qs->query,
+                                                 NULL, &error);
+  } else {
+    statement =
+      grl_tracker_source_create_statement (GRL_TRACKER_SOURCE (source),
+                                           GRL_TRACKER_QUERY_ALL,
+                                           qs->options,
+                                           qs->keys,
+                                           qs->query,
+                                           &error);
+  }
+
   if (!statement)
     goto send_error;
 

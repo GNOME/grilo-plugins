@@ -174,9 +174,19 @@ static void
 grl_tracker_source_notify_constructed (GObject *object)
 {
   GrlTrackerSourceNotify *self = GRL_TRACKER_SOURCE_NOTIFY (object);
+  GDBusConnection *bus_connection;
 
   self->notifier =
     tracker_sparql_connection_create_notifier (self->connection);
+
+  bus_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+  tracker_notifier_signal_subscribe (self->notifier,
+                                     bus_connection,
+                                     "org.freedesktop.Tracker3.Miner.Files",
+                                     NULL,
+                                     NULL);
+  g_object_unref (bus_connection);
+
   self->events_signal_id =
     g_signal_connect_swapped (self->notifier, "events",
                               G_CALLBACK (notifier_event_cb), object);

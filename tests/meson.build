@@ -39,3 +39,7 @@ endif
 if local_metadata_enabled and lua_factory_enabled
     subdir('local-metadata')
 endif
+
+if tracker3_dep.found() and tracker3_testutils_dep.found()
+    subdir('tracker3')
+endif

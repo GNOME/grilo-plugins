@@ -78,6 +78,7 @@ totem_plparser_dep = dependency('totem-plparser', version: '>= 3.4.1', required:
 totem_plparser_mini_dep = dependency('totem-plparser-mini', version: '>= 3.4.1', required: false)
 tracker_sparql_dep = dependency('tracker-sparql-2.0', version: '>= 2.3.0', required: false)
 tracker3_dep = dependency('tracker-sparql-3.0', required: false)
+tracker3_testutils_dep = dependency('tracker-testutils-3.0', required: false)
 
 lua_dep = dependency('lua', version: '>= 5.3.0', required: false)
 if not lua_dep.found()

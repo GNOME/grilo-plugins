@@ -176,6 +176,11 @@ if lua_factory_enabled
     endif
 endif
 
+# Special case: tracker and tracker3 modules are mutually exclusive
+if tracker3_enabled and tracker_enabled
+    error('tracker3 and tracker modules cannot be enabled at the same time')
+endif
+
 message('Plugins:')
 foreach p: plugins
     name = p[NAME].underscorify() + '_enabled'

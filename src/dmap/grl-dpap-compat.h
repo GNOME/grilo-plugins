@@ -38,7 +38,7 @@ guint grl_dpap_db_add (DMAPDb *_db, DMAPRecord *_record, GError **error);
 #define DmapImageRecordInterface DPAPRecordIface
 #define DMAP_IMAGE_RECORD DPAP_RECORD
 #define DMAP_TYPE_IMAGE_RECORD DPAP_TYPE_RECORD
-#define IS_DMAP_IMAGE_RECORD IS_DPAP_RECORD
+#define DMAP_IS_IMAGE_RECORD IS_DPAP_RECORD
 
 static inline DmapRecord *
 grl_dpap_record_factory_create_compat (DmapRecordFactory *factory, gpointer user_data)

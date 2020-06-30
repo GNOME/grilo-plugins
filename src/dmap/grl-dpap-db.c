@@ -125,8 +125,8 @@ set_insert (GHashTable *category, const char *category_name, char *set_name, Grl
 guint
 grl_dpap_db_add (DmapDb *_db, DmapRecord *_record, GError **error)
 {
-  g_assert (IS_GRL_DPAP_DB (_db));
-  g_assert (IS_DMAP_IMAGE_RECORD (_record));
+  g_assert (GRL_IS_DPAP_DB (_db));
+  g_assert (DMAP_IS_IMAGE_RECORD (_record));
 
   GrlDpapDb *db = GRL_DPAP_DB (_db);
   DmapImageRecord *record = DMAP_IMAGE_RECORD (_record);
@@ -207,7 +207,7 @@ grl_dpap_db_browse (GrlDpapDb *db,
                     GrlSourceResultCb func,
                     gpointer user_data)
 {
-  g_assert (IS_GRL_DPAP_DB (db));
+  g_assert (GRL_IS_DPAP_DB (db));
 
   int i;
   guint remaining;
@@ -258,7 +258,7 @@ grl_dpap_db_search (GrlDpapDb *db,
                     GrlSourceResultCb func,
                     gpointer user_data)
 {
-  g_assert (IS_GRL_DPAP_DB (db));
+  g_assert (GRL_IS_DPAP_DB (db));
 
   gint i, j, k;
   guint remaining = 0;

@@ -39,10 +39,10 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_CLASS_CAST ((k),                                               \
                              TYPE_GRL_DPAP_DB,                                 \
                              GrlDpapDbClass))
-#define IS_GRL_DPAP_DB(o)                                                      \
+#define GRL_IS_DPAP_DB(o)                                                      \
   (G_TYPE_CHECK_INSTANCE_TYPE ((o),                                            \
                                 TYPE_GRL_DPAP_DB))
-#define IS_GRL_DPAP_DB_CLASS(k)                                                \
+#define GRL_IS_DPAP_DB_CLASS(k)                                                \
   (G_TYPE_CHECK_CLASS_TYPE ((k),                                               \
                              TYPE_GRL_DPAP_DB_CLASS))
 

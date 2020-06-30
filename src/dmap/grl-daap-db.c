@@ -157,8 +157,8 @@ set_insert (GHashTable *category, const char *category_name, char *set_name, Grl
 guint
 grl_daap_db_add (DmapDb *_db, DmapRecord *_record, GError **error)
 {
-  g_assert (IS_GRL_DAAP_DB (_db));
-  g_assert (IS_DMAP_AV_RECORD (_record));
+  g_assert (GRL_IS_DAAP_DB (_db));
+  g_assert (DMAP_IS_AV_RECORD (_record));
 
   GrlDaapDb *db = GRL_DAAP_DB (_db);
   DmapAvRecord *record = DMAP_AV_RECORD (_record);
@@ -261,7 +261,7 @@ grl_daap_db_browse (GrlDaapDb *db,
                     GrlSourceResultCb func,
                     gpointer user_data)
 {
-  g_assert (IS_GRL_DAAP_DB (db));
+  g_assert (GRL_IS_DAAP_DB (db));
 
   int i;
   guint remaining;
@@ -319,7 +319,7 @@ grl_daap_db_search (GrlDaapDb *db,
                     GrlSourceResultCb func,
                     gpointer user_data)
 {
-  g_assert (IS_GRL_DAAP_DB (db));
+  g_assert (GRL_IS_DAAP_DB (db));
 
   gint i, j, k;
   guint remaining = 0;

@@ -38,7 +38,7 @@ guint grl_daap_db_add (DMAPDb *_db, DMAPRecord *_record, GError **error);
 #define DmapAvRecordInterface DAAPRecordIface
 #define DMAP_AV_RECORD DAAP_RECORD
 #define DMAP_TYPE_AV_RECORD DAAP_TYPE_RECORD
-#define IS_DMAP_AV_RECORD IS_DAAP_RECORD
+#define DMAP_IS_AV_RECORD IS_DAAP_RECORD
 
 static inline DmapRecord *
 grl_daap_record_factory_create_compat (DmapRecordFactory *factory, gpointer user_data)

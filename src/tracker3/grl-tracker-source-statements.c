@@ -223,7 +223,10 @@ create_query_string (GrlTrackerQueryType  type,
   merged_list = get_all_keys (keys, options);
 
   /* Remote miner-fs bits */
-  g_string_append (str, "SERVICE <dbus:" MINER_FS_BUS_NAME "> { ");
+  g_string_append_printf (str, "SERVICE <dbus:%s> { ",
+                          grl_tracker_miner_service ?
+                          grl_tracker_miner_service :
+                          MINER_FS_BUS_NAME);
 
   /* Make a subquery so we can apply limit and offset */
   g_string_append (str, "SELECT ?mediaType ?urn ");

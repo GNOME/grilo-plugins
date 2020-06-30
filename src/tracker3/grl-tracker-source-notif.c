@@ -182,6 +182,8 @@ grl_tracker_source_notify_constructed (GObject *object)
   bus_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
   tracker_notifier_signal_subscribe (self->notifier,
                                      bus_connection,
+                                     grl_tracker_miner_service ?
+                                     grl_tracker_miner_service :
                                      "org.freedesktop.Tracker3.Miner.Files",
                                      NULL,
                                      NULL);

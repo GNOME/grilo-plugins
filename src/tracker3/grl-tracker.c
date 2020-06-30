@@ -56,6 +56,7 @@ GCancellable *grl_tracker_plugin_init_cancel = NULL;
 
 /* tracker plugin config */
 gchar *grl_tracker_store_path = NULL;
+gchar *grl_tracker_miner_service = NULL;
 
 /* =================== Tracker Plugin  =============== */
 
@@ -120,6 +121,8 @@ grl_tracker3_plugin_init (GrlRegistry *registry,
 
     grl_tracker_store_path =
       grl_config_get_string (config, "store-path");
+    grl_tracker_miner_service =
+      grl_config_get_string (config, "miner-service");
   }
 
   grl_tracker_plugin_init_cancel = g_cancellable_new ();

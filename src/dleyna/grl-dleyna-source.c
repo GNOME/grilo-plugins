@@ -72,6 +72,14 @@ enum {
 };
 
 typedef enum {
+  CONTAINER_TYPE_ALBUM,
+  CONTAINER_TYPE_ARTIST,
+  CONTAINER_TYPE_GENRE,
+  CONTAINER_TYPE_UNKNOWN,
+  CONTAINER_TYPE_NOT_CONTAINER
+} ContainerType;
+
+typedef enum {
   DLEYNA_CHANGE_TYPE_ADD = 1,
   DLEYNA_CHANGE_TYPE_MOD = 2,
   DLEYNA_CHANGE_TYPE_DEL = 3,
@@ -462,6 +470,27 @@ properties_add_for_key (GPtrArray *properties,
     }
 }
 
+static ContainerType
+get_container_type (const gchar *type_ex)
+{
+  ContainerType con_type = CONTAINER_TYPE_UNKNOWN;
+
+  if (g_strcmp0 (type_ex, "container.person.musicArtist") == 0) {
+    con_type = CONTAINER_TYPE_ARTIST;
+  }
+  if (g_strcmp0 (type_ex, "container.album.musicAlbum") == 0) {
+    con_type = CONTAINER_TYPE_ALBUM;
+  }
+  if (g_strcmp0 (type_ex, "container.genre.musicGenre") == 0) {
+    con_type = CONTAINER_TYPE_GENRE;
+  }
+  if (g_str_has_prefix (type_ex, "item")) {
+    con_type = CONTAINER_TYPE_NOT_CONTAINER;
+  }
+
+  return con_type;
+}
+
 static void
 media_set_property (GrlMedia *media,
                     const gchar *key,
@@ -591,8 +620,12 @@ build_media_from_variant (GVariant *variant)
 {
   GrlMedia *media;
   const gchar *type = NULL;
+  const gchar *type_ex = NULL;
 
   g_variant_lookup (variant, "Type", "&s", &type);
+  g_variant_lookup (variant, "TypeEx", "&s", &type_ex);
+
+  ContainerType container_type = get_container_type (type_ex);
 
   if (type == NULL) {
     media = grl_media_new ();

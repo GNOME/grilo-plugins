@@ -494,7 +494,8 @@ get_container_type (const gchar *type_ex)
 static void
 media_set_property (GrlMedia *media,
                     const gchar *key,
-                    GVariant *value)
+                    GVariant *value,
+                    ContainerType container_type)
 {
   const gchar *s;
   gint i;
@@ -506,6 +507,23 @@ media_set_property (GrlMedia *media,
   else if (g_strcmp0 (key, "DisplayName") == 0) {
     s = g_variant_get_string (value, NULL);
     grl_media_set_title (media, s);
+    switch (container_type) {
+      case CONTAINER_TYPE_ALBUM:
+        grl_media_set_album (media, s);
+        break;
+      case CONTAINER_TYPE_ARTIST:
+        grl_media_set_artist (media, s);
+        break;
+      case CONTAINER_TYPE_GENRE:
+        grl_media_set_genre (media, s);
+        break;
+      case CONTAINER_TYPE_NOT_CONTAINER:
+        grl_media_set_title (media, s);
+        break;
+      default:
+        grl_media_set_title (media, s);
+        break;
+    }
   }
   else if (g_strcmp0 (key, "URLs") == 0 && g_variant_n_children (value) > 0) {
     g_variant_get_child (value, 0, "&s", &s);
@@ -600,7 +618,8 @@ media_set_property (GrlMedia *media,
 
 static GrlMedia *
 populate_media_from_variant (GrlMedia *media,
-                             GVariant *variant)
+                             GVariant *variant,
+                             ContainerType container_type)
 {
   GVariantIter iter;
   const gchar *key;
@@ -608,7 +627,7 @@ populate_media_from_variant (GrlMedia *media,
 
   g_variant_iter_init (&iter, variant);
   while (g_variant_iter_next (&iter, "{&sv}", &key, &value)) {
-    media_set_property (media, key, value);
+    media_set_property (media, key, value, container_type);
     g_variant_unref (value);
   }
 
@@ -653,7 +672,7 @@ build_media_from_variant (GVariant *variant)
     media = grl_media_new ();
   }
 
-  populate_media_from_variant (media, variant);
+  populate_media_from_variant (media, variant, container_type);
 
   return media;
 }
@@ -882,6 +901,7 @@ grl_dleyna_source_resolve_browse_objects_cb (GObject      *object,
                                              GAsyncResult *res,
                                              gpointer      user_data)
 {
+  ContainerType container_type = CONTAINER_TYPE_UNKNOWN;
   GrlDleynaMediaDevice *device = GRL_DLEYNA_MEDIA_DEVICE (object);
   GrlSourceResolveSpec *rs = user_data;
   GVariant *results, *dict, *item_error;
@@ -916,7 +936,7 @@ grl_dleyna_source_resolve_browse_objects_cb (GObject      *object,
     return;
   }
 
-  populate_media_from_variant (rs->media, dict);
+  populate_media_from_variant (rs->media, dict, container_type);
   rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
 }
 

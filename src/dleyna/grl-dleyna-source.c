@@ -741,6 +741,7 @@ build_properties_filter (const GList *keys)
   filter = g_ptr_array_new ();
   g_ptr_array_add (filter, "Path"); /* always retrieve the items' DBus path */
   g_ptr_array_add (filter, "Type"); /* and their object type */
+  g_ptr_array_add (filter, "TypeEx"); /* and their object extended type */
   while (keys != NULL) {
     properties_add_for_key (filter, GRLPOINTER_TO_KEYID (keys->data));
     keys = g_list_next (keys);

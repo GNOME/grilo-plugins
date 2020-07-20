@@ -295,21 +295,22 @@ grl_dleyna_source_update_caps_cb (GObject    *gobject,
   }
   else {
     gchar **cap;
-    gboolean type, displayname, album, artist, parent;
-    type = displayname = album = artist = parent = FALSE;
+    gboolean type, type_ex, displayname, album, artist, parent;
+    type = type_ex = displayname = album = artist = parent = FALSE;
 
     GRL_DEBUG ("%s caps:", G_STRFUNC);
     for (cap = (gchar **) search_caps; *cap != NULL; cap++) {
       GRL_DEBUG ("  %s", *cap);
       type = type || (g_strcmp0(*cap, "Type") == 0);
+      type_ex = type_ex || (g_strcmp0 (*cap, "TypeEx") == 0);
       displayname = displayname || (g_strcmp0(*cap, "DisplayName") == 0);
       album = album || (g_strcmp0(*cap, "Album") == 0);
       artist = artist || (g_strcmp0(*cap, "Artist") == 0);
       parent = parent || (g_strcmp0(*cap, "Parent") == 0);
     }
 
-    source->priv->search_enabled = type && (displayname || album || artist);
-    source->priv->browse_filtered_enabled = type && parent;
+    source->priv->search_enabled = type && type_ex && (displayname || album || artist);
+    source->priv->browse_filtered_enabled = type && type_ex && parent;
   }
 
   GRL_DEBUG ("%s %s search:%d filtered:%d", G_STRFUNC, grl_source_get_id (GRL_SOURCE (source)),

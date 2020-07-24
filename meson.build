@@ -190,7 +190,9 @@ gnome = import('gnome')
 rootdir = include_directories('.')
 
 subdir('src')
-subdir('help')
+if get_option('help') != 'no'
+  subdir('help')
+endif
 subdir('po')
 subdir('tests')
 

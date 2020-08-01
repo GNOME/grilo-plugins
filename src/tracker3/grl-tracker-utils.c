@@ -213,7 +213,7 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_ARTIST,
                       "artist",
-                      "nmm:artistName(nmm:performer(?urn))",
+                      "nmm:artistName(nmm:artist(?urn))",
                       GRL_TYPE_FILTER_AUDIO);
 
   insert_key_mapping (GRL_METADATA_KEY_ALBUM_ARTIST,
@@ -223,7 +223,7 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_AUTHOR,
                       "author",
-                      "nmm:artistName(nmm:performer(?urn))",
+                      "nmm:artistName(nmm:artist(?urn))",
                       GRL_TYPE_FILTER_AUDIO);
 
   insert_key_mapping (GRL_METADATA_KEY_BITRATE,
@@ -269,7 +269,7 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping (GRL_METADATA_KEY_MB_ARTIST_ID,
                       "mbArtist",
-		      "(SELECT tracker:referenceIdentifier(?a) AS ?a_id { ?urn nmm:performer ?artist . ?artist tracker:hasExternalReference ?a . ?a tracker:referenceSource \"https://musicbrainz.org/doc/Artist\" })",
+		      "(SELECT tracker:referenceIdentifier(?a) AS ?a_id { ?urn nmm:artist ?artist . ?artist tracker:hasExternalReference ?a . ?a tracker:referenceSource \"https://musicbrainz.org/doc/Artist\" })",
                       GRL_TYPE_FILTER_AUDIO);
 
   insert_key_mapping (GRL_METADATA_KEY_MB_RECORDING_ID,
@@ -648,7 +648,7 @@ grl_tracker_build_resource_from_media (GrlMedia *media, GList *keys)
 
       for (i = 0; artist_name != NULL; i++) {
         artist_name = grl_media_get_artist_nth (media, i);
-        artist = ensure_resource_for_property (resource, "nmm:performer", TRUE);
+        artist = ensure_resource_for_property (resource, "nmm:artist", TRUE);
         tracker_resource_set_string (artist, "nmm:artistName", artist_name);
 
         /* Handle MB artist inline */
@@ -670,7 +670,7 @@ grl_tracker_build_resource_from_media (GrlMedia *media, GList *keys)
 
       for (i = 0; artist_name != NULL; i++) {
         artist_name = grl_media_get_artist_nth (media, i);
-        artist = ensure_resource_for_property (resource, "nmm:performer", TRUE);
+        artist = ensure_resource_for_property (resource, "nmm:artist", TRUE);
         tracker_resource_set_string (artist, "nmm:artistName", artist_name);
       }
     } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_COMPOSER)) {

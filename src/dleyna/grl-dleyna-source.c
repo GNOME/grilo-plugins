@@ -543,19 +543,19 @@ media_set_property (GrlMedia *media,
   }
   else if (g_strcmp0 (key, "Artist") == 0) {
     s = g_variant_get_string (value, NULL);
-    if (grl_media_is_audio (media)) {
+    if (grl_media_is_audio (media) || grl_media_is_container (media)) {
       grl_media_set_artist (media, s);
     }
   }
   else if (g_strcmp0 (key, "Album") == 0) {
     s = g_variant_get_string (value, NULL);
-    if (grl_media_is_audio (media)) {
+    if (grl_media_is_audio (media) || grl_media_is_container (media)) {
       grl_media_set_album (media, s);
     }
   }
   else if (g_strcmp0 (key, "Genre") == 0) {
     s = g_variant_get_string (value, NULL);
-    if (grl_media_is_audio (media)) {
+    if (grl_media_is_audio (media) || grl_media_is_container (media)) {
       grl_media_set_genre (media, s);
     }
   }

@@ -2,10 +2,12 @@
  * Copyright (C) 2011-2012 Igalia S.L.
  * Copyright (C) 2011 Intel Corporation.
  * Copyright (C) 2015 Collabora Ltd.
+ * Copyright (C) 2020 Red Hat Inc.
  *
- * Contact: Iago Toral Quiroga <itoral@igalia.com>
+ * Contact: Carlos Garnacho <carlosg@gnome.org>
  *
- * Authors: Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
+ * Authors: Carlos Garnacho <carlosg@gnome.org>
+ *          Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
  *          Juan A. Suarez Romero <jasuarez@igalia.com>
  *          Xavier Claessens <xavier.claessens@collabora.com>
  *

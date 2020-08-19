@@ -1,9 +1,11 @@
 /*
  * Copyright (C) 2011-2012 Igalia S.L.
+ * Copyright (C) 2020 Red Hat Inc.
  *
- * Contact: Iago Toral Quiroga <itoral@igalia.com>
+ * Contact: Carlos Garnacho <carlosg@gnome.org>
  *
- * Authors: Juan A. Suarez Romero <jasuarez@igalia.com>
+ * Authors: Carlos Garnacho <carlosg@gnome.org>
+ *          Juan A. Suarez Romero <jasuarez@igalia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License

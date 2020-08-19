@@ -97,7 +97,6 @@ grl_tracker_source_cache_free (GrlTrackerCache *cache)
   }
 
   if (cache->id_list) {
-    g_warning ("Memleak detected");
     g_list_free (cache->id_list);
   }
   g_hash_table_destroy (cache->id_table);

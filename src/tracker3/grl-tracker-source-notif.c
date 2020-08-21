@@ -119,6 +119,9 @@ notifier_event_cb (GrlTrackerSourceNotify *self,
 {
   GrlMediaType type = media_type_from_graph (graph);
 
+  if (type == GRL_MEDIA_TYPE_UNKNOWN)
+    return;
+
   handle_changes (self, events, type,
                   TRACKER_NOTIFIER_EVENT_CREATE,
                   GRL_CONTENT_ADDED);

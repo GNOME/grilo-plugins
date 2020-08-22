@@ -696,7 +696,7 @@ grl_tracker_source_may_resolve (GrlSource *source,
   }
 
   if (media) {
-    if (grl_media_get_url (media)) {
+    if (grl_media_get_id (media) || grl_media_get_url (media)) {
       return TRUE;
     } else {
       if (missing_keys) {

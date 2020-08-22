@@ -17,8 +17,6 @@ foreach t: source_tests
         args: [
 	    '--index-recursive-directories', datadir,
  	    '--store-tmpdir',
-            '--wait-for-miner=Files',
-            '--wait-for-miner=Extract',
 	    exe
 	])
 endforeach

@@ -26,13 +26,53 @@
 #define TRACKER3_ID "grl-tracker3"
 #define TRACKER3_SOURCE_ID "grl-tracker3-source"
 
+const gchar *test_files[] = {
+  "file://" TRACKER3_DATA_PATH "/sample.flac",
+  "file://" TRACKER3_DATA_PATH "/sample.mp3",
+  "file://" TRACKER3_DATA_PATH "/sample.ogv",
+  "file://" TRACKER3_DATA_PATH "/sample.ogg",
+  "file://" TRACKER3_DATA_PATH "/sample.png",
+};
+
+static void
+content_changed_cb (GrlSource           *source,
+		    GPtrArray           *medias,
+		    GrlSourceChangeType  type,
+		    gboolean             location_unknown,
+                    GMainLoop           *main_loop)
+{
+  static gint n_changes = 0;
+  guint i;
+
+  for (i = 0; i < medias->len; i++) {
+    GrlMedia *media = g_ptr_array_index (medias, i);
+
+    g_assert_true (g_strv_contains ((const gchar * const *) test_files,
+                                    grl_media_get_url (media)));
+    n_changes++;
+  }
+
+  if (n_changes == G_N_ELEMENTS (test_files)) {
+    g_signal_handlers_disconnect_by_func (source, content_changed_cb, main_loop);
+    g_main_loop_quit (main_loop);
+  }
+}
+
 static void
 on_source_added (GrlRegistry *registry,
                  GrlSource   *source,
                  GMainLoop   *main_loop)
 {
+  GError *error = NULL;
+
   g_assert_cmpstr (grl_source_get_id (source), ==, TRACKER3_SOURCE_ID);
-  g_main_loop_quit (main_loop);
+
+  grl_source_notify_change_start (source, &error);
+  g_signal_connect (source, "content-changed", G_CALLBACK (content_changed_cb), main_loop);
+  g_assert_no_error (error);
+
+  /* Some silly query, we want to start the miner service */
+  grl_source_test_media_from_uri (source, "file:///");
 }
 
 static void
@@ -54,8 +94,6 @@ test_setup (void)
   g_main_loop_run (main_loop);
 
   g_main_loop_unref (main_loop);
-
-  sleep (1);
 }
 
 static gint

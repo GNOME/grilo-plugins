@@ -46,6 +46,15 @@ struct _GrlTrackerSourceNotify {
   guint events_signal_id;
 };
 
+typedef struct {
+  GrlTrackerSourceNotify *notify;
+  GPtrArray *events;
+  GPtrArray *medias;
+  GList *keys;
+  GrlOperationOptions *options;
+  guint cur_media;
+} GrlTrackerChangeBatch;
+
 enum {
   PROP_0,
   PROP_CONNECTION,
@@ -56,6 +65,8 @@ enum {
 static GParamSpec *props[N_PROPS] = { 0, };
 
 G_DEFINE_TYPE (GrlTrackerSourceNotify, grl_tracker_source_notify, G_TYPE_OBJECT)
+
+static void resolve_medias (GrlTrackerChangeBatch *batch);
 
 static GrlMedia *
 media_for_event (GrlTrackerSourceNotify *self,
@@ -70,10 +81,31 @@ media_for_event (GrlTrackerSourceNotify *self,
   return media;
 }
 
+static GPtrArray *
+create_medias (GrlTrackerSourceNotify *self,
+               GPtrArray              *events,
+               GrlMediaType            media_type)
+{
+  TrackerNotifierEvent *event;
+  GPtrArray *medias;
+  GrlMedia *media;
+  gint i;
+
+  medias = g_ptr_array_new_with_free_func (g_object_unref);
+
+  for (i = 0; i < events->len; i++) {
+    event = g_ptr_array_index (events, i);
+    media = media_for_event (self, event, media_type);
+    g_ptr_array_add (medias, media);
+  }
+
+  return medias;
+}
+
 static void
 handle_changes (GrlTrackerSourceNotify   *self,
                 GPtrArray                *events,
-                GrlMediaType              media_type,
+                GPtrArray                *medias,
                 TrackerNotifierEventType  tracker_type,
                 GrlSourceChangeType       change_type)
 {
@@ -86,15 +118,79 @@ handle_changes (GrlTrackerSourceNotify   *self,
 
   for (i = 0; i < events->len; i++) {
     event = g_ptr_array_index (events, i);
+    media = g_ptr_array_index (medias, i);
+
     if (tracker_notifier_event_get_event_type (event) != tracker_type)
       continue;
+    if (grl_media_get_url (media) == NULL)
+      continue;
 
-    media = media_for_event (self, event, media_type);
-    g_ptr_array_add (change_list, media);
+    g_ptr_array_add (change_list, g_object_ref (media));
+  }
+
+  if (change_list->len == 0) {
+    g_ptr_array_unref (change_list);
+    return;
   }
 
   grl_source_notify_change_list (self->source, change_list,
                                  change_type, FALSE);
+}
+
+static void
+free_batch (GrlTrackerChangeBatch *batch)
+{
+  g_ptr_array_unref (batch->events);
+  g_ptr_array_unref (batch->medias);
+  g_list_free (batch->keys);
+  g_object_unref (batch->options);
+  g_free (batch);
+}
+
+static void
+resolve_event_cb (GrlSource    *source,
+                  guint         operation_id,
+                  GrlMedia     *media,
+                  gpointer      user_data,
+                  const GError *error)
+{
+  GrlTrackerChangeBatch *batch = user_data;
+
+  batch->cur_media++;
+  resolve_medias (batch);
+}
+
+static void
+resolve_medias (GrlTrackerChangeBatch *batch)
+{
+  GrlTrackerSourceNotify *self = batch->notify;
+  GrlMedia *media = NULL;
+
+  if (batch->cur_media < batch->medias->len)
+    media = g_ptr_array_index (batch->medias, batch->cur_media);
+
+  if (media) {
+    grl_source_resolve (self->source,
+                        media,
+                        batch->keys,
+                        batch->options,
+                        resolve_event_cb,
+                        batch);
+  } else {
+    handle_changes (self,
+                    batch->events, batch->medias,
+                    TRACKER_NOTIFIER_EVENT_CREATE,
+                    GRL_CONTENT_ADDED);
+    handle_changes (self,
+                    batch->events, batch->medias,
+                    TRACKER_NOTIFIER_EVENT_UPDATE,
+                    GRL_CONTENT_CHANGED);
+    handle_changes (self,
+                    batch->events, batch->medias,
+                    TRACKER_NOTIFIER_EVENT_DELETE,
+                    GRL_CONTENT_REMOVED);
+    free_batch (batch);
+  }
 }
 
 static GrlMediaType
@@ -118,19 +214,19 @@ notifier_event_cb (GrlTrackerSourceNotify *self,
                    gpointer                user_data)
 {
   GrlMediaType type = media_type_from_graph (graph);
+  GrlTrackerChangeBatch *batch;
 
   if (type == GRL_MEDIA_TYPE_UNKNOWN)
     return;
 
-  handle_changes (self, events, type,
-                  TRACKER_NOTIFIER_EVENT_CREATE,
-                  GRL_CONTENT_ADDED);
-  handle_changes (self, events, type,
-                  TRACKER_NOTIFIER_EVENT_UPDATE,
-                  GRL_CONTENT_CHANGED);
-  handle_changes (self, events, type,
-                  TRACKER_NOTIFIER_EVENT_DELETE,
-                  GRL_CONTENT_REMOVED);
+  batch = g_new0 (GrlTrackerChangeBatch, 1);
+  batch->notify = g_object_ref (self);
+  batch->events = g_ptr_array_ref (events);
+  batch->medias = create_medias (self, events, type);
+  batch->keys = grl_metadata_key_list_new (GRL_METADATA_KEY_URL, NULL);
+  batch->options = grl_operation_options_new (NULL);
+
+  resolve_medias (batch);
 }
 
 static void

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2020-01-27 16:11+0000\n"
-"PO-Revision-Date: 2020-03-12 20:27+0200\n"
+"POT-Creation-Date: 2020-08-24 15:08+0000\n"
+"PO-Revision-Date: 2020-08-24 20:10+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n"
 "%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Lokalize 20.03.70\n"
+"X-Generator: Lokalize 20.11.70\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -34,7 +34,6 @@ msgstr "Не вдалося отримати метадані закладки"
 
 #: src/bookmarks/grl-bookmarks.c:457 src/bookmarks/grl-bookmarks.c:474
 #, c-format
-#| msgid "Failed to get bookmarks list: %s"
 msgid "Failed to find bookmarks: %s"
 msgstr "Не вдалося знайти закладки: %s"
 
@@ -59,66 +58,62 @@ msgid "No database connection"
 msgstr "Немає з'єднання з базою даних"
 
 #: src/chromaprint/grl-chromaprint.c:41
-#| msgid "A plugin for storing extra metadata information"
 msgid "A plugin to get metadata using gstreamer framework"
 msgstr "Додаток для отримання метаданих за допомогою бібліотек gstreamer"
 
 #: src/dleyna/grl-dleyna-source.c:34
 #, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
 msgid "A source for browsing the DLNA server “%s”"
 msgstr "Джерело для огляду сервера DLNA «%s»"
 
-#: src/dleyna/grl-dleyna-source.c:273
+#: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
 msgstr "Не вдалося вивантажити, джерело призначення було знищено"
 
-#: src/dleyna/grl-dleyna-source.c:375
+#: src/dleyna/grl-dleyna-source.c:382
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
 msgstr "Не вдалося вивантажити, «%s», передано %lu з %lu байтів"
 
-#: src/dleyna/grl-dleyna-source.c:880
+#: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr "Не вдалося отримати властивості запису (помилка BrowseObjects %d: %s)"
 
-#: src/dleyna/grl-dleyna-source.c:1519
+#: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr ""
-"Не вдалося вивантажити, у мультимедійному об'єкті не вказано адреси для"
-" перенесення даних"
+"Не вдалося вивантажити, у мультимедійному об'єкті не вказано адреси для "
+"перенесення даних"
 
-#: src/dmap/grl-daap.c:50
+#: src/dmap/grl-daap.c:51
 #, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
 msgid "A source for browsing the DAAP server “%s”"
 msgstr "Джерело для огляду сервера DAAP «%s»"
 
-#: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:788
+#: src/dmap/grl-daap-db.c:66 src/jamendo/grl-jamendo.c:788
 #: src/magnatune/grl-magnatune.c:122
 msgid "Albums"
 msgstr "Альбоми"
 
-#: src/dmap/grl-daap-db.c:64 src/jamendo/grl-jamendo.c:777
+#: src/dmap/grl-daap-db.c:68 src/jamendo/grl-jamendo.c:777
 #: src/magnatune/grl-magnatune.c:121
 msgid "Artists"
 msgstr "Виконавці"
 
-#: src/dmap/grl-daap-db.c:292 src/jamendo/grl-jamendo.c:1115
+#: src/dmap/grl-daap-db.c:291 src/jamendo/grl-jamendo.c:1115
 #: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Некоректний ідентифікатор контейнера %s"
 
-#: src/dmap/grl-dpap.c:50
+#: src/dmap/grl-dpap.c:51
 #, c-format
-#| msgid "A source for browsing the DMAP server '%s'"
 msgid "A source for browsing the DPAP server “%s”"
 msgstr "Джерело для огляду сервера DPAP «%s»"
 
-#: src/dmap/grl-dpap-db.c:36
+#: src/dmap/grl-dpap-db.c:40
 msgid "Photos"
 msgstr "Фотографії"
 
@@ -147,14 +142,12 @@ msgstr "Джерело для огляду та пошуку фотографі�
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:62
 #, c-format
-#| msgid "%s's Flickr"
 msgid "%s’s Flickr"
 msgstr "Flickr користувача %s"
 
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:64
 #, c-format
-#| msgid "A source for browsing and searching %s's flickr photos"
 msgid "A source for browsing and searching %s’s flickr photos"
 msgstr "Джерело для огляду та пошуку фотографій flickr користувача %s"
 
@@ -163,7 +156,6 @@ msgid "Freebox TV"
 msgstr "Телебачення Freebox"
 
 #: src/freebox/grl-freebox.c:49
-#| msgid "A source for browsing podcasts"
 msgid "A source for browsing Freebox TV channels"
 msgstr "Джерело для навігації каналами телебачення Freebox"
 
@@ -172,7 +164,6 @@ msgid "Freebox Radio"
 msgstr "Радіо Freebox"
 
 #: src/freebox/grl-freebox.c:53
-#| msgid "A source for browsing podcasts"
 msgid "A source for browsing Freebox radio channels"
 msgstr "Джерело для навігації радіоканалами Freebox"
 
@@ -250,7 +241,6 @@ msgstr "Не вдалося переглянути: %s — доріжка"
 
 #: src/jamendo/grl-jamendo.c:1280
 #, c-format
-#| msgid "Malformed query \"%s\""
 msgid "Malformed query “%s”"
 msgstr "Некоректно сформований запит «%s»"
 
@@ -264,6 +254,7 @@ msgstr "Джерело, що постачає локально доступні 
 
 #: src/local-metadata/grl-local-metadata.c:381
 #: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker3/grl-tracker-source-api.c:381
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
@@ -292,7 +283,6 @@ msgstr "Не вдалося отримати базу даних з magnatune: %
 
 #: src/magnatune/grl-magnatune.c:451
 #, c-format
-#| msgid "Failed to save database from magnatune - '%s'"
 msgid "Failed to save database from magnatune: “%s”"
 msgstr "Не вдалося зберегти базу даних з magnatune — «%s»"
 
@@ -317,6 +307,7 @@ msgstr "Додаток зберігання додаткової інформа�
 #: src/metadata-store/grl-metadata-store.c:598
 #: src/metadata-store/grl-metadata-store.c:617
 #: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker3/grl-tracker-source-api.c:471
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
@@ -332,7 +323,6 @@ msgstr "Не вдалося оновити метадані"
 
 #: src/metadata-store/grl-metadata-store.c:785
 #: src/metadata-store/grl-metadata-store.c:830
-#| msgid "\"source-id\" not available"
 msgid "“source-id” not available"
 msgstr "«source-id» недоступний"
 
@@ -533,42 +523,44 @@ msgid "Remote data does not contain valid identifier"
 msgstr "Віддалені дані не містять коректного ідентифікатора"
 
 #. I can haz templatze ??
+#. Schedule the next row to parse
+#. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
+#: src/tracker3/grl-tracker-source-api.c:243
+#: src/tracker3/grl-tracker-source-api.c:319
 #: src/tracker/grl-tracker-source-api.c:401
 #: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Не вдалося виконати запит: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:418
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
-#| msgid "Failed to get database from magnatune: %s"
 msgid "Failed to get media from uri: %s"
 msgstr "Не вдалося отримати мультимедійні дані з адреси: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:603
 #: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Порожній запит"
 
+#: src/tracker3/grl-tracker-source-api.c:824
+#: src/tracker3/grl-tracker-source-api.c:920
 #: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
 msgstr "Ідентифікатор «%s» є невідомим у цьому джерелі"
 
+#: src/tracker3/grl-tracker-source-priv.h:47
+#| msgid "A plugin for searching multimedia content using Tracker"
+msgid "A plugin for searching multimedia content using Tracker3"
+msgstr "Додаток пошуку мультимедійних даних за допомогою Tracker3"
+
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Додаток пошуку мультимедійного контенту за допомогою Tracker"
-
-#: src/tracker/grl-tracker-utils.c:831
-#, c-format
-#| msgid "Removable - %s"
-msgid "Removable — %s"
-msgstr "Змінний — %s"
-
-#: src/tracker/grl-tracker-utils.c:843
-msgid "Local files"
-msgstr "Локальні файли"
 
 #: src/vimeo/grl-vimeo.c:51
 msgid "A source for browsing and searching Vimeo videos"

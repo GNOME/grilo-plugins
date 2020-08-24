@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2018-08-01 17:25+0000\n"
-"PO-Revision-Date: 2018-09-02 18:54+0200\n"
+"POT-Creation-Date: 2020-08-24 15:08+0000\n"
+"PO-Revision-Date: 2020-08-24 23:34+0200\n"
 "Last-Translator: \n"
 "Language-Team: Croatian <hr@li.org>\n"
 "Language: hr\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 2.1.1\n"
+"X-Generator: Poedit 2.4.1\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -42,17 +42,17 @@ msgstr "Neuspjelo pronalaženje zabilješka: %s"
 msgid "Failed to remove: %s"
 msgstr "Neuspjelo uklanjanje: %s"
 
-#: src/bookmarks/grl-bookmarks.c:766 src/podcasts/grl-podcasts.c:928
-#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1806
+#: src/bookmarks/grl-bookmarks.c:768 src/podcasts/grl-podcasts.c:928
+#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1813
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Neuspjela pohrana: %s"
 
-#: src/bookmarks/grl-bookmarks.c:840 src/bookmarks/grl-bookmarks.c:875
-#: src/bookmarks/grl-bookmarks.c:906 src/bookmarks/grl-bookmarks.c:964
-#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1662
-#: src/podcasts/grl-podcasts.c:1706 src/podcasts/grl-podcasts.c:1740
-#: src/podcasts/grl-podcasts.c:1775
+#: src/bookmarks/grl-bookmarks.c:842 src/bookmarks/grl-bookmarks.c:877
+#: src/bookmarks/grl-bookmarks.c:908 src/bookmarks/grl-bookmarks.c:966
+#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1669
+#: src/podcasts/grl-podcasts.c:1713 src/podcasts/grl-podcasts.c:1747
+#: src/podcasts/grl-podcasts.c:1782
 msgid "No database connection"
 msgstr "Nema povezivanja s bazom podataka"
 
@@ -65,53 +65,53 @@ msgstr "Priključak za nabavljanje metapodataka koristeći gstreamer radni okvir
 msgid "A source for browsing the DLNA server “%s”"
 msgstr "Izvor za pregledavanje DLNA poslužitelja “%s”"
 
-#: src/dleyna/grl-dleyna-source.c:273
+#: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
 msgstr "Neuspjelo slanje, odredišni izvor je uništen"
 
-#: src/dleyna/grl-dleyna-source.c:375
+#: src/dleyna/grl-dleyna-source.c:382
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
 msgstr "Neuspjelo slanje, “%s”, preneseno %lu od %lu bajta"
 
-#: src/dleyna/grl-dleyna-source.c:880
+#: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr "Neuspjelo preuzimanje svojstava stavke (BrowseObjects greška %d: %s)"
 
-#: src/dleyna/grl-dleyna-source.c:1519
+#: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr ""
 "Neuspjelo slanje, URL nedostaje na medijskom objektu koji se treba prenijeti"
 
-#: src/dmap/grl-daap.c:50
+#: src/dmap/grl-daap.c:51
 #, c-format
 msgid "A source for browsing the DAAP server “%s”"
 msgstr "Izvor za pregledavanje DAAP poslužitelja “%s”"
 
-#: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:788
+#: src/dmap/grl-daap-db.c:66 src/jamendo/grl-jamendo.c:788
 #: src/magnatune/grl-magnatune.c:122
 msgid "Albums"
 msgstr "Albumi"
 
-#: src/dmap/grl-daap-db.c:64 src/jamendo/grl-jamendo.c:777
+#: src/dmap/grl-daap-db.c:68 src/jamendo/grl-jamendo.c:777
 #: src/magnatune/grl-magnatune.c:121
 msgid "Artists"
 msgstr "Izvođači"
 
-#: src/dmap/grl-daap-db.c:292 src/jamendo/grl-jamendo.c:1115
+#: src/dmap/grl-daap-db.c:291 src/jamendo/grl-jamendo.c:1115
 #: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Neispravan identifikator spremnika %s"
 
-#: src/dmap/grl-dpap.c:50
+#: src/dmap/grl-dpap.c:51
 #, c-format
 msgid "A source for browsing the DPAP server “%s”"
 msgstr "Izvor za pregledavanje DPAP poslužitelja “%s”"
 
-#: src/dmap/grl-dpap-db.c:36
+#: src/dmap/grl-dpap-db.c:40
 msgid "Photos"
 msgstr "Fotografije"
 
@@ -123,12 +123,12 @@ msgstr "Datotečni sustav"
 msgid "A source for browsing the filesystem"
 msgstr "Izvor za pregledavanje datotečnog sustava"
 
-#: src/filesystem/grl-filesystem.c:1170
+#: src/filesystem/grl-filesystem.c:1171
 #, c-format
 msgid "File %s does not exist"
 msgstr "Datoteka %s ne postoji"
 
-#: src/filesystem/grl-filesystem.c:1248 src/youtube/grl-youtube.c:1505
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Nemoguće dobivanje medija iz %s"
@@ -207,7 +207,7 @@ msgid "Failed to parse response"
 msgstr "Nemoguća obrada odgovora"
 
 #: src/jamendo/grl-jamendo.c:349 src/jamendo/grl-jamendo.c:356
-#: src/podcasts/grl-podcasts.c:1363 src/shoutcast/grl-shoutcast.c:417
+#: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
 msgid "Empty response"
 msgstr "Prazan odgovor"
 
@@ -252,6 +252,7 @@ msgstr "Izvor koji omogućuje lokalno dostupne metapodatke"
 
 #: src/local-metadata/grl-local-metadata.c:381
 #: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker3/grl-tracker-source-api.c:381
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
@@ -304,6 +305,7 @@ msgstr "Priključak za pohranu dodatnih informacija metapodataka"
 #: src/metadata-store/grl-metadata-store.c:598
 #: src/metadata-store/grl-metadata-store.c:617
 #: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker3/grl-tracker-source-api.c:471
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
@@ -363,32 +365,32 @@ msgstr "Neuspjelo dobivanje strujanja podcasta: %s"
 msgid "Failed to parse content"
 msgstr "Neuspjela obrada sadržaja"
 
-#: src/podcasts/grl-podcasts.c:1297
+#: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
 msgid "Failed to parse podcast contents"
 msgstr "Neuspjela obrada sadržaja podcasta"
 
-#: src/podcasts/grl-podcasts.c:1452
+#: src/podcasts/grl-podcasts.c:1459
 msgid "Failed to get podcast information"
 msgstr "Neuspjelo preuzimanje informacija podcasta"
 
-#: src/podcasts/grl-podcasts.c:1492 src/podcasts/grl-podcasts.c:1512
+#: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Neuspjelo preuzimanje popisa podcasta: %s"
 
-#: src/podcasts/grl-podcasts.c:1565 src/podcasts/grl-podcasts.c:1580
+#: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
 msgid "Failed to get podcast stream metadata"
 msgstr "Neuspjelo preuzimanje informacija strujanja podcasta"
 
-#: src/podcasts/grl-podcasts.c:1618
+#: src/podcasts/grl-podcasts.c:1625
 msgid "Failed to get podcast metadata"
 msgstr "Neuspjelo preuzimanje metapodataka podcasta"
 
-#: src/podcasts/grl-podcasts.c:1802
+#: src/podcasts/grl-podcasts.c:1809
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Nemoguće stvaranje spremnika. Samo kanali su prihvatljivi"
 
-#: src/podcasts/grl-podcasts.c:1807
+#: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
 msgstr "URL je potreban"
 
@@ -519,40 +521,43 @@ msgid "Remote data does not contain valid identifier"
 msgstr "Udaljeni podaci ne sadrže valjani identifikator"
 
 #. I can haz templatze ??
+#. Schedule the next row to parse
+#. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
+#: src/tracker3/grl-tracker-source-api.c:243
+#: src/tracker3/grl-tracker-source-api.c:319
 #: src/tracker/grl-tracker-source-api.c:401
 #: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Neuspjeli zahtjev: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:418
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Neuspjelo preuzimanje medija s uri-ja: %s"
 
-#: src/tracker/grl-tracker-source-api.c:806
+#: src/tracker3/grl-tracker-source-api.c:603
+#: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Prazan zahtjev"
 
-#: src/tracker/grl-tracker-source-api.c:1088
+#: src/tracker3/grl-tracker-source-api.c:824
+#: src/tracker3/grl-tracker-source-api.c:920
+#: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
 msgstr "ID “%s” nije poznat u ovom izvoru"
 
+#: src/tracker3/grl-tracker-source-priv.h:47
+msgid "A plugin for searching multimedia content using Tracker3"
+msgstr "Priključak za pretraživanje multimedijskog sadržaja pomoću Trackera3"
+
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Priključak za pretraživanje multimedijskog sadržaja pomoću Trackera"
-
-#: src/tracker/grl-tracker-utils.c:738
-#, c-format
-msgid "Removable — %s"
-msgstr "Uklonjivi — %s"
-
-#: src/tracker/grl-tracker-utils.c:750
-msgid "Local files"
-msgstr "Lokalne datoteke"
 
 #: src/vimeo/grl-vimeo.c:51
 msgid "A source for browsing and searching Vimeo videos"
@@ -614,3 +619,9 @@ msgstr "Neuspjelo nabavljanje kanala"
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Neispravan identifikator kanala %s"
+
+#~ msgid "Removable — %s"
+#~ msgstr "Uklonjivi — %s"
+
+#~ msgid "Local files"
+#~ msgstr "Lokalne datoteke"

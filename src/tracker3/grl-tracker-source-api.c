@@ -511,6 +511,7 @@ grl_tracker_source_writable_keys (GrlSource *source)
                                       GRL_METADATA_KEY_MB_RECORDING_ID,
                                       GRL_METADATA_KEY_MB_TRACK_ID,
                                       GRL_METADATA_KEY_MB_ARTIST_ID,
+                                      GRL_METADATA_KEY_PUBLICATION_DATE,
                                       grl_metadata_key_chromaprint,
                                       GRL_METADATA_KEY_INVALID);
   }

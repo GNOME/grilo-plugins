@@ -70,7 +70,8 @@ set_date (TrackerSparqlCursor *cursor,
   const gchar *str = tracker_sparql_cursor_get_string (cursor, column, NULL);
   if (key == GRL_METADATA_KEY_CREATION_DATE
       || key == GRL_METADATA_KEY_LAST_PLAYED
-      || key == GRL_METADATA_KEY_MODIFICATION_DATE) {
+      || key == GRL_METADATA_KEY_MODIFICATION_DATE
+      || key == GRL_METADATA_KEY_PUBLICATION_DATE) {
     GDateTime *date = grl_date_time_from_iso8601 (str);
     if (date) {
       grl_data_set_boxed (GRL_DATA (media), key, date);
@@ -349,6 +350,12 @@ grl_tracker_setup_key_mappings (void)
                       GRL_TYPE_FILTER_VIDEO);
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_CREATION_DATE,
+                                  "creationDate",
+                                  "nie:contentCreated(?urn)",
+                                  GRL_TYPE_FILTER_ALL,
+                                  set_date);
+
+  insert_key_mapping_with_setter (GRL_METADATA_KEY_PUBLICATION_DATE,
                                   "creationDate",
                                   "nie:contentCreated(?urn)",
                                   GRL_TYPE_FILTER_ALL,

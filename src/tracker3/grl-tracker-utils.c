@@ -442,6 +442,8 @@ grl_tracker_build_grilo_media (GrlMediaType type)
     media = grl_media_video_new ();
   } else if (type == GRL_MEDIA_TYPE_IMAGE) {
     media = grl_media_image_new ();
+  } else if (type == GRL_MEDIA_TYPE_CONTAINER) {
+    media = grl_media_container_new ();
   }
 
   if (!media)

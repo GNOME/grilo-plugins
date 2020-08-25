@@ -1,11 +1,11 @@
 #
-# Daniel Mustieles <daniel.mustieles@gmail.com>, 2018-2019.
+# Daniel Mustieles <daniel.mustieles@gmail.com>, 2018-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: 1\n"
-"POT-Creation-Date: 2019-09-30 11:33+0000\n"
-"PO-Revision-Date: 2019-10-04 12:19+0200\n"
+"POT-Creation-Date: 2020-05-30 10:28+0000\n"
+"PO-Revision-Date: 2020-08-25 13:39+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
 "Language: es_ES\n"
@@ -13,12 +13,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 3.34.0\n"
+"X-Generator: Gtranslator 3.36.0\n"
 
 #. Put one translator per line, in the form NAME <EMAIL>, YEAR1, YEAR2
 msgctxt "_"
 msgid "translator-credits"
-msgstr "Daniel Mustieles <daniel.musiteles@gmail.com>, 2018, 2019"
+msgstr "Daniel Mustieles <daniel.musiteles@gmail.com>, 2018, 2020"
 
 #. (itstool) path: bookinfo/title
 #. (itstool) path: chapter/title
@@ -150,12 +150,15 @@ msgstr "Gravatar"
 
 #. (itstool) path: sect1/para
 #: C/grilo-plugins.xml:90
+#| msgid ""
+#| "This is a Grilo plugin for Gravatar Its plugin ID is <literal>\"grl-"
+#| "gravatar\"</literal>."
 msgid ""
-"This is a Grilo plugin for Gravatar Its plugin ID is <literal>\"grl-gravatar"
-"\"</literal>."
+"This is a Grilo plugin for Gravatar. Its plugin ID is <literal>\"grl-gravatar"
+"\"</literal>"
 msgstr ""
-"Esto es un complemento para Gravatar. El ID de este complemento es <literal>"
-"\"grl-gravatar\"</literal>"
+"Esto es un complemento de Grilo para Gravatar. El ID de este complemento es "
+"<literal>\"grl-gravatar\"</literal>"
 
 #. (itstool) path: sect1/title
 #: C/grilo-plugins.xml:94

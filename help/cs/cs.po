@@ -1,13 +1,13 @@
 # Czech translation for grilo-plugins.
 # Copyright (C) 2018 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
-# Marek Černocký <marek@manet.cz>, 2018, 2019.
+# Marek Černocký <marek@manet.cz>, 2018, 2019, 2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
-"POT-Creation-Date: 2019-02-12 01:59+0000\n"
-"PO-Revision-Date: 2019-03-05 10:18+0100\n"
+"POT-Creation-Date: 2020-05-30 10:28+0000\n"
+"PO-Revision-Date: 2020-08-25 10:50+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -152,8 +152,8 @@ msgstr "Gravatar"
 #. (itstool) path: sect1/para
 #: C/grilo-plugins.xml:90
 msgid ""
-"This is a Grilo plugin for Gravatar Its plugin ID is <literal>\"grl-gravatar"
-"\"</literal>."
+"This is a Grilo plugin for Gravatar. Its plugin ID is <literal>\"grl-gravatar"
+"\"</literal>"
 msgstr ""
 "Jedná se o zásuvný modul Grilo pro avatary Gravatar. Jeho ID je <literal>"
 "\"grl-gravatar\"</literal>."

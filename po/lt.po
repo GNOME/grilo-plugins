@@ -1,14 +1,14 @@
 # Lithuanian translation for grilo-plugins.
 # Copyright (C) 2013 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
-# Aurimas Černius <aurisc4@gmail.com>, 2013, 2014, 2015, 2016, 2018.
+# Aurimas Černius <aurisc4@gmail.com>, 2013-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2018-07-06 09:16+0000\n"
-"PO-Revision-Date: 2018-07-27 22:08+0300\n"
+"POT-Creation-Date: 2020-08-24 15:08+0000\n"
+"PO-Revision-Date: 2020-08-25 22:24+0300\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -16,105 +16,101 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n"
-"%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"%100<10 || n%100>=20) ? 1 : 2)\n"
+"X-Generator: Gtranslator 3.36.0\n"
 
-#: src/bookmarks/grl-bookmarks.c:65
+#: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
 msgstr "Žymelės"
 
-#: src/bookmarks/grl-bookmarks.c:66
+#: src/bookmarks/grl-bookmarks.c:61
 msgid "A source for organizing media bookmarks"
 msgstr "Šaltinis medijos žymėms tvarkyti"
 
-#: src/bookmarks/grl-bookmarks.c:434
+#: src/bookmarks/grl-bookmarks.c:427
 msgid "Failed to get bookmark metadata"
 msgstr "Nepavyko gauti žymelės metaduomenų"
 
-#: src/bookmarks/grl-bookmarks.c:464 src/bookmarks/grl-bookmarks.c:481
+#: src/bookmarks/grl-bookmarks.c:457 src/bookmarks/grl-bookmarks.c:474
 #, c-format
 msgid "Failed to find bookmarks: %s"
 msgstr "Nepavyko rasti gairių: %s"
 
-#: src/bookmarks/grl-bookmarks.c:633 src/podcasts/grl-podcasts.c:826
-#: src/podcasts/grl-podcasts.c:858 src/podcasts/grl-podcasts.c:890
+#: src/bookmarks/grl-bookmarks.c:626 src/podcasts/grl-podcasts.c:823
+#: src/podcasts/grl-podcasts.c:855 src/podcasts/grl-podcasts.c:887
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "Nepavyko pašalinti: %s"
 
-#: src/bookmarks/grl-bookmarks.c:773 src/podcasts/grl-podcasts.c:931
-#: src/podcasts/grl-podcasts.c:964 src/podcasts/grl-podcasts.c:1811
+#: src/bookmarks/grl-bookmarks.c:768 src/podcasts/grl-podcasts.c:928
+#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1813
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Nepavyko įrašyti: %s"
 
-#: src/bookmarks/grl-bookmarks.c:847 src/bookmarks/grl-bookmarks.c:882
-#: src/bookmarks/grl-bookmarks.c:913 src/bookmarks/grl-bookmarks.c:971
-#: src/metadata-store/grl-metadata-store.c:881 src/podcasts/grl-podcasts.c:1667
-#: src/podcasts/grl-podcasts.c:1711 src/podcasts/grl-podcasts.c:1745
-#: src/podcasts/grl-podcasts.c:1780
+#: src/bookmarks/grl-bookmarks.c:842 src/bookmarks/grl-bookmarks.c:877
+#: src/bookmarks/grl-bookmarks.c:908 src/bookmarks/grl-bookmarks.c:966
+#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1669
+#: src/podcasts/grl-podcasts.c:1713 src/podcasts/grl-podcasts.c:1747
+#: src/podcasts/grl-podcasts.c:1782
 msgid "No database connection"
 msgstr "Nėra duomenų bazės ryšio"
 
-#: src/chromaprint/grl-chromaprint.c:46
+#: src/chromaprint/grl-chromaprint.c:41
 msgid "A plugin to get metadata using gstreamer framework"
 msgstr "Įskiepis metaduomenims gauti naudojant gstreamer karkasą"
 
 #: src/dleyna/grl-dleyna-source.c:34
 #, c-format
-#| msgid "A source for browsing the DLNA server '%s'"
 msgid "A source for browsing the DLNA server “%s”"
 msgstr "Šaltinis DLNA serveriui „%s“ naršyti"
 
-#: src/dleyna/grl-dleyna-source.c:278
+#: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
 msgstr "Atnaujinti nepavyko, paskirties šaltinis sunaikintas"
 
-#: src/dleyna/grl-dleyna-source.c:380
+#: src/dleyna/grl-dleyna-source.c:382
 #, c-format
-#| msgid "Upload failed, '%s', transferred %lu of %lu bytes"
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
 msgstr "Nusiųsti nepavyko, „%s“, perduota %lu baitų iš %lu"
 
-#: src/dleyna/grl-dleyna-source.c:885
+#: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr "Nepavyko gauti elemento savybių (BrowseObjects klaida %d: %s)"
 
-#: src/dleyna/grl-dleyna-source.c:1524
+#: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr "Nesiųsti nepavyko, URL trūksta perduodamo daugialypės terpės objekto"
 
-#: src/dmap/grl-daap.c:50
+#: src/dmap/grl-daap.c:51
 #, c-format
-#| msgid "A source for browsing the DAAP server '%s'"
 msgid "A source for browsing the DAAP server “%s”"
 msgstr "Šaltinis DAAP serveriui „%s“ naršyti"
 
-#: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:795
-#: src/magnatune/grl-magnatune.c:127
+#: src/dmap/grl-daap-db.c:66 src/jamendo/grl-jamendo.c:788
+#: src/magnatune/grl-magnatune.c:122
 msgid "Albums"
 msgstr "Albumai"
 
-#: src/dmap/grl-daap-db.c:64 src/jamendo/grl-jamendo.c:784
-#: src/magnatune/grl-magnatune.c:126
+#: src/dmap/grl-daap-db.c:68 src/jamendo/grl-jamendo.c:777
+#: src/magnatune/grl-magnatune.c:121
 msgid "Artists"
 msgstr "Atlikėjai"
 
-#: src/dmap/grl-daap-db.c:292 src/jamendo/grl-jamendo.c:1122
-#: src/jamendo/grl-jamendo.c:1233 src/magnatune/grl-magnatune.c:873
+#: src/dmap/grl-daap-db.c:291 src/jamendo/grl-jamendo.c:1115
+#: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Netinkamas konteinerio identifikatorius %s"
 
-#: src/dmap/grl-dpap.c:50
+#: src/dmap/grl-dpap.c:51
 #, c-format
-#| msgid "A source for browsing the DPAP server '%s'"
 msgid "A source for browsing the DPAP server “%s”"
 msgstr "Šaltinis DPAP serveriui „%s“ naršyti"
 
-#: src/dmap/grl-dpap-db.c:36
+#: src/dmap/grl-dpap-db.c:40
 msgid "Photos"
 msgstr "Nuotraukos"
 
@@ -126,31 +122,29 @@ msgstr "Failų sistema"
 msgid "A source for browsing the filesystem"
 msgstr "Šaltinis failų sistemai naršyti"
 
-#: src/filesystem/grl-filesystem.c:1179
+#: src/filesystem/grl-filesystem.c:1171
 #, c-format
 msgid "File %s does not exist"
 msgstr "Failo %s nėra"
 
-#: src/filesystem/grl-filesystem.c:1257 src/youtube/grl-youtube.c:1512
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Nepavyko gauti medijos iš %s"
 
-#: src/flickr/grl-flickr.c:63
+#: src/flickr/grl-flickr.c:58
 msgid "A source for browsing and searching Flickr photos"
 msgstr "Šaltinis Flickr fotografijoms naršyti ir ieškoti"
 
 #. "%s" is a full user name, like "John Doe"
-#: src/flickr/grl-flickr.c:67
+#: src/flickr/grl-flickr.c:62
 #, c-format
-#| msgid "%s's Flickr"
 msgid "%s’s Flickr"
 msgstr "%s Flickr"
 
 #. "%s" is a full user name, like "John Doe"
-#: src/flickr/grl-flickr.c:69
+#: src/flickr/grl-flickr.c:64
 #, c-format
-#| msgid "A source for browsing and searching %s's flickr photos"
 msgid "A source for browsing and searching %s’s flickr photos"
 msgstr "Šaltinis %s flickr fotografijoms naršyti ir ieškoti"
 
@@ -206,45 +200,44 @@ msgstr "Populiariausi albumai"
 msgid "Top tracks"
 msgstr "Populiariausi takeliai"
 
-#: src/jamendo/grl-jamendo.c:348 src/jamendo/grl-jamendo.c:708
-#: src/shoutcast/grl-shoutcast.c:416 src/shoutcast/grl-shoutcast.c:470
+#: src/jamendo/grl-jamendo.c:341 src/jamendo/grl-jamendo.c:701
+#: src/shoutcast/grl-shoutcast.c:409 src/shoutcast/grl-shoutcast.c:463
 msgid "Failed to parse response"
 msgstr "Nepavyko perskaityti atsako"
 
-#: src/jamendo/grl-jamendo.c:356 src/jamendo/grl-jamendo.c:363
-#: src/podcasts/grl-podcasts.c:1368 src/shoutcast/grl-shoutcast.c:424
+#: src/jamendo/grl-jamendo.c:349 src/jamendo/grl-jamendo.c:356
+#: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
 msgid "Empty response"
 msgstr "Tuščias atsakas"
 
-#: src/jamendo/grl-jamendo.c:677 src/shoutcast/grl-shoutcast.c:558
+#: src/jamendo/grl-jamendo.c:670 src/shoutcast/grl-shoutcast.c:551
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "Nepavyko prisijungti: %s"
 
-#: src/jamendo/grl-jamendo.c:806
+#: src/jamendo/grl-jamendo.c:799
 msgid "Feeds"
 msgstr "Įrašai"
 
-#: src/jamendo/grl-jamendo.c:990 src/jamendo/grl-jamendo.c:1035
-#: src/jamendo/grl-jamendo.c:1062
+#: src/jamendo/grl-jamendo.c:983 src/jamendo/grl-jamendo.c:1028
+#: src/jamendo/grl-jamendo.c:1055
 #, c-format
 msgid "Invalid identifier %s"
 msgstr "Netinkamas identifikatorius %s"
 
-#: src/jamendo/grl-jamendo.c:1049 src/youtube/grl-youtube.c:1104
-#: src/youtube/grl-youtube.c:1237 src/youtube/grl-youtube.c:1449
+#: src/jamendo/grl-jamendo.c:1042 src/youtube/grl-youtube.c:1097
+#: src/youtube/grl-youtube.c:1230 src/youtube/grl-youtube.c:1442
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Netinkamas kategorijos identifikatorius %s"
 
-#: src/jamendo/grl-jamendo.c:1228
+#: src/jamendo/grl-jamendo.c:1221
 #, c-format
 msgid "Failed to browse: %s is a track"
 msgstr "Nepavyko naršyti: %s yra takelis"
 
-#: src/jamendo/grl-jamendo.c:1287
+#: src/jamendo/grl-jamendo.c:1280
 #, c-format
-#| msgid "Malformed query \"%s\""
 msgid "Malformed query “%s”"
 msgstr "Netinkamai suformuota užklausa „%s“"
 
@@ -256,87 +249,87 @@ msgstr "Vietinių metaduomenų tiekėjas"
 msgid "A source providing locally available metadata"
 msgstr "Šaltinis vietoje saugomiems metaduomenims pateikti"
 
-#: src/local-metadata/grl-local-metadata.c:388
-#: src/metadata-store/grl-metadata-store.c:791 src/raitv/grl-raitv.c:878
+#: src/local-metadata/grl-local-metadata.c:381
+#: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker3/grl-tracker-source-api.c:381
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
 msgstr "Nepavyko išspręsti: %s"
 
-#: src/local-metadata/grl-local-metadata.c:682
+#: src/local-metadata/grl-local-metadata.c:673
 msgid "Cannot resolve any of the given keys"
 msgstr "Nepavyko išspręsti jokių pateiktų raktų"
 
-#: src/local-metadata/grl-local-metadata.c:686
+#: src/local-metadata/grl-local-metadata.c:677
 msgid "A GIO supported URL for images is required"
 msgstr "Reikalingas GIO palaikomas URL paveikslėliams"
 
-#: src/magnatune/grl-magnatune.c:128
+#: src/magnatune/grl-magnatune.c:123
 msgid "Genres"
 msgstr "Žanrai"
 
-#: src/magnatune/grl-magnatune.c:136
+#: src/magnatune/grl-magnatune.c:131
 msgid "A source for browsing music"
 msgstr "Šaltinis muzikai naršyti"
 
-#: src/magnatune/grl-magnatune.c:428
+#: src/magnatune/grl-magnatune.c:421
 #, c-format
 msgid "Failed to get database from magnatune: %s"
 msgstr "Nepavyko gauti duomenų bazės iš magnatune: %s"
 
-#: src/magnatune/grl-magnatune.c:458
+#: src/magnatune/grl-magnatune.c:451
 #, c-format
-#| msgid "Failed to save database from magnatune - '%s'"
 msgid "Failed to save database from magnatune: “%s”"
 msgstr "Nepavyko įrašyti duomenų bazės iš magnatune - „%s“"
 
-#: src/magnatune/grl-magnatune.c:729
+#: src/magnatune/grl-magnatune.c:722
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
 msgstr "Nepavyko gauti lentelės iš magnatune db: %s"
 
-#: src/magnatune/grl-magnatune.c:745
+#: src/magnatune/grl-magnatune.c:738
 #, c-format
 msgid "Fail before returning media to user: %s"
 msgstr "Klaida prieš grąžinant mediją naudotojui: %s"
 
-#: src/metadata-store/grl-metadata-store.c:45
+#: src/metadata-store/grl-metadata-store.c:40
 msgid "Metadata Store"
 msgstr "Metaduomenų saugykla"
 
-#: src/metadata-store/grl-metadata-store.c:46
+#: src/metadata-store/grl-metadata-store.c:41
 msgid "A plugin for storing extra metadata information"
 msgstr "Įskiepis papildomiems metaduomenims saugoti"
 
-#: src/metadata-store/grl-metadata-store.c:605
-#: src/metadata-store/grl-metadata-store.c:624
-#: src/metadata-store/grl-metadata-store.c:836
+#: src/metadata-store/grl-metadata-store.c:598
+#: src/metadata-store/grl-metadata-store.c:617
+#: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker3/grl-tracker-source-api.c:471
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
 msgstr "Nepavyko atnaujinti metaduomenų: %s"
 
-#: src/metadata-store/grl-metadata-store.c:606
+#: src/metadata-store/grl-metadata-store.c:599
 msgid "specified keys are not writable"
 msgstr "nurodyti raktai nėra rašomi"
 
-#: src/metadata-store/grl-metadata-store.c:646
+#: src/metadata-store/grl-metadata-store.c:639
 msgid "Failed to update metadata"
 msgstr "Nepavyko atnaujinti metaduomenų"
 
-#: src/metadata-store/grl-metadata-store.c:792
-#: src/metadata-store/grl-metadata-store.c:837
-#| msgid "\"source-id\" not available"
+#: src/metadata-store/grl-metadata-store.c:785
+#: src/metadata-store/grl-metadata-store.c:830
 msgid "“source-id” not available"
 msgstr "„source-id“ neprieinamas"
 
-#: src/metadata-store/grl-metadata-store.c:812
+#: src/metadata-store/grl-metadata-store.c:805
 msgid "Failed to resolve"
 msgstr "Nepavyko išspręsti"
 
-#: src/metadata-store/grl-metadata-store.c:949
-#: src/metadata-store/grl-metadata-store.c:986 src/raitv/grl-raitv.c:432
-#: src/shoutcast/grl-shoutcast.c:756 src/vimeo/grl-vimeo.c:547
+#: src/metadata-store/grl-metadata-store.c:942
+#: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
+#: src/shoutcast/grl-shoutcast.c:749 src/vimeo/grl-vimeo.c:540
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Nepavyko ieškoti: %s"
@@ -357,50 +350,50 @@ msgstr "Optinė medija"
 msgid "A source for browsing optical media"
 msgstr "Šaltinis optinei medijai naršyti"
 
-#: src/podcasts/grl-podcasts.c:153
+#: src/podcasts/grl-podcasts.c:148
 msgid "A source for browsing podcasts"
 msgstr "Šaltinis tinklalaidėms naršyti"
 
-#: src/podcasts/grl-podcasts.c:762 src/podcasts/grl-podcasts.c:782
+#: src/podcasts/grl-podcasts.c:759 src/podcasts/grl-podcasts.c:779
 #, c-format
 msgid "Failed to get podcast streams: %s"
 msgstr "Nepavyko gauti tinklalaidžių srautų: %s"
 
-#: src/podcasts/grl-podcasts.c:1248 src/podcasts/grl-podcasts.c:1257
-#: src/podcasts/grl-podcasts.c:1267
+#: src/podcasts/grl-podcasts.c:1245 src/podcasts/grl-podcasts.c:1254
+#: src/podcasts/grl-podcasts.c:1264
 msgid "Failed to parse content"
 msgstr "Nepavyko perskaityti turinio"
 
-#: src/podcasts/grl-podcasts.c:1302
+#: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
 msgid "Failed to parse podcast contents"
 msgstr "Nepavyko perskaityti tinklalaidės turinio"
 
-#: src/podcasts/grl-podcasts.c:1457
+#: src/podcasts/grl-podcasts.c:1459
 msgid "Failed to get podcast information"
 msgstr "Nepavyko gauti tinklalaidės informacijos"
 
-#: src/podcasts/grl-podcasts.c:1497 src/podcasts/grl-podcasts.c:1517
+#: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Nepavyko gauti tinklalaidžių sąrašo: %s"
 
-#: src/podcasts/grl-podcasts.c:1570 src/podcasts/grl-podcasts.c:1585
+#: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
 msgid "Failed to get podcast stream metadata"
 msgstr "Nepavyko gauti tinklalaidės srauto metaduomenų"
 
-#: src/podcasts/grl-podcasts.c:1623
+#: src/podcasts/grl-podcasts.c:1625
 msgid "Failed to get podcast metadata"
 msgstr "Nepavyko gauti tinklalaidės metaduomenų"
 
-#: src/podcasts/grl-podcasts.c:1807
+#: src/podcasts/grl-podcasts.c:1809
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Nepavyko sukurti konteinerių. Priimami tik įrašai"
 
-#: src/podcasts/grl-podcasts.c:1812
+#: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
 msgstr "Būtinas URL"
 
-#: src/raitv/grl-raitv.c:49 src/youtube/grl-youtube.c:78
+#: src/raitv/grl-raitv.c:49 src/youtube/grl-youtube.c:73
 msgid "Most Popular"
 msgstr "Populiariausi"
 
@@ -412,218 +405,227 @@ msgstr "Neseni"
 msgid "A source for browsing and searching Rai.tv videos"
 msgstr "Šaltinis Rai.tv filmams naršyti ir ieškoti"
 
-#: src/raitv/grl-raitv.c:171
+#: src/raitv/grl-raitv.c:164
 msgid "All"
 msgstr "Visi"
 
-#: src/raitv/grl-raitv.c:172
+#: src/raitv/grl-raitv.c:165
 msgid "Black and White"
 msgstr "Juodai-balti"
 
-#: src/raitv/grl-raitv.c:173
+#: src/raitv/grl-raitv.c:166
 msgid "Cinema"
 msgstr "Kino filmai"
 
-#: src/raitv/grl-raitv.c:174
+#: src/raitv/grl-raitv.c:167
 msgid "Comedians"
 msgstr "Komedijos"
 
-#: src/raitv/grl-raitv.c:175
+#: src/raitv/grl-raitv.c:168
 msgid "Chronicle"
 msgstr "Kronikos"
 
-#: src/raitv/grl-raitv.c:176
+#: src/raitv/grl-raitv.c:169
 msgid "Culture"
 msgstr "Kultūra"
 
-#: src/raitv/grl-raitv.c:177
+#: src/raitv/grl-raitv.c:170
 msgid "Economy"
 msgstr "Ekonomika"
 
-#: src/raitv/grl-raitv.c:178
+#: src/raitv/grl-raitv.c:171
 msgid "Fiction"
 msgstr "Fantastika"
 
-#: src/raitv/grl-raitv.c:179
+#: src/raitv/grl-raitv.c:172
 msgid "Junior"
 msgstr "Vaikams"
 
-#: src/raitv/grl-raitv.c:180
+#: src/raitv/grl-raitv.c:173
 msgid "Investigations"
 msgstr "Detektyvai"
 
-#: src/raitv/grl-raitv.c:181
+#: src/raitv/grl-raitv.c:174
 msgid "Interviews"
 msgstr "Interviu"
 
-#: src/raitv/grl-raitv.c:182
+#: src/raitv/grl-raitv.c:175
 msgid "Music"
 msgstr "Muzika"
 
-#: src/raitv/grl-raitv.c:183
+#: src/raitv/grl-raitv.c:176
 msgid "News"
 msgstr "Naujienos"
 
-#: src/raitv/grl-raitv.c:184
+#: src/raitv/grl-raitv.c:177
 msgid "Health"
 msgstr "Sveikata"
 
-#: src/raitv/grl-raitv.c:185
+#: src/raitv/grl-raitv.c:178
 msgid "Satire"
 msgstr "Satyra"
 
-#: src/raitv/grl-raitv.c:187
+#: src/raitv/grl-raitv.c:180
 msgid "Society"
 msgstr "Visuomenė"
 
-#: src/raitv/grl-raitv.c:188
+#: src/raitv/grl-raitv.c:181
 msgid "Show"
 msgstr "Šou"
 
-#: src/raitv/grl-raitv.c:189
+#: src/raitv/grl-raitv.c:182
 msgid "Sport"
 msgstr "Sportas"
 
-#: src/raitv/grl-raitv.c:190
+#: src/raitv/grl-raitv.c:183
 msgid "History"
 msgstr "Istorija"
 
-#: src/raitv/grl-raitv.c:191
+#: src/raitv/grl-raitv.c:184
 msgid "Politics"
 msgstr "Politika"
 
-#: src/raitv/grl-raitv.c:192
+#: src/raitv/grl-raitv.c:185
 msgid "Leisure"
 msgstr "Laisvalaikis"
 
-#: src/raitv/grl-raitv.c:193
+#: src/raitv/grl-raitv.c:186
 msgid "Travel"
 msgstr "Kelionės"
 
-#: src/raitv/grl-raitv.c:625
+#: src/raitv/grl-raitv.c:616
 #, c-format
 msgid "Failed to browse: %s"
 msgstr "Nepavyko naršyti: %s"
 
-#: src/shoutcast/grl-shoutcast.c:65
+#: src/shoutcast/grl-shoutcast.c:60
 msgid "A source for browsing SHOUTcast radios"
 msgstr "Šaltinis SHOUTcast radijo sotims naršyti"
 
-#: src/shoutcast/grl-shoutcast.c:462
+#: src/shoutcast/grl-shoutcast.c:455
 #, c-format
 msgid "Cannot find media %s"
 msgstr "Nepavyko rasti medijos %s"
 
-#: src/shoutcast/grl-shoutcast.c:757 src/vimeo/grl-vimeo.c:548
+#: src/shoutcast/grl-shoutcast.c:750 src/vimeo/grl-vimeo.c:541
 msgid "non-NULL search text is required"
 msgstr "Reikalingas ne NULL paieškos tekstas"
 
-#: src/thetvdb/grl-thetvdb.c:98
+#: src/thetvdb/grl-thetvdb.c:93
 msgid "A source for fetching metadata of television shows"
 msgstr "Šaltinis televizijos laidų metaduomenims gauti"
 
-#: src/tmdb/grl-tmdb.c:1004
+#: src/tmdb/grl-tmdb.c:998
 msgid "Remote data does not contain valid identifier"
 msgstr "Nutolę duomenys neturi tinkamo identifikatoriaus"
 
 #. I can haz templatze ??
+#. Schedule the next row to parse
+#. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
+#: src/tracker3/grl-tracker-source-api.c:243
+#: src/tracker3/grl-tracker-source-api.c:319
 #: src/tracker/grl-tracker-source-api.c:401
 #: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Nepavyko užklausti: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:418
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Nepavyko gauti medijos iš uri: %s"
 
-#: src/tracker/grl-tracker-source-api.c:806
+#: src/tracker3/grl-tracker-source-api.c:603
+#: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Tuščia užklausa"
 
-#: src/tracker/grl-tracker-source-api.c:1088
+#: src/tracker3/grl-tracker-source-api.c:824
+#: src/tracker3/grl-tracker-source-api.c:920
+#: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
-#| msgid "ID '%s' is not known in this source"
 msgid "ID “%s” is not known in this source"
 msgstr "Šiame šaltinyje ID „%s“ nėra žinomas"
+
+#: src/tracker3/grl-tracker-source-priv.h:47
+#| msgid "A plugin for searching multimedia content using Tracker"
+msgid "A plugin for searching multimedia content using Tracker3"
+msgstr "Įskiepis daugialypės terpės turinio paieškai naudojant Tracker3"
 
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Įskiepis daugialypės terpės turinio paieškai naudojant Tracker"
 
-#: src/tracker/grl-tracker-utils.c:738
-#, c-format
-#| msgid "Removable - %s"
-msgid "Removable — %s"
-msgstr "Išimama laikmena – %s"
-
-#: src/tracker/grl-tracker-utils.c:750
-msgid "Local files"
-msgstr "Vietiniai failai"
-
-#: src/vimeo/grl-vimeo.c:56
+#: src/vimeo/grl-vimeo.c:51
 msgid "A source for browsing and searching Vimeo videos"
 msgstr "Šaltinis Vimeo filmams naršyti ir ieškoti"
 
-#: src/youtube/grl-youtube.c:60
+#: src/youtube/grl-youtube.c:55
 msgid "Standard feeds"
 msgstr "Standartiniai įrašai"
 
-#: src/youtube/grl-youtube.c:63
+#: src/youtube/grl-youtube.c:58
 msgid "Categories"
 msgstr "Kategorijos"
 
-#: src/youtube/grl-youtube.c:69
+#: src/youtube/grl-youtube.c:64
 msgid "Top Rated"
 msgstr "Geriausiai įvertinti"
 
-#: src/youtube/grl-youtube.c:72
+#: src/youtube/grl-youtube.c:67
 msgid "Top Favorites"
 msgstr "Labiausiai mėgstami"
 
-#: src/youtube/grl-youtube.c:75
+#: src/youtube/grl-youtube.c:70
 msgid "Most Viewed"
 msgstr "Dažniausiai žiūrimi"
 
-#: src/youtube/grl-youtube.c:81
+#: src/youtube/grl-youtube.c:76
 msgid "Most Recent"
 msgstr "Naujausi"
 
-#: src/youtube/grl-youtube.c:84
+#: src/youtube/grl-youtube.c:79
 msgid "Most Discussed"
 msgstr "Daugiausiai aptariami"
 
-#: src/youtube/grl-youtube.c:87
+#: src/youtube/grl-youtube.c:82
 msgid "Most Linked"
 msgstr "Daugiausiai saistomi"
 
-#: src/youtube/grl-youtube.c:90
+#: src/youtube/grl-youtube.c:85
 msgid "Most Responded"
 msgstr "Daugiausiai atsakymų"
 
-#: src/youtube/grl-youtube.c:93
+#: src/youtube/grl-youtube.c:88
 msgid "Recently Featured"
 msgstr "Neseniai pasirodę"
 
-#: src/youtube/grl-youtube.c:96
+#: src/youtube/grl-youtube.c:91
 msgid "Watch On Mobile"
 msgstr "Žiūrėti mobiliame įrenginyje"
 
-#: src/youtube/grl-youtube.c:115
+#: src/youtube/grl-youtube.c:110
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Šaltinis YouTube filmams naršyti ir ieškoti"
 
-#: src/youtube/grl-youtube.c:863
+#: src/youtube/grl-youtube.c:856
 msgid "Failed to get feed"
 msgstr "Nepavyko gauti įrašo"
 
-#: src/youtube/grl-youtube.c:1040 src/youtube/grl-youtube.c:1428
+#: src/youtube/grl-youtube.c:1033 src/youtube/grl-youtube.c:1421
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Netinkamas įrašo identifikatorius %s"
+
+#~| msgid "Removable - %s"
+#~ msgid "Removable — %s"
+#~ msgstr "Išimama laikmena – %s"
+
+#~ msgid "Local files"
+#~ msgstr "Vietiniai failai"
 
 #~ msgid "Album art Provider from Last.FM"
 #~ msgstr "Albumų viršelių tiekėjas iš Last.FM"

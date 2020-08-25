@@ -1,15 +1,15 @@
 # Dutch translation for grilo-plugins.
 # Copyright (C) 2016 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
-# Nathan Follens <nthn@unseen.is>, 2016, 2019.
+# Nathan Follens <nthn@unseen.is>, 2016, 2019-2020.
 # Justin van Steijn <jvs@fsfe.org>, 2016.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2018-08-01 17:25+0000\n"
-"PO-Revision-Date: 2019-02-24 12:47+0100\n"
+"POT-Creation-Date: 2020-08-24 15:08+0000\n"
+"PO-Revision-Date: 2020-08-25 15:20+0200\n"
 "Last-Translator: Nathan Follens <nthn@unseen.is>\n"
 "Language-Team: Dutch <gnome-nl-list@gnome.org>\n"
 "Language: nl\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 2.4.1\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -42,17 +42,17 @@ msgstr "Vinden van bladwijzers is mislukt: %s"
 msgid "Failed to remove: %s"
 msgstr "Verwijderen mislukt: %s"
 
-#: src/bookmarks/grl-bookmarks.c:766 src/podcasts/grl-podcasts.c:928
-#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1806
+#: src/bookmarks/grl-bookmarks.c:768 src/podcasts/grl-podcasts.c:928
+#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1813
 #, c-format
 msgid "Failed to store: %s"
 msgstr "Opslaan mislukt: %s"
 
-#: src/bookmarks/grl-bookmarks.c:840 src/bookmarks/grl-bookmarks.c:875
-#: src/bookmarks/grl-bookmarks.c:906 src/bookmarks/grl-bookmarks.c:964
-#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1662
-#: src/podcasts/grl-podcasts.c:1706 src/podcasts/grl-podcasts.c:1740
-#: src/podcasts/grl-podcasts.c:1775
+#: src/bookmarks/grl-bookmarks.c:842 src/bookmarks/grl-bookmarks.c:877
+#: src/bookmarks/grl-bookmarks.c:908 src/bookmarks/grl-bookmarks.c:966
+#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1669
+#: src/podcasts/grl-podcasts.c:1713 src/podcasts/grl-podcasts.c:1747
+#: src/podcasts/grl-podcasts.c:1782
 msgid "No database connection"
 msgstr "Geen databaseverbinding"
 
@@ -67,52 +67,52 @@ msgstr ""
 msgid "A source for browsing the DLNA server “%s”"
 msgstr "Een bron voor het doorbladeren van de DLNA-server ‘%s’"
 
-#: src/dleyna/grl-dleyna-source.c:273
+#: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
 msgstr "Uploaden mislukt, doelbron vernietigd"
 
-#: src/dleyna/grl-dleyna-source.c:375
+#: src/dleyna/grl-dleyna-source.c:382
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
 msgstr "Uploaden mislukt, ‘%s’, %lu van %lu bytes overgedragen"
 
-#: src/dleyna/grl-dleyna-source.c:880
+#: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr "Ophalen van item-eigenschappen mislukt (BrowseObjects-fout %d: %s)"
 
-#: src/dleyna/grl-dleyna-source.c:1519
+#: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr "Uploaden mislukt, URL ontbreekt op het over te dragen media-object"
 
-#: src/dmap/grl-daap.c:50
+#: src/dmap/grl-daap.c:51
 #, c-format
 msgid "A source for browsing the DAAP server “%s”"
 msgstr "Een bron voor het doorbladeren van de DAAP-server ‘%s’"
 
-#: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:788
+#: src/dmap/grl-daap-db.c:66 src/jamendo/grl-jamendo.c:788
 #: src/magnatune/grl-magnatune.c:122
 msgid "Albums"
 msgstr "Albums"
 
-#: src/dmap/grl-daap-db.c:64 src/jamendo/grl-jamendo.c:777
+#: src/dmap/grl-daap-db.c:68 src/jamendo/grl-jamendo.c:777
 #: src/magnatune/grl-magnatune.c:121
 msgid "Artists"
 msgstr "Artiesten"
 
-#: src/dmap/grl-daap-db.c:292 src/jamendo/grl-jamendo.c:1115
+#: src/dmap/grl-daap-db.c:291 src/jamendo/grl-jamendo.c:1115
 #: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Ongeldige container-identificatie %s"
 
-#: src/dmap/grl-dpap.c:50
+#: src/dmap/grl-dpap.c:51
 #, c-format
 msgid "A source for browsing the DPAP server “%s”"
 msgstr "Een bron voor het doorbladeren van de DPAP-server ‘%s’"
 
-#: src/dmap/grl-dpap-db.c:36
+#: src/dmap/grl-dpap-db.c:40
 msgid "Photos"
 msgstr "Foto's"
 
@@ -124,12 +124,12 @@ msgstr "Bestandssysteem"
 msgid "A source for browsing the filesystem"
 msgstr "Een bron voor het doorbladeren van het bestandssysteem"
 
-#: src/filesystem/grl-filesystem.c:1170
+#: src/filesystem/grl-filesystem.c:1171
 #, c-format
 msgid "File %s does not exist"
 msgstr "Bestand %s bestaat niet"
 
-#: src/filesystem/grl-filesystem.c:1248 src/youtube/grl-youtube.c:1505
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Kan media van %s niet opvragen"
@@ -208,7 +208,7 @@ msgid "Failed to parse response"
 msgstr "Verwerken van antwoord mislukt"
 
 #: src/jamendo/grl-jamendo.c:349 src/jamendo/grl-jamendo.c:356
-#: src/podcasts/grl-podcasts.c:1363 src/shoutcast/grl-shoutcast.c:417
+#: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
 msgid "Empty response"
 msgstr "Leeg antwoord"
 
@@ -253,6 +253,7 @@ msgstr "Een bron die lokaal beschikbare metadata aanbiedt"
 
 #: src/local-metadata/grl-local-metadata.c:381
 #: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker3/grl-tracker-source-api.c:381
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
@@ -305,6 +306,7 @@ msgstr "Een plug-in voor het opslaan van extra metadata-informatie"
 #: src/metadata-store/grl-metadata-store.c:598
 #: src/metadata-store/grl-metadata-store.c:617
 #: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker3/grl-tracker-source-api.c:471
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
@@ -364,32 +366,32 @@ msgstr "Opvragen van podcast-streams mislukt: %s"
 msgid "Failed to parse content"
 msgstr "Verwerken van inhoud mislukt"
 
-#: src/podcasts/grl-podcasts.c:1297
+#: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
 msgid "Failed to parse podcast contents"
 msgstr "Verwerken van podcast-inhoud mislukt"
 
-#: src/podcasts/grl-podcasts.c:1452
+#: src/podcasts/grl-podcasts.c:1459
 msgid "Failed to get podcast information"
 msgstr "Opvragen van podcast-informatie mislukt"
 
-#: src/podcasts/grl-podcasts.c:1492 src/podcasts/grl-podcasts.c:1512
+#: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "Opvragen van podcast-lijst mislukt: %s"
 
-#: src/podcasts/grl-podcasts.c:1565 src/podcasts/grl-podcasts.c:1580
+#: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
 msgid "Failed to get podcast stream metadata"
 msgstr "Opvragen van podcast-stream-metadata mislukt"
 
-#: src/podcasts/grl-podcasts.c:1618
+#: src/podcasts/grl-podcasts.c:1625
 msgid "Failed to get podcast metadata"
 msgstr "Opvragen van podcast-metadata mislukt"
 
-#: src/podcasts/grl-podcasts.c:1802
+#: src/podcasts/grl-podcasts.c:1809
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Kan geen containers aanmaken. Enkel feeds worden aanvaard"
 
-#: src/podcasts/grl-podcasts.c:1807
+#: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
 msgstr "URL vereist"
 
@@ -520,40 +522,43 @@ msgid "Remote data does not contain valid identifier"
 msgstr "Gegevens op afstand bevatten geen geldige identificatie"
 
 #. I can haz templatze ??
+#. Schedule the next row to parse
+#. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
+#: src/tracker3/grl-tracker-source-api.c:243
+#: src/tracker3/grl-tracker-source-api.c:319
 #: src/tracker/grl-tracker-source-api.c:401
 #: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Zoekopdracht mislukt: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:418
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Opvragen van media van URI mislukt: %s"
 
-#: src/tracker/grl-tracker-source-api.c:806
+#: src/tracker3/grl-tracker-source-api.c:603
+#: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Lege zoekopdracht"
 
-#: src/tracker/grl-tracker-source-api.c:1088
+#: src/tracker3/grl-tracker-source-api.c:824
+#: src/tracker3/grl-tracker-source-api.c:920
+#: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
 msgstr "ID ‘%s’ is niet bekend in deze bron"
 
+#: src/tracker3/grl-tracker-source-priv.h:47
+msgid "A plugin for searching multimedia content using Tracker3"
+msgstr "Een plug-in voor het doorzoeken van multimedia-materiaal met Tracker3"
+
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Een plug-in voor het doorzoeken van multimedia-materiaal met Tracker"
-
-#: src/tracker/grl-tracker-utils.c:738
-#, c-format
-msgid "Removable — %s"
-msgstr "Verwijderbaar — %s"
-
-#: src/tracker/grl-tracker-utils.c:750
-msgid "Local files"
-msgstr "Lokale bestanden"
 
 #: src/vimeo/grl-vimeo.c:51
 msgid "A source for browsing and searching Vimeo videos"
@@ -615,3 +620,9 @@ msgstr "Opvragen van feed mislukt"
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Ongeldige feed-identificatie %s"
+
+#~ msgid "Removable — %s"
+#~ msgstr "Verwijderbaar — %s"
+
+#~ msgid "Local files"
+#~ msgstr "Lokale bestanden"

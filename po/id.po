@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2020-04-03 19:54+0000\n"
-"PO-Revision-Date: 2020-05-30 17:25+0700\n"
+"POT-Creation-Date: 2020-08-24 15:08+0000\n"
+"PO-Revision-Date: 2020-08-26 21:44+0700\n"
 "Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: Indonesian <gnome@i15n.org>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.3.1\n"
+"X-Generator: Poedit 2.4.1\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -63,21 +63,21 @@ msgstr "Pengaya untuk memperoleh metadata memakai kerangka kerja gstreamer"
 msgid "A source for browsing the DLNA server “%s”"
 msgstr "Sumber untuk meramban server DLNA “%s”"
 
-#: src/dleyna/grl-dleyna-source.c:271
+#: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
 msgstr "Pengunggahan gagal, sumber target dihancurkan"
 
-#: src/dleyna/grl-dleyna-source.c:373
+#: src/dleyna/grl-dleyna-source.c:382
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
 msgstr "Pengunggahan gagal, “%s”, ditransfer %lu dari %lu byte."
 
-#: src/dleyna/grl-dleyna-source.c:878
+#: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr "Gagal mengambil properti butir (galat BrowseObjects %d: %s)"
 
-#: src/dleyna/grl-dleyna-source.c:1517
+#: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr "Pengunggahan gagal, kurang URL pada objek media yang akan ditransfer"
@@ -249,6 +249,7 @@ msgstr "Sumber yang menyediakan metadata yang tersedia secara lokal"
 
 #: src/local-metadata/grl-local-metadata.c:381
 #: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker3/grl-tracker-source-api.c:381
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
@@ -301,6 +302,7 @@ msgstr "Pengaya untuk menyimpan informasi metadata ekstra"
 #: src/metadata-store/grl-metadata-store.c:598
 #: src/metadata-store/grl-metadata-store.c:617
 #: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker3/grl-tracker-source-api.c:471
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
@@ -516,27 +518,39 @@ msgid "Remote data does not contain valid identifier"
 msgstr "Data remote tak memuat identifier yang valid"
 
 #. I can haz templatze ??
+#. Schedule the next row to parse
+#. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
+#: src/tracker3/grl-tracker-source-api.c:243
+#: src/tracker3/grl-tracker-source-api.c:319
 #: src/tracker/grl-tracker-source-api.c:401
 #: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Gagal mengkuiri: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:418
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Gagal mendapat media dari uri: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:603
 #: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Kuiri kosong"
 
+#: src/tracker3/grl-tracker-source-api.c:824
+#: src/tracker3/grl-tracker-source-api.c:920
 #: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
 msgstr "﻿ID “%s” tidak dikenal dalam sumber"
+
+#: src/tracker3/grl-tracker-source-priv.h:47
+msgid "A plugin for searching multimedia content using Tracker3"
+msgstr "Pengaya untuk mencari isi multimedia memakai Tracker3"
 
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"

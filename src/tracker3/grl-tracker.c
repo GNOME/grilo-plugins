@@ -89,6 +89,29 @@ tracker_new_connection_cb (GObject      *object,
   init_sources ();
 }
 
+static void
+set_miner_service (void)
+{
+  g_autoptr(GKeyFile) keyfile = NULL;
+  const char *value;
+
+  if (!g_file_test ("/.flatpak-info", G_FILE_TEST_EXISTS))
+    return;
+
+  keyfile = g_key_file_new ();
+  if (!g_key_file_load_from_file (keyfile, "/.flatpak-info", G_KEY_FILE_NONE, NULL))
+    return;
+
+  value = g_key_file_get_value (keyfile, "Policy Tracker3", "dbus:org.freedesktop.Tracker3.Miner.Files", NULL);
+  if (value)
+    return;
+
+  value = g_key_file_get_string (keyfile, "Application", "name", NULL);
+  grl_tracker_miner_service = g_strdup_printf ("%s.Tracker3.Miner.Files", value);
+  GRL_INFO("\tRunning in sandboxed mode, using %s as miner service",
+           grl_tracker_miner_service);
+}
+
 gboolean
 grl_tracker3_plugin_init (GrlRegistry *registry,
                           GrlPlugin *plugin,
@@ -124,6 +147,9 @@ grl_tracker3_plugin_init (GrlRegistry *registry,
     grl_tracker_miner_service =
       grl_config_get_string (config, "miner-service");
   }
+
+  if (!grl_tracker_miner_service)
+    set_miner_service ();
 
   grl_tracker_plugin_init_cancel = g_cancellable_new ();
   if (grl_tracker_store_path) {

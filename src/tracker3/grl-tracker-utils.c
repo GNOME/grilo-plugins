@@ -642,7 +642,7 @@ grl_tracker_build_resource_from_media (GrlMedia *media, GList *keys)
       hash = ensure_resource_for_property (resource, "nfo:hasHash", FALSE);
       tracker_resource_set_string (hash, "nfo:hashAlgorithm", "chromaprint");
       tracker_resource_set_string (hash, "nfo:hashValue",
-                                   grl_data_get_string (GRL_DATA (media), l->data));
+                                   grl_data_get_string (GRL_DATA (media), grl_metadata_key_chromaprint));
     } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST)) {
       TrackerResource *artist;
       const gchar *artist_name;

@@ -281,6 +281,7 @@ test_resolve (void)
   GrlMedia *media, *resolved;
   GError *error = NULL;
   GrlOperationOptions *options;
+  GDateTime *datetime;
   GList *keys;
 
   registry = grl_registry_get_default ();
@@ -289,6 +290,7 @@ test_resolve (void)
 
   keys = grl_metadata_key_list_new (GRL_METADATA_KEY_URL,
                                     GRL_METADATA_KEY_TITLE,
+                                    GRL_METADATA_KEY_MODIFICATION_DATE,
                                     GRL_METADATA_KEY_INVALID);
 
   options = grl_operation_options_new (NULL);
@@ -309,6 +311,9 @@ test_resolve (void)
   g_assert_cmpstr (grl_media_get_title (media),
                    ==,
                    "Simply Juvenile");
+
+  datetime = grl_media_get_modification_date (media);
+  g_assert_nonnull (datetime);
 
   g_object_unref (options);
   g_object_unref (media);

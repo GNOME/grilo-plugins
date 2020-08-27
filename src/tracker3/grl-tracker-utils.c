@@ -255,7 +255,7 @@ grl_tracker_setup_key_mappings (void)
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_MODIFICATION_DATE,
                                   "lastModified",
-                                  "nie:contentLastModified(?urn)",
+                                  "COALESCE(nie:contentLastModified(?urn), (select ?lm { ?urn nie:isStoredAs/nfo:fileLastModified ?lm }))",
                                   GRL_TYPE_FILTER_ALL,
                                   set_date);
 

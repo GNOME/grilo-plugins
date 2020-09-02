@@ -1,3 +1,77 @@
+NEW in 0.3.12
+=============
+  * Increase gom requirement to 0.4 or greater
+  * !85 Add Tracker3 plugin
+  * !93 tracker3: Add support to run under Flatpak
+  * !74 tracker3: Prefer last-modified from file's metadata
+  * !25 Remove Spotify coverart plugin
+  * !70 dmap: Add support to libdmapsharing-4.0
+  * !77 Stream Store: Fix date format to iso8601
+  * !83 tracker: Add Genre fetched from tracker
+  * !73 dleyna: Allow bus name to be changed
+  * !87 !88 dleyna: Set metadata relative to containers' type
+  * !76 Acoustid: Fix the counting of Release Groups
+  * !84 Acoustid: Fix returning same Record multiple times
+  * !37 Lua-Factory: Add support to GrlRelatedKeys
+
+  * Added translations
+    * Ukrainian
+
+  * Updated translations
+    * Basque
+    * Brazilian Portuguese
+    * Chinese (China)
+    * Croatian
+    * Czech
+    * Danish
+    * Dutch
+    * English (GB)
+    * Finnish
+    * Galician
+    * German
+    * Indonesian
+    * Lithuanian
+    * Polish
+    * Romanian
+    * Slovenian
+    * Spanish
+    * Swedish
+    * Turkish
+    * Ukrainian
+
+  * Contributors to this release:
+    Anders Jonsson <anders.jonsson@norsjovallen.se>
+    Asier Sarasua Garmendia <asiersarasua@ni.eus>
+    Ask Hjorth Larsen <asklarsen@gmail.com>
+    Aurimas Černius <aurisc4@gmail.com>
+    Bastien Nocera <hadess@hadess.net>
+    Boyuan Yang <073plan@gmail.com>
+    Carlos Garnacho <carlosg@gnome.org>
+    Chinmay Gurjar <chnmgurjar@gmail.com>
+    Daniel Korostil <ted.korostiled@gmail.com>
+    Daniel Mustieles <daniel.mustieles.contractor@bbva.com>
+    Daniel Șerbănescu <daniel@serbanescu.dk>
+    Dz Chen <wsxy162@gmail.com>
+    Emin Tufan Çetin <etcetin@gmail.com>
+    Fran Dieguez <frandieguez@gnome.org>
+    Gaurav Narula <gnarula94@gmail.com>
+    Goran Vidović <trebelnik2@gmail.com>
+    Jean Felder <jfelder@src.gnome.org>
+    Jiri Grönroos <jiri.gronroos@iki.fi>
+    Kukuh Syafaat <kukuhsyafaat@gnome.org>
+    Marek Černocký <marek@manet.cz>
+    Marinus Schraal <mschraal@gnome.org>
+    Matej Urbančič <mateju@svn.gnome.org>
+    Nathan Follens <nfollens@gnome.org>
+    Piotr Drąg <piotrdrag@gmail.com>
+    Rafael Fontenelle <rafaelff@gnome.org>
+    scootergrisen <scootergrisen@gmail.com>
+    Stephan Woidowski <swoidowski@t-online.de>
+    Victor Toso <me@victortoso.com>
+    W. Michael Petullo <mike@flyn.org>
+    Yuri Chornoivan <yurchor@ukr.net>
+    Zander Brown <zbrown@gnome.org>
+
 NEW in 0.3.11
 =============
   * !67 tracker: Fix crash if chromaprint plugin isn't installed

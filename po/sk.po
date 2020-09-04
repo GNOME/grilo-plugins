@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2020-01-27 16:11+0000\n"
-"PO-Revision-Date: 2020-01-28 10:09+0100\n"
+"POT-Creation-Date: 2020-08-24 15:08+0000\n"
+"PO-Revision-Date: 2020-09-04 10:10+0200\n"
 "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <gnome-sk-list@gnome.org>\n"
 "Language: sk\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Generator: Poedit 2.2.4\n"
+"X-Generator: Poedit 2.4.1\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -64,52 +64,52 @@ msgstr "Zásuvný modul na získanie metaúdajov pomocou architektúry gstreamer
 msgid "A source for browsing the DLNA server “%s”"
 msgstr "Zdroj na prehliadanie servera DLNA „%s“"
 
-#: src/dleyna/grl-dleyna-source.c:273
+#: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
 msgstr "Odosielanie zlyhalo. Cieľový zdroj zničený."
 
-#: src/dleyna/grl-dleyna-source.c:375
+#: src/dleyna/grl-dleyna-source.c:382
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
 msgstr "Odosielanie zlyhalo, „%s“, prenesených %lu z %lu bajtov"
 
-#: src/dleyna/grl-dleyna-source.c:880
+#: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr "Zlyhalo získanie vlastností položky (Chyba BrowseObjects %d: %s)"
 
-#: src/dleyna/grl-dleyna-source.c:1519
+#: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr "Odosielanie zlyhalo. Chýba URL na prenášanom objekte média."
 
-#: src/dmap/grl-daap.c:50
+#: src/dmap/grl-daap.c:51
 #, c-format
 msgid "A source for browsing the DAAP server “%s”"
 msgstr "Zdroj na prehliadanie servera DAAP „%s“"
 
-#: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:788
+#: src/dmap/grl-daap-db.c:66 src/jamendo/grl-jamendo.c:788
 #: src/magnatune/grl-magnatune.c:122
 msgid "Albums"
 msgstr "Albumy"
 
-#: src/dmap/grl-daap-db.c:64 src/jamendo/grl-jamendo.c:777
+#: src/dmap/grl-daap-db.c:68 src/jamendo/grl-jamendo.c:777
 #: src/magnatune/grl-magnatune.c:121
 msgid "Artists"
 msgstr "Interpreti"
 
-#: src/dmap/grl-daap-db.c:292 src/jamendo/grl-jamendo.c:1115
+#: src/dmap/grl-daap-db.c:291 src/jamendo/grl-jamendo.c:1115
 #: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Neplatný identifikátor kontajnera %s"
 
-#: src/dmap/grl-dpap.c:50
+#: src/dmap/grl-dpap.c:51
 #, c-format
 msgid "A source for browsing the DPAP server “%s”"
 msgstr "Zdroj na prehliadanie servera DPAP „%s“"
 
-#: src/dmap/grl-dpap-db.c:36
+#: src/dmap/grl-dpap-db.c:40
 msgid "Photos"
 msgstr "Fotografie"
 
@@ -251,6 +251,7 @@ msgstr "Zdroj poskytujúci miestne dostupné metaúdaje"
 
 #: src/local-metadata/grl-local-metadata.c:381
 #: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker3/grl-tracker-source-api.c:381
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
@@ -303,6 +304,7 @@ msgstr "Zásuvný modul na ukladanie informácií o metaúdajoch navyše"
 #: src/metadata-store/grl-metadata-store.c:598
 #: src/metadata-store/grl-metadata-store.c:617
 #: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker3/grl-tracker-source-api.c:471
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
@@ -519,40 +521,43 @@ msgid "Remote data does not contain valid identifier"
 msgstr "Vzdialené údaje neobsahujú platný identifikátor"
 
 #. I can haz templatze ??
+#. Schedule the next row to parse
+#. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
+#: src/tracker3/grl-tracker-source-api.c:243
+#: src/tracker3/grl-tracker-source-api.c:319
 #: src/tracker/grl-tracker-source-api.c:401
 #: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Zlyhalo požadovanie: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:418
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Zlyhalo získanie média z uri: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:603
 #: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Prázdna požiadavka"
 
+#: src/tracker3/grl-tracker-source-api.c:824
+#: src/tracker3/grl-tracker-source-api.c:920
 #: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
 msgstr "ID „%s“ nie je známy v tomto zdroji"
 
+#: src/tracker3/grl-tracker-source-priv.h:47
+msgid "A plugin for searching multimedia content using Tracker3"
+msgstr "Zásuvný modul na vyhľadávanie multimediálneho obsahu použitím služby Tracker3"
+
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Zásuvný modul na vyhľadávanie multimediálneho obsahu použitím služby Tracker"
-
-#: src/tracker/grl-tracker-utils.c:831
-#, c-format
-msgid "Removable — %s"
-msgstr "Odstrániteľné — %s"
-
-#: src/tracker/grl-tracker-utils.c:843
-msgid "Local files"
-msgstr "Miestne súbory"
 
 #: src/vimeo/grl-vimeo.c:51
 msgid "A source for browsing and searching Vimeo videos"
@@ -616,6 +621,12 @@ msgstr "Zlyhalo získanie kanálu"
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Neplatný identifikátor kanálu %s"
+
+#~ msgid "Removable — %s"
+#~ msgstr "Odstrániteľné — %s"
+
+#~ msgid "Local files"
+#~ msgstr "Miestne súbory"
 
 #~ msgid "Album art Provider from Last.FM"
 #~ msgstr "Poskytovateľ obalov albumov zo služby Last.FM"

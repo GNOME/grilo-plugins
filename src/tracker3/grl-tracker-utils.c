@@ -356,7 +356,7 @@ grl_tracker_setup_key_mappings (void)
                                   set_date);
 
   insert_key_mapping_with_setter (GRL_METADATA_KEY_PUBLICATION_DATE,
-                                  "creationDate",
+                                  "publicationDate",
                                   "nie:contentCreated(?urn)",
                                   GRL_TYPE_FILTER_ALL,
                                   set_date);
@@ -584,6 +584,14 @@ grl_tracker_build_resource_from_media (GrlMedia *media, GList *keys)
 
       creation = grl_media_get_creation_date (media);
       date = g_date_time_format_iso8601 (creation);
+      tracker_resource_set_string (resource, "nie:contentCreated", date);
+      g_free (date);
+    } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_PUBLICATION_DATE)) {
+      GDateTime *publication;
+      gchar *date;
+
+      publication = grl_media_get_publication_date (media);
+      date = g_date_time_format_iso8601 (publication);
       tracker_resource_set_string (resource, "nie:contentCreated", date);
       g_free (date);
     } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ALBUM)) {

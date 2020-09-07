@@ -8,15 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2020-04-03 19:54+0000\n"
-"PO-Revision-Date: 2020-04-14 00:00+0000\n"
-"Last-Translator: scootergrisen\n"
+"POT-Creation-Date: 2020-08-24 15:08+0000\n"
+"PO-Revision-Date: 2020-09-07 18:42+0200\n"
+"Last-Translator: Alan Mortensen <alanmortensen.am@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.3\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -65,21 +66,21 @@ msgstr ""
 msgid "A source for browsing the DLNA server “%s”"
 msgstr "En kilde til at gennemse DLNA-serveren “%s”"
 
-#: src/dleyna/grl-dleyna-source.c:271
+#: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
 msgstr "Forsendelse mislykkedes; målkilden ødelagt"
 
-#: src/dleyna/grl-dleyna-source.c:373
+#: src/dleyna/grl-dleyna-source.c:382
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
 msgstr "Forsendelse mislykkedes; “%s”; overførte %lu af %lu byte"
 
-#: src/dleyna/grl-dleyna-source.c:878
+#: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr "Kunne ikke hente egenskaber for element (BrowseObjects-fejl %d: %s)"
 
-#: src/dleyna/grl-dleyna-source.c:1517
+#: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr ""
@@ -255,6 +256,7 @@ msgstr "En kilde som udbyder lokalt tilgængelige metadata"
 
 #: src/local-metadata/grl-local-metadata.c:381
 #: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker3/grl-tracker-source-api.c:381
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
@@ -307,6 +309,7 @@ msgstr "Et udvidelsesmodul til at gemme yderligere metadataoplysninger"
 #: src/metadata-store/grl-metadata-store.c:598
 #: src/metadata-store/grl-metadata-store.c:617
 #: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker3/grl-tracker-source-api.c:471
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
@@ -523,27 +526,39 @@ msgid "Remote data does not contain valid identifier"
 msgstr "Fjerndata indeholder ikke nogen gyldig id"
 
 #. I can haz templatze ??
+#. Schedule the next row to parse
+#. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
+#: src/tracker3/grl-tracker-source-api.c:243
+#: src/tracker3/grl-tracker-source-api.c:319
 #: src/tracker/grl-tracker-source-api.c:401
 #: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Kunne ikke forespørge: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:418
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Kunne ikke hente medie fra uri: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:603
 #: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Tom forespørgsel"
 
+#: src/tracker3/grl-tracker-source-api.c:824
+#: src/tracker3/grl-tracker-source-api.c:920
 #: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
 msgstr "Id “%s” kendes ikke i denne kilde"
+
+#: src/tracker3/grl-tracker-source-priv.h:47
+msgid "A plugin for searching multimedia content using Tracker3"
+msgstr "Et udvidelsesmodul til at søge i multimedieindhold med Tracker3"
 
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"

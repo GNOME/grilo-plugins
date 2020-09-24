@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2018-08-01 17:25+0000\n"
-"PO-Revision-Date: 2018-08-08 07:04+0200\n"
+"POT-Creation-Date: 2020-08-24 15:08+0000\n"
+"PO-Revision-Date: 2020-09-24 15:46+0200\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.7\n"
+"X-Generator: Poedit 2.4.1\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -40,17 +40,17 @@ msgstr "No si è rivâts a cjatâ i segnelibris: %s"
 msgid "Failed to remove: %s"
 msgstr "No si è rivâts a gjavâ: %s"
 
-#: src/bookmarks/grl-bookmarks.c:766 src/podcasts/grl-podcasts.c:928
-#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1806
+#: src/bookmarks/grl-bookmarks.c:768 src/podcasts/grl-podcasts.c:928
+#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1813
 #, c-format
 msgid "Failed to store: %s"
 msgstr "No si è rivâts a archiviâ: %s"
 
-#: src/bookmarks/grl-bookmarks.c:840 src/bookmarks/grl-bookmarks.c:875
-#: src/bookmarks/grl-bookmarks.c:906 src/bookmarks/grl-bookmarks.c:964
-#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1662
-#: src/podcasts/grl-podcasts.c:1706 src/podcasts/grl-podcasts.c:1740
-#: src/podcasts/grl-podcasts.c:1775
+#: src/bookmarks/grl-bookmarks.c:842 src/bookmarks/grl-bookmarks.c:877
+#: src/bookmarks/grl-bookmarks.c:908 src/bookmarks/grl-bookmarks.c:966
+#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1669
+#: src/podcasts/grl-podcasts.c:1713 src/podcasts/grl-podcasts.c:1747
+#: src/podcasts/grl-podcasts.c:1782
 msgid "No database connection"
 msgstr "Nissune conession cun la base di dâts"
 
@@ -63,54 +63,54 @@ msgstr "Un plugin par otignî i metadâts tramit il framework gstreamer"
 msgid "A source for browsing the DLNA server “%s”"
 msgstr "Une risorse par esplorâ il servidôr DLNA “%s”"
 
-#: src/dleyna/grl-dleyna-source.c:273
+#: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
 msgstr "Cjariament falît, risorse di destinazion distrute"
 
-#: src/dleyna/grl-dleyna-source.c:375
+#: src/dleyna/grl-dleyna-source.c:382
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
-msgstr "No si è rivâts a cjariâ sù, “%s”, trasferîts %lu su %lu byte"
+msgstr "No si è rivâts a cjariâ sù, “%s”, trasferîts %lu su %lu bytes"
 
-#: src/dleyna/grl-dleyna-source.c:880
+#: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
 msgstr ""
 "No si è rivâts a recuperâ lis proprietâts dal element (erôr BrowseObjects "
 "%d: %s)"
 
-#: src/dleyna/grl-dleyna-source.c:1519
+#: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr "Cjariament falît, al mancje il URL sul element multimediâl di trasferî"
 
-#: src/dmap/grl-daap.c:50
+#: src/dmap/grl-daap.c:51
 #, c-format
 msgid "A source for browsing the DAAP server “%s”"
 msgstr "Une risorse par esplorâ il servidôr DAAP “%s”"
 
-#: src/dmap/grl-daap-db.c:62 src/jamendo/grl-jamendo.c:788
+#: src/dmap/grl-daap-db.c:66 src/jamendo/grl-jamendo.c:788
 #: src/magnatune/grl-magnatune.c:122
 msgid "Albums"
 msgstr "Album"
 
-#: src/dmap/grl-daap-db.c:64 src/jamendo/grl-jamendo.c:777
+#: src/dmap/grl-daap-db.c:68 src/jamendo/grl-jamendo.c:777
 #: src/magnatune/grl-magnatune.c:121
 msgid "Artists"
 msgstr "Artiscj"
 
-#: src/dmap/grl-daap-db.c:292 src/jamendo/grl-jamendo.c:1115
+#: src/dmap/grl-daap-db.c:291 src/jamendo/grl-jamendo.c:1115
 #: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Identificatôr di contignidôr %s no valit"
 
-#: src/dmap/grl-dpap.c:50
+#: src/dmap/grl-dpap.c:51
 #, c-format
 msgid "A source for browsing the DPAP server “%s”"
 msgstr "Une risorse par esplorâ il servidôr DPAP “%s”"
 
-#: src/dmap/grl-dpap-db.c:36
+#: src/dmap/grl-dpap-db.c:40
 msgid "Photos"
 msgstr "Fotos"
 
@@ -122,12 +122,12 @@ msgstr "Filesystem"
 msgid "A source for browsing the filesystem"
 msgstr "Une risorse par esplorâ il filesystem"
 
-#: src/filesystem/grl-filesystem.c:1170
+#: src/filesystem/grl-filesystem.c:1171
 #, c-format
 msgid "File %s does not exist"
 msgstr "Il file %s nol esist"
 
-#: src/filesystem/grl-filesystem.c:1248 src/youtube/grl-youtube.c:1505
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Impussibil otignî i contignûts multimediâi di %s"
@@ -206,7 +206,7 @@ msgid "Failed to parse response"
 msgstr "No si è rivâts a analizâ la rispueste"
 
 #: src/jamendo/grl-jamendo.c:349 src/jamendo/grl-jamendo.c:356
-#: src/podcasts/grl-podcasts.c:1363 src/shoutcast/grl-shoutcast.c:417
+#: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
 msgid "Empty response"
 msgstr "Rispueste vueide"
 
@@ -251,6 +251,7 @@ msgstr "Une risorse che e furnìs i metadâts disponibii in locâl"
 
 #: src/local-metadata/grl-local-metadata.c:381
 #: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker3/grl-tracker-source-api.c:381
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
@@ -303,6 +304,7 @@ msgstr "Un plugin par archiviâ lis informazions ulteriôrs dai metadâts"
 #: src/metadata-store/grl-metadata-store.c:598
 #: src/metadata-store/grl-metadata-store.c:617
 #: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker3/grl-tracker-source-api.c:471
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
@@ -362,32 +364,32 @@ msgstr "No si è rivâts a otignî i flus podcast: %s"
 msgid "Failed to parse content"
 msgstr "No si è rivâts a analizâ il contignût"
 
-#: src/podcasts/grl-podcasts.c:1297
+#: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
 msgid "Failed to parse podcast contents"
 msgstr "No si è rivâts a analizâ i contignûts dal podcast"
 
-#: src/podcasts/grl-podcasts.c:1452
+#: src/podcasts/grl-podcasts.c:1459
 msgid "Failed to get podcast information"
 msgstr "No si è rivâts a otignî lis informazions sul podcast"
 
-#: src/podcasts/grl-podcasts.c:1492 src/podcasts/grl-podcasts.c:1512
+#: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
 #, c-format
 msgid "Failed to get podcasts list: %s"
 msgstr "No si è rivâts a otignî la liste dai podcast: %s"
 
-#: src/podcasts/grl-podcasts.c:1565 src/podcasts/grl-podcasts.c:1580
+#: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
 msgid "Failed to get podcast stream metadata"
 msgstr "No si è rivâts a otignî i metadâts dal flus dal podcast"
 
-#: src/podcasts/grl-podcasts.c:1618
+#: src/podcasts/grl-podcasts.c:1625
 msgid "Failed to get podcast metadata"
 msgstr "No si è rivâts a otignî i metadâts dal podcast"
 
-#: src/podcasts/grl-podcasts.c:1802
+#: src/podcasts/grl-podcasts.c:1809
 msgid "Cannot create containers. Only feeds are accepted"
 msgstr "Impussibil creâ contignidôrs. Nome i feed a son ametûts"
 
-#: src/podcasts/grl-podcasts.c:1807
+#: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
 msgstr "URL domandât"
 
@@ -518,40 +520,43 @@ msgid "Remote data does not contain valid identifier"
 msgstr "I dâts rimots no contegnin un identificadôr valit"
 
 #. I can haz templatze ??
+#. Schedule the next row to parse
+#. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
+#: src/tracker3/grl-tracker-source-api.c:243
+#: src/tracker3/grl-tracker-source-api.c:319
 #: src/tracker/grl-tracker-source-api.c:401
 #: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
 msgstr "Interogazion falide: %s"
 
+#: src/tracker3/grl-tracker-source-api.c:418
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "No si è rivâts a otignî i contignûts multimediâi dal uri: %s"
 
-#: src/tracker/grl-tracker-source-api.c:806
+#: src/tracker3/grl-tracker-source-api.c:603
+#: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Interogazion vueide"
 
-#: src/tracker/grl-tracker-source-api.c:1088
+#: src/tracker3/grl-tracker-source-api.c:824
+#: src/tracker3/grl-tracker-source-api.c:920
+#: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
 msgstr "Il ID “%s” nol è cognossût in cheste risorse"
 
+#: src/tracker3/grl-tracker-source-priv.h:47
+msgid "A plugin for searching multimedia content using Tracker3"
+msgstr "Un plugin par cirî contignûts multimediâi doprant Tracker3"
+
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Un plugin par cirî contignûts multimediâi doprant Tracker"
-
-#: src/tracker/grl-tracker-utils.c:738
-#, c-format
-msgid "Removable — %s"
-msgstr "Estraibil — %s"
-
-#: src/tracker/grl-tracker-utils.c:750
-msgid "Local files"
-msgstr "File locâi"
 
 #: src/vimeo/grl-vimeo.c:51
 msgid "A source for browsing and searching Vimeo videos"
@@ -613,3 +618,9 @@ msgstr "No si è rivâts a otignî i feed"
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Identificadôr feed %s no valit"
+
+#~ msgid "Removable — %s"
+#~ msgstr "Estraibil — %s"
+
+#~ msgid "Local files"
+#~ msgstr "File locâi"

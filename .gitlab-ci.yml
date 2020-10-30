@@ -1,19 +1,44 @@
 image: fedora:latest
 
 variables:
-  DEPENDENCIES_GRILO: gobject-introspection-devel libxml2-devel
-                      libsoup-devel glib2-devel gtk3-devel
-                      liboauth-devel totem-pl-parser-devel
-                      meson redhat-rpm-config gcc gcc-c++ glibc-devel git vala
-                      gtk-doc
+  DEPENDENCIES_GRILO:
+    gobject-introspection-devel
+    libxml2-devel
+    libsoup-devel
+    glib2-devel
+    gtk3-devel
+    liboauth-devel
+    totem-pl-parser-devel
+    meson
+    redhat-rpm-config
+    gcc
+    gcc-c++
+    glibc-devel
+    git
+    vala
+    gtk-doc
 
-  DEPENDENCIES: sqlite-devel libgcrypt-devel itstool lua-devel
-                libsoup-devel gperf libarchive-devel json-glib-devel
-                avahi-gobject-devel totem-pl-parser-devel rest-devel
-                libdmapsharing-devel libmediaart-devel
-                gom-devel gnome-online-accounts-devel libgdata-devel
-                gstreamer1-plugins-good gstreamer1-plugins-bad-free-extras
-                python3-gobject-base dbus-daemon
+  DEPENDENCIES:
+    sqlite-devel
+    libgcrypt-devel
+    itstool
+    lua-devel
+    libsoup-devel
+    gperf
+    libarchive-devel
+    json-glib-devel
+    avahi-gobject-devel
+    totem-pl-parser-devel
+    rest-devel
+    libdmapsharing-devel
+    libmediaart-devel
+    gom-devel
+    gnome-online-accounts-devel
+    libgdata-devel
+    gstreamer1-plugins-good
+    gstreamer1-plugins-bad-free-extras
+    python3-gobject-base
+    dbus-daemon
 
 build_stable:
   before_script:

@@ -41,6 +41,7 @@ variables:
   TRACKER3_DEPENDENCIES:
     tracker3-miners
     tracker3-devel
+    upower
 
 build_stable:
   before_script:
@@ -75,6 +76,12 @@ build_stable:
       -Denable-youtube=yes
     - ninja -C _build
     - ninja -C _build install
+    # Start a system bus for upower
+    - mkdir -p /run/dbus
+    - mkdir -p /var
+    - ln -s /var/run /run
+    - dbus-daemon --system --fork
+    - /usr/libexec/upowerd &
     - LANG=C.UTF-8 dbus-run-session meson test -C _build --suite=grilo-plugins
   artifacts:
     name: meson-logs

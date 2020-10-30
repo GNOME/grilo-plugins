@@ -23,12 +23,10 @@ variables:
     libgcrypt-devel
     itstool
     lua-devel
-    libsoup-devel
     gperf
     libarchive-devel
     json-glib-devel
     avahi-gobject-devel
-    totem-pl-parser-devel
     rest-devel
     libdmapsharing-devel
     libmediaart-devel

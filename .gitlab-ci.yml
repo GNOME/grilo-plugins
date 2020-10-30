@@ -38,23 +38,15 @@ variables:
     python3-gobject-base
     dbus-daemon
 
+  TRACKER3_DEPENDENCIES:
+    tracker3-miners
+    tracker3-devel
+
 build_stable:
   before_script:
     - dnf update -y --nogpgcheck
   script:
-    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES
-    # FIXME: While tracker3 isn't in Fedora
-    - dnf install -y --nogpgcheck libseccomp-devel
-    - git clone https://gitlab.gnome.org/GNOME/tracker.git
-    - cd tracker
-    - meson . _build --prefix=/usr -Ddocs=false -Dman=false -Dbash_completion=false -Dtest_utils=true
-    - ninja -C _build install
-    - cd ..
-    - git clone https://gitlab.gnome.org/GNOME/tracker-miners.git
-    - cd tracker-miners
-    - meson . _build --prefix=/usr -Dpng=enabled -Dgeneric_media_extractor=gstreamer -Dminer_rss=false -Dman=false
-    - ninja -C _build install
-    - cd ..
+    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES $TRACKER3_DEPENDENCIES
     # As part of configuring grilo-plugins.git for build, the latest code from
     # grilo.git will be fetched by Meson and it will be built as a subproject.
     - meson . _build --prefix=/usr

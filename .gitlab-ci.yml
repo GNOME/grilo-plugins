@@ -75,7 +75,7 @@ build_stable:
       -Denable-youtube=yes
     - ninja -C _build
     - ninja -C _build install
-    - LANG=C.UTF-8 meson test -C _build --suite=grilo-plugins
+    - LANG=C.UTF-8 dbus-run-session meson test -C _build --suite=grilo-plugins
   artifacts:
     name: meson-logs
     when: on_failure

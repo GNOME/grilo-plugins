@@ -122,7 +122,8 @@ handle_changes (GrlTrackerSourceNotify   *self,
 
     if (tracker_notifier_event_get_event_type (event) != tracker_type)
       continue;
-    if (grl_media_get_url (media) == NULL)
+    if (tracker_type != TRACKER_NOTIFIER_EVENT_DELETE &&
+        grl_media_get_url (media) == NULL)
       continue;
 
     g_ptr_array_add (change_list, g_object_ref (media));
@@ -166,8 +167,17 @@ resolve_medias (GrlTrackerChangeBatch *batch)
   GrlTrackerSourceNotify *self = batch->notify;
   GrlMedia *media = NULL;
 
-  if (batch->cur_media < batch->medias->len)
+  while (batch->cur_media < batch->medias->len) {
+    TrackerNotifierEvent *event = g_ptr_array_index (batch->events, batch->cur_media);
+    /* Resolving a deleted resource will come up empty */
+    if (tracker_notifier_event_get_event_type (event) == TRACKER_NOTIFIER_EVENT_DELETE) {
+      batch->cur_media++;
+      continue;
+    }
+
     media = g_ptr_array_index (batch->medias, batch->cur_media);
+    break;
+  }
 
   if (media) {
     grl_source_resolve (self->source,

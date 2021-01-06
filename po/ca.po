@@ -25,7 +25,7 @@ msgstr "Adreces d'interès"
 
 #: src/bookmarks/grl-bookmarks.c:61
 msgid "A source for organizing media bookmarks"
-msgstr "Una font per organitzar les adreces d'interès de suports"
+msgstr "Una font per a organitzar les adreces d'interès de suports"
 
 #: src/bookmarks/grl-bookmarks.c:427
 msgid "Failed to get bookmark metadata"
@@ -59,12 +59,12 @@ msgstr "No hi ha cap connexió a la base de dades"
 #: src/chromaprint/grl-chromaprint.c:41
 msgid "A plugin to get metadata using gstreamer framework"
 msgstr ""
-"Un connector per obtenir metadades utilitzant l'entorn de treball gstreamer"
+"Un connector per a obtenir metadades utilitzant l'entorn de treball gstreamer"
 
 #: src/dleyna/grl-dleyna-source.c:34
 #, c-format
 msgid "A source for browsing the DLNA server “%s”"
-msgstr "Una font per navegar pel servidor DLNA «%s»"
+msgstr "Una font per a navegar pel servidor DLNA «%s»"
 
 #: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
@@ -92,7 +92,7 @@ msgstr ""
 #: src/dmap/grl-daap.c:51
 #, c-format
 msgid "A source for browsing the DAAP server “%s”"
-msgstr "Una font per navegar pel servidor DAAP «%s»"
+msgstr "Una font per a navegar pel servidor DAAP «%s»"
 
 #: src/dmap/grl-daap-db.c:66 src/jamendo/grl-jamendo.c:788
 #: src/magnatune/grl-magnatune.c:122
@@ -113,7 +113,7 @@ msgstr "L'identificador de contenidor %s no és vàlid"
 #: src/dmap/grl-dpap.c:51
 #, c-format
 msgid "A source for browsing the DPAP server “%s”"
-msgstr "Una font per navegar pel servidor DPAP «%s»"
+msgstr "Una font per a navegar pel servidor DPAP «%s»"
 
 #: src/dmap/grl-dpap-db.c:40
 msgid "Photos"
@@ -125,7 +125,7 @@ msgstr "Sistema de fitxers"
 
 #: src/filesystem/grl-filesystem.c:59
 msgid "A source for browsing the filesystem"
-msgstr "Una font per navegar pel sistema de fitxers"
+msgstr "Una font per a navegar pel sistema de fitxers"
 
 #: src/filesystem/grl-filesystem.c:1171
 #, c-format
@@ -139,7 +139,7 @@ msgstr "No es poden obtenir els suports des de %s"
 
 #: src/flickr/grl-flickr.c:58
 msgid "A source for browsing and searching Flickr photos"
-msgstr "Una font per navegar i cercar fotos del Flickr"
+msgstr "Una font per a navegar i cercar fotos del Flickr"
 
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:62
@@ -151,7 +151,7 @@ msgstr "Flickr de %s"
 #: src/flickr/grl-flickr.c:64
 #, c-format
 msgid "A source for browsing and searching %s’s flickr photos"
-msgstr "Una font per navegar i cercar fotos del Flickr de %s"
+msgstr "Una font per a navegar i cercar fotos del Flickr de %s"
 
 #: src/freebox/grl-freebox.c:48
 msgid "Freebox TV"
@@ -159,7 +159,7 @@ msgstr "Freebox TV"
 
 #: src/freebox/grl-freebox.c:49
 msgid "A source for browsing Freebox TV channels"
-msgstr "Una font per navegar pels canals de Freebox TV"
+msgstr "Una font per a navegar pels canals de Freebox TV"
 
 #: src/freebox/grl-freebox.c:52
 msgid "Freebox Radio"
@@ -167,7 +167,7 @@ msgstr "Freebox Ràdio"
 
 #: src/freebox/grl-freebox.c:53
 msgid "A source for browsing Freebox radio channels"
-msgstr "Una font per navegar pels canals de Freebox Ràdio"
+msgstr "Una font per a navegar pels canals de Freebox Ràdio"
 
 #: src/gravatar/grl-gravatar.c:46
 msgid "Avatar provider from Gravatar"
@@ -175,11 +175,11 @@ msgstr "Proveïdor d'avatars del Gravatar"
 
 #: src/gravatar/grl-gravatar.c:47
 msgid "A plugin to get avatars for artist and author fields"
-msgstr "Un proveïdor per obtenir avatars pels camps d'artista i d'autor"
+msgstr "Un proveïdor per a obtenir avatars pels camps d'artista i d'autor"
 
 #: src/jamendo/grl-jamendo.c:91
 msgid "A source for browsing and searching Jamendo music"
-msgstr "Una font per navegar i cercar música del Jamendo"
+msgstr "Una font per a navegar i cercar música del Jamendo"
 
 #: src/jamendo/grl-jamendo.c:149
 msgid "Albums of the week"
@@ -276,7 +276,7 @@ msgstr "Gèneres"
 
 #: src/magnatune/grl-magnatune.c:131
 msgid "A source for browsing music"
-msgstr "Una font per navegar per la música"
+msgstr "Una font per a navegar per la música"
 
 #: src/magnatune/grl-magnatune.c:421
 #, c-format
@@ -353,11 +353,11 @@ msgstr "Suport òptic"
 
 #: src/optical-media/grl-optical-media.c:45
 msgid "A source for browsing optical media"
-msgstr "Una font per navegar per suports òptics"
+msgstr "Una font per a navegar per suports òptics"
 
 #: src/podcasts/grl-podcasts.c:148
 msgid "A source for browsing podcasts"
-msgstr "Una font per navegar per podcasts"
+msgstr "Una font per a navegar per podcasts"
 
 #: src/podcasts/grl-podcasts.c:759 src/podcasts/grl-podcasts.c:779
 #, c-format
@@ -408,7 +408,7 @@ msgstr "Recents"
 
 #: src/raitv/grl-raitv.c:93
 msgid "A source for browsing and searching Rai.tv videos"
-msgstr "Una font per navegar i cercar vídeos del Rai.tv"
+msgstr "Una font per a navegar i cercar vídeos del Rai.tv"
 
 #: src/raitv/grl-raitv.c:164
 msgid "All"
@@ -505,7 +505,7 @@ msgstr "No s'ha pogut navegar: %s"
 
 #: src/shoutcast/grl-shoutcast.c:60
 msgid "A source for browsing SHOUTcast radios"
-msgstr "Una font per navegar ràdios del SHOUTcast"
+msgstr "Una font per a navegar ràdios del SHOUTcast"
 
 #: src/shoutcast/grl-shoutcast.c:455
 #, c-format
@@ -518,7 +518,7 @@ msgstr "Hi ha d'haver text de cerca"
 
 #: src/thetvdb/grl-thetvdb.c:93
 msgid "A source for fetching metadata of television shows"
-msgstr "Una font per obtenir metadades de xous televisius"
+msgstr "Una font per a obtenir metadades de xous televisius"
 
 #: src/tmdb/grl-tmdb.c:998
 msgid "Remote data does not contain valid identifier"
@@ -557,15 +557,15 @@ msgstr "Es desconeix l'ID «%s» en aquesta font"
 
 #: src/tracker3/grl-tracker-source-priv.h:47
 msgid "A plugin for searching multimedia content using Tracker3"
-msgstr "Un connector per cercar continguts multimèdia mitjançant el Tracker3"
+msgstr "Un connector per a cercar continguts multimèdia mitjançant el Tracker3"
 
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
-msgstr "Un connector per cercar continguts multimèdia mitjançant el Tracker"
+msgstr "Un connector per a cercar continguts multimèdia mitjançant el Tracker"
 
 #: src/vimeo/grl-vimeo.c:51
 msgid "A source for browsing and searching Vimeo videos"
-msgstr "Una font per navegar i cercar vídeos del Vimeo"
+msgstr "Una font per a navegar i cercar vídeos del Vimeo"
 
 #: src/youtube/grl-youtube.c:55
 msgid "Standard feeds"
@@ -613,7 +613,7 @@ msgstr "Mostra en versió mòbil"
 
 #: src/youtube/grl-youtube.c:110
 msgid "A source for browsing and searching YouTube videos"
-msgstr "Una font per navegar i cercar vídeos del YouTube"
+msgstr "Una font per a navegar i cercar vídeos del YouTube"
 
 #: src/youtube/grl-youtube.c:856
 msgid "Failed to get feed"
@@ -623,30 +623,3 @@ msgstr "No s'ha pogut obtenir el canal"
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "L'identificador de canal %s no és vàlid"
-
-#~ msgid "Removable — %s"
-#~ msgstr "Extraïble - %s"
-
-#~ msgid "Local files"
-#~ msgstr "Fitxers locals"
-
-#~ msgid "Apple Movie Trailers"
-#~ msgstr "Tràilers de pel·lícules d'Apple"
-
-#~ msgid "A plugin for browsing Apple Movie Trailers"
-#~ msgstr "Un connector per navegar pels tràilers de pel·lícules d'Apple"
-
-#~ msgid "A source for browsing and searching Blip.tv videos"
-#~ msgstr "Una font per navegar i cercar vídeos del Blip.tv"
-
-#~ msgid "Album art Provider from Last.FM"
-#~ msgstr "Proveïdor de cobertes d'àlbums del Last.FM"
-
-#~ msgid "A plugin for getting album arts using Last.FM as backend"
-#~ msgstr "Un connector per obtenir cobertes d'àlbums del Last.FM"
-
-#~ msgid "Pocket"
-#~ msgstr "Pocket"
-
-#~ msgid "A source for browsing Pocket videos"
-#~ msgstr "Una font per navegar pels vídeos de Pocket"

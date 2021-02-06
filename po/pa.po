@@ -1,0 +1,619 @@
+# Punjabi translation for grilo-plugins.
+# Copyright (C) 2021 grilo-plugins's COPYRIGHT HOLDER
+# This file is distributed under the same license as the grilo-plugins package.
+#
+# A S Alam <amanpreet.alam@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: grilo-plugins master\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
+"POT-Creation-Date: 2021-02-05 16:56+0000\n"
+"PO-Revision-Date: 2021-02-06 10:22-0800\n"
+"Last-Translator: A S Alam <aalam@satluj.org>\n"
+"Language-Team: Punjabi <punjab-translation@googlegroups.com>\n"
+"Language: pa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Lokalize 20.08.1\n"
+
+#: src/bookmarks/grl-bookmarks.c:60
+msgid "Bookmarks"
+msgstr "ਬੁੱਕਮਾਰਕ"
+
+#: src/bookmarks/grl-bookmarks.c:61
+msgid "A source for organizing media bookmarks"
+msgstr "ਮੀਡੀਆ ਬੁੱਕਮਾਰਕਾਂ ਦੇ ਇੰਤਜ਼ਾਮ ਲਈ ਸਰੋਤ ਹੈ"
+
+#: src/bookmarks/grl-bookmarks.c:427
+msgid "Failed to get bookmark metadata"
+msgstr "ਬੁੱਕਮਾਰਕ ਮੇਟਾਡਾਟਾ ਲੈਣ ਲਈ ਫੇਲ੍ਹ ਹੈ"
+
+#: src/bookmarks/grl-bookmarks.c:457 src/bookmarks/grl-bookmarks.c:474
+#, c-format
+msgid "Failed to find bookmarks: %s"
+msgstr "ਬੁੱਕਮਾਰਕ ਲੱਭਣ ਲਈ ਫੇਲ੍ਹ ਹੈ: %s"
+
+#: src/bookmarks/grl-bookmarks.c:626 src/podcasts/grl-podcasts.c:823
+#: src/podcasts/grl-podcasts.c:855 src/podcasts/grl-podcasts.c:887
+#, c-format
+msgid "Failed to remove: %s"
+msgstr "ਹਟਾਉਣ ਲਈ ਫੇਲ੍ਹ ਹੈ: %s"
+
+#: src/bookmarks/grl-bookmarks.c:768 src/podcasts/grl-podcasts.c:928
+#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1813
+#, c-format
+msgid "Failed to store: %s"
+msgstr "ਸੰਭਾਲਣ ਲਈ ਫੇਲ੍ਹ ਹੈ: %s"
+
+#: src/bookmarks/grl-bookmarks.c:842 src/bookmarks/grl-bookmarks.c:877
+#: src/bookmarks/grl-bookmarks.c:908 src/bookmarks/grl-bookmarks.c:966
+#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1669
+#: src/podcasts/grl-podcasts.c:1713 src/podcasts/grl-podcasts.c:1747
+#: src/podcasts/grl-podcasts.c:1782
+msgid "No database connection"
+msgstr "ਕੋਈ ਡਾਟਾਬੇਸ ਕਨੈਕਸ਼ਨ ਨਹੀਂ ਹੈ"
+
+#: src/chromaprint/grl-chromaprint.c:41
+msgid "A plugin to get metadata using gstreamer framework"
+msgstr "ਜੀਸਟਰੀਮਰ ਫਰੇਮਵਰਕ ਵਰਤਣ ਲਈ ਮੇਟਾਡਾਟਾ ਲੈਣ ਵਾਲੀ ਪਲੱਗਇਨ"
+
+#: src/dleyna/grl-dleyna-source.c:34
+#, c-format
+msgid "A source for browsing the DLNA server “%s”"
+msgstr ""
+
+#: src/dleyna/grl-dleyna-source.c:279
+msgid "Upload failed, target source destroyed"
+msgstr "ਅੱਪਲੋਡ ਫੇਲ੍ਹ ਹੈ, ਟਾਰਗੇਟ ਸਰੋਤ ਖਤਮ ਹੋਇਆ"
+
+#: src/dleyna/grl-dleyna-source.c:382
+#, c-format
+msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
+msgstr ""
+
+#: src/dleyna/grl-dleyna-source.c:933
+#, c-format
+msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
+msgstr ""
+
+#: src/dleyna/grl-dleyna-source.c:1572
+#, c-format
+msgid "Upload failed, URL missing on the media object to be transferred"
+msgstr ""
+
+#: src/dmap/grl-daap.c:51
+#, c-format
+msgid "A source for browsing the DAAP server “%s”"
+msgstr ""
+
+#: src/dmap/grl-daap-db.c:66 src/jamendo/grl-jamendo.c:788
+#: src/magnatune/grl-magnatune.c:122
+msgid "Albums"
+msgstr "ਐਲਬਮਾਂ"
+
+#: src/dmap/grl-daap-db.c:68 src/jamendo/grl-jamendo.c:777
+#: src/magnatune/grl-magnatune.c:121
+msgid "Artists"
+msgstr "ਕਲਾਕਾਰ"
+
+#: src/dmap/grl-daap-db.c:291 src/jamendo/grl-jamendo.c:1115
+#: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
+#, c-format
+msgid "Invalid container identifier %s"
+msgstr ""
+
+#: src/dmap/grl-dpap.c:51
+#, c-format
+msgid "A source for browsing the DPAP server “%s”"
+msgstr ""
+
+#: src/dmap/grl-dpap-db.c:40
+msgid "Photos"
+msgstr "ਫੋਟੋ"
+
+#: src/filesystem/grl-filesystem.c:58
+msgid "Filesystem"
+msgstr "ਫਾਇਲ-ਸਿਸਟਮ"
+
+#: src/filesystem/grl-filesystem.c:59
+msgid "A source for browsing the filesystem"
+msgstr "ਫਾਇਲ-ਸਿਸਟਮ ਦੀ ਝਲਕ ਵੇਖਣ ਲਈ ਸਰੋਤ"
+
+#: src/filesystem/grl-filesystem.c:1171
+#, c-format
+msgid "File %s does not exist"
+msgstr "ਫਾਇਲ %s ਮੌਜੂਦ ਨਹੀਂ ਹੈ"
+
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
+#, c-format
+msgid "Cannot get media from %s"
+msgstr "%s ਤੋਂ ਮੀਡੀਆ ਲਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ ਹੈ"
+
+#: src/flickr/grl-flickr.c:58
+msgid "A source for browsing and searching Flickr photos"
+msgstr ""
+
+#. "%s" is a full user name, like "John Doe"
+#: src/flickr/grl-flickr.c:62
+#, c-format
+msgid "%s’s Flickr"
+msgstr "%s ਦਾ Flickr"
+
+#. "%s" is a full user name, like "John Doe"
+#: src/flickr/grl-flickr.c:64
+#, c-format
+msgid "A source for browsing and searching %s’s flickr photos"
+msgstr ""
+
+#: src/freebox/grl-freebox.c:48
+msgid "Freebox TV"
+msgstr "ਫਰੀਬਾਕਸ ਟੀਵੀ"
+
+#: src/freebox/grl-freebox.c:49
+msgid "A source for browsing Freebox TV channels"
+msgstr ""
+
+#: src/freebox/grl-freebox.c:52
+msgid "Freebox Radio"
+msgstr "ਫਰੀਬਾਕਸ ਰੇਡੀਓ"
+
+#: src/freebox/grl-freebox.c:53
+msgid "A source for browsing Freebox radio channels"
+msgstr ""
+
+#: src/gravatar/grl-gravatar.c:46
+msgid "Avatar provider from Gravatar"
+msgstr "ਗਰਾਵਤਾਰ ਤੋਂ ਅਵਤਾਰ ਪੂਰਕ"
+
+#: src/gravatar/grl-gravatar.c:47
+msgid "A plugin to get avatars for artist and author fields"
+msgstr ""
+
+#: src/jamendo/grl-jamendo.c:91
+msgid "A source for browsing and searching Jamendo music"
+msgstr ""
+
+#: src/jamendo/grl-jamendo.c:149
+msgid "Albums of the week"
+msgstr "ਹਫ਼ਤੇ ਦੀਆਂ ਐਲਬਮਾਂ"
+
+#: src/jamendo/grl-jamendo.c:151
+msgid "Tracks of the week"
+msgstr "ਹਫ਼ਤੇ ਦੇ ਟਰੈਕ"
+
+#: src/jamendo/grl-jamendo.c:153
+msgid "New releases"
+msgstr "ਨਵੇਂ ਰੀਲਿਜ਼"
+
+#: src/jamendo/grl-jamendo.c:155
+msgid "Top artists"
+msgstr "ਸਿਖਰਲੇ ਕਲਾਕਾਰ"
+
+#: src/jamendo/grl-jamendo.c:157
+msgid "Top albums"
+msgstr "ਸਿਖਰਲੀਆਂ ਐਲਬਮਾਂ"
+
+#: src/jamendo/grl-jamendo.c:159
+msgid "Top tracks"
+msgstr "ਸਿਖਰਲੇ ਟਰੈਕ"
+
+#: src/jamendo/grl-jamendo.c:341 src/jamendo/grl-jamendo.c:701
+#: src/shoutcast/grl-shoutcast.c:409 src/shoutcast/grl-shoutcast.c:463
+msgid "Failed to parse response"
+msgstr ""
+
+#: src/jamendo/grl-jamendo.c:349 src/jamendo/grl-jamendo.c:356
+#: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
+msgid "Empty response"
+msgstr "ਖਾਲੀ ਜਵਾਬ"
+
+#: src/jamendo/grl-jamendo.c:670 src/shoutcast/grl-shoutcast.c:551
+#, c-format
+msgid "Failed to connect: %s"
+msgstr "ਕਨੈਕਟ ਕਰਨ ਲਈ ਫੇਲ੍ਹ: %s"
+
+#: src/jamendo/grl-jamendo.c:799
+msgid "Feeds"
+msgstr "ਫੀਡ"
+
+#: src/jamendo/grl-jamendo.c:983 src/jamendo/grl-jamendo.c:1028
+#: src/jamendo/grl-jamendo.c:1055
+#, c-format
+msgid "Invalid identifier %s"
+msgstr ""
+
+#: src/jamendo/grl-jamendo.c:1042 src/youtube/grl-youtube.c:1097
+#: src/youtube/grl-youtube.c:1230 src/youtube/grl-youtube.c:1442
+#, c-format
+msgid "Invalid category identifier %s"
+msgstr ""
+
+#: src/jamendo/grl-jamendo.c:1221
+#, c-format
+msgid "Failed to browse: %s is a track"
+msgstr ""
+
+#: src/jamendo/grl-jamendo.c:1280
+#, c-format
+msgid "Malformed query “%s”"
+msgstr ""
+
+#: src/local-metadata/grl-local-metadata.c:42
+msgid "Local Metadata Provider"
+msgstr ""
+
+#: src/local-metadata/grl-local-metadata.c:43
+msgid "A source providing locally available metadata"
+msgstr ""
+
+#: src/local-metadata/grl-local-metadata.c:381
+#: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker3/grl-tracker-source-api.c:381
+#: src/tracker/grl-tracker-source-api.c:530
+#, c-format
+msgid "Failed to resolve: %s"
+msgstr ""
+
+#: src/local-metadata/grl-local-metadata.c:673
+msgid "Cannot resolve any of the given keys"
+msgstr ""
+
+#: src/local-metadata/grl-local-metadata.c:677
+msgid "A GIO supported URL for images is required"
+msgstr ""
+
+#: src/magnatune/grl-magnatune.c:123
+msgid "Genres"
+msgstr "ਸ਼ੈਲੀਆਂ"
+
+#: src/magnatune/grl-magnatune.c:131
+msgid "A source for browsing music"
+msgstr ""
+
+#: src/magnatune/grl-magnatune.c:421
+#, c-format
+msgid "Failed to get database from magnatune: %s"
+msgstr ""
+
+#: src/magnatune/grl-magnatune.c:451
+#, c-format
+msgid "Failed to save database from magnatune: “%s”"
+msgstr ""
+
+#: src/magnatune/grl-magnatune.c:722
+#, c-format
+msgid "Failed to get table from magnatune db: %s"
+msgstr ""
+
+#: src/magnatune/grl-magnatune.c:738
+#, c-format
+msgid "Fail before returning media to user: %s"
+msgstr ""
+
+#: src/metadata-store/grl-metadata-store.c:40
+msgid "Metadata Store"
+msgstr "ਮੇਟਾਡਾਟਾ ਸਟੋਰ"
+
+#: src/metadata-store/grl-metadata-store.c:41
+msgid "A plugin for storing extra metadata information"
+msgstr ""
+
+#: src/metadata-store/grl-metadata-store.c:598
+#: src/metadata-store/grl-metadata-store.c:617
+#: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker3/grl-tracker-source-api.c:471
+#: src/tracker/grl-tracker-source-api.c:640
+#, c-format
+msgid "Failed to update metadata: %s"
+msgstr ""
+
+#: src/metadata-store/grl-metadata-store.c:599
+msgid "specified keys are not writable"
+msgstr ""
+
+#: src/metadata-store/grl-metadata-store.c:639
+msgid "Failed to update metadata"
+msgstr ""
+
+#: src/metadata-store/grl-metadata-store.c:785
+#: src/metadata-store/grl-metadata-store.c:830
+msgid "“source-id” not available"
+msgstr ""
+
+#: src/metadata-store/grl-metadata-store.c:805
+msgid "Failed to resolve"
+msgstr ""
+
+#: src/metadata-store/grl-metadata-store.c:942
+#: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
+#: src/shoutcast/grl-shoutcast.c:749 src/vimeo/grl-vimeo.c:540
+#, c-format
+msgid "Failed to search: %s"
+msgstr ""
+
+#: src/opensubtitles/grl-opensubtitles.c:40
+msgid "OpenSubtitles Provider"
+msgstr ""
+
+#: src/opensubtitles/grl-opensubtitles.c:41
+msgid "A source providing a list of subtitles for a video"
+msgstr ""
+
+#: src/optical-media/grl-optical-media.c:44
+msgid "Optical Media"
+msgstr ""
+
+#: src/optical-media/grl-optical-media.c:45
+msgid "A source for browsing optical media"
+msgstr ""
+
+#: src/podcasts/grl-podcasts.c:148
+msgid "A source for browsing podcasts"
+msgstr ""
+
+#: src/podcasts/grl-podcasts.c:759 src/podcasts/grl-podcasts.c:779
+#, c-format
+msgid "Failed to get podcast streams: %s"
+msgstr ""
+
+#: src/podcasts/grl-podcasts.c:1245 src/podcasts/grl-podcasts.c:1254
+#: src/podcasts/grl-podcasts.c:1264
+msgid "Failed to parse content"
+msgstr ""
+
+#: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
+msgid "Failed to parse podcast contents"
+msgstr ""
+
+#: src/podcasts/grl-podcasts.c:1459
+msgid "Failed to get podcast information"
+msgstr ""
+
+#: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
+#, c-format
+msgid "Failed to get podcasts list: %s"
+msgstr ""
+
+#: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
+msgid "Failed to get podcast stream metadata"
+msgstr ""
+
+#: src/podcasts/grl-podcasts.c:1625
+msgid "Failed to get podcast metadata"
+msgstr ""
+
+#: src/podcasts/grl-podcasts.c:1809
+msgid "Cannot create containers. Only feeds are accepted"
+msgstr ""
+
+#: src/podcasts/grl-podcasts.c:1814
+msgid "URL required"
+msgstr ""
+
+#: src/raitv/grl-raitv.c:49 src/youtube/grl-youtube.c:73
+msgid "Most Popular"
+msgstr ""
+
+#: src/raitv/grl-raitv.c:52
+msgid "Recent"
+msgstr "ਤਾਜ਼ਾ"
+
+#: src/raitv/grl-raitv.c:93
+msgid "A source for browsing and searching Rai.tv videos"
+msgstr ""
+
+#: src/raitv/grl-raitv.c:164
+msgid "All"
+msgstr "ਸਭ"
+
+#: src/raitv/grl-raitv.c:165
+msgid "Black and White"
+msgstr "ਕਾਲਾ ਅਤੇ ਚਿੱਟਾ"
+
+#: src/raitv/grl-raitv.c:166
+msgid "Cinema"
+msgstr "ਸਿਨੇਮਾ"
+
+#: src/raitv/grl-raitv.c:167
+msgid "Comedians"
+msgstr "ਮਖੌਲੀਏ"
+
+#: src/raitv/grl-raitv.c:168
+msgid "Chronicle"
+msgstr ""
+
+#: src/raitv/grl-raitv.c:169
+msgid "Culture"
+msgstr "ਸਭਿਆਚਾਰ"
+
+#: src/raitv/grl-raitv.c:170
+msgid "Economy"
+msgstr "ਅਰਥਚਾਰਾ"
+
+#: src/raitv/grl-raitv.c:171
+msgid "Fiction"
+msgstr ""
+
+#: src/raitv/grl-raitv.c:172
+msgid "Junior"
+msgstr "ਜੂਨੀਅਰ"
+
+#: src/raitv/grl-raitv.c:173
+msgid "Investigations"
+msgstr "ਪੜਤਾਲਾਂ"
+
+#: src/raitv/grl-raitv.c:174
+msgid "Interviews"
+msgstr "ਇੰਟਰਵਿਊਆਂ"
+
+#: src/raitv/grl-raitv.c:175
+msgid "Music"
+msgstr "ਸੰਗੀਤ"
+
+#: src/raitv/grl-raitv.c:176
+msgid "News"
+msgstr "ਖ਼ਬਰਾਂ"
+
+#: src/raitv/grl-raitv.c:177
+msgid "Health"
+msgstr "ਸੇਹਤ"
+
+#: src/raitv/grl-raitv.c:178
+msgid "Satire"
+msgstr ""
+
+#: src/raitv/grl-raitv.c:180
+msgid "Society"
+msgstr "ਸਮਾਜ"
+
+#: src/raitv/grl-raitv.c:181
+msgid "Show"
+msgstr "ਸ਼ੋਅ"
+
+#: src/raitv/grl-raitv.c:182
+msgid "Sport"
+msgstr "ਖੇਡਾਂ"
+
+#: src/raitv/grl-raitv.c:183
+msgid "History"
+msgstr "ਇਤਿਹਾਸ"
+
+#: src/raitv/grl-raitv.c:184
+msgid "Politics"
+msgstr "ਰਾਜਨੀਤੀ"
+
+#: src/raitv/grl-raitv.c:185
+msgid "Leisure"
+msgstr ""
+
+#: src/raitv/grl-raitv.c:186
+msgid "Travel"
+msgstr "ਸੈਰ ਸਪਾਟਾ"
+
+#: src/raitv/grl-raitv.c:616
+#, c-format
+msgid "Failed to browse: %s"
+msgstr ""
+
+#: src/shoutcast/grl-shoutcast.c:60
+msgid "A source for browsing SHOUTcast radios"
+msgstr ""
+
+#: src/shoutcast/grl-shoutcast.c:455
+#, c-format
+msgid "Cannot find media %s"
+msgstr ""
+
+#: src/shoutcast/grl-shoutcast.c:750 src/vimeo/grl-vimeo.c:541
+msgid "non-NULL search text is required"
+msgstr ""
+
+#: src/thetvdb/grl-thetvdb.c:93
+msgid "A source for fetching metadata of television shows"
+msgstr ""
+
+#: src/tmdb/grl-tmdb.c:998
+msgid "Remote data does not contain valid identifier"
+msgstr ""
+
+#. I can haz templatze ??
+#. Schedule the next row to parse
+#. I can haz templatze ??
+#. Only emit this last one if more result than expected
+#. Schedule the next line to parse
+#: src/tracker3/grl-tracker-source-api.c:243
+#: src/tracker3/grl-tracker-source-api.c:319
+#: src/tracker/grl-tracker-source-api.c:401
+#: src/tracker/grl-tracker-source-api.c:484
+#, c-format
+msgid "Failed to query: %s"
+msgstr ""
+
+#: src/tracker3/grl-tracker-source-api.c:418
+#: src/tracker/grl-tracker-source-api.c:585
+#, c-format
+msgid "Failed to get media from uri: %s"
+msgstr ""
+
+#: src/tracker3/grl-tracker-source-api.c:604
+#: src/tracker/grl-tracker-source-api.c:816
+msgid "Empty query"
+msgstr ""
+
+#: src/tracker3/grl-tracker-source-api.c:825
+#: src/tracker3/grl-tracker-source-api.c:921
+#: src/tracker/grl-tracker-source-api.c:1087
+#, c-format
+msgid "ID “%s” is not known in this source"
+msgstr ""
+
+#: src/tracker3/grl-tracker-source-priv.h:47
+msgid "A plugin for searching multimedia content using Tracker3"
+msgstr ""
+
+#: src/tracker/grl-tracker-source-priv.h:44
+msgid "A plugin for searching multimedia content using Tracker"
+msgstr ""
+
+#: src/vimeo/grl-vimeo.c:51
+msgid "A source for browsing and searching Vimeo videos"
+msgstr ""
+
+#: src/youtube/grl-youtube.c:55
+msgid "Standard feeds"
+msgstr ""
+
+#: src/youtube/grl-youtube.c:58
+msgid "Categories"
+msgstr "ਕੈਟਾਗਰੀਆਂ"
+
+#: src/youtube/grl-youtube.c:64
+msgid "Top Rated"
+msgstr "ਸਿਰਖਲਾ ਦਰਜਾ"
+
+#: src/youtube/grl-youtube.c:67
+msgid "Top Favorites"
+msgstr "ਸਿਖਰਲੇ ਪਸੰਦੀਦਾ"
+
+#: src/youtube/grl-youtube.c:70
+msgid "Most Viewed"
+msgstr "ਸਭ ਤੋਂ ਵੱਧ ਵੇਖੇ"
+
+#: src/youtube/grl-youtube.c:76
+msgid "Most Recent"
+msgstr "ਸਭ ਤੋਂ ਤਾਜ਼ਾ"
+
+#: src/youtube/grl-youtube.c:79
+msgid "Most Discussed"
+msgstr "ਸਭ ਤੋਂ ਵੱਧ ਵਿਚਾਰੇ"
+
+#: src/youtube/grl-youtube.c:82
+msgid "Most Linked"
+msgstr "ਸਭ ਤੋਂ ਵੱਧ ਲਿੰਕ ਕੀਤੇ"
+
+#: src/youtube/grl-youtube.c:85
+msgid "Most Responded"
+msgstr ""
+
+#: src/youtube/grl-youtube.c:88
+msgid "Recently Featured"
+msgstr ""
+
+#: src/youtube/grl-youtube.c:91
+msgid "Watch On Mobile"
+msgstr "ਮੋਬਾਈਲ ਉੱਤੇ ਵੇਖੋ"
+
+#: src/youtube/grl-youtube.c:110
+msgid "A source for browsing and searching YouTube videos"
+msgstr ""
+
+#: src/youtube/grl-youtube.c:856
+msgid "Failed to get feed"
+msgstr ""
+
+#: src/youtube/grl-youtube.c:1033 src/youtube/grl-youtube.c:1421
+#, c-format
+msgid "Invalid feed identifier %s"
+msgstr ""

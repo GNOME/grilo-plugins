@@ -117,7 +117,6 @@ plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['flickr', [grilo_net_dep, libxml_dep, oauth_dep], [goa_dep]],
     ['freebox', [grilo_pls_dep, avahi_client_dep, avahi_glib_dep, avahi_gobject_dep], []],
     ['gravatar', [], []],
-    ['jamendo', [grilo_net_dep, libxml_dep], []],
     ['local-metadata', [gio_dep, libmediaart_dep], []],
     ['lua-factory', [lua_dep, libarchive_dep, grilo_net_dep, json_glib_dep, libxml_dep], [goa_dep, totem_plparser_mini_dep]],
     ['magnatune', [sqlite3_dep, grilo_net_dep], []],

@@ -11,7 +11,6 @@ test_plugins = [
     'lua-factory',
     'thetvdb',
     'tmdb',
-    'vimeo',
 ]
 
 test_lua_sources = [

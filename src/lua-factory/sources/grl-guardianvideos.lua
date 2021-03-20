@@ -22,7 +22,6 @@
 
 -- Test the API at:
 -- http://explorer.content.guardianapis.com/search?api-key=rppwmmu3mfqj6gkbs8kcjg23&show-fields=all&page-size=50&tag=type/video
-API_KEY                          = 'rppwmmu3mfqj6gkbs8kcjg23'
 GUARDIANVIDEOS_URL               = 'http://content.guardianapis.com/search?tag=type/video&page=%d&page-size=%d&show-fields=all&api-key=%s'
 
 ---------------------------
@@ -35,6 +34,9 @@ source = {
   description = "A source for browsing videos from the Guardian",
   supported_keys = { "id", "thumbnail", "title", "url" },
   supported_media = 'video',
+  config_keys = {
+    required = { "api-key" },
+  },
   auto_split_threshold = 50,
   icon = 'resource:///org/gnome/grilo/plugins/guardianvideos/guardianvideos.svg',
   tags = { 'news', 'net:internet', 'net:plaintext' }
@@ -43,6 +45,12 @@ source = {
 ------------------
 -- Source utils --
 ------------------
+self = {}
+
+function grl_source_init (configs)
+  self.api_key = configs.api_key
+  return true
+end
 
 function grl_source_browse(media_id)
   local count = grl.get_options("count")
@@ -51,15 +59,15 @@ function grl_source_browse(media_id)
 
   local page = skip / count + 1
   if page > math.floor(page) then
-    local url = string.format(GUARDIANVIDEOS_URL, math.floor(page), count, API_KEY)
+    local url = string.format(GUARDIANVIDEOS_URL, math.floor(page), count, self.api_key)
     grl.debug ("Fetching URL #1: " .. url .. " (count: " .. count .. " skip: " .. skip .. ")")
     table.insert(urls, url)
 
-    url = string.format(GUARDIANVIDEOS_URL, math.floor(page) + 1, count, API_KEY)
+    url = string.format(GUARDIANVIDEOS_URL, math.floor(page) + 1, count, self.api_key)
     grl.debug ("Fetching URL #2: " .. url .. " (count: " .. count .. " skip: " .. skip .. ")")
     table.insert(urls, url)
   else
-    local url = string.format(GUARDIANVIDEOS_URL, page, count, API_KEY)
+    local url = string.format(GUARDIANVIDEOS_URL, page, count, self.api_key)
     grl.debug ("Fetching URL: " .. url .. " (count: " .. count .. " skip: " .. skip .. ")")
     table.insert(urls, url)
   end

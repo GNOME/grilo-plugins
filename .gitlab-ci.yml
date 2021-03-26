@@ -37,17 +37,15 @@ variables:
     gstreamer1-plugins-bad-free-extras
     python3-gobject-base
     dbus-daemon
-
-  TRACKER3_DEPENDENCIES:
-    tracker3-miners
-    tracker3-devel
+    tracker-miners
+    tracker-devel
     upower
 
 build_stable:
   before_script:
     - dnf update -y --nogpgcheck
   script:
-    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES $TRACKER3_DEPENDENCIES
+    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES
     # As part of configuring grilo-plugins.git for build, the latest code from
     # grilo.git will be fetched by Meson and it will be built as a subproject.
     - meson . _build --prefix=/usr
@@ -88,16 +86,3 @@ build_stable:
     when: on_failure
     paths:
       - _build/meson-logs
-
-build_tracker2:
-  before_script:
-    - dnf update -y --nogpgcheck
-  script:
-    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES tracker-devel
-    # As part of configuring grilo-plugins.git for build, the latest code from
-    # grilo.git will be fetched by Meson and it will be built as a subproject.
-    - meson . _build --prefix=/usr
-      -Denable-tracker=yes
-    - ninja -C _build
-    - ninja -C _build install
-    - meson test -C _build --suite=grilo-plugins

@@ -5,6 +5,8 @@
 #
 # Copyright (C) 2016 Igalia S.L. All rights reserved.
 
+warning('Tracker 2 is deprecated and will be removed in the next release')
+
 tracker_sources = [
     'grl-tracker-request-queue.c',
     'grl-tracker-request-queue.h',

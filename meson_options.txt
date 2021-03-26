@@ -19,7 +19,7 @@ option('enable-raitv', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: '
 option('enable-shoutcast', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Shoutcast plugin')
 option('enable-thetvdb', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Thetvdb plugin')
 option('enable-tmdb', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable TMDb plugin')
-option('enable-tracker', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Tracker plugin')
+option('enable-tracker', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Tracker plugin (DEPRECATED)')
 option('enable-tracker3', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Tracker3 plugin')
 option('enable-vimeo', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Vimeo plugin')
 option('enable-youtube', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable YouTube plugin')

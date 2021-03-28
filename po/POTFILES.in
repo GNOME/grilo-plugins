@@ -9,7 +9,6 @@ src/filesystem/grl-filesystem.c
 src/flickr/grl-flickr.c
 src/freebox/grl-freebox.c
 src/gravatar/grl-gravatar.c
-src/jamendo/grl-jamendo.c
 src/local-metadata/grl-local-metadata.c
 src/magnatune/grl-magnatune.c
 src/metadata-store/grl-metadata-store.c
@@ -28,5 +27,4 @@ src/tracker/grl-tracker.c
 src/tracker/grl-tracker-source-api.c
 src/tracker/grl-tracker-source-priv.h
 src/tracker/grl-tracker-utils.c
-src/vimeo/grl-vimeo.c
 src/youtube/grl-youtube.c

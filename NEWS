@@ -1,3 +1,62 @@
+NEW in grilo-plugins-0.3.13
+===========================
+  * #67 Remove Vimeo plugin
+  * !104 Remove Jamendo plugin
+  * !105 Deprecate: tracker version 2
+  * !103 guardianvideos: Use api-key from GrlConfig
+  * !100 thegamesdb: Update the Dreamcast MIME type
+  * !101 tracker3: Handle delete events better
+  * !96 tracker3: Fix setting of publication-date metadata-key
+  * #13 Add option to disable bulding help
+  * !69 Allow building grilo-plugins as a Meson subproject
+
+  * Updated translations
+    * Galician
+    * Punjabi
+    * Norwegian Bokmål
+    * Friulian
+    * Catalan
+    * Chinese (Taiwan)
+    * Friulian
+    * French
+    * Latvian
+    * Catalan
+    * Italian
+    * Portuguese
+    * Korean
+    * D Danish
+    * Hungarian
+    * Slovak
+    * Serbian
+    * Catalan
+    * German
+
+  * Contributors to this release
+    A S Alam <amanpreet.alam@gmail.com>
+    Adrien Plazas <kekun.plazas@laposte.net>
+    Alan Mortensen <alanmortensen.am@gmail.com>
+    Balázs Úr <balazs@urbalazs.hu>
+    Bastien Nocera <hadess@hadess.net>
+    Carlos Garnacho <carlosg@gnome.org>
+    Cheng-Chia Tseng <pswo10680@gmail.com>
+    Dušan Kazik <prescott66@gmail.com>
+    Fabio Tomat <f.t.public@gmail.com>
+    Fran Dieguez <frandieguez@gnome.org>
+    Jordi Mas <jmas@softcatala.org>
+    Jordi Mas i Hernandez <jmas@softcatala.org>
+    Juliano Camargo <julianosc@protonmail.com>
+    Julien Humbert <julroy67@gmail.com>
+    Kjartan Maraas <kmaraas@gnome.org>
+    Marinus Schraal <mschraal@gnome.org>
+    Mario Blättermann <mario.blaettermann@gmail.com>
+    Milo Casagrande <milo@milo.name>
+    Piotr Drąg <piotrdrag@gmail.com>
+    Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>
+    Sam Thursfield <sam@afuera.me.uk>
+    Seong-ho Cho <shcho@gnome.org>
+    Victor Toso <victortoso@redhat.com>
+    Марко Костић <marko.m.kostic@gmail.com>
+
 NEW in 0.3.12
 =============
   * Increase gom requirement to 0.4 or greater

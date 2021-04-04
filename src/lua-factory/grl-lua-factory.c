@@ -1255,8 +1255,6 @@ table_to_tags (lua_State *L)
     lua_pop (L, 1);
   }
 
-  lua_pop (L, 1);
-
   if (array->len == 0) {
     g_ptr_array_free (array, TRUE);
     return NULL;

@@ -561,51 +561,15 @@ grl_tracker_source_writable_keys (GrlSource *source)
  * Columns must be named with the Grilo key name that the column
  * represent. Unnamed or unknown columns will be ignored.
  *
- * First column must be the media type, and it does not need to be named.  It
- * must match with any value supported in rdf:type() property, or
- * grilo#Container. Types understood are:
- *
- * <itemizedlist>
- *   <listitem>
- *     <para>
- *       <literal>nmm#MusicPiece</literal>
- *     </para>
- *   </listitem>
- *   <listitem>
- *     <para>
- *       <literal>nmm#Video</literal>
- *     </para>
- *   </listitem>
- *   <listitem>
- *     <para>
- *       <literal>nmm#Photo</literal>
- *     </para>
- *   </listitem>
- *   <listitem>
- *     <para>
- *       <literal>nmm#Artist</literal>
- *     </para>
- *   </listitem>
- *   <listitem>
- *     <para>
- *       <literal>nmm#MusicAlbum</literal>
- *     </para>
- *   </listitem>
- *   <listitem>
- *     <para>
- *       <literal>grilo#Container</literal>
- *     </para>
- *   </listitem>
- * </itemizedlist>
- *
+ * First column must be grilo media enum value, and it does not need to be named.
  * An example for searching all songs:
  *
  * <informalexample>
  *   <programlisting>
- *     SELECT rdf:type(?song)
+ *     SELECT 1
  *            ?song            AS ?id
  *            nie:title(?song) AS ?title
- *            nie:url(?song)   AS ?url
+ *            nie:isStoredAs(?song) AS ?url
  *     WHERE { ?song a nmm:MusicPiece }
  *   </programlisting>
  * </informalexample>

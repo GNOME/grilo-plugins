@@ -82,9 +82,26 @@ function euronews_initial_fetch_cb(results, lang)
   local json = {}
   json = grl.lua.json.string_to_table(results)
 
-  if not json or not json.url then
+  -- pfp: youtube, uses videoId for url
+  -- jw: will provide an url to request video
+  if not json or
+    (json.player ~= "pfp" and json.player ~= "jw") or
+    (json.player == "pfp" and not json.videoId) or
+    (json.player == "jw" and not json.url) then
     local api_url = get_api_url(lang)
     grl.warning ("Initial fetch failed for: " .. api_url)
+    callback_done()
+    return
+  end
+
+  if json.player == "pfp" then
+    item = {}
+    item.primary = string.format("https://www.youtube.com/watch?v=%s", json.videoId)
+    local media = create_media(lang, item)
+    if media ~= nil then
+      grl.callback(media, -1)
+    end
+
     callback_done()
     return
   end

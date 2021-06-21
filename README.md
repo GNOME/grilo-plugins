@@ -31,4 +31,9 @@ $ ninja -C build
 $ sudo ninja -C build install
 ```
 
+## License
+
+grilo-plugins is available under the [GNU Lesser General Public License v2.1 or later](https://spdx.org/licenses/LGPL-2.1-or-later.html).
+Check the sources themselves for individual copyrights and licenses.
+
 Enjoy!

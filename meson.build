@@ -12,7 +12,7 @@ project('grilo-plugins', 'c',
             'c_std=gnu99',
             'warning_level=1'
         ],
-        license: 'LGPL 2.1',
+        license: 'LGPL-2.1-or-later',
         meson_version: '>= 0.47.0')
 
 plugin_version = meson.project_version()

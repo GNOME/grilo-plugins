@@ -1,3 +1,11 @@
+/*
+ * SPDX-FileCopyrightText: 2011-2013 Juan A. Suarez Romero <jasuarez@igalia.com>
+ * SPDX-FileCopyrightText: 2013 Marek Chalupa <mchalupa@redhat.com>
+ * SPDX-FileCopyrightText: 2016 Rafael Fonseca <r4f4rfs@gmail.com>
+ *
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ */
+
 #include "gflickr.h"
 #include "flickr-oauth.h"
 #include "grl-flickr.h"       /* log domain */

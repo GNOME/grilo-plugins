@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2021 Marek Chalupa <mchalupa@redhat.com>
+ *
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ */
+
 #include "flickr-oauth.h"
 
 #include <glib.h>

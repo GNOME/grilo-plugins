@@ -663,10 +663,13 @@ grl_tracker_build_resource_from_media (GrlMedia *media, GList *keys)
     } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST)) {
       TrackerResource *artist;
       const gchar *artist_name;
-      gint i;
+      gint i = 0;
 
-      for (i = 0; artist_name != NULL; i++) {
+      while (TRUE) {
         artist_name = grl_media_get_artist_nth (media, i);
+        if (!artist_name)
+          break;
+
         artist = ensure_resource_for_property (resource, "nmm:artist", TRUE);
         tracker_resource_set_string (artist, "nmm:artistName", artist_name);
 
@@ -681,26 +684,35 @@ grl_tracker_build_resource_from_media (GrlMedia *media, GList *keys)
                                                  mb_artist_id);
           }
         }
+        i++;
       }
     } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_AUTHOR)) {
       TrackerResource *artist;
       const gchar *artist_name;
-      gint i;
+      gint i = 0;
 
-      for (i = 0; artist_name != NULL; i++) {
+      while (TRUE) {
         artist_name = grl_media_get_artist_nth (media, i);
+        if (!artist_name)
+          break;
+
         artist = ensure_resource_for_property (resource, "nmm:artist", TRUE);
         tracker_resource_set_string (artist, "nmm:artistName", artist_name);
+        i++;
       }
     } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_COMPOSER)) {
       TrackerResource *composer;
       const gchar *composer_name;
-      gint i;
+      gint i = 0;
 
-      for (i = 0; composer_name != NULL; i++) {
+      while (TRUE) {
         composer_name = grl_media_get_composer_nth (media, i);
+        if (!composer_name)
+          break;
+
         composer = ensure_resource_for_property (resource, "nmm:composer", TRUE);
         tracker_resource_set_string (composer, "nmm:artistName", composer_name);
+        i++;
       }
     }
   }

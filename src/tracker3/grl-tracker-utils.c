@@ -617,7 +617,7 @@ grl_tracker_build_resource_from_media (GrlMedia *media, GList *keys)
 
         mb_release_group_id = grl_media_get_mb_release_group_id (media);
         if (mb_release_group_id) {
-          ensure_resource_for_musicbrainz_tag (resource,
+          ensure_resource_for_musicbrainz_tag (album,
                                                "https://musicbrainz.org/doc/Release_Group",
                                                mb_release_group_id);
         }

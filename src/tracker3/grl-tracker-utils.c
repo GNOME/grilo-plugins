@@ -661,7 +661,7 @@ grl_tracker_build_resource_from_media (GrlMedia *media, GList *keys)
       tracker_resource_set_string (hash, "nfo:hashValue",
                                    grl_data_get_string (GRL_DATA (media), grl_metadata_key_chromaprint));
     } else if (l->data == GRLKEYID_TO_POINTER (GRL_METADATA_KEY_ARTIST)) {
-      TrackerResource *artist;
+      TrackerResource *artist = NULL;
       const gchar *artist_name;
       gint i = 0;
 
@@ -679,7 +679,7 @@ grl_tracker_build_resource_from_media (GrlMedia *media, GList *keys)
 
           mb_artist_id = grl_media_get_mb_artist_id_nth (media, i);
           if (mb_artist_id) {
-            ensure_resource_for_musicbrainz_tag (resource,
+            ensure_resource_for_musicbrainz_tag (artist,
                                                  "https://musicbrainz.org/doc/Artist",
                                                  mb_artist_id);
           }

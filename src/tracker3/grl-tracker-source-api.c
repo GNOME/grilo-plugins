@@ -340,25 +340,20 @@ TRACKER_QUERY_CB(GrlSourceBrowseSpec, browse, BROWSE)
 TRACKER_QUERY_CB(GrlSourceSearchSpec, search, SEARCH)
 
 static void
-tracker_resolve_cb (GObject      *source_object,
-                    GAsyncResult *result,
-                    GrlTrackerOp *os)
+tracker_resolve_result_cb (GObject      *source_object,
+                           GAsyncResult *result,
+                           GrlTrackerOp *os)
 {
-  TrackerSparqlStatement *statement = TRACKER_SPARQL_STATEMENT (source_object);
-  GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) os->data;
+  TrackerSparqlCursor  *cursor = TRACKER_SPARQL_CURSOR (source_object);
   gint                  col;
   GError               *tracker_error = NULL, *error = NULL;
-  TrackerSparqlCursor  *cursor;
+  GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) os->data;
 
   GRL_ODEBUG ("%s", __FUNCTION__);
 
-  cursor = tracker_sparql_statement_execute_finish (statement,
-                                                    result, &tracker_error);
+  if (tracker_sparql_cursor_next_finish (cursor, result, &tracker_error)) {
+    GRL_ODEBUG ("\tend of parsing id=%u :)", rs->operation_id);
 
-  if (!cursor)
-    goto end_operation;
-
-  if (tracker_sparql_cursor_next (cursor, NULL, &tracker_error)) {
     /* Translate Sparql result into Grilo result */
     for (col = 0 ; col < tracker_sparql_cursor_get_n_columns (cursor) ; col++) {
       fill_grilo_media_from_sparql (GRL_TRACKER_SOURCE (rs->source),
@@ -371,10 +366,9 @@ tracker_resolve_cb (GObject      *source_object,
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
   }
 
- end_operation:
   if (tracker_error) {
-    GRL_WARNING ("Could not execute sparql resolve query : %s",
-                 tracker_error->message);
+    GRL_WARNING ("\terror in parsing resolve id=%u : %s",
+                 rs->operation_id, tracker_error->message);
 
     error = g_error_new (GRL_CORE_ERROR,
                          GRL_CORE_ERROR_RESOLVE_FAILED,
@@ -383,13 +377,56 @@ tracker_resolve_cb (GObject      *source_object,
 
     rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
 
-    g_error_free (tracker_error);
+    g_clear_error (&tracker_error);
     g_error_free (error);
   }
 
   g_clear_object (&cursor);
-
   grl_tracker_op_free (os);
+}
+
+static void
+tracker_resolve_cb (GObject      *source_object,
+                    GAsyncResult *result,
+                    GrlTrackerOp *os)
+{
+  TrackerSparqlStatement *statement = TRACKER_SPARQL_STATEMENT (source_object);
+  GrlSourceResolveSpec *rs = (GrlSourceResolveSpec *) os->data;
+  GError               *tracker_error = NULL, *error = NULL;
+  TrackerSparqlCursor  *cursor;
+
+  GRL_ODEBUG ("%s", __FUNCTION__);
+
+  cursor = tracker_sparql_statement_execute_finish (statement,
+                                                    result, &tracker_error);
+
+  if (!cursor) {
+    if (tracker_error) {
+      GRL_WARNING ("Could not execute sparql resolve query : %s",
+                   tracker_error->message);
+
+      error = g_error_new (GRL_CORE_ERROR,
+                           GRL_CORE_ERROR_RESOLVE_FAILED,
+                           _("Failed to resolve: %s"),
+                           tracker_error->message);
+
+      rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, error);
+
+      g_clear_error (&tracker_error);
+      g_error_free (error);
+    } else {
+      rs->callback (rs->source, rs->operation_id, rs->media, rs->user_data, NULL);
+    }
+
+    g_clear_object (&cursor);
+    grl_tracker_op_free (os);
+
+    return;
+  }
+
+  tracker_sparql_cursor_next_async (cursor, NULL,
+                                    (GAsyncReadyCallback) tracker_resolve_result_cb,
+                                    (gpointer) os);
 }
 
 static void

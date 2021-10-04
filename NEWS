@@ -1,3 +1,33 @@
+NEW in grilo-plugins-0.3.14
+===========================
+  * !108 Fix lua-factory crash on >= 5.4.3
+  * !104 Clarify LGPLv2.1 or later license 
+  * !117 tracker3: Make resolve async 
+  * !113 euronews: Use YouTube feeds
+
+  * New translations
+    * Basque
+    * Belarusian
+
+  * Updated translations
+    * Brazilian Portuguese
+    * English (GB)
+    * Russian
+
+  * Contributors to this release
+     Alexey Rubtsov <rushills@gmail.com>
+     Asier Sarasua Garmendia <asiersarasua@ni.eus>
+     Bastien Nocera <hadess@hadess.net>
+     Bruce Cowan <bruce@bcowan.me.uk>
+     Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+     Jean Felder <jfelder@src.gnome.org>
+     Marinus Schraal <mschraal@gnome.org>
+     Mart Raudsepp <leio@gentoo.org>
+     Matt Turner <mattst88@gmail.com>
+     Rafael Fontenelle <rafaelff@gnome.org>
+     Victor Toso <victortoso@gnome.org>
+     Źmicier Turok <nashtlumach@gmail.com>
+
 NEW in grilo-plugins-0.3.13
 ===========================
   * #67 Remove Vimeo plugin

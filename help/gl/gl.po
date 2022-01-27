@@ -1,0 +1,825 @@
+# Galician translation for grilo-plugins.
+# Copyright (C) 2022 grilo-plugins's COPYRIGHT HOLDER
+# This file is distributed under the same license as the grilo-plugins package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Fran Dieguez <fran.dieguez@gnome.org>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: grilo-plugins master\n"
+"POT-Creation-Date: 2022-01-26 17:19+0000\n"
+"PO-Revision-Date: 2022-01-27 01:04+0100\n"
+"Last-Translator: Fran Dieguez <fran.dieguez@gnome.org>\n"
+"Language-Team: Galician <proxecto@trasno.gal>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: gl\n"
+"X-DL-Team: gl\n"
+"X-DL-Module: grilo-plugins\n"
+"X-DL-Branch: master\n"
+"X-DL-Domain: help\n"
+"X-DL-State: Translating\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Generator: Gtranslator 40.0\n"
+
+#. Put one translator per line, in the form NAME <EMAIL>, YEAR1, YEAR2
+msgctxt "_"
+msgid "translator-credits"
+msgstr "Fran Dieguez <fran.dieguez@gnome.org>, 2022."
+
+#. (itstool) path: bookinfo/title
+#. (itstool) path: chapter/title
+#: C/grilo-plugins.xml:19 C/grilo-plugins.xml:60
+msgid "Grilo Plugins"
+msgstr "Engadidos de Grilo"
+
+#. (itstool) path: authorgroup/author
+#: C/grilo-plugins.xml:22
+msgid "<firstname>Murray</firstname> <surname>Cumming</surname>"
+msgstr "<firstname>Murray</firstname> <surname>Cumming</surname>"
+
+#. (itstool) path: abstract/para
+#. (itstool) path: chapter/para
+#: C/grilo-plugins.xml:31 C/grilo-plugins.xml:55
+msgid ""
+"Grilo is a framework for browsing and searching media content from various "
+"sources using a single API. The Grilo Plugins plugins for the Grilo "
+"framework to provide access to various sources of media and metadata."
+msgstr ""
+"Grilo é un marco de traballo para navegar e buscar contido multimdia desde "
+"varios orixes usando unha API única. Os engadidos de Grilo para o marco de "
+"traballo Grilo fornecen aceso a varios orixes multimedia e metadatos."
+
+#. (itstool) path: bookinfo/copyright
+#: C/grilo-plugins.xml:35
+msgid "<year>2012</year> <holder>Openismus GmbH</holder>"
+msgstr "<year>2012</year> <holder>Openismus GmbH</holder>"
+
+#. (itstool) path: legalnotice/para
+#: C/grilo-plugins.xml:41
+msgid ""
+"Permission is granted to copy, distribute and/or modify this document under "
+"the terms of the GNU Free Documentation License, Version 1.2 or any later "
+"version published by the Free Software Foundation; with no Invariant "
+"Sections, no Front-Cover Texts, and no Back-Cover Texts. You may obtain a "
+"copy of the GNU Free Documentation License from the Free Software Foundation "
+"by visiting their Web site or by writing to: Free Software Foundation, Inc., "
+"51 Franklin Street, Fifth Floor, Boston, MA 02111-1301, USA."
+msgstr ""
+"Permission is granted to copy, distribute and/or modify this document under "
+"the terms of the GNU Free Documentation License, Version 1.2 or any later "
+"version published by the Free Software Foundation; with no Invariant "
+"Sections, no Front-Cover Texts, and no Back-Cover Texts. You may obtain a "
+"copy of the GNU Free Documentation License from the Free Software Foundation "
+"by visiting their Web site or by writing to: Free Software Foundation, Inc., "
+"51 Franklin Street, Fifth Floor, Boston, MA 02111-1301, USA."
+
+#. (itstool) path: chapter/title
+#: C/grilo-plugins.xml:53
+msgid "Introduction"
+msgstr "Introdución"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:64
+msgid "Apple Trailers"
+msgstr "Trailers de Apple "
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:65
+msgid ""
+"This is a Grilo plugin for Apple trailers. Its plugin ID is <literal>\"grl-"
+"apple-trailers\"</literal>"
+msgstr ""
+"Isto un engadido de Grilo para os trailers de Apple. O seu ID de engadido é "
+"<literal>\"grl-apple-trailers\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:69
+msgid "Bookmarks"
+msgstr "Marcadores"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:70
+msgid ""
+"This is a Grilo plugin for bookmarks. Its plugin ID is <literal>\"grl-"
+"bookmarks\"</literal>"
+msgstr ""
+"Isto é un engadido de Grilo para marcadores. O seu ID de engadido é <literal>"
+"\"grl-bookmarks\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:74
+msgid "DMap"
+msgstr "DMap"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:75
+msgid ""
+"This is a Grilo plugin for DMap. Its plugin ID is <literal>\"grl-dmap\"</"
+"literal>"
+msgstr ""
+"Isto é un engadido de Grilo para DMap. O seu ID de engadido é <literal>\"grl-"
+"dmap\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:79
+msgid "Filesystem"
+msgstr "Sistema de ficheiros"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:80
+msgid ""
+"This is a Grilo plugin for the filesystem. Its plugin ID is <literal>\"grl-"
+"filesystem\"</literal>"
+msgstr ""
+"Isto é un enadido de Grilo para o sistema de ficheiros. O seu Id de engadido "
+"é <literal>\"grl-filesystem\"</literal>´"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:84
+msgid "Flickr"
+msgstr "Flickr"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:85
+msgid ""
+"This is a Grilo plugin for Flickr. Its plugin ID is <literal>\"grl-flickr\"</"
+"literal>"
+msgstr ""
+"Isto é un engadido de Grilo para Flickr. O seu ID de engadido é <literal>"
+"\"grl-flickr\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:89
+msgid "Gravatar"
+msgstr "Gravatar"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:90
+msgid ""
+"This is a Grilo plugin for Gravatar. Its plugin ID is <literal>\"grl-gravatar"
+"\"</literal>"
+msgstr ""
+"Isto é un engadido de Grilo para Gravatar. O seu ID de engadido é <literal>"
+"\"grl-gravatar\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:94
+msgid "Jamendo"
+msgstr "Jamendo"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:95
+msgid ""
+"This is a Grilo plugin for Jamendo. Its plugin ID is <literal>\"grl-jamendo"
+"\"</literal>"
+msgstr ""
+"Isto é un engadido de Grilo para Jamendo. O seu ID de engadido é <literal>"
+"\"grl-jamendo\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:99
+msgid "Local Metadata"
+msgstr "Metadatos locais"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:100
+msgid ""
+"This is a Grilo plugin for Local metadata. Its plugin ID is <literal>\"grl-"
+"local-metadata\"</literal>"
+msgstr ""
+"Isto é un engadido de Grilo para os metadatos locais. O seu ID de engadido é "
+"<literal>\"grl-local-metadata\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:104
+msgid "Metadata Store"
+msgstr "Almacén de metadatos"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:105
+msgid ""
+"This is a Grilo plugin for metadata store. Its plugin ID is <literal>\"grl-"
+"metadata-store\"</literal>"
+msgstr ""
+"Isto é un engadido de Grilo para o almacén de metadatos. O seu ID de "
+"engadido é <literal>\"grl-metadata-store\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:109
+msgid "Optical Media"
+msgstr "Soporte óptico"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:110
+msgid ""
+"This is a Grilo plugin for optical media. Its plugin ID is <literal>\"grl-"
+"optical-media\"</literal>"
+msgstr ""
+"Isto é un engadido de Grilo para soporte óptico. O seu ID de engadido é "
+"<literal>\"grl-optical-media\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:114
+msgid "Podcasts"
+msgstr "Podcasts"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:115
+msgid ""
+"This is a Grilo plugin for podcasts. Its plugin ID is <literal>\"grl-podcasts"
+"\"</literal>"
+msgstr ""
+"Isto é un engadido de Grilo para podcasts. O seu ID de engadido é <literal>"
+"\"grl-podcasts\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:119
+msgid "Shoutcast"
+msgstr "Shoutcast"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:120
+msgid ""
+"This is a Grilo plugin for Shoutcast. Its plugin ID is <literal>\"grl-"
+"shoutcast\"</literal>"
+msgstr ""
+"Isto é un engadido de Grilo para Shoutcast. O seu ID de engadido é <literal>"
+"\"grl-shoutcast\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:124
+msgid "TMDb Plugin"
+msgstr "Engadido de TMDb"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:125
+msgid ""
+"The TMDb plugin retrieves information about movies from the <ulink url="
+"\"http://themoviedb.org\">TMDb online service</ulink>, which is a community-"
+"maintained movie database. Its plugin ID is <literal>\"grl-tmdb\"</literal>"
+msgstr ""
+"O engadido de TMDb obtén información sobre filmes desde o <ulink url="
+"\"http://themoviedb.org\">servizo en liña TMDb</ulink>, que é unha base de "
+"datos de filmes mantidos pola comunidade. O seu ID de engadido é is <literal>"
+"\"grl-tmdb\"</literal>"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:126
+msgid ""
+"Before using this plugin, you should set the TMDB API Key with <ulink url="
+"\"http://developer.gnome.org/grilo/unstable/GrlConfig.html#grl-config-set-"
+"api-key\"><function>grl_config_set_api_key()</function></ulink>."
+msgstr ""
+"Antes de usar este engadido, debería estabelecer a chave de TMDb con <ulink "
+"url=\"http://developer.gnome.org/grilo/unstable/GrlConfig.html#grl-config-"
+"set-api-key\"><function>grl_config_set_api_key()</function></ulink>."
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:127
+msgid ""
+"You may then use <ulink url=\"http://developer.gnome.org/grilo/unstable/"
+"GrlSource.html#grl-source-resolve\"><function>grl_source_resolve()</"
+"function></ulink> to discover details about an existing GrlMediaItem."
+msgstr ""
+"Despois debería usar  <ulink url=\"http://developer.gnome.org/grilo/unstable/"
+"GrlSource.html#grl-source-resolve\"><function>grl_source_resolve()</"
+"function></ulink> para descurir os detalles sobre un GrlMediaItem existente."
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:128
+msgid ""
+"This plugin does not support search via <ulink url=\"http://developer.gnome."
+"org/grilo/unstable/GrlSource.html#grl-source-search"
+"\"><function>grl_source_search()</function></ulink> or queries via <ulink "
+"url=\"http://developer.gnome.org/grilo/unstable/GrlSource.html#grl-source-"
+"query\"><function>grl_source_query()</function></ulink>."
+msgstr ""
+"Este engadido non admite a busca mediante <ulink url=\"http://developer."
+"gnome.org/grilo/unstable/GrlSource.html#grl-source-search"
+"\"><function>grl_source_search()</function></ulink> ou consultas mediante "
+"<ulink url=\"http://developer.gnome.org/grilo/unstable/GrlSource.html#grl-"
+"source-query\"><function>grl_source_query()</function></ulink>."
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:130
+msgid "Here is a simple example of the use of the Grilo TMDb plugin:"
+msgstr ""
+"Aquí pode atopar un exemplo sinxelo a usar dos engadidos de Grilo para TMDb:"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:132
+msgid ""
+"File: <ulink url=\"http://git.gnome.org/browse/grilo-plugins/tree/help/"
+"examples/example-tmdb.c\"><filename>example-tmdb.c</filename></ulink>"
+msgstr ""
+"Ficheiro: <ulink url=\"http://git.gnome.org/browse/grilo-plugins/tree/help/"
+"examples/example-tmdb.c\"><filename>example-tmdb.c</filename></ulink>"
+
+#. (itstool) path: sect1/programlisting
+#: C/grilo-plugins.xml:133
+#, no-wrap
+msgid ""
+"\n"
+"/*\n"
+" * Copyright (C) 2012 Canonical Ltd.\n"
+" *\n"
+" * Author: Jens Georg &lt;jensg@openismus.com&gt;\n"
+" *\n"
+" * This library is free software; you can redistribute it and/or\n"
+" * modify it under the terms of the GNU Lesser General Public License\n"
+" * as published by the Free Software Foundation; version 2.1 of\n"
+" * the License, or (at your option) any later version.\n"
+" *\n"
+" * This library is distributed in the hope that it will be useful, but\n"
+" * WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+" * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU\n"
+" * Lesser General Public License for more details.\n"
+" *\n"
+" * You should have received a copy of the GNU Lesser General Public\n"
+" * License along with this library; if not, write to the Free Software\n"
+" * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA\n"
+" * 02110-1301 USA\n"
+" *\n"
+" */\n"
+"\n"
+"#include &lt;grilo.h&gt;\n"
+"#include &lt;stdio.h&gt;\n"
+"\n"
+"/**\n"
+" * This TMDB key is just for testing.\n"
+" * For real-world use, please request your own key from\n"
+" * http://api.themoviedb.org\n"
+" */\n"
+"#define TMDB_KEY \"719b9b296835b04cd919c4bf5220828a\"\n"
+"\n"
+"#define TMDB_PLUGIN_ID \"grl-tmdb\"\n"
+"\n"
+"GMainLoop *loop = NULL;\n"
+"GrlKeyID director_key = 0;\n"
+"\n"
+"static void\n"
+"resolve_cb (GrlSource *src, guint operation_id, GrlMedia *media, gpointer user_data, const GError *error)\n"
+"{\n"
+"  const char *title, *studio;\n"
+"\n"
+"  g_assert_no_error (error);\n"
+"  g_assert (media);\n"
+"\n"
+"  title = grl_media_get_title (media);\n"
+"  studio = grl_media_get_studio (media);\n"
+"  printf (\"Media: Title='%s', Studio='%s'\\n\",\n"
+"    title, studio);\n"
+"\n"
+"  if (director_key != 0) {\n"
+"    const gchar *director =\n"
+"      grl_data_get_string (GRL_DATA (media), director_key);\n"
+"    printf (\"  Director=%s\\n\", director);\n"
+"  }\n"
+"\n"
+"  g_main_loop_quit (loop);\n"
+"}\n"
+"\n"
+"int main (int argc, char *argv[])\n"
+"{\n"
+"  GrlRegistry *reg;\n"
+"  GrlConfig *config;\n"
+"  GError *error = NULL;\n"
+"  GrlSource *src;\n"
+"  gboolean plugin_activated;\n"
+"  GrlCaps *caps;\n"
+"  GrlOperationOptions *options;\n"
+"  GrlMedia *media;\n"
+"  const GList *keys;\n"
+"  const GList* l;\n"
+"\n"
+"  grl_init (&amp;argc, &amp;argv);\n"
+"\n"
+"  /*\n"
+"   * Set the TMDB API key:\n"
+"   * You must use your own TMDB API key in your own application.\n"
+"   */\n"
+"  reg = grl_registry_get_default ();\n"
+"  config = grl_config_new (TMDB_PLUGIN_ID, NULL);\n"
+"  grl_config_set_api_key (config, TMDB_KEY);\n"
+"  grl_registry_add_config (reg, config, NULL);\n"
+"  grl_registry_load_all_plugins (reg, FALSE, NULL);\n"
+"\n"
+"  /*\n"
+"   * Get the plugin:\n"
+"   */\n"
+"  error = NULL;\n"
+"  plugin_activated =\n"
+"    grl_registry_activate_plugin_by_id (reg, TMDB_PLUGIN_ID, &amp;error);\n"
+"  g_assert (plugin_activated);\n"
+"  g_assert_no_error (error);\n"
+"\n"
+"  /*\n"
+"   * Get the Grilo source:\n"
+"   */\n"
+"  src = grl_registry_lookup_source (reg, TMDB_PLUGIN_ID);\n"
+"\n"
+"  /*\n"
+"   * Check that it has the expected capability:\n"
+"   */\n"
+"  g_assert (grl_source_supported_operations (src) &amp; GRL_OP_RESOLVE);\n"
+"  caps = grl_source_get_caps (src, GRL_OP_RESOLVE);\n"
+"  g_assert (caps);\n"
+"\n"
+"  options = grl_operation_options_new (caps);\n"
+"\n"
+"  /*\n"
+"   * A media item that we will give to the TMDB plugin,\n"
+"   * to discover its details.\n"
+"   */\n"
+"  media = grl_media_video_new ();\n"
+"  grl_media_set_title (media, \"Sherlock Holmes\");\n"
+"\n"
+"  /*\n"
+"   * Discover what keys are provided by the source:\n"
+"   */\n"
+"  keys = grl_source_supported_keys (src);\n"
+"  for (l = keys; l != NULL; l = l-&gt;next) {\n"
+"    const gchar *name;\n"
+"    GrlKeyID id = GPOINTER_TO_INT (l-&gt;data);\n"
+"\n"
+"    g_assert (id);\n"
+"\n"
+"    name = grl_metadata_key_get_name (id);\n"
+"    printf (\"Supported key: %s\\n\", name);\n"
+"\n"
+"    /*\n"
+"     * Remember this for later use:\n"
+"     * You may instead use grl_registry_lookup_metadata_key_name().\n"
+"     */\n"
+"    if (g_strcmp0 (name, \"tmdb-director\") == 0) {\n"
+"      director_key = id;\n"
+"    }\n"
+"  }\n"
+"\n"
+"  /*\n"
+"   * Ask the TMDB plugin for the media item's details,\n"
+"   * from the TMDB online service:\n"
+"   */\n"
+"  grl_source_resolve (src, media,\n"
+"    keys, options,\n"
+"    resolve_cb, NULL);\n"
+"\n"
+"  /*\n"
+"   * Start the main loop so our callback can be called:\n"
+"   */\n"
+"  loop = g_main_loop_new (NULL, FALSE);\n"
+"  g_main_loop_run (loop);\n"
+"\n"
+"  /*\n"
+"   * Release objects:\n"
+"   */\n"
+"  g_object_unref (media);\n"
+"  g_object_unref (config);\n"
+"  g_object_unref (options);\n"
+"\n"
+"  /*\n"
+"   * Deinitialize Grilo:\n"
+"   */\n"
+"  grl_deinit ();\n"
+"}\n"
+"\n"
+"\n"
+"\n"
+msgstr ""
+"\n"
+"/*\n"
+" * Copyright (C) 2012 Canonical Ltd.\n"
+" *\n"
+" * Author: Jens Georg &lt;jensg@openismus.com&gt;\n"
+" *\n"
+" * This library is free software; you can redistribute it and/or\n"
+" * modify it under the terms of the GNU Lesser General Public License\n"
+" * as published by the Free Software Foundation; version 2.1 of\n"
+" * the License, or (at your option) any later version.\n"
+" *\n"
+" * This library is distributed in the hope that it will be useful, but\n"
+" * WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+" * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU\n"
+" * Lesser General Public License for more details.\n"
+" *\n"
+" * You should have received a copy of the GNU Lesser General Public\n"
+" * License along with this library; if not, write to the Free Software\n"
+" * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA\n"
+" * 02110-1301 USA\n"
+" *\n"
+" */\n"
+"\n"
+"#include &lt;grilo.h&gt;\n"
+"#include &lt;stdio.h&gt;\n"
+"\n"
+"/**\n"
+" * This TMDB key is just for testing.\n"
+" * For real-world use, please request your own key from\n"
+" * http://api.themoviedb.org\n"
+" */\n"
+"#define TMDB_KEY \"719b9b296835b04cd919c4bf5220828a\"\n"
+"\n"
+"#define TMDB_PLUGIN_ID \"grl-tmdb\"\n"
+"\n"
+"GMainLoop *loop = NULL;\n"
+"GrlKeyID director_key = 0;\n"
+"\n"
+"static void\n"
+"resolve_cb (GrlSource *src, guint operation_id, GrlMedia *media, gpointer user_data, const GError *error)\n"
+"{\n"
+"  const char *title, *studio;\n"
+"\n"
+"  g_assert_no_error (error);\n"
+"  g_assert (media);\n"
+"\n"
+"  title = grl_media_get_title (media);\n"
+"  studio = grl_media_get_studio (media);\n"
+"  printf (\"Media: Title='%s', Studio='%s'\\n\",\n"
+"    title, studio);\n"
+"\n"
+"  if (director_key != 0) {\n"
+"    const gchar *director =\n"
+"      grl_data_get_string (GRL_DATA (media), director_key);\n"
+"    printf (\"  Director=%s\\n\", director);\n"
+"  }\n"
+"\n"
+"  g_main_loop_quit (loop);\n"
+"}\n"
+"\n"
+"int main (int argc, char *argv[])\n"
+"{\n"
+"  GrlRegistry *reg;\n"
+"  GrlConfig *config;\n"
+"  GError *error = NULL;\n"
+"  GrlSource *src;\n"
+"  gboolean plugin_activated;\n"
+"  GrlCaps *caps;\n"
+"  GrlOperationOptions *options;\n"
+"  GrlMedia *media;\n"
+"  const GList *keys;\n"
+"  const GList* l;\n"
+"\n"
+"  grl_init (&amp;argc, &amp;argv);\n"
+"\n"
+"  /*\n"
+"   * Set the TMDB API key:\n"
+"   * You must use your own TMDB API key in your own application.\n"
+"   */\n"
+"  reg = grl_registry_get_default ();\n"
+"  config = grl_config_new (TMDB_PLUGIN_ID, NULL);\n"
+"  grl_config_set_api_key (config, TMDB_KEY);\n"
+"  grl_registry_add_config (reg, config, NULL);\n"
+"  grl_registry_load_all_plugins (reg, FALSE, NULL);\n"
+"\n"
+"  /*\n"
+"   * Get the plugin:\n"
+"   */\n"
+"  error = NULL;\n"
+"  plugin_activated =\n"
+"    grl_registry_activate_plugin_by_id (reg, TMDB_PLUGIN_ID, &amp;error);\n"
+"  g_assert (plugin_activated);\n"
+"  g_assert_no_error (error);\n"
+"\n"
+"  /*\n"
+"   * Get the Grilo source:\n"
+"   */\n"
+"  src = grl_registry_lookup_source (reg, TMDB_PLUGIN_ID);\n"
+"\n"
+"  /*\n"
+"   * Check that it has the expected capability:\n"
+"   */\n"
+"  g_assert (grl_source_supported_operations (src) &amp; GRL_OP_RESOLVE);\n"
+"  caps = grl_source_get_caps (src, GRL_OP_RESOLVE);\n"
+"  g_assert (caps);\n"
+"\n"
+"  options = grl_operation_options_new (caps);\n"
+"\n"
+"  /*\n"
+"   * A media item that we will give to the TMDB plugin,\n"
+"   * to discover its details.\n"
+"   */\n"
+"  media = grl_media_video_new ();\n"
+"  grl_media_set_title (media, \"Sherlock Holmes\");\n"
+"\n"
+"  /*\n"
+"   * Discover what keys are provided by the source:\n"
+"   */\n"
+"  keys = grl_source_supported_keys (src);\n"
+"  for (l = keys; l != NULL; l = l-&gt;next) {\n"
+"    const gchar *name;\n"
+"    GrlKeyID id = GPOINTER_TO_INT (l-&gt;data);\n"
+"\n"
+"    g_assert (id);\n"
+"\n"
+"    name = grl_metadata_key_get_name (id);\n"
+"    printf (\"Supported key: %s\\n\", name);\n"
+"\n"
+"    /*\n"
+"     * Remember this for later use:\n"
+"     * You may instead use grl_registry_lookup_metadata_key_name().\n"
+"     */\n"
+"    if (g_strcmp0 (name, \"tmdb-director\") == 0) {\n"
+"      director_key = id;\n"
+"    }\n"
+"  }\n"
+"\n"
+"  /*\n"
+"   * Ask the TMDB plugin for the media item's details,\n"
+"   * from the TMDB online service:\n"
+"   */\n"
+"  grl_source_resolve (src, media,\n"
+"    keys, options,\n"
+"    resolve_cb, NULL);\n"
+"\n"
+"  /*\n"
+"   * Start the main loop so our callback can be called:\n"
+"   */\n"
+"  loop = g_main_loop_new (NULL, FALSE);\n"
+"  g_main_loop_run (loop);\n"
+"\n"
+"  /*\n"
+"   * Release objects:\n"
+"   */\n"
+"  g_object_unref (media);\n"
+"  g_object_unref (config);\n"
+"  g_object_unref (options);\n"
+"\n"
+"  /*\n"
+"   * Deinitialize Grilo:\n"
+"   */\n"
+"  grl_deinit ();\n"
+"}\n"
+"\n"
+"\n"
+"\n"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:140
+msgid "Tracker"
+msgstr "Tracker"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:141
+msgid ""
+"This is a Grilo plugin for Tracker. Its plugin ID is <literal>\"grl-tracker"
+"\"</literal>"
+msgstr ""
+"Isto é un engadido de Grilo para Tracker. O seu ID de engadido é <literal>"
+"\"grl-tracker\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:145
+msgid "Vimeo"
+msgstr "Vimeo"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:146
+msgid ""
+"This is a Grilo plugin for Vimeo. Its plugin ID is <literal>\"grl-vimeo\"</"
+"literal>"
+msgstr ""
+"Isto é un engadido de Grilo para Vimeo. O seu ID de engadido é <literal>"
+"\"grl-vimeo\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:150
+msgid "YouTube"
+msgstr "YouTube"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:151
+msgid ""
+"This is a Grilo plugin for YouTube. Its plugin ID is <literal>\"grl-youtube"
+"\"</literal>"
+msgstr ""
+"Isto é un engadido de Grilo para Youtube. O seu ID de engadido é <literal>"
+"\"grl-youtube\"</literal>"
+
+#. (itstool) path: sect1/title
+#: C/grilo-plugins.xml:155
+msgid "DLeyna"
+msgstr "DLeyna"
+
+#. (itstool) path: sect1/para
+#: C/grilo-plugins.xml:156
+msgid ""
+"This is a Grilo plugin for UPnP/DLNA. Its plugin ID is <literal>\"grl-dleyna"
+"\"</literal>"
+msgstr ""
+"Isto é un engadido de Grilo para UPnP/DLNA. O seu ID de engadido é <literal>"
+"\"grl-dleyna\"</literal>"
+
+#. (itstool) path: para/ulink
+#: C/legal.xml:9
+msgid "link"
+msgstr "ligazón"
+
+#. (itstool) path: legalnotice/para
+#: C/legal.xml:2
+msgid ""
+"Permission is granted to copy, distribute and/or modify this document under "
+"the terms of the GNU Free Documentation License (GFDL), Version 1.1 or any "
+"later version published by the Free Software Foundation with no Invariant "
+"Sections, no Front-Cover Texts, and no Back-Cover Texts. You can find a copy "
+"of the GFDL at this <_:ulink-1/> or in the file COPYING-DOCS distributed "
+"with this manual."
+msgstr ""
+"Permission is granted to copy, distribute and/or modify this document under "
+"the terms of the GNU Free Documentation License (GFDL), Version 1.1 or any "
+"later version published by the Free Software Foundation with no Invariant "
+"Sections, no Front-Cover Texts, and no Back-Cover Texts. You can find a copy "
+"of the GFDL at this <_:ulink-1/> or in the file COPYING-DOCS distributed "
+"with this manual."
+
+#. (itstool) path: legalnotice/para
+#: C/legal.xml:12
+msgid ""
+"This manual is part of a collection of GNOME manuals distributed under the "
+"GFDL. If you want to distribute this manual separately from the collection, "
+"you can do so by adding a copy of the license to the manual, as described in "
+"section 6 of the license."
+msgstr ""
+"Este manual é parte dunha colección de manuais de GNOME distribuidos baixo a "
+"GFDL. Se quere distribuir este manual de forma separada da colección, pode "
+"facelo engadido unha copia da licenza do manual, como se describe na sección "
+"6 da licenza."
+
+#. (itstool) path: legalnotice/para
+#: C/legal.xml:19
+msgid ""
+"Many of the names used by companies to distinguish their products and "
+"services are claimed as trademarks. Where those names appear in any GNOME "
+"documentation, and the members of the GNOME Documentation Project are made "
+"aware of those trademarks, then the names are in capital letters or initial "
+"capital letters."
+msgstr ""
+"Algúns dos nomes usados por compañías para distinguir os seus productos e "
+"servizos están reclamados como marcas. Cando estes nomes aparezan en "
+"calquera documentación de GNOME e os membros do Proxecto de Documentación de "
+"GNOME recoñecen estas marcas, polo que os nomes das mesmas aparecerán en "
+"letras maiúsculas ou coa primeira letra en maiúsculas."
+
+#. (itstool) path: listitem/para
+#: C/legal.xml:35
+msgid ""
+"DOCUMENT IS PROVIDED ON AN \"AS IS\" BASIS, WITHOUT WARRANTY OF ANY KIND, "
+"EITHER EXPRESSED OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES THAT "
+"THE DOCUMENT OR MODIFIED VERSION OF THE DOCUMENT IS FREE OF DEFECTS "
+"MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE OR NON-INFRINGING. THE ENTIRE "
+"RISK AS TO THE QUALITY, ACCURACY, AND PERFORMANCE OF THE DOCUMENT OR "
+"MODIFIED VERSION OF THE DOCUMENT IS WITH YOU. SHOULD ANY DOCUMENT OR "
+"MODIFIED VERSION PROVE DEFECTIVE IN ANY RESPECT, YOU (NOT THE INITIAL "
+"WRITER, AUTHOR OR ANY CONTRIBUTOR) ASSUME THE COST OF ANY NECESSARY "
+"SERVICING, REPAIR OR CORRECTION. THIS DISCLAIMER OF WARRANTY CONSTITUTES AN "
+"ESSENTIAL PART OF THIS LICENSE. NO USE OF ANY DOCUMENT OR MODIFIED VERSION "
+"OF THE DOCUMENT IS AUTHORIZED HEREUNDER EXCEPT UNDER THIS DISCLAIMER; AND"
+msgstr ""
+"DOCUMENT IS PROVIDED ON AN \"AS IS\" BASIS, WITHOUT WARRANTY OF ANY KIND, "
+"EITHER EXPRESSED OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES THAT "
+"THE DOCUMENT OR MODIFIED VERSION OF THE DOCUMENT IS FREE OF DEFECTS "
+"MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE OR NON-INFRINGING. THE ENTIRE "
+"RISK AS TO THE QUALITY, ACCURACY, AND PERFORMANCE OF THE DOCUMENT OR "
+"MODIFIED VERSION OF THE DOCUMENT IS WITH YOU. SHOULD ANY DOCUMENT OR "
+"MODIFIED VERSION PROVE DEFECTIVE IN ANY RESPECT, YOU (NOT THE INITIAL "
+"WRITER, AUTHOR OR ANY CONTRIBUTOR) ASSUME THE COST OF ANY NECESSARY "
+"SERVICING, REPAIR OR CORRECTION. THIS DISCLAIMER OF WARRANTY CONSTITUTES AN "
+"ESSENTIAL PART OF THIS LICENSE. NO USE OF ANY DOCUMENT OR MODIFIED VERSION "
+"OF THE DOCUMENT IS AUTHORIZED HEREUNDER EXCEPT UNDER THIS DISCLAIMER; AND"
+
+#. (itstool) path: listitem/para
+#: C/legal.xml:55
+msgid ""
+"UNDER NO CIRCUMSTANCES AND UNDER NO LEGAL THEORY, WHETHER IN TORT (INCLUDING "
+"NEGLIGENCE), CONTRACT, OR OTHERWISE, SHALL THE AUTHOR, INITIAL WRITER, ANY "
+"CONTRIBUTOR, OR ANY DISTRIBUTOR OF THE DOCUMENT OR MODIFIED VERSION OF THE "
+"DOCUMENT, OR ANY SUPPLIER OF ANY OF SUCH PARTIES, BE LIABLE TO ANY PERSON "
+"FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF "
+"ANY CHARACTER INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF GOODWILL, "
+"WORK STOPPAGE, COMPUTER FAILURE OR MALFUNCTION, OR ANY AND ALL OTHER DAMAGES "
+"OR LOSSES ARISING OUT OF OR RELATING TO USE OF THE DOCUMENT AND MODIFIED "
+"VERSIONS OF THE DOCUMENT, EVEN IF SUCH PARTY SHALL HAVE BEEN INFORMED OF THE "
+"POSSIBILITY OF SUCH DAMAGES."
+msgstr ""
+"UNDER NO CIRCUMSTANCES AND UNDER NO LEGAL THEORY, WHETHER IN TORT (INCLUDING "
+"NEGLIGENCE), CONTRACT, OR OTHERWISE, SHALL THE AUTHOR, INITIAL WRITER, ANY "
+"CONTRIBUTOR, OR ANY DISTRIBUTOR OF THE DOCUMENT OR MODIFIED VERSION OF THE "
+"DOCUMENT, OR ANY SUPPLIER OF ANY OF SUCH PARTIES, BE LIABLE TO ANY PERSON "
+"FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF "
+"ANY CHARACTER INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF GOODWILL, "
+"WORK STOPPAGE, COMPUTER FAILURE OR MALFUNCTION, OR ANY AND ALL OTHER DAMAGES "
+"OR LOSSES ARISING OUT OF OR RELATING TO USE OF THE DOCUMENT AND MODIFIED "
+"VERSIONS OF THE DOCUMENT, EVEN IF SUCH PARTY SHALL HAVE BEEN INFORMED OF THE "
+"POSSIBILITY OF SUCH DAMAGES."
+
+#. (itstool) path: legalnotice/para
+#: C/legal.xml:28
+msgid ""
+"DOCUMENT AND MODIFIED VERSIONS OF THE DOCUMENT ARE PROVIDED UNDER THE TERMS "
+"OF THE GNU FREE DOCUMENTATION LICENSE WITH THE FURTHER UNDERSTANDING THAT: "
+"<_:orderedlist-1/>"
+msgstr ""
+"DOCUMENT AND MODIFIED VERSIONS OF THE DOCUMENT ARE PROVIDED UNDER THE TERMS "
+"OF THE GNU FREE DOCUMENTATION LICENSE WITH THE FURTHER UNDERSTANDING THAT: "
+"<_:orderedlist-1/>"

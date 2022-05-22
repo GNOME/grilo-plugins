@@ -6,643 +6,598 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Gnome Nepali Translation Project\n"
-"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
-"product=grilo&keywords=I18N+L10N&component=plugins\n"
-"POT-Creation-Date: 2017-08-08 12:29+0000\n"
-"PO-Revision-Date: 2017-08-16 14:38+0545\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
+"POT-Creation-Date: 2021-03-28 11:13+0000\n"
+"PO-Revision-Date: 2022-05-22 16:34+0545\n"
+"Last-Translator: Pawan Chitrakar <chautari@gmail.com>\n"
 "Language-Team: Nepali Translation Team <chautari@gmail.com>\n"
+"Language: ne\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.3\n"
-"Last-Translator: Pawan Chitrakar <chautari@gmail.com>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Language: ne\n"
+"X-Generator: Poedit 3.0.1\n"
 
-#: ../src/bookmarks/grl-bookmarks.c:65
+#: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
 msgstr "पुस्तकचिनोहरू"
 
-#: ../src/bookmarks/grl-bookmarks.c:66
+#: src/bookmarks/grl-bookmarks.c:61
 msgid "A source for organizing media bookmarks"
-msgstr ""
+msgstr "मिडिया पुस्तकचिनोहरू व्यवस्थित गर्नका लागि एउटा स्रोत"
 
-#: ../src/bookmarks/grl-bookmarks.c:434
-#, fuzzy
+#: src/bookmarks/grl-bookmarks.c:427
 msgid "Failed to get bookmark metadata"
-msgstr "स्रोत सूची प्राप्त गर्न असफल भयो"
+msgstr "पुस्तकचिनो मेटाडाटा प्राप्त गर्न असफल भयो"
 
-#: ../src/bookmarks/grl-bookmarks.c:464 ../src/bookmarks/grl-bookmarks.c:481
-#, fuzzy, c-format
+#: src/bookmarks/grl-bookmarks.c:457 src/bookmarks/grl-bookmarks.c:474
+#, c-format
 msgid "Failed to find bookmarks: %s"
-msgstr "%s का लागि प्रोभाईडर असफल भयो"
+msgstr "पुस्तकचिनोहरू फेला पार्न असफल भयो: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:633 ../src/podcasts/grl-podcasts.c:826
-#: ../src/podcasts/grl-podcasts.c:858 ../src/podcasts/grl-podcasts.c:890
+#: src/bookmarks/grl-bookmarks.c:626 src/podcasts/grl-podcasts.c:823
+#: src/podcasts/grl-podcasts.c:855 src/podcasts/grl-podcasts.c:887
 #, c-format
 msgid "Failed to remove: %s"
 msgstr "हटाउन असफल:%s"
 
-#: ../src/bookmarks/grl-bookmarks.c:773 ../src/podcasts/grl-podcasts.c:931
-#: ../src/podcasts/grl-podcasts.c:964 ../src/podcasts/grl-podcasts.c:1811
-#, fuzzy, c-format
+#: src/bookmarks/grl-bookmarks.c:768 src/podcasts/grl-podcasts.c:928
+#: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1813
+#, c-format
 msgid "Failed to store: %s"
-msgstr "फोल्डर भण्डार गर्न सकेन: %s"
+msgstr "भण्डार गर्न असफल भयो: %s"
 
-#: ../src/bookmarks/grl-bookmarks.c:847 ../src/bookmarks/grl-bookmarks.c:882
-#: ../src/bookmarks/grl-bookmarks.c:913 ../src/bookmarks/grl-bookmarks.c:971
-#: ../src/metadata-store/grl-metadata-store.c:881
-#: ../src/podcasts/grl-podcasts.c:1667 ../src/podcasts/grl-podcasts.c:1711
-#: ../src/podcasts/grl-podcasts.c:1745 ../src/podcasts/grl-podcasts.c:1780
+#: src/bookmarks/grl-bookmarks.c:842 src/bookmarks/grl-bookmarks.c:877
+#: src/bookmarks/grl-bookmarks.c:908 src/bookmarks/grl-bookmarks.c:966
+#: src/metadata-store/grl-metadata-store.c:874 src/podcasts/grl-podcasts.c:1669
+#: src/podcasts/grl-podcasts.c:1713 src/podcasts/grl-podcasts.c:1747
+#: src/podcasts/grl-podcasts.c:1782
 msgid "No database connection"
 msgstr "डेटाबेस जडान छैन"
 
-#: ../src/chromaprint/grl-chromaprint.c:46
+#: src/chromaprint/grl-chromaprint.c:41
 msgid "A plugin to get metadata using gstreamer framework"
-msgstr ""
+msgstr "जिस्ट्रिमर फ्रेमवर्क प्रयोग गरेर मेटाडाटा प्राप्त गर्ने प्लगइन"
 
-#: ../src/dleyna/grl-dleyna-source.c:34
+#: src/dleyna/grl-dleyna-source.c:34
 #, c-format
-msgid "A source for browsing the DLNA server '%s'"
-msgstr ""
+msgid "A source for browsing the DLNA server “%s”"
+msgstr "DLNA सर्भर \"%s\" ब्राउजिङका लागि एउटा स्रोत"
 
-#: ../src/dleyna/grl-dleyna-source.c:278
+#: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
-msgstr ""
+msgstr "अपलोड असफल भयो, लक्षित स्रोत नष्ट भयो"
 
-#: ../src/dleyna/grl-dleyna-source.c:380
+#: src/dleyna/grl-dleyna-source.c:382
 #, c-format
-msgid "Upload failed, '%s', transferred %lu of %lu bytes"
-msgstr ""
+msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
+msgstr "अपलोड असफल भयो, \"%s\", %lu को %lu बाइटहरू स्थानान्तरण गरियो"
 
-#: ../src/dleyna/grl-dleyna-source.c:885
+#: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
-msgstr ""
+msgstr "वस्तु गुण पुन: प्राप्त गर्न असफल (BrowseObjects error %d: %s)"
 
-#: ../src/dleyna/grl-dleyna-source.c:1524
+#: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
-msgstr ""
+msgstr "अपलोड असफल भयो, स्थान्तरण गरिने मिडिया वस्तुमा URL हराइरहेको छ"
 
-#: ../src/dmap/grl-daap.c:50
+#: src/dmap/grl-daap.c:51
 #, c-format
-msgid "A source for browsing the DAAP server '%s'"
-msgstr ""
+msgid "A source for browsing the DAAP server “%s”"
+msgstr "DAAP सर्भर \"%s\" ब्राउजिङका लागि एउटा स्रोत"
 
-#: ../src/dmap/grl-daap-db.c:62 ../src/jamendo/grl-jamendo.c:795
-#: ../src/magnatune/grl-magnatune.c:121
+#: src/dmap/grl-daap-db.c:66 src/magnatune/grl-magnatune.c:122
 msgid "Albums"
 msgstr "एल्बमहरू"
 
-#: ../src/dmap/grl-daap-db.c:64 ../src/jamendo/grl-jamendo.c:784
-#: ../src/magnatune/grl-magnatune.c:120
+#: src/dmap/grl-daap-db.c:68 src/magnatune/grl-magnatune.c:121
 msgid "Artists"
 msgstr "कलाकारहरू"
 
-#: ../src/dmap/grl-daap-db.c:292 ../src/jamendo/grl-jamendo.c:1122
-#: ../src/jamendo/grl-jamendo.c:1233 ../src/magnatune/grl-magnatune.c:841
-#, fuzzy, c-format
-msgid "Invalid container identifier %s"
-msgstr "अज्ञात वा अवैध पहिचायक"
-
-#: ../src/dmap/grl-dpap.c:50
+#: src/dmap/grl-daap-db.c:291 src/magnatune/grl-magnatune.c:866
 #, c-format
-msgid "A source for browsing the DPAP server '%s'"
-msgstr ""
+msgid "Invalid container identifier %s"
+msgstr "अवैध कन्टेनर पहिचायक %s"
 
-#: ../src/dmap/grl-dpap-db.c:36
+#: src/dmap/grl-dpap.c:51
+#, c-format
+msgid "A source for browsing the DPAP server “%s”"
+msgstr "DPAP सर्भर \"%s\" ब्राउजिङका लागि एउटा स्रोत"
+
+#: src/dmap/grl-dpap-db.c:40
 msgid "Photos"
 msgstr "फोटो"
 
-#: ../src/filesystem/grl-filesystem.c:58
+#: src/filesystem/grl-filesystem.c:58
 msgid "Filesystem"
 msgstr "फाइल प्रणाली"
 
-#: ../src/filesystem/grl-filesystem.c:59
-#, fuzzy
+#: src/filesystem/grl-filesystem.c:59
 msgid "A source for browsing the filesystem"
-msgstr "फाइल प्रणाली"
+msgstr "फाइल प्रणाली ब्राउजगर्नका लागि एउटा स्रोत"
 
-#: ../src/filesystem/grl-filesystem.c:1179
+#: src/filesystem/grl-filesystem.c:1171
 #, c-format
 msgid "File %s does not exist"
 msgstr "फाइल %s अवस्थित छैन"
 
-#: ../src/filesystem/grl-filesystem.c:1257 ../src/youtube/grl-youtube.c:1512
-#, fuzzy, c-format
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
+#, c-format
 msgid "Cannot get media from %s"
-msgstr "फोल्डर प्राप्त गर्न सकिँदैन: %s: %s"
+msgstr "%s बाट मिडिया प्राप्त गर्न सकिँदैन"
 
-#: ../src/flickr/grl-flickr.c:63
+#: src/flickr/grl-flickr.c:58
 msgid "A source for browsing and searching Flickr photos"
-msgstr ""
+msgstr "फ्लिकर फोटोहरू ब्राउज गर्न र खोज्नका लागि एउटा स्रोत"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:67
+#: src/flickr/grl-flickr.c:62
 #, c-format
-msgid "%s's Flickr"
+msgid "%s’s Flickr"
 msgstr "%s को फ्लिकर"
 
 #. "%s" is a full user name, like "John Doe"
-#: ../src/flickr/grl-flickr.c:69
+#: src/flickr/grl-flickr.c:64
 #, c-format
-msgid "A source for browsing and searching %s's flickr photos"
-msgstr ""
+msgid "A source for browsing and searching %s’s flickr photos"
+msgstr "%s को फ्लिकर फोटोहरू ब्राउज गर्न र खोज्नका लागि एउटा स्रोत"
 
-#: ../src/freebox/grl-freebox.c:48
+#: src/freebox/grl-freebox.c:48
 msgid "Freebox TV"
 msgstr "नि: शुल्क बाकस टि भि"
 
-#: ../src/freebox/grl-freebox.c:49
+#: src/freebox/grl-freebox.c:49
 msgid "A source for browsing Freebox TV channels"
-msgstr ""
+msgstr "फ्रिबक्स टिभी च्यानलहरू ब्राउज गर्नका लागि एउटा स्रोत"
 
-#: ../src/freebox/grl-freebox.c:52
+#: src/freebox/grl-freebox.c:52
 msgid "Freebox Radio"
 msgstr "नि: शुल्क बाकस रेडियो"
 
-#: ../src/freebox/grl-freebox.c:53
+#: src/freebox/grl-freebox.c:53
 msgid "A source for browsing Freebox radio channels"
-msgstr ""
+msgstr "फ्रिबक्स रेडियो च्यानलहरू ब्राउज गर्नका लागि एउटा स्रोत"
 
-#: ../src/gravatar/grl-gravatar.c:46
-#, fuzzy
+#: src/gravatar/grl-gravatar.c:46
 msgid "Avatar provider from Gravatar"
-msgstr "यो पढ्न र यसबाट USENET समाचारसमूहलाई पठाउन लागि एउटा प्रदायक हो ।"
+msgstr "ग्राभाटारबाट अवतार प्रदायक"
 
-#: ../src/gravatar/grl-gravatar.c:47
+#: src/gravatar/grl-gravatar.c:47
 msgid "A plugin to get avatars for artist and author fields"
-msgstr ""
+msgstr "कलाकार र लेखक फिल्डका लागि अवतारहरू प्राप्त गर्ने प्लगइन"
 
-#: ../src/jamendo/grl-jamendo.c:91
-msgid "A source for browsing and searching Jamendo music"
-msgstr ""
+#: src/local-metadata/grl-local-metadata.c:42
+msgid "Local Metadata Provider"
+msgstr "स्थानीय मेटाडेटा प्रदायक"
 
-#: ../src/jamendo/grl-jamendo.c:149
-msgid "Albums of the week"
-msgstr "यो हप्ताका एल्बमहरू"
+#: src/local-metadata/grl-local-metadata.c:43
+msgid "A source providing locally available metadata"
+msgstr "स्थानीय रूपमा उपलब्ध मेटाडेटा उपलब्ध गराउने एउटा स्रोत"
 
-#: ../src/jamendo/grl-jamendo.c:151
-msgid "Tracks of the week"
-msgstr "यो हप्ताका गानाहरू"
+#: src/local-metadata/grl-local-metadata.c:381
+#: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/tracker3/grl-tracker-source-api.c:381
+#: src/tracker/grl-tracker-source-api.c:530
+#, c-format
+msgid "Failed to resolve: %s"
+msgstr "समाधान गर्न असफल: %s"
 
-#: ../src/jamendo/grl-jamendo.c:153
-msgid "New releases"
-msgstr "नयाँ विज्ञप्तिहरू"
+#: src/local-metadata/grl-local-metadata.c:673
+msgid "Cannot resolve any of the given keys"
+msgstr "दिएको कुनै कुञ्जी लाई स्पष्ट पार्न सकिदैन"
 
-#: ../src/jamendo/grl-jamendo.c:155
-msgid "Top artists"
-msgstr "शीर्ष कलाकारहरू"
+#: src/local-metadata/grl-local-metadata.c:677
+msgid "A GIO supported URL for images is required"
+msgstr "छविका लागि एउटा जिआईओ समर्थित यूआरएल आवश्यक छ"
 
-#: ../src/jamendo/grl-jamendo.c:157
-msgid "Top albums"
-msgstr "शीर्ष एल्बमहरू"
+#: src/magnatune/grl-magnatune.c:123
+msgid "Genres"
+msgstr "विधाहरू"
 
-#: ../src/jamendo/grl-jamendo.c:159
-msgid "Top tracks"
-msgstr "शीर्ष गानाहरू"
+#: src/magnatune/grl-magnatune.c:131
+msgid "A source for browsing music"
+msgstr "सङ्गीत ब्राउजिङ लागि एउटा स्रोत"
 
-#: ../src/jamendo/grl-jamendo.c:348 ../src/jamendo/grl-jamendo.c:708
-#: ../src/shoutcast/grl-shoutcast.c:416 ../src/shoutcast/grl-shoutcast.c:470
-msgid "Failed to parse response"
-msgstr "प्रत्त्योतर पदवर्णन गर्न सकेन"
+#: src/magnatune/grl-magnatune.c:421
+#, c-format
+msgid "Failed to get database from magnatune: %s"
+msgstr "म्यागनाटुनबाट डाटाबेस प्राप्त गर्न असफल भयो: %s"
 
-#: ../src/jamendo/grl-jamendo.c:356 ../src/jamendo/grl-jamendo.c:363
-#: ../src/podcasts/grl-podcasts.c:1368 ../src/shoutcast/grl-shoutcast.c:424
+#: src/magnatune/grl-magnatune.c:451
+#, c-format
+msgid "Failed to save database from magnatune: “%s”"
+msgstr "म्यागनाटुनबाट डाटाबेस बचत गर्न असफल भयो: \"%s\""
+
+#: src/magnatune/grl-magnatune.c:722
+#, c-format
+msgid "Failed to get table from magnatune db: %s"
+msgstr "म्यागनाटुन डीबीबाट तालिका प्राप्त गर्न असफल भयो: %s"
+
+#: src/magnatune/grl-magnatune.c:738
+#, c-format
+msgid "Fail before returning media to user: %s"
+msgstr "प्रयोगकर्तालाई मिडिया फिर्ता गर्नु भन्दा पहिले असफल भयो: %s"
+
+#: src/metadata-store/grl-metadata-store.c:40
+msgid "Metadata Store"
+msgstr "मेटाडाटा भण्डार"
+
+#: src/metadata-store/grl-metadata-store.c:41
+msgid "A plugin for storing extra metadata information"
+msgstr "अतिरिक्त मेटाडाटा सूचना भण्डारणका लागि प्लगइन"
+
+#: src/metadata-store/grl-metadata-store.c:598
+#: src/metadata-store/grl-metadata-store.c:617
+#: src/metadata-store/grl-metadata-store.c:829
+#: src/tracker3/grl-tracker-source-api.c:471
+#: src/tracker/grl-tracker-source-api.c:640
+#, c-format
+msgid "Failed to update metadata: %s"
+msgstr "मेटाडेटा अद्यावधिक गर्न असफल भयो: %s"
+
+#: src/metadata-store/grl-metadata-store.c:599
+msgid "specified keys are not writable"
+msgstr "निर्दिष्ट गरिएका कुञ्जीहरू लेखनयोग्य छैनन्"
+
+#: src/metadata-store/grl-metadata-store.c:639
+msgid "Failed to update metadata"
+msgstr "मेटाडेटा अद्यावधिक गर्न असफल भयो"
+
+#: src/metadata-store/grl-metadata-store.c:785
+#: src/metadata-store/grl-metadata-store.c:830
+msgid "“source-id” not available"
+msgstr "\"source-id\" उपलब्ध छैन"
+
+#: src/metadata-store/grl-metadata-store.c:805
+msgid "Failed to resolve"
+msgstr "समाधान गर्न असफल"
+
+#: src/metadata-store/grl-metadata-store.c:942
+#: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
+#: src/shoutcast/grl-shoutcast.c:749
+#, c-format
+msgid "Failed to search: %s"
+msgstr "खोजी असफल भयो: %s "
+
+#: src/opensubtitles/grl-opensubtitles.c:40
+msgid "OpenSubtitles Provider"
+msgstr "सबटाइटल प्रदायक खोल्नुहोस्"
+
+#: src/opensubtitles/grl-opensubtitles.c:41
+msgid "A source providing a list of subtitles for a video"
+msgstr "भिडियोका लागि उपशीर्षकहरूको सूची उपलब्ध गराउने स्रोत"
+
+#: src/optical-media/grl-optical-media.c:44
+msgid "Optical Media"
+msgstr "अप्टिकल मिडिया"
+
+#: src/optical-media/grl-optical-media.c:45
+msgid "A source for browsing optical media"
+msgstr "अप्टिकल मिडिया ब्राउजिङका लागि एउटा स्रोत"
+
+#: src/podcasts/grl-podcasts.c:148
+msgid "A source for browsing podcasts"
+msgstr "पोडकास्ट ब्राउज गर्नका लागि एउटा स्रोत"
+
+#: src/podcasts/grl-podcasts.c:759 src/podcasts/grl-podcasts.c:779
+#, c-format
+msgid "Failed to get podcast streams: %s"
+msgstr "पोडकास्ट स्ट्रिमहरू प्राप्त गर्न असफल भयो: %s"
+
+#: src/podcasts/grl-podcasts.c:1245 src/podcasts/grl-podcasts.c:1254
+#: src/podcasts/grl-podcasts.c:1264
+msgid "Failed to parse content"
+msgstr "सामग्री पद वर्णन गर्न असफल"
+
+#: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
+msgid "Failed to parse podcast contents"
+msgstr "पोडकास्ट सामाग्री पद वर्णन गर्न असफल"
+
+#: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
 msgid "Empty response"
 msgstr "खाली प्रतिक्रिया"
 
-#: ../src/jamendo/grl-jamendo.c:677 ../src/shoutcast/grl-shoutcast.c:558
+#: src/podcasts/grl-podcasts.c:1459
+msgid "Failed to get podcast information"
+msgstr "पोडकास्ट सूचना प्राप्त गर्न असफल"
+
+#: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
+#, c-format
+msgid "Failed to get podcasts list: %s"
+msgstr "पोडकास्ट सूची प्राप्त गर्न असफल भयो: %s"
+
+#: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
+msgid "Failed to get podcast stream metadata"
+msgstr "पोडकास्ट स्ट्रिम मेटाडेटा प्राप्त गर्न असफल"
+
+#: src/podcasts/grl-podcasts.c:1625
+msgid "Failed to get podcast metadata"
+msgstr "पोडकास्ट मेटाडेटा प्राप्त गर्न असफल भयो"
+
+#: src/podcasts/grl-podcasts.c:1809
+msgid "Cannot create containers. Only feeds are accepted"
+msgstr "कन्टेनर सिर्जना गर्न सकिँदैन । फिड मात्र स्वीकार गरिन्छ"
+
+#: src/podcasts/grl-podcasts.c:1814
+msgid "URL required"
+msgstr "यूआरएल आवश्यक"
+
+#: src/raitv/grl-raitv.c:49 src/youtube/grl-youtube.c:73
+msgid "Most Popular"
+msgstr "सबैभन्दा लोकप्रिय"
+
+#: src/raitv/grl-raitv.c:52
+msgid "Recent"
+msgstr "हालसालै"
+
+#: src/raitv/grl-raitv.c:93
+msgid "A source for browsing and searching Rai.tv videos"
+msgstr "Rai.tv भिडियो ब्राउज गर्न र खोजी गर्नका लागि एउटा स्रोत"
+
+#: src/raitv/grl-raitv.c:164
+msgid "All"
+msgstr "सबै"
+
+#: src/raitv/grl-raitv.c:165
+msgid "Black and White"
+msgstr "श्यामश्वेत"
+
+#: src/raitv/grl-raitv.c:166
+msgid "Cinema"
+msgstr "सिनेमा"
+
+#: src/raitv/grl-raitv.c:167
+msgid "Comedians"
+msgstr "हास्य कलाकारहरू"
+
+#: src/raitv/grl-raitv.c:168
+msgid "Chronicle"
+msgstr "क्रमिक बिवरण"
+
+#: src/raitv/grl-raitv.c:169
+msgid "Culture"
+msgstr "संस्कृति"
+
+#: src/raitv/grl-raitv.c:170
+msgid "Economy"
+msgstr "अर्थतन्त्र"
+
+#: src/raitv/grl-raitv.c:171
+msgid "Fiction"
+msgstr "कथा"
+
+#: src/raitv/grl-raitv.c:172
+msgid "Junior"
+msgstr "जूनियर"
+
+#: src/raitv/grl-raitv.c:173
+msgid "Investigations"
+msgstr "अनुसन्धान"
+
+#: src/raitv/grl-raitv.c:174
+msgid "Interviews"
+msgstr "अन्तरवार्ता"
+
+#: src/raitv/grl-raitv.c:175
+msgid "Music"
+msgstr "सङ्गित"
+
+#: src/raitv/grl-raitv.c:176
+msgid "News"
+msgstr "समाचारहरू"
+
+#: src/raitv/grl-raitv.c:177
+msgid "Health"
+msgstr "स्वास्थ्य"
+
+#: src/raitv/grl-raitv.c:178
+msgid "Satire"
+msgstr "व्यङ्ग्य"
+
+#: src/raitv/grl-raitv.c:180
+msgid "Society"
+msgstr "समाज"
+
+#: src/raitv/grl-raitv.c:181
+msgid "Show"
+msgstr "देखाउने"
+
+#: src/raitv/grl-raitv.c:182
+msgid "Sport"
+msgstr "खेलकुद"
+
+#: src/raitv/grl-raitv.c:183
+msgid "History"
+msgstr "इतिहास"
+
+#: src/raitv/grl-raitv.c:184
+msgid "Politics"
+msgstr "राजनीति"
+
+#: src/raitv/grl-raitv.c:185
+msgid "Leisure"
+msgstr "खाली समय(फुर्सद)"
+
+#: src/raitv/grl-raitv.c:186
+msgid "Travel"
+msgstr "यात्रा"
+
+#: src/raitv/grl-raitv.c:616
+#, c-format
+msgid "Failed to browse: %s"
+msgstr "ब्राउज गर्न असफल भयो: %s"
+
+#: src/shoutcast/grl-shoutcast.c:60
+msgid "A source for browsing SHOUTcast radios"
+msgstr "SHOUTcast रेडियो ब्राउजिङका लागि एउटा स्रोत"
+
+#: src/shoutcast/grl-shoutcast.c:409 src/shoutcast/grl-shoutcast.c:463
+msgid "Failed to parse response"
+msgstr "प्रत्त्योतर पदवर्णन गर्न सकेन"
+
+#: src/shoutcast/grl-shoutcast.c:455
+#, c-format
+msgid "Cannot find media %s"
+msgstr "%s मिडिया फेला पार्न सकेन"
+
+#: src/shoutcast/grl-shoutcast.c:551
 #, c-format
 msgid "Failed to connect: %s"
 msgstr "जडान असफल : %s"
 
-#: ../src/jamendo/grl-jamendo.c:806
-#, fuzzy
-msgid "Feeds"
-msgstr "पोडकासट फिड खोजी गर्नुहोस्"
-
-#: ../src/jamendo/grl-jamendo.c:990 ../src/jamendo/grl-jamendo.c:1035
-#: ../src/jamendo/grl-jamendo.c:1062
-#, fuzzy, c-format
-msgid "Invalid identifier %s"
-msgstr "अज्ञात वा अवैध पहिचायक"
-
-#: ../src/jamendo/grl-jamendo.c:1049 ../src/youtube/grl-youtube.c:1104
-#: ../src/youtube/grl-youtube.c:1237 ../src/youtube/grl-youtube.c:1449
-#, fuzzy, c-format
-msgid "Invalid category identifier %s"
-msgstr "अज्ञात वा अवैध पहिचायक"
-
-#: ../src/jamendo/grl-jamendo.c:1228
-#, fuzzy, c-format
-msgid "Failed to browse: %s is a track"
-msgstr "ट्रयाक दाखिला धेरै पटक असफल भयो"
-
-#: ../src/jamendo/grl-jamendo.c:1287
-#, fuzzy, c-format
-msgid "Malformed query \"%s\""
-msgstr "कुञ्जी `%s' विकृत गरिएको छ"
-
-#: ../src/local-metadata/grl-local-metadata.c:42
-#, fuzzy
-msgid "Local Metadata Provider"
-msgstr "प्रदायक"
-
-#: ../src/local-metadata/grl-local-metadata.c:43
-msgid "A source providing locally available metadata"
-msgstr ""
-
-#: ../src/local-metadata/grl-local-metadata.c:388
-#: ../src/metadata-store/grl-metadata-store.c:791 ../src/raitv/grl-raitv.c:878
-#: ../src/tracker/grl-tracker-source-api.c:530
-#, fuzzy, c-format
-msgid "Failed to resolve: %s"
-msgstr "URI '%s' को लागि मिडिया समाधान गर्न सकेन"
-
-#: ../src/local-metadata/grl-local-metadata.c:682
-msgid "Cannot resolve any of the given keys"
-msgstr ""
-
-#: ../src/local-metadata/grl-local-metadata.c:686
-msgid "A GIO supported URL for images is required"
-msgstr ""
-
-#: ../src/magnatune/grl-magnatune.c:122
-#, fuzzy
-msgid "Genres"
-msgstr "विधा र कलाकार"
-
-#: ../src/magnatune/grl-magnatune.c:130
-#, fuzzy
-msgid "A source for browsing music"
-msgstr "सङ्गित"
-
-#: ../src/magnatune/grl-magnatune.c:422
-#, c-format
-msgid "Failed to get database from magnatune: %s"
-msgstr ""
-
-#: ../src/magnatune/grl-magnatune.c:452
-#, c-format
-msgid "Failed to save database from magnatune - '%s'"
-msgstr ""
-
-#: ../src/magnatune/grl-magnatune.c:697
-#, c-format
-msgid "Failed to get table from magnatune db: %s"
-msgstr ""
-
-#: ../src/magnatune/grl-magnatune.c:713
-#, c-format
-msgid "Fail before returning media to user: %s"
-msgstr ""
-
-#: ../src/metadata-store/grl-metadata-store.c:45
-#, fuzzy
-msgid "Metadata Store"
-msgstr "मेटाडेटा"
-
-#: ../src/metadata-store/grl-metadata-store.c:46
-msgid "A plugin for storing extra metadata information"
-msgstr ""
-
-#: ../src/metadata-store/grl-metadata-store.c:605
-#: ../src/metadata-store/grl-metadata-store.c:624
-#: ../src/metadata-store/grl-metadata-store.c:836
-#: ../src/tracker/grl-tracker-source-api.c:640
-#, fuzzy, c-format
-msgid "Failed to update metadata: %s"
-msgstr "अद्यावधिक गर्न असफल भयो"
-
-#: ../src/metadata-store/grl-metadata-store.c:606
-#, fuzzy
-msgid "specified keys are not writable"
-msgstr "लेख्नयोग्य"
-
-#: ../src/metadata-store/grl-metadata-store.c:646
-#, fuzzy
-msgid "Failed to update metadata"
-msgstr "मेटाडेटा"
-
-#: ../src/metadata-store/grl-metadata-store.c:792
-#: ../src/metadata-store/grl-metadata-store.c:837
-#, fuzzy
-msgid "\"source-id\" not available"
-msgstr "स्रोत %s पाइएन"
-
-#: ../src/metadata-store/grl-metadata-store.c:812
-#, fuzzy
-msgid "Failed to resolve"
-msgstr "होस्टनाम समाधान गर्न सक्दैन"
-
-#: ../src/metadata-store/grl-metadata-store.c:949
-#: ../src/metadata-store/grl-metadata-store.c:986 ../src/raitv/grl-raitv.c:432
-#: ../src/shoutcast/grl-shoutcast.c:756 ../src/vimeo/grl-vimeo.c:547
-#, fuzzy, c-format
-msgid "Failed to search: %s"
-msgstr "“%s” खोजी गर्नुहोस्"
-
-#: ../src/opensubtitles/grl-opensubtitles.c:40
-#, fuzzy
-msgid "OpenSubtitles Provider"
-msgstr "प्रदायक"
-
-#: ../src/opensubtitles/grl-opensubtitles.c:41
-msgid "A source providing a list of subtitles for a video"
-msgstr ""
-
-#: ../src/optical-media/grl-optical-media.c:44
-#, fuzzy
-msgid "Optical Media"
-msgstr "भ्रम"
-
-#: ../src/optical-media/grl-optical-media.c:45
-msgid "A source for browsing optical media"
-msgstr ""
-
-#: ../src/podcasts/grl-podcasts.c:153
-#, fuzzy
-msgid "A source for browsing podcasts"
-msgstr "पोडकास्ट"
-
-#: ../src/podcasts/grl-podcasts.c:762 ../src/podcasts/grl-podcasts.c:782
-#, fuzzy, c-format
-msgid "Failed to get podcast streams: %s"
-msgstr "होस्टनाम प्राप्त गर्न असफल: %s\n"
-
-#: ../src/podcasts/grl-podcasts.c:1248 ../src/podcasts/grl-podcasts.c:1257
-#: ../src/podcasts/grl-podcasts.c:1267
-#, fuzzy
-msgid "Failed to parse content"
-msgstr "जिपिजि प्रयोगकर्ता आइडी संकेत पद वर्णन गर्न असफल भयो ।"
-
-#: ../src/podcasts/grl-podcasts.c:1302
-#, fuzzy
-msgid "Failed to parse podcast contents"
-msgstr "%sतर्कहरू पार्स गर्न असफल\n"
-
-#: ../src/podcasts/grl-podcasts.c:1457
-#, fuzzy
-msgid "Failed to get podcast information"
-msgstr "प्रदर्शनपर्दाको जानकारी प्राप्त गर्न सकेन"
-
-#: ../src/podcasts/grl-podcasts.c:1497 ../src/podcasts/grl-podcasts.c:1517
-#, fuzzy, c-format
-msgid "Failed to get podcasts list: %s"
-msgstr "स्रोत सूची प्राप्त गर्न असफल भयो"
-
-#: ../src/podcasts/grl-podcasts.c:1570 ../src/podcasts/grl-podcasts.c:1585
-msgid "Failed to get podcast stream metadata"
-msgstr ""
-
-#: ../src/podcasts/grl-podcasts.c:1623
-#, fuzzy
-msgid "Failed to get podcast metadata"
-msgstr "स्रोत सूची प्राप्त गर्न असफल भयो"
-
-#: ../src/podcasts/grl-podcasts.c:1807
-msgid "Cannot create containers. Only feeds are accepted"
-msgstr ""
-
-#: ../src/podcasts/grl-podcasts.c:1812
-#, fuzzy
-msgid "URL required"
-msgstr "युआरएल"
-
-#: ../src/raitv/grl-raitv.c:49 ../src/youtube/grl-youtube.c:78
-#, fuzzy
-msgid "Most Popular"
-msgstr "लोकप्रिय अनुप्रयोगहरूको सूची"
-
-#: ../src/raitv/grl-raitv.c:52
-msgid "Recent"
-msgstr "हालसालै"
-
-#: ../src/raitv/grl-raitv.c:93
-msgid "A source for browsing and searching Rai.tv videos"
-msgstr ""
-
-#: ../src/raitv/grl-raitv.c:171
-msgid "All"
-msgstr "सबै"
-
-#: ../src/raitv/grl-raitv.c:172
-#, fuzzy
-msgid "Black and White"
-msgstr "श्यामश्वेत"
-
-#: ../src/raitv/grl-raitv.c:173
-msgid "Cinema"
-msgstr "सिनेमा"
-
-#: ../src/raitv/grl-raitv.c:174
-msgid "Comedians"
-msgstr "हास्य कलाकारहरू"
-
-#: ../src/raitv/grl-raitv.c:175
-msgid "Chronicle"
-msgstr ""
-
-#: ../src/raitv/grl-raitv.c:176
-msgid "Culture"
-msgstr "संस्कृति"
-
-#: ../src/raitv/grl-raitv.c:177
-msgid "Economy"
-msgstr "अर्थतन्त्र"
-
-#: ../src/raitv/grl-raitv.c:178
-msgid "Fiction"
-msgstr "कथा"
-
-#: ../src/raitv/grl-raitv.c:179
-msgid "Junior"
-msgstr "जूनियर"
-
-#: ../src/raitv/grl-raitv.c:180
-msgid "Investigations"
-msgstr "अनुसन्धान"
-
-#: ../src/raitv/grl-raitv.c:181
-msgid "Interviews"
-msgstr "अन्तरवार्ता"
-
-#: ../src/raitv/grl-raitv.c:182
-msgid "Music"
-msgstr "सङ्गित"
-
-#: ../src/raitv/grl-raitv.c:183
-msgid "News"
-msgstr "समाचारहरू"
-
-#: ../src/raitv/grl-raitv.c:184
-msgid "Health"
-msgstr "स्वास्थ्य"
-
-#: ../src/raitv/grl-raitv.c:185
-msgid "Satire"
-msgstr "व्यङ्ग्य"
-
-#: ../src/raitv/grl-raitv.c:187
-msgid "Society"
-msgstr "समाज"
-
-#: ../src/raitv/grl-raitv.c:188
-msgid "Show"
-msgstr "देखाउने"
-
-#: ../src/raitv/grl-raitv.c:189
-msgid "Sport"
-msgstr "खेलकुद"
-
-#: ../src/raitv/grl-raitv.c:190
-#, fuzzy
-msgid "History"
-msgstr "इतिहास"
-
-#: ../src/raitv/grl-raitv.c:191
-msgid "Politics"
-msgstr "राजनीति"
-
-#: ../src/raitv/grl-raitv.c:192
-msgid "Leisure"
-msgstr "खाली समय(फुर्सद)"
-
-#: ../src/raitv/grl-raitv.c:193
-msgid "Travel"
-msgstr "यात्रा"
-
-#: ../src/raitv/grl-raitv.c:625
-#, fuzzy, c-format
-msgid "Failed to browse: %s"
-msgstr "ब्राउज़ गर्नुहोस"
-
-#: ../src/shoutcast/grl-shoutcast.c:65
-msgid "A source for browsing SHOUTcast radios"
-msgstr ""
-
-#: ../src/shoutcast/grl-shoutcast.c:462
-#, fuzzy, c-format
-msgid "Cannot find media %s"
-msgstr "फोल्डर भेटिएन  “%s”."
-
-#: ../src/shoutcast/grl-shoutcast.c:757 ../src/vimeo/grl-vimeo.c:548
+#: src/shoutcast/grl-shoutcast.c:750
 msgid "non-NULL search text is required"
-msgstr ""
+msgstr "शून्य विहिन खोजी पाठ आवश्यक छ"
 
-#: ../src/thetvdb/grl-thetvdb.c:98
+#: src/thetvdb/grl-thetvdb.c:93
 msgid "A source for fetching metadata of television shows"
-msgstr ""
+msgstr "टेलिभिजन कार्यक्रमको मेटाडाटा तान्नका लागि एउटा स्रोत"
 
-#: ../src/tmdb/grl-tmdb.c:1004
+#: src/tmdb/grl-tmdb.c:998
 msgid "Remote data does not contain valid identifier"
-msgstr ""
+msgstr "टाढाको डेटाले वैध पहिचायक समाविष्ट गर्दैन"
 
+#. I can haz templatze ??
+#. Schedule the next row to parse
 #. I can haz templatze ??
 #. Only emit this last one if more result than expected
 #. Schedule the next line to parse
-#: ../src/tracker/grl-tracker-source-api.c:401
-#: ../src/tracker/grl-tracker-source-api.c:484
-#, fuzzy, c-format
+#: src/tracker3/grl-tracker-source-api.c:243
+#: src/tracker3/grl-tracker-source-api.c:319
+#: src/tracker/grl-tracker-source-api.c:401
+#: src/tracker/grl-tracker-source-api.c:484
+#, c-format
 msgid "Failed to query: %s"
-msgstr "अज्ञात क्वेरी '%s'"
+msgstr "क्वेरी गर्न असफल: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:585
+#: src/tracker3/grl-tracker-source-api.c:418
+#: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
-msgstr ""
+msgstr "uri बाट मिडिया प्राप्त गर्न असफल भयो: %s"
 
-#: ../src/tracker/grl-tracker-source-api.c:806
-#, fuzzy
+#: src/tracker3/grl-tracker-source-api.c:604
+#: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
-msgstr "क्वेरी बफर रित्तो छ"
+msgstr "खाली क्वेरी"
 
-#: ../src/tracker/grl-tracker-source-api.c:1088
-#, fuzzy, c-format
-msgid "ID '%s' is not known in this source"
-msgstr "स्रोत %s पाइएन"
+#: src/tracker3/grl-tracker-source-api.c:825
+#: src/tracker3/grl-tracker-source-api.c:921
+#: src/tracker/grl-tracker-source-api.c:1087
+#, c-format
+msgid "ID “%s” is not known in this source"
+msgstr "यो स्रोतमा ID \"%s\" ज्ञात छैन"
 
-#: ../src/tracker/grl-tracker-source-priv.h:44
+#: src/tracker3/grl-tracker-source-priv.h:47
+msgid "A plugin for searching multimedia content using Tracker3"
+msgstr "ट्रयाकर३ प्रयोग गरेर मल्टिमिडिया सामाग्री खोज्नका लागि एउटा प्लगइन"
+
+#: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
-msgstr ""
+msgstr "ट्रयाकर प्रयोग गरेर मल्टिमिडिया सामग्री खोजी का लागि एउटा प्लगइन"
 
-#: ../src/tracker/grl-tracker-utils.c:738
-#, fuzzy, c-format
-msgid "Removable - %s"
-msgstr "हटाउन सकिने माध्यम"
-
-#: ../src/tracker/grl-tracker-utils.c:750
-msgid "Local files"
-msgstr "स्थानीय फाइल"
-
-#: ../src/vimeo/grl-vimeo.c:56
-msgid "A source for browsing and searching Vimeo videos"
-msgstr ""
-
-#: ../src/youtube/grl-youtube.c:60
-#, fuzzy
+#: src/youtube/grl-youtube.c:55
 msgid "Standard feeds"
-msgstr "मानक"
+msgstr "मानक फिड"
 
-#: ../src/youtube/grl-youtube.c:63
+#: src/youtube/grl-youtube.c:58
 msgid "Categories"
 msgstr "वर्गहरु"
 
-#: ../src/youtube/grl-youtube.c:69
+#: src/youtube/grl-youtube.c:64
 msgid "Top Rated"
 msgstr "शिर्ष दर"
 
-#: ../src/youtube/grl-youtube.c:72
-#, fuzzy
+#: src/youtube/grl-youtube.c:67
 msgid "Top Favorites"
-msgstr "मनपर्ने"
+msgstr "धेरै मनपर्ने"
 
-#: ../src/youtube/grl-youtube.c:75
-#, fuzzy
+#: src/youtube/grl-youtube.c:70
 msgid "Most Viewed"
-msgstr "हालै हेरिसकेको"
+msgstr "धेरै पटक हेरिएको"
 
-#: ../src/youtube/grl-youtube.c:81
-#, fuzzy
+#: src/youtube/grl-youtube.c:76
 msgid "Most Recent"
-msgstr "सबैभन्दा पछिल्लो प्रयोग अनुरुप क्रमबद्ध गर्नुहोस्"
+msgstr "सबैभन्दा नयाँ"
 
-#: ../src/youtube/grl-youtube.c:84
-#, fuzzy
+#: src/youtube/grl-youtube.c:79
 msgid "Most Discussed"
-msgstr "बढीमा"
+msgstr "सबैभन्दा बढी छलफल गरिएको"
 
-#: ../src/youtube/grl-youtube.c:87
-#, fuzzy
+#: src/youtube/grl-youtube.c:82
 msgid "Most Linked"
-msgstr "धेरै जसो "
+msgstr "धेरै लिङ्क गरिएको"
 
-#: ../src/youtube/grl-youtube.c:90
-#, fuzzy
+#: src/youtube/grl-youtube.c:85
 msgid "Most Responded"
-msgstr "बढीमा"
+msgstr "धेरैले प्रतिक्रिया दिए"
 
-#: ../src/youtube/grl-youtube.c:93
-#, fuzzy
+#: src/youtube/grl-youtube.c:88
 msgid "Recently Featured"
-msgstr "प्रदर्शित"
+msgstr "हालै विशेष गरिएको"
 
-#: ../src/youtube/grl-youtube.c:96
+#: src/youtube/grl-youtube.c:91
 msgid "Watch On Mobile"
 msgstr "मोबाइलमा हेर्नुहोस्"
 
-#: ../src/youtube/grl-youtube.c:115
+#: src/youtube/grl-youtube.c:110
 msgid "A source for browsing and searching YouTube videos"
-msgstr ""
+msgstr "यु ट्युब भिडियो ब्राउज गर्न र खोज्नका लागि एउटा स्रोत"
 
-#: ../src/youtube/grl-youtube.c:863
-#, fuzzy
+#: src/youtube/grl-youtube.c:856
 msgid "Failed to get feed"
-msgstr "होस्टनाम प्राप्त गर्न असफल: %s\n"
+msgstr "फिड प्राप्त गर्न असफल भयो"
 
-#: ../src/youtube/grl-youtube.c:1040 ../src/youtube/grl-youtube.c:1428
-#, fuzzy, c-format
+#: src/youtube/grl-youtube.c:1033 src/youtube/grl-youtube.c:1421
+#, c-format
 msgid "Invalid feed identifier %s"
-msgstr "अज्ञात वा अवैध पहिचायक"
+msgstr "अवैध फिड पहिचायक %s"
+
+#: src/youtube/grl-youtube.c:1097 src/youtube/grl-youtube.c:1230
+#: src/youtube/grl-youtube.c:1442
+#, c-format
+msgid "Invalid category identifier %s"
+msgstr "अवैध कोटि पहिचायक %s"
+
+#~ msgid "Albums of the week"
+#~ msgstr "यो हप्ताका एल्बमहरू"
+
+#~ msgid "Tracks of the week"
+#~ msgstr "यो हप्ताका गानाहरू"
+
+#~ msgid "New releases"
+#~ msgstr "नयाँ विज्ञप्तिहरू"
+
+#~ msgid "Top artists"
+#~ msgstr "शीर्ष कलाकारहरू"
+
+#~ msgid "Top albums"
+#~ msgstr "शीर्ष एल्बमहरू"
+
+#~ msgid "Top tracks"
+#~ msgstr "शीर्ष गानाहरू"
+
+#, fuzzy
+#~ msgid "Feeds"
+#~ msgstr "पोडकासट फिड खोजी गर्नुहोस्"
+
+#, fuzzy
+#~ msgid "Invalid identifier %s"
+#~ msgstr "अज्ञात वा अवैध पहिचायक"
+
+#, fuzzy
+#~ msgid "Failed to browse: %s is a track"
+#~ msgstr "ट्रयाक दाखिला धेरै पटक असफल भयो"
+
+#, fuzzy
+#~ msgid "Malformed query \"%s\""
+#~ msgstr "कुञ्जी `%s' विकृत गरिएको छ"
+
+#, fuzzy
+#~ msgid "Removable - %s"
+#~ msgstr "हटाउन सकिने माध्यम"
+
+#~ msgid "Local files"
+#~ msgstr "स्थानीय फाइल"

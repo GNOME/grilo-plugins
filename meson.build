@@ -56,6 +56,11 @@ goa_dep = dependency('goa-1.0', version: '>= 3.17.91', required: get_option('goa
 gom_dep = dependency('gom-1.0', version: '>= 0.4', required: false)
 grilo_net_dep = dependency('grilo-net-0.3', version: '>= 0.3.0', required: false,
                            fallback: ['grilo', 'libgrlnet_dep'])
+if grilo_net_dep.found()
+  soup_api_version = grilo_net_dep.get_variable('soupapiversion', default_value: '2.4')
+else
+  soup_api_version = '2.4'
+endif
 grilo_pls_dep = dependency('grilo-pls-0.3', version: '>= 0.3.0', required: false,
                            fallback: ['grilo', 'libgrlpls_dep'])
 gstreamer_dep = dependency('gstreamer-1.0', required: false)
@@ -70,7 +75,15 @@ else
 endif
 libgdata_dep = dependency('libgdata', version: '>= 0.9.1', required: false)
 libmediaart_dep = dependency('libmediaart-2.0', required: false)
-libsoup_dep = dependency('libsoup-2.4', required: false)
+if soup_api_version == '2.4'
+  libsoup_dep = dependency('libsoup-2.4', required: false)
+  libsoup24_dep = libsoup_dep
+  libsoup30_dep = dependency('unresolvable-dep', required: false)
+else
+  libsoup_dep = dependency('libsoup-3.0', required: false)
+  libsoup30_dep = libsoup_dep
+  libsoup24_dep = dependency('unresolvable-dep', required: false)
+endif
 libxml_dep = dependency('libxml-2.0', required: false)
 oauth_dep = dependency('oauth', required: false)
 sqlite3_dep = dependency('sqlite3', required: false)
@@ -111,7 +124,7 @@ OPT_DEPS = 2
 plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['bookmarks', [gio_dep, libxml_dep, gom_dep], []],
     ['chromaprint', [gstreamer_dep], []],
-    ['dleyna', [gio_dep, gio_unix_dep, libsoup_dep], []],
+    ['dleyna', [gio_dep, gio_unix_dep, libsoup24_dep], []],
     ['dmap', [libdmapsharing_dep, libxml_dep], []],
     ['filesystem', [grilo_pls_dep], []],
     ['flickr', [grilo_net_dep, libxml_dep, oauth_dep], [goa_dep]],
@@ -121,13 +134,13 @@ plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['lua-factory', [lua_dep, libarchive_dep, grilo_net_dep, json_glib_dep, libxml_dep], [goa_dep, totem_plparser_mini_dep]],
     ['magnatune', [sqlite3_dep, grilo_net_dep], []],
     ['metadata-store', [sqlite3_dep], []],
-    ['opensubtitles', [gio_dep, libsoup_dep], []],
+    ['opensubtitles', [gio_dep, libsoup24_dep], []],
     ['optical-media', [totem_plparser_dep], []],
     ['podcasts', [grilo_net_dep, libxml_dep, sqlite3_dep, totem_plparser_dep], []],
     ['raitv', [grilo_net_dep, libxml_dep], []],
     ['shoutcast', [grilo_net_dep, libxml_dep], []],
     ['thetvdb', [grilo_net_dep, libxml_dep, libarchive_dep, gom_dep], []],
-    ['tmdb', [json_glib_dep, libsoup_dep, grilo_net_dep], []],
+    ['tmdb', [json_glib_dep, libsoup24_dep, grilo_net_dep], []],
     ['tracker', [tracker_sparql_dep], []],
     ['tracker3', [tracker3_dep], []],
     ['youtube', [grilo_net_dep, libxml_dep, libgdata_dep, totem_plparser_dep], []],

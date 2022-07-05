@@ -73,16 +73,17 @@ if libdmapsharing4_dep.found()
 else
     libdmapsharing_dep = dependency('libdmapsharing-3.0', version: '>= 2.9.12', required: false)
 endif
-libgdata_dep = dependency('libgdata', version: '>= 0.9.1', required: false)
 libmediaart_dep = dependency('libmediaart-2.0', required: false)
 if soup_api_version == '2.4'
   libsoup_dep = dependency('libsoup-2.4', required: false)
   libsoup24_dep = libsoup_dep
   libsoup30_dep = dependency('unresolvable-dep', required: false)
+  libgdata_dep = dependency('libgdata', version: '>= 0.9.1', required: false)
 else
   libsoup_dep = dependency('libsoup-3.0', required: false)
   libsoup30_dep = libsoup_dep
   libsoup24_dep = dependency('unresolvable-dep', required: false)
+  libgdata_dep = dependency('unresolvable-dep', required: false)
 endif
 libxml_dep = dependency('libxml-2.0', required: false)
 oauth_dep = dependency('oauth', required: false)

@@ -70,7 +70,6 @@ build_stable:
       -Denable-thetvdb=yes
       -Denable-tmdb=yes
       -Denable-tracker3=yes
-      -Denable-vimeo=yes
       -Denable-youtube=yes
     - ninja -C _build
     - ninja -C _build install

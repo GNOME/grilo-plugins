@@ -18,6 +18,12 @@ variables:
     vala
     gtk-doc
 
+  DEPENDENCY_GRILO_SOUP2:
+    libsoup-devel
+
+  DEPENDENCY_GRILO_SOUP3:
+    libsoup3-devel
+
   DEPENDENCIES:
     sqlite-devel
     libgcrypt-devel
@@ -45,10 +51,10 @@ build_stable:
   before_script:
     - dnf update -y --nogpgcheck
   script:
-    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES
+    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP2
     # As part of configuring grilo-plugins.git for build, the latest code from
     # grilo.git will be fetched by Meson and it will be built as a subproject.
-    - meson . _build --prefix=/usr
+    - meson . _build --prefix=/usr -Dgrilo:soup3=false
       -Denable-bookmarks=yes
       -Denable-chromaprint=yes
       -Denable-dleyna=yes
@@ -70,6 +76,50 @@ build_stable:
       -Denable-tmdb=yes
       -Denable-tracker3=yes
       -Denable-youtube=yes
+    - ninja -C _build
+    - ninja -C _build install
+    # Start a system bus for upower
+    - mkdir -p /run/dbus
+    - mkdir -p /var
+    - ln -s /var/run /run
+    - dbus-daemon --system --fork
+    - /usr/libexec/upowerd &
+    - LANG=C.UTF-8 dbus-run-session meson test -C _build --suite=grilo-plugins
+  artifacts:
+    name: meson-logs
+    when: on_failure
+    paths:
+      - _build/meson-logs
+
+build_soup3:
+  before_script:
+    - dnf update -y --nogpgcheck
+  script:
+    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP3
+    # As part of configuring grilo-plugins.git for build, the latest code from
+    # grilo.git will be fetched by Meson and it will be built as a subproject.
+    - meson . _build --prefix=/usr -Dgrilo:soup3=true
+      -Denable-bookmarks=yes
+      -Denable-chromaprint=yes
+      -Denable-dleyna=no
+      -Denable-dmap=yes
+      -Denable-filesystem=yes
+      -Denable-flickr=yes
+      -Denable-freebox=yes
+      -Denable-gravatar=yes
+      -Denable-local-metadata=yes
+      -Denable-lua-factory=yes
+      -Denable-magnatune=yes
+      -Denable-metadata-store=yes
+      -Denable-opensubtitles=no
+      -Denable-optical-media=yes
+      -Denable-podcasts=yes
+      -Denable-raitv=yes
+      -Denable-shoutcast=yes
+      -Denable-thetvdb=yes
+      -Denable-tmdb=no
+      -Denable-tracker3=yes
+      -Denable-youtube=no
     - ninja -C _build
     - ninja -C _build install
     # Start a system bus for upower

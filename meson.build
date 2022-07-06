@@ -141,7 +141,7 @@ plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['raitv', [grilo_net_dep, libxml_dep], []],
     ['shoutcast', [grilo_net_dep, libxml_dep], []],
     ['thetvdb', [grilo_net_dep, libxml_dep, libarchive_dep, gom_dep], []],
-    ['tmdb', [json_glib_dep, libsoup24_dep, grilo_net_dep], []],
+    ['tmdb', [json_glib_dep, grilo_net_dep], []],
     ['tracker', [tracker_sparql_dep], []],
     ['tracker3', [tracker3_dep], []],
     ['youtube', [grilo_net_dep, libxml_dep, libgdata_dep, totem_plparser_dep], []],

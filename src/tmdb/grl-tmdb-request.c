@@ -28,7 +28,6 @@
 
 #include <grilo.h>
 #include <net/grl-net.h>
-#include <libsoup/soup.h>
 #include <json-glib/json-glib.h>
 
 #include "grl-tmdb-request.h"
@@ -84,7 +83,7 @@ struct _GrlTmdbRequestPrivate {
   char *uri;
   char *api_key;
   GHashTable *args;
-  SoupURI *base;
+  GUri *base;
   GTask *task;
   JsonParser *parser;
   GrlTmdbRequestDetail detail;
@@ -142,7 +141,7 @@ static void
 grl_tmdb_request_init (GrlTmdbRequest *self)
 {
   self->priv = grl_tmdb_request_get_instance_private (self);
-  self->priv->base = soup_uri_new (TMDB_BASE_URI);
+  self->priv->base = g_uri_parse (TMDB_BASE_URI, G_URI_FLAGS_NONE, NULL);
   self->priv->parser = json_parser_new ();
   self->priv->detail = GRL_TMDB_REQUEST_DETAIL_COUNT;
 }
@@ -180,7 +179,7 @@ grl_tmdb_request_finalize (GObject *object)
   g_clear_pointer (&self->priv->api_key, g_free);
   g_clear_pointer (&self->priv->uri, g_free);
   g_clear_pointer (&self->priv->args, g_hash_table_unref);
-  g_clear_pointer (&self->priv->base, soup_uri_free);
+  g_clear_pointer (&self->priv->base, g_uri_unref);
   g_clear_object (&self->priv->parser);
 
   G_OBJECT_CLASS (grl_tmdb_request_parent_class)->finalize (object);
@@ -507,6 +506,35 @@ append_details_list (GrlTmdbRequest *self,
   return NULL;
 }
 
+static char *
+plus_escape (const char *orig)
+{
+  GString *s = g_string_new (orig);
+  g_string_replace (s, " ", "+", 0);
+  return g_string_free (s, FALSE);
+}
+
+static char *
+args_to_string (GHashTable *args)
+{
+  GHashTableIter iter;
+  const char *key, *value;
+  GString *s = NULL;
+
+  s = g_string_new (NULL);
+  g_hash_table_iter_init (&iter, args);
+  while (g_hash_table_iter_next (&iter, (gpointer *) &key, (gpointer *)&value)) {
+    g_autofree char *plus_escaped = NULL;
+    if (s->len > 0)
+      g_string_append_c (s, '&');
+    g_string_append_uri_escaped (s, key, G_URI_RESERVED_CHARS_SUBCOMPONENT_DELIMITERS, FALSE);
+    g_string_append_c (s, '=');
+    plus_escaped = plus_escape (value);
+    g_string_append_uri_escaped (s, plus_escaped, G_URI_RESERVED_CHARS_SUBCOMPONENT_DELIMITERS, FALSE);
+  }
+  return g_string_free (s, !(s->len > 0));
+}
+
 /**
  * grl_tmdb_request_run_async:
  * @self: Instance of GrlTmdbRequest
@@ -523,14 +551,23 @@ grl_tmdb_request_run_async (GrlTmdbRequest *self,
                             GCancellable *cancellable,
                             gpointer user_data)
 {
-  SoupURI *uri;
+  g_autoptr(GUri) absolute_uri = NULL;
+  g_autoptr(GUri) uri = NULL;
+  g_autofree char *query = NULL;
   char *call, *new_call;
   GHashTable *headers;
 
-  uri = soup_uri_new_with_base (self->priv->base, self->priv->uri);
-  soup_uri_set_query_from_form (uri, self->priv->args);
-  call = soup_uri_to_string (uri, FALSE);
-  soup_uri_free (uri);
+  absolute_uri = g_uri_parse_relative (self->priv->base, self->priv->uri, G_URI_FLAGS_NONE, NULL);
+  query = args_to_string (self->priv->args);
+  uri = g_uri_build (G_URI_FLAGS_NONE,
+                     g_uri_get_scheme (absolute_uri),
+                     g_uri_get_userinfo (absolute_uri),
+                     g_uri_get_host (absolute_uri),
+                     g_uri_get_port (absolute_uri),
+                     g_uri_get_path (absolute_uri),
+                     query,
+                     g_uri_get_fragment (absolute_uri));
+  call = g_uri_to_string (uri);
 
   new_call = append_details_list (self, call);
   if (new_call != NULL) {

@@ -29,7 +29,6 @@
 
 #include <grilo.h>
 #include <net/grl-net.h>
-#include <libsoup/soup-uri.h>
 #include <json-glib/json-glib.h>
 #include <glib/gi18n-lib.h>
 
@@ -64,7 +63,7 @@ struct _GrlTmdbSourcePrivate {
   GrlTmdbRequest *configuration;
   gboolean config_pending;
   GQueue *pending_resolves;
-  SoupURI *image_base_uri;
+  GUri *image_base_uri;
 };
 
 struct _ResolveClosure {
@@ -357,10 +356,7 @@ grl_tmdb_source_finalize (GObject *object)
     self->priv->api_key = NULL;
   }
 
-  if (self->priv->image_base_uri != NULL) {
-    soup_uri_free (self->priv->image_base_uri);
-    self->priv->image_base_uri = NULL;
-  }
+  g_clear_pointer (&self->priv->image_base_uri, g_uri_unref);
 
   if (self->priv->configuration != NULL) {
     g_object_unref (self->priv->configuration);
@@ -603,16 +599,16 @@ add_image (GrlTmdbSource *self,
            GrlKeyID       detail_key,
            const char    *image_path)
 {
-  SoupURI *uri;
+  g_autoptr(GUri) uri = NULL;
   GrlRelatedKeys *related_keys;
   char *str;
   int i, l;
 
   str = g_strconcat ("original", image_path, NULL);
-  uri = soup_uri_new_with_base (self->priv->image_base_uri, str);
+  uri = g_uri_parse_relative (self->priv->image_base_uri, str, G_URI_FLAGS_NONE, NULL);
   g_free (str);
 
-  str = soup_uri_to_string (uri, FALSE);
+  str = g_uri_to_string (uri);
 
   l = grl_data_length (GRL_DATA (media), detail_key);
 
@@ -627,7 +623,6 @@ add_image (GrlTmdbSource *self,
   }
 
   g_free (str);
-  soup_uri_free (uri);
 }
 
 static void
@@ -1203,7 +1198,7 @@ on_configuration_ready (GObject *source,
   value = grl_tmdb_request_get (request, "$.images.base_url");
   if (value != NULL) {
     GRL_DEBUG ("Got TMDb configuration.");
-    self->priv->image_base_uri = soup_uri_new (g_value_get_string (value));
+    self->priv->image_base_uri = g_uri_parse (g_value_get_string (value), G_URI_FLAGS_NONE, NULL);
     g_value_unset (value);
     g_free (value);
   }

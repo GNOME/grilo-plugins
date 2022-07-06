@@ -117,7 +117,7 @@ build_soup3:
       -Denable-raitv=yes
       -Denable-shoutcast=yes
       -Denable-thetvdb=yes
-      -Denable-tmdb=no
+      -Denable-tmdb=yes
       -Denable-tracker3=yes
       -Denable-youtube=no
     - ninja -C _build

@@ -101,7 +101,7 @@ build_soup3:
     - meson . _build --prefix=/usr -Dgrilo:soup3=true
       -Denable-bookmarks=yes
       -Denable-chromaprint=yes
-      -Denable-dleyna=no
+      -Denable-dleyna=yes
       -Denable-dmap=yes
       -Denable-filesystem=yes
       -Denable-flickr=yes

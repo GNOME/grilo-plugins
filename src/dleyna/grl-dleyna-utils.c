@@ -27,7 +27,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <gio/gio.h>
-#include <libsoup/soup.h>
 
 #ifdef G_OS_UNIX
 #include <sys/types.h>
@@ -337,15 +336,19 @@ grl_dleyna_util_uri_is_localhost (const gchar *uri,
   char hostname_buffer[HOSTNAME_LENGTH+1];
   const char *host;
   GInetAddress *ip_address;
-  SoupURI *s_uri;
+  g_autoptr(GUri) g_uri = NULL;
 
-  s_uri = soup_uri_new (uri);
+  g_uri = g_uri_parse (uri,
+                       G_URI_FLAGS_HAS_PASSWORD |
+                       G_URI_FLAGS_ENCODED_PATH |
+                       G_URI_FLAGS_ENCODED_QUERY |
+                       G_URI_FLAGS_ENCODED_FRAGMENT |
+                       G_URI_FLAGS_SCHEME_NORMALIZE, NULL);
 
-  host = soup_uri_get_host (s_uri);
+  host = g_uri_get_host (g_uri);
   if (host == NULL) {
     *localhost = FALSE;
     *localuser = FALSE;
-    soup_uri_free (s_uri);
     return;
   }
 
@@ -358,18 +361,16 @@ grl_dleyna_util_uri_is_localhost (const gchar *uri,
     if (addresses == NULL) {
       *localhost = FALSE;
       *localuser = FALSE;
-      soup_uri_free (s_uri);
       return;
     }
 
     *localhost = TRUE;
 
-    sockaddr = G_SOCKET_ADDRESS (g_inet_socket_address_new (addresses->data, s_uri->port));
+    sockaddr = G_SOCKET_ADDRESS (g_inet_socket_address_new (addresses->data, g_uri_get_port (g_uri)));
     *localuser = is_our_user (sockaddr);
 
     g_object_unref (sockaddr);
     g_list_free_full (addresses, g_object_unref);
-    soup_uri_free (s_uri);
     return;
   }
 
@@ -377,7 +378,6 @@ grl_dleyna_util_uri_is_localhost (const gchar *uri,
   if (ip_address == NULL) {
     *localhost = FALSE;
     *localuser = FALSE;
-    soup_uri_free (s_uri);
     return;
   }
 
@@ -385,7 +385,7 @@ grl_dleyna_util_uri_is_localhost (const gchar *uri,
   if (*localhost) {
     GSocketAddress *sockaddr;
 
-    sockaddr = G_SOCKET_ADDRESS (g_inet_socket_address_new (ip_address, s_uri->port));
+    sockaddr = G_SOCKET_ADDRESS (g_inet_socket_address_new (ip_address, g_uri_get_port (g_uri)));
     *localuser = is_our_user (sockaddr);
 
     g_object_unref (sockaddr);
@@ -394,7 +394,6 @@ grl_dleyna_util_uri_is_localhost (const gchar *uri,
   }
 
   g_object_unref (ip_address);
-  soup_uri_free (s_uri);
 }
 
 #else

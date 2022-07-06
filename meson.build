@@ -26,7 +26,7 @@ libdir = get_option('libdir')
 datadir = get_option('datadir')
 pluginsdir =join_paths(libdir, 'grilo-@0@.@1@'.format(grl_major, grl_minor))
 
-glib2_required = '2.44'
+glib2_required = '2.66'
 grilo_required = '0.3.8'
 glib2_required_info = '>= @0@'.format(glib2_required)
 grilo_required_info = '>= @0@'.format(grilo_required)
@@ -125,7 +125,7 @@ OPT_DEPS = 2
 plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['bookmarks', [gio_dep, libxml_dep, gom_dep], []],
     ['chromaprint', [gstreamer_dep], []],
-    ['dleyna', [gio_dep, gio_unix_dep, libsoup24_dep], []],
+    ['dleyna', [gio_dep, gio_unix_dep], []],
     ['dmap', [libdmapsharing_dep, libxml_dep], []],
     ['filesystem', [grilo_pls_dep], []],
     ['flickr', [grilo_net_dep, libxml_dep, oauth_dep], [goa_dep]],

@@ -21,8 +21,6 @@
 #ifndef _GRL_DLEYNA_UTILS_H_
 #define _GRL_DLEYNA_UTILS_H_
 
-#include <libsoup/soup.h>
-
 G_BEGIN_DECLS
 
 void grl_dleyna_util_uri_is_localhost (const gchar *uri,

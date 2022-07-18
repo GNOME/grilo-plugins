@@ -119,7 +119,7 @@ build_soup3:
       -Denable-thetvdb=yes
       -Denable-tmdb=yes
       -Denable-tracker3=yes
-      -Denable-youtube=no
+      -Denable-youtube=yes
     - ninja -C _build
     - ninja -C _build install
     # Start a system bus for upower

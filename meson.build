@@ -83,7 +83,7 @@ else
   libsoup_dep = dependency('libsoup-3.0', required: false)
   libsoup30_dep = libsoup_dep
   libsoup24_dep = dependency('unresolvable-dep', required: false)
-  libgdata_dep = dependency('unresolvable-dep', required: false)
+  libgdata_dep = dependency('libgdata-1.0', required: false)
 endif
 libxml_dep = dependency('libxml-2.0', required: false)
 oauth_dep = dependency('oauth', required: false)

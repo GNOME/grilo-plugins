@@ -63,33 +63,6 @@ GRL_LOG_DOMAIN_STATIC(youtube_log_domain);
 #define YOUTUBE_TOP_RATED_ID         (YOUTUBE_FEEDS_ID "/0")
 #define YOUTUBE_TOP_RATED_NAME       N_("Top Rated")
 
-#define YOUTUBE_TOP_FAVS_ID          (YOUTUBE_FEEDS_ID "/1")
-#define YOUTUBE_TOP_FAVS_NAME        N_("Top Favorites")
-
-#define YOUTUBE_MOST_VIEWED_ID       (YOUTUBE_FEEDS_ID "/2")
-#define YOUTUBE_MOST_VIEWED_NAME     N_("Most Viewed")
-
-#define YOUTUBE_MOST_POPULAR_ID      (YOUTUBE_FEEDS_ID "/3")
-#define YOUTUBE_MOST_POPULAR_NAME    N_("Most Popular")
-
-#define YOUTUBE_MOST_RECENT_ID       (YOUTUBE_FEEDS_ID "/4")
-#define YOUTUBE_MOST_RECENT_NAME     N_("Most Recent")
-
-#define YOUTUBE_MOST_DISCUSSED_ID    (YOUTUBE_FEEDS_ID "/5")
-#define YOUTUBE_MOST_DISCUSSED_NAME  N_("Most Discussed")
-
-#define YOUTUBE_MOST_LINKED_ID       (YOUTUBE_FEEDS_ID "/6")
-#define YOUTUBE_MOST_LINKED_NAME     N_("Most Linked")
-
-#define YOUTUBE_MOST_RESPONDED_ID    (YOUTUBE_FEEDS_ID "/7")
-#define YOUTUBE_MOST_RESPONDED_NAME  N_("Most Responded")
-
-#define YOUTUBE_FEATURED_ID          (YOUTUBE_FEEDS_ID "/8")
-#define YOUTUBE_FEATURED_NAME        N_("Recently Featured")
-
-#define YOUTUBE_MOBILE_ID            (YOUTUBE_FEEDS_ID "/9")
-#define YOUTUBE_MOBILE_NAME          N_("Watch On Mobile")
-
 /* --- Other --- */
 
 #define YOUTUBE_MAX_CHUNK       50
@@ -217,22 +190,13 @@ static void produce_from_directory (CategoryInfo *dir, guint dir_size, Operation
 
 guint root_dir_size = 2;
 CategoryInfo root_dir[] = {
-  {YOUTUBE_FEEDS_ID,      YOUTUBE_FEEDS_NAME,      10},
+  {YOUTUBE_FEEDS_ID,      YOUTUBE_FEEDS_NAME,      1},
   {YOUTUBE_CATEGORIES_ID, YOUTUBE_CATEGORIES_NAME, -1},
   {NULL, NULL, 0}
 };
 
 CategoryInfo feeds_dir[] = {
   {YOUTUBE_TOP_RATED_ID,      YOUTUBE_TOP_RATED_NAME,       -1},
-  {YOUTUBE_TOP_FAVS_ID,       YOUTUBE_TOP_FAVS_NAME,        -1},
-  {YOUTUBE_MOST_VIEWED_ID,    YOUTUBE_MOST_VIEWED_NAME,     -1},
-  {YOUTUBE_MOST_POPULAR_ID,   YOUTUBE_MOST_POPULAR_NAME,    -1},
-  {YOUTUBE_MOST_RECENT_ID,    YOUTUBE_MOST_RECENT_NAME,     -1},
-  {YOUTUBE_MOST_DISCUSSED_ID, YOUTUBE_MOST_DISCUSSED_NAME,  -1},
-  {YOUTUBE_MOST_LINKED_ID,    YOUTUBE_MOST_LINKED_NAME,     -1},
-  {YOUTUBE_MOST_RESPONDED_ID, YOUTUBE_MOST_RESPONDED_NAME,  -1},
-  {YOUTUBE_FEATURED_ID,       YOUTUBE_FEATURED_NAME,        -1},
-  {YOUTUBE_MOBILE_ID,         YOUTUBE_MOBILE_NAME,          -1},
   {NULL, NULL, 0}
 };
 

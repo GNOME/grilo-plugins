@@ -78,7 +78,7 @@ if soup_api_version == '2.4'
   libsoup_dep = dependency('libsoup-2.4', required: false)
   libsoup24_dep = libsoup_dep
   libsoup30_dep = dependency('unresolvable-dep', required: false)
-  libgdata_dep = dependency('libgdata', version: '>= 0.9.1', required: false)
+  libgdata_dep = dependency('libgdata', version: '>= 0.17.0', required: false)
 else
   libsoup_dep = dependency('libsoup-3.0', required: false)
   libsoup30_dep = libsoup_dep

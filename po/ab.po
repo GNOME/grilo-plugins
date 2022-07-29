@@ -1,20 +1,14 @@
- # Abkhazian translation for grilo-plugins.
-# Copyright (C) 2022 grilo-plugins's COPYRIGHT HOLDER
-# This file is distributed under the same license as the grilo-plugins package.
-# Нанба Наала <naala-nanba@rambler.ru>, 2022.
-#
 msgid ""
 msgstr ""
-"Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2022-01-27 00:05+0000\n"
-"PO-Revision-Date: 2022-01-27 00:05+0000\n"
+"POT-Creation-Date: 2022-07-18 11:45+0000\n"
 "Last-Translator: Нанба Наала <naala-nanba@rambler.ru>\n"
 "Language-Team: Abkhazian <ab@li.org>\n"
 "Language: ab\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -74,7 +68,8 @@ msgstr "Аҭагалара залымшахаӡеит, “%s”, %lu аҟынт�
 #: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
-msgstr "Иҟалеит аиԥҟьара аелемент алшарақәа аиура аан (Агха BrowseObjects  %d: %s)"
+msgstr ""
+"Иҟалеит аиԥҟьара аелемент алшарақәа аиура аан (Агха BrowseObjects  %d: %s)"
 
 #: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
@@ -121,7 +116,7 @@ msgstr "Ахыцхырҭа афаилтә система алаԥшхагара�
 msgid "File %s does not exist"
 msgstr "Афаил “%s” ыҟаӡам"
 
-#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1469
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Амедиаконтент “%s” аҟынтә аиура залымшахеит"
@@ -288,7 +283,7 @@ msgstr "Изалымшахеит аподкаст аишьҭаҵа аҵакы а
 #: src/podcasts/grl-podcasts.c:1245 src/podcasts/grl-podcasts.c:1254
 #: src/podcasts/grl-podcasts.c:1264
 msgid "Failed to parse content"
-msgstr "Изалымшеит  аҵакы аилкаара  " 
+msgstr "Изалымшеит  аҵакы аилкаара  "
 
 #: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
 msgid "Failed to parse podcast contents"
@@ -317,13 +312,14 @@ msgstr "Изалымшахеит аподкаст аметадыррақәа а�
 
 #: src/podcasts/grl-podcasts.c:1809
 msgid "Cannot create containers. Only feeds are accepted"
-msgstr "Аконтеинерқәа рышьақәыргылара залымшахеит.Ззин ыҟоу ацахақәа заҵәык роуп"
+msgstr ""
+"Аконтеинерқәа рышьақәыргылара залымшахеит.Ззин ыҟоу ацахақәа заҵәык роуп"
 
 #: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
 msgstr "Иаҭахуп URL"
 
-#: src/raitv/grl-raitv.c:49 src/youtube/grl-youtube.c:73
+#: src/raitv/grl-raitv.c:49
 msgid "Most Popular"
 msgstr "Зегь реиҳа ипопулиару"
 
@@ -454,7 +450,7 @@ msgstr "Аԥшааразы иаҭахуп NULL ахь иаҵанамко ате�
 msgid "A source for fetching metadata of television shows"
 msgstr "Ахыцхырҭа, ателешоу аметадырракәа риуразы"
 
-#: src/tmdb/grl-tmdb.c:998
+#: src/tmdb/grl-tmdb.c:993
 msgid "Remote data does not contain valid identifier"
 msgstr "Ихароу адырракәа ирымаӡам ииашоу аиԥшрагәаҭага"
 
@@ -509,53 +505,45 @@ msgstr "Акатегориақәа"
 msgid "Top Rated"
 msgstr "Иреиӷьӡу р-Топ"
 
-#: src/youtube/grl-youtube.c:67
-msgid "Top Favorites"
-msgstr "Иалкаау р-Топ"
-
-#: src/youtube/grl-youtube.c:70
-msgid "Most Viewed"
-msgstr "Зегь реиҳа алаԥшрхагарақәа змоу"
-
-#: src/youtube/grl-youtube.c:76
-msgid "Most Recent"
-msgstr "Аҵыхәтәантәи "
-
-#: src/youtube/grl-youtube.c:79
-msgid "Most Discussed"
-msgstr "Зегь реиҳа ахцәажәарақәа змоу"
-
-#: src/youtube/grl-youtube.c:82
-msgid "Most Linked"
-msgstr "Лассы иазхьаԥшуеит"
-
-#: src/youtube/grl-youtube.c:85
-msgid "Most Responded"
-msgstr "Зегь реиҳа ирацәаны аҭакқәа змоу "
-
-#: src/youtube/grl-youtube.c:88
-msgid "Recently Featured"
-msgstr "Ааигәа иарбоу "
-
-#: src/youtube/grl-youtube.c:91
-msgid "Watch On Mobile"
-msgstr "Амобилтә версиа ахәаԥшра"
-
-#: src/youtube/grl-youtube.c:110
+#: src/youtube/grl-youtube.c:83
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Ахыцхырҭа, YouTube авидеоҟәа рыԥшаареи рыхәаԥшреи азы "
 
-#: src/youtube/grl-youtube.c:856
+#: src/youtube/grl-youtube.c:820
 msgid "Failed to get feed"
 msgstr "Ацышьҭа аиура залымшахеит"
 
-#: src/youtube/grl-youtube.c:1033 src/youtube/grl-youtube.c:1421
+#: src/youtube/grl-youtube.c:997 src/youtube/grl-youtube.c:1385
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Ииашам ацышьҭа %s  аиԥшрагәаҭага"
 
-#: src/youtube/grl-youtube.c:1097 src/youtube/grl-youtube.c:1230
-#: src/youtube/grl-youtube.c:1442
+#: src/youtube/grl-youtube.c:1061 src/youtube/grl-youtube.c:1194
+#: src/youtube/grl-youtube.c:1406
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Ииашам ацышьҭа %s аиԥшрагәаҭага акатегориа "
+
+msgid "Top Favorites"
+msgstr "Иалкаау р-Топ"
+
+msgid "Most Viewed"
+msgstr "Зегь реиҳа алаԥшрхагарақәа змоу"
+
+msgid "Most Recent"
+msgstr "Аҵыхәтәантәи "
+
+msgid "Most Discussed"
+msgstr "Зегь реиҳа ахцәажәарақәа змоу"
+
+msgid "Most Linked"
+msgstr "Лассы иазхьаԥшуеит"
+
+msgid "Most Responded"
+msgstr "Зегь реиҳа ирацәаны аҭакқәа змоу "
+
+msgid "Recently Featured"
+msgstr "Ааигәа иарбоу "
+
+msgid "Watch On Mobile"
+msgstr "Амобилтә версиа ахәаԥшра"

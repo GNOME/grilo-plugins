@@ -1,3 +1,40 @@
+NEW in grilo-plugins-0.3.15
+===========================
+  * !120 Detect libsoup version from grl-net and adds support to libsoup3
+  * !123 youtube: port to API v3 by using libgdata 0.17.0
+  * !122 tmdb: port to GUri, remove libsoup dependency
+  * !122 dleyna: port to GUri, remove libsoup dependency
+
+  * New translations
+    * Abkhazian
+    * Dutch
+    * Galician
+    * Georgian
+
+  * Updated translations
+    * Abkhazian
+    * Basque
+    * Bulgarian
+    * Danish
+    * Hebrew
+    * Nepali
+    * Occitan
+
+  * Contributors to this release
+    Alan Mortensen <alanmortensen.am@gmail.com>
+    Alexander Shopov <ash@kambanaria.org>
+    Asier Sarasua Garmendia <asiersarasua@ni.eus>
+    Balázs Úr <balazs@urbalazs.hu>
+    Bastien Nocera <hadess@hadess.net>
+    Fran Dieguez <frandieguez@gnome.org>
+    Naala Nanba <naala-nanba@rambler.ru>
+    Nart Tlisha <daniel.abzakh@gmail.com>
+    Nathan Follens <nfollens@gnome.org>
+    Pawan Chitrakar <chautari@gmail.com>
+    Quentin PAGÈS <pages_quentin@hotmail.com>
+    Yaron Shahrabani <sh.yaron@gmail.com>
+    Zurab Kargareteli <zuraxt@gmail.com>
+
 NEW in grilo-plugins-0.3.14
 ===========================
   * !108 Fix lua-factory crash on >= 5.4.3

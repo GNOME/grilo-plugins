@@ -1377,7 +1377,6 @@ grl_tmdb_source_resolve (GrlSource *source,
     GRL_DEBUG ("Running initial search for title \"%s\"...", title);
     request = grl_tmdb_request_new_search (closure->self->priv->api_key, title);
     queue_request (closure, request, on_search_ready);
-    run_pending_requests (closure, 1);
   } else {
     GRL_DEBUG ("Running %s lookup for movie #%" G_GUINT64_FORMAT "...",
                closure->slow ? "slow" : "fast", movie_id);
@@ -1387,7 +1386,11 @@ grl_tmdb_source_resolve (GrlSource *source,
     } else {
       queue_detail_request (closure, GRL_TMDB_REQUEST_DETAIL_MOVIE);
     }
+  }
 
+  if (self->priv->config_pending || title == NULL) {
+    run_pending_requests (closure, 1);
+  } else {
     run_pending_requests (closure, G_MAXINT);
   }
 }

@@ -575,6 +575,12 @@ grl_tmdb_request_run_async (GrlTmdbRequest *self,
     call = new_call;
   }
 
+  if (self->priv->task != NULL) {
+      GRL_WARNING("Request %p to %s is already in progress", self, call);
+      g_free (call);
+      return;
+  }
+
   self->priv->task = g_task_new (G_OBJECT (self),
                                  cancellable,
                                  callback,

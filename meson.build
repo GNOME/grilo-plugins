@@ -128,7 +128,7 @@ plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['dleyna', [gio_dep, gio_unix_dep], []],
     ['dmap', [libdmapsharing_dep, libxml_dep], []],
     ['filesystem', [grilo_pls_dep], []],
-    ['flickr', [grilo_net_dep, libxml_dep, oauth_dep], [goa_dep]],
+    ['flickr', [grilo_net_dep, libxml_dep, oauth_dep], []],
     ['freebox', [grilo_pls_dep, avahi_client_dep, avahi_glib_dep, avahi_gobject_dep], []],
     ['gravatar', [], []],
     ['local-metadata', [gio_dep, libmediaart_dep], []],

@@ -67,6 +67,12 @@ gstreamer_dep = dependency('gstreamer-1.0', required: false)
 gthread_dep = dependency('gthread-2.0', required: false)
 json_glib_dep = dependency('json-glib-1.0', required: false)
 libarchive_dep = dependency('libarchive', required: false)
+libdmapsharing4_dep = dependency('libdmapsharing-4.0', version: '>= 3.9.9', required: false)
+if libdmapsharing4_dep.found()
+    libdmapsharing_dep = libdmapsharing4_dep
+else
+    libdmapsharing_dep = dependency('libdmapsharing-3.0', version: '>= 2.9.12', required: false)
+endif
 libmediaart_dep = dependency('libmediaart-2.0', required: false)
 if soup_api_version == '2.4'
   libsoup_dep = dependency('libsoup-2.4', required: false)
@@ -79,15 +85,6 @@ else
   libsoup24_dep = dependency('unresolvable-dep', required: false)
   libgdata_dep = dependency('unresolvable-dep', required: false)
 endif
-if soup_api_version == '2.4'
-  libdmapsharing4_dep = dependency('libdmapsharing-4.0', version: '>= 3.9.9', required: false)
-  if libdmapsharing4_dep.found()
-    libdmapsharing_dep = libdmapsharing4_dep
-  else
-    libdmapsharing_dep = dependency('libdmapsharing-3.0', version: '>= 2.9.12', required: false)
-  endif
-endif
-
 libxml_dep = dependency('libxml-2.0', required: false)
 oauth_dep = dependency('oauth', required: false)
 sqlite3_dep = dependency('sqlite3', required: false)

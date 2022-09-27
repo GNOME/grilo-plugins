@@ -57,7 +57,11 @@ gom_dep = dependency('gom-1.0', version: '>= 0.4', required: false)
 grilo_net_dep = dependency('grilo-net-0.3', version: '>= 0.3.0', required: false,
                            fallback: ['grilo', 'libgrlnet_dep'])
 if grilo_net_dep.found()
-  soup_api_version = grilo_net_dep.get_variable('soupapiversion', default_value: '2.4')
+  soup_api_version = grilo_net_dep.get_variable(
+      pkgconfig: 'soupapiversion',
+      internal: 'soupapiversion',
+      default_value: '2.4',
+  )
 else
   soup_api_version = '2.4'
 endif

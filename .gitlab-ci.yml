@@ -4,7 +4,6 @@ variables:
   DEPENDENCIES_GRILO:
     gobject-introspection-devel
     libxml2-devel
-    libsoup-devel
     glib2-devel
     gtk3-devel
     liboauth-devel
@@ -20,6 +19,8 @@ variables:
 
   DEPENDENCY_GRILO_SOUP2:
     libsoup-devel
+    libdmapsharing-devel
+    libgdata-devel
 
   DEPENDENCY_GRILO_SOUP3:
     libsoup3-devel
@@ -34,11 +35,9 @@ variables:
     json-glib-devel
     avahi-gobject-devel
     rest-devel
-    libdmapsharing-devel
     libmediaart-devel
     gom-devel
     gnome-online-accounts-devel
-    libgdata-devel
     gstreamer1-plugins-good
     gstreamer1-plugins-bad-free-extras
     python3-gobject-base
@@ -95,14 +94,14 @@ build_soup3:
   before_script:
     - dnf update -y --nogpgcheck
   script:
-    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP3
+    - dnf install -y --nogpgcheck --exclude=libsoup-devel $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP3
     # As part of configuring grilo-plugins.git for build, the latest code from
     # grilo.git will be fetched by Meson and it will be built as a subproject.
     - meson . _build --prefix=/usr -Dgrilo:soup3=true
       -Denable-bookmarks=yes
       -Denable-chromaprint=yes
       -Denable-dleyna=yes
-      -Denable-dmap=yes
+      -Denable-dmap=no
       -Denable-filesystem=yes
       -Denable-flickr=yes
       -Denable-freebox=yes

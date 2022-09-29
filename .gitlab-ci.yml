@@ -34,7 +34,6 @@ variables:
     libarchive-devel
     json-glib-devel
     avahi-gobject-devel
-    rest-devel
     libmediaart-devel
     gom-devel
     gnome-online-accounts-devel

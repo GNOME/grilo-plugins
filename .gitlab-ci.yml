@@ -37,6 +37,7 @@ variables:
     libmediaart-devel
     gom-devel
     gnome-online-accounts-devel
+    gstreamer1-devel
     gstreamer1-plugins-good
     gstreamer1-plugins-bad-free-extras
     python3-gobject-base

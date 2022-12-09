@@ -60,7 +60,7 @@ static const gchar *query_bases[GRL_TRACKER_QUERY_N_QUERIES] = {
   /* GRL_TRACKER_QUERY_ALL */
   "",
   /* GRL_TRACKER_QUERY_FTS_SEARCH */
-  "?urn fts:match ~match",
+  "?urn nie:isStoredAs? ?s . ?s fts:match ~match",
 };
 
 static void

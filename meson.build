@@ -103,13 +103,21 @@ tracker_sparql_dep = dependency('tracker-sparql-2.0', version: '>= 2.3.0', requi
 tracker3_dep = dependency('tracker-sparql-3.0', required: false)
 tracker3_testutils_dep = dependency('tracker-testutils-3.0', required: false)
 
-lua_dep = dependency('lua', version: '>= 5.3.0', required: false)
-if not lua_dep.found()
-    lua_dep = dependency('lua5.3', version: '>= 5.3.0', required: false)
+lua_pkg = [
+  'lua',
+  'lua5.3',
+  'lua-5.3',
+]
+lua_dep = disabler()
+lua_version = ''
+foreach p: lua_pkg
     if not lua_dep.found()
-        lua_dep = dependency('lua-5.3', version: '>= 5.3.0', required: false)
+        lua_dep = dependency(p, version: '>= 5.3.0', required: false)
+        if lua_dep.found()
+            lua_version = p
+        endif
     endif
-endif
+endforeach
 
 gperf = find_program('gperf', required: false)
 glib_compile_resources = find_program('glib-compile-resources', required: false)

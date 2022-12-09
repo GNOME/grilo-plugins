@@ -105,6 +105,8 @@ tracker3_testutils_dep = dependency('tracker-testutils-3.0', required: false)
 
 lua_pkg = [
   'lua',
+  'lua5.4',
+  'lua-5.4',
   'lua5.3',
   'lua-5.3',
 ]

@@ -11,16 +11,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2022-07-18 11:45+0000\n"
-"PO-Revision-Date: 2020-08-30 12:13+0300\n"
-"Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
+"POT-Creation-Date: 2022-09-18 08:05+0000\n"
+"PO-Revision-Date: 2022-12-12 00:52+0300\n"
+"Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Poedit 3.1.1\n"
 "X-POOTLE-MTIME: 1420378776.000000\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
@@ -133,18 +133,18 @@ msgstr "%s dosyası yok"
 msgid "Cannot get media from %s"
 msgstr "%s üzerinde ortam alınamıyor"
 
-#: src/flickr/grl-flickr.c:58
+#: src/flickr/grl-flickr.c:53
 msgid "A source for browsing and searching Flickr photos"
 msgstr "Flickr fotoğraflarını aramak ve taramak için kaynak"
 
 #. "%s" is a full user name, like "John Doe"
-#: src/flickr/grl-flickr.c:62
+#: src/flickr/grl-flickr.c:57
 #, c-format
 msgid "%s’s Flickr"
 msgstr "%s Flickrʼı"
 
 #. "%s" is a full user name, like "John Doe"
-#: src/flickr/grl-flickr.c:64
+#: src/flickr/grl-flickr.c:59
 #, c-format
 msgid "A source for browsing and searching %s’s flickr photos"
 msgstr "%s flickr fotoğraflarını aramak ve taramak için kaynak"
@@ -219,7 +219,7 @@ msgstr "Magnatuneʼden veri tabanı kaydedilemedi: “%s”"
 #: src/magnatune/grl-magnatune.c:722
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
-msgstr "Mangatune DB üzerinden tablo getirme başarısız: %s"
+msgstr "Mangatune DB üzerinden tablo alınamadı: %s"
 
 #: src/magnatune/grl-magnatune.c:738
 #, c-format
@@ -285,21 +285,21 @@ msgstr "Optik ortamı taramak için kaynak"
 
 #: src/podcasts/grl-podcasts.c:148
 msgid "A source for browsing podcasts"
-msgstr "İnternet radyolarını taramak için kaynak"
+msgstr "Podcastleri taramak için kaynak"
 
 #: src/podcasts/grl-podcasts.c:759 src/podcasts/grl-podcasts.c:779
 #, c-format
 msgid "Failed to get podcast streams: %s"
-msgstr "İnternet radyosu akışları alma başarısız: %s"
+msgstr "Podcast akışları alınamadı: %s"
 
 #: src/podcasts/grl-podcasts.c:1245 src/podcasts/grl-podcasts.c:1254
 #: src/podcasts/grl-podcasts.c:1264
 msgid "Failed to parse content"
-msgstr "İçeriği ayrıştırma başarısız"
+msgstr "İçerik ayrıştırılamadı"
 
 #: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
 msgid "Failed to parse podcast contents"
-msgstr "İnternet radyosu içeriğini ayrıştırma başarısız"
+msgstr "Podcast içeriği ayrıştırılamadı"
 
 #: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
 msgid "Empty response"
@@ -307,20 +307,20 @@ msgstr "Boş yanıt"
 
 #: src/podcasts/grl-podcasts.c:1459
 msgid "Failed to get podcast information"
-msgstr "İnternet radyosu bilgisi alma başarısız"
+msgstr "Podcast bilgisi alınamadı"
 
 #: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
 #, c-format
 msgid "Failed to get podcasts list: %s"
-msgstr "İnternet radyosu listesi alma başarısız: %s"
+msgstr "Podcast listesi alınamadı: %s"
 
 #: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
 msgid "Failed to get podcast stream metadata"
-msgstr "İnternet radyosu akış üst verisini alma başarısız"
+msgstr "Podcast akış üst verisi alınamadı"
 
 #: src/podcasts/grl-podcasts.c:1625
 msgid "Failed to get podcast metadata"
-msgstr "İnternet radyosu üst verisi alma başarısız"
+msgstr "Podcast üst verisi alınamadı"
 
 #: src/podcasts/grl-podcasts.c:1809
 msgid "Cannot create containers. Only feeds are accepted"

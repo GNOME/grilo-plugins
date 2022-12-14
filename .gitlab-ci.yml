@@ -19,11 +19,11 @@ variables:
 
   DEPENDENCY_GRILO_SOUP2:
     libsoup-devel
-    libdmapsharing-devel
     libgdata-devel
 
   DEPENDENCY_GRILO_SOUP3:
     libsoup3-devel
+    libdmapsharing-devel
 
   DEPENDENCIES:
     sqlite-devel
@@ -101,7 +101,7 @@ build_soup3:
       -Denable-bookmarks=yes
       -Denable-chromaprint=yes
       -Denable-dleyna=yes
-      -Denable-dmap=no
+      -Denable-dmap=yes
       -Denable-filesystem=yes
       -Denable-flickr=yes
       -Denable-freebox=yes

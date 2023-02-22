@@ -1,5 +1,5 @@
 # Turkish translation for grilo-plugins.
-# Copyright (C) 2014-2022 grilo-plugins's COPYRIGHT HOLDER
+# Copyright (C) 2014-2023 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
 #
 # Simge Sezgin <simgesezgin88@gmail.com>, 2015.
@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2022-09-18 08:05+0000\n"
-"PO-Revision-Date: 2022-12-12 00:52+0300\n"
+"POT-Creation-Date: 2023-01-25 20:06+0000\n"
+"PO-Revision-Date: 2023-02-20 18:59+0300\n"
 "Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -44,13 +44,13 @@ msgstr "Yer imleri bulunamadı: %s"
 #: src/podcasts/grl-podcasts.c:855 src/podcasts/grl-podcasts.c:887
 #, c-format
 msgid "Failed to remove: %s"
-msgstr "Kaldırma başarısız oldu: %s"
+msgstr "Kaldırılamadı: %s"
 
 #: src/bookmarks/grl-bookmarks.c:768 src/podcasts/grl-podcasts.c:928
 #: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1813
 #, c-format
 msgid "Failed to store: %s"
-msgstr "Kaydetme başarısız oldu: %s"
+msgstr "Depolanamadı: %s"
 
 #: src/bookmarks/grl-bookmarks.c:842 src/bookmarks/grl-bookmarks.c:877
 #: src/bookmarks/grl-bookmarks.c:908 src/bookmarks/grl-bookmarks.c:966
@@ -71,12 +71,12 @@ msgstr "“%s” DLNA sunucusunu taramak için kaynak"
 
 #: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
-msgstr "Karşıya yükleme başarısız, hedef kaynak yok"
+msgstr "Yüklenemedi, hedef kaynak yok"
 
 #: src/dleyna/grl-dleyna-source.c:382
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
-msgstr "Karşıya yükleme başarısız, “%s”, %lu / %lu bayt aktarıldı"
+msgstr "Yüklenemedi, “%s”, %lu / %lu bayt aktarıldı"
 
 #: src/dleyna/grl-dleyna-source.c:933
 #, c-format
@@ -86,7 +86,7 @@ msgstr "Öge özellikleri alınamadı (BrowseObjects hatası %d: %s)"
 #: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
-msgstr "Karşıya yükleme başarısız, aktarılan ortam nesnesinin URLʼsi eksik"
+msgstr "Yüklenemedi, aktarılan ortam nesnesinin URLʼsi eksik"
 
 #: src/dmap/grl-daap.c:51
 #, c-format
@@ -188,7 +188,7 @@ msgstr "Yerel olarak kullanılabilir üst veriyi sağlayan kaynak"
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
-msgstr "Çözümleme başarısız: %s"
+msgstr "Çözümlenemedi: %s"
 
 #: src/local-metadata/grl-local-metadata.c:673
 msgid "Cannot resolve any of the given keys"
@@ -209,7 +209,7 @@ msgstr "Müzikleri taramak için kaynak"
 #: src/magnatune/grl-magnatune.c:421
 #, c-format
 msgid "Failed to get database from magnatune: %s"
-msgstr "Magnatune üzerinden veri tabanı getirme başarısız: %s"
+msgstr "Magnatune üzerinden veri tabanı getirilemedi: %s"
 
 #: src/magnatune/grl-magnatune.c:451
 #, c-format
@@ -241,7 +241,7 @@ msgstr "Ek üst veri bilgisi depolayan eklenti"
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
-msgstr "Üst veri güncelleme başarısız: %s"
+msgstr "Üst veri güncellenemedi: %s"
 
 #: src/metadata-store/grl-metadata-store.c:599
 msgid "specified keys are not writable"
@@ -249,7 +249,7 @@ msgstr "belirtilen anahtarlar yazılabilir değil"
 
 #: src/metadata-store/grl-metadata-store.c:639
 msgid "Failed to update metadata"
-msgstr "Üst veri güncelleme başarısız"
+msgstr "Üst veri güncellenemedi"
 
 #: src/metadata-store/grl-metadata-store.c:785
 #: src/metadata-store/grl-metadata-store.c:830
@@ -258,14 +258,14 @@ msgstr "“source-id” kullanılabilir değil"
 
 #: src/metadata-store/grl-metadata-store.c:805
 msgid "Failed to resolve"
-msgstr "Çözümleme başarısız"
+msgstr "Çözümlenemedi"
 
 #: src/metadata-store/grl-metadata-store.c:942
 #: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
 #: src/shoutcast/grl-shoutcast.c:749
 #, c-format
 msgid "Failed to search: %s"
-msgstr "Arama başarısız: %s"
+msgstr "Aranamadı: %s"
 
 #: src/opensubtitles/grl-opensubtitles.c:40
 msgid "OpenSubtitles Provider"
@@ -299,7 +299,7 @@ msgstr "İçerik ayrıştırılamadı"
 
 #: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
 msgid "Failed to parse podcast contents"
-msgstr "Podcast içeriği ayrıştırılamadı"
+msgstr "Podcast içerikleri ayrıştırılamadı"
 
 #: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
 msgid "Empty response"
@@ -433,7 +433,7 @@ msgstr "Seyahat"
 #: src/raitv/grl-raitv.c:616
 #, c-format
 msgid "Failed to browse: %s"
-msgstr "Göz atma başarısız: %s"
+msgstr "Göz atılamadı: %s"
 
 #: src/shoutcast/grl-shoutcast.c:60
 msgid "A source for browsing SHOUTcast radios"
@@ -451,7 +451,7 @@ msgstr "%s ortamı bulunamıyor"
 #: src/shoutcast/grl-shoutcast.c:551
 #, c-format
 msgid "Failed to connect: %s"
-msgstr "Bağlantı başarısız: %s"
+msgstr "Bağlanamadı: %s"
 
 #: src/shoutcast/grl-shoutcast.c:750
 msgid "non-NULL search text is required"
@@ -476,13 +476,13 @@ msgstr "Uzak veri geçerli tanımlayıcı içermiyor"
 #: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
-msgstr "Sorgulama başarısız: %s"
+msgstr "Sorgulanamadı: %s"
 
 #: src/tracker3/grl-tracker-source-api.c:455
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
-msgstr "Şu uri üzerinden ortam getirme başarısız: %s"
+msgstr "Şu uri üzerinden ortam getirilemedi: %s"
 
 #: src/tracker3/grl-tracker-source-api.c:605
 #: src/tracker/grl-tracker-source-api.c:816

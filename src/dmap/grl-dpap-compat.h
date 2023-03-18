@@ -49,7 +49,7 @@ grl_dpap_record_factory_create_compat (DmapRecordFactory *factory, gpointer user
 static inline void
 set_thumbnail (GValue *value, GByteArray *thumbnail)
 {
-  g_value_set_pointer (value, thumbnail);
+  g_value_set_pointer (value, g_byte_array_ref (thumbnail));
 }
 
 static inline GByteArray *
@@ -82,7 +82,7 @@ guint grl_dpap_db_add (DmapDb *_db, DmapRecord *_record, GError **error);
 static inline void
 set_thumbnail (GValue *value, GArray *thumbnail)
 {
-  g_value_set_boxed (value, thumbnail);
+  g_value_set_boxed (value, g_array_ref (thumbnail));
 }
 
 static inline GArray *
@@ -90,7 +90,7 @@ get_thumbnail (GArray *thumbnail, const GValue *value)
 {
   if (thumbnail)
     g_array_unref (thumbnail);
-  return g_value_get_boxed (value);
+  return g_array_ref (g_value_get_boxed (value));
 }
 
 static inline void

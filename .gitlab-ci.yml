@@ -20,10 +20,11 @@ variables:
   DEPENDENCY_GRILO_SOUP2:
     libsoup-devel
     libgdata-devel
+    libdmapsharing-devel
 
   DEPENDENCY_GRILO_SOUP3:
     libsoup3-devel
-    libdmapsharing-devel
+    libdmapsharing4-devel
 
   DEPENDENCIES:
     sqlite-devel

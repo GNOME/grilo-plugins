@@ -83,10 +83,11 @@ else
   libsoup24_dep = dependency('unresolvable-dep', required: false)
   libgdata_dep = dependency('unresolvable-dep', required: false)
 endif
+
+libdmapsharing4_dep = dependency('libdmapsharing-4.0', version: '>= 3.9.11', required: false)
 if soup_api_version == '2.4'
   libdmapsharing_dep = dependency('libdmapsharing-3.0', version: '>= 2.9.12', required: false)
 else
-  libdmapsharing4_dep = dependency('libdmapsharing-4.0', version: '>= 3.9.11', required: false)
   libdmapsharing_dep = libdmapsharing4_dep
 endif
 

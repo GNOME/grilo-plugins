@@ -1,22 +1,22 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Georgian translation for grilo-plugins.
+# Copyright (C) 2023 grilo-plugins's authors.
+# This file is distributed under the same license as the grilo-plugins package.
+# Ekaterine Papava <papava.e@gtu.ge>, 2023.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: grilo-plugins\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2022-07-29 09:08+0000\n"
-"PO-Revision-Date: 2022-07-31 11:19+0200\n"
-"Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
-"Language-Team: \n"
+"POT-Creation-Date: 2022-07-31 09:20+0000\n"
+"PO-Revision-Date: 2023-04-10 18:38+0200\n"
+"Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
+"Language-Team: Georgian <(nothing)>\n"
 "Language: ka\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -121,7 +121,7 @@ msgstr ""
 #: src/filesystem/grl-filesystem.c:1171
 #, c-format
 msgid "File %s does not exist"
-msgstr ""
+msgstr "ფაილი %s არ არსებობს"
 
 #: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1469
 #, c-format
@@ -136,7 +136,7 @@ msgstr ""
 #: src/flickr/grl-flickr.c:62
 #, c-format
 msgid "%s’s Flickr"
-msgstr ""
+msgstr "%s-ის Flickr"
 
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:64
@@ -146,7 +146,7 @@ msgstr ""
 
 #: src/freebox/grl-freebox.c:48
 msgid "Freebox TV"
-msgstr ""
+msgstr "Freebox TV"
 
 #: src/freebox/grl-freebox.c:49
 msgid "A source for browsing Freebox TV channels"
@@ -154,7 +154,7 @@ msgstr ""
 
 #: src/freebox/grl-freebox.c:52
 msgid "Freebox Radio"
-msgstr ""
+msgstr "Freebox Radio"
 
 #: src/freebox/grl-freebox.c:53
 msgid "A source for browsing Freebox radio channels"
@@ -183,7 +183,7 @@ msgstr ""
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
-msgstr ""
+msgstr "გადაწყვეტის პრობლემა: %s"
 
 #: src/local-metadata/grl-local-metadata.c:673
 msgid "Cannot resolve any of the given keys"
@@ -240,7 +240,7 @@ msgstr ""
 
 #: src/metadata-store/grl-metadata-store.c:599
 msgid "specified keys are not writable"
-msgstr ""
+msgstr "მითითებული გასაღებები ჩაწერადი არაა"
 
 #: src/metadata-store/grl-metadata-store.c:639
 msgid "Failed to update metadata"
@@ -249,18 +249,18 @@ msgstr ""
 #: src/metadata-store/grl-metadata-store.c:785
 #: src/metadata-store/grl-metadata-store.c:830
 msgid "“source-id” not available"
-msgstr ""
+msgstr "“source-id” ხელმიუწვდომელია"
 
 #: src/metadata-store/grl-metadata-store.c:805
 msgid "Failed to resolve"
-msgstr ""
+msgstr "ამოხსნის შეცდომა"
 
 #: src/metadata-store/grl-metadata-store.c:942
 #: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
 #: src/shoutcast/grl-shoutcast.c:749
 #, c-format
 msgid "Failed to search: %s"
-msgstr ""
+msgstr "ძებნის შეცდომა: %s"
 
 #: src/opensubtitles/grl-opensubtitles.c:40
 msgid "OpenSubtitles Provider"
@@ -323,11 +323,11 @@ msgstr ""
 
 #: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
-msgstr ""
+msgstr "URL აუცილებელია"
 
 #: src/raitv/grl-raitv.c:49
 msgid "Most Popular"
-msgstr ""
+msgstr "პოპულარული"
 
 #: src/raitv/grl-raitv.c:52
 msgid "Recent"
@@ -347,7 +347,7 @@ msgstr "შავთეთრი"
 
 #: src/raitv/grl-raitv.c:166
 msgid "Cinema"
-msgstr ""
+msgstr "კინო"
 
 #: src/raitv/grl-raitv.c:167
 msgid "Comedians"
@@ -355,11 +355,11 @@ msgstr ""
 
 #: src/raitv/grl-raitv.c:168
 msgid "Chronicle"
-msgstr ""
+msgstr "ქრონიკა"
 
 #: src/raitv/grl-raitv.c:169
 msgid "Culture"
-msgstr ""
+msgstr "კულტურა"
 
 #: src/raitv/grl-raitv.c:170
 msgid "Economy"
@@ -375,11 +375,11 @@ msgstr ""
 
 #: src/raitv/grl-raitv.c:173
 msgid "Investigations"
-msgstr ""
+msgstr "გამოძიებები"
 
 #: src/raitv/grl-raitv.c:174
 msgid "Interviews"
-msgstr ""
+msgstr "ინერვიუები"
 
 #: src/raitv/grl-raitv.c:175
 msgid "Music"
@@ -395,11 +395,11 @@ msgstr "ჯანმრთელობა"
 
 #: src/raitv/grl-raitv.c:178
 msgid "Satire"
-msgstr ""
+msgstr "სატირა"
 
 #: src/raitv/grl-raitv.c:180
 msgid "Society"
-msgstr ""
+msgstr "საზოგადოება"
 
 #: src/raitv/grl-raitv.c:181
 msgid "Show"
@@ -407,7 +407,7 @@ msgstr "ჩვენება"
 
 #: src/raitv/grl-raitv.c:182
 msgid "Sport"
-msgstr ""
+msgstr "სპორტი"
 
 #: src/raitv/grl-raitv.c:183
 msgid "History"
@@ -419,7 +419,7 @@ msgstr "პოლიტიკა"
 
 #: src/raitv/grl-raitv.c:185
 msgid "Leisure"
-msgstr ""
+msgstr "დასვენება"
 
 #: src/raitv/grl-raitv.c:186
 msgid "Travel"
@@ -436,7 +436,7 @@ msgstr ""
 
 #: src/shoutcast/grl-shoutcast.c:409 src/shoutcast/grl-shoutcast.c:463
 msgid "Failed to parse response"
-msgstr ""
+msgstr "პასუხის დამუშავების შეცდომა"
 
 #: src/shoutcast/grl-shoutcast.c:455
 #, c-format
@@ -446,7 +446,7 @@ msgstr ""
 #: src/shoutcast/grl-shoutcast.c:551
 #, c-format
 msgid "Failed to connect: %s"
-msgstr ""
+msgstr "დაკავშირების შეცდომა: %s"
 
 #: src/shoutcast/grl-shoutcast.c:750
 msgid "non-NULL search text is required"
@@ -482,7 +482,7 @@ msgstr ""
 #: src/tracker3/grl-tracker-source-api.c:605
 #: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
-msgstr ""
+msgstr "ცარიელი მოთხოვნა"
 
 #: src/tracker3/grl-tracker-source-api.c:826
 #: src/tracker3/grl-tracker-source-api.c:922

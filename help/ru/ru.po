@@ -1,6 +1,11 @@
+# Russian translation for grilo-plugins.
+# Copyright (C) 2023 grilo-plugins's COPYRIGHT HOLDER
+# This file is distributed under the same license as the grilo-plugins package.
+# Aleksandr Melman <Alexmelman88@gmail.com>, 2023.
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: grilo-plugins master\n"
 "POT-Creation-Date: 2023-04-10 16:40+0000\n"
 "PO-Revision-Date: 2023-04-11 18:14+0300\n"
 "Last-Translator: Aleksandr Melman <Alexmelman88@gmail.com>\n"

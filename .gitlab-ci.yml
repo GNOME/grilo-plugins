@@ -52,6 +52,8 @@ build_stable:
     - dnf update -y --nogpgcheck
   script:
     - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP2
+    # https://gitlab.gnome.org/GNOME/tracker/-/merge_requests/616
+    - dnf upgrade -y --enablerepo=updates-testing --refresh --advisory=FEDORA-2023-7d5d497dd4 tracker
     # As part of configuring grilo-plugins.git for build, the latest code from
     # grilo.git will be fetched by Meson and it will be built as a subproject.
     - meson . _build --prefix=/usr -Dgrilo:soup3=false
@@ -96,6 +98,8 @@ build_soup3:
     - dnf update -y --nogpgcheck
   script:
     - dnf install -y --nogpgcheck --exclude=libsoup-devel $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP3
+    # https://gitlab.gnome.org/GNOME/tracker/-/merge_requests/616
+    - dnf upgrade -y --enablerepo=updates-testing --refresh --advisory=FEDORA-2023-7d5d497dd4 tracker
     # As part of configuring grilo-plugins.git for build, the latest code from
     # grilo.git will be fetched by Meson and it will be built as a subproject.
     - meson . _build --prefix=/usr -Dgrilo:soup3=true

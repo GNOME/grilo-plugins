@@ -10,6 +10,7 @@
 #include "flickr-oauth.h"
 #include "grl-flickr.h"       /* log domain */
 
+#include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <gio/gio.h>
 #include <string.h>

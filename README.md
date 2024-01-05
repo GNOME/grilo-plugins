@@ -12,7 +12,7 @@ multimedia content providers.
 ## Where can I find more?
 We have a wiki page at: <https://wiki.gnome.org/Projects/Grilo>
 
-You can subscribe to our mailing list: <http://mail.gnome.org/mailman/listinfo/grilo-list>
+You can discuss in the support forum: <https://discourse.gnome.org/c/platform/5>
 
 You can join us on the IRC: #grilo on GIMPNet
 

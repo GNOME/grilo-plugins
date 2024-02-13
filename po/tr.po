@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2023-02-22 11:52+0000\n"
-"PO-Revision-Date: 2023-02-20 18:59+0300\n"
+"POT-Creation-Date: 2023-08-08 10:46+0000\n"
+"PO-Revision-Date: 2024-02-12 19:17+0300\n"
 "Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
 "Language-Team: Türkçe <takim@gnome.org.tr>\n"
 "Language: tr\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.4.2\n"
 "X-POOTLE-MTIME: 1420378776.000000\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
@@ -123,12 +123,12 @@ msgstr "Dosya Sistemi"
 msgid "A source for browsing the filesystem"
 msgstr "Dosya sistemini taramak için kaynak"
 
-#: src/filesystem/grl-filesystem.c:1171
+#: src/filesystem/grl-filesystem.c:1172
 #, c-format
 msgid "File %s does not exist"
 msgstr "%s dosyası yok"
 
-#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1469
+#: src/filesystem/grl-filesystem.c:1250 src/youtube/grl-youtube.c:1469
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "%s üzerinde ortam alınamıyor"
@@ -167,11 +167,11 @@ msgstr "Freebox radyo kanallarını taramak için kaynak"
 
 #: src/gravatar/grl-gravatar.c:46
 msgid "Avatar provider from Gravatar"
-msgstr "Gravatar üzerinden avatar sağlayıcı"
+msgstr "Gravatar üzerinden profil resmi sağlayıcı"
 
 #: src/gravatar/grl-gravatar.c:47
 msgid "A plugin to get avatars for artist and author fields"
-msgstr "Sanatçı ve yazar alanları için avatar getiren eklenti"
+msgstr "Sanatçı ve yazar alanları için profil resmi getiren eklenti"
 
 #: src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"

@@ -1,21 +1,21 @@
 # Persian translation for grilo-plugins.
 # Copyright (C) 2023 grilo-plugins's COPYRIGHT HOLDER
 # This file is distributed under the same license as the grilo-plugins package.
-# Danial Behzadi <dani.behzi@ubuntu.com>, 2023.
+# Danial Behzadi <dani.behzi@ubuntu.com>, 2023-2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2023-07-20 09:31+0000\n"
-"PO-Revision-Date: 2023-07-31 03:17+0330\n"
+"POT-Creation-Date: 2023-07-30 23:48+0000\n"
+"PO-Revision-Date: 2024-02-18 19:16+0330\n"
 "Last-Translator: Danial Behzadi <dani.behzi@ubuntu.com>\n"
 "Language-Team: Persian <fa@li.org>\n"
 "Language: fa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.3.2\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -23,28 +23,28 @@ msgstr "نشانک‌ها"
 
 #: src/bookmarks/grl-bookmarks.c:61
 msgid "A source for organizing media bookmarks"
-msgstr ""
+msgstr "منبعی برای سامان‌دهی نشانک‌های رسانه‌ای"
 
 #: src/bookmarks/grl-bookmarks.c:427
 msgid "Failed to get bookmark metadata"
-msgstr ""
+msgstr "شکست در گرفتن فرادادهٔ رسانه"
 
 #: src/bookmarks/grl-bookmarks.c:457 src/bookmarks/grl-bookmarks.c:474
 #, c-format
 msgid "Failed to find bookmarks: %s"
-msgstr ""
+msgstr "شکست در یافتن نشانک‌ها: %s"
 
 #: src/bookmarks/grl-bookmarks.c:626 src/podcasts/grl-podcasts.c:823
 #: src/podcasts/grl-podcasts.c:855 src/podcasts/grl-podcasts.c:887
 #, c-format
 msgid "Failed to remove: %s"
-msgstr ""
+msgstr "شکست در برداشتن: %s"
 
 #: src/bookmarks/grl-bookmarks.c:768 src/podcasts/grl-podcasts.c:928
 #: src/podcasts/grl-podcasts.c:961 src/podcasts/grl-podcasts.c:1813
 #, c-format
 msgid "Failed to store: %s"
-msgstr ""
+msgstr "شکست در ذخیره:: %s"
 
 #: src/bookmarks/grl-bookmarks.c:842 src/bookmarks/grl-bookmarks.c:877
 #: src/bookmarks/grl-bookmarks.c:908 src/bookmarks/grl-bookmarks.c:966
@@ -52,40 +52,40 @@ msgstr ""
 #: src/podcasts/grl-podcasts.c:1713 src/podcasts/grl-podcasts.c:1747
 #: src/podcasts/grl-podcasts.c:1782
 msgid "No database connection"
-msgstr ""
+msgstr "بدون اتّصال پایگاه داده"
 
 #: src/chromaprint/grl-chromaprint.c:41
 msgid "A plugin to get metadata using gstreamer framework"
-msgstr ""
+msgstr "افزایه‌ای برای گرفتن فراداده با استفاده از چارچوب جی‌استریمر"
 
 #: src/dleyna/grl-dleyna-source.c:34
 #, c-format
 msgid "A source for browsing the DLNA server “%s”"
-msgstr ""
+msgstr "منبعی برای مرور کارساز DLNA‎ ‏«%s»"
 
 #: src/dleyna/grl-dleyna-source.c:279
 msgid "Upload failed, target source destroyed"
-msgstr ""
+msgstr "بارگذاری شکست خورد. منبع هدف از بین رفت"
 
 #: src/dleyna/grl-dleyna-source.c:382
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
-msgstr ""
+msgstr "بارگذاری شکست خورد، «%s»، ‏%Ilu از %Ilu بایت جابه‌جا شده"
 
 #: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
-msgstr ""
+msgstr "شکست در دریافت ویژگی‌های مورد (خطای %Id BrowseObjects: ‏%s)"
 
 #: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
-msgstr ""
+msgstr "بارگذاری شکست خورد. نشانی روی شی رسانه‌ای که می ]واهد جابه‌جا شود وجود ندارد"
 
 #: src/dmap/grl-daap.c:51
 #, c-format
 msgid "A source for browsing the DAAP server “%s”"
-msgstr ""
+msgstr "منبعی برای مرور کارساز DAAP‎ ‏«%s»"
 
 #: src/dmap/grl-daap-db.c:66 src/magnatune/grl-magnatune.c:122
 msgid "Albums"
@@ -98,12 +98,12 @@ msgstr "هنرمندان"
 #: src/dmap/grl-daap-db.c:291 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
-msgstr ""
+msgstr "شناساگر بارگنج نامعتبر %s"
 
 #: src/dmap/grl-dpap.c:51
 #, c-format
 msgid "A source for browsing the DPAP server “%s”"
-msgstr ""
+msgstr "منبعی برای مرور کارساز DAAP‎ ‏«%s»"
 
 #: src/dmap/grl-dpap-db.c:40
 msgid "Photos"
@@ -111,69 +111,69 @@ msgstr "عکس‌ها"
 
 #: src/filesystem/grl-filesystem.c:58
 msgid "Filesystem"
-msgstr ""
+msgstr "سامانه‌پرونده"
 
 #: src/filesystem/grl-filesystem.c:59
 msgid "A source for browsing the filesystem"
-msgstr ""
+msgstr "منبعی برای مرور سامانه‌پرونده"
 
 #: src/filesystem/grl-filesystem.c:1172
 #, c-format
 msgid "File %s does not exist"
-msgstr ""
+msgstr "پروندهٔ %s وجود ندارد"
 
 #: src/filesystem/grl-filesystem.c:1250 src/youtube/grl-youtube.c:1469
 #, c-format
 msgid "Cannot get media from %s"
-msgstr ""
+msgstr "نمی‌توان رسانه را زا %s گرفت"
 
 #: src/flickr/grl-flickr.c:53
 msgid "A source for browsing and searching Flickr photos"
-msgstr ""
+msgstr "منبعی برای مرور و جست‌وجوی عکس‌های فلیکر"
 
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:57
 #, c-format
 msgid "%s’s Flickr"
-msgstr ""
+msgstr "فلیکر %s"
 
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:59
 #, c-format
 msgid "A source for browsing and searching %s’s flickr photos"
-msgstr ""
+msgstr "منبعی برای مرور و جست‌وجوی عکس‌های فلیکر %s"
 
 #: src/freebox/grl-freebox.c:48
 msgid "Freebox TV"
-msgstr ""
+msgstr "تلویزیون فری‌باکس"
 
 #: src/freebox/grl-freebox.c:49
 msgid "A source for browsing Freebox TV channels"
-msgstr ""
+msgstr "منبعی برای مرور و جست‌وجوی کانال‌های تلویزیونی فری‌باکس"
 
 #: src/freebox/grl-freebox.c:52
 msgid "Freebox Radio"
-msgstr ""
+msgstr "رادیوی فری‌باکس"
 
 #: src/freebox/grl-freebox.c:53
 msgid "A source for browsing Freebox radio channels"
-msgstr ""
+msgstr "منبعی برای مرور و جست‌وجوی کانال‌های رادیویی فری‌باکس"
 
 #: src/gravatar/grl-gravatar.c:46
 msgid "Avatar provider from Gravatar"
-msgstr ""
+msgstr "چهرک فراهم شده از گراواتار"
 
 #: src/gravatar/grl-gravatar.c:47
 msgid "A plugin to get avatars for artist and author fields"
-msgstr ""
+msgstr "افزایه‌ای برای گرفتن چهرک‌ها برای زمینه‌ّای نگارنده و هنرمند"
 
 #: src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
-msgstr ""
+msgstr "فراهمگر فرادادهٔ محلی"
 
 #: src/local-metadata/grl-local-metadata.c:43
 msgid "A source providing locally available metadata"
-msgstr ""
+msgstr "منبعی برای فراهم کردن فراداده‌های موجود محلی"
 
 #: src/local-metadata/grl-local-metadata.c:381
 #: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
@@ -182,51 +182,51 @@ msgstr ""
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
-msgstr ""
+msgstr "شکست در یافتن: %s"
 
 #: src/local-metadata/grl-local-metadata.c:673
 msgid "Cannot resolve any of the given keys"
-msgstr ""
+msgstr "نتوانست هیچ یک از کلیدهای داده شده را بیابد"
 
 #: src/local-metadata/grl-local-metadata.c:677
 msgid "A GIO supported URL for images is required"
-msgstr ""
+msgstr "نیازمند نشانی‌ای پشتیبانی شده به دست GIO برای تصویرها"
 
 #: src/magnatune/grl-magnatune.c:123
 msgid "Genres"
-msgstr ""
+msgstr "سبک‌ها"
 
 #: src/magnatune/grl-magnatune.c:131
 msgid "A source for browsing music"
-msgstr ""
+msgstr "منبعی برای مرور آهنگ‌ها"
 
 #: src/magnatune/grl-magnatune.c:421
 #, c-format
 msgid "Failed to get database from magnatune: %s"
-msgstr ""
+msgstr "شکست در گرفتن پایگاه داده از مگاتون: %s"
 
 #: src/magnatune/grl-magnatune.c:451
 #, c-format
 msgid "Failed to save database from magnatune: “%s”"
-msgstr ""
+msgstr "شکست در ذخیرهٔ پایگاه داده از مگاتون: %s"
 
 #: src/magnatune/grl-magnatune.c:722
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
-msgstr ""
+msgstr "شکست در گرفتن جدول از مگاتون: %s"
 
 #: src/magnatune/grl-magnatune.c:738
 #, c-format
 msgid "Fail before returning media to user: %s"
-msgstr ""
+msgstr "شکست پیش از برگرداندن رسانه به کاربر: %s"
 
 #: src/metadata-store/grl-metadata-store.c:40
 msgid "Metadata Store"
-msgstr ""
+msgstr "ذخیرهٔ فراداده"
 
 #: src/metadata-store/grl-metadata-store.c:41
 msgid "A plugin for storing extra metadata information"
-msgstr ""
+msgstr "افزایه‌ای برای ذخیرهٔ اطلاعات فراده‌دادهٔ اضافی"
 
 #: src/metadata-store/grl-metadata-store.c:598
 #: src/metadata-store/grl-metadata-store.c:617
@@ -235,31 +235,31 @@ msgstr ""
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
-msgstr ""
+msgstr "شکست در به‌روز رسانی فراداده: %s"
 
 #: src/metadata-store/grl-metadata-store.c:599
 msgid "specified keys are not writable"
-msgstr ""
+msgstr "کلیدهای مشخّص شده قابل نوشتن نیستند"
 
 #: src/metadata-store/grl-metadata-store.c:639
 msgid "Failed to update metadata"
-msgstr ""
+msgstr "شکست در به‌روز رسانی فراداده"
 
 #: src/metadata-store/grl-metadata-store.c:785
 #: src/metadata-store/grl-metadata-store.c:830
 msgid "“source-id” not available"
-msgstr ""
+msgstr "source-id در دسترس نیست"
 
 #: src/metadata-store/grl-metadata-store.c:805
 msgid "Failed to resolve"
-msgstr ""
+msgstr "شکست در یافتن"
 
 #: src/metadata-store/grl-metadata-store.c:942
 #: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
 #: src/shoutcast/grl-shoutcast.c:749
 #, c-format
 msgid "Failed to search: %s"
-msgstr ""
+msgstr "شکست در جست‌وجو: %s"
 
 #: src/opensubtitles/grl-opensubtitles.c:40
 msgid "OpenSubtitles Provider"
@@ -297,36 +297,36 @@ msgstr "شکست در تجزیهٔ محتوای پادپخش"
 
 #: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
 msgid "Empty response"
-msgstr ""
+msgstr "پاسخ خالی"
 
 #: src/podcasts/grl-podcasts.c:1459
 msgid "Failed to get podcast information"
-msgstr ""
+msgstr "شکست در گرفتن اطّلاعات پادپخش"
 
 #: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
 #, c-format
 msgid "Failed to get podcasts list: %s"
-msgstr ""
+msgstr "شکست در گرفتن سیاههٔ پادپخش‌ها: %s"
 
 #: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
 msgid "Failed to get podcast stream metadata"
-msgstr ""
+msgstr "شکست در گرفتن فرادادهٔ جریان پادپخش"
 
 #: src/podcasts/grl-podcasts.c:1625
 msgid "Failed to get podcast metadata"
-msgstr ""
+msgstr "شکست در گرفتن فرادادهٔ پادپخش"
 
 #: src/podcasts/grl-podcasts.c:1809
 msgid "Cannot create containers. Only feeds are accepted"
-msgstr ""
+msgstr "نمی‌توان بارگنج‌ها را ایجاد کرد. فقط خوراک‌ها قابل قبولند"
 
 #: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
-msgstr ""
+msgstr "نیازمند نشانی"
 
 #: src/raitv/grl-raitv.c:49
 msgid "Most Popular"
-msgstr ""
+msgstr "محبوب‌ترین"
 
 #: src/raitv/grl-raitv.c:52
 msgid "Recent"
@@ -334,7 +334,7 @@ msgstr "اخیر"
 
 #: src/raitv/grl-raitv.c:93
 msgid "A source for browsing and searching Rai.tv videos"
-msgstr ""
+msgstr "منبعی برای مرور و جست‌وجوی ویدیوهای Rai.tv"
 
 #: src/raitv/grl-raitv.c:164
 msgid "All"
@@ -342,27 +342,27 @@ msgstr "همه"
 
 #: src/raitv/grl-raitv.c:165
 msgid "Black and White"
-msgstr ""
+msgstr "سیاه و سفید"
 
 #: src/raitv/grl-raitv.c:166
 msgid "Cinema"
-msgstr ""
+msgstr "سینمایی"
 
 #: src/raitv/grl-raitv.c:167
 msgid "Comedians"
-msgstr ""
+msgstr "خندانندگان"
 
 #: src/raitv/grl-raitv.c:168
 msgid "Chronicle"
-msgstr ""
+msgstr "وقایع‌نگاری"
 
 #: src/raitv/grl-raitv.c:169
 msgid "Culture"
-msgstr ""
+msgstr "فرهنگی"
 
 #: src/raitv/grl-raitv.c:170
 msgid "Economy"
-msgstr ""
+msgstr "اقتصادی"
 
 #: src/raitv/grl-raitv.c:171
 msgid "Fiction"
@@ -370,15 +370,15 @@ msgstr "داستانی"
 
 #: src/raitv/grl-raitv.c:172
 msgid "Junior"
-msgstr ""
+msgstr "کودک"
 
 #: src/raitv/grl-raitv.c:173
 msgid "Investigations"
-msgstr ""
+msgstr "تحقیقات"
 
 #: src/raitv/grl-raitv.c:174
 msgid "Interviews"
-msgstr ""
+msgstr "مصاحبه‌ها"
 
 #: src/raitv/grl-raitv.c:175
 msgid "Music"
@@ -394,11 +394,11 @@ msgstr "سلامتی"
 
 #: src/raitv/grl-raitv.c:178
 msgid "Satire"
-msgstr ""
+msgstr "طنز"
 
 #: src/raitv/grl-raitv.c:180
 msgid "Society"
-msgstr ""
+msgstr "اجتماعی"
 
 #: src/raitv/grl-raitv.c:181
 msgid "Show"
@@ -406,7 +406,7 @@ msgstr "نمایش"
 
 #: src/raitv/grl-raitv.c:182
 msgid "Sport"
-msgstr ""
+msgstr "ورزشی"
 
 #: src/raitv/grl-raitv.c:183
 msgid "History"
@@ -418,46 +418,46 @@ msgstr "سیاسی"
 
 #: src/raitv/grl-raitv.c:185
 msgid "Leisure"
-msgstr ""
+msgstr "اوقات فراغت"
 
 #: src/raitv/grl-raitv.c:186
 msgid "Travel"
-msgstr ""
+msgstr "مسافرت"
 
 #: src/raitv/grl-raitv.c:616
 #, c-format
 msgid "Failed to browse: %s"
-msgstr ""
+msgstr "شکست در مرور: %s"
 
 #: src/shoutcast/grl-shoutcast.c:60
 msgid "A source for browsing SHOUTcast radios"
-msgstr ""
+msgstr "منبعی برای مرور رادیوهای شات‌کست"
 
 #: src/shoutcast/grl-shoutcast.c:409 src/shoutcast/grl-shoutcast.c:463
 msgid "Failed to parse response"
-msgstr ""
+msgstr "شکست در تجزیهٔ پاسخ"
 
 #: src/shoutcast/grl-shoutcast.c:455
 #, c-format
 msgid "Cannot find media %s"
-msgstr ""
+msgstr "نمی‌توان رسانهٔ %s را یافت"
 
 #: src/shoutcast/grl-shoutcast.c:551
 #, c-format
 msgid "Failed to connect: %s"
-msgstr ""
+msgstr "شکست در اتّصال: %s"
 
 #: src/shoutcast/grl-shoutcast.c:750
 msgid "non-NULL search text is required"
-msgstr ""
+msgstr "نیازمند متن جست‌وجوی ناتهی"
 
 #: src/thetvdb/grl-thetvdb.c:93
 msgid "A source for fetching metadata of television shows"
-msgstr ""
+msgstr "منبعی برای گرفتن فراداده‌های نمایش‌های تلویزیونی"
 
 #: src/tmdb/grl-tmdb.c:993
 msgid "Remote data does not contain valid identifier"
-msgstr ""
+msgstr "داده‌ّای دوردست شناساگر معتبر ندارند"
 
 #. I can haz templatze ??
 #. Schedule the next row to parse
@@ -470,37 +470,37 @@ msgstr ""
 #: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
-msgstr ""
+msgstr "شکست در پرس‌وجو: %s"
 
 #: src/tracker3/grl-tracker-source-api.c:455
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
-msgstr ""
+msgstr "شکست در گرفتن رسانه از نشانی %s"
 
 #: src/tracker3/grl-tracker-source-api.c:605
 #: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
-msgstr ""
+msgstr "پرس‌وجوی خالی"
 
 #: src/tracker3/grl-tracker-source-api.c:826
 #: src/tracker3/grl-tracker-source-api.c:922
 #: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
-msgstr ""
+msgstr "شناسهٔ %s در این منبع شناخته شده نیست"
 
 #: src/tracker3/grl-tracker-source-priv.h:47
 msgid "A plugin for searching multimedia content using Tracker3"
-msgstr ""
+msgstr "افزایه‌ای برای جست‌وجوی محتوای چندرسانه‌ای با استفاده از Tracker3"
 
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
-msgstr ""
+msgstr "افزایه‌ای برای جست‌وجوی محتوای چندرسانه‌ای با استفاده از Tracker"
 
 #: src/youtube/grl-youtube.c:55
 msgid "Standard feeds"
-msgstr ""
+msgstr "خوراک‌های استاندارد"
 
 #: src/youtube/grl-youtube.c:58
 msgid "Categories"
@@ -508,23 +508,23 @@ msgstr "دسته‌ها"
 
 #: src/youtube/grl-youtube.c:64
 msgid "Top Rated"
-msgstr ""
+msgstr "بیش‌ترین امتیاز"
 
 #: src/youtube/grl-youtube.c:83
 msgid "A source for browsing and searching YouTube videos"
-msgstr ""
+msgstr "منبعی برای مرور و جست‌وجوی ویدیوهای یوتوب"
 
 #: src/youtube/grl-youtube.c:820
 msgid "Failed to get feed"
-msgstr ""
+msgstr "شکست در گرفتن خوراک"
 
 #: src/youtube/grl-youtube.c:997 src/youtube/grl-youtube.c:1385
 #, c-format
 msgid "Invalid feed identifier %s"
-msgstr ""
+msgstr "شناساگر خوراک نامعتبر %s"
 
 #: src/youtube/grl-youtube.c:1061 src/youtube/grl-youtube.c:1194
 #: src/youtube/grl-youtube.c:1406
 #, c-format
 msgid "Invalid category identifier %s"
-msgstr ""
+msgstr "شناساگر دستهٔ نامعتبر %s"

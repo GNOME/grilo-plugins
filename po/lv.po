@@ -1,13 +1,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
-# Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>, 2013, 2014, 2016, 2018, 2020.
+# SPDX-FileCopyrightText: 2013, 2014, 2016, 2018, 2020, 2024 Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2020-08-24 15:08+0000\n"
-"PO-Revision-Date: 2020-09-12 11:50+0300\n"
+"POT-Creation-Date: 2022-07-18 11:45+0000\n"
+"PO-Revision-Date: 2024-03-08 22:55+0200\n"
 "Last-Translator: Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>\n"
 "Language-Team: Latvian <lata-l10n@googlegroups.com>\n"
 "Language: lv\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 :"
 " 2);\n"
-"X-Generator: Lokalize 19.12.3\n"
+"X-Generator: Lokalize 23.08.1\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -88,18 +88,15 @@ msgstr "Augšupielāde neizdevās, trūkst pārsūtāmā mediju objekta URL "
 msgid "A source for browsing the DAAP server “%s”"
 msgstr "DAAP servera “%s” pārlūkošanas avots"
 
-#: src/dmap/grl-daap-db.c:66 src/jamendo/grl-jamendo.c:788
-#: src/magnatune/grl-magnatune.c:122
+#: src/dmap/grl-daap-db.c:66 src/magnatune/grl-magnatune.c:122
 msgid "Albums"
 msgstr "Albumi"
 
-#: src/dmap/grl-daap-db.c:68 src/jamendo/grl-jamendo.c:777
-#: src/magnatune/grl-magnatune.c:121
+#: src/dmap/grl-daap-db.c:68 src/magnatune/grl-magnatune.c:121
 msgid "Artists"
 msgstr "Mākslinieki"
 
-#: src/dmap/grl-daap-db.c:291 src/jamendo/grl-jamendo.c:1115
-#: src/jamendo/grl-jamendo.c:1226 src/magnatune/grl-magnatune.c:866
+#: src/dmap/grl-daap-db.c:291 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
 msgstr "Nederīgs konteinera identifikators %s"
@@ -126,7 +123,7 @@ msgstr "Datņu sistēmas pārlūkošanas avots"
 msgid "File %s does not exist"
 msgstr "Datne “%s” neeksistē"
 
-#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1469
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Nevar saņemt datus no %s"
@@ -171,75 +168,6 @@ msgstr "Avatar sniedzējs no Gravatar"
 msgid "A plugin to get avatars for artist and author fields"
 msgstr "Spraudnis, lai saņemtu avatarus no mākslinieku un autoru laukiem"
 
-#: src/jamendo/grl-jamendo.c:91
-msgid "A source for browsing and searching Jamendo music"
-msgstr "Avots Jamendo mūzikas pārlūkošanai un meklēšanai"
-
-#: src/jamendo/grl-jamendo.c:149
-msgid "Albums of the week"
-msgstr "Nedēļas albumi"
-
-#: src/jamendo/grl-jamendo.c:151
-msgid "Tracks of the week"
-msgstr "Nedēļas celiņi"
-
-#: src/jamendo/grl-jamendo.c:153
-msgid "New releases"
-msgstr "Jaunie izdevumi"
-
-#: src/jamendo/grl-jamendo.c:155
-msgid "Top artists"
-msgstr "Topa izpildītāji"
-
-#: src/jamendo/grl-jamendo.c:157
-msgid "Top albums"
-msgstr "Topa albumi"
-
-#: src/jamendo/grl-jamendo.c:159
-msgid "Top tracks"
-msgstr "Topa celiņi"
-
-#: src/jamendo/grl-jamendo.c:341 src/jamendo/grl-jamendo.c:701
-#: src/shoutcast/grl-shoutcast.c:409 src/shoutcast/grl-shoutcast.c:463
-msgid "Failed to parse response"
-msgstr "Neizdevās saprast atbildi"
-
-#: src/jamendo/grl-jamendo.c:349 src/jamendo/grl-jamendo.c:356
-#: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
-msgid "Empty response"
-msgstr "Tukša atbilde"
-
-#: src/jamendo/grl-jamendo.c:670 src/shoutcast/grl-shoutcast.c:551
-#, c-format
-msgid "Failed to connect: %s"
-msgstr "Neizdevās savienoties: %s"
-
-#: src/jamendo/grl-jamendo.c:799
-msgid "Feeds"
-msgstr "Plūsmas"
-
-#: src/jamendo/grl-jamendo.c:983 src/jamendo/grl-jamendo.c:1028
-#: src/jamendo/grl-jamendo.c:1055
-#, c-format
-msgid "Invalid identifier %s"
-msgstr "Nederīgs identifikators %s"
-
-#: src/jamendo/grl-jamendo.c:1042 src/youtube/grl-youtube.c:1097
-#: src/youtube/grl-youtube.c:1230 src/youtube/grl-youtube.c:1442
-#, c-format
-msgid "Invalid category identifier %s"
-msgstr "Nederīgs kategorijas identifikators %s"
-
-#: src/jamendo/grl-jamendo.c:1221
-#, c-format
-msgid "Failed to browse: %s is a track"
-msgstr "Neizdevās pārlūkot: %s ir celiņš"
-
-#: src/jamendo/grl-jamendo.c:1280
-#, c-format
-msgid "Malformed query “%s”"
-msgstr "Slikti noformēts vaicājums “%s”"
-
 #: src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
 msgstr "Lokālais metadatu piegādātājs"
@@ -250,7 +178,8 @@ msgstr "Avots, kas nodrošina lokāli pieejamus metadatus"
 
 #: src/local-metadata/grl-local-metadata.c:381
 #: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
-#: src/tracker3/grl-tracker-source-api.c:381
+#: src/tracker3/grl-tracker-source-api.c:375
+#: src/tracker3/grl-tracker-source-api.c:410
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
@@ -303,7 +232,7 @@ msgstr "Spraudnis papildu metadatu informācijas glabāšanai"
 #: src/metadata-store/grl-metadata-store.c:598
 #: src/metadata-store/grl-metadata-store.c:617
 #: src/metadata-store/grl-metadata-store.c:829
-#: src/tracker3/grl-tracker-source-api.c:471
+#: src/tracker3/grl-tracker-source-api.c:508
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
@@ -328,7 +257,7 @@ msgstr "Neizdevās uzmeklēt"
 
 #: src/metadata-store/grl-metadata-store.c:942
 #: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
-#: src/shoutcast/grl-shoutcast.c:749 src/vimeo/grl-vimeo.c:540
+#: src/shoutcast/grl-shoutcast.c:749
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Neizdevās meklēt — %s"
@@ -367,6 +296,10 @@ msgstr "Neizdevās analizēt saturu"
 msgid "Failed to parse podcast contents"
 msgstr "Neizdevās analizēt podraižu saturu"
 
+#: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
+msgid "Empty response"
+msgstr "Tukša atbilde"
+
 #: src/podcasts/grl-podcasts.c:1459
 msgid "Failed to get podcast information"
 msgstr "Neizdevās saņemt informāciju par podraidēm"
@@ -392,7 +325,7 @@ msgstr "Nevar izveidot konteinerus. Tiek pieņemtas tikai plūsmas"
 msgid "URL required"
 msgstr "Nepieciešams URL"
 
-#: src/raitv/grl-raitv.c:49 src/youtube/grl-youtube.c:73
+#: src/raitv/grl-raitv.c:49
 msgid "Most Popular"
 msgstr "Vispopulārākais"
 
@@ -501,12 +434,21 @@ msgstr "Neizdevās pārlūkot: %s"
 msgid "A source for browsing SHOUTcast radios"
 msgstr "Avots mūzikas pārlūkošanai SHOUTcast radio"
 
+#: src/shoutcast/grl-shoutcast.c:409 src/shoutcast/grl-shoutcast.c:463
+msgid "Failed to parse response"
+msgstr "Neizdevās saprast atbildi"
+
 #: src/shoutcast/grl-shoutcast.c:455
 #, c-format
 msgid "Cannot find media %s"
 msgstr "Nevar atrast datu nesējus %s"
 
-#: src/shoutcast/grl-shoutcast.c:750 src/vimeo/grl-vimeo.c:541
+#: src/shoutcast/grl-shoutcast.c:551
+#, c-format
+msgid "Failed to connect: %s"
+msgstr "Neizdevās savienoties: %s"
+
+#: src/shoutcast/grl-shoutcast.c:750
 msgid "non-NULL search text is required"
 msgstr "Nepieciešams ne NULL meklēšanas teksts"
 
@@ -514,9 +456,9 @@ msgstr "Nepieciešams ne NULL meklēšanas teksts"
 msgid "A source for fetching metadata of television shows"
 msgstr "Avots televīzijas šovu metadatu saņemšanai"
 
-#: src/tmdb/grl-tmdb.c:998
+#: src/tmdb/grl-tmdb.c:993
 msgid "Remote data does not contain valid identifier"
-msgstr "Attālinātie dati nesatur derīgu identifikatoru"
+msgstr "Attālie dati nesatur derīgu identifikatoru"
 
 #. I can haz templatze ??
 #. Schedule the next row to parse
@@ -531,36 +473,31 @@ msgstr "Attālinātie dati nesatur derīgu identifikatoru"
 msgid "Failed to query: %s"
 msgstr "Neizdevās vaicāt: %s"
 
-#: src/tracker3/grl-tracker-source-api.c:418
+#: src/tracker3/grl-tracker-source-api.c:455
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Neizdevās saņemt mediju no uri — %s"
 
-#: src/tracker3/grl-tracker-source-api.c:603
+#: src/tracker3/grl-tracker-source-api.c:605
 #: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Tukšs vaicājums"
 
-#: src/tracker3/grl-tracker-source-api.c:824
-#: src/tracker3/grl-tracker-source-api.c:920
+#: src/tracker3/grl-tracker-source-api.c:826
+#: src/tracker3/grl-tracker-source-api.c:922
 #: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
 msgstr "ID “%s” nav zināms šim avotam"
 
 #: src/tracker3/grl-tracker-source-priv.h:47
-#| msgid "A plugin for searching multimedia content using Tracker"
 msgid "A plugin for searching multimedia content using Tracker3"
 msgstr "Spraudnis, lai meklētu multimediju saturu, izmantojot Tracker3"
 
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
 msgstr "Spraudnis, lai meklētu multimediju saturu, izmantojot Tracker"
-
-#: src/vimeo/grl-vimeo.c:51
-msgid "A source for browsing and searching Vimeo videos"
-msgstr "Avots Vimeo video pārlūkošanai un meklēšanai"
 
 #: src/youtube/grl-youtube.c:55
 msgid "Standard feeds"
@@ -574,50 +511,87 @@ msgstr "Kategorijas"
 msgid "Top Rated"
 msgstr "Augstāk novērtētie"
 
-#: src/youtube/grl-youtube.c:67
-msgid "Top Favorites"
-msgstr "Topa iecienītie"
-
-#: src/youtube/grl-youtube.c:70
-msgid "Most Viewed"
-msgstr "Visvairāk skatītie"
-
-#: src/youtube/grl-youtube.c:76
-msgid "Most Recent"
-msgstr "Visnesenākie"
-
-#: src/youtube/grl-youtube.c:79
-msgid "Most Discussed"
-msgstr "Visvairāk apspriestie"
-
-#: src/youtube/grl-youtube.c:82
-msgid "Most Linked"
-msgstr "Ar visvairāk saitēm"
-
-#: src/youtube/grl-youtube.c:85
-msgid "Most Responded"
-msgstr "Visvairāk atbildes"
-
-#: src/youtube/grl-youtube.c:88
-msgid "Recently Featured"
-msgstr "Nesen parādījušies"
-
-#: src/youtube/grl-youtube.c:91
-msgid "Watch On Mobile"
-msgstr "Skatīt mobilajā"
-
-#: src/youtube/grl-youtube.c:110
+#: src/youtube/grl-youtube.c:83
 msgid "A source for browsing and searching YouTube videos"
 msgstr "Avots YouTube video pārlūkošanai un meklēšanai"
 
-#: src/youtube/grl-youtube.c:856
+#: src/youtube/grl-youtube.c:820
 msgid "Failed to get feed"
 msgstr "Neizdevās saņemt plūsmu"
 
-#: src/youtube/grl-youtube.c:1033 src/youtube/grl-youtube.c:1421
+#: src/youtube/grl-youtube.c:997 src/youtube/grl-youtube.c:1385
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Nederīgs plūsmas identifikators %s"
+
+#: src/youtube/grl-youtube.c:1061 src/youtube/grl-youtube.c:1194
+#: src/youtube/grl-youtube.c:1406
+#, c-format
+msgid "Invalid category identifier %s"
+msgstr "Nederīgs kategorijas identifikators %s"
+
+#~ msgid "A source for browsing and searching Jamendo music"
+#~ msgstr "Avots Jamendo mūzikas pārlūkošanai un meklēšanai"
+
+#~ msgid "Albums of the week"
+#~ msgstr "Nedēļas albumi"
+
+#~ msgid "Tracks of the week"
+#~ msgstr "Nedēļas celiņi"
+
+#~ msgid "New releases"
+#~ msgstr "Jaunie izdevumi"
+
+#~ msgid "Top artists"
+#~ msgstr "Topa izpildītāji"
+
+#~ msgid "Top albums"
+#~ msgstr "Topa albumi"
+
+#~ msgid "Top tracks"
+#~ msgstr "Topa celiņi"
+
+#~ msgid "Feeds"
+#~ msgstr "Plūsmas"
+
+#, c-format
+#~ msgid "Invalid identifier %s"
+#~ msgstr "Nederīgs identifikators %s"
+
+#, c-format
+#~ msgid "Failed to browse: %s is a track"
+#~ msgstr "Neizdevās pārlūkot: %s ir celiņš"
+
+#, c-format
+#~ msgid "Malformed query “%s”"
+#~ msgstr "Slikti noformēts vaicājums “%s”"
+
+#~ msgid "A source for browsing and searching Vimeo videos"
+#~ msgstr "Avots Vimeo video pārlūkošanai un meklēšanai"
+
+#~ msgid "Top Favorites"
+#~ msgstr "Topa iecienītie"
+
+#~ msgid "Most Viewed"
+#~ msgstr "Visvairāk skatītie"
+
+#~ msgid "Most Recent"
+#~ msgstr "Visnesenākie"
+
+#~ msgid "Most Discussed"
+#~ msgstr "Visvairāk apspriestie"
+
+#~ msgid "Most Linked"
+#~ msgstr "Ar visvairāk saitēm"
+
+#~ msgid "Most Responded"
+#~ msgstr "Visvairāk atbildes"
+
+#~ msgid "Recently Featured"
+#~ msgstr "Nesen parādījušies"
+
+#~ msgid "Watch On Mobile"
+#~ msgstr "Skatīt mobilajā"
 
 #~| msgid "Removable - %s"
 #~ msgid "Removable — %s"
@@ -625,3 +599,4 @@ msgstr "Nederīgs plūsmas identifikators %s"
 
 #~ msgid "Local files"
 #~ msgstr "Vietējās datnes"
+

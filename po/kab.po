@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues/\n"
-"POT-Creation-Date: 2024-03-16 11:30+0000\n"
-"PO-Revision-Date: 2024-03-30 23:14+0100\n"
+"POT-Creation-Date: 2024-03-30 22:48+0000\n"
+"PO-Revision-Date: 2024-04-04 02:41+0200\n"
 "Last-Translator: sa\n"
 "Language-Team: Kabyle <kab@li.org>\n"
 "Language: kab\n"
@@ -23,11 +23,11 @@ msgstr "Ticraḍ n yisebtar"
 
 #: src/bookmarks/grl-bookmarks.c:61
 msgid "A source for organizing media bookmarks"
-msgstr ""
+msgstr "Aɣbalu i usuddes n tecraḍ n yisebtar n umidya"
 
 #: src/bookmarks/grl-bookmarks.c:427
 msgid "Failed to get bookmark metadata"
-msgstr ""
+msgstr "Yecceḍ wawway n yiɣefisefka n tecraḍ n yisebtar"
 
 #: src/bookmarks/grl-bookmarks.c:457 src/bookmarks/grl-bookmarks.c:474
 #, c-format
@@ -56,7 +56,7 @@ msgstr "Ulac tuqqna ɣer taffa n yisefka"
 
 #: src/chromaprint/grl-chromaprint.c:41
 msgid "A plugin to get metadata using gstreamer framework"
-msgstr ""
+msgstr "Azegrir i wawway n yiɣefisefka s useqdec framework n gstreamer"
 
 #: src/dleyna/grl-dleyna-source.c:34
 #, c-format
@@ -70,22 +70,22 @@ msgstr "Asali yecceḍ, aɣbalu asaḍas yerreẓ"
 #: src/dleyna/grl-dleyna-source.c:382
 #, c-format
 msgid "Upload failed, “%s”, transferred %lu of %lu bytes"
-msgstr ""
+msgstr "Asali yecceḍ, \"%s\", yettusiweḍ %lu n %lu yibiten"
 
 #: src/dleyna/grl-dleyna-source.c:933
 #, c-format
 msgid "Failed to retrieve item properties (BrowseObjects error %d: %s)"
-msgstr ""
+msgstr "Tuccḍa deg tririt n warraten n uferdis (tuccḍa BrowseObjects %d: %s)"
 
 #: src/dleyna/grl-dleyna-source.c:1572
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
-msgstr ""
+msgstr "Asali yecceḍ, URL txuṣṣ ɣef tɣawsa n umidya ara yettusiwḍen"
 
 #: src/dmap/grl-daap.c:51
 #, c-format
 msgid "A source for browsing the DAAP server “%s”"
-msgstr ""
+msgstr "Aɣbalu i tunigin deg uqeddac DAAP \"%s\""
 
 #: src/dmap/grl-daap-db.c:66 src/magnatune/grl-magnatune.c:122
 msgid "Albums"
@@ -98,12 +98,12 @@ msgstr "Inaẓuren"
 #: src/dmap/grl-daap-db.c:291 src/magnatune/grl-magnatune.c:866
 #, c-format
 msgid "Invalid container identifier %s"
-msgstr ""
+msgstr "Aneglam n umagbar %s d arameɣtu"
 
 #: src/dmap/grl-dpap.c:51
 #, c-format
 msgid "A source for browsing the DPAP server “%s”"
-msgstr ""
+msgstr "Aɣbalu i tunigin n uqeddac DPAP \"%s\""
 
 #: src/dmap/grl-dpap-db.c:40
 msgid "Photos"
@@ -115,7 +115,7 @@ msgstr "Anagraw n yifuyla"
 
 #: src/filesystem/grl-filesystem.c:59
 msgid "A source for browsing the filesystem"
-msgstr ""
+msgstr "Taɣbalut i tunigin unagraw n yifuyla"
 
 #: src/filesystem/grl-filesystem.c:1172
 #, c-format
@@ -129,7 +129,7 @@ msgstr "Ur yezmir ara ad d-yawi amidya seg %s"
 
 #: src/flickr/grl-flickr.c:53
 msgid "A source for browsing and searching Flickr photos"
-msgstr ""
+msgstr "Taɣbalut i tunigin akked n tewlafin Flickr"
 
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:57
@@ -141,7 +141,7 @@ msgstr "%s’s Flickr"
 #: src/flickr/grl-flickr.c:59
 #, c-format
 msgid "A source for browsing and searching %s’s flickr photos"
-msgstr ""
+msgstr "Taɣbalut i tunigin unagraw n yifuyla n flickr %s"
 
 #: src/freebox/grl-freebox.c:48
 msgid "Freebox TV"
@@ -149,7 +149,7 @@ msgstr "Freebox TV"
 
 #: src/freebox/grl-freebox.c:49
 msgid "A source for browsing Freebox TV channels"
-msgstr ""
+msgstr "Aɣbalu i tunigin n yibuda TV Freebox"
 
 #: src/freebox/grl-freebox.c:52
 msgid "Freebox Radio"
@@ -157,7 +157,7 @@ msgstr "Freebox Radio"
 
 #: src/freebox/grl-freebox.c:53
 msgid "A source for browsing Freebox radio channels"
-msgstr ""
+msgstr "Aɣbalu i tunigin ibuda n ṛṛadyu Freebox"
 
 #: src/gravatar/grl-gravatar.c:46
 msgid "Avatar provider from Gravatar"
@@ -165,7 +165,7 @@ msgstr "Asaǧǧaw n avatar seg Gravatar"
 
 #: src/gravatar/grl-gravatar.c:47
 msgid "A plugin to get avatars for artist and author fields"
-msgstr ""
+msgstr "Azegrir i wawway n yivaṭaren i wurtiyen n yinaẓuren akked ymeskaren"
 
 #: src/local-metadata/grl-local-metadata.c:42
 msgid "Local Metadata Provider"
@@ -173,7 +173,7 @@ msgstr "Asaǧǧa n aɣefisefka adigan"
 
 #: src/local-metadata/grl-local-metadata.c:43
 msgid "A source providing locally available metadata"
-msgstr ""
+msgstr "Aɣbalu i yettmuddun s wudem adigan iɣefisefka i yellan"
 
 #: src/local-metadata/grl-local-metadata.c:381
 #: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
@@ -186,11 +186,11 @@ msgstr "Yecceḍ uṣeggem n: %s"
 
 #: src/local-metadata/grl-local-metadata.c:673
 msgid "Cannot resolve any of the given keys"
-msgstr ""
+msgstr "Ur yezmir ad iṣeggem ula d yiwet seg tsura i d-yettwamudden"
 
 #: src/local-metadata/grl-local-metadata.c:677
 msgid "A GIO supported URL for images is required"
-msgstr ""
+msgstr "URL i yettwasefraken sɣur GIO i tugniwin yettwasra"
 
 #: src/magnatune/grl-magnatune.c:123
 msgid "Genres"
@@ -198,27 +198,27 @@ msgstr "Tiwsatin"
 
 #: src/magnatune/grl-magnatune.c:131
 msgid "A source for browsing music"
-msgstr ""
+msgstr "Aɣbalu i tunigin deg uẓawan"
 
 #: src/magnatune/grl-magnatune.c:421
 #, c-format
 msgid "Failed to get database from magnatune: %s"
-msgstr ""
+msgstr "Yecceḍ wawway n taffa n yisefka seg magnatune: %s"
 
 #: src/magnatune/grl-magnatune.c:451
 #, c-format
 msgid "Failed to save database from magnatune: “%s”"
-msgstr ""
+msgstr "Yecceḍ wawway n taffa n yisefka seg magnatune: \"%s\""
 
 #: src/magnatune/grl-magnatune.c:722
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
-msgstr ""
+msgstr "Yecceḍ wawway n taffa n yisefka seg taffa n yisefka magnatune: %s"
 
 #: src/magnatune/grl-magnatune.c:738
 #, c-format
 msgid "Fail before returning media to user: %s"
-msgstr ""
+msgstr "Yecceḍ send ad yerr amidya i useqdac: %s"
 
 #: src/metadata-store/grl-metadata-store.c:40
 msgid "Metadata Store"
@@ -226,7 +226,7 @@ msgstr "Taḥanut n yiɣefisefka"
 
 #: src/metadata-store/grl-metadata-store.c:41
 msgid "A plugin for storing extra metadata information"
-msgstr ""
+msgstr "Azegrir i uḥraz n telɣut n yiɣefisefka niḍen"
 
 #: src/metadata-store/grl-metadata-store.c:598
 #: src/metadata-store/grl-metadata-store.c:617
@@ -235,11 +235,11 @@ msgstr ""
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
-msgstr ""
+msgstr "Yecceḍ uleqqem n yiɣefisefka: %s"
 
 #: src/metadata-store/grl-metadata-store.c:599
 msgid "specified keys are not writable"
-msgstr ""
+msgstr "tisura tuzzigin ulac fell-asent tira"
 
 #: src/metadata-store/grl-metadata-store.c:639
 msgid "Failed to update metadata"
@@ -263,28 +263,28 @@ msgstr "Yecceḍ unadi: %s"
 
 #: src/opensubtitles/grl-opensubtitles.c:40
 msgid "OpenSubtitles Provider"
-msgstr ""
+msgstr "Asaǧǧaw n OpenSubtitles"
 
 #: src/opensubtitles/grl-opensubtitles.c:41
 msgid "A source providing a list of subtitles for a video"
-msgstr ""
+msgstr "Aɣbalu yettmuddun tabdart n yiduzwilen i tvidyutin"
 
 #: src/optical-media/grl-optical-media.c:44
 msgid "Optical Media"
-msgstr ""
+msgstr "Amidya asekdan"
 
 #: src/optical-media/grl-optical-media.c:45
 msgid "A source for browsing optical media"
-msgstr ""
+msgstr "Aɣbalu i tunigin n umidya asekdan"
 
 #: src/podcasts/grl-podcasts.c:148
 msgid "A source for browsing podcasts"
-msgstr ""
+msgstr "Aɣbalu i tunigin n yibudkastin"
 
 #: src/podcasts/grl-podcasts.c:759 src/podcasts/grl-podcasts.c:779
 #, c-format
 msgid "Failed to get podcast streams: %s"
-msgstr ""
+msgstr "Yecceḍ wawway n yisuddam n ubudkast: %s"
 
 #: src/podcasts/grl-podcasts.c:1245 src/podcasts/grl-podcasts.c:1254
 #: src/podcasts/grl-podcasts.c:1264
@@ -293,7 +293,7 @@ msgstr "Yecceḍ uslaḍ n ugbur"
 
 #: src/podcasts/grl-podcasts.c:1275 src/podcasts/grl-podcasts.c:1304
 msgid "Failed to parse podcast contents"
-msgstr ""
+msgstr "Yecceḍ uslaḍ n yigburen n budkast"
 
 #: src/podcasts/grl-podcasts.c:1370 src/shoutcast/grl-shoutcast.c:417
 msgid "Empty response"
@@ -301,24 +301,24 @@ msgstr "Tiririt d tilemt"
 
 #: src/podcasts/grl-podcasts.c:1459
 msgid "Failed to get podcast information"
-msgstr ""
+msgstr "Yecceḍ wawway n telɣut n ubudkast"
 
 #: src/podcasts/grl-podcasts.c:1499 src/podcasts/grl-podcasts.c:1519
 #, c-format
 msgid "Failed to get podcasts list: %s"
-msgstr ""
+msgstr "Yecceḍ wawway n tebdart n ubudkast: %s"
 
 #: src/podcasts/grl-podcasts.c:1572 src/podcasts/grl-podcasts.c:1587
 msgid "Failed to get podcast stream metadata"
-msgstr ""
+msgstr "Yecceḍ wawway n yiɣefisefka n yisuddam n ubudkast"
 
 #: src/podcasts/grl-podcasts.c:1625
 msgid "Failed to get podcast metadata"
-msgstr ""
+msgstr "Yecceḍ wawway n yiɣefisefka n ubudkast"
 
 #: src/podcasts/grl-podcasts.c:1809
 msgid "Cannot create containers. Only feeds are accepted"
-msgstr ""
+msgstr "Ur yezmir ara ad yernu imagbaren. Ala isuddam i yettwaqbalen"
 
 #: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
@@ -334,7 +334,7 @@ msgstr "Melmi kan"
 
 #: src/raitv/grl-raitv.c:93
 msgid "A source for browsing and searching Rai.tv videos"
-msgstr ""
+msgstr "Aɣbalu i tunigin akked unadi n tvidyutin Rai.tv"
 
 #: src/raitv/grl-raitv.c:164
 msgid "All"
@@ -346,15 +346,15 @@ msgstr "Aberkan d umellal"
 
 #: src/raitv/grl-raitv.c:166
 msgid "Cinema"
-msgstr ""
+msgstr "Ssinima"
 
 #: src/raitv/grl-raitv.c:167
 msgid "Comedians"
-msgstr ""
+msgstr "Izeffanen"
 
 #: src/raitv/grl-raitv.c:168
 msgid "Chronicle"
-msgstr ""
+msgstr "Asekles n yineḍruyen"
 
 #: src/raitv/grl-raitv.c:169
 msgid "Culture"
@@ -366,19 +366,19 @@ msgstr "Tadamsa"
 
 #: src/raitv/grl-raitv.c:171
 msgid "Fiction"
-msgstr ""
+msgstr "Tawerlit"
 
 #: src/raitv/grl-raitv.c:172
 msgid "Junior"
-msgstr ""
+msgstr "Ameẓẓyan"
 
 #: src/raitv/grl-raitv.c:173
 msgid "Investigations"
-msgstr ""
+msgstr "Tisestanin"
 
 #: src/raitv/grl-raitv.c:174
 msgid "Interviews"
-msgstr ""
+msgstr "Tidiwenniyin"
 
 #: src/raitv/grl-raitv.c:175
 msgid "Music"
@@ -394,7 +394,7 @@ msgstr "Tadawsa"
 
 #: src/raitv/grl-raitv.c:178
 msgid "Satire"
-msgstr ""
+msgstr "Tazɣanayt"
 
 #: src/raitv/grl-raitv.c:180
 msgid "Society"
@@ -418,7 +418,7 @@ msgstr "Tasertit"
 
 #: src/raitv/grl-raitv.c:185
 msgid "Leisure"
-msgstr ""
+msgstr "Imezlen"
 
 #: src/raitv/grl-raitv.c:186
 msgid "Travel"
@@ -431,11 +431,11 @@ msgstr "Tecceḍ tunigin: %s"
 
 #: src/shoutcast/grl-shoutcast.c:60
 msgid "A source for browsing SHOUTcast radios"
-msgstr ""
+msgstr "Aɣbalu i tunigin deg ṛṛadyuwat SHOUTcast"
 
 #: src/shoutcast/grl-shoutcast.c:409 src/shoutcast/grl-shoutcast.c:463
 msgid "Failed to parse response"
-msgstr ""
+msgstr "Tecceḍ tesleḍt n tririt"
 
 #: src/shoutcast/grl-shoutcast.c:455
 #, c-format
@@ -449,15 +449,15 @@ msgstr "Tecceḍ tuqqna ɣer: %s"
 
 #: src/shoutcast/grl-shoutcast.c:750
 msgid "non-NULL search text is required"
-msgstr ""
+msgstr "aḍris n unadi ur nelli d ILEM yettwasra"
 
 #: src/thetvdb/grl-thetvdb.c:93
 msgid "A source for fetching metadata of television shows"
-msgstr ""
+msgstr "Aɣbalu i tririt n yiɣefisefka i tesgilin n tiliẓri"
 
 #: src/tmdb/grl-tmdb.c:993
 msgid "Remote data does not contain valid identifier"
-msgstr ""
+msgstr "Isefka inmeggagen ulac deg-sen aneglam ameɣtu"
 
 #. I can haz templatze ??
 #. Schedule the next row to parse
@@ -470,37 +470,37 @@ msgstr ""
 #: src/tracker/grl-tracker-source-api.c:484
 #, c-format
 msgid "Failed to query: %s"
-msgstr ""
+msgstr "Ur teddi ara tsestant: %s"
 
 #: src/tracker3/grl-tracker-source-api.c:455
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
-msgstr ""
+msgstr "Yecceḍ wawway n umidya seg uri: %s"
 
 #: src/tracker3/grl-tracker-source-api.c:605
 #: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
-msgstr ""
+msgstr "Tasestant d tilemt"
 
 #: src/tracker3/grl-tracker-source-api.c:826
 #: src/tracker3/grl-tracker-source-api.c:922
 #: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
-msgstr ""
+msgstr "Asulay \"%s\" ur yettwassen ara deg teɣbalut-a"
 
 #: src/tracker3/grl-tracker-source-priv.h:47
 msgid "A plugin for searching multimedia content using Tracker3"
-msgstr ""
+msgstr "Azegriri i unadi n ugbur n ugetmidya s useqdec n Tracker3"
 
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
-msgstr ""
+msgstr "Azegriri i unadi n ugbur n ugetmidya s useqdec n Tracker"
 
 #: src/youtube/grl-youtube.c:55
 msgid "Standard feeds"
-msgstr ""
+msgstr "Isuddam iluganen"
 
 #: src/youtube/grl-youtube.c:58
 msgid "Categories"
@@ -508,7 +508,7 @@ msgstr "Taggayin"
 
 #: src/youtube/grl-youtube.c:64
 msgid "Top Rated"
-msgstr ""
+msgstr "Wid s tezmilt tafellayt"
 
 #: src/youtube/grl-youtube.c:83
 msgid "A source for browsing and searching YouTube videos"

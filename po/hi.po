@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues/\n"
-"POT-Creation-Date: 2024-04-04 02:20+0000\n"
-"PO-Revision-Date: 2024-04-17 19:05+0530\n"
+"POT-Creation-Date: 2024-05-07 17:06+0000\n"
+"PO-Revision-Date: 2024-05-08 11:54+0530\n"
 "Last-Translator: Scrambled777 <weblate.scrambled777@simplelogin.com>\n"
 "Language-Team: Hindi\n"
 "Language: hi\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Gtranslator 46.0\n"
+"X-Generator: Gtranslator 46.1\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
@@ -116,12 +116,12 @@ msgstr "फाइल सिस्टम"
 
 #: src/filesystem/grl-filesystem.c:59
 msgid "A source for browsing the filesystem"
-msgstr "फ़ाइल सिस्टम ब्राउज़ करने का एक स्रोत"
+msgstr "फाइल सिस्टम ब्राउज़ करने का एक स्रोत"
 
 #: src/filesystem/grl-filesystem.c:1172
 #, c-format
 msgid "File %s does not exist"
-msgstr "फ़ाइल %s मौजूद नहीं है"
+msgstr "फाइल %s मौजूद नहीं है"
 
 #: src/filesystem/grl-filesystem.c:1250 src/youtube/grl-youtube.c:1469
 #, c-format
@@ -130,7 +130,7 @@ msgstr "%s से मीडिया नहीं मिल सका"
 
 #: src/flickr/grl-flickr.c:53
 msgid "A source for browsing and searching Flickr photos"
-msgstr ""
+msgstr "Flickr फोटो ब्राउज़ करने और खोजने के लिए एक स्रोत"
 
 #. "%s" is a full user name, like "John Doe"
 #: src/flickr/grl-flickr.c:57
@@ -142,7 +142,7 @@ msgstr "%s’s Flickr"
 #: src/flickr/grl-flickr.c:59
 #, c-format
 msgid "A source for browsing and searching %s’s flickr photos"
-msgstr "%s की flickr फ़ोटो ब्राउज़ करने और खोजने के लिए एक स्रोत"
+msgstr "%s की flickr फोटो ब्राउज़ करने और खोजने के लिए एक स्रोत"
 
 #: src/freebox/grl-freebox.c:48
 msgid "Freebox TV"
@@ -240,7 +240,7 @@ msgstr "मेटाडेटा अद्यतन करने में व�
 
 #: src/metadata-store/grl-metadata-store.c:599
 msgid "specified keys are not writable"
-msgstr "निर्दिष्ट कुंजियाँ लिखने योग्य नहीं हैं"
+msgstr "निर्दिष्ट कुंजियां लिखने योग्य नहीं हैं"
 
 #: src/metadata-store/grl-metadata-store.c:639
 msgid "Failed to update metadata"
@@ -249,7 +249,7 @@ msgstr "मेटाडेटा अद्यतन करने में व�
 #: src/metadata-store/grl-metadata-store.c:785
 #: src/metadata-store/grl-metadata-store.c:830
 msgid "“source-id” not available"
-msgstr "\"स्रोत-आईडी\" उपलब्ध नहीं है"
+msgstr "“स्रोत-id” उपलब्ध नहीं है"
 
 #: src/metadata-store/grl-metadata-store.c:805
 msgid "Failed to resolve"
@@ -319,7 +319,7 @@ msgstr "पॉडकास्ट मेटाडेटा प्राप्त 
 
 #: src/podcasts/grl-podcasts.c:1809
 msgid "Cannot create containers. Only feeds are accepted"
-msgstr "कंटेनर नहीं बना सकते। केवल फ़ीड स्वीकार किए जाते हैं"
+msgstr "कंटेनर नहीं बना सकते। केवल फीड स्वीकार किए जाते हैं"
 
 #: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
@@ -343,7 +343,7 @@ msgstr "सभी"
 
 #: src/raitv/grl-raitv.c:165
 msgid "Black and White"
-msgstr "काला और सफेद"
+msgstr "श्याम और स्वेत"
 
 #: src/raitv/grl-raitv.c:166
 msgid "Cinema"
@@ -375,7 +375,7 @@ msgstr "कनिष्ठ"
 
 #: src/raitv/grl-raitv.c:173
 msgid "Investigations"
-msgstr "जाँच पड़ताल"
+msgstr "जांच पड़ताल"
 
 #: src/raitv/grl-raitv.c:174
 msgid "Interviews"
@@ -403,7 +403,7 @@ msgstr "समाज"
 
 #: src/raitv/grl-raitv.c:181
 msgid "Show"
-msgstr "शो"
+msgstr "कार्यक्रम"
 
 #: src/raitv/grl-raitv.c:182
 msgid "Sport"
@@ -446,7 +446,7 @@ msgstr "मीडिया %s नहीं मिल सका"
 #: src/shoutcast/grl-shoutcast.c:551
 #, c-format
 msgid "Failed to connect: %s"
-msgstr "कनेक्ट करने में विफल: %s"
+msgstr "जुड़ने में विफल: %s"
 
 #: src/shoutcast/grl-shoutcast.c:750
 msgid "non-NULL search text is required"
@@ -454,7 +454,7 @@ msgstr "गैर-शून्य खोज पाठ आवश्यक है"
 
 #: src/thetvdb/grl-thetvdb.c:93
 msgid "A source for fetching metadata of television shows"
-msgstr "टेलीविज़न शो का मेटाडेटा लाने का एक स्रोत"
+msgstr "टेलीविज़न कार्यक्रमों का मेटाडेटा लाने का एक स्रोत"
 
 #: src/tmdb/grl-tmdb.c:993
 msgid "Remote data does not contain valid identifier"
@@ -489,7 +489,7 @@ msgstr "खाली क्वेरी"
 #: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
-msgstr "इस स्रोत में ID \"%s\" ज्ञात नहीं है"
+msgstr "इस स्रोत में ID “%s” ज्ञात नहीं है"
 
 #: src/tracker3/grl-tracker-source-priv.h:47
 msgid "A plugin for searching multimedia content using Tracker3"
@@ -497,11 +497,11 @@ msgstr "Tracker3 का उपयोग करके मल्टीमीडि
 
 #: src/tracker/grl-tracker-source-priv.h:44
 msgid "A plugin for searching multimedia content using Tracker"
-msgstr "ट्रैकर का उपयोग करके मल्टीमीडिया सामग्री खोजने के लिए एक प्लगइन"
+msgstr "Tracker का उपयोग करके मल्टीमीडिया सामग्री खोजने के लिए एक प्लगइन"
 
 #: src/youtube/grl-youtube.c:55
 msgid "Standard feeds"
-msgstr "मानक फ़ीड"
+msgstr "मानक फीड"
 
 #: src/youtube/grl-youtube.c:58
 msgid "Categories"
@@ -517,12 +517,12 @@ msgstr "YouTube वीडियो ब्राउज़ करने और ख
 
 #: src/youtube/grl-youtube.c:820
 msgid "Failed to get feed"
-msgstr "फ़ीड प्राप्त करने में विफल"
+msgstr "फीड प्राप्त करने में विफल"
 
 #: src/youtube/grl-youtube.c:997 src/youtube/grl-youtube.c:1385
 #, c-format
 msgid "Invalid feed identifier %s"
-msgstr "अमान्य फ़ीड पहचानकर्ता %s"
+msgstr "अमान्य फीड पहचानकर्ता %s"
 
 #: src/youtube/grl-youtube.c:1061 src/youtube/grl-youtube.c:1194
 #: src/youtube/grl-youtube.c:1406

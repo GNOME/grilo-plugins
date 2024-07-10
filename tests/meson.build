@@ -39,6 +39,6 @@ if local_metadata_enabled and lua_factory_enabled
     subdir('local-metadata')
 endif
 
-if get_option('enable-tracker3') != 'no' and tracker3_dep.found() and tracker3_testutils_dep.found()
+if get_option('enable-tracker3') != 'no' and tracker3_dep.found()
     subdir('tracker3')
 endif

@@ -1,8 +1,17 @@
-source_tests = [
-    'test_tracker3',
-]
+source_tests = []
 
-tracker_sandbox = find_program(tracker3_testutils_dep.get_pkgconfig_variable('command'))
+if not tracker3_testutils_dep.found()
+    tracker_sandbox = find_program('localsearch')
+    subcommand = ['test-sandbox']
+else
+    tracker_sandbox = find_program(tracker3_testutils_dep.get_pkgconfig_variable('command'))
+    subcommand = []
+endif
+
+if tracker_sandbox.found()
+    source_tests += ['test_tracker3']
+endif
+
 datadir = join_paths(meson.current_source_dir(), 'data')
 
 foreach t: source_tests
@@ -14,7 +23,7 @@ foreach t: source_tests
             '-DTRACKER3_DATA_PATH="@0@"'.format(datadir),
         ])
     test(t, tracker_sandbox,
-        args: [
+        args: subcommand + [
 	    '--index-recursive-directories', datadir,
  	    '--store-tmpdir',
 	    exe

@@ -3,14 +3,14 @@
 # This file is distributed under the same license as the grilo-plugins package.
 # Abigail Brady <morwen@evilmagic.org>, Bastien Nocera <hadess@hadess.net>, 2016.
 # Zander Brown <zbrown@gnome.org>, 2019.
-# Bruce Cowan <bruce@bcowan.me.uk>, 2021.
+# Bruce Cowan <bruce@bcowan.me.uk>, 2021-2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins 0.3.4\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2021-03-28 11:13+0000\n"
-"PO-Revision-Date: 2021-04-02 14:10+0100\n"
+"POT-Creation-Date: 2022-07-18 11:45+0000\n"
+"PO-Revision-Date: 2024-09-01 12:39+0100\n"
 "Last-Translator: Bruce Cowan <bruce@bcowan.me.uk>\n"
 "Language-Team: English - United Kingdom <en@li.org>\n"
 "Language: en_GB\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 40.0\n"
+"X-Generator: Poedit 3.4.4\n"
 "X-DL-Team: en_GB\n"
 "X-DL-Module: grilo-plugins\n"
 "X-DL-Branch: master\n"
@@ -130,7 +130,7 @@ msgstr "A source for browsing the filesystem"
 msgid "File %s does not exist"
 msgstr "File %s does not exist"
 
-#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1505
+#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1469
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "Cannot get media from %s"
@@ -185,7 +185,8 @@ msgstr "A source providing locally-available metadata"
 
 #: src/local-metadata/grl-local-metadata.c:381
 #: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
-#: src/tracker3/grl-tracker-source-api.c:381
+#: src/tracker3/grl-tracker-source-api.c:375
+#: src/tracker3/grl-tracker-source-api.c:410
 #: src/tracker/grl-tracker-source-api.c:530
 #, c-format
 msgid "Failed to resolve: %s"
@@ -238,7 +239,7 @@ msgstr "A plug-in for storing extra metadata information"
 #: src/metadata-store/grl-metadata-store.c:598
 #: src/metadata-store/grl-metadata-store.c:617
 #: src/metadata-store/grl-metadata-store.c:829
-#: src/tracker3/grl-tracker-source-api.c:471
+#: src/tracker3/grl-tracker-source-api.c:508
 #: src/tracker/grl-tracker-source-api.c:640
 #, c-format
 msgid "Failed to update metadata: %s"
@@ -246,7 +247,7 @@ msgstr "Failed to update metadata: %s"
 
 #: src/metadata-store/grl-metadata-store.c:599
 msgid "specified keys are not writable"
-msgstr "specified keys are not writable"
+msgstr "specified keys are not writeable"
 
 #: src/metadata-store/grl-metadata-store.c:639
 msgid "Failed to update metadata"
@@ -331,7 +332,7 @@ msgstr "Cannot create containers. Only feeds are accepted"
 msgid "URL required"
 msgstr "URL required"
 
-#: src/raitv/grl-raitv.c:49 src/youtube/grl-youtube.c:73
+#: src/raitv/grl-raitv.c:49
 msgid "Most Popular"
 msgstr "Most Popular"
 
@@ -462,7 +463,7 @@ msgstr "non-NULL search text is required"
 msgid "A source for fetching metadata of television shows"
 msgstr "A source for fetching metadata of television programmes"
 
-#: src/tmdb/grl-tmdb.c:998
+#: src/tmdb/grl-tmdb.c:993
 msgid "Remote data does not contain valid identifier"
 msgstr "Remote data does not contain valid identifier"
 
@@ -479,26 +480,25 @@ msgstr "Remote data does not contain valid identifier"
 msgid "Failed to query: %s"
 msgstr "Failed to query: %s"
 
-#: src/tracker3/grl-tracker-source-api.c:418
+#: src/tracker3/grl-tracker-source-api.c:455
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
 msgstr "Failed to get media from uri: %s"
 
-#: src/tracker3/grl-tracker-source-api.c:604
+#: src/tracker3/grl-tracker-source-api.c:605
 #: src/tracker/grl-tracker-source-api.c:816
 msgid "Empty query"
 msgstr "Empty query"
 
-#: src/tracker3/grl-tracker-source-api.c:825
-#: src/tracker3/grl-tracker-source-api.c:921
+#: src/tracker3/grl-tracker-source-api.c:826
+#: src/tracker3/grl-tracker-source-api.c:922
 #: src/tracker/grl-tracker-source-api.c:1087
 #, c-format
 msgid "ID “%s” is not known in this source"
 msgstr "ID “%s” is not known in this source"
 
 #: src/tracker3/grl-tracker-source-priv.h:47
-#| msgid "A plugin for searching multimedia content using Tracker"
 msgid "A plugin for searching multimedia content using Tracker3"
 msgstr "A plug-in for searching multimedia content using Tracker3"
 
@@ -518,56 +518,48 @@ msgstr "Categories"
 msgid "Top Rated"
 msgstr "Top Rated"
 
-#: src/youtube/grl-youtube.c:67
-msgid "Top Favorites"
-msgstr "Top Favourites"
-
-#: src/youtube/grl-youtube.c:70
-msgid "Most Viewed"
-msgstr "Most Viewed"
-
-#: src/youtube/grl-youtube.c:76
-msgid "Most Recent"
-msgstr "Most Recent"
-
-#: src/youtube/grl-youtube.c:79
-msgid "Most Discussed"
-msgstr "Most Discussed"
-
-#: src/youtube/grl-youtube.c:82
-msgid "Most Linked"
-msgstr "Most Linked"
-
-#: src/youtube/grl-youtube.c:85
-msgid "Most Responded"
-msgstr "Most Responded"
-
-#: src/youtube/grl-youtube.c:88
-msgid "Recently Featured"
-msgstr "Recently Featured"
-
-#: src/youtube/grl-youtube.c:91
-msgid "Watch On Mobile"
-msgstr "Watch On Mobile"
-
-#: src/youtube/grl-youtube.c:110
+#: src/youtube/grl-youtube.c:83
 msgid "A source for browsing and searching YouTube videos"
 msgstr "A source for browsing and searching YouTube videos"
 
-#: src/youtube/grl-youtube.c:856
+#: src/youtube/grl-youtube.c:820
 msgid "Failed to get feed"
 msgstr "Failed to get feed"
 
-#: src/youtube/grl-youtube.c:1033 src/youtube/grl-youtube.c:1421
+#: src/youtube/grl-youtube.c:997 src/youtube/grl-youtube.c:1385
 #, c-format
 msgid "Invalid feed identifier %s"
 msgstr "Invalid feed identifier %s"
 
-#: src/youtube/grl-youtube.c:1097 src/youtube/grl-youtube.c:1230
-#: src/youtube/grl-youtube.c:1442
+#: src/youtube/grl-youtube.c:1061 src/youtube/grl-youtube.c:1194
+#: src/youtube/grl-youtube.c:1406
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Invalid category identifier %s"
+
+#~ msgid "Top Favorites"
+#~ msgstr "Top Favourites"
+
+#~ msgid "Most Viewed"
+#~ msgstr "Most Viewed"
+
+#~ msgid "Most Recent"
+#~ msgstr "Most Recent"
+
+#~ msgid "Most Discussed"
+#~ msgstr "Most Discussed"
+
+#~ msgid "Most Linked"
+#~ msgstr "Most Linked"
+
+#~ msgid "Most Responded"
+#~ msgstr "Most Responded"
+
+#~ msgid "Recently Featured"
+#~ msgstr "Recently Featured"
+
+#~ msgid "Watch On Mobile"
+#~ msgstr "Watch On Mobile"
 
 #~ msgid "A source for browsing and searching Jamendo music"
 #~ msgstr "A source for browsing and searching Jamendo music"

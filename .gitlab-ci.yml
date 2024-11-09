@@ -20,7 +20,6 @@ variables:
   DEPENDENCY_GRILO_SOUP2:
     libsoup-devel
     libgdata-devel
-    libdmapsharing-devel
 
   DEPENDENCY_GRILO_SOUP3:
     libsoup3-devel
@@ -60,7 +59,7 @@ build_stable:
       -Denable-bookmarks=yes
       -Denable-chromaprint=yes
       -Denable-dleyna=yes
-      -Denable-dmap=yes
+      -Denable-dmap=no
       -Denable-filesystem=yes
       -Denable-flickr=yes
       -Denable-freebox=yes

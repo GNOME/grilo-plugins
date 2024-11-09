@@ -107,7 +107,9 @@ typedef struct {
 } RecursiveEntry;
 
 
-static GrlFilesystemSource *grl_filesystem_source_new (void);
+static GrlFilesystemSource *grl_filesystem_source_new (const char *source_id,
+                                                       const char *source_name,
+                                                       const char *source_desc);
 
 static void grl_filesystem_source_finalize (GObject *object);
 
@@ -154,6 +156,8 @@ grl_filesystem_plugin_init (GrlRegistry *registry,
   GList *chosen_uris = NULL;
   guint max_search_depth = GRILO_CONF_MAX_SEARCH_DEPTH_DEFAULT;
   gboolean handle_pls = FALSE;
+  gboolean needs_main_source = FALSE;
+  guint src_index = 0;
 
   GRL_LOG_DOMAIN_INIT (filesystem_log_domain, "filesystem");
 
@@ -163,23 +167,61 @@ grl_filesystem_plugin_init (GrlRegistry *registry,
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
-  source = grl_filesystem_source_new ();
-
   for (; configs; configs = g_list_next (configs)) {
     GrlConfig *config = configs->data;
+    gboolean separate_src = FALSE;
     gchar *uri;
 
     uri = grl_config_get_string (config, GRILO_CONF_CHOSEN_URI);
-    if (uri) {
-      chosen_uris = g_list_prepend (chosen_uris, uri);
-    }
     if (grl_config_has_param (config, GRILO_CONF_MAX_SEARCH_DEPTH)) {
       max_search_depth = (guint)grl_config_get_int (config, GRILO_CONF_MAX_SEARCH_DEPTH);
     }
     if (grl_config_has_param (config, GRILO_CONF_HANDLE_PLS)) {
       handle_pls = grl_config_get_boolean (config, GRILO_CONF_HANDLE_PLS);
     }
+    if (grl_config_has_param (config, GRILO_CONF_SEPARATE_SRC)) {
+      separate_src = grl_config_get_boolean (config, GRILO_CONF_SEPARATE_SRC);
+    }
+    if (separate_src) {
+      GrlFilesystemSource *new_source = NULL;
+      g_autofree char *source_id_suffix = NULL;
+      g_autofree char *source_id = NULL;
+      g_autofree char *source_name = NULL;
+      g_autofree char *source_desc = NULL;
+
+      source_id_suffix = grl_config_get_string (config, GRILO_CONF_SOURCE_ID_SUFFIX);
+      if (source_id_suffix)
+        source_id = g_strconcat (SOURCE_ID, "-", source_id_suffix, NULL);
+      else
+        source_id = g_strdup_printf ("%s-%u", SOURCE_ID, ++src_index);
+      source_name = grl_config_get_string (config, GRILO_CONF_SOURCE_NAME);
+      source_desc = grl_config_get_string (config, GRILO_CONF_SOURCE_DESC);
+
+      new_source = grl_filesystem_source_new (source_id,
+                                              source_name,
+                                              source_desc);
+      if (uri != NULL)
+        new_source->priv->chosen_uris = g_list_prepend (NULL, g_steal_pointer (&uri));
+      new_source->priv->max_search_depth = max_search_depth;
+      new_source->priv->handle_pls = handle_pls;
+
+      grl_registry_register_source (registry,
+                                    plugin,
+                                    GRL_SOURCE (new_source),
+                                    NULL);
+    } else {
+      if (uri)
+        chosen_uris = g_list_prepend (chosen_uris, uri);
+      needs_main_source = TRUE;
+    }
   }
+
+  if (!needs_main_source && chosen_uris != NULL) {
+    g_list_free_full (chosen_uris, g_free);
+    return TRUE;
+  }
+
+  source = grl_filesystem_source_new (NULL, NULL, NULL);
   source->priv->chosen_uris = g_list_reverse (chosen_uris);
   source->priv->max_search_depth = max_search_depth;
   source->priv->handle_pls = handle_pls;
@@ -211,14 +253,16 @@ GRL_PLUGIN_DEFINE (GRL_MAJOR,
 G_DEFINE_TYPE_WITH_PRIVATE (GrlFilesystemSource, grl_filesystem_source, GRL_TYPE_SOURCE)
 
 static GrlFilesystemSource *
-grl_filesystem_source_new (void)
+grl_filesystem_source_new (const char *source_id,
+                           const char *source_name,
+                           const char *source_desc)
 {
   GRL_DEBUG ("grl_filesystem_source_new");
   return g_object_new (GRL_FILESYSTEM_SOURCE_TYPE,
-		       "source-id", SOURCE_ID,
-		       "source-name", SOURCE_NAME,
-		       "source-desc", SOURCE_DESC,
-		       NULL);
+                       "source-id", source_id ?: SOURCE_ID,
+                       "source-name", source_name ?: SOURCE_NAME,
+                       "source-desc", source_desc ?: SOURCE_DESC,
+                       NULL);
 }
 
 static void

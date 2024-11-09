@@ -76,7 +76,7 @@ build_stable:
       -Denable-shoutcast=yes
       -Denable-thetvdb=yes
       -Denable-tmdb=yes
-      -Denable-tracker3=yes
+      -Denable-tracker3=no
       -Denable-youtube=yes
     - ninja -C _build
     - ninja -C _build install
@@ -122,7 +122,7 @@ build_soup3:
       -Denable-shoutcast=yes
       -Denable-thetvdb=yes
       -Denable-tmdb=yes
-      -Denable-tracker3=yes
+      -Denable-tracker3=no
       -Denable-youtube=no
     - ninja -C _build
     - ninja -C _build install

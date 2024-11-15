@@ -660,7 +660,7 @@ recursive_operation_got_file (GFileEnumerator *enumerator, GAsyncResult *res, Re
   files = g_file_enumerator_next_files_finish (enumerator, res, &error);
   if (error) {
     if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-      GRL_WARNING ("Got error: %s", error->message);
+      GRL_WARNING ("Got error for file: %s", error->message);
     g_error_free (error);
     goto finished;
   }
@@ -752,7 +752,7 @@ recursive_operation_got_entry (GFile *directory, GAsyncResult *res, RecursiveOpe
       g_error_free (error);
       return;
     }
-    GRL_WARNING ("Got error: %s", error->message);
+    GRL_WARNING ("Got error for entry: %s", error->message);
     g_error_free (error);
     /* we couldn't get the children of this directory, but we probably have
      * other directories to try */

@@ -135,7 +135,7 @@ grl_dleyna_servers_manager_proxy_get_servers_cb (GObject      *source_object,
 
   grl_dleyna_manager_call_get_servers_finish (priv->proxy, &object_paths, res, &error);
   if (error != NULL) {
-    if (!g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_SERVICE_UNKNOWN))
+    if (g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_SERVICE_UNKNOWN))
       GRL_DEBUG ("Unable to fetch the list of available servers: %s", error->message);
     else
       GRL_WARNING ("Unable to fetch the list of available servers: %s", error->message);

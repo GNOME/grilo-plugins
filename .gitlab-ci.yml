@@ -71,7 +71,6 @@ build_stable:
       -Denable-opensubtitles=yes
       -Denable-optical-media=yes
       -Denable-podcasts=yes
-      -Denable-raitv=yes
       -Denable-shoutcast=yes
       -Denable-thetvdb=yes
       -Denable-tmdb=yes
@@ -117,7 +116,6 @@ build_soup3:
       -Denable-opensubtitles=no
       -Denable-optical-media=yes
       -Denable-podcasts=yes
-      -Denable-raitv=yes
       -Denable-shoutcast=yes
       -Denable-thetvdb=yes
       -Denable-tmdb=yes

@@ -154,7 +154,6 @@ plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['opensubtitles', [gio_dep, libsoup24_dep], []],
     ['optical-media', [totem_plparser_dep], []],
     ['podcasts', [grilo_net_dep, libxml_dep, sqlite3_dep, totem_plparser_dep], []],
-    ['raitv', [grilo_net_dep, libxml_dep], []],
     ['shoutcast', [grilo_net_dep, libxml_dep], []],
     ['thetvdb', [grilo_net_dep, libxml_dep, libarchive_dep, gom_dep], []],
     ['tmdb', [json_glib_dep, grilo_net_dep], []],

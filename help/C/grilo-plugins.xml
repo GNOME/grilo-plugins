@@ -60,11 +60,6 @@
 <title>Grilo Plugins</title>
 
 
-<sect1 id="sec-plugin-apple-trailers">
-<title>Apple Trailers</title>
-<para>This is a Grilo plugin for Apple trailers. Its plugin ID is <literal>"grl-apple-trailers"</literal></para>
-</sect1>
-
 <sect1 id="sec-plugin-bookmarks">
 <title>Bookmarks</title>
 <para>This is a Grilo plugin for bookmarks. Its plugin ID is <literal>"grl-bookmarks"</literal></para>

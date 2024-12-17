@@ -7,7 +7,6 @@
 
 sources = [
     'grl-acoustid',
-    'grl-appletrailers',
     'grl-euronews',
     'grl-guardianvideos',
     'grl-itunes-podcast',
@@ -24,7 +23,6 @@ resources = [
     'grl-euronews',
     'grl-guardianvideos',
     'grl-radiofrance',
-    'grl-appletrailers',
     'grl-itunes-podcast',
 ]
 

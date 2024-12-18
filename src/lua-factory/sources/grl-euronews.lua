@@ -21,14 +21,13 @@
 --]]
 
 LANG_EN                 = "en"
-EURONEWS_URL            = 'https://%s.euronews.com/api/watchlive.json'
+EURONEWS_URL            = 'https://%s.euronews.com/live'
 
 local langs = {
   arabic = "Arabic",
   de = "German",
   en = "English",
   es = "Spanish; Castilian",
-  fa = "Persian",
   fr = "French",
   gr = "Greek, Modern (1453-)",
   hu = "Hungarian",
@@ -79,57 +78,16 @@ end
 ------------------------
 
 function euronews_initial_fetch_cb(results, lang)
-  local json = {}
-  json = grl.lua.json.string_to_table(results)
-
-  -- pfp: youtube, uses videoId for url
-  -- jw: will provide an url to request video
-  if not json or
-    (json.player ~= "pfp" and json.player ~= "jw") or
-    (json.player == "pfp" and not json.videoId) or
-    (json.player == "jw" and not json.url) then
-    local api_url = get_api_url(lang)
-    grl.warning ("Initial fetch failed for: " .. api_url)
+  videoId = results:match('videoId%&quot%;:%&quot%;(.-)%&quot%;')
+  if not videoId then
+    grl.warning("No videoId for " .. lang)
     callback_done()
     return
   end
 
-  if json.player == "pfp" then
-    item = {}
-    item.primary = string.format("https://www.youtube.com/watch?v=%s", json.videoId)
-    local media = create_media(lang, item)
-    if media ~= nil then
-      grl.callback(media, -1)
-    end
-
-    callback_done()
-    return
-  end
-
-  local streaming_lang = json.url:match("://euronews%-(..)%-p%-api")
-  if lang ~= LANG_EN and streaming_lang == LANG_EN then
-    grl.debug("Skipping " .. langs[lang] .. " as it redirects to " .. langs[LANG_EN] .. " stream.")
-    callback_done()
-    return
-  end
-
-  grl.fetch("https:" .. json.url, euronews_fetch_cb, lang)
-end
-
-
--- return all the media found
-function euronews_fetch_cb(results, lang)
-  local json = {}
-  json = grl.lua.json.string_to_table(results)
-
-  if not json or json.status ~= "ok" or not json.primary then
-    local api_url = get_api_url(lang)
-    grl.warning("Fetch failed for: " .. api_url)
-    callback_done()
-    return
-  end
-
-  local media = create_media(lang, json)
+  item = {}
+  item.primary = string.format("https://www.youtube.com/watch?v=%s", videoId)
+  local media = create_media(lang, item)
   if media ~= nil then
     grl.callback(media, -1)
   end

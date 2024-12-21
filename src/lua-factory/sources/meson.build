@@ -9,6 +9,7 @@ sources = [
     'grl-acoustid',
     'grl-euronews',
     'grl-guardianvideos',
+    'grl-iptv',
     'grl-itunes-podcast',
     'grl-lastfm-cover',
     'grl-musicbrainz-coverart',

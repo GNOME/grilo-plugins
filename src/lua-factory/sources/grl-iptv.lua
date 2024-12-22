@@ -43,19 +43,34 @@ keys = {}
 -- Number of items in ldata --
 num_channels = 0
 
+-- states used to determine at the end of the fetch if we browse medias or searching one --
+STATE_NONE = 0
+STATE_BROWSING = 1
+STATE_SEARCH = 2
+
+current_state = STATE_NONE
+
 ------------------
 -- Source utils --
 ------------------
 
 function grl_source_browse(media_id)
   if next(ldata) == nil then
-    -- empty data, fetch all channels and send media(s) --
-    grl.debug('Channels table is empty, start fetching all...')
+    current_state = STATE_BROWSING
 
-    local url = IPTV_BASE_API_URL .. 'streams.json'
-    grl.fetch(url, on_get_streams_done_cb, media_id)
+    start_fetching(media_id)
   else
     browse_media(media_id)
+  end
+end
+
+function grl_source_search(text)
+  if next(ldata) == nil then
+    current_state = STATE_SEARCH
+
+    start_fetching(text)
+  else
+    search_media(text)
   end
 end
 
@@ -63,7 +78,7 @@ end
 -- Callback functions --
 ------------------------
 
-function on_get_streams_done_cb(results, media_id)
+function on_get_streams_done_cb(results, data)
   if not results then
     grl.callback()
     return
@@ -95,10 +110,10 @@ function on_get_streams_done_cb(results, media_id)
   end
 
   local url = IPTV_BASE_API_URL .. 'channels.json'
-  grl.fetch(url, on_get_channels_done_cb, media_id)
+  grl.fetch(url, on_get_channels_done_cb, data)
 end
 
-function on_get_channels_done_cb(results, media_id)
+function on_get_channels_done_cb(results, data)
   if not results then
     grl.callback()
     return
@@ -140,12 +155,26 @@ function on_get_channels_done_cb(results, media_id)
 
   grl.debug('fetching channels done, start sending media...')
 
-  browse_media(media_id)
+  if current_state == STATE_BROWSING then
+    browse_media(data)
+  elseif current_state == STATE_SEARCH then
+    search_media(data)
+  end
+
+  current_state = STATE_NONE
 end
 
 -------------
 -- Helpers --
 -------------
+
+function start_fetching(data)
+  -- empty data, fetch all channels and send media(s) --
+  grl.debug('Channels table is empty, start fetching all...')
+
+  local url = IPTV_BASE_API_URL .. 'streams.json'
+  grl.fetch(url, on_get_streams_done_cb, data)
+end
 
 function fill_media (id, media, channel, custom_title)
   media.id = id
@@ -240,5 +269,40 @@ function browse_media(media_id)
     end
   else
     send_all_media()
+  end
+end
+
+function search_media(text)
+  if not text then
+    grl.callback()
+  end
+
+  local count = grl.get_options("count")
+  local skip = grl.get_options("skip")
+
+  if count <= 0 then
+    count = num_channels
+  end
+
+  for _, id in ipairs(keys) do
+    if skip > 0 then
+      skip = skip - 1
+    elseif count > 0 then
+      if ldata[id].name ~= nil then
+        if string.match(ldata[id].name:lower(), text:lower()) then
+          local media = create_media(id, ldata[id])
+
+          count = count - 1
+
+          grl.debug('Found media with ID : ' .. id)
+
+          grl.callback(media, count)
+        end
+      end
+    end
+  end
+
+  if count > 0 then
+    grl.callback()
   end
 end

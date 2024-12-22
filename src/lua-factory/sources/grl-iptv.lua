@@ -30,6 +30,7 @@ source = {
   description = "A source for watching a collection of publicly available channels",
   supported_keys = { "id", "childcount", "title", "region", "url", "site", "thumbnail", "http-referrer", "user-agent" },
   supported_media = 'video',
+  icon = 'resource:///org/gnome/grilo/plugins/iptpv/iptv.png',
   tags = { 'tv', 'net:internet' }
 }
 

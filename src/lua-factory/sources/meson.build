@@ -23,6 +23,7 @@ sources = [
 resources = [
     'grl-euronews',
     'grl-guardianvideos',
+    'grl-iptv',
     'grl-radiofrance',
     'grl-itunes-podcast',
 ]

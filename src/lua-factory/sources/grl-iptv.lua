@@ -37,6 +37,9 @@ source = {
 -- Global table to store channels
 ldata = {}
 
+-- Table containing the channels ids --
+keys = {}
+
 -- Number of items in ldata --
 num_channels = 0
 
@@ -123,6 +126,18 @@ function on_get_channels_done_cb(results, media_id)
     end
   end
 
+  --[[
+    In Lua, table with string keys doesn't have order.
+    The recommended way, is to store them into a separate table and sort them in this new table.
+    We get the channels by iterating this table (see send_all_media).
+  --]]
+  for key, _ in pairs(ldata) do
+      table.insert(keys, key)
+  end
+
+  grl.debug('Start sorting channels')
+  table.sort(keys, function(keyA, keyB) return keyA < keyB end)
+
   grl.debug('fetching channels done, start sending media...')
 
   browse_media(media_id)
@@ -187,12 +202,12 @@ function send_all_media()
     count = num_channels
   end
 
-  for id, channel in pairs(ldata) do
+  for _, id in ipairs(keys) do
     if skip > 0 then
       skip = skip - 1
     elseif count > 0 then
-      if channel.name ~= nil then
-        local media = create_media(id, channel)
+      if ldata[id].name ~= nil then
+        local media = create_media(id, ldata[id])
 
         count = count - 1
 

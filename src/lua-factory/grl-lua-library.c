@@ -34,6 +34,8 @@
 #include "lua-library/lua-libraries.h"
 #include "lua-library/htmlentity.h"
 
+#include "lua-library/lua-proxy-call.h"
+
 #ifdef HAVE_TOTEM_PLPARSER_MINI
 #include <totem-pl-parser-mini.h>
 #endif
@@ -56,6 +58,14 @@ typedef struct {
   GCancellable *cancellable;
   OperationSpec *os;
 } FetchOperation;
+
+typedef struct {
+  lua_State *L;
+  int lua_userdata;
+  int lua_callback;
+  GCancellable *cancellable;
+  OperationSpec *os;
+} RequestOperation;
 
 typedef struct {
   lua_State *L;
@@ -1392,6 +1402,177 @@ grl_l_fetch (lua_State *L)
   return 0;
 }
 
+static void
+grl_l_request_set_headers(lua_State *L, RestProxyCall *proxy_call, uint arg_offset)
+{
+  /* Set seaders */
+  if (arg_offset <= lua_gettop (L) && lua_istable (L, arg_offset)) {
+    lua_pushnil (L);
+
+    while (lua_next (L, arg_offset) != 0) {
+      const char *key = lua_tostring (L, -2);
+      const char *value = lua_tostring (L, -1);
+
+      rest_proxy_call_add_header (proxy_call, key, value);
+
+      lua_pop (L, 1);
+    }
+  }
+}
+
+static void
+grl_l_request_set_params(lua_State *L, RestProxyCall *proxy_call, uint arg_offset)
+{
+  /* Set params */
+  if (arg_offset <= lua_gettop (L) && lua_istable (L, arg_offset)) {
+    lua_pushnil (L);
+
+    while (lua_next (L, arg_offset) != 0) {
+      const char *key = lua_tostring (L, -2);
+      const char *value = lua_tostring (L, -1);
+
+      rest_proxy_call_add_param (proxy_call, key, value);
+
+      lua_pop (L, 1);
+    }
+  }
+}
+
+static void
+grl_util_request_done_cb (GObject      *source_object,
+                          GAsyncResult *res,
+                          gpointer      user_data)
+{
+  RequestOperation *request_op = user_data;
+  g_autoptr (GError) error = NULL;
+  gssize len_results = 0;
+  const char *payload;
+
+  if (!rest_proxy_call_invoke_finish (REST_PROXY_CALL (source_object), res, &error)) {
+    if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+      GRL_DEBUG ("request operation was cancelled");
+    else
+      GRL_DEBUG ("The request has failed: '%s'", error->message);
+  } else {
+    payload = rest_proxy_call_get_payload (REST_PROXY_CALL (source_object));
+    len_results = rest_proxy_call_get_payload_length (REST_PROXY_CALL (source_object));
+
+    GRL_DEBUG ("request_done %ld elements retrieved", len_results);
+
+    /* get the callback from the registry */
+    lua_rawgeti (request_op->L, LUA_REGISTRYINDEX, request_op->lua_callback);
+
+    /* push the results from the request */
+    lua_pushlstring (request_op->L, len_results > 0 ? payload : "", len_results);
+
+    /* get userdata from the registry */
+    lua_rawgeti (request_op->L, LUA_REGISTRYINDEX, request_op->lua_userdata);
+
+    if (!grl_lua_operations_pcall (request_op->L, 2, request_op->os, &error)) {
+      if (error != NULL) {
+        GRL_WARNING ("calling source callback function fail: %s", error->message);
+      }
+    }
+  }
+
+  luaL_unref (request_op->L, LUA_REGISTRYINDEX, request_op->lua_userdata);
+  luaL_unref (request_op->L, LUA_REGISTRYINDEX, request_op->lua_callback);
+
+  g_clear_object (&request_op->cancellable);
+  g_clear_pointer (&request_op, g_free);
+}
+
+/**
+* grl.request
+*
+* @url: (string) The http URL to GET/POST the content.
+* @method: (string) 'GET' or 'POST' method.
+* @header: (table) header of the request.
+* @params: (table) parameters of the request.
+* @callback: (function) The function to be called after request is complete.
+* @userdata: [optional] User data to be passed to the @callback.
+* @return: Nothing.;
+*/
+static int
+grl_l_request (lua_State *L)
+{
+  g_autoptr(RestProxy) rest_proxy = NULL;
+  g_autoptr(RestProxyCall) proxy_call = NULL;
+  RequestOperation *request_op;
+  OperationSpec *os;
+  const char *url = NULL;
+  const char *method = NULL;
+  int lua_userdata;
+  int lua_callback;
+
+  luaL_argcheck (L, lua_isstring (L, 1), 1,
+                 "expecting url as string");
+  luaL_argcheck (L, lua_isstring (L, 2), 2,
+                 "expecting 'GET' or 'POST' as string");
+  luaL_argcheck (L, lua_istable (L, 3), 3,
+                 "expecting the header table");
+  luaL_argcheck (L, lua_istable (L, 4), 4,
+                 "expecting the parameters table");
+  luaL_argcheck (L, lua_isfunction (L, 5), 5,
+                 "expecting callback function");
+
+  os = grl_lua_operations_get_current_op (L);
+  if (os == NULL) {
+    luaL_error (L, "grl.request() failed: Can't retrieve current operation. "
+                   "Source is broken as grl.callback() has been called but source "
+                   "is still active");
+    return 0;
+  }
+
+  /* keep arguments aligned */
+  if (lua_isfunction (L, 2)) {
+    lua_pushnil (L);
+    lua_insert (L, 2);
+  }
+
+  if (lua_gettop (L) > 6)
+    luaL_error (L, "too many arguments to 'request' function");
+
+  /* add nil if userdata is omitted */
+  lua_settop (L, 6);
+
+  /* pop the userdata and store it in registry */
+  lua_userdata = luaL_ref (L, LUA_REGISTRYINDEX);
+  /* pop the callback and store it in registry */
+  lua_callback = luaL_ref (L, LUA_REGISTRYINDEX);
+
+  url = lua_tolstring (L, 1, NULL);
+  method = lua_tolstring (L, 2, NULL);
+
+  rest_proxy = rest_proxy_new (url, FALSE);
+
+  // special key to determine if we use our ProxyCall or the default
+  if (lua_getfield(L, 4, "grl-json") != LUA_TNIL) {
+    proxy_call = lua_rest_proxy_call_new (rest_proxy);
+    lua_pop(L, 1);
+  } else {
+    proxy_call = rest_proxy_new_call (rest_proxy);
+  }
+
+  rest_proxy_call_set_method (proxy_call, method);
+  grl_l_request_set_headers(L, proxy_call, 3);
+  grl_l_request_set_params(L, proxy_call, 4);
+
+  request_op = g_new0 (RequestOperation, 1);
+  request_op->L = L;
+  request_op->lua_userdata = lua_userdata;
+  request_op->lua_callback = lua_callback;
+  request_op->cancellable = g_object_ref (os->cancellable);
+  request_op->os = os;
+
+  rest_proxy_call_invoke_async (proxy_call, os->cancellable, grl_util_request_done_cb, request_op);
+
+  /* Set the state as wating for this async operation */
+  grl_lua_operations_set_source_state (L, LUA_SOURCE_WAITING, os);
+
+  return 0;
+}
+
 /**
 * grl.callback
 *
@@ -1808,6 +1989,7 @@ luaopen_grilo (lua_State *L)
     {"get_media_keys", &grl_l_media_get_keys},
     {"callback", &grl_l_callback},
     {"fetch", &grl_l_fetch},
+    {"request", &grl_l_request},
     {"debug", &grl_l_debug},
     {"warning", &grl_l_warning},
     {"dgettext", &grl_l_dgettext},

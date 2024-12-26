@@ -91,6 +91,7 @@ else
   libdmapsharing_dep = libdmapsharing4_dep
 endif
 
+librest_dep = dependency('rest-1.0', required: false)
 libxml_dep = dependency('libxml-2.0', required: false)
 oauth_dep = dependency('oauth', required: false)
 sqlite3_dep = dependency('sqlite3', required: false)
@@ -148,7 +149,7 @@ plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['freebox', [grilo_pls_dep, avahi_client_dep, avahi_glib_dep, avahi_gobject_dep], []],
     ['gravatar', [], []],
     ['local-metadata', [gio_dep, libmediaart_dep], []],
-    ['lua-factory', [lua_dep, libarchive_dep, grilo_net_dep, json_glib_dep, libxml_dep], [goa_dep, totem_plparser_mini_dep]],
+    ['lua-factory', [lua_dep, libarchive_dep, grilo_net_dep, json_glib_dep, libxml_dep, librest_dep], [goa_dep, totem_plparser_mini_dep]],
     ['magnatune', [sqlite3_dep, grilo_net_dep], []],
     ['metadata-store', [sqlite3_dep], []],
     ['opensubtitles', [gio_dep, libsoup24_dep], []],

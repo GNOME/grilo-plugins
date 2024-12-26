@@ -23,6 +23,8 @@ lua_library_sources = [
     'lua-library/lua-json.c',
     'lua-library/lua-xml.c',
     'lua-library/lua-libraries.h',
+    'lua-library/lua-proxy-call.h',
+    'lua-library/lua-proxy-call.c',
     'lua-library/htmlentity.h',
 ]
 

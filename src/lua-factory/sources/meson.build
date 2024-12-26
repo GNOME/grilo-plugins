@@ -12,6 +12,7 @@ sources = [
     'grl-itunes-podcast',
     'grl-lastfm-cover',
     'grl-musicbrainz-coverart',
+    'grl-opensubtitles',
     'grl-radiofrance',
     'grl-steam-store',
     'grl-theaudiodb-cover',

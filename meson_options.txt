@@ -11,7 +11,6 @@ option('enable-local-metadata', type: 'combo', choices: [ 'auto', 'yes', 'no' ],
 option('enable-lua-factory', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'yes', description: 'Enable Lua Factory plugin')
 option('enable-magnatune', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Magnatune plugin')
 option('enable-metadata-store', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Metadata Store plugin')
-option('enable-opensubtitles', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Opensubtitles plugin')
 option('enable-optical-media', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Optical Media plugin')
 option('enable-podcasts', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Podcasts plugin')
 option('enable-shoutcast', type: 'combo', choices: [ 'auto', 'yes', 'no' ], value: 'auto', description: 'Enable Shoutcast plugin')

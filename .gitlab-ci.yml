@@ -67,7 +67,6 @@ build_stable:
       -Denable-lua-factory=yes
       -Denable-magnatune=yes
       -Denable-metadata-store=yes
-      -Denable-opensubtitles=yes
       -Denable-optical-media=yes
       -Denable-podcasts=yes
       -Denable-shoutcast=yes
@@ -110,7 +109,6 @@ build_soup3:
       -Denable-lua-factory=yes
       -Denable-magnatune=yes
       -Denable-metadata-store=yes
-      -Denable-opensubtitles=no
       -Denable-optical-media=yes
       -Denable-podcasts=yes
       -Denable-shoutcast=yes

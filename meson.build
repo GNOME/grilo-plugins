@@ -152,7 +152,6 @@ plugins = [ # NAME, REQ_DEPS, OPT_DEPS
     ['lua-factory', [lua_dep, libarchive_dep, grilo_net_dep, json_glib_dep, libxml_dep, librest_dep], [goa_dep, totem_plparser_mini_dep]],
     ['magnatune', [sqlite3_dep, grilo_net_dep], []],
     ['metadata-store', [sqlite3_dep], []],
-    ['opensubtitles', [gio_dep, libsoup24_dep], []],
     ['optical-media', [totem_plparser_dep], []],
     ['podcasts', [grilo_net_dep, libxml_dep, sqlite3_dep, totem_plparser_dep], []],
     ['shoutcast', [grilo_net_dep, libxml_dep], []],

@@ -429,7 +429,10 @@ grl_util_add_key(lua_State *L,
     } else {
       gboolean success = grl_util_init_value (L, &value, key_name);
       if (success) {
-	success = grl_data_set_for_id (GRL_DATA (object), key_name, &value);
+        if (is_media)
+          success = grl_data_set_for_id (GRL_DATA (object), key_name, &value);
+        else if (GRL_IS_RELATED_KEYS (object))
+          success = grl_related_keys_set_for_id (GRL_RELATED_KEYS (object), key_name, &value);
 	g_value_unset (&value);
       }
       if (!success)

@@ -1,3 +1,65 @@
+NEW in grilo-plugins-0.3.17
+===========================
+  * !138 filesystem: Fix is-hidden warning browsing filesystem entries
+  * !140 Fix build with libxml 2.12
+  * Replace defunct mailing list URLs with GNOME Discourse
+  * !145 ci: Disable tracker3 and dmap plugins
+  * !146 dleyna: Quiet error when dleyna is not installed
+  * !147 dleyna: Fix "Quiet error when dleyna is not installed"
+  * !144 filesystem: Add ability to split sources
+  * !143 tests: Adapt to tracker-test-sandbox utility changes
+  * !148 Remove non-working plugins (appletrailers, raitv)
+  * !157 euronews: Remove source
+  * !151 plugins: add IPTV source
+  * !152 iptv: improve iptv source
+  * !154 iptv: fix typo in the path of the icon
+  * !153 plugins: Add OpenSubtitles in Lua
+  * Fix release CI
+  * tests: Fix tracker3 test duration range
+  * ci: Use soup3 by default
+
+  * Added translations
+    * Persian
+    * Thai
+    * Kabyle
+    * Hindi
+
+  * Added translations in help
+    * Russian
+
+  * Updated translations
+    * Georgian
+    * Turkish
+    * Esperanto
+    * Georgian
+    * Latvian
+    * French
+    * Greek
+    * English (GB)
+
+  * Contributors to this release
+    Aefgh Threenine <aefgh39622@gmail.com>
+    Aleksandr Melman <alexmelman88@gmail.com>
+    Andre Klapper <a9016009@gmx.de>
+    AsciiWolf <mail@asciiwolf.com>
+    Bastien Nocera <hadess@hadess.net>
+    Bruce Cowan <bruce@bcowan.me.uk>
+    Carlos Garnacho <carlosg@gnome.org>
+    Danial Behzadi <dani.behzi@ubuntu.com>
+    Efstathios Iosifidis <eiosifidis@gnome.org>
+    Ekaterine Papava <papava.e@gtu.ge>
+    Guillaume Bernard <associations@guillaume-bernard.fr>
+    Guntupalli Karunakar <karunakar@indlinux.org>
+    Irénée THIRION <irenee.thirion@e.email>
+    Jan Tojnar <jtojnar@gmail.com>
+    Krifa75 <yahiaoui.fakhri@gmail.com>
+    Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>
+    Nathan Follens <nfollens@gnome.org>
+    Rachida SACI <rgebbid@gmail.com>
+    Rūdolfs Mazurs <alta.liepa@gmail.com>
+    Sabri Ünal <libreajans@gmail.com>
+    Scrambled 777 <weblate.scrambled777@simplelogin.com>
+
 NEW in grilo-plugins-0.3.16
 ===========================
   * !132 tracker3: update fts query

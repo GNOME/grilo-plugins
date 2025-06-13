@@ -66,6 +66,49 @@ build-stable:
   before_script:
     - dnf update -y --nogpgcheck
   script:
+    - dnf install -y --nogpgcheck --exclude=libsoup-devel $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP3
+    # As part of configuring grilo-plugins.git for build, the latest code from
+    # grilo.git will be fetched by Meson and it will be built as a subproject.
+    - meson . "${MESON_BUILD_DIR}" --prefix=/usr
+      -Denable-bookmarks=yes
+      -Denable-chromaprint=yes
+      -Denable-dleyna=yes
+      -Denable-dmap=yes
+      -Denable-filesystem=yes
+      -Denable-flickr=yes
+      -Denable-freebox=yes
+      -Denable-gravatar=yes
+      -Denable-local-metadata=yes
+      -Denable-lua-factory=yes
+      -Denable-magnatune=yes
+      -Denable-metadata-store=yes
+      -Denable-optical-media=yes
+      -Denable-podcasts=yes
+      -Denable-shoutcast=yes
+      -Denable-thetvdb=yes
+      -Denable-tmdb=yes
+      -Denable-tracker3=yes
+      -Denable-youtube=no
+    - ninja -C "${MESON_BUILD_DIR}"
+    - ninja -C "${MESON_BUILD_DIR}" install
+    # Start a system bus for upower
+    - mkdir -p /run/dbus
+    - mkdir -p /var
+    - ln -s /var/run /run
+    - dbus-daemon --system --fork
+    - /usr/libexec/upowerd &
+    - LANG=C.UTF-8 dbus-run-session meson test -C "${MESON_BUILD_DIR}" --suite=grilo-plugins
+  artifacts:
+    name: meson-logs
+    when: on_failure
+    paths:
+      - "${MESON_BUILD_DIR}/meson-logs"
+
+build-soup2:
+  stage: "build"
+  before_script:
+    - dnf update -y --nogpgcheck
+  script:
     - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP2
     # As part of configuring grilo-plugins.git for build, the latest code from
     # grilo.git will be fetched by Meson and it will be built as a subproject.
@@ -104,56 +147,13 @@ build-stable:
     paths:
       - "${MESON_BUILD_DIR}/meson-logs"
 
-build-soup3:
-  stage: "build"
-  before_script:
-    - dnf update -y --nogpgcheck
-  script:
-    - dnf install -y --nogpgcheck --exclude=libsoup-devel $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP3
-    # As part of configuring grilo-plugins.git for build, the latest code from
-    # grilo.git will be fetched by Meson and it will be built as a subproject.
-    - meson . "${MESON_BUILD_DIR}" --prefix=/usr -Dgrilo:soup3=true
-      -Denable-bookmarks=yes
-      -Denable-chromaprint=yes
-      -Denable-dleyna=yes
-      -Denable-dmap=yes
-      -Denable-filesystem=yes
-      -Denable-flickr=yes
-      -Denable-freebox=yes
-      -Denable-gravatar=yes
-      -Denable-local-metadata=yes
-      -Denable-lua-factory=yes
-      -Denable-magnatune=yes
-      -Denable-metadata-store=yes
-      -Denable-optical-media=yes
-      -Denable-podcasts=yes
-      -Denable-shoutcast=yes
-      -Denable-thetvdb=yes
-      -Denable-tmdb=yes
-      -Denable-tracker3=yes
-      -Denable-youtube=no
-    - ninja -C "${MESON_BUILD_DIR}"
-    - ninja -C "${MESON_BUILD_DIR}" install
-    # Start a system bus for upower
-    - mkdir -p /run/dbus
-    - mkdir -p /var
-    - ln -s /var/run /run
-    - dbus-daemon --system --fork
-    - /usr/libexec/upowerd &
-    - LANG=C.UTF-8 dbus-run-session meson test -C "${MESON_BUILD_DIR}" --suite=grilo-plugins
-  artifacts:
-    name: meson-logs
-    when: on_failure
-    paths:
-      - "${MESON_BUILD_DIR}/meson-logs"
-
 build-release-tarball:
   stage: "build"
   before_script:
     - dnf update -y --nogpgcheck
   script:
-    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP2
-    - meson setup "${MESON_BUILD_DIR}" -Dgrilo:soup3=false
+    - dnf install -y --nogpgcheck --exclude=libsoup-devel $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP3
+    - meson setup "${MESON_BUILD_DIR}"
     - meson dist -C "${MESON_BUILD_DIR}" --include-subprojects
   artifacts:
     name: "${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"

@@ -448,7 +448,7 @@ test_search_range_filter (void)
   options = grl_operation_options_new (NULL);
   grl_operation_options_set_key_range_filter (options,
                                               GRL_METADATA_KEY_DURATION,
-                                              5, 12, NULL);
+                                              5, 13, NULL);
 
   elements = grl_source_search_sync (source,
                                      NULL,

@@ -87,7 +87,7 @@ build-stable:
       -Denable-shoutcast=yes
       -Denable-thetvdb=yes
       -Denable-tmdb=yes
-      -Denable-tracker3=no
+      -Denable-tracker3=yes
       -Denable-youtube=yes
     - ninja -C "${MESON_BUILD_DIR}"
     - ninja -C "${MESON_BUILD_DIR}" install
@@ -130,7 +130,7 @@ build-soup3:
       -Denable-shoutcast=yes
       -Denable-thetvdb=yes
       -Denable-tmdb=yes
-      -Denable-tracker3=no
+      -Denable-tracker3=yes
       -Denable-youtube=no
     - ninja -C "${MESON_BUILD_DIR}"
     - ninja -C "${MESON_BUILD_DIR}" install

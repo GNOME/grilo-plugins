@@ -1,5 +1,16 @@
 image: fedora:latest
 
+include:
+  - component: "gitlab.gnome.org/GNOME/citemplates/release-service@master"
+    inputs:
+      job-stage: "release"
+      dist-job-name: "build-release-tarball"
+      tarball-artifact-path: "${TARBALL_ARTIFACT_PATH}"
+
+stages:
+  - "build"
+  - "release"
+
 variables:
   DEPENDENCIES_GRILO:
     gobject-introspection-devel
@@ -47,14 +58,18 @@ variables:
     tracker-devel
     upower
 
-build_stable:
+  MESON_BUILD_DIR: "_build"
+  TARBALL_ARTIFACT_PATH: "${MESON_BUILD_DIR}/meson-dist/${CI_COMMIT_TAG}.tar.xz"
+
+build-stable:
+  stage: "build"
   before_script:
     - dnf update -y --nogpgcheck
   script:
     - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP2
     # As part of configuring grilo-plugins.git for build, the latest code from
     # grilo.git will be fetched by Meson and it will be built as a subproject.
-    - meson . _build --prefix=/usr -Dgrilo:soup3=false
+    - meson . "${MESON_BUILD_DIR}" --prefix=/usr -Dgrilo:soup3=false
       -Denable-bookmarks=yes
       -Denable-chromaprint=yes
       -Denable-dleyna=yes
@@ -74,29 +89,30 @@ build_stable:
       -Denable-tmdb=yes
       -Denable-tracker3=no
       -Denable-youtube=yes
-    - ninja -C _build
-    - ninja -C _build install
+    - ninja -C "${MESON_BUILD_DIR}"
+    - ninja -C "${MESON_BUILD_DIR}" install
     # Start a system bus for upower
     - mkdir -p /run/dbus
     - mkdir -p /var
     - ln -s /var/run /run
     - dbus-daemon --system --fork
     - /usr/libexec/upowerd &
-    - LANG=C.UTF-8 dbus-run-session meson test -C _build --suite=grilo-plugins
+    - LANG=C.UTF-8 dbus-run-session meson test -C "${MESON_BUILD_DIR}" --suite=grilo-plugins
   artifacts:
     name: meson-logs
     when: on_failure
     paths:
-      - _build/meson-logs
+      - "${MESON_BUILD_DIR}/meson-logs"
 
-build_soup3:
+build-soup3:
+  stage: "build"
   before_script:
     - dnf update -y --nogpgcheck
   script:
     - dnf install -y --nogpgcheck --exclude=libsoup-devel $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP3
     # As part of configuring grilo-plugins.git for build, the latest code from
     # grilo.git will be fetched by Meson and it will be built as a subproject.
-    - meson . _build --prefix=/usr -Dgrilo:soup3=true
+    - meson . "${MESON_BUILD_DIR}" --prefix=/usr -Dgrilo:soup3=true
       -Denable-bookmarks=yes
       -Denable-chromaprint=yes
       -Denable-dleyna=yes
@@ -116,17 +132,31 @@ build_soup3:
       -Denable-tmdb=yes
       -Denable-tracker3=no
       -Denable-youtube=no
-    - ninja -C _build
-    - ninja -C _build install
+    - ninja -C "${MESON_BUILD_DIR}"
+    - ninja -C "${MESON_BUILD_DIR}" install
     # Start a system bus for upower
     - mkdir -p /run/dbus
     - mkdir -p /var
     - ln -s /var/run /run
     - dbus-daemon --system --fork
     - /usr/libexec/upowerd &
-    - LANG=C.UTF-8 dbus-run-session meson test -C _build --suite=grilo-plugins
+    - LANG=C.UTF-8 dbus-run-session meson test -C "${MESON_BUILD_DIR}" --suite=grilo-plugins
   artifacts:
     name: meson-logs
     when: on_failure
     paths:
-      - _build/meson-logs
+      - "${MESON_BUILD_DIR}/meson-logs"
+
+build-release-tarball:
+  stage: "build"
+  before_script:
+    - dnf update -y --nogpgcheck
+  script:
+    - dnf install -y --nogpgcheck $DEPENDENCIES_GRILO $DEPENDENCIES $DEPENDENCY_GRILO_SOUP2
+    - meson setup "${MESON_BUILD_DIR}" -Dgrilo:soup3=false
+    - meson dist -C "${MESON_BUILD_DIR}" --include-subprojects
+  artifacts:
+    name: "${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
+    when: "always"
+    paths:
+      - "${TARBALL_ARTIFACT_PATH}"

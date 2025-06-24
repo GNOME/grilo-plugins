@@ -1,3 +1,10 @@
+NEW in grilo-plugins-0.3.18
+===========================
+  * !159 po: Remove reference to removed opensubtitles plugin
+
+  * Contributors to this release
+    Bastien Nocera <hadess@hadess.net>
+
 NEW in grilo-plugins-0.3.17
 ===========================
   * !138 filesystem: Fix is-hidden warning browsing filesystem entries

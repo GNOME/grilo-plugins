@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
 "POT-Creation-Date: 2020-08-24 15:08+0000\n"
-"PO-Revision-Date: 2017-09-01 18:10+0200\n"
+"PO-Revision-Date: 2025-08-23 18:10+0200\n"
 "Last-Translator: Gil Forcada <gilforcada@guifi.net>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "Language: ca\n"
@@ -34,7 +34,7 @@ msgstr "No s'han pogut obtenir les metadades de l'adreça d'interès"
 #: src/bookmarks/grl-bookmarks.c:457 src/bookmarks/grl-bookmarks.c:474
 #, c-format
 msgid "Failed to find bookmarks: %s"
-msgstr "No s'han pogut trobar les d'adreces d'interès: %s"
+msgstr "No s'han pogut trobar les adreces d'interès: %s"
 
 #: src/bookmarks/grl-bookmarks.c:626 src/podcasts/grl-podcasts.c:823
 #: src/podcasts/grl-podcasts.c:855 src/podcasts/grl-podcasts.c:887
@@ -175,7 +175,7 @@ msgstr "Proveïdor d'avatars del Gravatar"
 
 #: src/gravatar/grl-gravatar.c:47
 msgid "A plugin to get avatars for artist and author fields"
-msgstr "Un proveïdor per a obtenir avatars pels camps d'artista i d'autor"
+msgstr "Un connector per a obtenir avatars pels camps d'artista i d'autor"
 
 #: src/jamendo/grl-jamendo.c:91
 msgid "A source for browsing and searching Jamendo music"

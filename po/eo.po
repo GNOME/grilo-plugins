@@ -1,14 +1,14 @@
 # Esperanto translation for grilo-plugins.
 # Copyright (C) 2013 Free Software Foundation, Inc.
 # This file is distributed under the same license as the grilo-plugins package.
-# Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>, 2013-2023.
+# Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>, 2013-2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2022-07-18 11:45+0000\n"
-"PO-Revision-Date: 2023-09-20 00:19+0200\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues/\n"
+"POT-Creation-Date: 2025-09-10 20:10+0000\n"
+"PO-Revision-Date: 2025-09-20 00:08+0200\n"
 "Last-Translator: Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>\n"
 "Language-Team: Esperanto <gnome-eo-list@gnome.org>\n"
 "Language: eo\n"
@@ -16,16 +16,16 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"X-Generator: Gtranslator 42.0\n"
+"X-Generator: Gtranslator 48.0\n"
 "X-Project-Style: gnome\n"
 
 #: src/bookmarks/grl-bookmarks.c:60
 msgid "Bookmarks"
-msgstr "Preferaĵoj"
+msgstr "Legosignoj"
 
 #: src/bookmarks/grl-bookmarks.c:61
 msgid "A source for organizing media bookmarks"
-msgstr "Fonto por organizi amaskomunikilajn legosignojn"
+msgstr "Fonto por organizi legosignojn de enhavo"
 
 #: src/bookmarks/grl-bookmarks.c:427
 msgid "Failed to get bookmark metadata"
@@ -83,7 +83,7 @@ msgstr "Malsukcesis retrovi erojn (BrowseObjects-eraro %d: %s)"
 #, c-format
 msgid "Upload failed, URL missing on the media object to be transferred"
 msgstr ""
-"Alŝuto malsukcesis, URL mankas sur la amaskomunikila objekto transdonota"
+"Alŝuto malsukcesis, URL mankas ĉe la enhavobjekto transdonota"
 
 #: src/dmap/grl-daap.c:51
 #, c-format
@@ -120,28 +120,28 @@ msgstr "Dosiersistemo"
 msgid "A source for browsing the filesystem"
 msgstr "Fonto por foliumi la dosiersistemon"
 
-#: src/filesystem/grl-filesystem.c:1171
+#: src/filesystem/grl-filesystem.c:1216
 #, c-format
 msgid "File %s does not exist"
 msgstr "Dosiero %s ne ekzistas"
 
-#: src/filesystem/grl-filesystem.c:1249 src/youtube/grl-youtube.c:1469
-#, fuzzy, c-format
+#: src/filesystem/grl-filesystem.c:1294 src/youtube/grl-youtube.c:1469
+#, c-format
 msgid "Cannot get media from %s"
-msgstr "Ne povas ricevi ludaĵon de %s"
+msgstr "Ne eblas akiri enhavon el %s"
 
-#: src/flickr/grl-flickr.c:58
+#: src/flickr/grl-flickr.c:53
 msgid "A source for browsing and searching Flickr photos"
 msgstr "Fonto por foliumi kaj serĉi fotaĵojn de Flickr"
 
 #. "%s" is a full user name, like "John Doe"
-#: src/flickr/grl-flickr.c:62
+#: src/flickr/grl-flickr.c:57
 #, c-format
 msgid "%s’s Flickr"
 msgstr "Flickr de %s"
 
 #. "%s" is a full user name, like "John Doe"
-#: src/flickr/grl-flickr.c:64
+#: src/flickr/grl-flickr.c:59
 #, c-format
 msgid "A source for browsing and searching %s’s flickr photos"
 msgstr "Fonto por foliumi kaj serĉi fotaĵojn de %s ĉe Flickr"
@@ -179,7 +179,7 @@ msgid "A source providing locally available metadata"
 msgstr "Fonto provizanta loke haveblajn metadatenojn"
 
 #: src/local-metadata/grl-local-metadata.c:381
-#: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/metadata-store/grl-metadata-store.c:784
 #: src/tracker3/grl-tracker-source-api.c:375
 #: src/tracker3/grl-tracker-source-api.c:410
 #: src/tracker/grl-tracker-source-api.c:530
@@ -216,12 +216,12 @@ msgstr "Malsukcesis konservi datumbazon de Magnatune: “%s”"
 #: src/magnatune/grl-magnatune.c:722
 #, c-format
 msgid "Failed to get table from magnatune db: %s"
-msgstr "Malsukcesita akiri tabelon de Magnatune: %s"
+msgstr "Malsukcesis akiri tabelon de la datumbazo Magnatune: %s"
 
 #: src/magnatune/grl-magnatune.c:738
 #, c-format
 msgid "Fail before returning media to user: %s"
-msgstr ""
+msgstr "Malsukceso antaŭ livero de enhavo al uzanto: %s"
 
 #: src/metadata-store/grl-metadata-store.c:40
 msgid "Metadata Store"
@@ -258,27 +258,19 @@ msgid "Failed to resolve"
 msgstr "Malsukcesis solvi"
 
 #: src/metadata-store/grl-metadata-store.c:942
-#: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
+#: src/metadata-store/grl-metadata-store.c:979
 #: src/shoutcast/grl-shoutcast.c:749
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Malsukcesis serĉi: %s"
 
-#: src/opensubtitles/grl-opensubtitles.c:40
-msgid "OpenSubtitles Provider"
-msgstr "Provizanto de OpenSubtitles"
-
-#: src/opensubtitles/grl-opensubtitles.c:41
-msgid "A source providing a list of subtitles for a video"
-msgstr "Fonto provizanta liston de subtekstoj por video"
-
 #: src/optical-media/grl-optical-media.c:44
 msgid "Optical Media"
-msgstr ""
+msgstr "Optika datumportilo"
 
 #: src/optical-media/grl-optical-media.c:45
 msgid "A source for browsing optical media"
-msgstr ""
+msgstr "Fonto por foliumi optikajn datumportilojn"
 
 #: src/podcasts/grl-podcasts.c:148
 msgid "A source for browsing podcasts"
@@ -327,111 +319,6 @@ msgstr "Ne povas krei ujojn. Nur fluoj estas akceptitaj"
 msgid "URL required"
 msgstr "URL necesa"
 
-#: src/raitv/grl-raitv.c:49
-msgid "Most Popular"
-msgstr "Plej populara"
-
-#: src/raitv/grl-raitv.c:52
-msgid "Recent"
-msgstr "Lasttempaj"
-
-#: src/raitv/grl-raitv.c:93
-msgid "A source for browsing and searching Rai.tv videos"
-msgstr "Fonto por foliumi kaj serĉi videojn de Rai.tv"
-
-#: src/raitv/grl-raitv.c:164
-msgid "All"
-msgstr "Ĉiuj"
-
-#: src/raitv/grl-raitv.c:165
-msgid "Black and White"
-msgstr "Nigra kaj blanka"
-
-#: src/raitv/grl-raitv.c:166
-msgid "Cinema"
-msgstr "Kinejo"
-
-#: src/raitv/grl-raitv.c:167
-msgid "Comedians"
-msgstr "Komediistoj"
-
-#: src/raitv/grl-raitv.c:168
-msgid "Chronicle"
-msgstr "Kroniko"
-
-#: src/raitv/grl-raitv.c:169
-msgid "Culture"
-msgstr "Kulturo"
-
-#: src/raitv/grl-raitv.c:170
-msgid "Economy"
-msgstr "Ekonomio"
-
-#: src/raitv/grl-raitv.c:171
-msgid "Fiction"
-msgstr "Fikcio"
-
-#: src/raitv/grl-raitv.c:172
-msgid "Junior"
-msgstr "Junulo"
-
-#: src/raitv/grl-raitv.c:173
-msgid "Investigations"
-msgstr "Esploroj"
-
-#: src/raitv/grl-raitv.c:174
-msgid "Interviews"
-msgstr "Intervjuoj"
-
-#: src/raitv/grl-raitv.c:175
-msgid "Music"
-msgstr "Muziko"
-
-#: src/raitv/grl-raitv.c:176
-msgid "News"
-msgstr "Novaĵoj"
-
-#: src/raitv/grl-raitv.c:177
-msgid "Health"
-msgstr "Sano"
-
-#: src/raitv/grl-raitv.c:178
-msgid "Satire"
-msgstr "Satiro"
-
-#: src/raitv/grl-raitv.c:180
-msgid "Society"
-msgstr "Socio"
-
-#: src/raitv/grl-raitv.c:181
-msgid "Show"
-msgstr "Montri"
-
-#: src/raitv/grl-raitv.c:182
-msgid "Sport"
-msgstr "Sporto"
-
-#: src/raitv/grl-raitv.c:183
-msgid "History"
-msgstr "Historio"
-
-#: src/raitv/grl-raitv.c:184
-msgid "Politics"
-msgstr "Politikoj"
-
-#: src/raitv/grl-raitv.c:185
-msgid "Leisure"
-msgstr "Libertempo"
-
-#: src/raitv/grl-raitv.c:186
-msgid "Travel"
-msgstr "Vojaĝo"
-
-#: src/raitv/grl-raitv.c:616
-#, c-format
-msgid "Failed to browse: %s"
-msgstr "Malsukcesis foliumi: %s"
-
 #: src/shoutcast/grl-shoutcast.c:60
 msgid "A source for browsing SHOUTcast radios"
 msgstr "Fonto por foliumi SHOUTcast-radiojn"
@@ -441,9 +328,9 @@ msgid "Failed to parse response"
 msgstr "Malsukcesis analizi respondon"
 
 #: src/shoutcast/grl-shoutcast.c:455
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot find media %s"
-msgstr "Ne povas trovi ludaĵon %s"
+msgstr "Ne eblas trovi enhavon %s"
 
 #: src/shoutcast/grl-shoutcast.c:551
 #, c-format
@@ -479,7 +366,7 @@ msgstr "Malsukcesis pridemandi: %s"
 #: src/tracker/grl-tracker-source-api.c:585
 #, c-format
 msgid "Failed to get media from uri: %s"
-msgstr "Malsukcesis ricevi amaskomunikilaron de URI: %s"
+msgstr "Malsukcesis ricevi enhavon el URI: %s"
 
 #: src/tracker3/grl-tracker-source-api.c:605
 #: src/tracker/grl-tracker-source-api.c:816
@@ -531,6 +418,91 @@ msgstr "Nevalida fluo-identigilo %s"
 #, c-format
 msgid "Invalid category identifier %s"
 msgstr "Nevalida kategorio-identigilo %s"
+
+#~ msgid "OpenSubtitles Provider"
+#~ msgstr "Provizanto de OpenSubtitles"
+
+#~ msgid "A source providing a list of subtitles for a video"
+#~ msgstr "Fonto provizanta liston de subtekstoj por video"
+
+#~ msgid "Most Popular"
+#~ msgstr "Plej populara"
+
+#~ msgid "Recent"
+#~ msgstr "Lasttempaj"
+
+#~ msgid "A source for browsing and searching Rai.tv videos"
+#~ msgstr "Fonto por foliumi kaj serĉi videojn de Rai.tv"
+
+#~ msgid "All"
+#~ msgstr "Ĉiuj"
+
+#~ msgid "Black and White"
+#~ msgstr "Nigra kaj blanka"
+
+#~ msgid "Cinema"
+#~ msgstr "Kinejo"
+
+#~ msgid "Comedians"
+#~ msgstr "Komediistoj"
+
+#~ msgid "Chronicle"
+#~ msgstr "Kroniko"
+
+#~ msgid "Culture"
+#~ msgstr "Kulturo"
+
+#~ msgid "Economy"
+#~ msgstr "Ekonomio"
+
+#~ msgid "Fiction"
+#~ msgstr "Fikcio"
+
+#~ msgid "Junior"
+#~ msgstr "Junulo"
+
+#~ msgid "Investigations"
+#~ msgstr "Esploroj"
+
+#~ msgid "Interviews"
+#~ msgstr "Intervjuoj"
+
+#~ msgid "Music"
+#~ msgstr "Muziko"
+
+#~ msgid "News"
+#~ msgstr "Novaĵoj"
+
+#~ msgid "Health"
+#~ msgstr "Sano"
+
+#~ msgid "Satire"
+#~ msgstr "Satiro"
+
+#~ msgid "Society"
+#~ msgstr "Socio"
+
+#~ msgid "Show"
+#~ msgstr "Montri"
+
+#~ msgid "Sport"
+#~ msgstr "Sporto"
+
+#~ msgid "History"
+#~ msgstr "Historio"
+
+#~ msgid "Politics"
+#~ msgstr "Politikoj"
+
+#~ msgid "Leisure"
+#~ msgstr "Libertempo"
+
+#~ msgid "Travel"
+#~ msgstr "Vojaĝo"
+
+#, c-format
+#~ msgid "Failed to browse: %s"
+#~ msgstr "Malsukcesis foliumi: %s"
 
 #~ msgid "A source for browsing and searching Blip.tv videos"
 #~ msgstr "Fonto por foliumi kaj serĉi videojn de Blip.tv"

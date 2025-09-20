@@ -10,8 +10,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: grilo-plugins master\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues\n"
-"POT-Creation-Date: 2023-08-08 10:46+0000\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/grilo-plugins/issues/\n"
+"POT-Creation-Date: 2025-09-10 20:10+0000\n"
 "PO-Revision-Date: 2024-02-12 19:17+0300\n"
 "Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
 "Language-Team: Türkçe <takim@gnome.org.tr>\n"
@@ -123,12 +123,12 @@ msgstr "Dosya Sistemi"
 msgid "A source for browsing the filesystem"
 msgstr "Dosya sistemini taramak için kaynak"
 
-#: src/filesystem/grl-filesystem.c:1172
+#: src/filesystem/grl-filesystem.c:1216
 #, c-format
 msgid "File %s does not exist"
 msgstr "%s dosyası yok"
 
-#: src/filesystem/grl-filesystem.c:1250 src/youtube/grl-youtube.c:1469
+#: src/filesystem/grl-filesystem.c:1294 src/youtube/grl-youtube.c:1469
 #, c-format
 msgid "Cannot get media from %s"
 msgstr "%s üzerinde ortam alınamıyor"
@@ -182,7 +182,7 @@ msgid "A source providing locally available metadata"
 msgstr "Yerel olarak kullanılabilir üst veriyi sağlayan kaynak"
 
 #: src/local-metadata/grl-local-metadata.c:381
-#: src/metadata-store/grl-metadata-store.c:784 src/raitv/grl-raitv.c:869
+#: src/metadata-store/grl-metadata-store.c:784
 #: src/tracker3/grl-tracker-source-api.c:375
 #: src/tracker3/grl-tracker-source-api.c:410
 #: src/tracker/grl-tracker-source-api.c:530
@@ -261,19 +261,11 @@ msgid "Failed to resolve"
 msgstr "Çözümlenemedi"
 
 #: src/metadata-store/grl-metadata-store.c:942
-#: src/metadata-store/grl-metadata-store.c:979 src/raitv/grl-raitv.c:423
+#: src/metadata-store/grl-metadata-store.c:979
 #: src/shoutcast/grl-shoutcast.c:749
 #, c-format
 msgid "Failed to search: %s"
 msgstr "Aranamadı: %s"
-
-#: src/opensubtitles/grl-opensubtitles.c:40
-msgid "OpenSubtitles Provider"
-msgstr "OpenSubtitles Sağlayıcı"
-
-#: src/opensubtitles/grl-opensubtitles.c:41
-msgid "A source providing a list of subtitles for a video"
-msgstr "Video için alt yazıların listesini sunan kaynak"
 
 #: src/optical-media/grl-optical-media.c:44
 msgid "Optical Media"
@@ -329,111 +321,6 @@ msgstr "Kaplar oluşturulamıyor. Yalnızca beslemeler kabul edildi"
 #: src/podcasts/grl-podcasts.c:1814
 msgid "URL required"
 msgstr "URL gerekli"
-
-#: src/raitv/grl-raitv.c:49
-msgid "Most Popular"
-msgstr "En Gözde"
-
-#: src/raitv/grl-raitv.c:52
-msgid "Recent"
-msgstr "Son Kullanılan"
-
-#: src/raitv/grl-raitv.c:93
-msgid "A source for browsing and searching Rai.tv videos"
-msgstr "Rai.tv videolarını aramak ve taramak için kaynak"
-
-#: src/raitv/grl-raitv.c:164
-msgid "All"
-msgstr "Tümü"
-
-#: src/raitv/grl-raitv.c:165
-msgid "Black and White"
-msgstr "Siyah-Beyaz"
-
-#: src/raitv/grl-raitv.c:166
-msgid "Cinema"
-msgstr "Sinema"
-
-#: src/raitv/grl-raitv.c:167
-msgid "Comedians"
-msgstr "Komedyenler"
-
-#: src/raitv/grl-raitv.c:168
-msgid "Chronicle"
-msgstr "Kronoloji"
-
-#: src/raitv/grl-raitv.c:169
-msgid "Culture"
-msgstr "Kültür"
-
-#: src/raitv/grl-raitv.c:170
-msgid "Economy"
-msgstr "Ekonomi"
-
-#: src/raitv/grl-raitv.c:171
-msgid "Fiction"
-msgstr "Kurgu"
-
-#: src/raitv/grl-raitv.c:172
-msgid "Junior"
-msgstr "Küçük"
-
-#: src/raitv/grl-raitv.c:173
-msgid "Investigations"
-msgstr "İncelemeler"
-
-#: src/raitv/grl-raitv.c:174
-msgid "Interviews"
-msgstr "Röportajlar"
-
-#: src/raitv/grl-raitv.c:175
-msgid "Music"
-msgstr "Müzik"
-
-#: src/raitv/grl-raitv.c:176
-msgid "News"
-msgstr "Haberler"
-
-#: src/raitv/grl-raitv.c:177
-msgid "Health"
-msgstr "Sağlık"
-
-#: src/raitv/grl-raitv.c:178
-msgid "Satire"
-msgstr "Hiciv"
-
-#: src/raitv/grl-raitv.c:180
-msgid "Society"
-msgstr "Toplum"
-
-#: src/raitv/grl-raitv.c:181
-msgid "Show"
-msgstr "Gösteri"
-
-#: src/raitv/grl-raitv.c:182
-msgid "Sport"
-msgstr "Spor"
-
-#: src/raitv/grl-raitv.c:183
-msgid "History"
-msgstr "Tarih"
-
-#: src/raitv/grl-raitv.c:184
-msgid "Politics"
-msgstr "Politika"
-
-#: src/raitv/grl-raitv.c:185
-msgid "Leisure"
-msgstr "Serbest"
-
-#: src/raitv/grl-raitv.c:186
-msgid "Travel"
-msgstr "Seyahat"
-
-#: src/raitv/grl-raitv.c:616
-#, c-format
-msgid "Failed to browse: %s"
-msgstr "Göz atılamadı: %s"
 
 #: src/shoutcast/grl-shoutcast.c:60
 msgid "A source for browsing SHOUTcast radios"

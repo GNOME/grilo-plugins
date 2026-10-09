@@ -12,7 +12,7 @@
   <description>Grilo is a framework focused on making media discovery and browsing easy for application developers.</description>
 
   <homepage
-  rdf:resource="https://wiki.gnome.org/Projects/Grilo" />
+  rdf:resource="https://gitlab.gnome.org/GNOME/grilo-plugins" />
   <developer-forum
   rdf:resource="https://discourse.gnome.org/c/platform/" />
   <download-page

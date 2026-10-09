@@ -10,7 +10,7 @@ It is a collection of plugins for Grilo implementing Grilo's API for various
 multimedia content providers.
 
 ## Where can I find more?
-We have a wiki page at: <https://wiki.gnome.org/Projects/Grilo>
+See <https://gitlab.gnome.org/GNOME/grilo>
 
 You can discuss in the support forum: <https://discourse.gnome.org/c/platform/5>
 
